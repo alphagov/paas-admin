@@ -1,0 +1,7 @@
+---
+applications:
+  - name: paas-admin
+    memory: 256M
+    instances: 2
+    env:
+      RAILS_ENV: production
