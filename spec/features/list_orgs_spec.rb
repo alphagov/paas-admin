@@ -8,7 +8,7 @@ describe "listing orgs" do
     Rails.application
   end
 
-  before do
+  after do
     OmniAuth.config.mock_auth[:cloudfoundry] = nil
   end
 
