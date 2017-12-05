@@ -15,6 +15,7 @@ gem 'omniauth-uaa-oauth2'
 group :development, :test do
   gem 'pry-byebug'
   gem 'rspec-rails'
+  gem 'capybara'
 end
 
 group :development do
