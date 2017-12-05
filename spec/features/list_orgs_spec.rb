@@ -8,26 +8,44 @@ describe "listing orgs" do
     Rails.application
   end
 
-  context "when not authenticated" do
-    it "sends the user to the special omniauth location" do
+  before do
+    OmniAuth.config.mock_auth[:cloudfoundry] = nil
+  end
+
+  context "when authorised to list orgs" do
+    it "greets the user" do
+      token_body = {'foo': 'bar'}
+      token = CF::UAA::TokenCoder.encode(token_body, skey: "ilovesecrets")
+
+      OmniAuth.config.mock_auth[:cloudfoundry] = OmniAuth::AuthHash.new(
+        info: {
+          name: "Bob Fleming",
+        },
+        credentials: {
+          token: token,
+          secret: "deadbeeff33df00d",
+        },
+        provider: 'cloudfoundry',
+        uid: '123456',
+      )
       get '/'
       follow_redirect!
-      expect(last_response.status).to eq(302)
-      actual = last_response.header['Location']
+      follow_redirect!
+      follow_redirect!
 
-      expected = [
-        ENV.fetch('AUTH_SERVER_URL'),
-        '/oauth/authorize',
-        "?client_id=#{ENV.fetch('OAUTH_CLIENT_ID')}",
-        '&response_type=code',
-        "&redirect_uri=#{CGI.escape("http://example.org/auth/cloudfoundry/callback")}",
-        "&state="
-      ].join
-      expect(actual).to start_with(expected)
+      expect(last_response.body).to include("Cool token: #{token}")
     end
   end
 
-  context "when authenticated" do
-    it "displays the user's orgs"
+  context "when not authorised to list orgs" do
+    it "displays an error" do
+      OmniAuth.config.mock_auth[:cloudfoundry] = :not_allowed
+      get '/'
+      follow_redirect!
+      follow_redirect!
+      follow_redirect!
+
+      expect(last_response.body).to include('Unauthorised')
+    end
   end
 end
