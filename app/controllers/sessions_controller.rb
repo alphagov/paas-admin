@@ -1,4 +1,6 @@
 class SessionsController < ApplicationController
+  skip_before_action :require_login
+
   def create
     session[:access_token] = auth_hash.credentials.token
     redirect_to root_url
