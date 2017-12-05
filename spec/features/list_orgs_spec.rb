@@ -4,8 +4,11 @@ require 'capybara/rails'
 describe "listing orgs" do
   include Rack::Test::Methods
 
-  after do
+  around do |example|
+    logger = OmniAuth.config.logger
+    example.run
     OmniAuth.config.mock_auth[:cloudfoundry] = nil
+    OmniAuth.config.logger = logger
   end
 
   context "when authorised to list orgs" do
@@ -31,12 +34,22 @@ describe "listing orgs" do
   end
 
   context "when not authorised to list orgs" do
-    it "displays an error" do
+    let(:null_logger) { double('null logger', error: nil) }
+
+    before do
       OmniAuth.config.mock_auth[:cloudfoundry] = :not_allowed
+      OmniAuth.config.logger = null_logger
+    end
 
+    it "displays an error" do
       visit '/'
-
       expect(page.body).to include('Unauthorised')
+    end
+
+    it "logs" do
+      visit '/'
+      expect(null_logger).to have_received(:error).
+        with("(cloudfoundry) Authentication failure! not_allowed encountered.")
     end
   end
 end
