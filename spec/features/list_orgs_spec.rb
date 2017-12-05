@@ -8,20 +8,22 @@ describe "listing orgs" do
     Rails.application
   end
 
-  def oauth_redirect_url
-    Rails.configuration.x.oauth['redirect_url']
-  end
-
-  it "is configured" do
-    expect(oauth_redirect_url).to be_present
-  end
-
   context "when not authenticated" do
-    it "sends the user to the oauth URL" do
+    it "sends the user to the special omniauth location" do
       get '/'
+      follow_redirect!
       expect(last_response.status).to eq(302)
-      expect(last_response.header['Location']).
-        to eq(oauth_redirect_url)
+      actual = last_response.header['Location']
+
+      expected = [
+        ENV.fetch('AUTH_SERVER_URL'),
+        '/oauth/authorize',
+        "?client_id=#{ENV.fetch('OAUTH_CLIENT_ID')}",
+        '&response_type=code',
+        "&redirect_uri=#{CGI.escape("http://example.org/auth/cloudfoundry/callback")}",
+        "&state="
+      ].join
+      expect(actual).to start_with(expected)
     end
   end
 

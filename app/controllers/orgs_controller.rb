@@ -1,5 +1,5 @@
 class OrgsController < ApplicationController
   def index
-    redirect_to Rails.configuration.x.oauth.redirect_url
+    redirect_to '/auth/cloudfoundry'
   end
 end
