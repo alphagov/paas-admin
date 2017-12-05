@@ -10,7 +10,7 @@ end
 gem 'rails', '~> 5.1.4'
 gem 'puma', '~> 3.7'
 gem 'uglifier', '>= 1.3.0'
-gem 'omniauth-uaa-oauth2'
+gem 'omniauth-uaa-oauth2', github: 'cloudfoundry/omniauth-uaa-oauth2'
 
 group :development, :test do
   gem 'pry-byebug'
