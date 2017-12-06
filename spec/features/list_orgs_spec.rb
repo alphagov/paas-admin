@@ -4,8 +4,11 @@ require 'capybara/rails'
 describe "listing orgs" do
   include Rack::Test::Methods
 
+  let(:client) { Rails.configuration.cf_client }
+
   around do |example|
     logger = OmniAuth.config.logger
+    client.reset!
     example.run
     OmniAuth.config.mock_auth[:cloudfoundry] = nil
     OmniAuth.config.logger = logger
@@ -26,6 +29,8 @@ describe "listing orgs" do
         provider: 'cloudfoundry',
         uid: '123456',
       )
+
+      client.create_org(name: "Fleming Inc.")
 
       visit '/'
 
