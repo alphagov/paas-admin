@@ -4,11 +4,11 @@ require 'capybara/rails'
 describe "listing orgs" do
   include Rack::Test::Methods
 
-  let(:client) { Rails.configuration.cf_client }
+  let(:client) { Rails.configuration.cf_client.new }
 
   around do |example|
     logger = OmniAuth.config.logger
-    client.reset!
+    Rails.configuration.cf_client.reset!
     example.run
     OmniAuth.config.mock_auth[:cloudfoundry] = nil
     OmniAuth.config.logger = logger
@@ -34,7 +34,7 @@ describe "listing orgs" do
 
       visit '/'
 
-      expect(page.body).to include("Cool token: #{token}")
+      expect(page.body).to include("Fleming Inc.")
     end
   end
 

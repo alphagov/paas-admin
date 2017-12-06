@@ -2,11 +2,12 @@ module CF
   class Org
     ACTIVE = "active"
 
-    attr_reader :name, :status
+    attr_reader :name, :status, :guid
 
-    def initialize(name: nil, status: nil)
+    def initialize(name: nil, status: nil, guid: nil)
       @name = name
       @status = status
+      @guid = guid
     end
 
     def ==(other)

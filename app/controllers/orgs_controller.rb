@@ -1,5 +1,6 @@
 class OrgsController < ApplicationController
   def index
-    @token = session[:access_token]
+    @orgs = cf.orgs
   end
+
 end

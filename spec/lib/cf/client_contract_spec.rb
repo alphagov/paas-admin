@@ -3,39 +3,50 @@ require_relative '../../fakes/cf/fake_client'
 
 shared_examples_for "a CF client" do
   it "can create, list and delete orgs" do
-    client.orgs.each do |org|
-      client.delete_org(org)
-    end
+    org1_name = generate_org_name
+    org2_name = generate_org_name
+    expect(org1_name).not_to be_empty
+    expect(org1_name).not_to eq(org2_name)
 
-    client.create_org(
-      name: "PaaS Team",
+    org1 = client.create_org(
+      name: org1_name,
       status: CF::Org::ACTIVE,
     )
+    expect(org1.guid).not_to be_empty
+    expect(org1.name).to eq(org1_name)
+    expect(org1.status).to eq(CF::Org::ACTIVE)
 
-    client.create_org(
-      name: "gov.uk Team",
+    org2 = client.create_org(
+      name: org2_name,
       status: CF::Org::ACTIVE,
     )
+    expect(org2.guid).not_to be_empty
+    expect(org2.name).to eq(org2_name)
+    expect(org2.status).to eq(CF::Org::ACTIVE)
 
     orgs = client.orgs
+    expect(orgs).to include(org1)
+    expect(orgs).to include(org2)
 
-    expect(orgs).to eq([
-      CF::Org.new(
-        name: "PaaS Team",
-        status: CF::Org::ACTIVE,
-      ),
-      CF::Org.new(
-        name: "gov.uk Team",
-        status: CF::Org::ACTIVE,
-      ),
-    ])
+    client.delete_org(org1.guid)
+    client.delete_org(org2.guid)
+
+    orgs = client.orgs
+    expect(orgs).not_to include(org1)
+    expect(orgs).not_to include(org2)
   end
 end
 
 module CF
   describe Client do
     it_behaves_like "a CF client" do
-      subject(:client) { Client.new }
+      subject(:client) {
+        Client.new(
+          api_endpoint: ENV.fetch('CF_API_ADDRESS'),
+          token: ENV.fetch('CONTRACT_TEST_TOKEN'),
+          skip_tls_verification: ENV.fetch('SKIP_TLS_VERIFICATION', 'false') == 'true',
+        )
+      }
     end
   end
 
@@ -54,9 +65,13 @@ module CF
         status: CF::Org::ACTIVE,
       )
 
-      client.reset!
+      FakeClient.reset!
 
       expect(client.orgs).to be_empty
     end
   end
+end
+
+def generate_org_name
+  "test-org-#{(0...8).map { (65 + rand(26)).chr }.join}"
 end

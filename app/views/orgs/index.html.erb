@@ -1,1 +1,3 @@
-Cool token: <%= @token %>
+<% @orgs.each do |org| %>
+  <div><%= org.name %><div>
+<% end %>
