@@ -9,6 +9,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     client_id,
     secret,
     auth_server_url: auth_server_url,
-    token_server_url: token_server_url
+    token_server_url: token_server_url,
+    skip_ssl_validation: ENV['SKIP_TLS_VERIFICATION'] == 'true',
   )
 end
