@@ -42,9 +42,9 @@ module CF
     it_behaves_like "a CF client" do
       subject(:client) {
         Client.new(
-          api_endpoint: ENV.fetch('CF_API_ADDRESS'),
-          token: ENV.fetch('CONTRACT_TEST_TOKEN'),
-          skip_tls_verification: ENV.fetch('SKIP_TLS_VERIFICATION', 'false') == 'true',
+          api_endpoint: Rails.configuration.api_endpoint,
+          token: test_token,
+          skip_tls_verification: Rails.configuration.skip_tls_verification,
         )
       }
     end
