@@ -6,6 +6,10 @@ class SessionsController < ApplicationController
     redirect_to root_url
   end
 
+  def failure
+    render :status => 401
+  end
+
   private
 
   def auth_hash

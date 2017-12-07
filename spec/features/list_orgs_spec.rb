@@ -14,9 +14,40 @@ describe "listing orgs" do
     OmniAuth.config.logger = logger
   end
 
+  context "when using an expired token in session" do
+    let(:null_logger) { double('null logger', error: nil) }
+
+    before do
+      OmniAuth.config.mock_auth[:cloudfoundry] = :rejected
+      OmniAuth.config.logger = null_logger
+    end
+
+    it "rejects it" do
+      expiry_time = Time.now() - 1000
+      token_body = {'foo': 'bar', 'exp': expiry_time.to_i}
+      token = CF::UAA::TokenCoder.encode(token_body, skey: "ilovesecrets")
+      page.set_rack_session(access_token: token)
+      visit '/'
+      expect(page.status_code).to eq(401)
+      expect(page.body).to include('Unauthorised')
+    end
+  end
+
+  context "when using a valid token in session" do
+    it "serves the page" do
+      expiry_time = Time.now() + 1000
+      token_body = {'foo': 'bar', 'exp': expiry_time.to_i}
+      token = CF::UAA::TokenCoder.encode(token_body, skey: "ilovesecrets")
+      page.set_rack_session(access_token: token)
+      visit '/'
+      expect(page.status_code).to eq(200)
+    end
+  end
+
   context "when authorised to list orgs" do
     it "greets the user" do
-      token_body = {'foo': 'bar'}
+      expiry_time = Time.now() + 1000
+      token_body = {'foo': 'bar', 'exp': expiry_time.to_i}
       token = CF::UAA::TokenCoder.encode(token_body, skey: "ilovesecrets")
       OmniAuth.config.mock_auth[:cloudfoundry] = OmniAuth::AuthHash.new(
         info: {

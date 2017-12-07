@@ -41,4 +41,7 @@ Rails.application.configure do
   # config.action_view.raise_on_missing_translations = true
 
   OmniAuth.config.test_mode = true
+
+  # Allow hijacking sessions in tests
+  config.middleware.use RackSessionAccess::Middleware
 end

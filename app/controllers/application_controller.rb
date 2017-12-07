@@ -15,10 +15,17 @@ class ApplicationController < ActionController::Base
   private
 
   def require_login
-    redirect_to('/auth/cloudfoundry') unless logged_in?
+    if not valid_token?
+      session[:access_token] = nil
+      redirect_to('/auth/cloudfoundry')
+    end
   end
 
-  def logged_in?
-    session[:access_token].present?
+  def valid_token?
+    token = session[:access_token]
+    return false if token.blank?
+    decoded_token = CF::UAA::TokenCoder.decode(token, verify: false)
+    return false unless decoded_token.has_key? "exp"
+    decoded_token["exp"] > Time.now.to_i
   end
 end

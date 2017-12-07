@@ -17,6 +17,7 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'rspec-rails'
   gem 'capybara'
+  gem 'rack_session_access'
 end
 
 group :development do
