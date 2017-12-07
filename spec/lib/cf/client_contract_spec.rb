@@ -39,6 +39,18 @@ end
 
 module CF
   describe Client do
+    test_token = ENV.fetch('CONTRACT_TEST_TOKEN', '')
+    before do
+      if test_token.empty?
+        skip('
+          Skipping client integration tests.
+          Environment variable CONTRACT_TEST_TOKEN not set.
+
+          Set CF_API_ENDPOINT and CONTRACT_TEST_TOKEN to enable.
+        ')
+      end
+    end
+
     it_behaves_like "a CF client" do
       subject(:client) {
         Client.new(
