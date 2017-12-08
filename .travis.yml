@@ -1,0 +1,15 @@
+language: ruby
+rvm:
+  - 2.4.2
+
+env:
+  global:
+    - CF_API_ENDPOINT=none
+    - CF_AUTH_ENDPOINT=none
+    - CF_TOKEN_ENDPOINT=none
+    - CF_CLIENT_ID=none
+    - CF_CLIENT_SECRET=none
+
+script:
+  - ./bin/rspec
+
