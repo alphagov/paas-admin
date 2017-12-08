@@ -30,6 +30,15 @@ The following variables alter test behaviour
 
 ### Running locally
 
+First of all, you'll need to configure the UAA client to redirect you to your locally running app:
+
+```
+cd paas-cf/scripts
+bundle exec uaac target https://login.${DEPLOY_ENV}.dev.cloudpipeline.digital
+bundle exec uaac token client get admin -s "$(aws s3 cp s3://gds-paas-${DEPLOY_ENV}-state/cf-secrets.yml - | awk '/uaa_admin_client_secret/ { print $2 }')"
+bundle exec uaac client update paas-admin --redirect_uri http://localhost:3000/auth/cloudfoundry/callback
+```
+
 You'll need to configure your environment to run the server and/or tests locally. There is an [.envrc](.envrc) file to aid with setting up the required environment, which can be sourced manually (or automatically if you use `direnv`):
 
 ```bash
