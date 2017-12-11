@@ -1,6 +1,6 @@
 require 'cf'
 
-Rails.configuration.api_endpoint = ENV.fetch("CF_API_ENDPOINT")
+Rails.configuration.cf_api_endpoint = ENV.fetch("CF_API_ENDPOINT")
 Rails.configuration.skip_tls_verification = ENV['SKIP_TLS_VERIFICATION'] == 'true'
 
 Rails.configuration.cf_client =

@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
   def cf
     Rails.configuration.cf_client.new(
       token: session[:access_token],
-      api_endpoint: Rails.configuration.api_endpoint,
+      api_endpoint: Rails.configuration.cf_api_endpoint,
       skip_tls_verification: Rails.configuration.skip_tls_verification,
     )
   end
