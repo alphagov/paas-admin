@@ -1,4 +1,4 @@
-require_relative 'boot'
+require_relative "boot"
 
 require "rails"
 # Pick the frameworks you want:
@@ -27,5 +27,8 @@ module PaasAdmin
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # Ensure Time.zone is set to UTC
+    config.time_zone = "UTC"
   end
 end

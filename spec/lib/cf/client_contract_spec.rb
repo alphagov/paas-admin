@@ -1,5 +1,5 @@
-require 'cf/client'
-require_relative '../../fakes/cf/fake_client'
+require "cf/client"
+require_relative "../../fakes/cf/fake_client"
 
 RSpec.shared_examples_for "a CF client" do
   it "can create, list and delete orgs" do
@@ -9,7 +9,7 @@ RSpec.shared_examples_for "a CF client" do
     expect(org1_name).not_to eq(org2_name)
 
     org1 = client.create_org(
-      name: org1_name,
+      name:   org1_name,
       status: CF::Org::ACTIVE,
     )
     expect(org1.guid).not_to be_empty
@@ -17,7 +17,7 @@ RSpec.shared_examples_for "a CF client" do
     expect(org1.status).to eq(CF::Org::ACTIVE)
 
     org2 = client.create_org(
-      name: org2_name,
+      name:   org2_name,
       status: CF::Org::ACTIVE,
     )
     expect(org2.guid).not_to be_empty
@@ -39,7 +39,7 @@ end
 
 module CF
   RSpec.describe Client do
-    test_token = ENV.fetch('CONTRACT_TEST_TOKEN', '')
+    test_token = ENV.fetch("CONTRACT_TEST_TOKEN", "")
     before do
       if test_token.empty?
         skip('
@@ -54,8 +54,8 @@ module CF
     it_behaves_like "a CF client" do
       subject(:client) {
         Client.new(
-          api_endpoint: Rails.configuration.cf_api_endpoint,
-          token: test_token,
+          api_endpoint:          Rails.configuration.cf_api_endpoint,
+          token:                 test_token,
           skip_tls_verification: Rails.configuration.skip_tls_verification,
         )
       }
@@ -69,11 +69,11 @@ module CF
 
     it "can reset its own state, for easier testing" do
       client.create_org(
-        name: "Jess's team",
+        name:   "Jess's team",
         status: CF::Org::ACTIVE,
       )
       client.create_org(
-        name: "Bob's team",
+        name:   "Bob's team",
         status: CF::Org::ACTIVE,
       )
 

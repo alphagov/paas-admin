@@ -7,12 +7,12 @@ class SessionsController < ApplicationController
   end
 
   def failure
-    render :status => 401
+    render status: 401
   end
 
-  private
+private
 
   def auth_hash
-    request.env['omniauth.auth']
+    request.env["omniauth.auth"]
   end
 end

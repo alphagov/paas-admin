@@ -1,6 +1,6 @@
 module CF
   class Org
-    ACTIVE = "active"
+    ACTIVE = "active".freeze
 
     attr_reader :name, :status, :guid
 

@@ -2,22 +2,22 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   before_action :require_login
 
-  protected
+protected
 
   def cf
     Rails.configuration.cf_client.new(
-      token: session[:access_token],
-      api_endpoint: Rails.configuration.cf_api_endpoint,
+      token:                 session[:access_token],
+      api_endpoint:          Rails.configuration.cf_api_endpoint,
       skip_tls_verification: Rails.configuration.skip_tls_verification,
     )
   end
 
-  private
+private
 
   def require_login
     if not valid_token?
       session[:access_token] = nil
-      redirect_to('/auth/cloudfoundry')
+      redirect_to("/auth/cloudfoundry")
     end
   end
 

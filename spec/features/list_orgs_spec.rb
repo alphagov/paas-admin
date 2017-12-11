@@ -1,5 +1,5 @@
-require 'rails_helper'
-require 'capybara/rails'
+require "rails_helper"
+require "capybara/rails"
 
 RSpec.describe "listing orgs" do
   include Rack::Test::Methods
@@ -15,7 +15,7 @@ RSpec.describe "listing orgs" do
   end
 
   context "when using an expired token in session" do
-    let(:null_logger) { double('null logger', error: nil) }
+    let(:null_logger) { double("null logger", error: nil) }
 
     before do
       OmniAuth.config.mock_auth[:cloudfoundry] = :rejected
@@ -23,54 +23,54 @@ RSpec.describe "listing orgs" do
     end
 
     it "rejects it" do
-      expiry_time = Time.now() - 1000
-      token_body = {'foo': 'bar', 'exp': expiry_time.to_i}
+      expiry_time = Time.now.to_i - 1000
+      token_body = { 'foo': "bar", 'exp': expiry_time.to_i }
       token = CF::UAA::TokenCoder.encode(token_body, skey: "ilovesecrets")
       page.set_rack_session(access_token: token)
-      visit '/'
+      visit "/"
       expect(page.status_code).to eq(401)
-      expect(page.body).to include('Unauthorised')
+      expect(page.body).to include("Unauthorised")
     end
   end
 
   context "when using a valid token in session" do
     it "serves the page" do
-      expiry_time = Time.now() + 1000
-      token_body = {'foo': 'bar', 'exp': expiry_time.to_i}
+      expiry_time = Time.now.to_i + 1000
+      token_body = { 'foo': "bar", 'exp': expiry_time.to_i }
       token = CF::UAA::TokenCoder.encode(token_body, skey: "ilovesecrets")
       page.set_rack_session(access_token: token)
-      visit '/'
+      visit "/"
       expect(page.status_code).to eq(200)
     end
   end
 
   context "when authorised to list orgs" do
     it "greets the user" do
-      expiry_time = Time.now() + 1000
-      token_body = {'foo': 'bar', 'exp': expiry_time.to_i}
+      expiry_time = Time.now.to_i + 1000
+      token_body = { 'foo': "bar", 'exp': expiry_time.to_i }
       token = CF::UAA::TokenCoder.encode(token_body, skey: "ilovesecrets")
       OmniAuth.config.mock_auth[:cloudfoundry] = OmniAuth::AuthHash.new(
-        info: {
+        info:        {
           name: "Bob Fleming",
         },
         credentials: {
-          token: token,
+          token:  token,
           secret: "deadbeeff33df00d",
         },
-        provider: 'cloudfoundry',
-        uid: '123456',
+        provider:    "cloudfoundry",
+        uid:         "123456",
       )
 
       client.create_org(name: "Fleming Inc.")
 
-      visit '/'
+      visit "/"
 
       expect(page.body).to include("Fleming Inc.")
     end
   end
 
   context "when not authorised to list orgs" do
-    let(:null_logger) { double('null logger', error: nil) }
+    let(:null_logger) { double("null logger", error: nil) }
 
     before do
       OmniAuth.config.mock_auth[:cloudfoundry] = :not_allowed
@@ -78,12 +78,12 @@ RSpec.describe "listing orgs" do
     end
 
     it "displays an error" do
-      visit '/'
-      expect(page.body).to include('Unauthorised')
+      visit "/"
+      expect(page.body).to include("Unauthorised")
     end
 
     it "logs" do
-      visit '/'
+      visit "/"
       expect(null_logger).to have_received(:error).
         with("(cloudfoundry) Authentication failure! not_allowed encountered.")
     end
