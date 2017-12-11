@@ -1,7 +1,7 @@
 require 'cf/org'
 
 module CF
-  describe Org do
+  RSpec.describe Org do
     it "is comparable" do
       expect(Org.new(name: 'foo', status: Org::ACTIVE)).
         to eq(Org.new(name: 'foo', status: Org::ACTIVE))

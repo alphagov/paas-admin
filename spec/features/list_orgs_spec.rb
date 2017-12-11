@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'capybara/rails'
 
-describe "listing orgs" do
+RSpec.describe "listing orgs" do
   include Rack::Test::Methods
 
   let(:client) { Rails.configuration.cf_client.new }

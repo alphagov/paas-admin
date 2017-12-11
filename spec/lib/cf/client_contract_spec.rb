@@ -1,7 +1,7 @@
 require 'cf/client'
 require_relative '../../fakes/cf/fake_client'
 
-shared_examples_for "a CF client" do
+RSpec.shared_examples_for "a CF client" do
   it "can create, list and delete orgs" do
     org1_name = generate_org_name
     org2_name = generate_org_name
@@ -38,7 +38,7 @@ shared_examples_for "a CF client" do
 end
 
 module CF
-  describe Client do
+  RSpec.describe Client do
     test_token = ENV.fetch('CONTRACT_TEST_TOKEN', '')
     before do
       if test_token.empty?
@@ -62,7 +62,7 @@ module CF
     end
   end
 
-  describe FakeClient do
+  RSpec.describe FakeClient do
     subject(:client) { FakeClient.new }
 
     it_behaves_like "a CF client"
