@@ -12,4 +12,5 @@ env:
 
 script:
   - ./bin/rspec
+  - ./bin/rubocop
 

@@ -4,6 +4,7 @@ AllCops:
     - '**/config.ru'
   Exclude:
     - 'bin/*'
+    - 'vendor/**/*'
 
 BlockAlignment:
   Description: 'Align block ends correctly.'
