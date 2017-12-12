@@ -40,6 +40,15 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
+  # In test mode we only need the CF_ vars if running integration tests
+  if ENV["CONTRACT_TEST_TOKEN"].blank?
+    ENV["CF_API_ENDPOINT"] = "none"
+    ENV["CF_TOKEN_ENDPOINT"] = "none"
+    ENV["CF_AUTH_ENDPOINT"] = "none"
+    ENV["CF_CLIENT_ID"] = "none"
+    ENV["CF_CLIENT_SECRET"] = "none"
+  end
+
   OmniAuth.config.test_mode = true
 
   # Allow hijacking sessions in tests
