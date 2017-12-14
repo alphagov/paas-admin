@@ -24,7 +24,7 @@ module CF
     end
 
     def delete_org(guid)
-      orgs.reject! {|org| org.guid == guid }
+      orgs.reject! { |org| org.guid == guid }
     end
   end
 end
