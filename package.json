@@ -1,0 +1,85 @@
+{
+  "name": "paas-admin",
+  "version": "1.0.0",
+  "description": "GOV.UK PaaS CloudFoundry UI",
+  "main": "src/main.js",
+  "repository": "https://github.com/alphagov/paas-admin",
+  "scripts": {
+    "test": "npm run -s test:unit -- --cov && npm run -s lint",
+    "test:unit": "npm run -s dev:build && tap --100 --no-coverage --nyc-arg='--instrument=false' --nyc-arg='--all' dist/*.test.js",
+    "test:vulnerabilities": "snyk test",
+    "lint": "npm run -s lint:js && npm run -s lint:sass",
+    "lint:js": "xo",
+    "lint:sass": "sass-lint -v",
+    "fix": "npm run -s fix:js",
+    "fix:js": "xo --fix ./src",
+    "fix:sass": "sass-lint --fix ./src",
+    "fix:vulnerabilities": "snyk protect",
+    "start": "npm run -s dev:start",
+    "dev:build": "webpack --config config/webpack.config.js",
+    "dev:start": "ENABLE_WATCH=true ENABLE_SERVER=true npm run dev:build | pino",
+    "production:build": "DISABLE_TESTS=true NODE_ENV=production webpack --config config/webpack.config.js",
+    "production:start": "npm run -s production:build && node dist/main.js",
+    "production:push": "npm run -s production:build && cf push"
+  },
+  "author": "Crown",
+  "license": "MIT",
+  "devDependencies": {
+    "@govuk-frontend/all": "0.0.22-alpha",
+    "apply-loader": "2.0.0",
+    "css-loader": "0.28.9",
+    "eslint": "4.17.0",
+    "express": "4.16.2",
+    "express-pino-logger": "3.0.1",
+    "extract-loader": "1.0.2",
+    "file-loader": "1.1.6",
+    "glob": "^7.1.2",
+    "govuk_template_jinja": "^0.23.0",
+    "helmet": "^3.10.0",
+    "html-loader": "0.5.5",
+    "istanbul-instrumenter-loader": "^3.0.0",
+    "loader-utils": "1.1.0",
+    "memory-fs": "0.4.1",
+    "node-sass": "4.7.2",
+    "nunjucks": "3.0.1",
+    "nyc": "^11.4.1",
+    "pino": "4.10.4",
+    "regexp-replace-loader": "^1.0.1",
+    "sass-lint": "1.12.1",
+    "sass-loader": "6.0.6",
+    "schema-utils": "0.4.3",
+    "source-map-support": "0.5.3",
+    "start-server-webpack-plugin": "2.2.1",
+    "supertest": "3.0.0",
+    "tap": "^11.1.0",
+    "uglifyjs-webpack-plugin": "1.1.8",
+    "webpack": "^4.0.0-beta.0",
+    "webpack-cli": "2.0.4",
+    "webpack-hot-middleware": "2.21.0",
+    "webpack-merge": "4.1.1",
+    "webpack-node-externals": "1.6.0",
+    "xo": "0.18.2",
+    "snyk": "1.69.6"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=8.9, <9"
+  },
+  "xo": {
+    "space": true,
+    "overrides": [
+      {
+        "files": "**/*.js",
+        "rules": {
+          "no-unused-vars": [
+            "error",
+            {
+              "ignoreRestSiblings": true,
+              "argsIgnorePattern": "(^_[a-z]|^t$)"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
