@@ -1,15 +1,15 @@
 const path = require('path');
 const webpack = require('webpack');
 const nodeModules = require('webpack-node-externals');
-const StartServerPlugin = require('start-server-webpack-plugin');
-const glob = require('glob');
+const enableTemplate = require('./template.config');
+const enableTests = require('./tests.config');
+const enableServer = require('./server.config');
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const assetName = ext => () => NODE_ENV === 'development' ?
-    `assets/[path][name].${ext || '[ext]'}` :
-    `assets/[hash].${ext || '[ext]'}`;
+const assetName = ext => `assets/[hash:base32].[name].${ext || '[ext]'}`;
 
-const main = {
+let cfg = {
+
   target: 'node',
 
   mode: NODE_ENV,
@@ -17,6 +17,7 @@ const main = {
   entry: {
     main: ['./src/main.js']
   },
+
   output: {
     path: path.resolve(__dirname, '..', 'dist'),
     filename: '[name].js',
@@ -35,27 +36,27 @@ const main = {
     ]
   },
 
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      name: true,
+      cacheGroups: {
+        vendor: {
+          test: /\/node_modules\//,
+          chunks: 'all'
+        }
+      }
+    }
+  },
+
   performance: {
-    // Performance hints not that useful for target:node
     hints: false
   },
 
   module: {
     rules: [
-      // FIXME: remove when govuk-frontend has support
       {
-        test: /govuk_template_jinja\/assets\/javascripts/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: assetName()
-            }
-          }
-        ]
-      },
-      {
-        test: /\.(png|jpg|ico|svg|gif|css)(\?.*)?$/,
+        test: /\.(png|jpg|ico|svg|gif)$/,
         use: [
           {
             loader: 'file-loader',
@@ -83,7 +84,8 @@ const main = {
           {
             loader: 'css-loader',
             options: {
-              minimize: NODE_ENV === 'production'
+              minimize: NODE_ENV === 'production',
+              sourceMap: true
             }
           },
           {
@@ -111,26 +113,6 @@ const main = {
             options: {
               attrs: ['img:src', 'link:href', 'script:src']
             }
-          },
-          {
-            loader: 'regexp-replace-loader',
-            options: {
-              match: {
-                pattern: '\\?\\d+\\.\\d+\\.\\d+',
-                flags: 'g'
-              },
-              replaceWith: ''
-            }
-          },
-          {
-            loader: 'regexp-replace-loader',
-            options: {
-              match: {
-                pattern: '{{ asset_path }}',
-                flags: 'g'
-              },
-              replaceWith: '~govuk_template_jinja/assets/'
-            }
           }
         ]
       }
@@ -142,64 +124,31 @@ const main = {
   ]
 };
 
-const whitelist = [
-  /govuk-frontend/,
-  /govuk_template_jinja/  // FIXME: wait for govuk-frontend to support template
-];
-
 if (process.env.ENABLE_WATCH === 'true') {
-  main.watch = true;
+  cfg.watch = true;
 }
 
 if (process.env.ENABLE_SERVER === 'true') {
-  main.plugins.push(new StartServerPlugin('main.js'));
-  if (main.watch) {
-    console.log('hot reloading enabled');
-    main.plugins.push(new webpack.HotModuleReplacementPlugin());
-    const hotmode = 'webpack/hot/poll?1000';
-    main.entry.main.push(hotmode);
-    whitelist.push(hotmode);
-  }
+  cfg = enableServer(cfg);
 }
 
 if (process.env.DISABLE_TESTS !== 'true') {
-  main.module.rules.unshift({
-    test: /\.(js)$/,
-    use: [
-      {
-        loader: 'istanbul-instrumenter-loader',
-        options: {
-          esModules: true,
-          produceSourceMap: true
-        }
-      }
-    ],
-    enforce: 'post',
-    exclude: /node_modules|\.tests\.js$/
-  });
-  glob.sync(path.resolve(__dirname, '../src/**/*.test.js')).map(f => path.relative(__dirname, f).replace('..', '.')).forEach(f => {
-    main.entry[path.basename(f, '.js')] = [f];
-  });
+  cfg = enableTests(cfg);
 }
 
 if (NODE_ENV === 'production') {
-  main.optimization = {
+  cfg.optimization = {
     splitChunks: false
   };
 } else {
-  main.optimization = {
-    splitChunks: {
-      chunks: 'all',
-      name: true,
-      cacheGroups: {
-        vendor: {
-          test: /\/node_modules\//,
-          chunks: 'all'
-        }
-      }
-    }
-  };
-  main.externals.push(nodeModules({whitelist}));
+  cfg.externals.push(nodeModules({whitelist: [
+    /govuk-frontend/,
+    /css-loader/,
+    /govuk_template_jinja/,
+    /webpack\/hot/
+  ]}));
 }
 
-module.exports = main;
+cfg = enableTemplate(cfg);
+
+module.exports = cfg;
