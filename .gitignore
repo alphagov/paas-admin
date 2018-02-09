@@ -127,5 +127,3 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-### App specific ###
-public/
