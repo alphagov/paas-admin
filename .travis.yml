@@ -1,6 +1,5 @@
 language: node_js
 install:
-  - npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN -q
-  - npm install --verbose
+  - npm install
 script:
   - npm test
