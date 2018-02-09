@@ -1,97 +1,91 @@
 # GOV.UK PaaS Admin
 
-It's a web UI for interacting with GOV.UK PaaS (Cloudfoundry).
+## Overview
+
+A web UI for interacting with GOV.UK PaaS (CloudFoundry).
 
 It aims to be a progressive enhanced, well tested and user researched tool that
-tenants could use to replace the need of using CLI.
-
-## Other tools
-
-This project is fairly young and may not be a right fit for different needs yet.
-
-You may be interested in investigating other tools, such as
-[Stratos](https://github.com/cloudfoundry-incubator/stratos) which may become a
-official tool some day.
+tenants can use to compliment their use of the CLI.
 
 ## Usage
 
 ```sh
-npm run test                     # run all tests
-npm run test:unit                # run unit tests
-npm run test:vulnerabilities     # check for vulns via snyk
-npm run lint                     # lint all code
-npm run lint:js                  # lint js code
-npm run lint:sass                # lint scss/sass
-npm run fix                      # try to autofix everything
-npm run fix:js                   # try to autofix js code
-npm run fix:sass                 # try to autofix scss/sass code
-npm run fix:vulnerabilities      # try to apply snyk module patches
-npm run dev:build                # compile a development build to ./dist/
-npm run dev:start                # compile, run and hot-reload the dev server
-npm run production:build         # compile a production build to ./dist/
-npm run production:start         # compile and run a production server
-npm run production:push          # compile and push to cf
+npm run build              # compile the build to ./dist
+npm run test               # run all the tests and linters
+npm run test:unit          # only unit tests
+npm run lint               # run code linters
+npm run fix                # try to autofix problems with js/css
+npm run start              # rebuild and start the server
+npm run push               # rebuild and push to cloudfoundry
+npm run clean              # destroy the ./dist build dir
 ```
 
-## Running locally
+## Requirements
 
-To run the application, you will need a node environment set up beforehand.
+* [Node.js](https://nodejs.org/en/) version `8 LTS`
+* [npm](https://www.npmjs.com/) verions `>5`
+* You will need a username/password for the govuk-fronend project ([why?](#updating-the-govuk-frontend-module))
 
-We chose `Node 8 LTS` to be a minimum version of node we'd like to support.
+TIP: You can use [nvm](https://github.com/creationix/nvm) to manage installing
+specific versions.
 
-### Installing the dependencies
+## Getting Started
 
-Before getting started, you will need to install any dependencies the project
-requires at given time. Whilst being in the root directory of the application,
-run:
+Clone this repository and then use `npm` to install the project dependecies:
 
 ```sh
 npm install
 ```
 
-### Running the server in dev mode
-
-In dev mode webpack will be watching the src and hot-reload any code changes to avoid having to restart the server.
+Execute the unit tests to ensure everything looks good:
 
 ```sh
-npm run dev:start
+npm test
 ```
 
-### Running the server in production mode
-
-To compile the app for production you can do:
+Start the server in development mode
 
 ```sh
-npm run production:build
+npm start
 ```
 
-Which will produce a build in `./dist/` which you can distribute and run via:
+You should be able to edit files in the `./src` directory and the changes will
+automatically be updated.
+
+## Production builds
+
+The `NODE_ENV` environment variable alters the build process to bundle all
+dependencies into the `./dist/` directory.
+
+```
+NODE_ENV=production npm run build
+```
+
+The `./dist` folder should now be a distributable without the need for the
+node_modules folder and should be executable on any environment that has a
+supported version of Node.js. ie `cf push`
+
+To push the build to CloudFoundry there is a helper script that creates a
+production build and calls `cf push`
 
 ```sh
-node ./dist/main.js
+npm run push
 ```
 
-For convenience there is a script to do this:
+## Updating the govuk-frontend module
 
-```sh
-npm run production:start
-```
+Right now the lovely govuk-frondend project is in private beta and they require
+a password to access their npm packages. We currently vendor the package to
+avoid needing to distribute the password just to build `paas-admin`.
 
-### Testing
+To update the module you must first login to npm as the `govuk-fronend-test`
+user.
 
-We've prepared some tooling to keep the code clean, maintainable and in working
-order.
+## Alternatives
 
-The following command will execute unit tests, lint js/sass code, and ensure there is 100% test coverage.
+This project is fairly young and may not be a right fit for different needs yet.
 
-```sh
-npm run test
-```
-
-There also is a command to checkup on dependencies to discover any recorded
-vulnerabilities. This command is run by travis and our CI.
-
-```sh
-npm run fix:vulnerabilities
-```
+You may be interested in investigating other tools, such as
+[Stratos](https://github.com/cloudfoundry-incubator/stratos) which may become
+an official tool some day.
 

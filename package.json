@@ -48,7 +48,7 @@
     "sass-lint": "1.12.1",
     "sass-loader": "6.0.6",
     "schema-utils": "0.4.3",
-    "snyk": "1.69.6",
+    "snyk": "^1.69.7",
     "source-map-support": "0.5.3",
     "start-server-webpack-plugin": "2.2.1",
     "supertest": "3.0.0",
@@ -61,7 +61,8 @@
   },
   "dependencies": {},
   "engines": {
-    "node": "8.9.x"
+    "node": "8.9.x",
+    "npm": ">=5.x.x"
   },
   "xo": {
     "space": true,
