@@ -136,14 +136,13 @@ if (process.env.ENABLE_TESTS === 'true') {
   cfg = enableTests(cfg);
 }
 
-if (NODE_ENV === 'production') {
+if (NODE_ENV === 'production' && process.env.ENABLE_TESTS !== 'true') {
   cfg.optimization = {
     splitChunks: false
   };
 } else {
   cfg.externals.push(nodeModules({whitelist: [
     /govuk-frontend/,
-    /css-loader/,
     /govuk_template_jinja/,
     /webpack\/hot/
   ]}));
