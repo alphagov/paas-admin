@@ -6,7 +6,7 @@
   "main": "src/main.js",
   "repository": "https://github.com/alphagov/paas-admin",
   "scripts": {
-    "test": "npm run -s test:unit -- --cov && npm run -s lint",
+    "test": "(npm run -s test:unit -- --cov && npm run -s lint) && echo '\n✓ ALL TESTS PASSED!'",
     "test:unit": "npm run -s dev:build && tap --100 --no-coverage --nyc-arg='--instrument=false' --nyc-arg='--all' dist/*.test.js",
     "test:vulnerabilities": "snyk test",
     "lint": "npm run -s lint:js && npm run -s lint:sass",
