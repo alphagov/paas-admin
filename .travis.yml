@@ -3,6 +3,6 @@ env:
   - NODE_ENV=production
   - NODE_ENV=development
 install:
-  - npm install
+  - NODE_ENV=development npm install
 script:
   - npm test
