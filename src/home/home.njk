@@ -2,34 +2,33 @@
 {% from "@govuk-frontend/panel/macro.njk" import govukPanel %}
 
 {% block page_title %}
-	Home
+  Home
 {% endblock %}
 
 
 {% block main %}
-	{{ govukPanel({
-		"titleText": "Congratulations!",
-		"text": "You have started the server"
-	}) }}
+  {{ govukPanel({
+    "titleText": "Congratulations!",
+    "text": "You have started the server"
+  }) }}
 
-	<h3 class="govuk-heading-m">
-		<span class="govuk-caption-m">Getting Started</span>
-		What next?
-	</h3>
-	<ul class="govuk-list">
-		<li>
-			<a class="govuk-link" href="/orgs">View your organisations</a>
-		</li>
-		<li>
-			<a class="govuk-link" href="/orgs">View your spaces</a>
-		</li>
-		<li>
-			<a class="govuk-link" href="/orgs">Reset your password</a>
-		</li>
-		<li>
-			<a class="govuk-link" href="/orgs">Add a user</a>
-		</li>
-	</ul>
+  <h3 class="govuk-heading-m">
+    <span class="govuk-caption-m">Getting Started</span>
+    What next?
+  </h3>
+  <ul class="govuk-list">
+    <li>
+      <a class="govuk-link" href="/orgs">View your organisations</a>
+    </li>
+    <li>
+      <a class="govuk-link" href="/orgs">View your spaces</a>
+    </li>
+    <li>
+      <a class="govuk-link" href="/orgs">Reset your password</a>
+    </li>
+    <li>
+      <a class="govuk-link" href="/orgs">Add a user</a>
+    </li>
+  </ul>
 {% endblock %}
-
 

@@ -6,41 +6,40 @@
 {% from "@govuk-frontend/details/macro.njk" import govukDetails %}
 
 {% block page_title %}
-	Orgs
+  Orgs
 {% endblock %}
 
 
 {% block main %}
-	{% if name %}
-		{{ govukBackLink({
-			"text": "Back",
-			"href": "/orgs"
-		}) }}
-		{{ govukPanel({
-			"titleText": "Organisation Created!",
-			"text": "Your org is called " + name
-		}) }}
-	{% else %}
-		<form action="/orgs" method="get">
-			{{ govukInput({
-			  label: {
-				  "text": "Organisation Name",
-				  "hintText": "It should probably be something cool"
-			  },
-			  id: "name-1",
-			  name: "name",
-			  value: name
-			}) }}
-			{{ govukButton({
-				"text": "Create org (not really)"
-			}) }}
-			{{ govukDetails({
-			  "summaryText": "Help with ducks",
-			  "text": "We need to know your favourite duck name so we can work out which duck benefits you’re entitled to. If you can’t provide your duck name, you’ll have to send copies of duck identity documents through the post."
-			}) }}
-		</form>
-	{% endif %}
-
+  {% if name %}
+    {{ govukBackLink({
+      "text": "Back",
+      "href": "/orgs"
+    }) }}
+    {{ govukPanel({
+      "titleText": "Organisation Created!",
+      "text": "Your org is called " + name
+    }) }}
+  {% else %}
+    <form action="/orgs" method="get">
+      {{ govukInput({
+        label: {
+          "text": "Organisation Name",
+          "hintText": "It should probably be something cool"
+        },
+        id: "name-1",
+        name: "name",
+        value: name
+      }) }}
+      {{ govukButton({
+          "text": "Create org (not really)"
+      }) }}
+      {{ govukDetails({
+        "summaryText": "Help with ducks",
+        "text": "We need to know your favourite duck name so we can work out which duck benefits you’re entitled to. If you can’t provide your duck name, you’ll have to send copies of duck identity documents through the post."
+      }) }}
+    </form>
+  {% endif %}
 {% endblock %}
 
 
