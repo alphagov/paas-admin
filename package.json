@@ -1,7 +1,7 @@
 {
   "name": "paas-admin",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "GOV.UK PaaS CloudFoundry UI",
   "main": "src/main.js",
   "repository": "https://github.com/alphagov/paas-admin",
