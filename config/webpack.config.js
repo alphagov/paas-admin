@@ -132,7 +132,7 @@ if (process.env.ENABLE_SERVER === 'true') {
   cfg = enableServer(cfg);
 }
 
-if (process.env.DISABLE_TESTS !== 'true') {
+if (process.env.ENABLE_TESTS === 'true') {
   cfg = enableTests(cfg);
 }
 
