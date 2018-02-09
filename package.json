@@ -18,9 +18,9 @@
     "fix:sass": "sass-lint --fix ./src",
     "fix:vulnerabilities": "snyk protect",
     "start": "if [ \"$NODE_ENV\" = 'production' ]; then npm run start:production; else npm run start:dev; fi",
-    "start:dev": "ENABLE_WATCH=true ENABLE_SERVER=true npm run build | pino",
-    "start:production": "npm run -s build && node dist/main.js | pino",
-    "push": "npm run -s production:build && cf push",
+    "start:dev": "NODE_ENV=development ENABLE_WATCH=true ENABLE_SERVER=true npm run build | pino",
+    "start:production": "NODE_ENV=production npm run -s build && node dist/main.js | pino",
+    "push": "NODE_ENV=production npm run -s build && cf push",
     "clean": "rm -rf dist/* || echo 'already clean'"
   },
   "author": "GOV.UK PaaS Team",
@@ -62,7 +62,7 @@
   },
   "dependencies": {},
   "engines": {
-    "node": ">=8.9, <9"
+    "node": "8.9.x"
   },
   "xo": {
     "space": true,
