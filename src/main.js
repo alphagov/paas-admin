@@ -1,6 +1,9 @@
 import http from 'http';
+import sourceMapSupport from 'source-map-support';
 import app from './app';
 import logger from './logger';
+
+sourceMapSupport.install();
 
 let currentApp = app;
 
@@ -9,9 +12,12 @@ const server = http.createServer(currentApp);
 
 server.listen(port);
 
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received attempting graceful shutdown...');
+  server.close();
+});
+
 if (process.env.NODE_ENV !== 'production' && process.env.ENABLE_WATCH) {
-  const sourceMapSupport = require('source-map-support');
-  sourceMapSupport.install();
   if (module.hot) {
     module.hot.accept('./app', path => {
       try {
