@@ -17,8 +17,8 @@ function onShutdown() {
   process.exit(0);
 }
 
-async function main() {
-  const server = new Server(app, {
+async function main(cfg) {
+  const server = new Server(app(cfg), {
     port: process.env.PORT
   });
 
@@ -30,10 +30,10 @@ async function main() {
 
   /* istanbul ignore if  */
   if (module.hot) {
-    module.hot.accept('./app', () => server.update(app));
+    module.hot.accept('./app', () => server.update(app(cfg)));
   }
 
   return server.wait();
 }
 
-main().then(onShutdown).catch(onError);
+main({logger}).then(onShutdown).catch(onError);
