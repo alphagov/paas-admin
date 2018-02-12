@@ -1,37 +1,39 @@
-import http from 'http';
 import sourceMapSupport from 'source-map-support';
+import pino from 'pino';
 import app from './app';
-import logger from './logger';
+import Server from './server';
 
 sourceMapSupport.install();
 
-let currentApp = app;
+const logger = pino();
 
-const port = process.env.PORT || 3000;
-const server = http.createServer(currentApp);
-
-server.listen(port);
-
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received attempting graceful shutdown...');
-  server.close();
-});
-
-if (process.env.NODE_ENV !== 'production' && process.env.ENABLE_WATCH) {
-  if (module.hot) {
-    module.hot.accept('./app', path => {
-      try {
-        server.removeListener('request', currentApp);
-        currentApp = app;
-        server.on('request', currentApp);
-      } catch (err) {
-        logger.error(`failed to apply hot reloaded for ${path}: ${err}`);
-      }
-    });
-  }
-  logger.info(`Mode        :`, process.env.NODE_ENV);
-  logger.info(`Hot Reload  :`, module.hot ? 'Enabled' : 'Disabled');
+function onError(err) {
+  logger.error({exit: 1}, err.toString());
+  process.exit(100);
 }
 
-logger.info(`Listening   : http://localhost:${port}/`);
+function onShutdown() {
+  logger.info({exit: 0}, 'shutdown gracefully');
+  process.exit(0);
+}
 
+async function main() {
+  const server = new Server(app, {
+    port: process.env.PORT
+  });
+
+  process.once('SIGINT', () => server.stop());
+  process.once('SIGTERM', () => server.stop());
+
+  await server.start();
+  logger.info({port: server.http.address().port}, `listening http://localhost:${server.http.address().port}/`);
+
+  /* istanbul ignore if  */
+  if (module.hot) {
+    module.hot.accept('./app', () => server.update(app));
+  }
+
+  return server.wait();
+}
+
+main().then(onShutdown).catch(onError);
