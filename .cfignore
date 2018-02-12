@@ -1,0 +1,7 @@
+src
+test
+config
+node_modules
+LICENSE
+README.md
+.*

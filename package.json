@@ -1,0 +1,85 @@
+{
+  "name": "paas-admin",
+  "private": true,
+  "version": "0.1.0",
+  "description": "GOV.UK PaaS CloudFoundry UI",
+  "main": "src/main.js",
+  "repository": "https://github.com/alphagov/paas-admin",
+  "scripts": {
+    "build": "npm run -s clean && webpack --config config/webpack.config.js",
+    "test": "(npm run -s test:unit -- --cov && npm run -s lint) && echo '\n✓ ALL TESTS PASSED!'",
+    "test:unit": "ENABLE_TESTS=true npm run -s build && tap --100 --no-coverage --nyc-arg='--instrument=false' --nyc-arg='--all' dist/*.test.js",
+    "test:vulnerabilities": "snyk test",
+    "lint": "npm run -s lint:js && npm run -s lint:sass",
+    "lint:js": "xo",
+    "lint:sass": "sass-lint -v",
+    "fix": "npm run -s fix:js",
+    "fix:js": "xo --fix ./src",
+    "fix:sass": "sass-lint --fix ./src",
+    "fix:vulnerabilities": "snyk protect",
+    "start": "if [ \"$NODE_ENV\" = 'production' ]; then npm run start:production; else npm run start:dev; fi",
+    "start:dev": "NODE_ENV=development ENABLE_WATCH=true ENABLE_SERVER=true npm run build | pino",
+    "start:production": "NODE_ENV=production npm run -s build && node dist/main.js | pino",
+    "push": "NODE_ENV=production npm run -s build && cf push",
+    "clean": "rm -rf dist/* || echo 'already clean'"
+  },
+  "author": "GOV.UK PaaS Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@govuk-frontend/all": "0.0.22-alpha",
+    "css-loader": "0.28.7",
+    "express": "4.16.2",
+    "express-pino-logger": "3.0.1",
+    "extract-loader": "1.0.1",
+    "file-loader": "1.1.6",
+    "glob": "7.1.2",
+    "govuk_template_jinja": "0.23.0",
+    "helmet": "3.10.0",
+    "html-loader": "0.5.5",
+    "istanbul-instrumenter-loader": "3.0.0",
+    "loader-utils": "1.1.0",
+    "node-sass": "4.7.2",
+    "nunjucks": "3.0.1",
+    "nyc": "11.4.1",
+    "pino": "4.10.4",
+    "postcss-loader": "2.1.0",
+    "postcss-url": "7.3.0",
+    "regexp-replace-loader": "1.0.1",
+    "sass-lint": "1.12.1",
+    "sass-loader": "6.0.6",
+    "schema-utils": "0.4.3",
+    "snyk": "^1.69.7",
+    "source-map-support": "0.5.3",
+    "start-server-webpack-plugin": "2.2.1",
+    "supertest": "3.0.0",
+    "tap": "11.1.0",
+    "url-loader": "0.6.2",
+    "webpack": "4.0.0-beta.0",
+    "webpack-cli": "2.0.4",
+    "webpack-node-externals": "1.6.0",
+    "xo": "0.18.2"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": "8.9.x",
+    "npm": ">=5.x.x"
+  },
+  "xo": {
+    "space": true,
+    "overrides": [
+      {
+        "files": "**/*.js",
+        "rules": {
+          "no-console": "warn",
+          "no-unused-vars": [
+            "error",
+            {
+              "ignoreRestSiblings": true,
+              "argsIgnorePattern": "(^_[a-z]|^t$)"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

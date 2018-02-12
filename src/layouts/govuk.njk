@@ -1,0 +1,38 @@
+{% extends "govuk_template_jinja/views/layouts/govuk_template.html" %}
+
+{% set homepage_url = '/' %}
+
+{% set logo_link_title = 'Go to the GOV.UK PaaS Admin Tool Homepage' %}
+
+{% block page_title %}GDS Node.js boilerplate{% endblock %}
+
+{% block head %}
+  <link href="./govuk.screen.scss" media="screen" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block cookie_message %}
+  <p>GOV.UK uses cookies to make the site simpler. <a href="#">Find out more about cookies</a></p>
+{% endblock %}
+
+{% block footer_support_links %}
+  <nav class="footer-nav">
+    <ul>
+      <li>Built by the <a href="https://www.gov.uk/government/organisations/government-digital-service">Government Digital Service</a></li>
+      <li><a href="#">Cookies</a></li>
+    </ul>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-o-width-container">
+    <main class="govuk-o-main-wrapper">
+      {% block main %}
+        No content rendered to 'main' block
+      {% endblock %}
+    </main>
+  </div>
+{% endblock %}
+
+{% block body_end %}
+
+{% endblock %}
