@@ -51,7 +51,7 @@ t.test('should exit with non-zero status on error (invalid PORT)', t => {
 
 async function run(env = {}) {
   return new Promise((resolve, reject) => {
-    const proc = spawn('node', ['./dist/main.js'], {env, shell: true});
+    const proc = spawn('node', ['./dist/main.js'], {env, shell: '/bin/bash'});
     let isListening = false;
     proc.logs = [];
     proc.stdout.on('data', data => {
