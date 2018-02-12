@@ -17,7 +17,7 @@
     "fix:js": "xo --fix ./src",
     "fix:sass": "sass-lint --fix ./src",
     "fix:vulnerabilities": "snyk protect",
-    "start": "if [ \"$NODE_ENV\" = 'production' ]; then npm run -s start:production; else npm run -s start:dev; fi",
+    "start": "export PORT=${PORT-3000}; if [ \"$NODE_ENV\" = 'production' ]; then npm run -s start:production; else npm run -s start:dev; fi",
     "start:dev": "NODE_ENV=development ENABLE_WATCH=true ENABLE_SERVER=true npm run -s build | pino",
     "start:production": "NODE_ENV=production npm run -s build && node dist/main.js | pino",
     "push": "NODE_ENV=production npm run -s build && cf push",
