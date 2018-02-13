@@ -1,6 +1,8 @@
 import {test} from 'tap';
 import request from 'supertest';
-import app from '.';
+import init from '.';
+
+const app = init();
 
 test('should render as text/html with utf-8 charset', async t => {
   return request(app)

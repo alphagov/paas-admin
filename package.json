@@ -7,8 +7,9 @@
   "repository": "https://github.com/alphagov/paas-admin",
   "scripts": {
     "build": "npm run -s clean && webpack --config config/webpack.config.js",
-    "test": "(npm run -s test:unit -- --cov && npm run -s lint) && echo '\n✓ ALL TESTS PASSED!'",
-    "test:unit": "ENABLE_TESTS=true npm run -s build && tap --100 --no-coverage --nyc-arg='--instrument=false' --nyc-arg='--all' dist/*.test.js",
+    "watch": "ENABLE_WATCH=true ENABLE_TESTS=true npm run -s build",
+    "test": "ENABLE_COVERAGE=true npm run -s test:unit && npm run -s lint",
+    "test:unit": "ENABLE_TESTS=true npm run -s build",
     "test:vulnerabilities": "snyk test",
     "lint": "npm run -s lint:js && npm run -s lint:sass",
     "lint:js": "xo",
@@ -17,8 +18,8 @@
     "fix:js": "xo --fix ./src",
     "fix:sass": "sass-lint --fix ./src",
     "fix:vulnerabilities": "snyk protect",
-    "start": "if [ \"$NODE_ENV\" = 'production' ]; then npm run start:production; else npm run start:dev; fi",
-    "start:dev": "NODE_ENV=development ENABLE_WATCH=true ENABLE_SERVER=true npm run build | pino",
+    "start": "export PORT=${PORT-3000}; if [ \"$NODE_ENV\" = 'production' ]; then npm run -s start:production; else npm run -s start:dev; fi",
+    "start:dev": "NODE_ENV=development ENABLE_WATCH=true ENABLE_SERVER=true npm run -s build | pino",
     "start:production": "NODE_ENV=production npm run -s build && node dist/main.js | pino",
     "push": "NODE_ENV=production npm run -s build && cf push",
     "clean": "rm -rf dist/* || echo 'already clean'"
@@ -57,6 +58,7 @@
     "webpack": "4.0.0-beta.0",
     "webpack-cli": "2.0.4",
     "webpack-node-externals": "1.6.0",
+    "webpack-shell-plugin": "0.5.0",
     "xo": "0.18.2"
   },
   "dependencies": {},
@@ -67,6 +69,12 @@
   "xo": {
     "space": true,
     "overrides": [
+      {
+        "files": "src/main.js",
+        "rules": {
+          "unicorn/no-process-exit": "off"
+        }
+      },
       {
         "files": "**/*.js",
         "rules": {
