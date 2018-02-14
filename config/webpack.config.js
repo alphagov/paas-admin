@@ -1,4 +1,5 @@
 const path = require('path');
+const CompressionPlugin = require('compression-webpack-plugin');
 const webpack = require('webpack');
 const nodeModules = require('webpack-node-externals');
 const enableTemplate = require('./template.config');
@@ -120,7 +121,12 @@ let cfg = {
   },
 
   plugins: [
-    new webpack.EnvironmentPlugin({NODE_ENV})
+    new webpack.EnvironmentPlugin({NODE_ENV}),
+    new CompressionPlugin({
+      test: /\.(js|svg|css)$/,
+      include: 'assets/',
+      deleteOriginalAssets: true
+    })
   ]
 };
 
