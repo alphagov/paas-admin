@@ -1,6 +1,8 @@
 import express from 'express';
 import helmet from 'helmet';
 import pinoMiddleware from 'express-pino-logger';
+import compression from 'compression';
+import staticGzip from 'express-static-gzip';
 import home from '../home';
 import orgs from '../orgs';
 import {pageNotFoundMiddleware, internalServerErrorMiddleware} from '../errors';
@@ -13,10 +15,11 @@ export default function ({logger} = {}) {
     app.use(pinoMiddleware({logger}));
   }
 
+  app.use('/assets', staticGzip('dist/assets', {immutable: true}));
+  app.use(compression());
+
   app.use(helmet());
   app.use(helmet.contentSecurityPolicy(csp));
-
-  app.use('/assets', express.static('dist/assets', {immutable: true}));
 
   app.use('/orgs', orgs);
   app.use('/', home);

@@ -1,5 +1,4 @@
 const assetName = ext => `assets/[hash:base32].[name].${ext || '[ext]'}`;
-const path = require('path');
 
 // Patches the given webpack config to allow referencing the govuk_template_jinja
 // template from node_modules
@@ -34,8 +33,7 @@ module.exports = function (cfg) {
       {
         loader: 'css-loader',
         options: {
-          importLoaders: 1,
-          url: false
+          importLoaders: 1
         }
       },
       {
@@ -43,12 +41,6 @@ module.exports = function (cfg) {
         options: {
           ident: 'postcss',
           plugins: () => [
-            require('postcss-url')([{
-              url: 'copy',
-              basePath: path.resolve(__dirname, '../node_modules/govuk_template_jinja/assets/stylesheets/'),
-              assetsPath: 'dist/assets',
-              useHash: true
-            }]),
             require('postcss-url')([{
               url: u => u.url
               .replace(/\?\d+\.\d+\.\d+/, '')

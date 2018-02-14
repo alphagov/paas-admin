@@ -28,9 +28,12 @@
   "license": "MIT",
   "devDependencies": {
     "@govuk-frontend/all": "0.0.22-alpha",
+    "compression": "1.7.1",
+    "compression-webpack-plugin": "1.1.6",
     "css-loader": "0.28.7",
     "express": "4.16.2",
     "express-pino-logger": "3.0.1",
+    "express-static-gzip": "0.3.2",
     "extract-loader": "1.0.1",
     "file-loader": "1.1.6",
     "glob": "7.1.2",
