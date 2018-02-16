@@ -56,6 +56,17 @@ module.exports = function (cfg) {
   for (let i = 0; i < cfg.module.rules.length; i++) {
     const r = cfg.module.rules[i];
     if (r.test.test('x.html')) {
+      // Remove govuk_template fonts that already come from govuk_frontend
+      r.use.push({
+        loader: 'regexp-replace-loader',
+        options: {
+          match: {
+            pattern: '.+govuk_template_jinja/assets/stylesheets/fonts.+',
+            flags: 'g'
+          },
+          replaceWith: ''
+        }
+      });
       // This strips the ?x.x.x version query string which breaks loaders
       r.use.push({
         loader: 'regexp-replace-loader',
