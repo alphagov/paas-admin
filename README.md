@@ -78,7 +78,7 @@ Right now the lovely govuk-frondend project is in private beta and they require
 a password to access their npm packages. We currently vendor the package to
 avoid needing to distribute the password just to build `paas-admin`.
 
-To update the module you must first login to npm as the `govuk-fronend-test`
+To update the module you must first login to npm as the `govuk-frontend-test`
 user.
 
 ## Alternatives
