@@ -4,44 +4,70 @@ import request from 'supertest';
 
 t.jobs = 8;
 
+const envVars = {
+  OAUTH_AUTHORIZATION_URL: 'test',
+  OAUTH_TOKEN_URL: 'test',
+  OAUTH_CLIENT_ID: 'test',
+  OAUTH_CLIENT_SECRET: 'test'
+};
+
 t.test('should listen on a random port by default', async t => {
-  const proc = await run();
+  const proc = await run(envVars);
   t.ok(proc.port > 0);
   await t.resolves(request(`http://localhost:${proc.port}`).get('/').expect(200));
   return kill(proc);
 });
 
 t.test('should listen on PORT environment variable', async t => {
-  const proc = await run({PORT: 4551});
-  await t.resolves(request(`http://localhost:4551`).get('/four-oh-four').expect(404));
+  const newEnvVars = Object.assign({}, envVars);
+  newEnvVars.PORT = 4551;
+  const proc = await run(newEnvVars);
+  await t.resolves(request(`http://localhost:4551`).get('/').expect(200));
   return kill(proc);
 });
 
 t.test('should emit structured request logs', async t => {
-  const proc = await run();
-  await t.resolves(request(`http://localhost:${proc.port}`).get('/structured-req-log-test').expect(404));
-  const line = await waitForOutput(proc, /structured-req-log-test/);
-  const data = JSON.parse(line);
-  t.ok(data);
-  t.ok(data.req);
-  t.equal(data.req.method, 'GET');
+  const proc = await run(envVars);
+  try {
+    await t.resolves(request(`http://localhost:${proc.port}`).get('/').expect(200));
+
+    const line = await waitForOutput(proc, /request completed/);
+    const data = JSON.parse(line);
+    t.ok(data.req);
+    t.equal(data.req.method, 'GET');
+  } catch (err) {
+    t.fail(err);
+  }
   return kill(proc);
 });
 
 t.test('should exit gracefully on SIGTERM', async t => {
-  const proc = await run();
+  const proc = await run(envVars);
   const code = await kill(proc, 'SIGTERM');
   t.equal(code, 0);
 });
 
 t.test('should exit gracefully on SIGINT', async t => {
-  const proc = await run();
+  const proc = await run(envVars);
   const code = await kill(proc, 'SIGINT');
   t.equal(code, 0);
 });
 
 t.test('should exit with non-zero status on error (invalid PORT)', t => {
-  const proc = spawn('node', ['./dist/main.js'], {env: {PORT: 1}, shell: true});
+  const newEnvVars = Object.assign({}, envVars);
+  newEnvVars.PORT = 1;
+  const proc = spawn(process.argv0, ['./dist/main.js'], {env: newEnvVars});
+  proc.once('error', t.fail);
+  proc.once('close', code => {
+    t.ok(code > 0);
+    t.end();
+  });
+});
+
+t.test('should exit due to a missing variable', t => {
+  const newEnvVars = Object.assign({}, envVars);
+  newEnvVars.OAUTH_TOKEN_URL = '';
+  const proc = spawn(process.argv0, ['./dist/main.js'], {env: newEnvVars});
   proc.once('error', t.fail);
   proc.once('close', code => {
     t.ok(code > 0);
@@ -51,7 +77,7 @@ t.test('should exit with non-zero status on error (invalid PORT)', t => {
 
 async function run(env = {}) {
   return new Promise((resolve, reject) => {
-    const proc = spawn('node', ['./dist/main.js'], {env, shell: '/bin/bash'});
+    const proc = spawn(process.argv0, ['./dist/main.js'], {env});
     let isListening = false;
     proc.logs = [];
     proc.stdout.on('data', data => {

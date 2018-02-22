@@ -7,6 +7,15 @@ sourceMapSupport.install();
 
 const logger = pino();
 
+function expectEnvVariable(variableName) {
+  if (process.env[variableName] === undefined || process.env[variableName] === '') {
+    logger.error(`Expected environment variable "${variableName}" to be set.`);
+    process.exit(100);
+  }
+
+  return process.env[variableName];
+}
+
 function onError(err) {
   logger.error({exit: 1}, err.toString());
   process.exit(100);
@@ -36,4 +45,15 @@ async function main(cfg) {
   return server.wait();
 }
 
-main({logger}).then(onShutdown).catch(onError);
+const config = {
+  logger,
+  sessionSecret: process.env.SESSION_SECRET || 'mysecret',
+  allowInsecure: (process.env.ALLOW_INSECURE === 'true'),
+  oauthAuthorizationURL: expectEnvVariable('OAUTH_AUTHORIZATION_URL'),
+  oauthTokenURL: expectEnvVariable('OAUTH_TOKEN_URL'),
+  oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
+  oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
+  serverRootURL: process.env.SERVER_ROOT_URL || 'http://localhost:' + (process.env.PORT || '3000')
+};
+
+main(config).then(onShutdown).catch(onError);
