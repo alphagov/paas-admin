@@ -8,12 +8,10 @@ import orgs from '../orgs';
 import {pageNotFoundMiddleware, internalServerErrorMiddleware} from '../errors';
 import csp from './app.csp';
 
-export default function ({logger} = {}) {
+export default function (config) {
   const app = express();
 
-  if (logger) {
-    app.use(pinoMiddleware({logger}));
-  }
+  app.use(pinoMiddleware(config.logger));
 
   app.use('/assets', staticGzip('dist/assets', {immutable: true}));
   app.use(compression());

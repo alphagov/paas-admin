@@ -1,8 +1,14 @@
 import {test} from 'tap';
 import request from 'supertest';
+import pino from 'pino';
+import nock from 'nock';
 import init from '.';
 
-const app = init();
+const logger = pino({}, Buffer.from([]));
+
+const app = init({
+  logger
+});
 
 test('should render as text/html with utf-8 charset', async t => {
   return request(app)
