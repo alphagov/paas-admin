@@ -38,16 +38,8 @@ let cfg = {
   },
 
   optimization: {
-    splitChunks: {
-      chunks: 'all',
-      name: true,
-      cacheGroups: {
-        vendor: {
-          test: /\/node_modules\//,
-          chunks: 'all'
-        }
-      }
-    }
+    splitChunks: false,
+    runtimeChunk: false
   },
 
   performance: {
@@ -142,11 +134,7 @@ if (process.env.ENABLE_TESTS === 'true') {
   cfg = enableTests(cfg);
 }
 
-if (NODE_ENV === 'production' && process.env.ENABLE_TESTS !== 'true') {
-  cfg.optimization = {
-    splitChunks: false
-  };
-} else {
+if (NODE_ENV !== 'production') {
   cfg.externals.push(nodeModules({whitelist: [
     /govuk-frontend/,
     /govuk_template_jinja/,

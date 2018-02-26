@@ -64,7 +64,7 @@
     "supertest": "3.0.0",
     "tap": "11.1.0",
     "url-loader": "0.6.2",
-    "webpack": "4.0.0-beta.0",
+    "webpack": "4.0.0",
     "webpack-cli": "2.0.4",
     "webpack-node-externals": "1.6.0",
     "webpack-shell-plugin": "0.5.0",

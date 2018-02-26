@@ -41,5 +41,13 @@ module.exports = cfg => {
     }]
   }));
 
+  // Never bundle tap or supertest
+  cfg.externals.push((context, request, callback) => {
+    if (/^(tap|supertest)$/.test(request)) {
+      return callback(null, 'commonjs ' + request);
+    }
+    callback();
+  });
+
   return cfg;
 };
