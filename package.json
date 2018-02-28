@@ -32,7 +32,6 @@
     "compression-webpack-plugin": "1.1.6",
     "cookie-session": "2.0.0-beta.3",
     "css-loader": "0.28.7",
-    "expect-cookies": "0.1.2",
     "express": "4.16.2",
     "express-pino-logger": "3.0.1",
     "express-static-gzip": "0.3.2",

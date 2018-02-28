@@ -29,26 +29,21 @@ app.use('/test', (req, res, _next) => {
 });
 
 test('can not reach an endpoint behind authentication ', async t => {
-  return request(app)
-    .get('/test')
-    .expect(302)
-    .expect(res => {
-      return res.header.location === '/auth/login';
-    });
+  const response = await request(app).get('/test');
+
+  t.equal(response.status, 302);
+  t.equal(response.header.location, '/auth/login');
 });
 
 test('the login page redirects to the authorize endpoint of the IDP', async t => {
-  return request(app)
-    .get('/auth/login')
-    .expect(302)
-    .expect(res => {
-      return res.header.location === 'https://example.com/authorise';
-    });
+  const response = await request(app).get('/auth/login');
+
+  t.equal(response.status, 302);
+  t.equal(response.header.location, 'https://example.com/authorise?response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Flogin%2Fcallback&client_id=key');
 });
 
 test('can login with a code', async t => {
-  // Required for passport to retrieve a token when calling callback
-
+  // Capture the request to the given URL and prepare a response.
   nock('https://example.com')
     .post('/token')
     .times(1)
@@ -64,41 +59,35 @@ test('can login with a code', async t => {
   const agent = request.agent(app);
 
   await t.test('can reach an endpoint behind authentication', async t => {
-    return agent
-      .get('/test')
-      .expect(302);
+    const response = await agent.get('/test');
+
+    t.equal(response.status, 302);
   });
 
-  await t.resolves(
-    agent
-      .get('/auth/login/callback?code=__fakecode&state=__fakestate')
-      .expect(302)
-      .expect(res => {
-        t.ok(res.header.location.indexOf('/test') > -1);
-      })
-  );
+  await t.test('should authenticate successfully', async t => {
+    const response = await agent.get('/auth/login/callback?code=__fakecode&state=__fakestate');
+
+    t.equal(response.status, 302);
+    t.contains(response.header.location, '/test');
+  });
 
   await t.test('can reach an endpoint behind authentication', async t => {
-    return agent
-      .get('/test')
-      .expect(200);
+    const response = await agent.get('/test');
+
+    t.equal(response.status, 200);
   });
 
   await t.test('does logout the user', async t => {
-    return agent
-      .get('/auth/logout')
-      .expect(302)
-      .expect(res => {
-        return res.header.location === '/';
-      });
+    const response = await agent.get('/auth/logout');
+
+    t.equal(response.status, 302);
+    t.equal(response.header.location, '/');
   });
 
   await t.test('can not reach an endpoint behind authentication', async t => {
-    return request(app)
-      .get('/test')
-      .expect(302)
-      .expect(res => {
-        return res.header.location === '/auth/login';
-      });
+    const response = await request(app).get('/test');
+
+    t.equal(response.status, 302);
+    t.equal(response.header.location, '/auth/login');
   });
 });

@@ -3,9 +3,9 @@ import request from 'supertest';
 import app from '.';
 
 test('should render home page', async t => {
-  return request(app)
-    .get('/')
-    .expect(/congratulations/i)
-    .expect(200);
+  const response = await request(app).get('/');
+
+  t.equal(response.status, 200);
+  t.contains(response.text, 'Congratulations');
 });
 
