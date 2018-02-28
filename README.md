@@ -32,7 +32,7 @@ paas-admin:
 	secret: [CF_CLIENT_SECRET]
 	scope: scim.me,openid,profile,roles,notification_preferences.read,user_attributes,uaa.user,notification_preferences.write,cloud_controller.read,password.write approvals.me,cloud_controller.write,cloud_controller_service_permissions.read,oauth.approvals
 	authorities: clients.read,clients.write,clients.secret,uaa.admin,scim.read,scim.write,password.write,zone.admin
-	redirect-uri: "https://[pass-admin-domain.com]/auth/cloudfoundry/callback"
+	redirect-uri: "https://[pass-admin-domain.com]/auth/login/callback"
 ```
 
 ## Requirements
