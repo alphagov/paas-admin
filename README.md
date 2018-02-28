@@ -5,7 +5,7 @@
 A web UI for interacting with GOV.UK PaaS (CloudFoundry).
 
 It aims to be a progressive enhanced, well tested and user researched tool that
-tenants can use to compliment their use of the CLI.
+tenants can use to complement their use of the CLI.
 
 ## Usage
 
