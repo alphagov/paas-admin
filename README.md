@@ -69,6 +69,9 @@ SERVER_ROOT_URL="http://localhost:3000" \
 npm start
 ```
 
+TIP: set `NODE_EXTRA_CA_CERTS=path/to/router-ca.crt` if your UAA/CF uses the
+gorouter's self-signed cert (e.g. on bosh-lite).
+
 (the above values make sense for the UK Government PaaS team)
 
 You should be able to edit files in the `./src` directory and the changes will
