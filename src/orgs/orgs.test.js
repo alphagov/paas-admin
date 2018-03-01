@@ -26,5 +26,5 @@ test('should show the orgs pages', async t => {
   const response = await request(app).get('/');
 
   t.equal(response.status, 200);
-  t.contains(response.text, 'Create org');
+  t.contains(response.text, 'Choose an organisation');
 });

@@ -3,44 +3,25 @@
 {% from "@govuk-frontend/button/macro.njk" import govukButton %}
 {% from "@govuk-frontend/panel/macro.njk" import govukPanel %}
 {% from "@govuk-frontend/back-link/macro.njk" import govukBackLink %}
-{% from "@govuk-frontend/details/macro.njk" import govukDetails %}
+{% from "../layouts/navigationPanel/macro.njk" import navigationPanel %}
 
 {% block page_title %}
   Orgs
 {% endblock %}
 
-
-{% block main %}
-  <pre>{{ organizations | dump }}</pre>
-  {% if name %}
-    {{ govukBackLink({
-      "text": "Back",
-      "href": "/orgs"
-    }) }}
-    {{ govukPanel({
-      "titleText": "Organisation Created!",
-      "text": "Your org is called " + "test"
-    }) }}
-  {% else %}
-    <form action="/orgs" method="get">
-      {{ govukInput({
-        label: {
-          "text": "Organisation Name",
-          "hintText": "It should probably be something cool"
-        },
-        id: "name-1",
-        name: "name",
-        value: "test"
-      }) }}
-      {{ govukButton({
-          "text": "Create org (not really)"
-      }) }}
-      {{ govukDetails({
-        "summaryText": "Help with ducks",
-        "text": "We need to know your favourite duck name so we can work out which duck benefits you’re entitled to. If you can’t provide your duck name, you’ll have to send copies of duck identity documents through the post."
-      }) }}
-    </form>
-  {% endif %}
+{% block title %}
+  Welcome to GOV.UK PaaS
 {% endblock %}
-
-
+{% block main %}
+  <h2 class="govuk-heading-m">Choose an organisation</h2>
+  <div class="govuk-o-grid">
+    {% for organization in organizations %}
+      <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
+        {{ navigationPanel({
+          titleText: organization.entity.name,
+          link: "/spaces/" + organization.metadata.guid
+        }) }}
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
