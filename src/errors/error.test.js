@@ -15,16 +15,16 @@ test('should display an internal-server-error 500 error page for errors', async 
     throw new Error('bang');
   });
   app.use(internalServerErrorMiddleware);
-  return request(app)
-    .get('/bang')
-    .expect(/Sorry an error occurred/i)
-    .expect(500);
+  const response = await request(app).get('/bang');
+
+  t.equal(response.status, 500);
+  t.contains(response.text, 'Sorry an error occurred');
 });
 
 test('should display an not-found 404 error page for missing pages', async t => {
   app.use(pageNotFoundMiddleware);
-  return request(app)
-    .get('/not-to-exist')
-    .expect(/Page not found/i)
-    .expect(404);
+  const response = await request(app).get('/not-to-exist');
+
+  t.equal(response.status, 404);
+  t.contains(response.text, 'Page not found');
 });
