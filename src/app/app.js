@@ -11,6 +11,7 @@ import {cfClient} from '../cf';
 import orgs from '../orgs';
 import spaces from '../spaces';
 import applications from '../applications';
+import services from '../services';
 import {pageNotFoundMiddleware, internalServerErrorMiddleware} from '../errors';
 import csp from './app.csp';
 
@@ -41,6 +42,7 @@ export default function (config) {
   app.use('/orgs', orgs);
   app.use('/spaces', spaces);
   app.use('/applications', applications);
+  app.use('/services', services);
 
   app.use(pageNotFoundMiddleware);
   app.use(internalServerErrorMiddleware);
