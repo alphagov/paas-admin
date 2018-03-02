@@ -4,7 +4,11 @@ import orgs from './orgs.njk';
 const app = express();
 
 app.get('/', (req, res) => {
-  res.send(orgs.render({name: req.query.name}));
+  req.cf.organizations()
+    .then(organizations => {
+      res.send(orgs.render({organizations}));
+    })
+    .catch(req.log.error);
 });
 
 export default app;

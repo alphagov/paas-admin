@@ -2,6 +2,7 @@ import {test} from 'tap';
 import request from 'supertest';
 import pino from 'pino';
 import nock from 'nock';
+import {orgs} from '../cf/client.test.data';
 import init from '.';
 
 const logger = pino({}, Buffer.from([]));
@@ -16,7 +17,8 @@ const app = init({
   oauthTokenURL: 'https://example.com/token',
   oauthClientID: 'key',
   oauthClientSecret: 'secret',
-  serverRootURL: 'http://localhost:3000'
+  serverRootURL: 'http://localhost:3000',
+  cloudFoundryAPI: 'https://example.com/api'
 });
 
 test('should store a session in a signed cookie', async t => {
@@ -77,6 +79,8 @@ test('when authenticated', async t => {
     t.equal(response.status, 302);
     t.contains(response.header['set-cookie'][0], 'pazmin-session');
   });
+
+  nock('https://example.com').get('/api/v2/organizations').times(1).reply(200, orgs);
 
   await t.test('should return orgs', async t => {
     const response = await agent.get('/orgs');
