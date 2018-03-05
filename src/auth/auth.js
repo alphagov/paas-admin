@@ -1,5 +1,6 @@
 import express from 'express';
 import passport from 'passport';
+import jwt from 'jsonwebtoken';
 import * as oauth2 from 'passport-oauth2';
 
 export default function authentication(config) {
@@ -45,11 +46,28 @@ export default function authentication(config) {
     res.redirect('/');
   });
 
-  app.use((req, res, next) => {
+  app.use((req, _res, next) => {
     if (req.isAuthenticated()) {
+      req.rawToken = jwt.decode(req.session.passport.user);
+    }
+
+    next();
+  });
+
+  app.use((req, res, next) => {
+    if (req.isAuthenticated() && req.rawToken) {
+      req.sessionOptions.expires = req.rawToken.exp;
+    }
+
+    next();
+  });
+
+  app.use((req, res, next) => {
+    if (req.isAuthenticated() && !isExpired(req)) {
       req.accessToken = req.session.passport.user;
       next();
     } else {
+      req.session = null;
       const fullUrl = req.protocol + '://' + req.get('host') + req.path;
       req.session.returnTo = fullUrl;
       res.redirect('/auth/login');
@@ -58,4 +76,12 @@ export default function authentication(config) {
   });
 
   return app;
+}
+
+function isExpired(req) {
+  if (!req.rawToken || !req.rawToken.exp) {
+    return true;
+  }
+
+  return Math.floor(Date.now() / 1000) > req.rawToken.exp;
 }

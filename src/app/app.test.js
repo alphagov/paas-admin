@@ -1,4 +1,5 @@
 import {test} from 'tap';
+import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import pino from 'pino';
 import nock from 'nock';
@@ -57,16 +58,18 @@ test('missing pages should redirect with a 302 if not authenticated', async t =>
 
 test('when authenticated', async t => {
   const agent = request.agent(app);
+  const time = Math.floor(Date.now() / 1000);
+  const token = jwt.sign({foo: 'bar', exp: (time + (24 * 60 * 60))}, 'shhhhh');
 
   // Capture the request to the given URL and prepare a response.
   nock('https://example.com')
     .post('/token')
     .times(1)
     .reply(200, {
-      access_token: '__access_token__', // eslint-disable-line camelcase
+      access_token: token, // eslint-disable-line camelcase
       token_type: 'bearer', // eslint-disable-line camelcase
       refresh_token: '__refresh_token__', // eslint-disable-line camelcase
-      expires_in: 43199, // eslint-disable-line camelcase
+      expires_in: (24 * 60 * 60), // eslint-disable-line camelcase
       scope: 'openid oauth.approvals',
       jti: '__jti__'
     });
@@ -91,3 +94,34 @@ test('when authenticated', async t => {
   });
 });
 
+test('when token expires', async t => {
+  const agent = request.agent(app);
+  const time = Math.floor(Date.now() / 1000);
+  const token = jwt.sign({foo: 'bar', exp: (time - (24 * 60 * 60))}, 'shhhhh');
+
+  // Capture the request to the given URL and prepare a response.
+  nock('https://example.com')
+    .post('/token')
+    .times(1)
+    .reply(200, {
+      access_token: token, // eslint-disable-line camelcase
+      token_type: 'bearer', // eslint-disable-line camelcase
+      refresh_token: '__refresh_token__', // eslint-disable-line camelcase
+      expires_in: (24 * 60 * 60), // eslint-disable-line camelcase
+      scope: 'openid oauth.approvals',
+      jti: '__jti__'
+    });
+
+  await t.test('should authenticate successfully', async t => {
+    const response = await agent.get('/auth/login/callback?code=__fakecode__&state=__fakestate__');
+
+    t.equal(response.status, 302);
+    t.contains(response.header['set-cookie'][0], 'pazmin-session');
+  });
+
+  await t.test('should be redirected to login due to expired token', async t => {
+    const response = await agent.get('/orgs');
+
+    t.equal(response.status, 302);
+  });
+});

@@ -42,6 +42,7 @@
     "helmet": "3.10.0",
     "html-loader": "0.5.5",
     "istanbul-instrumenter-loader": "3.0.0",
+    "jsonwebtoken": "8.2.0",
     "loader-utils": "1.1.0",
     "nock": "9.1.6",
     "node-sass": "4.7.2",
