@@ -32,7 +32,7 @@ paas-admin:
 	secret: [CF_CLIENT_SECRET]
 	scope: scim.me,openid,profile,roles,notification_preferences.read,user_attributes,uaa.user,notification_preferences.write,cloud_controller.read,password.write approvals.me,cloud_controller.write,cloud_controller_service_permissions.read,oauth.approvals
 	authorities: clients.read,clients.write,clients.secret,uaa.admin,scim.read,scim.write,password.write,zone.admin
-	redirect-uri: "https://[pass-admin-domain.com]/auth/cloudfoundry/callback"
+	redirect-uri: "https://[pass-admin-domain.com]/auth/login/callback"
 ```
 
 ## Requirements
@@ -61,8 +61,18 @@ npm test
 Start the server in development mode
 
 ```sh
+OAUTH_AUTHORIZATION_URL="https://login.$DEPLOY_ENV.dev.cloudpipeline.digital/oauth/authorize" \
+OAUTH_TOKEN_URL="https://uaa.$DEPLOY_ENV.dev.cloudpipeline.digital/oauth/token" \
+OAUTH_CLIENT_ID="my-client-id" \
+OAUTH_CLIENT_SECRET="my-secret" \
+SERVER_ROOT_URL="http://localhost:3000" \
 npm start
 ```
+
+TIP: set `NODE_EXTRA_CA_CERTS=path/to/router-ca.crt` if your UAA/CF uses the
+gorouter's self-signed cert (e.g. on bosh-lite).
+
+(the above values make sense for the UK Government PaaS team)
 
 You should be able to edit files in the `./src` directory and the changes will
 automatically be updated.
