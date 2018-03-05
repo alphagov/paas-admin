@@ -185,8 +185,8 @@ export const users = `{
   "resources": [
     {
       "metadata": {
-        "guid": "uaa-id-245",
-        "url": "/v2/users/uaa-id-245",
+        "guid": "uaa-id-253",
+        "url": "/v2/users/uaa-id-253",
         "created_at": "2016-06-08T16:41:35Z",
         "updated_at": "2016-06-08T16:41:26Z"
       },
@@ -195,13 +195,19 @@ export const users = `{
         "active": false,
         "default_space_guid": null,
         "username": "user@example.com",
-        "spaces_url": "/v2/users/uaa-id-245/spaces",
-        "organizations_url": "/v2/users/uaa-id-245/organizations",
-        "managed_organizations_url": "/v2/users/uaa-id-245/managed_organizations",
-        "billing_managed_organizations_url": "/v2/users/uaa-id-245/billing_managed_organizations",
-        "audited_organizations_url": "/v2/users/uaa-id-245/audited_organizations",
-        "managed_spaces_url": "/v2/users/uaa-id-245/managed_spaces",
-        "audited_spaces_url": "/v2/users/uaa-id-245/audited_spaces"
+        "organization_roles": [
+          "org_user",
+          "org_manager",
+          "org_auditor",
+          "billing_manager"
+        ],
+        "spaces_url": "/v2/users/uaa-id-253/spaces",
+        "organizations_url": "/v2/users/uaa-id-253/organizations",
+        "managed_organizations_url": "/v2/users/uaa-id-253/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-id-253/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-id-253/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-id-253/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-id-253/audited_spaces"
       }
     }
   ]

@@ -45,6 +45,11 @@ export default class Client {
     return this.allResources(response);
   }
 
+  async spacesForUserInOrganization(user, organization) {
+    const response = await this.request('get', `/v2/users/${user}/spaces?q=organization_guid:${organization}`);
+    return this.allResources(response);
+  }
+
   async applications(space) {
     const response = await this.request('get', `/v2/spaces/${space}/apps`);
     return this.allResources(response);
@@ -55,8 +60,8 @@ export default class Client {
     return this.allResources(response);
   }
 
-  async users(organization) {
-    const response = await this.request('get', `/v2/organizations/${organization}/users`);
+  async usersInOrganization(organization) {
+    const response = await this.request('get', `/v2/organizations/${organization}/user_roles`);
     return this.allResources(response);
   }
 }

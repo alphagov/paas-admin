@@ -14,7 +14,8 @@ test('should create a client correctly', async t => {
     .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces').times(1).reply(200, data.spaces)
     .get('/v2/spaces/be1f9c1d-e629-488e-a560-a35b545f0ad7/apps').times(1).reply(200, data.apps)
     .get('/v2/spaces/f858c6b3-f6b1-4ae8-81dd-8e8747657fbe/service_instances').times(1).reply(200, data.services)
-    .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users').times(1).reply(200, data.users)
+    .get('/v2/users/uaa-id-253/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').times(1).reply(200, data.spaces)
+    .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').times(1).reply(200, data.users)
     .get('/v2/test').times(1).reply(200, `{"next_url":"/v2/test?page=2","resources":["a"]}`)
     .get('/v2/test?page=2').times(1).reply(200, `{"next_url":null,"resources":["b"]}`);
 
@@ -45,6 +46,13 @@ test('should obtain list of spaces', async t => {
   t.equal(spaces[0].entity.name, 'name-1774');
 });
 
+test('should obtain list of spaces for specific user in given org', async t => {
+  const spaces = await client.spacesForUserInOrganization('uaa-id-253', '3deb9f04-b449-4f94-b3dd-c73cefe5b275');
+
+  t.ok(spaces.length > 0);
+  t.equal(spaces[0].entity.name, 'name-1774');
+});
+
 test('should obtain list of apps', async t => {
   const apps = await client.applications('be1f9c1d-e629-488e-a560-a35b545f0ad7');
 
@@ -60,7 +68,7 @@ test('should obtain list of services', async t => {
 });
 
 test('should obtain list of users', async t => {
-  const users = await client.users('3deb9f04-b449-4f94-b3dd-c73cefe5b275');
+  const users = await client.usersInOrganization('3deb9f04-b449-4f94-b3dd-c73cefe5b275');
 
   t.ok(users.length > 0);
   t.equal(users[0].entity.username, 'user@example.com');
