@@ -7,7 +7,12 @@ import staticGzip from 'express-static-gzip';
 
 import auth from '../auth';
 import home from '../home';
+import {cfClient} from '../cf';
 import orgs from '../orgs';
+import spaces from '../spaces';
+import applications from '../applications';
+import services from '../services';
+import users from '../users';
 import {pageNotFoundMiddleware, internalServerErrorMiddleware} from '../errors';
 import csp from './app.csp';
 
@@ -33,8 +38,13 @@ export default function (config) {
 
   // Authenticated endpoints follow
   app.use(auth(config));
+  app.use(cfClient(config));
 
   app.use('/orgs', orgs);
+  app.use('/spaces', spaces);
+  app.use('/applications', applications);
+  app.use('/services', services);
+  app.use('/users', users);
 
   app.use(pageNotFoundMiddleware);
   app.use(internalServerErrorMiddleware);

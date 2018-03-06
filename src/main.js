@@ -53,7 +53,8 @@ const config = {
   oauthTokenURL: expectEnvVariable('OAUTH_TOKEN_URL'),
   oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
   oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
-  serverRootURL: process.env.SERVER_ROOT_URL || 'http://localhost:' + (process.env.PORT || '3000')
+  serverRootURL: process.env.SERVER_ROOT_URL || 'http://localhost:' + (process.env.PORT || '3000'),
+  cloudFoundryAPI: expectEnvVariable('API_URL')
 };
 
 main(config).then(onShutdown).catch(onError);

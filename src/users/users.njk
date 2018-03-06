@@ -1,0 +1,105 @@
+{% extends "../layouts/govuk.njk" %}
+{% from "@govuk-frontend/button/macro.njk" import govukButton %}
+{% from "@govuk-frontend/details/macro.njk" import govukDetails %}
+
+{% block page_title %}
+  Team members
+{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" type="text/css" href="./users.scss">
+{% endblock %}
+
+{% block main %}
+<div class="govuk-o-grid">
+  <div class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
+    <h1 class="heading-large">
+      Team members
+    </h1>
+
+    <p class="govuk-body-l">
+      Members can have organisation and space level roles.
+      <br />
+      To edit a members role go to their profile.
+    </p>
+  </div>
+
+  <div class="govuk-o-grid__item govuk-o-grid__item--one-third">
+    {{ govukButton({
+      "text": "Invite a new team member",
+      "href": "#"
+    }) }}
+  </div>
+
+  <div class="govuk-o-grid__item govuk-o-grid__item--full">
+    <details class="govuk-c-details" role="group">
+      <summary class="govuk-c-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
+        <span class="govuk-c-details__summary-text">
+          What these roles mean
+        </span>
+      </summary>
+
+      <div class="govuk-c-details__text" aria-hidden="true">
+        <h3 class="heading-small">Org billing manager</h3>
+        <p>
+          Org billing manager
+        </p>
+
+        <h3 class="heading-small">Org manager</h3>
+        <p>
+          Org manager
+        </p>
+
+        <h3 class="heading-small">Org auditor</h3>
+        <p>
+          Org auditor
+        </p>
+
+        <p>Go to a space to learn more about space level roles.</p>
+      </div>
+    </details>
+  </div>
+</div>
+
+<table class="govuk-c-table user-list">
+  <thead class="govuk-c-table__head">
+    <tr class="govuk-c-table__row">
+      <th class="govuk-c-table__header name" scope="col">Name</th>
+      <th class="govuk-c-table__header is-billing-manager" scope="col">Org billing manager</th>
+      <th class="govuk-c-table__header is-org-manager" scope="col">Org manager</th>
+      <th class="govuk-c-table__header is-org-auditor" scope="col">Org auditor</th>
+      <th class="govuk-c-table__header spaces" scope="col">Spaces a collaborator on</th>
+    </tr>
+  </thead>
+  <tbody class="govuk-c-table__body">
+    {% for user in users %}
+    <tr class="govuk-c-table__row">
+      <td class="govuk-c-table__cell">
+        <a href="#" class="govuk-link">{{ user.entity.username }}</a>
+      </td>
+      <td class="govuk-c-table__cell">
+        {% if 'billing_manager' in user.entity.organization_roles %}
+          <img class="tick" alt="Yes" src="../static/images/tick.png">
+        {% endif %}
+      </td>
+      <td class="govuk-c-table__cell">
+        {% if 'org_manager' in user.entity.organization_roles %}
+          <img class="tick" alt="Yes" src="../static/images/tick.png">
+        {% endif %}
+      </td>
+      <td class="govuk-c-table__cell">
+        {% if 'org_auditor' in user.entity.organization_roles %}
+          <img class="tick" alt="Yes" src="../static/images/tick.png">
+        {% endif %}
+      </td>
+      <td class="govuk-c-table__cell">
+        {% for space in user.spaces %}
+          <a href="#" class="govuk-link">{{ space.entity.name }}</a>
+        {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

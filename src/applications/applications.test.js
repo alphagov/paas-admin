@@ -3,10 +3,10 @@ import express from 'express';
 import nock from 'nock';
 import request from 'supertest';
 import {Client} from '../cf';
-import {orgs} from '../cf/client.test.data';
-import orgsApp from '.';
+import {apps} from '../cf/client.test.data';
+import applicationsApp from '.';
 
-nock('https://example.com').get('/api/v2/organizations').times(1).reply(200, orgs);
+nock('https://example.com').get('/api/v2/spaces/be1f9c1d-e629-488e-a560-a35b545f0ad7/apps').times(1).reply(200, apps);
 
 const app = express();
 
@@ -20,11 +20,11 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(orgsApp);
+app.use(applicationsApp);
 
 test('should show the orgs pages', async t => {
-  const response = await request(app).get('/');
+  const response = await request(app).get('/be1f9c1d-e629-488e-a560-a35b545f0ad7');
 
   t.equal(response.status, 200);
-  t.contains(response.text, 'Create org');
+  t.contains(response.text, 'Applications');
 });

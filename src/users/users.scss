@@ -1,0 +1,27 @@
+table.user-list {
+  .name {
+    min-width: 280px;
+    width: 35%;
+  }
+
+  th.is-billing-manager {
+    width: 15%;
+  }
+
+  th.is-org-manager {
+    width: 15%;
+  }
+
+  th.is-org-auditor {
+    width: 15%;
+  }
+
+  th.spaces {
+    width: 20%;
+  }
+
+  img.tick {
+    height: 20px;
+    width: 20px;
+  }
+}

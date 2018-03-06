@@ -66,6 +66,7 @@ OAUTH_TOKEN_URL="https://uaa.$DEPLOY_ENV.dev.cloudpipeline.digital/oauth/token" 
 OAUTH_CLIENT_ID="my-client-id" \
 OAUTH_CLIENT_SECRET="my-secret" \
 SERVER_ROOT_URL="http://localhost:3000" \
+API_URL="https://api.$DEPLOY_ENV.dev.cloudpipeline.digital/" \
 npm start
 ```
 
