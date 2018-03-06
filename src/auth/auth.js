@@ -1,5 +1,6 @@
 import express from 'express';
 import passport from 'passport';
+import jwt from 'jsonwebtoken';
 import * as oauth2 from 'passport-oauth2';
 
 export default function authentication(config) {
@@ -31,13 +32,7 @@ export default function authentication(config) {
   app.get('/auth/login', passport.authenticate('oauth2'));
 
   app.get('/auth/login/callback', passport.authenticate('oauth2'), (req, res) => {
-    const redirection = req.session.returnTo;
-    delete req.session.returnTo;
-
-    res.redirect(redirection || '/');
-    req.log.info({
-      returnTo: redirection
-    }, `Authentication successful, redirecting back to ${redirection}`);
+    res.redirect('/');
   });
 
   app.get('/auth/logout', (req, res) => {
@@ -45,17 +40,39 @@ export default function authentication(config) {
     res.redirect('/');
   });
 
-  app.use((req, res, next) => {
+  app.use((req, _res, next) => {
     if (req.isAuthenticated()) {
+      req.rawToken = jwt.decode(req.session.passport.user);
+    }
+
+    next();
+  });
+
+  app.use((req, res, next) => {
+    if (req.isAuthenticated() && req.rawToken) {
+      req.sessionOptions.expires = req.rawToken.exp;
+    }
+
+    next();
+  });
+
+  app.use((req, res, next) => {
+    if (req.isAuthenticated() && !isExpired(req)) {
       req.accessToken = req.session.passport.user;
       next();
     } else {
-      const fullUrl = req.protocol + '://' + req.get('host') + req.path;
-      req.session.returnTo = fullUrl;
+      req.session = null;
       res.redirect('/auth/login');
-      req.log.info(`Performing authentication for ${fullUrl}.`);
     }
   });
 
   return app;
+}
+
+function isExpired(req) {
+  if (!req.rawToken || !req.rawToken.exp) {
+    return true;
+  }
+
+  return Math.floor(Date.now() / 1000) > req.rawToken.exp;
 }
