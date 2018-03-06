@@ -32,13 +32,7 @@ export default function authentication(config) {
   app.get('/auth/login', passport.authenticate('oauth2'));
 
   app.get('/auth/login/callback', passport.authenticate('oauth2'), (req, res) => {
-    const redirection = req.session.returnTo;
-    delete req.session.returnTo;
-
-    res.redirect(redirection || '/');
-    req.log.info({
-      returnTo: redirection
-    }, `Authentication successful, redirecting back to ${redirection}`);
+    res.redirect('/');
   });
 
   app.get('/auth/logout', (req, res) => {
@@ -68,10 +62,7 @@ export default function authentication(config) {
       next();
     } else {
       req.session = null;
-      const fullUrl = req.protocol + '://' + req.get('host') + req.path;
-      req.session.returnTo = fullUrl;
       res.redirect('/auth/login');
-      req.log.info(`Performing authentication for ${fullUrl}.`);
     }
   });
 

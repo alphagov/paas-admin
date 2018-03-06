@@ -72,7 +72,7 @@ test('can login with a code', async t => {
     const response = await agent.get('/auth/login/callback?code=__fakecode&state=__fakestate');
 
     t.equal(response.status, 302);
-    t.contains(response.header.location, '/test');
+    t.contains(response.header.location, '/');
   });
 
   await t.test('can reach an endpoint behind authentication', async t => {
