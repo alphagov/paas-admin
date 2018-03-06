@@ -11,6 +11,7 @@
 
 
 {% block main %}
+  <pre>{{ organizations | dump }}</pre>
   {% if name %}
     {{ govukBackLink({
       "text": "Back",
@@ -18,7 +19,7 @@
     }) }}
     {{ govukPanel({
       "titleText": "Organisation Created!",
-      "text": "Your org is called " + name
+      "text": "Your org is called " + "test"
     }) }}
   {% else %}
     <form action="/orgs" method="get">
@@ -29,7 +30,7 @@
         },
         id: "name-1",
         name: "name",
-        value: name
+        value: "test"
       }) }}
       {{ govukButton({
           "text": "Create org (not really)"

@@ -8,7 +8,8 @@ const envVars = {
   OAUTH_AUTHORIZATION_URL: 'test',
   OAUTH_TOKEN_URL: 'test',
   OAUTH_CLIENT_ID: 'test',
-  OAUTH_CLIENT_SECRET: 'test'
+  OAUTH_CLIENT_SECRET: 'test',
+  API_URL: 'https://example.com'
 };
 
 t.test('should listen on a random port by default', async t => {
