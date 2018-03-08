@@ -1,12 +1,12 @@
 import express from 'express';
-import orgs from './orgs.njk';
+import organizationsTemplate from './organizations.njk';
 
 const app = express();
 
 app.get('/', (req, res) => {
   req.cf.organizations()
     .then(organizations => {
-      res.send(orgs.render({organizations}));
+      res.send(organizationsTemplate.render({organizations}));
     })
     .catch(req.log.error);
 });

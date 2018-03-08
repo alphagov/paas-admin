@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import pino from 'pino';
 import nock from 'nock';
-import {orgs} from '../cf/client.test.data';
+import {organizations} from '../cf/client.test.data';
 import init from '.';
 
 const logger = pino({}, Buffer.from([]));
@@ -47,7 +47,7 @@ test('should gzip responses', async t => {
 });
 
 test('should redirect to oauth provider for auth', async t => {
-  const response = await request(app).get('/orgs');
+  const response = await request(app).get('/organisations');
 
   t.equal(response.status, 302);
 });
@@ -83,10 +83,10 @@ test('when authenticated', async t => {
     t.contains(response.header['set-cookie'][0], 'pazmin-session');
   });
 
-  nock('https://example.com').get('/api/v2/organizations').times(1).reply(200, orgs);
+  nock('https://example.com').get('/api/v2/organizations').times(1).reply(200, organizations);
 
-  await t.test('should return orgs', async t => {
-    const response = await agent.get('/orgs');
+  await t.test('should return organisations', async t => {
+    const response = await agent.get('/organisations');
 
     t.equal(response.status, 200);
   });
@@ -124,7 +124,7 @@ test('when token expires', async t => {
   });
 
   await t.test('should be redirected to login due to expired token', async t => {
-    const response = await agent.get('/orgs');
+    const response = await agent.get('/organisations');
 
     t.equal(response.status, 302);
   });
