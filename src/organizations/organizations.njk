@@ -9,11 +9,13 @@
   Organisations
 {% endblock %}
 
-{% block title %}
-  Welcome to GOV.UK PaaS
-{% endblock %}
 {% block main %}
+  <h1 class="govuk-heading-l">
+    Welcome to GOV.UK PaaS
+  </h1>
+  
   <h2 class="govuk-heading-m">Choose an organisation</h2>
+  
   <div class="govuk-o-grid">
     {% for organization in organizations %}
       <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
