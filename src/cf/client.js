@@ -6,7 +6,7 @@ export default class Client {
     this.accessToken = accessToken;
   }
 
-  request(method, url, data, params) {
+  _request(method, url, data, params) {
     return axios.request({
       url,
       method,
@@ -15,6 +15,17 @@ export default class Client {
       params,
       headers: {Authorization: `Bearer ${this.accessToken}`}
     });
+  }
+
+  async request(method, url, data, params) {
+    try {
+      return await this._request(method, url, data, params);
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.description) {
+        throw new Error(err.response.data.description);
+      }
+      throw err;
+    }
   }
 
   async allResources(response) {
