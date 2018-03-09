@@ -35,6 +35,15 @@ paas-admin:
 	redirect-uri: "https://[pass-admin-domain.com]/auth/login/callback"
 ```
 
+If you get problems with "Invalid redirect", use uaac to modify the
+redirect-uri:
+
+```
+uaac target https://uaa.my.environment
+uaac token client get admin -s my-uaa-admin-client-secret
+uaac client update paas-admin --redirect-uri http://localhost:3000/auth/login/callback
+```
+
 ## Requirements
 
 * [Node.js](https://nodejs.org/en/) version `8 LTS`
