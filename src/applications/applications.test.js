@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 
 app.use(applicationsApp);
 
-test('should show the orgs pages', async t => {
+test('should show the organisations pages', async t => {
   const response = await request(app).get('/be1f9c1d-e629-488e-a560-a35b545f0ad7');
 
   t.equal(response.status, 200);

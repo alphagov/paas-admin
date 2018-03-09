@@ -8,7 +8,7 @@ import staticGzip from 'express-static-gzip';
 import auth from '../auth';
 import home from '../home';
 import {cfClient} from '../cf';
-import orgs from '../orgs';
+import organizations from '../organizations';
 import spaces from '../spaces';
 import applications from '../applications';
 import services from '../services';
@@ -40,7 +40,7 @@ export default function (config) {
   app.use(auth(config));
   app.use(cfClient(config));
 
-  app.use('/orgs', orgs);
+  app.use('/organisations', organizations);
   app.use('/spaces', spaces);
   app.use('/applications', applications);
   app.use('/services', services);

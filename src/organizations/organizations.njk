@@ -1,0 +1,27 @@
+{% extends "../layouts/govuk.njk" %}
+{% from "@govuk-frontend/input/macro.njk" import govukInput %}
+{% from "@govuk-frontend/button/macro.njk" import govukButton %}
+{% from "@govuk-frontend/panel/macro.njk" import govukPanel %}
+{% from "@govuk-frontend/back-link/macro.njk" import govukBackLink %}
+{% from "../layouts/navigationPanel/macro.njk" import navigationPanel %}
+
+{% block page_title %}
+  Organisations
+{% endblock %}
+
+{% block title %}
+  Welcome to GOV.UK PaaS
+{% endblock %}
+{% block main %}
+  <h2 class="govuk-heading-m">Choose an organisation</h2>
+  <div class="govuk-o-grid">
+    {% for organization in organizations %}
+      <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
+        {{ navigationPanel({
+          titleText: organization.entity.name,
+          link: "/spaces/" + organization.metadata.guid
+        }) }}
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

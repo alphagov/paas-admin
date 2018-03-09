@@ -10,7 +10,7 @@ test('should create a client correctly', async t => {
 
   nock('https://example.com/api').persist()
     .get('/v2/info').times(1).reply(200, data.info)
-    .get('/v2/organizations').times(1).reply(200, data.orgs)
+    .get('/v2/organizations').times(1).reply(200, data.organizations)
     .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces').times(1).reply(200, data.spaces)
     .get('/v2/spaces/be1f9c1d-e629-488e-a560-a35b545f0ad7/apps').times(1).reply(200, data.apps)
     .get('/v2/spaces/f858c6b3-f6b1-4ae8-81dd-8e8747657fbe/service_instances').times(1).reply(200, data.services)
@@ -32,11 +32,11 @@ test('should iterate over all pages to gather resources', async t => {
   t.equal(data[1], 'b');
 });
 
-test('should obtain list of organizations', async t => {
-  const orgs = await client.organizations();
+test('should obtain list of organisations', async t => {
+  const organizations = await client.organizations();
 
-  t.ok(orgs.length > 0);
-  t.equal(orgs[0].entity.name, 'the-system_domain-org-name');
+  t.ok(organizations.length > 0);
+  t.equal(organizations[0].entity.name, 'the-system_domain-org-name');
 });
 
 test('should obtain list of spaces', async t => {

@@ -16,7 +16,7 @@ export const info = `{
   "logging_endpoint": "ws://loggregator.vcap.me:80"
 }`;
 
-export const orgs = `{
+export const organizations = `{
   "total_results": 1,
   "total_pages": 1,
   "prev_url": null,
