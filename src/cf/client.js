@@ -51,9 +51,29 @@ export default class Client {
     return this.allResources(response);
   }
 
-  async spaces(organization) {
-    const response = await this.request('get', `/v2/organizations/${organization}/spaces`);
+  async organization(organizationGUID) {
+    const response = await this.request('get', `/v2/organizations/${organizationGUID}`);
+    return response.data;
+  }
+
+  async organizationQuota(quotaGUID) {
+    const response = await this.request('get', `/v2/quota_definitions/${quotaGUID}`);
+    return response.data;
+  }
+
+  async spaces(organizationGUID) {
+    const response = await this.request('get', `/v2/organizations/${organizationGUID}/spaces`);
     return this.allResources(response);
+  }
+
+  async space(spaceGUID) {
+    const response = await this.request('get', `/v2/spaces/${spaceGUID}/summary`);
+    return response.data;
+  }
+
+  async spaceQuota(quotaGUID) {
+    const response = await this.request('get', `/v2/space_quota_definitions/${quotaGUID}`);
+    return response.data;
   }
 
   async spacesForUserInOrganization(user, organization) {

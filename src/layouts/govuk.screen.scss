@@ -1,2 +1,6 @@
 @import '~@govuk-frontend/all/all';
+
 @import 'navigationPanel/_navigationPanel.scss';
+@import '../organizations/subnav/element';
+
+@import '../spaces/spaces';
