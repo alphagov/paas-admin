@@ -6,7 +6,7 @@ export default class Client {
     this.accessToken = accessToken;
   }
 
-  request(method, url, data, params) {
+  _request(method, url, data, params) {
     return axios.request({
       url,
       method,
@@ -15,6 +15,17 @@ export default class Client {
       params,
       headers: {Authorization: `Bearer ${this.accessToken}`}
     });
+  }
+
+  async request(method, url, data, params) {
+    try {
+      return await this._request(method, url, data, params);
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.description) {
+        throw new Error(`${url}: ${err.response.data.description}`);
+      }
+      throw err;
+    }
   }
 
   async allResources(response) {
@@ -40,9 +51,34 @@ export default class Client {
     return this.allResources(response);
   }
 
-  async spaces(organization) {
-    const response = await this.request('get', `/v2/organizations/${organization}/spaces`);
+  async organization(organizationGUID) {
+    const response = await this.request('get', `/v2/organizations/${organizationGUID}`);
+    return response.data;
+  }
+
+  async organizationQuota(quotaGUID) {
+    const response = await this.request('get', `/v2/quota_definitions/${quotaGUID}`);
+    return response.data;
+  }
+
+  async spaces(organizationGUID) {
+    const response = await this.request('get', `/v2/organizations/${organizationGUID}/spaces`);
     return this.allResources(response);
+  }
+
+  async space(spaceGUID) {
+    const response = await this.request('get', `/v2/spaces/${spaceGUID}`);
+    return response.data;
+  }
+
+  async spaceSummary(spaceGUID) {
+    const response = await this.request('get', `/v2/spaces/${spaceGUID}/summary`);
+    return response.data;
+  }
+
+  async spaceQuota(quotaGUID) {
+    const response = await this.request('get', `/v2/space_quota_definitions/${quotaGUID}`);
+    return response.data;
   }
 
   async spacesForUserInOrganization(user, organization) {
@@ -50,9 +86,14 @@ export default class Client {
     return this.allResources(response);
   }
 
-  async applications(space) {
-    const response = await this.request('get', `/v2/spaces/${space}/apps`);
+  async applications(spaceGUID) {
+    const response = await this.request('get', `/v2/spaces/${spaceGUID}/apps`);
     return this.allResources(response);
+  }
+
+  async applicationSummary(applicationGUID) {
+    const response = await this.request('get', `/v2/apps/${applicationGUID}/summary`);
+    return response.data;
   }
 
   async services(space) {

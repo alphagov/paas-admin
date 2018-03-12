@@ -9,8 +9,156 @@
   Spaces
 {% endblock %}
 
+{% block main_classes %}with-subnav{% endblock %}
+
 {% block main %}
-  <pre>{{ spaces | dump }}</pre>
+  {% include "../organizations/subnav/element.njk" %}
+
+  <div class="govuk-o-grid">
+    <div class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
+      <h1 class="govuk-heading-xl">
+        <span class="govuk-caption-xl">Organisation</span>
+        {{ organization.entity.name }}
+      </h1>
+    </div>
+
+    <div class="govuk-o-grid__item govuk-o-grid__item--one-third">
+      <table class="govuk-c-table">
+        <tbody class="govuk-c-table__body">
+          <tr class="govuk-c-table__row">
+            <th class="govuk-c-table__header" scope="row">
+              Memory:
+            </th>
+            <td class="govuk-c-table__cell govuk-c-table__cell--numeric">
+              {{ (organization.entity.memory_allocated / 1024) | round(2) }}gb
+              of {{ (organization.entity.quota.entity.memory_limit / 1024) | round(2) }}gb
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2 class="govuk-heading-l">
+    This organisation has {{ spaces | length }} spaces
+  </h2>
+
+  <details class="govuk-c-details" role="group">
+    <summary class="govuk-c-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
+      <span class="govuk-c-details__summary-text">
+        What are spaces?
+      </span>
+    </summary>
+
+    <div class="govuk-c-details__text" aria-hidden="true">
+      <p>
+        Each organisation is divided into one or more spaces, which are used to organise app development, deployment, and maintenance.
+      </p>
+
+      <a href="https://docs.cloud.service.gov.uk/#organisations-spaces-amp-targets" class="govuk-link">
+        Read more about Spaces
+      </a>
+    </div>
+  </details>
+
+  {% for space in spaces %}
+    <div class="govuk-o-grid space">
+      <div class="govuk-o-grid__item govuk-o-grid__item--one-third">
+        <h3 class="govuk-heading-m">
+          <span class="govuk-caption-m">
+            Space:
+          </span>
+
+          <a href="/spaces/{{ space.metadata.guid }}/overview" id="space-{{ space.metadata.guid }}" class="govuk-link govuk-!-w-bold">
+            {{ space.entity.name }}
+          </a>
+        </h3>
+      </div>
+      
+      <div class="govuk-o-grid__item govuk-o-grid__item--one-third govuk-o-grid">
+        <div class="govuk-o-grid__item govuk-o-grid__item--full">
+          The space has {{ space.entity.apps | length }} apps:
+        </div>
+
+        <div class="govuk-o-grid__item govuk-o-grid__item--one-half running">
+          {{ space.entity.running_apps | length }} running
+        </div>
+
+        <div class="govuk-o-grid__item govuk-o-grid__item--one-half stopped">
+          {{ space.entity.stopped_apps | length }} stopped
+        </div>
+      </div>
+
+      <div class="govuk-o-grid__item govuk-o-grid__item--one-third govuk-o-grid">
+        <div class="govuk-o-grid__item govuk-o-grid__item--full">
+          Space memory allocated:
+        </div>
+
+        <div class="govuk-o-grid__item govuk-o-grid__item--full">
+          {{ (space.entity.memory_allocated / 1024) | round(2) }}gb of 
+          {% if space.entity.quota %}
+            {{ (space.entity.quota.memory_limit / 1024) | round(2) }}gb
+          {% else %}
+            no limit
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+  <h2 class="govuk-heading-l">
+    This organisation has {{ users | length }} team members
+  </h2>
+
+  <div class="govuk-o-grid">
+    <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
+      <a href="/users/{{ organization.metadata.guid }}" class="govuk-link">
+        View and manage team members
+      </a>
+
+      <p>
+        As an ‘org manager’ you can manage team members in your organiation.
+      </p>
+    </div>
+
+    <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
+      <table class="govuk-c-table">
+        <caption class="govuk-c-table__caption">
+          There are {{ managers | length }} Org managers:
+        </caption>
+
+        <tbody class="govuk-c-table__body">
+          {% for user in managers %}
+            <tr class="govuk-c-table__row">
+              <td class="govuk-c-table__cell">
+                <a href="#">
+                  {{ user.entity.username }}
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <details class="govuk-c-details" role="group">
+        <summary class="govuk-c-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
+          <span class="govuk-c-details__summary-text">
+            What are org managers?
+          </span>
+        </summary>
+
+        <div class="govuk-c-details__text" aria-hidden="true">
+          <p>
+            An org manager administers user roles.
+          </p>
+
+          <a href="https://docs.cloud.service.gov.uk/#user-roles" class="govuk-link">
+            Read more about different roles
+          </a>
+        </div>
+      </details>
+    </div>
+  </div>
 {% endblock %}
 
 

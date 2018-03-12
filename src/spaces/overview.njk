@@ -1,0 +1,101 @@
+{% extends "../layouts/govuk.njk" %}
+{% from "@govuk-frontend/input/macro.njk" import govukInput %}
+{% from "@govuk-frontend/button/macro.njk" import govukButton %}
+{% from "@govuk-frontend/panel/macro.njk" import govukPanel %}
+{% from "@govuk-frontend/back-link/macro.njk" import govukBackLink %}
+{% from "@govuk-frontend/details/macro.njk" import govukDetails %}
+
+{% block page_title %}
+  {{ space.entity.name }} - Overview
+{% endblock %}
+
+{% block main_classes %}with-subnav{% endblock %}
+
+{% block main %}
+  {% include "../organizations/subnav/element.njk" %}
+
+  <h1 class="govuk-heading-xl">
+    <span class="govuk-caption-xl">Space</span>
+    {{ space.entity.name }}
+  </h1>
+
+  <h2 class="govuk-heading-l">
+    This space has {{ applications | length }} applications
+  </h2>
+
+  {% if applications.length > 0 %}
+    <table class="govuk-c-table space-overview">
+      <thead class="govuk-c-table__head">
+        <tr class="govuk-c-table__row">
+          <th class="govuk-c-table__header name" scope="col">Application name</th>
+          <th class="govuk-c-table__header" scope="col">Instances</th>
+          <th class="govuk-c-table__header" scope="col">Memory</th>
+          <th class="govuk-c-table__header" scope="col">Disk</th>
+          <th class="govuk-c-table__header" scope="col">Status</th>
+          <th class="govuk-c-table__header" scope="col">URLs</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-c-table__body">
+        {% for application in applications %}
+          <tr class="govuk-c-table__row">
+            <th class="govuk-c-table__header" scope="row">
+              <a href="#" class="govuk-link">{{ application.entity.name }}</a>
+            </th>
+            <td class="govuk-c-table__cell ">
+              {{ application.entity.running_instances }}/{{ application.entity.instances }}
+            </td>
+            <td class="govuk-c-table__cell ">
+              {{ (application.entity.memory / 1024) | round(2) }}gb
+            </td>
+            <td class="govuk-c-table__cell ">
+              {{ (application.entity.disk_quota / 1024) | round(2) }}gb
+            </td>
+            <td class="govuk-c-table__cell ">
+              {{ application.entity.state }}
+            </td>
+            <td class="govuk-c-table__cell ">
+              <small>{{ application.entity.urls | join(", ") }}</small>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  <h2 class="govuk-heading-l govuk-!-mt-r9">
+    This space has {{ space.entity.services | length }} services
+  </h2>
+
+  {% if space.entity.services > 0 %}
+    <table class="govuk-c-table space-overview">
+      <thead class="govuk-c-table__head">
+        <tr class="govuk-c-table__row">
+          <th class="govuk-c-table__header name" scope="col">Service name</th>
+          <th class="govuk-c-table__header" scope="col">Type</th>
+          <th class="govuk-c-table__header" scope="col">Plan</th>
+          <th class="govuk-c-table__header" scope="col">State</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-c-table__body">
+        {% for service in space.entity.services %}
+          <tr class="govuk-c-table__row">
+            <th class="govuk-c-table__header" scope="row">
+              <a href="#" class="govuk-link">{{ service.name }}</a>
+            </th>
+            <td class="govuk-c-table__cell ">
+              {{ service.service_plan.service.label }}
+            </td>
+            <td class="govuk-c-table__cell ">
+              {{ service.service_plan.name }}
+            </td>
+            <td class="govuk-c-table__cell ">
+              {{ service.last_operation.state }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+{% endblock %}
+
+

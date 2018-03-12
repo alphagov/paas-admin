@@ -33,11 +33,7 @@
       html: 'This is a new service – your <a class="govuk-link" href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">feedback</a> will help us to improve it.'
     }) }}
 
-    <main class="govuk-o-main-wrapper">
-    <h1 class="govuk-heading-l">
-      {% block title %}
-      {% endblock %}
-    </h1>
+    <main class="govuk-o-main-wrapper {% block main_classes %}{% endblock %}">
       {% block main %}
         No content rendered to 'main' block
       {% endblock %}

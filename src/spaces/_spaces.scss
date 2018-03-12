@@ -1,0 +1,47 @@
+.space {
+  background-color: $govuk-grey-4;
+  border: $govuk-spacing-scale-2 solid $govuk-border-colour;
+  margin: $govuk-spacing-scale-2 0;
+  padding: $govuk-spacing-scale-2 0;
+  transition: background-color .1s ease;
+
+  &:hover {
+    background-color: #fff;
+  }
+
+  h3 {
+    margin: 0;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  .running::before, .stopped::before {
+    content: "";
+    border-radius: 100%;
+    display: inline-block;
+    height: $govuk-spacing-scale-2;
+    margin-right: $govuk-spacing-scale-1;
+    width: $govuk-spacing-scale-2;
+  }
+
+  .running::before {
+    background-color: $govuk-green;
+  }
+
+  .stopped::before {
+    background-color: $govuk-grey-1;
+  }
+
+  & + h2 {
+    margin-top: $govuk-spacing-scale-6 * 3;
+  }
+}
+
+table.space-overview {
+  th.name {
+    min-width: 280px;
+    width: 35%;
+  }
+}
