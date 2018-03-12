@@ -1,4 +1,5 @@
 {% extends "govuk_template_jinja/views/layouts/govuk_template.html" %}
+{% from "@govuk-frontend/phase-banner/macro.njk" import govukPhaseBanner %}
 
 {% set homepage_url = '/' %}
 
@@ -25,6 +26,13 @@
 
 {% block content %}
   <div class="govuk-o-width-container">
+    {{ govukPhaseBanner({
+      tag: {
+        text: 'alpha'
+      },
+      html: 'This is a new service – your <a class="govuk-link" href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">feedback</a> will help us to improve it.'
+    }) }}
+
     <main class="govuk-o-main-wrapper">
     <h1 class="govuk-heading-l">
       {% block title %}
