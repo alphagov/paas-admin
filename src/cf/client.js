@@ -22,7 +22,7 @@ export default class Client {
       return await this._request(method, url, data, params);
     } catch (err) {
       if (err.response && err.response.data && err.response.data.description) {
-        throw new Error(err.response.data.description);
+        throw new Error(`${url}: ${err.response.data.description}`);
       }
       throw err;
     }
@@ -67,6 +67,11 @@ export default class Client {
   }
 
   async space(spaceGUID) {
+    const response = await this.request('get', `/v2/spaces/${spaceGUID}`);
+    return response.data;
+  }
+
+  async spaceSummary(spaceGUID) {
     const response = await this.request('get', `/v2/spaces/${spaceGUID}/summary`);
     return response.data;
   }
@@ -81,9 +86,14 @@ export default class Client {
     return this.allResources(response);
   }
 
-  async applications(space) {
-    const response = await this.request('get', `/v2/spaces/${space}/apps`);
+  async applications(spaceGUID) {
+    const response = await this.request('get', `/v2/spaces/${spaceGUID}/apps`);
     return this.allResources(response);
+  }
+
+  async applicationSummary(applicationGUID) {
+    const response = await this.request('get', `/v2/apps/${applicationGUID}/summary`);
+    return response.data;
   }
 
   async services(space) {

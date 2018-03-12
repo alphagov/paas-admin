@@ -159,6 +159,33 @@ export const spaces = `{
 }`;
 
 export const space = `{
+  "metadata": {
+    "guid": "bc8d3381-390d-4bd7-8c71-25309900a2e3",
+    "url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3",
+    "created_at": "2016-06-08T16:41:40Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "name-2064",
+    "organization_guid": "6e1ca5aa-55f1-4110-a97f-1f3473e771b9",
+    "space_quota_definition_guid": null,
+    "allow_ssh": true,
+    "organization_url": "/v2/organizations/6e1ca5aa-55f1-4110-a97f-1f3473e771b9",
+    "developers_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/developers",
+    "managers_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/managers",
+    "auditors_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/auditors",
+    "apps_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/apps",
+    "routes_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/routes",
+    "domains_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/domains",
+    "service_instances_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/service_instances",
+    "app_events_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/app_events",
+    "events_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/events",
+    "security_groups_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/security_groups",
+    "staging_security_groups_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/staging_security_groups"
+  }
+}`;
+
+export const spaceSummary = `{
   "guid": "50ae42f6-346d-4eca-9e97-f8c9e04d5fbe",
   "name": "name-1382",
   "apps": [
@@ -328,6 +355,94 @@ export const apps = `{
       }
     }
   ]
+}`;
+
+export const appSummary = `{
+  "guid": "cd897c8c-3171-456d-b5d7-3c87feeabbd1",
+  "name": "name-79",
+  "routes": [
+    {
+      "guid": "2d642293-7448-45c6-a864-937c77b9c09a",
+      "host": "host-1",
+      "port": null,
+      "path": "",
+      "domain": {
+        "guid": "02e200d3-5b18-497b-aafd-17fc3bece05f",
+        "name": "domain-1.example.com"
+      }
+    }
+  ],
+  "running_instances": 0,
+  "services": [
+    {
+      "guid": "307f8c47-7796-4d90-bd40-6a56764e37b3",
+      "name": "name-82",
+      "bound_app_count": 1,
+      "last_operation": null,
+      "dashboard_url": null,
+      "service_plan": {
+        "guid": "a7229730-4c4a-418c-a449-9d9f1f2fb3c2",
+        "name": "name-83",
+        "service": {
+          "guid": "724a9245-900e-47cb-b924-0a7a98dea977",
+          "label": "label-1",
+          "provider": null,
+          "version": null
+        }
+      }
+    }
+  ],
+  "available_domains": [
+    {
+      "guid": "02e200d3-5b18-497b-aafd-17fc3bece05f",
+      "name": "domain-1.example.com",
+      "owning_organization_guid": "58a46adc-2e73-4f9c-b7ba-5e72e875cd18"
+    },
+    {
+      "guid": "f067af33-4141-4e69-bbd5-d7b3e01140fa",
+      "name": "customer-app-domain1.com",
+      "router_group_guid": null,
+      "router_group_type": null
+    },
+    {
+      "guid": "ccdb1696-d3e3-4786-a9c1-11bc64b2090a",
+      "name": "customer-app-domain2.com",
+      "router_group_guid": null,
+      "router_group_type": null
+    }
+  ],
+  "production": false,
+  "space_guid": "1053174d-eb79-4f16-bf82-9f83a52d6e84",
+  "stack_guid": "aff73b55-7767-4928-b0ce-502cca863be0",
+  "buildpack": null,
+  "detected_buildpack": null,
+  "detected_buildpack_guid": null,
+  "environment_json": null,
+  "memory": 1024,
+  "instances": 1,
+  "disk_quota": 1024,
+  "state": "STOPPED",
+  "version": "d457b51a-d7cb-494d-b39e-3171ec75bd60",
+  "command": null,
+  "console": false,
+  "debug": null,
+  "staging_task_id": null,
+  "package_state": "PENDING",
+  "health_check_http_endpoint": "",
+  "health_check_type": "port",
+  "health_check_timeout": null,
+  "staging_failed_reason": null,
+  "staging_failed_description": null,
+  "diego": false,
+  "docker_image": null,
+  "docker_credentials": {
+   "username": null,
+   "password": null
+  },
+  "package_updated_at": "2016-06-08T16:41:22Z",
+  "detected_start_command": "",
+  "enable_ssh": true,
+  "ports": null
 }`;
 
 export const services = `{

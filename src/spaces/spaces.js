@@ -1,8 +1,28 @@
 import express from 'express';
 import syncHandler from '../app/sync-handler';
 import spacesTemplate from './spaces.njk';
+import spaceOverviewTemplate from './overview.njk';
 
 const app = express();
+
+function buildURL(route) {
+  return [route.host, route.domain.name].filter(x => x).join('.') + route.path;
+}
+
+async function listApplications(client, spaceGUID) {
+  const space = await client.space(spaceGUID);
+  const applications = await client.applications(spaceGUID);
+  const organization = await client.organization(space.entity.organization_guid); // eslint-disable-line camelcase
+
+  space.entity = {...space.entity, ...await client.spaceSummary(space.metadata.guid)};
+
+  await Promise.all(applications.map(async application => {
+    application.entity = {...application.entity, ...await client.applicationSummary(application.metadata.guid)};
+    application.entity.urls = application.entity.routes.map(buildURL);
+  }));
+
+  return {organization, space, applications};
+}
 
 async function listSpaces(client, organizationGUID) {
   const spaces = await client.spaces(organizationGUID);
@@ -15,7 +35,7 @@ async function listSpaces(client, organizationGUID) {
   organization.entity.quota = await client.organizationQuota(organization.entity.quota_definition_guid); // eslint-disable-line camelcase
 
   await Promise.all(spaces.map(async space => {
-    space.entity = {...space.entity, ...await client.space(space.metadata.guid)};
+    space.entity = {...space.entity, ...await client.spaceSummary(space.metadata.guid)};
 
     space.entity.quota = null;
     if ((space.entity.space_quota_definition_guid)) { // eslint-disable-line camelcase
@@ -37,6 +57,11 @@ async function listSpaces(client, organizationGUID) {
 app.get('/:organization', syncHandler(async (req, res) => {
   const data = await listSpaces(req.cf, req.params.organization);
   res.send(spacesTemplate.render(data));
+}));
+
+app.get('/:space/overview', syncHandler(async (req, res) => {
+  const data = await listApplications(req.cf, req.params.space);
+  res.send(spaceOverviewTemplate.render(data));
 }));
 
 export default app;

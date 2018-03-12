@@ -38,3 +38,10 @@
     margin-top: $govuk-spacing-scale-6 * 3;
   }
 }
+
+table.space-overview {
+  th.name {
+    min-width: 280px;
+    width: 35%;
+  }
+}
