@@ -1,4 +1,4 @@
-.admin-c-panel--link {
+.admin-c-panel__link {
 	text-decoration: none;
 }
 
@@ -22,6 +22,11 @@
   .admin-c-panel--navigation {
     color: $govuk-white;
     background: $govuk-blue;
+
+    &:hover {
+      background: $govuk-light-blue;
+    }
+
   }
 
   .admin-c-panel__title {
