@@ -1,0 +1,86 @@
+{% extends "../layouts/govuk.njk" %}
+{% from "@govuk-frontend/table/macro.njk" import govukTable %}
+{% from "@govuk-frontend/back-link/macro.njk" import govukBackLink %}
+
+{% block page_title %}
+  {{ service.entity.name }} - Service Overview
+{% endblock %}
+
+{% block main_classes %}with-subnav{% endblock %}
+
+{% block main %}
+  {% include "../organizations/subnav/element.njk" %}
+
+  <div class="govuk-o-grid">
+    <div class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
+      {{ govukBackLink({
+        text: 'Space: ' + space.entity.name,
+        href: '/spaces/' + space.metadata.guid + '/overview'
+      }) }}
+
+      <h1 class="govuk-heading-xl">
+        <span class="govuk-caption-xl">Service</span>
+        {{ service.entity.name }}
+      </h1>
+
+      {{ govukTable({
+        caption: 'Service details',
+        firstCellIsHeader: false,
+        rows: [
+          [
+            {
+              text: 'Name'
+            },
+            {
+              text: service.entity.name
+            }
+          ],
+          [
+            {
+              text: 'Type'
+            },
+            {
+              text: service.service_plan.service.entity.label
+            }
+          ],
+          [
+            {
+              text: 'Plan'
+            },
+            {
+              text: service.service_plan.entity.name
+            }
+          ],
+          [
+            {
+              text: 'State'
+            },
+            {
+              text: service.entity.last_operation.state
+            }
+          ],
+          [
+            {
+              text: 'Tags'
+            },
+            {
+              text: service.entity.tags | join(', ')
+            }
+          ]
+        ]
+      }) }}
+
+      <h4 class="govuk-heading-s">On the commandline</h4>
+
+      <p>You can also view the same information on the commandline, to see details for all of your services use:</p>
+
+      <p>
+        <code>cf services</code>
+      </p>
+
+      <a href="https://docs.cloud.service.gov.uk/#setting-up-the-command-line" class="govuk-link">
+        Read more about using PaaS on the commandline.
+      </a>
+    </div>
+  </div>
+{% endblock %}

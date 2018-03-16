@@ -532,6 +532,107 @@ export const services = `{
   ]
 }`;
 
+export const serviceInstance = `{
+  "metadata": {
+    "guid": "0d632575-bb06-4ea5-bb19-a451a9644d92",
+    "url": "/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92",
+    "created_at": "2016-06-08T16:41:29Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "name-1508",
+    "credentials": {
+      "creds-key-38": "creds-val-38"
+    },
+    "service_guid": "a14baddf-1ccc-5299-0152-ab9s49de4422",
+    "service_plan_guid": "779d2df0-9cdd-48e8-9781-ea05301cedb1",
+    "space_guid": "38511660-89d9-4a6e-a889-c32c7e94f139",
+    "gateway_data": null,
+    "dashboard_url": null,
+    "type": "managed_service_instance",
+    "last_operation": {
+      "type": "create",
+      "state": "succeeded",
+      "description": "service broker-provided description",
+      "updated_at": "2016-06-08T16:41:29Z",
+      "created_at": "2016-06-08T16:41:29Z"
+    },
+    "tags": [
+      "accounting",
+      "mongodb"
+    ],
+    "space_url": "/v2/spaces/38511660-89d9-4a6e-a889-c32c7e94f139",
+    "service_url": "/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422",
+    "service_plan_url": "/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1",
+    "service_bindings_url": "/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92/service_bindings",
+    "service_keys_url": "/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92/service_keys",
+    "routes_url": "/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92/routes"
+  }
+}`;
+
+export const servicePlan = `{
+  "metadata": {
+    "guid": "775d0046-7505-40a4-bfad-ca472485e332",
+    "url": "/v2/service_plans/775d0046-7505-40a4-bfad-ca472485e332",
+    "created_at": "2016-06-08T16:41:30Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "name-1573",
+    "free": false,
+    "description": "desc-107",
+    "service_guid": "a00cacc0-0ca6-422e-91d3-6b22bcd33450",
+    "extra": null,
+    "unique_id": "35c56e06-f0c6-4abe-b158-b7c24c889905",
+    "public": true,
+    "active": true,
+    "bindable": true,
+    "service_url": "/v2/services/a00cacc0-0ca6-422e-91d3-6b22bcd33450",
+    "service_instances_url": "/v2/service_plans/775d0046-7505-40a4-bfad-ca472485e332/service_instances",
+    "schemas": {
+      "service_instance": {
+        "create": {},
+        "update": {}
+      },
+      "service_binding": {
+        "create": {}
+      }
+    }
+  }
+}`;
+
+export const service = `{
+  "metadata": {
+    "guid": "53f52780-e93c-4af7-a96c-6958311c40e5",
+    "url": "/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5",
+    "created_at": "2016-06-08T16:41:32Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "label": "label-58",
+    "provider": null,
+    "url": null,
+    "description": "desc-135",
+    "long_description": null,
+    "version": null,
+    "info_url": null,
+    "active": true,
+    "bindable": true,
+    "unique_id": "c181996b-f233-43d1-8901-3a43eafcaacf",
+    "extra": null,
+    "tags": [
+
+    ],
+    "requires": [
+
+    ],
+    "documentation_url": null,
+    "service_broker_guid": "0e7250aa-364f-42c2-8fd2-808b0224376f",
+    "plan_updateable": false,
+    "service_plans_url": "/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5/service_plans"
+  }
+}`;
+
 export const users = `{
   "total_results": 1,
   "total_pages": 1,

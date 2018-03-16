@@ -123,9 +123,24 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
-  async services(space) {
-    const response = await this.request('get', `/v2/spaces/${space}/service_instances`);
+  async services(spaceGUID) {
+    const response = await this.request('get', `/v2/spaces/${spaceGUID}/service_instances`);
     return this.allResources(response);
+  }
+
+  async serviceInstance(instanceGUID) {
+    const response = await this.request('get', `/v2/service_instances/${instanceGUID}`);
+    return response.data;
+  }
+
+  async service(serviceGUID) {
+    const response = await this.request('get', `/v2/services/${serviceGUID}`);
+    return response.data;
+  }
+
+  async servicePlan(planGUID) {
+    const response = await this.request('get', `/v2/service_plans/${planGUID}`);
+    return response.data;
   }
 
   async usersForOrganization(organizationGUID) {
