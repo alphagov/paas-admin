@@ -2,8 +2,8 @@ import {test} from 'tap';
 import express from 'express';
 import nock from 'nock';
 import request from 'supertest';
-import {Client} from '../cf';
-import * as data from '../cf/client.test.data';
+import {CloudFoundryClient} from '../cf';
+import * as data from '../cf/cf.test.data';
 import spacesApp from '.';
 
 nock('https://example.com/api')
@@ -28,7 +28,10 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  req.cf = new Client('https://example.com/api', 'qwerty123456');
+  req.cf = new CloudFoundryClient({
+    apiEndpoint: 'https://example.com/api',
+    accessToken: 'qwerty123456'
+  });
   next();
 });
 

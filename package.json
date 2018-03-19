@@ -73,7 +73,10 @@
     "webpack-shell-plugin": "0.5.0",
     "xo": "0.18.2"
   },
-  "dependencies": {},
+  "dependencies": {
+    "merge-deep": "3.0.1",
+    "notifications-node-client": "4.1.0"
+  },
   "engines": {
     "node": "8.9.x",
     "npm": ">=5.x.x"

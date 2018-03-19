@@ -5,11 +5,13 @@ import request from 'supertest';
 t.jobs = 8;
 
 const envVars = {
-  OAUTH_AUTHORIZATION_URL: 'test',
-  OAUTH_TOKEN_URL: 'test',
-  OAUTH_CLIENT_ID: 'test',
-  OAUTH_CLIENT_SECRET: 'test',
-  API_URL: 'https://example.com'
+  OAUTH_AUTHORIZATION_URL: 'auth-url',
+  OAUTH_TOKEN_URL: 'token-url',
+  OAUTH_CLIENT_ID: 'uaa-id',
+  OAUTH_CLIENT_SECRET: 'uaa-secret',
+  API_URL: 'https://example.com/api',
+  UAA_URL: 'https://example.com/uaa',
+  NOTIFY_API_KEY: 'notify-1234'
 };
 
 t.test('should listen on a random port by default', async t => {

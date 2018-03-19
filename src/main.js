@@ -53,8 +53,10 @@ const config = {
   oauthTokenURL: expectEnvVariable('OAUTH_TOKEN_URL'),
   oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
   oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
-  serverRootURL: process.env.SERVER_ROOT_URL || 'http://localhost:' + (process.env.PORT || '3000'),
-  cloudFoundryAPI: expectEnvVariable('API_URL')
+  cloudFoundryAPI: expectEnvVariable('API_URL'),
+  uaaAPI: expectEnvVariable('UAA_URL'),
+  notifyAPIKey: expectEnvVariable('NOTIFY_API_KEY'),
+  notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null
 };
 
 main(config).then(onShutdown).catch(onError);

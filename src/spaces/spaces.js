@@ -27,7 +27,7 @@ async function listApplications(client, spaceGUID) {
 async function listSpaces(client, organizationGUID) {
   const spaces = await client.spaces(organizationGUID);
   const organization = await client.organization(organizationGUID);
-  const users = await client.usersInOrganization(organizationGUID);
+  const users = await client.usersForOrganization(organizationGUID);
   const managers = users.filter(user =>
     user.entity.organization_roles.some(role => role === 'org_manager')
   );

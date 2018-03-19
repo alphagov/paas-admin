@@ -3,14 +3,14 @@ import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import pino from 'pino';
 import nock from 'nock';
-import {organizations} from '../cf/client.test.data';
+import {organizations} from '../cf/cf.test.data';
 import init from '.';
 
 const logger = pino({}, Buffer.from([]));
 
 const sessionSecret = 'mysecret';
 
-const app = init({
+const config = {
   logger,
   sessionSecret,
   allowInsecure: true,
@@ -18,47 +18,56 @@ const app = init({
   oauthTokenURL: 'https://example.com/token',
   oauthClientID: 'key',
   oauthClientSecret: 'secret',
-  serverRootURL: 'http://localhost:3000',
-  cloudFoundryAPI: 'https://example.com/api'
-});
+  cloudFoundryAPI: 'https://example.com/api',
+  uaaAPI: 'https://example.com/uaa',
+  notifyAPIKey: 'test-123456-qwerty',
+  notifyWelcomeTemplateID: 'qwerty-123456'
+};
 
 test('should store a session in a signed cookie', async t => {
+  const app = init(config);
   const response = await request(app).get('/test');
 
   t.contains(response.header['set-cookie'][1], 'pazmin-session.sig');
 });
 
 test('should render as text/html with utf-8 charset', async t => {
+  const app = init(config);
   const response = await request(app).get('/');
 
   t.equal(response.header['content-type'], 'text/html; charset=utf-8');
 });
 
 test('should have a Content Security Policy set', async t => {
+  const app = init(config);
   const response = await request(app).get('/');
 
   t.equal(response.header['content-security-policy'], `default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' www.google-analytics.com 'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU=' 'sha256-G29/qSW/JHHANtFhlrZVDZW1HOkCDRc78ggbqwwIJ2g='; img-src 'self' www.google-analytics.com; connect-src 'self' www.google-analytics.com; frame-src 'self'; font-src 'self' data:; object-src 'self'; media-src 'self'`);
 });
 
 test('should gzip responses', async t => {
+  const app = init(config);
   const response = await request(app).get('/');
 
   t.contains(response.header['content-encoding'], 'gzip');
 });
 
 test('should redirect to oauth provider for auth', async t => {
+  const app = init(config);
   const response = await request(app).get('/organisations');
 
   t.equal(response.status, 302);
 });
 
 test('missing pages should redirect with a 302 if not authenticated', async t => {
+  const app = init(config);
   const response = await request(app).get('/this-should-not-exists');
 
   t.equal(response.status, 302);
 });
 
 test('when authenticated', async t => {
+  const app = init(config);
   const agent = request.agent(app);
   const time = Math.floor(Date.now() / 1000);
   const token = jwt.sign({foo: 'bar', exp: (time + (24 * 60 * 60))}, 'shhhhh');
@@ -99,6 +108,7 @@ test('when authenticated', async t => {
 });
 
 test('when token expires', async t => {
+  const app = init(config);
   const agent = request.agent(app);
   const time = Math.floor(Date.now() / 1000);
   const token = jwt.sign({foo: 'bar', exp: (time - (24 * 60 * 60))}, 'shhhhh');
@@ -128,4 +138,11 @@ test('when token expires', async t => {
 
     t.equal(response.status, 302);
   });
+});
+
+test('should store a session in a signed cookie', async t => {
+  const app = init(config);
+  const response = await request(app).get('/test');
+
+  t.contains(response.header['set-cookie'][1], 'pazmin-session.sig');
 });
