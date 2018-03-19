@@ -27,7 +27,7 @@
   "author": "GOV.UK PaaS Team",
   "license": "MIT",
   "devDependencies": {
-    "@govuk-frontend/all": "0.0.22-alpha",
+    "@govuk-frontend/all": "^0.0.26-alpha",
     "axios": "0.18.0",
     "compression": "1.7.1",
     "compression-webpack-plugin": "1.1.6",
