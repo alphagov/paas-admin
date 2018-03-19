@@ -4,8 +4,8 @@ export const info = `{
   "support": "http://support.cloudfoundry.com",
   "version": 2,
   "description": "Cloud Foundry sponsored by Pivotal",
-  "authorization_endpoint": "http://localhost:8080/uaa",
-  "token_endpoint": "http://localhost:8080/uaa",
+  "authorization_endpoint": "https://auth.example.com",
+  "token_endpoint": "https://example.com/uaa",
   "min_cli_version": null,
   "min_recommended_cli_version": null,
   "api_version": "2.99.0",
@@ -492,6 +492,115 @@ export const users = `{
       "metadata": {
         "guid": "uaa-id-253",
         "url": "/v2/users/uaa-id-253",
+        "created_at": "2016-06-08T16:41:35Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "user@example.com",
+        "organization_roles": [
+          "org_user",
+          "org_manager",
+          "org_auditor",
+          "billing_manager"
+        ],
+        "spaces_url": "/v2/users/uaa-id-253/spaces",
+        "organizations_url": "/v2/users/uaa-id-253/organizations",
+        "managed_organizations_url": "/v2/users/uaa-id-253/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-id-253/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-id-253/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-id-253/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-id-253/audited_spaces"
+      }
+    }
+  ]
+}`;
+
+export const user = `{
+  "metadata": {
+    "guid": "guid-cb24b36d-4656-468e-a50d-b53113ac6177",
+    "url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177",
+    "created_at": "2016-06-08T16:41:37Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "admin": false,
+    "active": false,
+    "default_space_guid": null,
+    "spaces_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/spaces",
+    "organizations_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/organizations",
+    "managed_organizations_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/managed_organizations",
+    "billing_managed_organizations_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/billing_managed_organizations",
+    "audited_organizations_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/audited_organizations",
+    "managed_spaces_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/managed_spaces",
+    "audited_spaces_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/audited_spaces"
+  }
+}`;
+
+export const userRoles = `{
+  "metadata": {
+    "guid": "beb082da-25e1-4329-88c9-bea2d809729d",
+    "url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d",
+    "created_at": "2016-06-08T16:41:34Z",
+    "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "name": "name-1753",
+    "billing_enabled": false,
+    "quota_definition_guid": "2a6ff67b-6177-43c6-918a-c8d3bbaf0414",
+    "status": "active",
+    "quota_definition_url": "/v2/quota_definitions/2a6ff67b-6177-43c6-918a-c8d3bbaf0414",
+    "spaces_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/spaces",
+    "domains_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/domains",
+    "private_domains_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/private_domains",
+    "users_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/users",
+    "managers_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/managers",
+    "billing_managers_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/billing_managers",
+    "auditors_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/auditors",
+    "app_events_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/app_events",
+    "space_quota_definitions_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/space_quota_definitions"
+  }
+}`;
+
+export const userRolesForOrg = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "uaa-id-253",
+        "url": "/v2/users/uaa-id-253",
+        "created_at": "2016-06-08T16:41:35Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "user@example.com",
+        "organization_roles": [
+          "org_user",
+          "org_manager",
+          "org_auditor",
+          "billing_manager"
+        ],
+        "spaces_url": "/v2/users/uaa-id-253/spaces",
+        "organizations_url": "/v2/users/uaa-id-253/organizations",
+        "managed_organizations_url": "/v2/users/uaa-id-253/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-id-253/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-id-253/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-id-253/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-id-253/audited_spaces"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "99022be6-feb8-4f78-96f3-7d11f4d476f1",
+        "url": "/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1",
         "created_at": "2016-06-08T16:41:35Z",
         "updated_at": "2016-06-08T16:41:26Z"
       },
