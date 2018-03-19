@@ -98,7 +98,8 @@ let cfg = {
           {
             loader: path.resolve(__dirname, './njk-loader.js'),
             options: {
-              includePaths: ['@govuk-frontend']
+              includePaths: ['@govuk-frontend'],
+              configure: path.resolve(__dirname, './nunjucks.config.js')
             }
           },
           {
