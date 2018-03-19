@@ -5,7 +5,9 @@ import Server from './server';
 
 sourceMapSupport.install();
 
-const logger = pino();
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info'
+});
 
 function expectEnvVariable(variableName) {
   if (process.env[variableName] === undefined || process.env[variableName] === '') {
@@ -35,7 +37,7 @@ async function main(cfg) {
   process.once('SIGTERM', () => server.stop());
 
   await server.start();
-  logger.info({port: server.http.address().port}, `listening http://localhost:${server.http.address().port}/`);
+  pino().info({port: server.http.address().port}, `listening http://localhost:${server.http.address().port}/`);
 
   /* istanbul ignore if  */
   if (module.hot) {

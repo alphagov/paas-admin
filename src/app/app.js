@@ -21,7 +21,7 @@ import csp from './app.csp';
 export default function (config) {
   const app = express();
 
-  app.use(pinoMiddleware(config.logger));
+  app.use(pinoMiddleware({logger: config.logger}));
 
   app.use(cookieSession({
     name: 'pazmin-session',
