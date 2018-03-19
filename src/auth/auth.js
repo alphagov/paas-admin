@@ -10,8 +10,7 @@ export default function authentication(config) {
     authorizationURL: config.oauthAuthorizationURL,
     tokenURL: config.oauthTokenURL,
     clientID: config.oauthClientID,
-    clientSecret: config.oauthClientSecret,
-    callbackURL: config.serverRootURL + '/auth/login/callback'
+    clientSecret: config.oauthClientSecret
   },
     (accessToken, refreshToken, profile, cb) => {
       return cb(null, {accessToken, refreshToken, profile});

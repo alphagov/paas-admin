@@ -98,7 +98,8 @@ let cfg = {
           {
             loader: path.resolve(__dirname, './njk-loader.js'),
             options: {
-              includePaths: ['@govuk-frontend']
+              includePaths: ['@govuk-frontend'],
+              configure: path.resolve(__dirname, './nunjucks.config.js')
             }
           },
           {
@@ -134,13 +135,11 @@ if (process.env.ENABLE_TESTS === 'true') {
   cfg = enableTests(cfg);
 }
 
-if (NODE_ENV !== 'production') {
-  cfg.externals.push(nodeModules({whitelist: [
-    /govuk-frontend/,
-    /govuk_template_jinja/,
-    /webpack\/hot/
-  ]}));
-}
+cfg.externals.push(nodeModules({whitelist: [
+  /govuk-frontend/,
+  /govuk_template_jinja/,
+  /webpack\/hot/
+]}));
 
 cfg = enableTemplate(cfg);
 

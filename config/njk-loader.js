@@ -1,9 +1,12 @@
 const fs = require('fs');
 const path = require('path');
-const {getOptions} = require('loader-utils');
+const {getOptions, parseQuery} = require('loader-utils');
+const validateOptions = require('schema-utils');
 const nunjucks = require('nunjucks');
 const {transform} = require('nunjucks/src/transformer');
+const {Environment} = require('nunjucks/src/environment');
 const nodes = require('nunjucks/src/nodes');
+const optionsSchema = require('./schema.json');
 
 async function _resolvePath(ctx, opts, templatePath, context) {
   let parentPath;
@@ -25,6 +28,7 @@ async function _resolvePath(ctx, opts, templatePath, context) {
 }
 
 async function resolvePath(ctx, opts, templatePath, context) {
+  /* istanbul ignore if */
   if (!templatePath) {
     throw new Error(`Can't resolve path: ""`);
   }
@@ -34,27 +38,24 @@ async function resolvePath(ctx, opts, templatePath, context) {
   } catch (err) {
     _err = err;
   }
-  switch (templatePath[0]) {
-    case '~':
-    case '/':
-    case '.':
-      return _resolvePath(ctx, opts, templatePath, context);
-    default:
-      if (opts.includePaths.length === 0) {
-        throw new Error(`Can't resolve "${templatePath}". HINT: use relative imports ('./') or node_modules imports ('~') or set 'includePaths' option to add search paths`);
-      }
-      for (let i = 0; i < opts.includePaths.length; i++) {
-        const root = opts.includePaths[i];
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          return await _resolvePath(ctx, opts, path.join(root, templatePath), context);
-        } catch (err) {
-          _err = err;
-          continue;
-        }
-      }
-      throw new Error(`Can't resolve "${templatePath}" from "${context.reverse().join(' from ')}" in any of [\n  ${opts.includePaths.join(',\n  ')}\n]: ${_err.message || _err}`);
+  /* istanbul ignore if */
+  if (opts.includePaths.length === 0) {
+    throw new Error(`Can't resolve "${templatePath}". HINT: use relative imports ('./') or node_modules imports ('~') or set 'includePaths' option to add search paths`);
   }
+  for (let i = 0; i < opts.includePaths.length; i++) {
+    const root = opts.includePaths[i];
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      return await _resolvePath(ctx, opts, path.join(root, templatePath), context);
+    } catch (err) {
+      /* istanbul ignore next */
+      _err = err;
+      /* istanbul ignore next */
+      continue;
+    }
+  }
+  /* istanbul ignore next */
+  throw new Error(`Can't resolve "${templatePath}" from "${context.reverse().join(' from ')}" in any of [\n  ${opts.includePaths.join(',\n  ')}\n]: ${_err.message || _err}`);
 }
 
 // Return list of all template files we need by parsing the
@@ -72,12 +73,14 @@ async function getTemplatePaths(ctx, opts, templatePath, context) {
   ast.findAll(nodes.Import, templateNodes);
   for (let i = 0; i < templateNodes.length; i++) {
     const templateNode = templateNodes[i].template;
+    /* istanbul ignore if */
     if (!templateNode || !templateNode.value) {
       throw new Error(`bad template path in ${ctx.resourcePath}: ${JSON.stringify(templateNodes[i])}`);
     }
     // eslint-disable-next-line no-await-in-loop
     const children = await getTemplatePaths(ctx, opts, templateNode.value, context.concat(templatePath));
     for (const k in children) {
+      /* istanbul ignore next */
       if (templates[k] && templates[k] !== children[k]) {
         throw new Error(`ambiguous template name: "${k}" refers to\n${templates[k]}\n AND \n${children[k]}\nUnfortunatly this is a shortcoming of the njk-loader.`);
       }
@@ -88,38 +91,30 @@ async function getTemplatePaths(ctx, opts, templatePath, context) {
 }
 
 async function pitch(ctx, opts, _remainingRequest) {
-  if (opts.mode === 'compile') {
+  const importsLoader = ctx.target === 'web' ? '' : 'imports-loader?window=>{}!';
+  const slim = opts.precompile === true && ctx.loaderIndex === ctx.loaders.length - 1 ? '-slim' : '';
+  ctx.data.runtimePath = `${importsLoader}nunjucks/browser/nunjucks${slim}`;
+  if (opts.mode) {
     return;
   }
   const resolvedPath = await resolvePath(ctx, opts, ctx.resourcePath, []);
   const templates = await getTemplatePaths(ctx, opts, resolvedPath, []);
+  const configure = opts.configure ? `import configure from '${opts.configure}'` : `function configure(env) {return env}`;
   const outputSource = `
-    import { Environment, Template } from 'nunjucks/src/environment';
+    import { Environment } from '${ctx.data.runtimePath}';
+    ${configure};
     const templates = {
       ${Object.keys(templates).map(name => `
-        "${name}": require('${templates[name]}?mode=compile')
+        "${name}": require('${templates[name]}?mode=compile&name=${name}')
       `).join(',')}
     }
     function Loader(){};
     Loader.prototype.getSource = function(name) {
       let tmpl = templates[name];
       if (!tmpl) {
-        throw new Error('no njk template: '+name);
+        throw new Error('njk-loader: template not found: '+name);
       }
-      if (typeof tmpl === 'object' && tmpl.default) {
-        tmpl = tmpl.default;
-      }
-      if (typeof tmpl === 'function') {
-        tmpl = tmpl();
-      }
-      if (typeof tmpl !== 'string') {
-        throw new Error('template ' + name + ' did not return a string, maybe another webpack loader messed with the source');
-      }
-      return {
-        src: tmpl,
-        path: name,
-        noCache: true,
-      };
+      return tmpl;
     }
     Loader.prototype.isRelative = function(templateName) {
       return true;
@@ -127,18 +122,13 @@ async function pitch(ctx, opts, _remainingRequest) {
     Loader.prototype.resolve = function(parentName, templateName) {
       return [parentName, templateName].join(':');
     }
+
     const hmrThing = '${new Date()}';
-    const _render = (function(){
-      const env = new Environment(new Loader(), {
-        autoescape: true,
-      });
-      const tmpl = new Template(templates['${ctx.resourcePath}'], env, '${ctx.resourcePath}', true);
-      return function(o) {
-        return tmpl.render(o);
-      }
-    })();
+    const env = new Environment(new Loader(), ${JSON.stringify(getEnvironmentOptions(opts))});
+    configure(env);
+
     export function render(o) {
-      return _render(o);
+      return env.render('${ctx.resourcePath}', o);
     }
     export default {render};
   `;
@@ -147,23 +137,87 @@ async function pitch(ctx, opts, _remainingRequest) {
 
 // eslint-disable-next-line max-params
 async function load(ctx, opts, source, _map, _meta) {
-  if (ctx.loaderIndex === ctx.loaders.length - 1) {
-    source = `export default ${JSON.stringify(source)}`;
+  if (opts.mode === 'raw') {
+    if (ctx.loaderIndex === ctx.loaders.length - 1) {
+      return {source: `export default ${JSON.stringify(source)}`};
+    }
+    return {source};
   }
-  if (opts.mode !== 'compile') {
-    throw new Error('njk-loader: pitch failed to prevent loader - this should never happen');
+
+  // If we're not the first loader or precompile is disabled, then we can't precompile or use slim
+  if (opts.precompile === false || ctx.loaderIndex !== ctx.loaders.length - 1) {
+    source = `
+      module.exports = {
+        src: (function(){
+          const {Environment, Template} = require('${ctx.data.runtimePath}');
+          let raw = require('${ctx.resourcePath}?mode=raw&name=${opts.name}');
+          if (typeof raw !== 'string' && raw.default) {
+            raw = raw.default;
+          }
+          if (typeof raw !== 'string') {
+            throw new Error('expected a string template got'+typeof raw);
+          }
+          return raw;
+        })(),
+        path: '${opts.name}',
+        noCache: false
+      }
+    `;
+    return {source};
   }
+
+  source = nunjucks.precompileString(source, {
+    name: opts.name,
+    wrapper: (templates, _opts) => {
+      return `
+        const { runtime } = require('${ctx.data.runtimePath}');
+        module.exports = {
+          src: {
+            type: 'code',
+            obj: (function(){
+              ${templates[0].template};
+            })()
+          },
+          path: '${opts.name}',
+          noCache: true,
+        };
+      `;
+    },
+    env: new Environment([], getEnvironmentOptions(opts))
+  });
+
   return {source};
+}
+
+function getEnvironmentOptions(opts) {
+  const environmentOptions = {
+    autoescape: opts.autoescape !== false,
+    throwOnUndefined: opts.throwOnUndefined === true,
+    trimBlocks: opts.trimBlocks === true,
+    lstripBlocks: opts.lstripBlocks === true,
+    opts: {}
+  };
+  if (opts.tags) {
+    environmentOptions.tags = opts.tags;
+  }
+  return environmentOptions;
 }
 
 function getOpts(ctx) {
   const loaderOpts = getOptions(ctx);
   const opts = {...loaderOpts};
-  if (/mode=compile/.test(ctx.resourceQuery)) {
-    opts.mode = 'compile';
-  }
   if (!Array.isArray(opts.includePaths)) {
     opts.includePaths = [];
+  }
+  validateOptions(optionsSchema, opts, 'njk-loader');
+  if (ctx.resourceQuery) {
+    const params = parseQuery(ctx.resourceQuery);
+    opts.mode = params.mode;
+    opts.name = params.name;
+  }
+  /* istanbul ignore if */
+  if (opts.precompile === true && ctx.loaderIndex !== ctx.loaders.length - 1) {
+    throw new Error(`njk-loader: cannot force precompile:true because njk-loader is not the first loader so must rely on runtime copmilation`);
   }
   return opts;
 }
@@ -171,6 +225,7 @@ function getOpts(ctx) {
 function loader(source, map, meta) {
   const opts = getOpts(this);
   const done = this.async();
+  /* istanbul ignore next */
   if (this.cacheable) {
     this.cacheable();
   }
@@ -181,6 +236,7 @@ function pitcher(remainingRequest) {
   const ctx = this;
   const done = this.async();
   const opts = getOpts(ctx);
+  /* istanbul ignore next */
   if (this.cacheable) {
     this.cacheable();
   }

@@ -7,7 +7,9 @@ import staticGzip from 'express-static-gzip';
 
 import auth from '../auth';
 import home from '../home';
-import {cfClient} from '../cf';
+import {notifyMiddleware} from '../notify';
+import {cfClientMiddleware} from '../cf';
+import {uaaClientMiddleware} from '../uaa';
 import organizations from '../organizations';
 import spaces from '../spaces';
 import applications from '../applications';
@@ -19,7 +21,7 @@ import csp from './app.csp';
 export default function (config) {
   const app = express();
 
-  app.use(pinoMiddleware(config.logger));
+  app.use(pinoMiddleware({logger: config.logger}));
 
   app.use(cookieSession({
     name: 'pazmin-session',
@@ -28,17 +30,39 @@ export default function (config) {
     httpOnly: true
   }));
 
+  app.use(notifyMiddleware({
+    apiKey: config.notifyAPIKey,
+    templates: {
+      welcome: config.notifyWelcomeTemplateID
+    }
+  }));
+
   app.use('/assets', staticGzip('dist/assets', {immutable: true}));
   app.use(compression());
 
   app.use(helmet());
   app.use(helmet.contentSecurityPolicy(csp));
 
+  app.use(express.urlencoded({extended: true}));
+
   app.use('/', home);
 
   // Authenticated endpoints follow
   app.use(auth(config));
-  app.use(cfClient(config));
+  app.use(cfClientMiddleware({
+    apiEndpoint: config.cloudFoundryAPI,
+    clientCredentials: {
+      clientID: config.oauthClientID,
+      clientSecret: config.oauthClientSecret
+    }
+  }));
+  app.use(uaaClientMiddleware({
+    apiEndpoint: config.uaaAPI,
+    clientCredentials: {
+      clientID: config.oauthClientID,
+      clientSecret: config.oauthClientSecret
+    }
+  }));
 
   app.use('/organisations', organizations);
   app.use('/spaces', spaces);

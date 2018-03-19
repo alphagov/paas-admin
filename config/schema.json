@@ -1,0 +1,62 @@
+{
+  "type": "object",
+  "properties": {
+    "configure": {
+      "type": "string"
+    },
+    "includePaths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "autoescape": {
+      "type": "boolean"
+    },
+    "throwOnUndefined": {
+      "type": "boolean"
+    },
+    "trimBlocks": {
+      "type": "boolean"
+    },
+    "lstripBlocks": {
+      "type": "boolean"
+    },
+    "tags": {
+      "type": "object",
+      "properties": {
+        "blockStart": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blockEnd": {
+          "type": "string",
+          "minLength": 1
+        },
+        "variableStart": {
+          "type": "string",
+          "minLength": 1
+        },
+        "variableEnd": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commentStart": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commentEnd": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "precompile": {
+      "oneOf": [
+        {"type": "boolean"},
+        {"enum": ["auto"]}
+      ]
+    }
+  },
+  "additionalProperties": false
+}

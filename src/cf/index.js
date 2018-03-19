@@ -1,2 +1,2 @@
-export {default as Client} from './client';
-export {default as cfClient} from './middleware';
+export {default as CloudFoundryClient} from './cf';
+export {default as cfClientMiddleware} from './middleware';

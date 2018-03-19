@@ -18,7 +18,7 @@
     "fix:js": "xo --fix ./src",
     "fix:sass": "sass-lint --fix ./src",
     "fix:vulnerabilities": "snyk protect",
-    "start": "export PORT=${PORT-3000}; if [ \"$NODE_ENV\" = 'production' ]; then npm run -s start:production; else npm run -s start:dev; fi",
+    "start": "export PORT=${PORT-3000}; export LOG_LEVEL=${LOG_LEVEL-warn}; if [ \"$NODE_ENV\" = 'production' ]; then npm run -s start:production; else npm run -s start:dev; fi",
     "start:dev": "NODE_ENV=development ENABLE_WATCH=true ENABLE_SERVER=true ALLOW_INSECURE=true npm run -s build | pino",
     "start:production": "NODE_ENV=production ALLOW_INSECURE=true npm run -s build && node dist/main.js | pino",
     "push": "NODE_ENV=production npm run -s build && cf push",
@@ -27,7 +27,7 @@
   "author": "GOV.UK PaaS Team",
   "license": "MIT",
   "devDependencies": {
-    "@govuk-frontend/all": "0.0.22-alpha",
+    "@govuk-frontend/all": "^0.0.26-alpha",
     "axios": "0.18.0",
     "compression": "1.7.1",
     "compression-webpack-plugin": "1.1.6",
@@ -42,7 +42,9 @@
     "govuk_template_jinja": "0.23.0",
     "helmet": "3.10.0",
     "html-loader": "0.5.5",
+    "imports-loader": "0.8.0",
     "istanbul-instrumenter-loader": "3.0.0",
+    "jmespath": "0.15.0",
     "jsonwebtoken": "8.2.0",
     "loader-utils": "1.1.0",
     "nock": "9.1.6",
@@ -71,7 +73,10 @@
     "webpack-shell-plugin": "0.5.0",
     "xo": "0.18.2"
   },
-  "dependencies": {},
+  "dependencies": {
+    "merge-deep": "3.0.1",
+    "notifications-node-client": "4.1.0"
+  },
   "engines": {
     "node": "8.9.x",
     "npm": ">=5.x.x"

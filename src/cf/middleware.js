@@ -1,11 +1,16 @@
 import express from 'express';
-import Client from './client';
+import CloudFoundryClient from './cf';
 
-export default function cfClient(config) {
+export default function cfClientMiddleware({apiEndpoint, accessToken, clientCredentials}) {
   const app = express();
 
   app.use((req, res, next) => {
-    req.cf = new Client(config.cloudFoundryAPI, req.accessToken);
+    req.cf = new CloudFoundryClient({
+      apiEndpoint,
+      clientCredentials,
+      accessToken: req.accessToken || accessToken
+    });
+
     next();
   });
 

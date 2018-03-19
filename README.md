@@ -24,14 +24,14 @@ npm run clean              # destroy the ./dist build dir
 
 You will need to add a UAA client to your CloudFoundry deployment manifest, for example:
 
-```
+```yaml
 paas-admin:
 	override: true
 	authorized-grant-types: authorization_code,client_credentials,refresh_token
 	autoapprove: true
 	secret: [CF_CLIENT_SECRET]
-	scope: scim.me,openid,profile,roles,notification_preferences.read,user_attributes,uaa.user,notification_preferences.write,cloud_controller.read,password.write approvals.me,cloud_controller.write,cloud_controller_service_permissions.read,oauth.approvals
-	authorities: clients.read,clients.write,clients.secret,uaa.admin,scim.read,scim.write,password.write,zone.admin
+	scope: cloud_controller.read,cloud_controller.admin_read_only,cloud_controller.global_auditor,cloud_controller.write,scim.me,openid,profile,uaa.user,cloud_controller.admincloud_controller.read,cloud_controller.admin_read_only,cloud_controller.global_auditor,cloud_controller.write,scim.me,openid,profile,uaa.user,cloud_controller.admin
+	authorities: scim.userids,scim.invite,scim.read
 	redirect-uri: "https://[pass-admin-domain.com]/auth/login/callback"
 ```
 
@@ -74,8 +74,10 @@ OAUTH_AUTHORIZATION_URL="https://login.$DEPLOY_ENV.dev.cloudpipeline.digital/oau
 OAUTH_TOKEN_URL="https://uaa.$DEPLOY_ENV.dev.cloudpipeline.digital/oauth/token" \
 OAUTH_CLIENT_ID="my-client-id" \
 OAUTH_CLIENT_SECRET="my-secret" \
-SERVER_ROOT_URL="http://localhost:3000" \
-API_URL="https://api.$DEPLOY_ENV.dev.cloudpipeline.digital/" \
+API_URL="https://api.$DEPLOY_ENV.dev.cloudpipeline.digital" \
+UAA_URL="https://uaa.$DEPLOY_ENV.dev.cloudpipeline.digital" \
+NOTIFY_API_KEY="qwerty123456"
+NOTIFY_WELCOME_TEMPLATE_ID="qwerty123456"
 npm start
 ```
 

@@ -25,10 +25,10 @@
     </p>
   </div>
 
-  <div class="govuk-o-grid__item govuk-o-grid__item--one-third">
+  <div class="govuk-o-grid__item govuk-o-grid__item--one-third text-right">
     {{ govukButton({
-      "text": "Invite a new team member",
-      "href": "#"
+      text: "Invite a new team member",
+      href: "/users/" + organization.metadata.guid + "/invite"
     }) }}
   </div>
 

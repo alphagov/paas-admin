@@ -20,8 +20,7 @@ app.use(auth({
   oauthAuthorizationURL: 'https://example.com/authorise',
   oauthTokenURL: 'https://example.com/token',
   oauthClientID: 'key',
-  oauthClientSecret: 'secret',
-  serverRootURL: 'http://localhost:3000'
+  oauthClientSecret: 'secret'
 }));
 
 app.use('/test', (req, res, _next) => {
@@ -40,7 +39,7 @@ test('the login page redirects to the authorize endpoint of the IDP', async t =>
   const response = await request(app).get('/auth/login');
 
   t.equal(response.status, 302);
-  t.equal(response.header.location, 'https://example.com/authorise?response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Flogin%2Fcallback&client_id=key');
+  t.equal(response.header.location, 'https://example.com/authorise?response_type=code&client_id=key');
 });
 
 test('can login with a code', async t => {

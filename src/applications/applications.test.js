@@ -2,8 +2,8 @@ import {test} from 'tap';
 import express from 'express';
 import nock from 'nock';
 import request from 'supertest';
-import {Client} from '../cf';
-import {apps} from '../cf/client.test.data';
+import {CloudFoundryClient} from '../cf';
+import {apps} from '../cf/cf.test.data';
 import applicationsApp from '.';
 
 nock('https://example.com').get('/api/v2/spaces/be1f9c1d-e629-488e-a560-a35b545f0ad7/apps').times(1).reply(200, apps);
@@ -16,7 +16,10 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  req.cf = new Client('https://example.com/api', 'qwerty123456');
+  req.cf = new CloudFoundryClient({
+    apiEndpoint: 'https://example.com/api',
+    accessToken: 'qwerty123456'
+  });
   next();
 });
 

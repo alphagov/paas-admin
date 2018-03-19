@@ -5,7 +5,9 @@ import Server from './server';
 
 sourceMapSupport.install();
 
-const logger = pino();
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info'
+});
 
 function expectEnvVariable(variableName) {
   if (process.env[variableName] === undefined || process.env[variableName] === '') {
@@ -35,7 +37,7 @@ async function main(cfg) {
   process.once('SIGTERM', () => server.stop());
 
   await server.start();
-  logger.info({port: server.http.address().port}, `listening http://localhost:${server.http.address().port}/`);
+  pino().info({port: server.http.address().port}, `listening http://localhost:${server.http.address().port}/`);
 
   /* istanbul ignore if  */
   if (module.hot) {
@@ -53,8 +55,10 @@ const config = {
   oauthTokenURL: expectEnvVariable('OAUTH_TOKEN_URL'),
   oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
   oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
-  serverRootURL: process.env.SERVER_ROOT_URL || 'http://localhost:' + (process.env.PORT || '3000'),
-  cloudFoundryAPI: expectEnvVariable('API_URL')
+  cloudFoundryAPI: expectEnvVariable('API_URL'),
+  uaaAPI: expectEnvVariable('UAA_URL'),
+  notifyAPIKey: expectEnvVariable('NOTIFY_API_KEY'),
+  notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null
 };
 
 main(config).then(onShutdown).catch(onError);
