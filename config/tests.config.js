@@ -5,9 +5,10 @@ const WebpackShellPlugin = require('webpack-shell-plugin');
 module.exports = cfg => {
   const onFail = process.env.ENABLE_WATCH === 'true' ? '|| true' : '';
   let args = '--no-coverage';
+  const focusGlob = process.env.TEST_FOCUS || '';
 
   // Include all .test.js files as entry points
-  glob.sync(path.resolve(__dirname, '../src/**/*.test.js')).map(f => path.relative(__dirname, f).replace('..', '.')).forEach(f => {
+  glob.sync(path.resolve(__dirname, `../src/**/${focusGlob}*.test.js`)).map(f => path.relative(__dirname, f).replace('..', '.')).forEach(f => {
     cfg.entry[path.basename(f, '.js')] = [f];
   });
 
@@ -36,7 +37,7 @@ module.exports = cfg => {
       command: `sh`,
       args: [
         `-c`,
-        `./node_modules/.bin/tap ${args} --nyc-arg='--instrument=false' --reporter classic -J ./dist/*.test.js && echo '\n✓ ALL TESTS PASSED!' ${onFail}`
+        `./node_modules/.bin/tap ${args} --nyc-arg='--instrument=false' -J --reporter classic ./dist/*.test.js && echo '\n✓ ALL TESTS PASSED!' ${onFail}`
       ]
     }]
   }));
