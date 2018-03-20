@@ -113,6 +113,11 @@ export default class CloudFoundryClient {
     return this.allResources(response);
   }
 
+  async application(applicationGUID) {
+    const response = await this.request('get', `/v2/apps/${applicationGUID}`);
+    return response.data;
+  }
+
   async applicationSummary(applicationGUID) {
     const response = await this.request('get', `/v2/apps/${applicationGUID}/summary`);
     return response.data;
