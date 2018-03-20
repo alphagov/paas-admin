@@ -5,3 +5,9 @@ export default function syncHandler(f) {
     f(req, res).catch(err => internalServerErrorMiddleware(err, req, res));
   };
 }
+
+export function syncMiddleware(f) {
+  return (req, res, next) => {
+    f(req, res, next).catch(err => internalServerErrorMiddleware(err, req, res));
+  };
+}
