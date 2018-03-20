@@ -21,6 +21,9 @@ nock('https://example.com/api').persist()
   .get('/v2/spaces/50ae42f6-346d-4eca-9e97-f8c9e04d5fbe/summary').reply(200, data.spaceSummary)
   .get('/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019').reply(200, data.spaceQuota)
   .get('/v2/spaces/f858c6b3-f6b1-4ae8-81dd-8e8747657fbe/service_instances').reply(200, data.services)
+  .get('/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92').times(1).reply(200, data.serviceInstance)
+  .get('/v2/service_plans/775d0046-7505-40a4-bfad-ca472485e332').times(1).reply(200, data.servicePlan)
+  .get('/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5').times(1).reply(200, data.service)
   .get('/v2/users/uaa-id-253/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, data.spaces)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.users)
   .post('/v2/users').reply(200, data.user)
@@ -178,6 +181,27 @@ test('should obtain list of services', async t => {
 
   t.ok(services.length > 0);
   t.equal(services[0].entity.name, 'name-2104');
+});
+
+test('should obtain particular service instance', async t => {
+  const client = new CloudFoundryClient(config);
+  const serviceInstance = await client.serviceInstance('0d632575-bb06-4ea5-bb19-a451a9644d92');
+
+  t.equal(serviceInstance.entity.name, 'name-1508');
+});
+
+test('should obtain particular service plan', async t => {
+  const client = new CloudFoundryClient(config);
+  const servicePlan = await client.servicePlan('775d0046-7505-40a4-bfad-ca472485e332');
+
+  t.equal(servicePlan.entity.name, 'name-1573');
+});
+
+test('should obtain particular service', async t => {
+  const client = new CloudFoundryClient(config);
+  const service = await client.service('53f52780-e93c-4af7-a96c-6958311c40e5');
+
+  t.equal(service.entity.label, 'label-58');
 });
 
 test('should obtain list of user roles', async t => {
