@@ -2,6 +2,7 @@ import {test} from 'tap';
 import express from 'express';
 import nock from 'nock';
 import request from 'supertest';
+import jwt from 'jsonwebtoken';
 import {uaaClientMiddleware} from '../uaa';
 import {cfClientMiddleware} from '../cf';
 import {notifyMiddleware} from '../notify';
@@ -9,15 +10,15 @@ import * as cfData from '../cf/cf.test.data';
 import * as uaaData from '../uaa/uaa.test.data';
 import usersApp from '.';
 
+const tokenKey = 'secret';
+
 nock('https://example.com/api').persist()
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, cfData.organization)
-  // .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, cfData.users)
   .get('/v2/users/uaa-id-253/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, cfData.spaces)
   .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces').reply(200, cfData.spaces)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces').reply(200, cfData.spaces)
   .get('/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8/organizations').reply(200, `{"resources": []}`)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8').reply(200, `{}`)
-  // .get('/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/organizations').reply(200, `{"resources": [{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}]}`)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, cfData.userRolesForOrg)
   .get('/v2/info').reply(200, cfData.info)
   .post('/v2/users').reply(200, cfData.user)
@@ -58,10 +59,16 @@ nock(/api.notifications.service.gov.uk/).persist()
   .post('/').reply(200, {notify: 'FAKE_NOTIFY_RESPONSE'})
 ;
 
+const time = Math.floor(Date.now() / 1000);
+const rawToken = {user_id: 'uaa-id-253', scope: [], exp: (time + (24 * 60 * 60))}; // eslint-disable-line camelcase
+const accessToken = jwt.sign(rawToken, tokenKey);
+
 const app = express();
 app.use(express.urlencoded({extended: true}));
 app.use((req, res, next) => {
   req.log = console;
+  req.accessToken = accessToken;
+  req.rawToken = rawToken;
   next();
 });
 app.use(uaaClientMiddleware({
@@ -70,7 +77,7 @@ app.use(uaaClientMiddleware({
 }));
 app.use(cfClientMiddleware({
   apiEndpoint: 'https://example.com/api',
-  accessToken: 'qwerty123456'
+  accessToken
 }));
 app.use(notifyMiddleware({
   apiKey: 'notify-key'

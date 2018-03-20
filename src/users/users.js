@@ -1,5 +1,6 @@
 import express from 'express';
 import merge from 'merge-deep';
+import {requireOrgRole, hasOrgRole} from '../auth';
 import syncHandler from '../app/sync-handler';
 import usersTemplate from './users.njk';
 import inviteTemplate from './invite.njk';
@@ -52,11 +53,17 @@ app.get('/:organization', syncHandler(async (req, res) => {
 
   res.send(usersTemplate.render({
     users,
-    organization
+    organization,
+    isManager: await hasOrgRole(req.cf, {
+      organizationGUID: req.params.organization,
+      rawAccessToken: req.rawToken,
+      role: 'org_manager',
+      adminWrite: true
+    })
   }));
 }));
 
-app.get('/:organization/invite', syncHandler(async (req, res) => {
+app.get('/:organization/invite', requireOrgRole('org_manager', true), syncHandler(async (req, res) => {
   const organization = await req.cf.organization(req.params.organization);
 
   const spaces = await req.cf.spaces(req.params.organization);
@@ -69,7 +76,7 @@ app.get('/:organization/invite', syncHandler(async (req, res) => {
   }));
 }));
 
-app.post('/:organization/invite', syncHandler(async (req, res) => {
+app.post('/:organization/invite', requireOrgRole('org_manager', true), syncHandler(async (req, res) => {
   const organizationGUID = req.params.organization;
   const organization = await req.cf.organization(organizationGUID);
   const spaces = await req.cf.spaces(organizationGUID);
