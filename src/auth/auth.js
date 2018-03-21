@@ -2,6 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import * as oauth2 from 'passport-oauth2';
+import {syncMiddleware} from '../app/sync-handler';
 
 export default function authentication(config) {
   const app = express();
@@ -39,39 +40,34 @@ export default function authentication(config) {
     res.redirect('/');
   });
 
-  app.use((req, _res, next) => {
+  app.use(syncMiddleware(async (req, res, next) => {
+    const tokenKey = await req.uaa.getSigningKey();
+
     if (req.isAuthenticated()) {
-      req.rawToken = jwt.decode(req.session.passport.user);
-    }
-
-    next();
-  });
-
-  app.use((req, res, next) => {
-    if (req.isAuthenticated() && req.rawToken) {
-      req.sessionOptions.expires = req.rawToken.exp;
-    }
-
-    next();
-  });
-
-  app.use((req, res, next) => {
-    if (req.isAuthenticated() && !isExpired(req)) {
       req.accessToken = req.session.passport.user;
-      next();
+
+      try {
+        const rawToken = await jwt.verify(req.session.passport.user, tokenKey);
+
+        /* istanbul ignore next */
+        if (!rawToken) {
+          throw new Error('jwt: could not verify the token');
+        }
+
+        req.rawToken = rawToken;
+        req.sessionOptions.expires = rawToken.exp;
+      } catch (err) {
+        req.log.warn(err);
+        req.session = null;
+        return res.redirect('/auth/login');
+      }
     } else {
       req.session = null;
-      res.redirect('/auth/login');
+      return res.redirect('/auth/login');
     }
-  });
+
+    next();
+  }));
 
   return app;
-}
-
-function isExpired(req) {
-  if (!req.rawToken || !req.rawToken.exp) {
-    return true;
-  }
-
-  return Math.floor(Date.now() / 1000) > req.rawToken.exp;
 }

@@ -54,3 +54,25 @@ test('should invite a user by email', async t => {
   const invitation = await client.inviteUser('user1@71xl2o.com', 'client-id', 'https://example.com/');
   t.equal(invitation.userId, '5ff19d4c-8fa0-4d74-94e0-52eac86d55a8');
 });
+
+test('should retrieve signing keys', async t => {
+  const client = new UAAClient(config);
+
+  nock(config.apiEndpoint)
+    .get('/token_keys').times(1).reply(200, {keys: [{value: 'secret'}]});
+
+  const tokenKey = await client.getSigningKey();
+  t.equal(tokenKey, 'secret');
+
+  const cachedKey = await client.getSigningKey();
+  t.equal(cachedKey, 'secret');
+});
+
+test('should fail retrieve signing keys due to UAA being politely hacked...', async t => {
+  const client = new UAAClient(config);
+
+  await nock(config.apiEndpoint)
+    .get('/token_keys').times(1).reply(400, {message: 'pwnd'});
+
+  t.rejects(async () => client.getSigningKey(), /status 400/);
+});

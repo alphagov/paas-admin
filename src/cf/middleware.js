@@ -8,7 +8,7 @@ export default function cfClientMiddleware({apiEndpoint, accessToken, clientCred
     req.cf = new CloudFoundryClient({
       apiEndpoint,
       clientCredentials,
-      accessToken: req.accessToken || accessToken
+      accessToken: req.accessToken || /* istanbul ignore next */ accessToken
     });
 
     next();
