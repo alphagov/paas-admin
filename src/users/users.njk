@@ -78,7 +78,9 @@
     {% for user in users %}
     <tr class="govuk-c-table__row">
       <td class="govuk-c-table__cell">
-        <a href="#" class="govuk-link">{{ user.entity.username }}</a>
+        <a href="/users/{{ organization.metadata.guid }}/edit/{{ user.metadata.guid }}" class="govuk-link">
+          {{ user.entity.username }}
+        </a>
       </td>
       <td class="govuk-c-table__cell">
         {% if 'billing_manager' in user.entity.organization_roles %}
@@ -97,7 +99,7 @@
       </td>
       <td class="govuk-c-table__cell">
         {% for space in user.spaces %}
-          <a href="#" class="govuk-link">{{ space.entity.name }}</a>
+          <a href="/spaces/{{ space.metadata.guid }}/summary" class="govuk-link">{{ space.entity.name }}</a>
         {% endfor %}
       </td>
     </tr>

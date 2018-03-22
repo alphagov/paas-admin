@@ -131,7 +131,7 @@
           {% for user in managers %}
             <tr class="govuk-c-table__row">
               <td class="govuk-c-table__cell">
-                <a href="#">
+                <a href="/users/{{ organization.metadata.guid }}/edit/{{ user.metadata.guid }}" class="govuk-link">
                   {{ user.entity.username }}
                 </a>
               </td>

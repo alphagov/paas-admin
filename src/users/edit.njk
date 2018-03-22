@@ -1,0 +1,57 @@
+{% extends "../layouts/govuk.njk" %}
+{% from "@govuk-frontend/button/macro.njk" import govukButton %}
+{% from "@govuk-frontend/back-link/macro.njk" import govukBackLink %}
+{% from "@govuk-frontend/error-summary/macro.njk" import govukErrorSummary %}
+{% from "@govuk-frontend/table/macro.njk" import govukTable %}
+
+{% block page_title %}
+  Update a team member
+{% endblock %}
+
+{% block main %}
+<div class="govuk-o-grid">
+  <div class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
+    {{ govukBackLink({
+      text: "See all team members",
+      href: "/users/" + organization.metadata.guid
+   }) }}
+
+    <h1 class="govuk-heading-xl">
+      <span class="govuk-caption-xl">Team member</span>
+      {{ user.entity.username }}
+    </h1>
+
+    {{ govukTable({
+      rows: [
+        [
+          {
+            text: "Email"
+          },
+          {
+            text: user.entity.username
+          }
+        ]
+      ]
+    }) }}
+
+    {% if errors and (errors).length > 0 %}
+      {{ govukErrorSummary({
+        titleText: "Error validating the update",
+        descriptionText: "",
+        errorList: errors | map({
+          text: "message",
+          href: "join('', ['#', field])"
+        })
+      }) }}
+    {% endif %}
+
+    <form method="post" class="govuk-!-mt-r6">
+      {% include "./permissions.njk" %}
+
+      {{ govukButton({
+        text: "Save role changes"
+      }) }}
+    </form>
+  </div>
+</div>
+{% endblock %}
