@@ -1,7 +1,18 @@
 import internalServerError from './error.500.njk';
 import pageNotFound from './error.404.njk';
 
-export function internalServerErrorMiddleware(err, req, res, _next) {
+export class NotFoundError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'NotFoundError';
+  }
+}
+
+export function internalServerErrorMiddleware(err, req, res, next) {
+  if (err instanceof NotFoundError) {
+    return pageNotFoundMiddleware(req, res, next);
+  }
+
   req.log.error(err);
   res.status(500);
   res.send(internalServerError.render({message: err}));
