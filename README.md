@@ -26,13 +26,13 @@ You will need to add a UAA client to your CloudFoundry deployment manifest, for 
 
 ```yaml
 paas-admin:
-	override: true
-	authorized-grant-types: authorization_code,client_credentials,refresh_token
-	autoapprove: true
-	secret: [CF_CLIENT_SECRET]
-	scope: cloud_controller.read,cloud_controller.admin_read_only,cloud_controller.global_auditor,cloud_controller.write,scim.me,openid,profile,uaa.user,cloud_controller.admincloud_controller.read,cloud_controller.admin_read_only,cloud_controller.global_auditor,cloud_controller.write,scim.me,openid,profile,uaa.user,cloud_controller.admin
-	authorities: scim.userids,scim.invite,scim.read
-	redirect-uri: "https://[pass-admin-domain.com]/auth/login/callback"
+  override: true
+  authorized-grant-types: authorization_code,client_credentials,refresh_token
+  autoapprove: true
+  secret: [CF_CLIENT_SECRET]
+  scope: cloud_controller.read,cloud_controller.admin_read_only,cloud_controller.global_auditor,cloud_controller.write,scim.me,openid,profile,uaa.user,cloud_controller.admincloud_controller.read,cloud_controller.admin_read_only,cloud_controller.global_auditor,cloud_controller.write,scim.me,openid,profile,uaa.user,cloud_controller.admin
+  authorities: scim.userids,scim.invite,scim.read
+  redirect-uri: "https://[pass-admin-domain.com]/auth/login/callback"
 ```
 
 If you get problems with "Invalid redirect", use uaac to modify the
@@ -46,12 +46,11 @@ uaac client update paas-admin --redirect-uri http://localhost:3000/auth/login/ca
 
 ## Requirements
 
-* [Node.js](https://nodejs.org/en/) version `8 LTS`
-* [npm](https://www.npmjs.com/) versions `>5`
+* [Node.js](https://nodejs.org/en/) version `~ 8.9.0` LTS - consider using
+  [NVM](https://github.com/creationix/nvm) (`nvm use` in this repo) for version
+management
+* [npm](https://www.npmjs.com/) versions `> 5.5.1`
 * You will need a username/password for the govuk-frontend project ([why?](#updating-the-govuk-frontend-module))
-
-TIP: You can use [nvm](https://github.com/creationix/nvm) to manage installing
-specific versions.
 
 ## Getting Started
 
