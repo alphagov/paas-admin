@@ -750,6 +750,33 @@ export const userRolesForOrg = `{
     },
     {
       "metadata": {
+        "guid": "uaa-user-edit-123456",
+        "url": "/v2/users/uaa-user-edit-123456",
+        "created_at": "2016-06-08T16:41:35Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "user@example.com",
+        "organization_roles": [
+          "org_user",
+          "org_manager",
+          "org_auditor",
+          "billing_manager"
+        ],
+        "spaces_url": "/v2/users/uaa-user-edit-123456/spaces",
+        "organizations_url": "/v2/users/uaa-user-edit-123456/organizations",
+        "managed_organizations_url": "/v2/users/uaa-user-edit-123456/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-user-edit-123456/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-user-edit-123456/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-user-edit-123456/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-user-edit-123456/audited_spaces"
+      }
+    },
+    {
+      "metadata": {
         "guid": "99022be6-feb8-4f78-96f3-7d11f4d476f1",
         "url": "/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1",
         "created_at": "2016-06-08T16:41:35Z",
@@ -773,6 +800,67 @@ export const userRolesForOrg = `{
         "audited_organizations_url": "/v2/users/uaa-id-253/audited_organizations",
         "managed_spaces_url": "/v2/users/uaa-id-253/managed_spaces",
         "audited_spaces_url": "/v2/users/uaa-id-253/audited_spaces"
+      }
+    }
+  ]
+}`;
+
+export const userRolesForSpace = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "uaa-id-363",
+        "url": "/v2/users/uaa-id-363",
+        "created_at": "2016-06-08T16:41:40Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "everything@example.com",
+        "space_roles": [
+          "space_developer",
+          "space_manager",
+          "space_auditor"
+        ],
+        "spaces_url": "/v2/users/uaa-id-363/spaces",
+        "organizations_url": "/v2/users/uaa-id-363/organizations",
+        "managed_organizations_url": "/v2/users/uaa-id-363/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-id-363/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-id-363/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-id-363/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-id-363/audited_spaces"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "5ff19d4c-8fa0-4d74-94e0-52eac86d55a8",
+        "url": "/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8",
+        "created_at": "2016-06-08T16:41:40Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "everything@example.com",
+        "space_roles": [
+          "space_developer",
+          "space_manager",
+          "space_auditor"
+        ],
+        "spaces_url": "/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8/spaces",
+        "organizations_url": "/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8/organizations",
+        "managed_organizations_url": "/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8/audited_organizations",
+        "managed_spaces_url": "/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8/managed_spaces",
+        "audited_spaces_url": "/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8/audited_spaces"
       }
     }
   ]

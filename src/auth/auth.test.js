@@ -6,15 +6,26 @@ import request from 'supertest';
 import pino from 'pino';
 import pinoMiddleware from 'express-pino-logger';
 import nock from 'nock';
+import {UAAClient} from '../uaa';
 import auth from '.';
 
 const app = express();
+
+const tokenKey = 'secret';
+
+nock('https://example.com/uaa').persist()
+  .get('/token_keys').reply(200, {keys: [{value: tokenKey}]});
 
 const logger = pino({}, Buffer.from([]));
 
 app.use(pinoMiddleware(logger));
 
 app.use(cookieSession({keys: ['mysecret']}));
+
+app.use((req, res, next) => {
+  req.uaa = new UAAClient({apiEndpoint: 'https://example.com/uaa'});
+  next();
+});
 
 app.use(auth({
   oauthAuthorizationURL: 'https://example.com/authorise',
@@ -23,7 +34,7 @@ app.use(auth({
   oauthClientSecret: 'secret'
 }));
 
-app.use('/test', (req, res, _next) => {
+app.get('/test', (req, res) => {
   res.status(200);
   res.send('OK');
 });
@@ -44,7 +55,7 @@ test('the login page redirects to the authorize endpoint of the IDP', async t =>
 
 test('can login with a code', async t => {
   const time = Math.floor(Date.now() / 1000);
-  const token = jwt.sign({foo: 'bar', exp: (time + (24 * 60 * 60))}, 'shhhhh');
+  const token = jwt.sign({user_id: 'uaa-user-123', scope: [], exp: (time + (24 * 60 * 60))}, tokenKey); // eslint-disable-line camelcase
 
   // Capture the request to the given URL and prepare a response.
   nock('https://example.com')

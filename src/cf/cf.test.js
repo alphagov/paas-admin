@@ -25,7 +25,8 @@ nock('https://example.com/api').persist()
   .get('/v2/service_plans/775d0046-7505-40a4-bfad-ca472485e332').times(1).reply(200, data.servicePlan)
   .get('/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5').times(1).reply(200, data.service)
   .get('/v2/users/uaa-id-253/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, data.spaces)
-  .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.users)
+  .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.userRolesForOrg)
+  .get('/v2/spaces/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.userRolesForSpace)
   .post('/v2/users').reply(200, data.user)
   .put('/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/users/uaa-id-236').reply(201, data.userRoles)
   .delete('/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/users/uaa-id-236').reply(204, {})
@@ -204,12 +205,22 @@ test('should obtain particular service', async t => {
   t.equal(service.entity.label, 'label-58');
 });
 
-test('should obtain list of user roles', async t => {
+test('should obtain list of user roles for organisation', async t => {
   const client = new CloudFoundryClient(config);
   const users = await client.usersForOrganization('3deb9f04-b449-4f94-b3dd-c73cefe5b275');
 
   t.ok(users.length > 0);
   t.equal(users[0].entity.username, 'user@example.com');
+  t.equal(users[0].entity.organization_roles.length, 4);
+});
+
+test('should obtain list of user roles for space', async t => {
+  const client = new CloudFoundryClient(config);
+  const users = await client.usersForSpace('3deb9f04-b449-4f94-b3dd-c73cefe5b275');
+
+  t.ok(users.length > 0);
+  t.equal(users[0].entity.username, 'everything@example.com');
+  t.equal(users[0].entity.space_roles.length, 3);
 });
 
 test('should be able to create new user by username', async t => {

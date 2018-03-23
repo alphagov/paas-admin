@@ -47,17 +47,19 @@ export default function (config) {
 
   app.use('/', home);
 
-  // Authenticated endpoints follow
-  app.use(auth(config));
-  app.use(cfClientMiddleware({
-    apiEndpoint: config.cloudFoundryAPI,
+  app.use(uaaClientMiddleware({
+    apiEndpoint: config.uaaAPI,
     clientCredentials: {
       clientID: config.oauthClientID,
       clientSecret: config.oauthClientSecret
     }
   }));
-  app.use(uaaClientMiddleware({
-    apiEndpoint: config.uaaAPI,
+
+  // Authenticated endpoints follow
+  app.use(auth(config));
+
+  app.use(cfClientMiddleware({
+    apiEndpoint: config.cloudFoundryAPI,
     clientCredentials: {
       clientID: config.oauthClientID,
       clientSecret: config.oauthClientSecret

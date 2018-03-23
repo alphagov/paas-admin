@@ -1,0 +1,153 @@
+{% from '@govuk-frontend/checkboxes/macro.njk' import govukCheckboxes %}
+
+<h2 class="govuk-heading-l">Set org and space roles</h2>
+
+<h4 class="govuk-heading-s">Organisation roles</h4>
+
+<details class="govuk-c-details" role="group">
+  <summary class="govuk-c-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
+    <span class="govuk-c-details__summary-text">
+      Org level role descriptions
+    </span>
+  </summary>
+
+  <div class="govuk-c-details__text" aria-hidden="true">
+    <h3 class="heading-small">Org billing manager</h3>
+    <p>An Org billing manager is a point of contact for billing</p>
+    <h3 class="heading-small">Org manager</h3>
+    <p>An Org manager can create/delete spaces and edit user roles. The Org Managers would typically be senior staff: for example, you might choose to grant the role to your technical architect and a lead developer.</p>
+    <h3 class="heading-small">Org auditor</h3>
+    <p>An Org auditor can view all spaces but cannot edit them. This role is useful for viewing app data without modifying it, for example, monitoring time-series metrics data.</p>
+  </div>
+</details>
+
+<table id="roles" class="govuk-c-table permissions">
+  <thead class="govuk-c-table__head">
+    <tr class="govuk-c-table__row">
+      <th class="govuk-c-table__header name" scope="col">Org name</th>
+      <th class="govuk-c-table__header" scope="col">Org billing manager</th>
+      <th class="govuk-c-table__header" scope="col">Org manager</th>
+      <th class="govuk-c-table__header" scope="col">Org auditor</th>
+    </tr>
+  </thead>
+  <tbody class="govuk-c-table__body">
+    <tr class="govuk-c-table__row">
+      <th class="govuk-c-table__header" scope="row">{{ organization.entity.name }}</th>
+      <td class="govuk-c-table__cell ">
+        {{ govukCheckboxes({
+          id: "org_roles[" + organization.metadata.guid + "][billing_managers]",
+          name: "org_roles[" + organization.metadata.guid + "][billing_managers]",
+          items: [
+            {
+              value: "1",
+              html: "<span>Billing manager</span>",
+              checked: values.org_roles[organization.metadata.guid].billing_managers
+            }
+          ]
+        }) }}
+      </td>
+      <td class="govuk-c-table__cell ">
+        {{ govukCheckboxes({
+          id: "org_roles[" + organization.metadata.guid + "][managers]",
+          name: "org_roles[" + organization.metadata.guid + "][managers]",
+          items: [
+            {
+              value: "1",
+              html: "<span>Org manager</span>",
+              checked: values.org_roles[organization.metadata.guid].managers
+            }
+          ]
+        }) }}
+      </td>
+      <td class="govuk-c-table__cell ">
+        {{ govukCheckboxes({
+          id: "org_roles[" + organization.metadata.guid + "][auditors]",
+          name: "org_roles[" + organization.metadata.guid + "][auditors]",
+          items: [
+            {
+              value: "1",
+              html: "<span>Org auditor</span>",
+              checked: values.org_roles[organization.metadata.guid].auditors
+            }
+          ]
+        }) }}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 class="govuk-heading-s">Space roles</h4>
+
+<details class="govuk-c-details" role="group">
+  <summary class="govuk-c-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
+    <span class="govuk-c-details__summary-text">
+      Space level role descriptions
+    </span>
+  </summary>
+
+  <div class="govuk-c-details__text" aria-hidden="true">
+    <h3 class="heading-small">Space manager</h3>
+    <p>A Space manager can grant user roles within the space, and change properties of the space, such as the name. Being a Space Manager does not grant the ability to change apps or services, so you need the Space Developer role as well if you want to be able to do both things.</p>
+    <h3 class="heading-small">Space developer</h3>
+    <p>A Space developer can push, start and stop apps, and create and bind services.</p>
+    <h3 class="heading-small">Space auditor</h3>
+    <p>A Space auditors can view spaces but cannot edit them. This role is useful for viewing app data without modifying it, for example, monitoring time-series metrics data.</p>
+  </div>
+</details>
+
+<table class="govuk-c-table permissions">
+  <thead class="govuk-c-table__head">
+    <tr class="govuk-c-table__row">
+      <th class="govuk-c-table__header name" scope="col">Space name</th>
+      <th class="govuk-c-table__header" scope="col">Space manager</th>
+      <th class="govuk-c-table__header" scope="col">Space developer</th>
+      <th class="govuk-c-table__header" scope="col">Space auditor</th>
+    </tr>
+  </thead>
+  <tbody class="govuk-c-table__body">
+    {% for space in spaces %}
+      <tr class="govuk-c-table__row">
+        <th class="govuk-c-table__header" scope="row">{{ space.entity.name }}</th>
+        <td class="govuk-c-table__cell ">
+          {{ govukCheckboxes({
+            id: "space_roles[" + space.metadata.guid + "][managers]",
+            name: "space_roles[" + space.metadata.guid + "][managers]",
+            items: [
+              {
+                value: "1",
+                html: "<span>Space manager</span>",
+                checked: values.space_roles[space.metadata.guid].managers
+              }
+            ]
+          }) }}
+        </td>
+        <td class="govuk-c-table__cell ">
+          {{ govukCheckboxes({
+            id: "space_roles[" + space.metadata.guid + "][developers]",
+            name: "space_roles[" + space.metadata.guid + "][developers]",
+            items: [
+              {
+                value: "1",
+                html: "<span>Space developer</span>",
+                checked: values.space_roles[space.metadata.guid].developers
+              }
+            ]
+          }) }}
+        </td>
+        <td class="govuk-c-table__cell ">
+          {{ govukCheckboxes({
+            id: "space_roles[" + space.metadata.guid + "][auditors]",
+            name: "space_roles[" + space.metadata.guid + "][auditors]",
+            items: [
+              {
+                value: "1",
+                html: "<span>Space auditor</span>",
+                checked: values.space_roles[space.metadata.guid].auditors
+              }
+            ]
+          }) }}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

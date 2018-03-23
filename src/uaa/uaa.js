@@ -11,6 +11,7 @@ export default class UAAClient {
     }
     this.accessToken = accessToken;
     this.clientCredentials = clientCredentials;
+    this.signingKey = null;
   }
 
   async getAccessToken() {
@@ -24,6 +25,32 @@ export default class UAAClient {
       throw new Error(`UAAClient: unable to get access token: accessToken or clientID and clientSecret must be provided`);
     }
     return this.accessToken;
+  }
+
+  async getSigningKey() {
+    if (this.signingKey) {
+      return this.signingKey;
+    }
+
+    const response = await axios.request({
+      url: '/token_keys',
+      method: 'get',
+      baseURL: this.apiEndpoint,
+      validateStatus: status => status > 0 && status < 500
+    });
+
+    if (response.status < 200 || response.status >= 300) {
+      let msg = `uaa: failed to obtain signing key due to status ${response.status}`;
+      /* istanbul ignore next */
+      if (typeof response.data === 'object') {
+        msg = `${msg} and data ${JSON.stringify(response.data)}`;
+      }
+      throw new Error(msg);
+    }
+
+    this.signingKey = response.data.keys[0].value;
+
+    return this.signingKey;
   }
 
   async request(method, url, opts) {

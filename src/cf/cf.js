@@ -148,6 +148,11 @@ export default class CloudFoundryClient {
     return this.allResources(response);
   }
 
+  async usersForSpace(spaceGUID) {
+    const response = await this.request('get', `/v2/spaces/${spaceGUID}/user_roles`);
+    return this.allResources(response);
+  }
+
   async setOrganizationRole(organizationGUID, userGUID, role, mod) {
     const response = await this.request(mod ? 'put' : 'delete', `/v2/organizations/${organizationGUID}/${role}/${userGUID}`);
     return response.data;

@@ -21,12 +21,16 @@ const config = {
   cloudFoundryAPI: 'https://example.com/api',
   uaaAPI: 'https://example.com/uaa',
   notifyAPIKey: 'test-123456-qwerty',
-  notifyWelcomeTemplateID: 'qwerty-123456'
+  notifyWelcomeTemplateID: 'qwerty-123456',
+  tokenKey: 'secret'
 };
+
+nock('https://example.com/uaa').persist()
+  .get('/token_keys').reply(200, {keys: [{value: config.tokenKey}]});
 
 test('should store a session in a signed cookie', async t => {
   const app = init(config);
-  const response = await request(app).get('/test');
+  const response = await request(app).get('/should-not-exists/404');
 
   t.contains(response.header['set-cookie'][1], 'pazmin-session.sig');
 });
@@ -70,7 +74,7 @@ test('when authenticated', async t => {
   const app = init(config);
   const agent = request.agent(app);
   const time = Math.floor(Date.now() / 1000);
-  const token = jwt.sign({foo: 'bar', exp: (time + (24 * 60 * 60))}, 'shhhhh');
+  const token = jwt.sign({user_id: 'uaa-user-123', scope: [], exp: (time + (24 * 60 * 60))}, config.tokenKey); // eslint-disable-line camelcase
 
   // Capture the request to the given URL and prepare a response.
   nock('https://example.com')
@@ -111,7 +115,7 @@ test('when token expires', async t => {
   const app = init(config);
   const agent = request.agent(app);
   const time = Math.floor(Date.now() / 1000);
-  const token = jwt.sign({foo: 'bar', exp: (time - (24 * 60 * 60))}, 'shhhhh');
+  const token = jwt.sign({user_id: 'uaa-user-123', scope: [], exp: (time - (24 * 60 * 60))}, config.tokenKey); // eslint-disable-line camelcase
 
   // Capture the request to the given URL and prepare a response.
   nock('https://example.com')

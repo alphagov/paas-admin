@@ -3,7 +3,7 @@ import express from 'express';
 import request from 'supertest';
 import pino from 'pino';
 import pinoMiddleware from 'express-pino-logger';
-import {internalServerErrorMiddleware, pageNotFoundMiddleware} from '.';
+import {internalServerErrorMiddleware, pageNotFoundMiddleware, NotFoundError} from '.';
 
 const logBuffer = Buffer.from([]);
 const logger = pino({}, logBuffer);
@@ -19,6 +19,17 @@ test('should display an internal-server-error 500 error page for errors', async 
 
   t.equal(response.status, 500);
   t.contains(response.text, 'Sorry an error occurred');
+});
+
+test('should display an not-found 404 error page if a route throws that type of error', async t => {
+  app.get('/throw-not-found', (_req, _res) => {
+    throw new NotFoundError('TEST CASE');
+  });
+  app.use(internalServerErrorMiddleware);
+  const response = await request(app).get('/throw-not-found');
+
+  t.equal(response.status, 404);
+  t.contains(response.text, 'Page not found');
 });
 
 test('should display an not-found 404 error page for missing pages', async t => {
