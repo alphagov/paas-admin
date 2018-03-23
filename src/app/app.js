@@ -6,7 +6,6 @@ import compression from 'compression';
 import staticGzip from 'express-static-gzip';
 
 import auth from '../auth';
-import home from '../home';
 import {notifyMiddleware} from '../notify';
 import {cfClientMiddleware} from '../cf';
 import {uaaClientMiddleware} from '../uaa';
@@ -45,7 +44,11 @@ export default function (config) {
 
   app.use(express.urlencoded({extended: true}));
 
-  app.use('/', home);
+  app.get('/', (req, res) => {
+    // TODO: Temporary solution. It should go away when we implement
+    // our own router fixing all the routes.
+    res.redirect('/organisations');
+  });
 
   app.use(uaaClientMiddleware({
     apiEndpoint: config.uaaAPI,
