@@ -17,7 +17,7 @@ const envVars = {
 t.test('should listen on a random port by default', async t => {
   const proc = await run(envVars);
   t.ok(proc.port > 0);
-  await t.resolves(request(`http://localhost:${proc.port}`).get('/').expect(200));
+  await t.resolves(request(`http://localhost:${proc.port}`).get('/').expect(302));
   return kill(proc);
 });
 
@@ -25,14 +25,14 @@ t.test('should listen on PORT environment variable', async t => {
   const newEnvVars = Object.assign({}, envVars);
   newEnvVars.PORT = 4551;
   const proc = await run(newEnvVars);
-  await t.resolves(request(`http://localhost:4551`).get('/').expect(200));
+  await t.resolves(request(`http://localhost:4551`).get('/').expect(302));
   return kill(proc);
 });
 
 t.test('should emit structured request logs', async t => {
   const proc = await run(envVars);
   try {
-    await t.resolves(request(`http://localhost:${proc.port}`).get('/').expect(200));
+    await t.resolves(request(`http://localhost:${proc.port}`).get('/').expect(302));
 
     const line = await waitForOutput(proc, /request completed/);
     const data = JSON.parse(line);
