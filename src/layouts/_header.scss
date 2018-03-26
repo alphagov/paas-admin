@@ -1,0 +1,27 @@
+.navigation {
+  float:right;
+  display: block;
+  margin-right: $govuk-spacing-scale-3;
+  margin-top: 7px;
+  padding-top: 0;
+  @include govuk-font-bold-16;
+
+  a {
+    color: $govuk-white;
+    text-decoration: none;
+
+    &:hover {
+     text-decoration: underline;
+    }
+  }
+
+  ul {
+    margin: 0;
+  }
+
+  li {
+    list-style-type: none;
+    display: inline;
+    margin-left: $govuk-spacing-scale-3;
+  }
+}
