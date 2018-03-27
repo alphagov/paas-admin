@@ -3,10 +3,6 @@
 
 {% set homepage_url = '/' %}
 
-{% set logo_link_title = 'Go to the GOV.UK PaaS Admin Tool Homepage' %}
-
-{% block inside_header %} <div class="navigation"><ul><li><a href="/organisations">My Organisations</a></li><li><a href="#">Documentation</a></li><li><a href="#">Support</a></li><li><a href="#">Sign out</a></li><ul>{% endblock %}
-
 {% block page_title %}PaaS Administration{% endblock %}
 
 {% block head %}
@@ -14,6 +10,9 @@
 {% endblock %}
 
 {% block inside_header %}
+  <div class="header-title">
+    Platform as a Service
+  </div>
   <div class="navigation">
     <ul>
       <li><a href="/organisations">My Organisations</a></li>
