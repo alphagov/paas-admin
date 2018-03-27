@@ -30,6 +30,8 @@
   "license": "MIT",
   "devDependencies": {
     "@govuk-frontend/all": "^0.0.26-alpha",
+    "@types/express": "4.11.1",
+    "@types/route-parser": "0.1.1",
     "axios": "0.18.0",
     "compression": "1.7.1",
     "compression-webpack-plugin": "1.1.6",
@@ -60,6 +62,7 @@
     "postcss-loader": "2.1.0",
     "postcss-url": "7.3.0",
     "regexp-replace-loader": "1.0.1",
+    "route-parser": "0.0.5",
     "sass-lint": "1.12.1",
     "sass-loader": "6.0.6",
     "schema-utils": "0.4.3",
