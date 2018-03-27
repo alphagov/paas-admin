@@ -1,0 +1,129 @@
+{
+  "rulesDirectory": [
+    "tslint-microsoft-contrib",
+    "tslint-consistent-codestyle"
+  ],
+  "extends": [
+    "tslint:latest",
+    "tslint-immutable"
+  ],
+  "defaultSeverity": "error",
+  "jsRules": {},
+  "rules": {
+    "quotemark": [
+      true,
+      "single",
+      "jsx-double"
+    ],
+    "indent": [
+      true,
+      "spaces",
+      2
+    ],
+    "await-promise": true,
+    "promise-function-async": true,
+    "promise-must-complete": true,
+    "no-floating-promises": true,
+    "no-for-in-array": true,
+    "prefer-for-of": true,
+    "no-unnecessary-else": true,
+    "prefer-object-spread": true,
+    "prefer-template": true,
+    "align": [
+      true,
+      "parameters",
+      "statements",
+      "members",
+      "elements"
+    ],
+    "trailing-comma": [
+      true,
+      {
+        "singleline": "never",
+        "multiline": "always"
+      }
+    ],
+    "comment-format": false,
+    "no-suspicious-comment": {
+      "severity": "warning"
+    },
+    "arrow-parens": false,
+    "object-literal-sort-keys": false,
+    "no-console": {
+      "severity": "warning",
+      "options": [
+        "debug",
+        "info",
+        "log",
+        "time",
+        "timeEnd",
+        "trace"
+      ]
+    },
+    "no-unused": {
+      "options": [
+        "unused-function-expression-name",
+        "unused-catch-binding"
+      ]
+    },
+    "variable-name": {
+      "options": [
+        "check-format",
+        "allow-leading-underscore"
+      ]
+    },
+    "ban-comma-operator": true,
+    "triple-equals": [
+      true,
+      "allow-null-check"
+    ],
+    "use-isnan": true,
+    "insecure-random": true,
+    "no-banned-terms": true,
+    "no-cookies": true,
+    "no-delete-expression": true,
+    "no-disable-auto-sanitization": true,
+    "no-document-domain": true,
+    "no-document-write": true,
+    "no-eval": true,
+    "no-exec-script": true,
+    "no-function-constructor-with-string-args": true,
+    "no-http-string": [
+      true,
+      "http://www.example.com/?.*",
+      "http://www.examples.com/?.*",
+      "http://localhost:?.*/?.*"
+    ],
+    "no-inner-html": true,
+    "no-octal-literal": true,
+    "no-reserved-keywords": true,
+    "non-literal-require": true,
+    "possible-timing-attack": true,
+    "react-anchor-blank-noopener": true,
+    "react-iframe-missing-sandbox": true,
+    "react-no-dangerous-html": true,
+    "no-angle-bracket-type-assertion": true,
+    "no-return-undefined": true,
+    "no-var-keyword": true,
+    "no-parameter-reassignment": true,
+    "no-mixed-interface": true,
+    "no-let": [
+      true,
+      "ignore-local"
+    ],
+    "readonly-array": [
+      true,
+      "ignore-local"
+    ],
+    "readonly-keyword": [
+      true,
+      "ignore-local",
+      "ignore-class",
+      "ignore-interface"
+    ],
+    "no-method-signature": true,
+    "no-delete": true,
+    "no-mixed-interface": false,
+    "no-implicit-dependencies": [true, "dev"]
+  }
+}

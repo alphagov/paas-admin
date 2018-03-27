@@ -16,7 +16,7 @@ let cfg = {
   mode: NODE_ENV,
 
   entry: {
-    main: ['./src/main.js']
+    main: ['./src/main.ts']
   },
 
   output: {
@@ -44,6 +44,10 @@ let cfg = {
 
   performance: {
     hints: false
+  },
+
+  resolve: {
+    extensions: ['.ts', '.js', '.json']
   },
 
   module: {
@@ -107,6 +111,14 @@ let cfg = {
             options: {
               attrs: ['img:src', 'link:href', 'script:src']
             }
+          }
+        ]
+      },
+      {
+        test: /\.ts/,
+        use: [
+          {
+            loader: 'ts-loader'
           }
         ]
       }
