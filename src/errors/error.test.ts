@@ -1,14 +1,32 @@
-import {test} from 'tap';
 import express from 'express';
-import request from 'supertest';
-import pino from 'pino';
 import pinoMiddleware from 'express-pino-logger';
-import {internalServerErrorMiddleware, pageNotFoundMiddleware, NotFoundError} from '.';
+import pino from 'pino';
+import request from 'supertest';
+import { test } from 'tap';
 
-const logBuffer = Buffer.from([]);
-const logger = pino({}, logBuffer);
+import { NotFoundError } from '../lib/router/errors';
+
+import { internalServerErrorMiddleware, pageNotFoundMiddleware } from '.';
+import Router from '../lib/router';
+
+const logger = pino({level: 'silent'});
 const app = express();
-app.use(pinoMiddleware(logger));
+
+app.use(pinoMiddleware({logger}));
+
+// It is IMPORTANT to remember this is set... Once the default URLs change in layout,
+// these lines should be updated.
+app.use((req: any, _res, next) => {
+  req.router = new Router([
+    {
+      action: async () => ({body: 'OK'}),
+      name: 'admin.organizations',
+      path: '/',
+    },
+  ]);
+
+  next();
+});
 
 test('should display an internal-server-error 500 error page for errors', async t => {
   app.use('/bang', (_req, _res, _next) => {
