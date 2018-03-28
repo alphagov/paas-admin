@@ -1,17 +1,20 @@
-import {test} from 'tap';
-import express from 'express';
-import nock from 'nock';
-import request from 'supertest';
 import jwt from 'jsonwebtoken';
-import {uaaClientMiddleware} from '../uaa';
-import {cfClientMiddleware} from '../cf';
-import {notifyMiddleware} from '../notify';
+import nock from 'nock';
+import pino from 'pino';
+import { test } from 'tap';
+
+import CloudFoundryClient from '../cf';
 import * as cfData from '../cf/cf.test.data';
+import NotificationClient from '../notify';
+import UAAClient from '../uaa';
 import * as uaaData from '../uaa/uaa.test.data';
-import usersApp from '.';
+
+import * as users from '.';
+import { IContext } from '../app/context';
 
 const tokenKey = 'secret';
 
+// tslint:disable:max-line-length
 nock('https://example.com/api').persist()
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, cfData.organization)
   .get('/v2/users/uaa-id-253/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, cfData.spaces)
@@ -72,63 +75,68 @@ nock(/api.notifications.service.gov.uk/).persist()
   .filteringPath(() => '/')
   .post('/').reply(200, {notify: 'FAKE_NOTIFY_RESPONSE'})
 ;
+// tslint:enable:max-line-length
 
 const time = Math.floor(Date.now() / 1000);
-const rawToken = {user_id: 'uaa-id-253', scope: [], exp: (time + (24 * 60 * 60))}; // eslint-disable-line camelcase
+const rawToken = {user_id: 'uaa-id-253', scope: [], exp: (time + (24 * 60 * 60))};
 const accessToken = jwt.sign(rawToken, tokenKey);
 
-const app = express();
-app.use(express.urlencoded({extended: true}));
-app.use((req, res, next) => {
-  req.log = console;
-  req.accessToken = accessToken;
-  req.rawToken = rawToken;
-  next();
-});
-app.use(uaaClientMiddleware({
-  apiEndpoint: 'https://example.com/uaa',
-  accessToken: 'qwerty123456'
-}));
-app.use(cfClientMiddleware({
-  apiEndpoint: 'https://example.com/api',
-  accessToken
-}));
-app.use(notifyMiddleware({
-  apiKey: 'notify-key'
-}));
-app.use(usersApp);
+const ctx: IContext = {
+  cf: new CloudFoundryClient({
+    apiEndpoint: 'https://example.com/api',
+    accessToken,
+  }),
+  linkTo: () => '__LINKED_TO__',
+  log: pino({level: 'silent'}),
+  notify: new NotificationClient({apiKey: '__NOTIFY_KEY__', templates: {
+    welcome: '__NOTIFY_WELCOME_TEMPLATE_GUID__',
+  }}),
+  rawToken,
+  uaa: new UAAClient({
+    apiEndpoint: 'https://example.com/uaa',
+    clientCredentials: {
+      clientID: '__UAA_CLIENT_ID__',
+      clientSecret: '__UAA_CLIENT_SECRET__',
+    },
+  }),
+};
 
 test('should show the users pages', async t => {
-  const response = await request(app).get('/3deb9f04-b449-4f94-b3dd-c73cefe5b275');
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Team members');
+  const response = await users.listUsers(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  });
+
+  t.contains(response.body, 'Team members');
 });
 
 test('should show the invite page', async t => {
-  const response = await request(app).get('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite');
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Invite a new team member');
+  const response = await users.inviteUserForm(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  });
+
+  t.contains(response.body, 'Invite a new team member');
 });
 
 test('should show error message when email is missing', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite')
-    .type('form')
-    .send({});
+  const response = await users.inviteUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  }, {});
+
+  t.contains(response.body, 'a valid email address is required');
   t.equal(response.status, 400);
-  t.contains(response.text, 'a valid email address is required');
 });
 
 test('should show error message when email is invalid according to our regex', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite')
-    .type('form')
-    .send({email: 'x'});
+  const response = await users.inviteUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  }, {email: 'x'});
+
+  t.contains(response.body, 'a valid email address is required');
   t.equal(response.status, 400);
-  t.contains(response.text, 'a valid email address is required');
 });
 
 // TODO: implement this when refactoring tests
+// tslint:disable:max-line-length
 // test('should show error message when email is invalid acording to invite_users', async t => {
 //   nock('https://example.com/uaa')
 //     .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation').reply(200, `{new_invites: []}`)
@@ -144,183 +152,235 @@ test('should show error message when email is invalid according to our regex', a
 //   t.equal(response.status, 400);
 //   t.contains(response.text, 'a valid email address is required');
 // });
+// tslint:enable:max-line-length
 
 test('should show error message when invitee is already a member of org', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite')
-    .type('form')
-    .send({
-      email: 'imeCkO@test.org',
-      'org_roles[3deb9f04-b449-4f94-b3dd-c73cefe5b275][billing_managers]': '1'
-    });
-  t.contains(response.text, 'is already a member of the organisation');
+  const response = await users.inviteUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  }, {
+    email: 'imeCkO@test.org',
+    org_roles: {
+      '3deb9f04-b449-4f94-b3dd-c73cefe5b275': {
+        billing_managers: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'is already a member of the organisation');
   t.equal(response.status, 400);
 });
 
 test('should show error when no roles selected', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite')
-    .type('form')
-    .send({email: 'jeff@jeff.com'});
+  const response = await users.inviteUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  }, {email: 'jeff@jeff.com'});
+
+  t.contains(response.body, 'at least one role should be selected');
   t.equal(response.status, 400);
-  t.contains(response.text, 'at least one role should be selected');
 });
 
 test('should invite the user, set BillingManager role and show success', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite')
-    .type('form')
-    .send({
-      email: 'jeff@jeff.com',
-      'org_roles[3deb9f04-b449-4f94-b3dd-c73cefe5b275][billing_managers]': '1'
-    });
-  t.contains(response.text, 'Invited a new team member');
-  t.equal(response.status, 200);
+  const response = await users.inviteUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  }, {
+    email: 'jeff@jeff.com',
+    org_roles: {
+      '3deb9f04-b449-4f94-b3dd-c73cefe5b275': {
+        billing_managers: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Invited a new team member');
 });
 
 test('should invite the user, set OrgManager role and show success', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite')
-    .type('form')
-    .send({
-      email: 'jeff@jeff.com',
-      'org_roles[3deb9f04-b449-4f94-b3dd-c73cefe5b275][managers]': '1'
-    });
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Invited a new team member');
+  const response = await users.inviteUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  }, {
+    email: 'jeff@jeff.com',
+    org_roles: {
+      '3deb9f04-b449-4f94-b3dd-c73cefe5b275': {
+        managers: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Invited a new team member');
 });
 
 test('should invite the user, set OrgAuditor role and show success', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite')
-    .type('form')
-    .send({
-      email: 'jeff@jeff.com',
-      'org_roles[3deb9f04-b449-4f94-b3dd-c73cefe5b275][auditors]': '1'
-    });
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Invited a new team member');
+  const response = await users.inviteUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  }, {
+    email: 'jeff@jeff.com',
+    org_roles: {
+      '3deb9f04-b449-4f94-b3dd-c73cefe5b275': {
+        auditors: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Invited a new team member');
 });
 
 test('should invite the user, set SpaceManager role and show success', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite')
-    .type('form')
-    .send({
-      email: 'jeff@jeff.com',
-      'space_roles[5489e195-c42b-4e61-bf30-323c331ecc01][managers]': '1'
-    });
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Invited a new team member');
+  const response = await users.inviteUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  }, {
+    email: 'jeff@jeff.com',
+    space_roles: {
+      '5489e195-c42b-4e61-bf30-323c331ecc01': {
+        managers: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Invited a new team member');
 });
 
 test('should invite the user, set SpaceDeveloper role and show success', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite')
-    .type('form')
-    .send({
-      email: 'jeff@jeff.com',
-      'space_roles[5489e195-c42b-4e61-bf30-323c331ecc01][developers]': '1'
-    });
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Invited a new team member');
+  const response = await users.inviteUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  }, {
+    email: 'jeff@jeff.com',
+    space_roles: {
+      '5489e195-c42b-4e61-bf30-323c331ecc01': {
+        developers: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Invited a new team member');
 });
 
 test('should invite the user, set SpaceAuditor role and show success', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite')
-    .type('form')
-    .send({
-      email: 'jeff@jeff.com',
-      'space_roles[5489e195-c42b-4e61-bf30-323c331ecc01][auditors]': '1'
-    });
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Invited a new team member');
+  const response = await users.inviteUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  }, {
+    email: 'jeff@jeff.com',
+    space_roles: {
+      '5489e195-c42b-4e61-bf30-323c331ecc01': {
+        auditors: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Invited a new team member');
 });
 
 test('should show the user edit page', async t => {
-  const response = await request(app).get('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/edit/uaa-user-edit-123456');
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Update a team member');
+  const response = await users.editUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    userGUID: 'uaa-user-edit-123456',
+  });
+
+  t.contains(response.body, 'Update a team member');
 });
 
-test('should show the user edit page', async t => {
-  const response = await request(app).get('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/edit/not-existing-user');
-  t.equal(response.status, 404);
-  t.contains(response.text, 'Page not found');
+test('should fail to show the user edit page due to not existing user', async t => {
+  t.rejects(users.editUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    userGUID: 'not-existing-user',
+  }), /user not found/);
 });
 
 test('should show error when no roles selected - User Edit', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/edit/uaa-user-edit-123456')
-    .type('form')
-    .send({test: 'qwerty123456'});
+  const response = await users.updateUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    userGUID: 'uaa-user-edit-123456',
+  }, {test: 'qwerty123456'});
+
+  t.contains(response.body, 'at least one role should be selected');
   t.equal(response.status, 400);
-  t.contains(response.text, 'at least one role should be selected');
 });
 
 test('should update the user, set BillingManager role and show success - User Edit', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/edit/uaa-user-edit-123456')
-    .type('form')
-    .send({
-      'org_roles[3deb9f04-b449-4f94-b3dd-c73cefe5b275][billing_managers]': '1'
-    });
-  t.contains(response.text, 'Updated a team member');
-  t.equal(response.status, 200);
+  const response = await users.updateUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    userGUID: 'uaa-user-edit-123456',
+  }, {
+    org_roles: {
+      '3deb9f04-b449-4f94-b3dd-c73cefe5b275': {
+        billing_managers: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Updated a team member');
 });
 
 test('should update the user, set OrgManager role and show success - User Edit', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/edit/uaa-user-edit-123456')
-    .type('form')
-    .send({
-      'org_roles[3deb9f04-b449-4f94-b3dd-c73cefe5b275][managers]': '1'
-    });
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Updated a team member');
+  const response = await users.updateUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    userGUID: 'uaa-user-edit-123456',
+  }, {
+    org_roles: {
+      '3deb9f04-b449-4f94-b3dd-c73cefe5b275': {
+        managers: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Updated a team member');
 });
 
 test('should update the user, set OrgAuditor role and show success - User Edit', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/edit/uaa-user-edit-123456')
-    .type('form')
-    .send({
-      'org_roles[3deb9f04-b449-4f94-b3dd-c73cefe5b275][auditors]': '1'
-    });
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Updated a team member');
+  const response = await users.updateUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    userGUID: 'uaa-user-edit-123456',
+  }, {
+    org_roles: {
+      '3deb9f04-b449-4f94-b3dd-c73cefe5b275': {
+        auditors: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Updated a team member');
 });
 
 test('should update the user, set SpaceManager role and show success - User Edit', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/edit/uaa-user-edit-123456')
-    .type('form')
-    .send({
-      'space_roles[5489e195-c42b-4e61-bf30-323c331ecc01][managers]': '1'
-    });
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Updated a team member');
+  const response = await users.updateUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    userGUID: 'uaa-user-edit-123456',
+  }, {
+    space_roles: {
+      '5489e195-c42b-4e61-bf30-323c331ecc01': {
+        managers: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Updated a team member');
 });
 
 test('should update the user, set SpaceDeveloper role and show success - User Edit', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/edit/uaa-user-edit-123456')
-    .type('form')
-    .send({
-      'space_roles[5489e195-c42b-4e61-bf30-323c331ecc01][developers]': '1'
-    });
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Updated a team member');
+  const response = await users.updateUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    userGUID: 'uaa-user-edit-123456',
+  }, {
+    space_roles: {
+      '5489e195-c42b-4e61-bf30-323c331ecc01': {
+        developers: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Updated a team member');
 });
 
 test('should update the user, set SpaceAuditor role and show success - User Edit', async t => {
-  const response = await request(app)
-    .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/edit/uaa-user-edit-123456')
-    .type('form')
-    .send({
-      'space_roles[5489e195-c42b-4e61-bf30-323c331ecc01][auditors]': '1'
-    });
-  t.equal(response.status, 200);
-  t.contains(response.text, 'Updated a team member');
+  const response = await users.updateUser(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    userGUID: 'uaa-user-edit-123456',
+  }, {
+    space_roles: {
+      '5489e195-c42b-4e61-bf30-323c331ecc01': {
+        auditors: '1',
+      },
+    },
+  });
+
+  t.contains(response.body, 'Updated a team member');
 });

@@ -12,14 +12,14 @@
   <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
     {{ govukBackLink({
       text: "See all team members",
-      href: "/users/" + organization.metadata.guid
+      href: linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid})
     }) }}
   </div>
 
   <div class="govuk-o-grid__item govuk-o-grid__item--one-half govuk-!-pt-r1 text-right">
     {{ govukButton({
       text: "Invite a new team member",
-      href: "/users/" + organization.metadata.guid + "/invite"
+      href: linkTo('admin.organizations.users.invite', {organizationGUID: organization.metadata.guid})
     }) }}
   </div>
 
