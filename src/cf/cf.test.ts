@@ -1,11 +1,13 @@
-import {test} from 'tap';
 import nock from 'nock';
-import CloudFoundryClient from './cf';
+import { test } from 'tap';
+
 import * as data from './cf.test.data';
+
+import CloudFoundryClient from '.';
 
 const config = {
   apiEndpoint: 'https://example.com/api',
-  accessToken: 'qwerty123456'
+  accessToken: 'qwerty123456',
 };
 
 nock('https://example.com/api').persist()
@@ -36,7 +38,9 @@ nock('https://example.com/api').persist()
   .get('/v2/failure/500').reply(500, `FAKE_500`)
   .get('/v2/test').reply(200, `{"next_url":"/v2/test?page=2","resources":["a"]}`)
   .get('/v2/test?page=2').reply(200, `{"next_url":null,"resources":["b"]}`)
-  .put('/v2/organizations/guid-cb24b36d-4656-468e-a50d-b53113ac6177/users').reply(201, {metadata: {guid: 'guid-cb24b36d-4656-468e-a50d-b53113ac6177'}})
+  .put('/v2/organizations/guid-cb24b36d-4656-468e-a50d-b53113ac6177/users').reply(201, {
+    metadata: {guid: 'guid-cb24b36d-4656-468e-a50d-b53113ac6177'},
+  })
 ;
 
 nock('https://example.com/uaa').persist()
@@ -48,19 +52,15 @@ test('should fail to get token client without accessToken or clientCredentials',
   return t.rejects(client.getAccessToken(), /accessToken or clientCredentials are required/);
 });
 
-test('should fail if missing apiEndpoint', async t => {
-  t.throws(() => new CloudFoundryClient({}), /apiEndpoint is required/);
-});
-
 test('should get token from tokenEndpoint in info', async t => {
-  const client = new CloudFoundryClient({apiEndpoint: 'https://example.com/api', clientCredentials: {clientID: 'my-id', clientSecret: 'my-secret'}});
-  const token = await client.getAccessToken();
-  t.equal(token, 'TOKEN_FROM_ENDPOINT');
-  const cachedToken = await client.getAccessToken();
-  t.equal(cachedToken, 'TOKEN_FROM_ENDPOINT');
-  client.accessToken = null;
-  const cachedEndpointToken = await client.getAccessToken();
-  t.equal(cachedEndpointToken, 'TOKEN_FROM_ENDPOINT');
+  const client = new CloudFoundryClient({
+    apiEndpoint: 'https://example.com/api',
+    clientCredentials: {clientID: 'my-id', clientSecret: 'my-secret'},
+  });
+
+  t.equal(await client.getAccessToken(), 'TOKEN_FROM_ENDPOINT');
+  // Should be cached from now on. Nock should throw error if asked twice.
+  t.equal(await client.getAccessToken(), 'TOKEN_FROM_ENDPOINT');
 });
 
 test('should create a client correctly', async t => {
@@ -72,10 +72,10 @@ test('should create a client correctly', async t => {
 test('should iterate over all pages to gather resources', async t => {
   const client = new CloudFoundryClient(config);
   const response = await client.request('get', '/v2/test');
-  const data = await client.allResources(response);
+  const collection = await client.allResources(response);
 
-  t.equal([...data].length, 2);
-  t.equal(data[1], 'b');
+  t.equal([...collection].length, 2);
+  t.equal(collection[1], 'b');
 });
 
 test('should throw an error when receiving 404', async t => {
@@ -225,7 +225,10 @@ test('should obtain list of user roles for space', async t => {
 
 test('should be able to create new user by username', async t => {
   const client = new CloudFoundryClient(config);
-  const organization = await client.assignUserToOrganizationByUsername('guid-cb24b36d-4656-468e-a50d-b53113ac6177', 'user@example.com');
+  const organization = await client.assignUserToOrganizationByUsername(
+    'guid-cb24b36d-4656-468e-a50d-b53113ac6177',
+    'user@example.com',
+  );
 
   t.equal(organization.metadata.guid, 'guid-cb24b36d-4656-468e-a50d-b53113ac6177');
 });
@@ -257,4 +260,3 @@ test('should be able to remove user space roles', async t => {
 
   t.equal(Object.keys(users).length, 0);
 });
-

@@ -1,3 +1,4 @@
+// tslint:disable:max-line-length
 export const info = `{
   "name": "vcap",
   "build": "2222",
@@ -865,3 +866,4 @@ export const userRolesForSpace = `{
     }
   ]
 }`;
+// tslint:enable:max-line-length
