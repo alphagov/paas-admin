@@ -5,10 +5,11 @@
 
   <nav class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
     <a href="/spaces/{{ organization.metadata.guid }}" class="govuk-link active">
+    <a href="{{ linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link active">
       Org overview
     </a>
 
-    <a href="/users/{{ organization.metadata.guid }}" class="govuk-link">
+    <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link">
       Team members
     </a>
   </nav>
