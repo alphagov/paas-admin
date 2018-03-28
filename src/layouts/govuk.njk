@@ -11,6 +11,17 @@
   <link href="./govuk.screen.scss" media="screen" rel="stylesheet" type="text/css" />
 {% endblock %}
 
+{% block inside_header %}
+  <div class="navigation">
+    <ul>
+      <li><a href="/organisations">My Organisations</a></li>
+      <li><a href="https://docs.cloud.service.gov.uk/">Documentation</a></li>
+      <li><a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">Support</a></li>
+      <li><a href="/auth/logout">Sign out</a></li>
+    <ul>
+  </div>
+{% endblock %}
+
 {% block cookie_message %}
   <p>GOV.UK uses cookies to make the site simpler. <a href="#">Find out more about cookies</a></p>
 {% endblock %}
