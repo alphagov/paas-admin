@@ -30,7 +30,7 @@
         {% for application in applications %}
           <tr class="govuk-c-table__row">
             <th class="govuk-c-table__header" scope="row">
-              <a href="/applications/{{ application.metadata.guid }}/overview" class="govuk-link">{{ application.entity.name }}</a>
+              <a href="{{ linkTo('admin.organizations.spaces.applications.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid}) }}" class="govuk-link">{{ application.entity.name }}</a>
             </th>
             <td class="govuk-c-table__cell ">
               {{ application.entity.running_instances }}/{{ application.entity.instances }}
@@ -71,7 +71,7 @@
         {% for service in space.entity.services %}
           <tr class="govuk-c-table__row">
             <th class="govuk-c-table__header" scope="row">
-              <a href="/services/{{ service.guid }}/overview" class="govuk-link">{{ service.name }}</a>
+              <a href="{{ linkTo('admin.organizations.spaces.services.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.guid}) }}" class="govuk-link">{{ service.name }}</a>
             </th>
             <td class="govuk-c-table__cell ">
               {{ service.service_plan.service.label }}
