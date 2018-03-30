@@ -1,24 +1,27 @@
-import sourceMapSupport from 'source-map-support';
 import pino from 'pino';
-import app from './app';
+import sourceMapSupport from 'source-map-support';
+
+import app, { IAppConfig } from './app/app';
 import Server from './server';
 
 sourceMapSupport.install();
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || 'info'
+  level: process.env.LOG_LEVEL || 'info',
 });
 
-function expectEnvVariable(variableName) {
-  if (process.env[variableName] === undefined || process.env[variableName] === '') {
+function expectEnvVariable(variableName: string): string {
+  const value = process.env[variableName] || '';
+
+  if (value === '') {
     logger.error(`Expected environment variable "${variableName}" to be set.`);
     process.exit(100);
   }
 
-  return process.env[variableName];
+  return value;
 }
 
-function onError(err) {
+function onError(err: Error) {
   logger.error({exit: 1}, err.toString());
   process.exit(100);
 }
@@ -28,9 +31,9 @@ function onShutdown() {
   process.exit(0);
 }
 
-async function main(cfg) {
+async function main(cfg: IAppConfig) {
   const server = new Server(app(cfg), {
-    port: process.env.PORT
+    port: parseInt(process.env.PORT || '0', 10),
   });
 
   process.once('SIGINT', () => server.stop());
@@ -41,7 +44,8 @@ async function main(cfg) {
 
   /* istanbul ignore if  */
   if (module.hot) {
-    module.hot.accept('./app', () => server.update(app(cfg)));
+    module.hot.accept();
+    // module.hot.accept('./app', () => server.update(app(cfg)));
   }
 
   return server.wait();
@@ -50,7 +54,7 @@ async function main(cfg) {
 const config = {
   logger,
   sessionSecret: process.env.SESSION_SECRET || 'mysecret',
-  allowInsecure: (process.env.ALLOW_INSECURE === 'true'),
+  allowInsecureSession: (process.env.ALLOW_INSECURE_SESSION === 'true'),
   oauthAuthorizationURL: expectEnvVariable('OAUTH_AUTHORIZATION_URL'),
   oauthTokenURL: expectEnvVariable('OAUTH_TOKEN_URL'),
   oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
@@ -58,7 +62,7 @@ const config = {
   cloudFoundryAPI: expectEnvVariable('API_URL'),
   uaaAPI: expectEnvVariable('UAA_URL'),
   notifyAPIKey: expectEnvVariable('NOTIFY_API_KEY'),
-  notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null
+  notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null,
 };
 
 main(config).then(onShutdown).catch(onError);
