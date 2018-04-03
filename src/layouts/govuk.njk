@@ -3,12 +3,24 @@
 
 {% set homepage_url = '/' %}
 
-{% set logo_link_title = 'Go to the GOV.UK PaaS Admin Tool Homepage' %}
-
 {% block page_title %}PaaS Administration{% endblock %}
 
 {% block head %}
   <link href="./govuk.screen.scss" media="screen" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block inside_header %}
+  <div class="header-title">
+    Platform as a Service
+  </div>
+  <div class="navigation">
+    <ul>
+      <li><a href="/organisations">My Organisations</a></li>
+      <li><a href="https://docs.cloud.service.gov.uk/">Documentation</a></li>
+      <li><a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">Support</a></li>
+      <li><a href="/auth/logout">Sign out</a></li>
+    <ul>
+  </div>
 {% endblock %}
 
 {% block cookie_message %}
