@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "description": "GOV.UK PaaS CloudFoundry UI",
-  "main": "src/main.js",
+  "main": "src/main.ts",
   "repository": "https://github.com/alphagov/paas-admin",
   "scripts": {
     "build": "npm run -s clean && webpack --config config/webpack.config.js",
@@ -12,11 +12,9 @@
     "test:unit": "ENABLE_TESTS=true npm run -s build",
     "test:vulnerabilities": "snyk test",
     "lint": "npm run -s lint:ts && npm run -s lint:sass",
-    "lint:js": "xo",
     "lint:ts": "tslint --format codeFrame ./src/**/*.ts",
     "lint:sass": "sass-lint -v",
     "fix": "npm run -s fix:js",
-    "fix:js": "xo --fix ./src",
     "fix:ts": "tslint ./src/**/*.ts --fix",
     "fix:sass": "sass-lint --fix ./src",
     "fix:vulnerabilities": "snyk protect",
@@ -75,8 +73,7 @@
     "webpack": "4.4.1",
     "webpack-cli": "2.0.13",
     "webpack-node-externals": "1.7.2",
-    "webpack-shell-plugin": "0.5.0",
-    "xo": "0.20.3"
+    "webpack-shell-plugin": "0.5.0"
   },
   "dependencies": {
     "axios": "0.18.0",
@@ -102,29 +99,5 @@
   "engines": {
     "node": "8.9.x",
     "npm": ">=5.x.x"
-  },
-  "xo": {
-    "space": true,
-    "overrides": [
-      {
-        "files": "src/main.js",
-        "rules": {
-          "unicorn/no-process-exit": "off"
-        }
-      },
-      {
-        "files": "**/*.js",
-        "rules": {
-          "no-console": "warn",
-          "no-unused-vars": [
-            "error",
-            {
-              "ignoreRestSiblings": true,
-              "argsIgnorePattern": "(^_[a-z]|^t$)"
-            }
-          ]
-        }
-      }
-    ]
   }
 }
