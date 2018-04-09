@@ -5,9 +5,10 @@ import request from 'supertest';
 import { test } from 'tap';
 
 import { info, organizations } from '../cf/cf.test.data';
-import { IParameters } from '../lib/router';
+import Router, { IParameters } from '../lib/router';
 
 import init from './app';
+import { IContext, initContext } from './context';
 import router from './router';
 
 const logger = pino({level: 'silent'});
@@ -28,6 +29,24 @@ const config = {
   notifyWelcomeTemplateID: 'qwerty-123456',
   tokenKey: 'secret',
 };
+
+test('should initContext correctly', async (t: any) => {
+  const r = new Router([
+    {
+      name: 'test',
+      action: async (c: IContext, _params: IParameters) => ({
+        body: {
+          message: c.routePartOf('test') ? 'OK' : 'NOT OK',
+        },
+      }),
+      path: '/',
+    },
+  ]);
+  const ctx = initContext({}, r, r.find('/'));
+
+  t.ok(ctx.routePartOf('test'));
+  t.ok(ctx.routePartOf('te'));
+});
 
 nock('https://example.com/uaa').persist()
   .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
@@ -188,6 +207,7 @@ test('should redirect homepage to organisations', async t => {
   const home = router.find('/');
   const orgs = router.findByName('admin.organizations');
   const response = await home.definition.action({
+    routePartOf: () => false,
     linkTo: (name: string, params: IParameters = {}) => router.findByName(name).composeURL(params),
   }, {});
 

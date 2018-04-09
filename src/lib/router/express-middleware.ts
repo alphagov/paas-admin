@@ -36,7 +36,7 @@ export function expressMiddleware(router: Router): express.Application {
       ...route.parser.match(req.path),
     };
 
-    const ctx = initContext(req, router);
+    const ctx = initContext(req, router, route);
 
     route.definition.action(ctx, params, req.body)
       .then(handleResponse(res))

@@ -22,6 +22,7 @@ const ctx: IContext = {
     apiEndpoint: 'https://example.com/api',
     accessToken: '__CF_ACCESS_TOKEN__',
   }),
+  routePartOf: () => false,
   linkTo: () => '__LINKED_TO__',
   log: pino({level: 'silent'}),
   notify: new NotificationClient({apiKey: '__NOTIFY_KEY__', templates: {}}),

@@ -8,6 +8,10 @@ export async function listOrganizations(ctx: IContext, _params: IParameters): Pr
   const organizations = await ctx.cf.organizations();
 
   return {
-    body: organizationsTemplate.render({organizations, linkTo: ctx.linkTo}),
+    body: organizationsTemplate.render({
+      routePartOf: ctx.routePartOf,
+      linkTo: ctx.linkTo,
+      organizations,
+    }),
   };
 }

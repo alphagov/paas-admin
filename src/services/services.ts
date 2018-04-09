@@ -21,10 +21,11 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
 
   return {
     body: serviceOverviewTemplate.render({
+      routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      organization,
       service: summarisedService,
       space,
-      organization,
     }),
   };
 }

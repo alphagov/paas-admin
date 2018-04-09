@@ -39,6 +39,7 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
   return {
     body: spaceOverviewTemplate.render({
       applications: summarisedApplications,
+      routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       organization,
       space: summarisedSpace,
@@ -88,6 +89,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
 
   return {
     body: spacesTemplate.render({
+      routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       managers,
       organization: summerisedOrganization,

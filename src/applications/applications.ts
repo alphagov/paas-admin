@@ -27,6 +27,7 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
   return {
     body: applicationOverviewTemplate.render({
       application: summarisedApplication,
+      routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       space,
       organization,

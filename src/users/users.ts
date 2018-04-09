@@ -108,10 +108,11 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
 
   return {
     body: usersTemplate.render({
+      routePartOf: ctx.routePartOf,
+      isManager,
       linkTo: ctx.linkTo,
       users,
       organization,
-      isManager,
     }),
   };
 }
@@ -125,6 +126,7 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
   return {
     body: inviteTemplate.render({
       errors: [],
+      routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       organization,
       spaces,
@@ -216,6 +218,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
     return {
       body: inviteSuccessTemplate.render({
         errors,
+        routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
         organization,
       }),
@@ -226,6 +229,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
       return {
         body: inviteTemplate.render({
           errors: err.errors,
+          routePartOf: ctx.routePartOf,
           linkTo: ctx.linkTo,
           organization,
           spaces,
@@ -280,6 +284,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
   return {
     body: editTemplate.render({
       errors: [],
+      routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       organization,
       spaces,
@@ -327,6 +332,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
 
     return {
       body: editSuccessTemplate.render({
+        routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
         organization,
       }),
@@ -336,12 +342,13 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
     if (err instanceof ValidationError) {
       return {
         body: editTemplate.render({
+          errors: err.errors,
+          routePartOf: ctx.routePartOf,
           linkTo: ctx.linkTo,
           organization,
           spaces,
-          errors: err.errors,
-          values,
           user,
+          values,
         }),
         status: 400,
       };

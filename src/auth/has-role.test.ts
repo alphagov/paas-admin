@@ -79,6 +79,7 @@ function setupContext(user: IUser): IContext {
       apiEndpoint: 'https://example.com/api',
       accessToken: token,
     }),
+    routePartOf: () => false,
     linkTo: () => '__LINKED_TO__',
     log: pino({level: 'silent'}),
     notify: new NotificationClient({apiKey: '__NOTIFY_KEY__', templates: {}}),
