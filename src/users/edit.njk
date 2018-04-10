@@ -13,7 +13,7 @@
   <div class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
     {{ govukBackLink({
       text: "See all team members",
-      href: "/users/" + organization.metadata.guid
+      href: linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid})
    }) }}
 
     <h1 class="govuk-heading-xl">

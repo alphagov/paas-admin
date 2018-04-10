@@ -65,7 +65,7 @@
             Space:
           </span>
 
-          <a href="/spaces/{{ space.metadata.guid }}/overview" id="space-{{ space.metadata.guid }}" class="govuk-link govuk-!-w-bold">
+          <a href="{{ linkTo('admin.organizations.spaces.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" id="space-{{ space.metadata.guid }}" class="govuk-link govuk-!-w-bold">
             {{ space.entity.name }}
           </a>
         </h3>
@@ -108,7 +108,7 @@
 
   <div class="govuk-o-grid">
     <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
-      <a href="/users/{{ organization.metadata.guid }}" class="govuk-link">
+      <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link">
         View and manage team members
       </a>
 
@@ -127,7 +127,7 @@
           {% for user in managers %}
             <tr class="govuk-c-table__row">
               <td class="govuk-c-table__cell">
-                <a href="/users/{{ organization.metadata.guid }}/edit/{{ user.metadata.guid }}" class="govuk-link">
+                <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
                   {{ user.entity.username }}
                 </a>
               </td>

@@ -21,7 +21,7 @@
       <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
         {{ navigationPanel({
           titleText: organization.entity.name,
-          link: "/spaces/" + organization.metadata.guid
+          link: linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid})
         }) }}
       </div>
     {% endfor %}

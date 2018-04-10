@@ -7,15 +7,15 @@ module.exports = cfg => {
   let args = '--no-coverage';
   const focusGlob = process.env.TEST_FOCUS || '';
 
-  // Include all .test.js files as entry points
-  glob.sync(path.resolve(__dirname, `../src/**/${focusGlob}*.test.js`)).map(f => path.relative(__dirname, f).replace('..', '.')).forEach(f => {
-    cfg.entry[path.basename(f, '.js')] = [f];
+  // Include all .test.ts files as entry points
+  glob.sync(path.resolve(__dirname, `../src/**/${focusGlob}*.test.ts`)).map(f => path.relative(__dirname, f).replace('..', '.')).forEach(f => {
+    cfg.entry[path.basename(f, '.ts')] = [f];
   });
 
   // Add instrumentation for code coverage checking
   if (process.env.ENABLE_COVERAGE === 'true') {
     cfg.module.rules.unshift({
-      test: /\.(js)$/,
+      test: /\.(ts|js)$/,
       use: [
         {
           loader: 'istanbul-instrumenter-loader',
@@ -26,7 +26,7 @@ module.exports = cfg => {
         }
       ],
       enforce: 'post',
-      exclude: /node_modules|\.tests\.js$/
+      exclude: /node_modules|\.test\.(ts|js)$/
     });
     args = `--100`;
   }

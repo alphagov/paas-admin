@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "outDir": "dist",
+    "module": "commonjs",
+    "target": "es6",
+    "jsx" :  "react",
+    "lib": [
+      "es2015",
+      "es2016.array.include",
+      "es2017"
+    ],
+    "sourceMap": true,
+    "inlineSources": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "isolatedModules": false,
+    "pretty": true,
+    "allowJs": true,
+    "importHelpers": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "types": []
+}

@@ -29,7 +29,7 @@
     {% if isManager %}
       {{ govukButton({
         text: "Invite a new team member",
-        href: "/users/" + organization.metadata.guid + "/invite"
+        href: linkTo('admin.organizations.users.invite', {organizationGUID: organization.metadata.guid})
       }) }}
     {% endif %}
   </div>
@@ -78,7 +78,7 @@
     {% for user in users %}
     <tr class="govuk-c-table__row">
       <td class="govuk-c-table__cell">
-        <a href="/users/{{ organization.metadata.guid }}/edit/{{ user.metadata.guid }}" class="govuk-link">
+        <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
           {{ user.entity.username }}
         </a>
       </td>
@@ -99,7 +99,7 @@
       </td>
       <td class="govuk-c-table__cell">
         {% for space in user.spaces %}
-          <a href="/spaces/{{ space.metadata.guid }}/summary" class="govuk-link">{{ space.entity.name }}</a>
+          <a href="linkTo('admin.organizations.spaces.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})" class="govuk-link">{{ space.entity.name }}</a>
         {% endfor %}
       </td>
     </tr>
