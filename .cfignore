@@ -1,7 +1,9 @@
-src
-test
-config
-node_modules
-LICENSE
-README.md
 .*
+config/
+LICENSE
+manifest.yml
+node_modules/
+README.md
+src/
+tsconfig.json
+tslint.json
