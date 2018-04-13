@@ -1,0 +1,29 @@
+.paas-heading-l {
+  @include govuk-font-bold-36;
+  margin-bottom: $govuk-spacing-scale-3;
+}
+
+.paas-heading-lede {
+  @include govuk-font-regular-24;
+  margin-bottom: $govuk-spacing-scale-6;
+}
+
+.paas-sections {
+  border-bottom: 1px solid $govuk-border-colour;
+  padding-left: 0;
+
+  li {
+    list-style: none;
+    @include govuk-font-bold-24;
+  }
+
+  a {
+  	text-decoration: none;
+  }
+}
+
+.paas-section {
+  padding-top: $govuk-spacing-scale-6;
+  padding-bottom: $govuk-spacing-scale-6;
+  border-top: 1px solid $govuk-border-colour;
+}

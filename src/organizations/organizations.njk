@@ -3,27 +3,21 @@
 {% from "@govuk-frontend/button/macro.njk" import govukButton %}
 {% from "@govuk-frontend/panel/macro.njk" import govukPanel %}
 {% from "@govuk-frontend/back-link/macro.njk" import govukBackLink %}
-{% from "../layouts/navigationPanel/macro.njk" import navigationPanel %}
 
 {% block page_title %}
   Organisations
 {% endblock %}
 
 {% block main %}
-  <h1 class="govuk-heading-l">
-    Welcome to GOV.UK PaaS
-  </h1>
-  
-  <h2 class="govuk-heading-m">Choose an organisation</h2>
-  
-  <div class="govuk-o-grid">
+  <h1 class="paas-heading-l">You’re a member of {{organizations.length}} organisations</h1>
+
+  <h2 class="paas-heading-lede">Choose an organisation</h2>
+
+  <ul class="paas-sections">
     {% for organization in organizations %}
-      <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
-        {{ navigationPanel({
-          titleText: organization.entity.name,
-          link: linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid})
-        }) }}
-      </div>
+      <li class="paas-section">
+        <a href="{{linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid})}}"> {{ organization.entity.name }}</a>
+      </li>
     {% endfor %}
-  </div>
+  </ul>
 {% endblock %}

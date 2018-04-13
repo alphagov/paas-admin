@@ -1,6 +1,4 @@
 @import '~@govuk-frontend/all/all';
-
-@import 'navigationPanel/_navigationPanel.scss';
 @import 'elements';
 @import 'header';
 
@@ -9,6 +7,8 @@
 @import '../spaces/spaces';
 
 @import '../users/permissions';
+
+@import '../organizations/_organizations';
 
 .text-right {
   text-align: right;
