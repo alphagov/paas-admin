@@ -11,6 +11,7 @@
 .paas-sections {
   border-bottom: 1px solid $govuk-border-colour;
   padding-left: 0;
+  margin-bottom: $govuk-spacing-scale-8;
 
   li {
     list-style: none;
@@ -26,4 +27,46 @@
   padding-top: $govuk-spacing-scale-6;
   padding-bottom: $govuk-spacing-scale-6;
   border-top: 1px solid $govuk-border-colour;
+}
+
+.paas-info-section {
+  margin-top: $govuk-spacing-scale-7;
+  @include govuk-font-regular-19;
+
+  h3 {
+    @include govuk-font-bold-19;
+  }
+
+  p {
+    margin-top: $govuk-spacing-scale-1;
+  }
+}
+
+.paas-download-section {
+  margin-bottom: $govuk-spacing-scale-7 + $govuk-spacing-scale-1;
+  margin-top: $govuk-spacing-scale-3;
+  margin-left: 1px;
+  margin-right: 1px;
+  padding-top: $govuk-spacing-scale-5;
+  padding-bottom: $govuk-spacing-scale-5;
+  padding-left: $govuk-spacing-scale-3/2;
+  padding-right: $govuk-spacing-scale-3/2;
+  background-color: $govuk-grey-4;
+  border: 10px $govuk-grey-3 solid;
+  @include govuk-font-regular-19;
+
+  h3 {
+    @include govuk-font-bold-19;
+    margin-bottom: $govuk-spacing-scale-1;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style-position: inside;
+  }
+
+  p {
+    margin-top: 0;
+  }
 }
