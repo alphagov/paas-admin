@@ -4,13 +4,19 @@ import { IContext } from '../app/context';
 
 import organizationsTemplate from './organizations.njk';
 
-export async function listOrganizations(ctx: IContext, _params: IParameters): Promise<IResponse> {
-  const organizations = await ctx.cf.organizations();
+export async function listOrganizations(context: IContext, _params: IParameters): Promise<IResponse> {
+  const organizations = await context.cf.organizations();
+  const cfDownloadLinkLocation = 'https://packages.cloudfoundry.org/stable?release=';
+  const cfDownloadLinkSource = '&amp;source=github';
+  const documentationLink = 'https://docs.cloud.service.gov.uk/#';
 
   return {
     body: organizationsTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
+      routePartOf: context.routePartOf,
+      linkTo: context.linkTo,
+      cfDownloadLinkLocation,
+      cfDownloadLinkSource,
+      documentationLink,
       organizations,
     }),
   };
