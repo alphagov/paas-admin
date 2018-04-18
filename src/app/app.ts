@@ -4,6 +4,7 @@ import express from 'express';
 import pinoMiddleware from 'express-pino-logger';
 import staticGzip from 'express-static-gzip';
 import helmet from 'helmet';
+import { IncomingMessage, ServerResponse } from 'http';
 import { BaseLogger } from 'pino';
 
 import auth from '../auth';
@@ -33,7 +34,18 @@ export interface IAppConfig {
 export default function(config: IAppConfig) {
   const app = express();
 
-  app.use(pinoMiddleware({logger: config.logger}));
+  app.use(pinoMiddleware({
+    logger: config.logger,
+    serializers: {
+      req: (req: IncomingMessage) => ({
+        method: req.method,
+        url: req.url,
+      }),
+      res: /* istanbul ignore next */ (res: ServerResponse) => ({
+        status: res.statusCode,
+      }),
+    },
+  }));
 
   app.set('trust proxy', true);
 
