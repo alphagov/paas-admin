@@ -1,12 +1,29 @@
+.space-wrapper {
+  a {
+    display: block;
+  }
+}
+
 .space {
   background-color: $govuk-grey-4;
-  border: $govuk-spacing-scale-2 solid $govuk-border-colour;
-  margin: $govuk-spacing-scale-2 0;
-  padding: $govuk-spacing-scale-2 0;
+  border: 1px solid $govuk-border-colour;
+  padding-top: $govuk-spacing-scale-5;
+  padding-bottom: $govuk-spacing-scale-4;
+  padding-right: $govuk-spacing-scale-3;
+  padding-left: $govuk-spacing-scale-3;
+  margin-right: $govuk-spacing-scale-3;
+  margin-left: $govuk-spacing-scale-3;
+  margin-bottom: $govuk-spacing-scale-2;
   transition: background-color .1s ease;
+  text-align: left;
+  @include govuk-font-regular-16;
 
   &:hover {
-    background-color: #fff;
+    border: 2px solid $govuk-blue;
+  }
+
+  h4 {
+    @include govuk-font-regular-16;
   }
 
   ul {
@@ -23,11 +40,12 @@
   }
 
   h3 {
+    @include govuk-font-bold-24;
     margin: 0;
   }
 
-  a {
-    text-decoration: none;
+  p {
+    margin: 0;
   }
 
   .running::before, .stopped::before {
@@ -39,13 +57,16 @@
     margin-right: 2px;
   }
 
-  .running::before {
-    background-color: $govuk-button-colour;
+  .running{
+    width:1%;
+    white-space:nowrap;
+    &::before {
+      background-color: $govuk-button-colour;
+    }
   }
 
   .stopped {
     margin-left: $govuk-spacing-scale-3;
-
     &::before {
       background-color: $govuk-grey-2;
     }
@@ -54,11 +75,28 @@
   & + h2 {
     margin-top: $govuk-spacing-scale-6 * 3;
   }
+
+  .paas-caption {
+    display: block;
+    color: black;
+    @include govuk-font-regular-16;
+  }
+
+  @include mq($until: tablet) {
+
+    h3 {
+      margin-bottom: $govuk-spacing-scale-1;
+      text-decoration: underline;
+    }
+
+    h4 {
+      margin-top: $govuk-spacing-scale-3;
+      margin-bottom: $govuk-spacing-scale-1;
+      text-decoration: underline;
+    }
+  }
 }
 
-table.space-overview {
-  th.name {
-    min-width: 280px;
-    width: 35%;
-  }
+.space-information {
+  color: $govuk-text-colour;
 }
