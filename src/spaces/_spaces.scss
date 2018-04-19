@@ -9,6 +9,19 @@
     background-color: #fff;
   }
 
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding-left: $govuk-spacing-scale-3;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  li {
+    display: inline;
+  }
+
   h3 {
     margin: 0;
   }
@@ -21,17 +34,21 @@
     content: "";
     border-radius: 100%;
     display: inline-block;
-    height: $govuk-spacing-scale-2;
-    margin-right: $govuk-spacing-scale-1;
-    width: $govuk-spacing-scale-2;
+    height: 12px;
+    width: 12px;
+    margin-right: 2px;
   }
 
   .running::before {
-    background-color: $govuk-green;
+    background-color: $govuk-button-colour;
   }
 
-  .stopped::before {
-    background-color: $govuk-grey-1;
+  .stopped {
+    margin-left: $govuk-spacing-scale-3;
+
+    &::before {
+      background-color: $govuk-grey-2;
+    }
   }
 
   & + h2 {
