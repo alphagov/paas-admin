@@ -19,7 +19,10 @@ interface IInvalid {
 
 interface IPermissions {
   readonly [guid: string]: {
-    readonly [permission: string]: string;
+    readonly [permission: string]: {
+      readonly current: string;
+      readonly desired?: string;
+    };
   };
 }
 
@@ -55,27 +58,71 @@ async function setAllUserRolesForOrg(
 ): Promise<any> {
   const spaces = await ctx.cf.spaces(params.organizationGUID);
 
-  const roleEndpoints: ReadonlyArray<cf.OrganizationUserRoleEndpoints> = ['billing_managers', 'managers', 'auditors'];
+  const orgRoleEndpoints: ReadonlyArray<cf.OrganizationUserRoleEndpoints> = [
+    'billing_managers',
+    'managers',
+    'auditors',
+  ];
+
   await Promise.all(
-    roleEndpoints.map((role: cf.OrganizationUserRoleEndpoints) =>
-      ctx.cf.setOrganizationRole(
+    orgRoleEndpoints.map((role: cf.OrganizationUserRoleEndpoints): Promise<cf.IResource> | Promise<undefined> => {
+      /* istanbul ignore next */
+      if (!roles.org[params.organizationGUID]) {
+        return Promise.resolve(undefined);
+      }
+
+      const oldPermission = roles.org[params.organizationGUID][role].current;
+      const newPermission = roles.org[params.organizationGUID][role].desired;
+
+      if (newPermission && newPermission === oldPermission) {
+        return Promise.resolve(undefined);
+      }
+
+      if (!newPermission && oldPermission === '0') {
+        return Promise.resolve(undefined);
+      }
+
+      return ctx.cf.setOrganizationRole(
         params.organizationGUID,
         params.userGUID,
         role,
-        roles.org[params.organizationGUID] && roles.org[params.organizationGUID][role] === '1',
-      ),
-    ),
+        newPermission === '1',
+      );
+    }),
   );
 
+  const spaceRoleEndpoints = [
+    'managers',
+    'developers',
+    'auditors',
+  ];
+
   await Promise.all(
-    spaces.map((space: cf.ISpace) => ['managers', 'developers', 'auditors'].map((role: string) =>
-      ctx.cf.setSpaceRole(
+    spaces.map((space: cf.ISpace) => spaceRoleEndpoints.map((role: string) => {
+      /* istanbul ignore next */
+      if (!roles.space[space.metadata.guid]) {
+        return Promise.resolve(undefined);
+      }
+
+      const oldPermission = roles.space[space.metadata.guid][role].current;
+      const newPermission = roles.space[space.metadata.guid][role].desired;
+
+      if (newPermission && newPermission === oldPermission) {
+        return Promise.resolve(undefined);
+      }
+
+      if (!newPermission && oldPermission === '0') {
+        return Promise.resolve(undefined);
+      }
+
+      return ctx.cf.setSpaceRole(
         space.metadata.guid,
         params.userGUID,
         role,
-        roles.space[space.metadata.guid] && roles.space[space.metadata.guid][role] === '1'),
-    )),
-  );
+        newPermission === '1',
+      );
+    }),
+  ));
 }
 
 export async function listUsers(ctx: IContext, params: IParameters): Promise<IResponse> {
