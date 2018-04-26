@@ -101,13 +101,15 @@
       </section>
     </a>
   {% endfor %}
-  <div>
-
-  <h2 class="govuk-heading-l">
-    This organisation has {{ users | length }} team members
-  </h2>
+  </div>
 
   <div class="govuk-o-grid">
+    <div class="govuk-o-grid__item govuk-o-grid__item--full">
+      <h2 class="govuk-heading-l">
+        This organisation has {{ users | length }} team members
+      </h2>
+    </div>
+
     <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
       <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link">
         View and manage team members
