@@ -16,12 +16,16 @@
   margin-right: $govuk-spacing-scale-3;
   margin-left: $govuk-spacing-scale-3;
   margin-bottom: $govuk-spacing-scale-2;
-  transition: background-color .1s ease;
+  transition: background-color .1s ease, border-color .1s ease;
   text-align: left;
   @include govuk-font-regular-16;
 
   &:hover {
     border: 2px solid $govuk-blue;
+    padding-top: $govuk-spacing-scale-5 - 1px;
+    padding-bottom: $govuk-spacing-scale-4 - 1px;
+    padding-right: $govuk-spacing-scale-3 - 1px;
+    padding-left: $govuk-spacing-scale-3 - 1px;
   }
 
   h4 {
