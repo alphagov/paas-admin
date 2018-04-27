@@ -101,25 +101,17 @@
       </section>
     </a>
   {% endfor %}
-  <div>
+  </div>
 
-  <h2 class="govuk-heading-l">
-    This organisation has {{ users | length }} team members
-  </h2>
-
-  <div class="govuk-o-grid">
-    <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
-      <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link">
-        View and manage team members
-      </a>
-
-      <p>
-        As an ‘org manager’ you can manage team members in your organiation.
-      </p>
+  <div class="govuk-o-grid organisation-overview">
+    <div class="govuk-o-grid__item govuk-o-grid__item--full">
+      <h2 class="govuk-heading-l">
+        This organisation has {{ users | length }} team members
+      </h2>
     </div>
 
     <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
-      <table class="govuk-c-table">
+      <table class="govuk-c-table organisation-managers">
         <caption class="govuk-c-table__caption">
           There are {{ managers | length }} Org managers:
         </caption>
@@ -128,7 +120,7 @@
           {% for user in managers %}
             <tr class="govuk-c-table__row">
               <td class="govuk-c-table__cell">
-                <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
+                <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}">
                   {{ user.entity.username }}
                 </a>
               </td>
@@ -154,6 +146,16 @@
           </a>
         </div>
       </details>
+    </div>
+
+    <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
+      <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}">
+        View and manage team members
+      </a>
+
+      <p>
+        As an ‘org manager’ you can manage team members in your organiation.
+      </p>
     </div>
   </div>
 {% endblock %}

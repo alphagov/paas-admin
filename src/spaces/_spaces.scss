@@ -2,6 +2,8 @@
   a {
     display: block;
   }
+
+  margin-bottom: $govuk-spacing-scale-8;
 }
 
 .space {
@@ -99,4 +101,25 @@
 
 .space-information {
   color: $govuk-text-colour;
+}
+
+.organisation-overview  {
+  a {
+    @include govuk-font-bold-19;
+    text-decoration: underline;
+  }
+
+  table a {
+    @include govuk-font-regular-16;
+    text-decoration: none;
+  }
+
+  p {
+    @include govuk-font-regular-19;
+    margin-top: $govuk-spacing-scale-1;
+  }
+
+  h2 {
+    margin-bottom: $govuk-spacing-scale-7;
+  }
 }
