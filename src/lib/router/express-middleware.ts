@@ -32,6 +32,7 @@ export function expressMiddleware(router: Router): express.Application {
     }
 
     const params = {
+      ...req.query,
       ...req.params,
       ...route.parser.match(req.path),
     };

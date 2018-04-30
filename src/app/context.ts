@@ -17,6 +17,7 @@ export interface IContext {
   readonly log: Logger;
   readonly notify: NotificationClient;
   readonly rawToken: IRawToken;
+  readonly accessToken: string;
   readonly uaa: UAAClient;
 }
 
@@ -29,5 +30,6 @@ export function initContext(req: any, router: Router, route: Route): IContext {
     notify: req.notify,
     rawToken: req.rawToken,
     uaa: req.uaa,
+    accessToken: req.accessToken,
   };
 }
