@@ -106,7 +106,6 @@
     "no-return-undefined": true,
     "no-var-keyword": true,
     "no-parameter-reassignment": true,
-    "no-mixed-interface": true,
     "no-let": [
       true,
       "ignore-local"
