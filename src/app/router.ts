@@ -72,7 +72,7 @@ const router = new Router([
   {
     action: statement.viewStatement,
     name: 'admin.statement.view',
-    path: '/organisations/:organizationGUID/statements',
+    path: '/organisations/:organizationGUID/statements/:rangeStart',
   },
 ]);
 

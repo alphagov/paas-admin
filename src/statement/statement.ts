@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { IContext } from '../app/context';
 import CloudFoundryClient from '../cf';
 import { ISpace } from '../cf/types';
@@ -25,7 +26,18 @@ interface IResourceGroup {
   readonly [key: string]: IResourceUsage;
 }
 
+const YYYMMDD = 'YYYY-MM-DD';
+
 export async function viewStatement(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const rangeStart = moment(params.rangeStart, YYYMMDD);
+  if (!rangeStart.isValid()) {
+    throw new Error('invalid rangeStart provided');
+  }
+
+  if (rangeStart.date() > 1) {
+    throw new Error('expected rangeStart to be the first of the month');
+  }
+
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
@@ -40,8 +52,8 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   });
 
   const filter = {
-    rangeStart: params.rangeStart,
-    rangeStop: params.rangeStop,
+    rangeStart: rangeStart.format(YYYMMDD),
+    rangeStop: rangeStart.add(1, 'month').format(YYYMMDD),
     orgGUIDs: [organization.metadata.guid],
   };
 

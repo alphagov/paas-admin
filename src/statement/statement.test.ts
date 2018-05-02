@@ -10,6 +10,7 @@ import * as data from '../cf/cf.test.data';
 
 import * as statement from '.';
 
+// tslint:disable:max-line-length
 nock(config.cloudFoundryAPI)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275').times(1).reply(200, data.organization)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces').times(1).reply(200, data.spaces)
@@ -25,7 +26,8 @@ nock(config.cloudFoundryAPI)
   .get('/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019').times(1).reply(200, data.spaceQuota);
 
 nock(config.billingAPI)
-  .get('/billable_events?org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, `[]`);
+  .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, `[]`);
+// tslint:enable:max-line-length
 
 const tokenKey = 'secret';
 const token = jwt.sign({
@@ -41,10 +43,29 @@ const ctx: IContext = {
   token: new Token(token, [tokenKey]),
 };
 
+test('should require a valid rangeStart param', async t => {
+  return t.rejects(
+    statement.viewStatement(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: 'not-a-date',
+    })
+  , /invalid rangeStart provided/);
+});
+
 test('should show the statement page', async t => {
   const response = await statement.viewStatement(ctx, {
     organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    rangeStart: '2018-01-01',
   });
 
   t.contains(response.body, 'Statement');
+});
+
+test('should throw an error due to selecting middle of the month', async t => {
+  return t.rejects(
+    statement.viewStatement(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: '2018-01-15',
+    })
+  , /expected rangeStart to be the first of the month/);
 });
