@@ -4,7 +4,7 @@ const WebpackShellPlugin = require('webpack-shell-plugin');
 
 module.exports = cfg => {
   const onFail = process.env.ENABLE_WATCH === 'true' ? '|| true' : '';
-  let args = '--no-coverage';
+  let args = '--no-coverage --bail';
   const focusGlob = process.env.TEST_FOCUS || '';
 
   // Include all .test.ts files as entry points

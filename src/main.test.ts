@@ -8,6 +8,7 @@ const envVars = {
   API_URL: 'https://example.com/api',
   UAA_URL: 'https://example.com/uaa',
   NOTIFY_API_KEY: 'notify-1234',
+  BILLING_URL: 'https://example.com/billing',
 };
 
 export interface IProcess extends ChildProcess {
@@ -70,7 +71,7 @@ test('should exit with non-zero status on error (invalid PORT)', ts => {
 
 test('should exit due to a missing variable', ts => {
   const newEnvVars = {...envVars};
-  newEnvVars.OAUTH_TOKEN_URL = '';
+  newEnvVars.API_URL = '';
   const proc = spawn(process.argv0, ['./dist/main.js'], {env: newEnvVars});
   proc.once('error', ts.fail);
   proc.once('close', code => {

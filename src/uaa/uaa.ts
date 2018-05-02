@@ -11,6 +11,7 @@ interface IClientConfig {
   readonly apiEndpoint: string;
   readonly clientCredentials: IClientCredentials;
   readonly accessToken?: string;
+  readonly signingKeys?: ReadonlyArray<string>;
 }
 
 export default class UAAClient {
@@ -27,7 +28,7 @@ export default class UAAClient {
     }
     this.accessToken = config.accessToken || '';
     this.clientCredentials = config.clientCredentials;
-    this.signingKeys = [];
+    this.signingKeys = config.signingKeys || [];
   }
 
   public async getAccessToken() {
@@ -50,7 +51,7 @@ export default class UAAClient {
   }
 
   public async getSigningKeys(): Promise<ReadonlyArray<string>> {
-    if (this.signingKeys) {
+    if (this.signingKeys && this.signingKeys.length > 0) {
       return this.signingKeys;
     }
 
@@ -70,7 +71,8 @@ export default class UAAClient {
       throw new Error(msg);
     }
 
-    return response.data.keys.map((key: any) => key.value);
+    this.signingKeys = response.data.keys.map((key: any) => key.value);
+    return this.signingKeys;
   }
 
   public async request(method: string, url: string, opts: any = {}) {

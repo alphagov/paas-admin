@@ -7,8 +7,9 @@ import pino from 'pino';
 import request from 'supertest';
 import { test } from 'tap';
 
-import auth from '.';
 import UAAClient from '../uaa';
+
+import auth from '.';
 
 const app = express();
 
@@ -36,10 +37,9 @@ app.use((req: any, _res, next) => {
 });
 
 app.use(auth({
-  oauthAuthorizationURL: 'https://example.com/authorise',
-  oauthTokenURL: 'https://example.com/token',
   oauthClientID: 'key',
   oauthClientSecret: 'secret',
+  uaaAPI: 'https://example.com/uaa',
 }));
 
 app.get('/test', (_req, res) => {
@@ -58,7 +58,7 @@ test('the login page redirects to the authorize endpoint of the IDP', async t =>
   const response = await request(app).get('/auth/login');
 
   t.equal(response.status, 302);
-  t.equal(response.header.location, 'https://example.com/authorise?response_type=code&client_id=key');
+  t.equal(response.header.location, 'https://example.com/uaa/oauth/authorize?response_type=code&client_id=key');
 });
 
 test('can login with a code', async t => {
@@ -70,8 +70,8 @@ test('can login with a code', async t => {
   }, tokenKey);
 
   // Capture the request to the given URL and prepare a response.
-  nock('https://example.com')
-    .post('/token')
+  nock('https://example.com/uaa')
+    .post('/oauth/token')
     .times(1)
     .reply(200, {
       access_token: token, // eslint-disable-line camelcase
@@ -122,8 +122,8 @@ test('when faulty token is returned', async t => {
   const agent = request.agent(app);
 
   // Capture the request to the given URL and prepare a response.
-  nock('https://example.com')
-    .post('/token')
+  nock('https://example.com/uaa')
+    .post('/oauth/token')
     .times(1)
     .reply(200, {
       access_token: '__access_token__', // eslint-disable-line camelcase

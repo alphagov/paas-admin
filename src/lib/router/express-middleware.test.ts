@@ -2,10 +2,12 @@ import express from 'express';
 import request from 'supertest';
 import { test } from 'tap';
 
-import { IParameters } from '.';
+import { config } from '../../app/app.test';
 import { NotFoundError } from './errors';
 import { expressMiddleware } from './express-middleware';
 import Router from './router';
+
+import { IParameters } from '.';
 
 test('should setup application correctly with the use of router', async t => {
   const app = express();
@@ -43,7 +45,7 @@ test('should setup application correctly with the use of router', async t => {
     return router.findByName(name).composeURL(params);
   }
 
-  app.use(expressMiddleware(router));
+  app.use(expressMiddleware(router, config));
 
   app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     if (err instanceof NotFoundError) {
