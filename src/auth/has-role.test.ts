@@ -3,7 +3,7 @@ import { test } from 'tap';
 
 import { Token } from '.';
 
-const tokenKeys: ReadonlyArray<string> = ['secret'];
+const tokenKeys: ReadonlyArray<string> = ['secret', 'old-secret'];
 const time = Math.floor(Date.now() / 1000);
 
 test('should throw error if unverifiable accessToken', async t => {
@@ -56,4 +56,10 @@ test('should have scopes', async t => {
   const accessToken = jwt.sign({exp: (time + (24 * 60 * 60)), scope: ['read-write']}, tokenKeys[0]);
   const token = new Token(accessToken, tokenKeys);
   t.ok(token.hasScope('read-write'));
+});
+
+test('should succeed when verifying with older key', async t => {
+  const accessToken = jwt.sign({exp: (time + (24 * 60 * 60)), scope: ['read-write']}, tokenKeys[1]);
+  const token = new Token(accessToken, tokenKeys);
+  t.ok(token.expiry);
 });
