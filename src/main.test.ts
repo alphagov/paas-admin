@@ -3,8 +3,6 @@ import request from 'supertest';
 import { test } from 'tap';
 
 const envVars = {
-  OAUTH_AUTHORIZATION_URL: 'auth-url',
-  OAUTH_TOKEN_URL: 'token-url',
   OAUTH_CLIENT_ID: 'uaa-id',
   OAUTH_CLIENT_SECRET: 'uaa-secret',
   API_URL: 'https://example.com/api',

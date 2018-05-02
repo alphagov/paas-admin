@@ -8,25 +8,21 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { BaseLogger } from 'pino';
 
 import auth from '../auth';
-import { cfClientMiddleware } from '../cf';
 import { internalServerErrorMiddleware, pageNotFoundMiddleware } from '../errors';
 import { expressMiddleware as routerMiddleware } from '../lib/router';
-import NotificationClient from '../notify';
-import { uaaClientMiddleware } from '../uaa';
 
 import csp from './app.csp';
 import router from './router';
 
 export interface IAppConfig {
   readonly allowInsecureSession?: boolean;
+  readonly billingAPI: string;
   readonly cloudFoundryAPI: string;
   readonly logger: BaseLogger;
   readonly notifyAPIKey: string;
   readonly notifyWelcomeTemplateID: string | null;
-  readonly oauthAuthorizationURL: string;
   readonly oauthClientID: string;
   readonly oauthClientSecret: string;
-  readonly oauthTokenURL: string;
   readonly sessionSecret: string;
   readonly uaaAPI: string;
 }
@@ -66,37 +62,10 @@ export default function(config: IAppConfig) {
 
   app.get('/healthcheck', (_req: express.Request, res: express.Response) => res.send({message: 'OK'}));
 
-  app.use(uaaClientMiddleware({
-    apiEndpoint: config.uaaAPI,
-    clientCredentials: {
-      clientID: config.oauthClientID,
-      clientSecret: config.oauthClientSecret,
-    },
-  }));
-
   // Authenticated endpoints follow
   app.use(auth(config));
 
-  app.use((req: any, _res, next) => {
-    req.notify = new NotificationClient({
-      apiKey: config.notifyAPIKey,
-      templates: {
-        welcome: config.notifyWelcomeTemplateID,
-      },
-    });
-
-    next();
-  });
-
-  app.use(cfClientMiddleware({
-    apiEndpoint: config.cloudFoundryAPI,
-    clientCredentials: {
-      clientID: config.oauthClientID,
-      clientSecret: config.oauthClientSecret,
-    },
-  }));
-
-  app.use(routerMiddleware(router));
+  app.use(routerMiddleware(router, config));
 
   app.use(pageNotFoundMiddleware);
   app.use(internalServerErrorMiddleware);

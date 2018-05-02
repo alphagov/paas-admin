@@ -2,9 +2,18 @@ import merge from 'merge-deep';
 
 import { IContext } from '../app/context';
 import { hasOrgRole } from '../auth';
-import * as cf from '../cf/types';
+import CloudFoundryClient from '../cf';
+import {
+  IOrganizationUserRoles,
+  IResource,
+  ISpace,
+  ISpaceUserRoles,
+  OrganizationUserRoleEndpoints,
+} from '../cf/types';
 import { IParameters, IResponse } from '../lib/router';
 import { NotFoundError } from '../lib/router/errors';
+import NotificationClient from '../notify';
+import UAAClient from '../uaa';
 
 import editTemplate from './edit.njk';
 import editSuccessTemplate from './edit.success.njk';
@@ -52,20 +61,20 @@ async function requirePermissions(ctx: IContext, role: cf.OrganizationUserRoles,
 }
 
 async function setAllUserRolesForOrg(
-  ctx: IContext,
+  cf: CloudFoundryClient,
   params: IParameters,
   roles: {[i: string]: IPermissions},
 ): Promise<any> {
-  const spaces = await ctx.cf.spaces(params.organizationGUID);
+  const spaces = await cf.spaces(params.organizationGUID);
 
-  const orgRoleEndpoints: ReadonlyArray<cf.OrganizationUserRoleEndpoints> = [
+  const orgRoleEndpoints: ReadonlyArray<OrganizationUserRoleEndpoints> = [
     'billing_managers',
     'managers',
     'auditors',
   ];
 
   await Promise.all(
-    orgRoleEndpoints.map((role: cf.OrganizationUserRoleEndpoints): Promise<cf.IResource> | Promise<undefined> => {
+    orgRoleEndpoints.map((role: OrganizationUserRoleEndpoints): Promise<IResource> | Promise<undefined> => {
       /* istanbul ignore next */
       if (!roles.org[params.organizationGUID]) {
         return Promise.resolve(undefined);
@@ -82,7 +91,7 @@ async function setAllUserRolesForOrg(
         return Promise.resolve(undefined);
       }
 
-      return ctx.cf.setOrganizationRole(
+      return cf.setOrganizationRole(
         params.organizationGUID,
         params.userGUID,
         role,
@@ -98,7 +107,7 @@ async function setAllUserRolesForOrg(
   ];
 
   await Promise.all(
-    spaces.map((space: cf.ISpace) => spaceRoleEndpoints.map((role: string) => {
+    spaces.map((space: ISpace) => spaceRoleEndpoints.map((role: string) => {
       /* istanbul ignore next */
       if (!roles.space[space.metadata.guid]) {
         return Promise.resolve(undefined);
@@ -115,7 +124,7 @@ async function setAllUserRolesForOrg(
         return Promise.resolve(undefined);
       }
 
-      return ctx.cf.setSpaceRole(
+      return cf.setSpaceRole(
         space.metadata.guid,
         params.userGUID,
         role,
@@ -132,10 +141,16 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     adminWrite: true,
   });
 
-  const organization = await ctx.cf.organization(params.organizationGUID);
-  const users = await ctx.cf.usersForOrganization(params.organizationGUID);
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
 
-  await Promise.all(users.map(async (user: cf.IOrganizationUserRoles) => {
+
+  const organization = await cf.organization(params.organizationGUID);
+  const users = await cf.usersForOrganization(params.organizationGUID);
+
+  await Promise.all(users.map(async (user: IOrganizationUserRoles) => {
     const userWithSpaces = {
       ...user,
       spaces: new Array(),
@@ -143,7 +158,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
 
     /* istanbul ignore next */
     try {
-      userWithSpaces.spaces = await ctx.cf.spacesForUserInOrganization(user.metadata.guid, params.organizationGUID);
+      userWithSpaces.spaces = await cf.spacesForUserInOrganization(user.metadata.guid, params.organizationGUID);
     } catch {
       ctx.log.warn(
         `BUG: users has no permission to fetch spacesForUser: ${user.metadata.guid}`,
@@ -165,10 +180,13 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
 }
 
 export async function inviteUserForm(ctx: IContext, params: IParameters): Promise<IResponse> {
-  await requirePermissions(ctx, 'org_manager', params);
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
 
-  const organization = await ctx.cf.organization(params.organizationGUID);
-  const spaces = await ctx.cf.spaces(params.organizationGUID);
+  const organization = await cf.organization(params.organizationGUID);
+  const spaces = await cf.spaces(params.organizationGUID);
 
   return {
     body: inviteTemplate.render({
@@ -184,9 +202,21 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
 
 export async function inviteUser(ctx: IContext, params: IParameters, body: object): Promise<IResponse> {
   await requirePermissions(ctx, 'org_manager', params);
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
 
-  const organization = await ctx.cf.organization(params.organizationGUID);
-  const spaces = await ctx.cf.spaces(params.organizationGUID);
+  const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+
+  /* istanbul ignore next */
+  if (!isAdmin && !isManager) {
+    throw new NotFoundError('not found');
+  }
+
+  const organization = await cf.organization(params.organizationGUID);
+  const spaces = await cf.spaces(params.organizationGUID);
   const errors = [];
   const values = merge({
     org_roles: {[params.organizationGUID]: {}},
@@ -207,12 +237,20 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
       throw new ValidationError(errors);
     }
 
-    const uaaUser = await ctx.uaa.findUser(values.email);
+    const uaa = new UAAClient({
+      apiEndpoint: ctx.app.uaaAPI,
+      clientCredentials: {
+        clientID: ctx.app.oauthClientID,
+        clientSecret: ctx.app.oauthClientSecret,
+      },
+    });
+
+    const uaaUser = await uaa.findUser(values.email);
     let userGUID = uaaUser && uaaUser.id;
     let invitation;
 
     if (!userGUID) {
-      invitation = await ctx.uaa.inviteUser(
+      invitation = await uaa.inviteUser(
         values.email,
         'user_invitation',
         'https://www.cloud.service.gov.uk/next-steps?success',
@@ -226,8 +264,8 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
       userGUID = invitation.userId;
     }
 
-    const users = await ctx.cf.usersForOrganization(params.organizationGUID);
-    const alreadyOrgUser = users.some((user: cf.IOrganizationUserRoles) => {
+    const users = await cf.usersForOrganization(params.organizationGUID);
+    const alreadyOrgUser = users.some((user: IOrganizationUserRoles) => {
       return user.metadata.guid === userGUID;
     });
 
@@ -235,10 +273,10 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
       throw new ValidationError([{field: 'email', message: 'user is already a member of the organisation'}]);
     }
 
-    await ctx.cf.assignUserToOrganizationByUsername(params.organizationGUID, values.email);
+    await cf.assignUserToOrganizationByUsername(params.organizationGUID, values.email);
 
     await setAllUserRolesForOrg(
-      ctx,
+      cf,
       {
         organizationGUID: params.organizationGUID,
         userGUID,
@@ -252,7 +290,14 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
     /* istanbul ignore next */
     if (invitation) {
       try {
-        await ctx.notify.sendWelcomeEmail(values.email, {
+        const notify = new NotificationClient({
+          apiKey: ctx.app.notifyAPIKey,
+          templates: {
+            welcome: ctx.app.notifyWelcomeTemplateID,
+          },
+        });
+
+        await notify.sendWelcomeEmail(values.email, {
           organisation: organization.entity.name,
           url: invitation.inviteLink,
         });
@@ -293,12 +338,17 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
 
 export async function editUser(ctx: IContext, params: IParameters): Promise<IResponse> {
   await requirePermissions(ctx, 'org_manager', params);
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
 
-  const organization = await ctx.cf.organization(params.organizationGUID);
-  const spaces = await ctx.cf.spaces(params.organizationGUID);
 
-  const orgUsers = await ctx.cf.usersForOrganization(params.organizationGUID);
-  const user = orgUsers.find((u: cf.IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
+  const organization = await cf.organization(params.organizationGUID);
+  const spaces = await cf.spaces(params.organizationGUID);
+
+  const orgUsers = await cf.usersForOrganization(params.organizationGUID);
+  const user = orgUsers.find((u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
 
   if (!user) {
     throw new NotFoundError('user not found');
@@ -312,10 +362,10 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
         auditors: user.entity.organization_roles.includes('org_auditor'),
       },
     },
-    space_roles: await spaces.reduce(async (next: Promise<any>, space: cf.ISpace) => {
+    space_roles: await spaces.reduce(async (next: Promise<any>, space: ISpace) => {
       const spaceRoles = await next;
-      const spaceUsers = await ctx.cf.usersForSpace(space.metadata.guid);
-      const usr = spaceUsers.find((u: cf.ISpaceUserRoles) => u.metadata.guid === params.userGUID);
+      const spaceUsers = await cf.usersForSpace(space.metadata.guid);
+      const usr = spaceUsers.find((u: ISpaceUserRoles) => u.metadata.guid === params.userGUID);
 
       /* istanbul ignore next */
       spaceRoles[space.metadata.guid] = {
@@ -343,17 +393,21 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
 
 export async function updateUser(ctx: IContext, params: IParameters, body: object): Promise<IResponse> {
   await requirePermissions(ctx, 'org_manager', params);
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
 
-  const organization = await ctx.cf.organization(params.organizationGUID);
-  const spaces = await ctx.cf.spaces(params.organizationGUID);
+  const organization = await cf.organization(params.organizationGUID);
+  const spaces = await cf.spaces(params.organizationGUID);
   const errors = [];
   const values = merge({
     org_roles: {[params.organizationGUID]: {}},
     space_roles: {},
   }, body);
 
-  const orgUsers = await ctx.cf.usersForOrganization(params.organizationGUID);
-  const user = orgUsers.find((u: cf.IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
+  const orgUsers = await cf.usersForOrganization(params.organizationGUID);
+  const user = orgUsers.find((u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
 
   try {
     if (Object.keys(values.org_roles[params.organizationGUID]).length === 0
@@ -366,7 +420,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
     }
 
     await setAllUserRolesForOrg(
-      ctx,
+      cf,
       {
         organizationGUID: params.organizationGUID,
         userGUID: params.userGUID,

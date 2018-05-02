@@ -51,12 +51,11 @@ async function main(cfg: IAppConfig) {
   return server.wait();
 }
 
-const config = {
+const config: IAppConfig = {
   logger,
   sessionSecret: process.env.SESSION_SECRET || 'mysecret',
   allowInsecureSession: (process.env.ALLOW_INSECURE_SESSION === 'true'),
-  oauthAuthorizationURL: expectEnvVariable('OAUTH_AUTHORIZATION_URL'),
-  oauthTokenURL: expectEnvVariable('OAUTH_TOKEN_URL'),
+  billingAPI: expectEnvVariable('BILLING_URL'),
   oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
   oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
   cloudFoundryAPI: expectEnvVariable('API_URL'),
