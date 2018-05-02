@@ -1,7 +1,7 @@
 import merge from 'merge-deep';
 
 import { IContext } from '../app/context';
-import { hasOrgRole } from '../auth';
+import { CLOUD_CONTROLLER_ADMIN } from '../auth';
 import CloudFoundryClient from '../cf';
 import {
   IOrganizationUserRoles,
@@ -46,19 +46,6 @@ class ValidationError extends Error {
 }
 
 const VALID_EMAIL = /[^.]@[^.]/;
-
-async function requirePermissions(ctx: IContext, role: cf.OrganizationUserRoles, params: IParameters) {
-  const isManager = await hasOrgRole(ctx, {
-    adminWrite: true,
-    organizationGUID: params.organizationGUID,
-    role,
-  });
-
-  /* istanbul ignore next */
-  if (!isManager) {
-    throw new NotFoundError('not found');
-  }
-}
 
 async function setAllUserRolesForOrg(
   cf: CloudFoundryClient,
@@ -135,17 +122,13 @@ async function setAllUserRolesForOrg(
 }
 
 export async function listUsers(ctx: IContext, params: IParameters): Promise<IResponse> {
-  const isManager = await hasOrgRole(ctx, {
-    organizationGUID: params.organizationGUID,
-    role: 'org_manager',
-    adminWrite: true,
-  });
-
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
 
+  const isAdmin = await ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
 
   const organization = await cf.organization(params.organizationGUID);
   const users = await cf.usersForOrganization(params.organizationGUID);
@@ -171,6 +154,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
   return {
     body: usersTemplate.render({
       routePartOf: ctx.routePartOf,
+      isAdmin,
       isManager,
       linkTo: ctx.linkTo,
       users,
@@ -184,6 +168,14 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
+
+  const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+
+  /* istanbul ignore next */
+  if (!isAdmin && !isManager) {
+    throw new NotFoundError('not found');
+  }
 
   const organization = await cf.organization(params.organizationGUID);
   const spaces = await cf.spaces(params.organizationGUID);
@@ -201,7 +193,6 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
 }
 
 export async function inviteUser(ctx: IContext, params: IParameters, body: object): Promise<IResponse> {
-  await requirePermissions(ctx, 'org_manager', params);
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
@@ -337,12 +328,18 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
 }
 
 export async function editUser(ctx: IContext, params: IParameters): Promise<IResponse> {
-  await requirePermissions(ctx, 'org_manager', params);
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
 
+  const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+
+  /* istanbul ignore next */
+  if (!isAdmin && !isManager) {
+    throw new NotFoundError('not found');
+  }
 
   const organization = await cf.organization(params.organizationGUID);
   const spaces = await cf.spaces(params.organizationGUID);
@@ -392,11 +389,18 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
 }
 
 export async function updateUser(ctx: IContext, params: IParameters, body: object): Promise<IResponse> {
-  await requirePermissions(ctx, 'org_manager', params);
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
+
+  const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+
+  /* istanbul ignore next */
+  if (!isAdmin && !isManager) {
+    throw new NotFoundError('not found');
+  }
 
   const organization = await cf.organization(params.organizationGUID);
   const spaces = await cf.spaces(params.organizationGUID);

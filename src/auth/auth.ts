@@ -1,10 +1,11 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import passport from 'passport';
 import { Strategy, StrategyOptions } from 'passport-oauth2';
 
 import { internalServerErrorMiddleware } from '../errors';
 import UAAClient from '../uaa';
+
+import { Token } from '.';
 
 type MiddlewareFunction = (req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void>;
 
@@ -59,11 +60,7 @@ export default function authentication(config: IConfig) {
   });
 
   app.use(syncMiddleware(async (req: any, res, next) => {
-    const signingKey = await req.uaa.getSigningKey();
-
     if (req.isAuthenticated()) {
-      req.accessToken = req.session.passport.user;
-
       try {
         const uaa = new UAAClient({
           apiEndpoint: config.uaaAPI,
@@ -77,7 +74,7 @@ export default function authentication(config: IConfig) {
         req.token = new Token(req.session.passport.user, signingKeys);
         req.sessionOptions.expires = req.token.expiry;
       } catch (err) {
-        req.log.debug(err);
+        req.log.error(err);
         req.session = null;
         return res.redirect('/auth/login');
       }

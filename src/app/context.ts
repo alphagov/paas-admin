@@ -1,5 +1,6 @@
 import { Logger } from 'pino';
 
+import { Token } from '../auth';
 import Router, { IParameters, Route } from '../lib/router';
 import { IAppConfig } from './app';
 
