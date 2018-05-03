@@ -25,6 +25,7 @@ export interface IAppConfig {
   readonly oauthClientSecret: string;
   readonly sessionSecret: string;
   readonly uaaAPI: string;
+  readonly authorizationAPI: string;
 }
 
 export default function(config: IAppConfig) {
@@ -63,7 +64,13 @@ export default function(config: IAppConfig) {
   app.get('/healthcheck', (_req: express.Request, res: express.Response) => res.send({message: 'OK'}));
 
   // Authenticated endpoints follow
-  app.use(auth(config));
+  app.use(auth({
+    authorizationURL: `${config.authorizationAPI}/oauth/authorize`,
+    clientID: config.oauthClientID,
+    clientSecret: config.oauthClientSecret,
+    tokenURL: `${config.uaaAPI}/oauth/token`,
+    uaaAPI: config.uaaAPI,
+  }));
 
   app.use(routerMiddleware(router, config));
 

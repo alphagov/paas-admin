@@ -7,6 +7,7 @@ const envVars = {
   OAUTH_CLIENT_SECRET: 'uaa-secret',
   API_URL: 'https://example.com/api',
   UAA_URL: 'https://example.com/uaa',
+  AUTHORIZATION_URL: 'https://example.com/login',
   NOTIFY_API_KEY: 'notify-1234',
   BILLING_URL: 'https://example.com/billing',
 };
