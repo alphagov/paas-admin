@@ -1,0 +1,17 @@
+table {
+  width: 100%;
+}
+
+#global-header,
+.govuk-c-phase-banner,
+.subnav {
+  display: none;
+}
+
+th {
+  text-align: left;
+}
+
+style + table {
+  margin-top: 30px;
+}

@@ -1,29 +1,41 @@
 import { IContext } from '../app/context';
-import * as cf from '../cf/types';
+import CloudFoundryClient from '../cf';
+import {
+  IApplication,
+  IApplicationSummary,
+  IOrganizationUserRoles,
+  IRoute,
+  ISpace,
+} from '../cf/types';
 import { IParameters, IResponse } from '../lib/router';
 
 import spaceOverviewTemplate from './overview.njk';
 import spacesTemplate from './spaces.njk';
 
-function buildURL(route: cf.IRoute): string {
+function buildURL(route: IRoute): string {
   return [route.host, route.domain.name].filter(x => x).join('.') + route.path;
 }
 
 export async function listApplications(ctx: IContext, params: IParameters): Promise<IResponse> {
-  const space = await ctx.cf.space(params.spaceGUID);
-  const applications = await ctx.cf.applications(params.spaceGUID);
-  const organization = await ctx.cf.organization(space.entity.organization_guid);
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
+
+  const space = await cf.space(params.spaceGUID);
+  const applications = await cf.applications(params.spaceGUID);
+  const organization = await cf.organization(space.entity.organization_guid);
 
   const summarisedSpace = {
     entity: {
       ...space.entity,
-      ...await ctx.cf.spaceSummary(space.metadata.guid),
+      ...await cf.spaceSummary(space.metadata.guid),
     },
     metadata: space.metadata,
   };
 
-  const summarisedApplications = await Promise.all(applications.map(async (application: cf.IApplication) => {
-    const summary = await ctx.cf.applicationSummary(application.metadata.guid);
+  const summarisedApplications = await Promise.all(applications.map(async (application: IApplication) => {
+    const summary = await cf.applicationSummary(application.metadata.guid);
 
     return {
       metadata: application.metadata,
@@ -48,27 +60,32 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
 }
 
 export async function listSpaces(ctx: IContext, params: IParameters): Promise<IResponse> {
-  const spaces = await ctx.cf.spaces(params.organizationGUID);
-  const organization = await ctx.cf.organization(params.organizationGUID);
-  const users = await ctx.cf.usersForOrganization(params.organizationGUID);
-  const managers = users.filter((user: cf.IOrganizationUserRoles) =>
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
+
+  const spaces = await cf.spaces(params.organizationGUID);
+  const organization = await cf.organization(params.organizationGUID);
+  const users = await cf.usersForOrganization(params.organizationGUID);
+  const managers = users.filter((user: IOrganizationUserRoles) =>
     user.entity.organization_roles.some(role => role === 'org_manager'),
   );
 
-  const summarisedSpaces = await Promise.all(spaces.map(async (space: cf.ISpace) => {
-    const summary = await ctx.cf.spaceSummary(space.metadata.guid);
+  const summarisedSpaces = await Promise.all(spaces.map(async (space: ISpace) => {
+    const summary = await cf.spaceSummary(space.metadata.guid);
 
     return {
       entity: {
         ...space.entity,
         ...summary,
 
-        running_apps: summary.apps.filter((app: cf.IApplicationSummary) => app.running_instances > 0),
-        stopped_apps: summary.apps.filter((app: cf.IApplicationSummary) => app.running_instances === 0),
-        memory_allocated: summary.apps.reduce((allocated: number, app: cf.IApplicationSummary) =>
+        running_apps: summary.apps.filter((app: IApplicationSummary) => app.running_instances > 0),
+        stopped_apps: summary.apps.filter((app: IApplicationSummary) => app.running_instances === 0),
+        memory_allocated: summary.apps.reduce((allocated: number, app: IApplicationSummary) =>
           allocated + app.memory, 0),
         quota: space.entity.space_quota_definition_guid ?
-          await ctx.cf.spaceQuota(space.entity.space_quota_definition_guid) : null,
+          await cf.spaceQuota(space.entity.space_quota_definition_guid) : null,
       },
       metadata: space.metadata,
     };
@@ -78,7 +95,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     entity: {
       ...organization.entity,
 
-      quota: await ctx.cf.organizationQuota(organization.entity.quota_definition_guid),
+      quota: await cf.organizationQuota(organization.entity.quota_definition_guid),
       memory_allocated: summarisedSpaces
         .reduce((allocated: number, space: {entity: {memory_allocated: number}}) => {
           return allocated + space.entity.memory_allocated;

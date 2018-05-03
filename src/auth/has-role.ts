@@ -1,26 +1,51 @@
-import { IContext } from '../app/context';
-import { IOrganizationUserRoles, OrganizationUserRoles } from '../cf/types';
+import jwt from 'jsonwebtoken';
 
-interface IConfig {
-  readonly organizationGUID: string;
-  readonly role: OrganizationUserRoles;
-  readonly adminWrite: boolean;
+export const CLOUD_CONTROLLER_ADMIN = 'cloud_controller.admin';
+export const CLOUD_CONTROLLER_READ_ONLY_ADMIN = 'cloud_controller.admin_read_only';
+export const CLOUD_CONTROLLER_GLOBAL_AUDITOR = 'cloud_controller.global_auditor';
+
+interface IToken {
+  readonly exp: number;
+  readonly scope: ReadonlyArray<string>;
+  readonly user_id: string;
 }
 
-export async function hasOrgRole(ctx: IContext, config: IConfig): Promise<boolean> {
-  const users = await ctx.cf.usersForOrganization(config.organizationGUID);
-  const user = users.find((u: IOrganizationUserRoles) => u.metadata.guid === ctx.rawToken.user_id);
+export class Token {
+  public readonly expiry: number;
+  public readonly scopes: ReadonlyArray<string>;
+  public readonly userID: string;
 
-  return hasAdminAccess(ctx.rawToken.scope, config.adminWrite)
-    || (user !== undefined && user.entity.organization_roles.includes(config.role));
+  constructor(public readonly accessToken: string, public readonly signingKeys: ReadonlyArray<string>) {
+    const rawToken = verify(accessToken, signingKeys);
+
+    this.expiry = rawToken.exp;
+    this.scopes = rawToken.scope;
+    this.userID = rawToken.user_id;
+  }
+
+  public hasScope(scope: string): boolean {
+    return this.scopes.includes(scope);
+  }
 }
 
-function hasAdminAccess(scopes: ReadonlyArray<string>, write: boolean): boolean {
-  return write ?
-    scopes.includes('cloud_controller.admin') :
-    scopes.some((scope: string) => [
-      'cloud_controller.admin',
-      'cloud_controller.admin_read_only',
-      'cloud_controller.global_auditor',
-    ].includes(scope));
+function verify(accessToken: string, signingKeys: ReadonlyArray<string>): IToken {
+  const rawToken: any = jwt.verify(accessToken, signingKeys[0]);
+
+  if (typeof rawToken !== 'object') {
+    throw new Error('jwt: could not verify the token as no object has been verified');
+  }
+
+  if (!rawToken.exp) {
+    throw new Error('jwt: could not verify the token as no exp have been decoded');
+  }
+
+  if (!Array.isArray(rawToken.scope)) {
+    throw new Error('jwt: could not verify the token as no scope(s) have been decoded');
+  }
+
+  return {
+    exp: rawToken.exp,
+    scope: rawToken.scope,
+    user_id: rawToken.user_id,
+  };
 }

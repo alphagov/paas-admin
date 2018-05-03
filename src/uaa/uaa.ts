@@ -11,13 +11,14 @@ interface IClientConfig {
   readonly apiEndpoint: string;
   readonly clientCredentials: IClientCredentials;
   readonly accessToken?: string;
+  readonly signingKeys?: ReadonlyArray<string>;
 }
 
 export default class UAAClient {
   private accessToken: string;
   private readonly apiEndpoint: string;
   private readonly clientCredentials: IClientCredentials;
-  private signingKey: string;
+  private signingKeys: ReadonlyArray<string>;
 
   constructor(config: IClientConfig) {
     this.apiEndpoint = config.apiEndpoint;
@@ -27,7 +28,7 @@ export default class UAAClient {
     }
     this.accessToken = config.accessToken || '';
     this.clientCredentials = config.clientCredentials;
-    this.signingKey = '';
+    this.signingKeys = config.signingKeys || [];
   }
 
   public async getAccessToken() {
@@ -49,9 +50,9 @@ export default class UAAClient {
     return this.accessToken;
   }
 
-  public async getSigningKey() {
-    if (this.signingKey) {
-      return this.signingKey;
+  public async getSigningKeys(): Promise<ReadonlyArray<string>> {
+    if (this.signingKeys && this.signingKeys.length > 0) {
+      return this.signingKeys;
     }
 
     const response = await axios.request({
@@ -70,9 +71,8 @@ export default class UAAClient {
       throw new Error(msg);
     }
 
-    this.signingKey = response.data.keys[0].value;
-
-    return this.signingKey;
+    this.signingKeys = response.data.keys.map((key: any) => key.value);
+    return this.signingKeys;
   }
 
   public async request(method: string, url: string, opts: any = {}) {

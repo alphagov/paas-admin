@@ -21,4 +21,8 @@ export default function configure(env) {
       throw new Error(`error applying 'map' filter with query "${query}": ${err.message}`);
     }
   });
+
+  env.addFilter('currency', (n, precision) => {
+    return parseFloat(n,10).toFixed(precision);
+  })
 }

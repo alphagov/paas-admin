@@ -7,28 +7,31 @@ import { test } from 'tap';
 import { info, organizations } from '../cf/cf.test.data';
 import Router, { IParameters } from '../lib/router';
 
-import init from './app';
+import init, { IAppConfig } from './app';
 import { IContext, initContext } from './context';
 import router from './router';
 
 const logger = pino({level: 'silent'});
 
+const tokenKey = 'tokensecret';
 const sessionSecret = 'mysecret';
 
-const config = {
+export const config: IAppConfig = {
   logger,
   sessionSecret,
   allowInsecureSession: true,
-  oauthAuthorizationURL: 'https://example.com/authorise',
-  oauthTokenURL: 'https://example.com/token',
+  billingAPI: 'https://example.com/billing',
   oauthClientID: 'key',
   oauthClientSecret: 'secret',
   cloudFoundryAPI: 'https://example.com/api',
   uaaAPI: 'https://example.com/uaa',
   notifyAPIKey: 'test-123456-qwerty',
   notifyWelcomeTemplateID: 'qwerty-123456',
-  tokenKey: 'secret',
 };
+
+nock('https://example.com/uaa').persist()
+  .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
+  .get('/token_keys').reply(200, {keys: [{value: tokenKey}]});
 
 test('should initContext correctly', async (t: any) => {
   const r = new Router([
@@ -42,15 +45,11 @@ test('should initContext correctly', async (t: any) => {
       path: '/',
     },
   ]);
-  const ctx = initContext({}, r, r.find('/'));
+  const ctx = initContext({}, r, r.find('/'), config);
 
   t.ok(ctx.routePartOf('test'));
   t.ok(ctx.routePartOf('te'));
 });
-
-nock('https://example.com/uaa').persist()
-  .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
-  .get('/token_keys').reply(200, {keys: [{value: config.tokenKey}]});
 
 test('should return healthy status', async (t: any) => {
   const app = init(config);
@@ -89,11 +88,10 @@ test('when authenticated', async (t: any) => {
     user_id: 'uaa-user-123',
     scope: [],
     exp: (time + (24 * 60 * 60)),
-  }, config.tokenKey);
+  }, tokenKey);
 
-  // Capture the request to the given URL and prepare a response.
-  nock('https://example.com')
-    .post('/token')
+  nock('https://example.com/uaa')
+    .post('/oauth/token')
     .times(1)
     .reply(200, {
       access_token: token,
@@ -167,11 +165,11 @@ test('when token expires', async (t: any) => {
     user_id: 'uaa-user-123',
     scope: [],
     exp: (time - (24 * 60 * 60)),
-  }, config.tokenKey);
+  }, tokenKey);
 
   // Capture the request to the given URL and prepare a response.
-  nock('https://example.com')
-    .post('/token')
+  nock('https://example.com/uaa')
+    .post('/oauth/token')
     .times(1)
     .reply(200, {
       access_token: token, // eslint-disable-line camelcase

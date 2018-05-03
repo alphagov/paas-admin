@@ -1,17 +1,18 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import passport from 'passport';
 import { Strategy, StrategyOptions } from 'passport-oauth2';
 
 import { internalServerErrorMiddleware } from '../errors';
+import UAAClient from '../uaa';
+
+import { Token } from '.';
 
 type MiddlewareFunction = (req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void>;
 
 interface IConfig {
-  readonly oauthAuthorizationURL: string;
-  readonly oauthTokenURL: string;
   readonly oauthClientID: string;
   readonly oauthClientSecret: string;
+  readonly uaaAPI: string;
 }
 
 /* istanbul ignore next */
@@ -25,8 +26,8 @@ export default function authentication(config: IConfig) {
   const app = express();
 
   const options: StrategyOptions = {
-    authorizationURL: config.oauthAuthorizationURL,
-    tokenURL: config.oauthTokenURL,
+    authorizationURL: `${config.uaaAPI}/oauth/authorize`,
+    tokenURL: `${config.uaaAPI}/oauth/token`,
     callbackURL: '',
     clientID: config.oauthClientID,
     clientSecret: config.oauthClientSecret,
@@ -59,23 +60,21 @@ export default function authentication(config: IConfig) {
   });
 
   app.use(syncMiddleware(async (req: any, res, next) => {
-    const signingKey = await req.uaa.getSigningKey();
-
     if (req.isAuthenticated()) {
-      req.accessToken = req.session.passport.user;
-
       try {
-        const rawToken: any = await jwt.verify(req.session.passport.user, signingKey);
+        const uaa = new UAAClient({
+          apiEndpoint: config.uaaAPI,
+          clientCredentials: {
+            clientID: config.oauthClientID,
+            clientSecret: config.oauthClientSecret,
+          },
+        });
 
-        /* istanbul ignore next */
-        if (!rawToken) {
-          throw new Error('jwt: could not verify the token');
-        }
-
-        req.rawToken = rawToken;
-        req.sessionOptions.expires = rawToken.exp;
+        const signingKeys = await uaa.getSigningKeys();
+        req.token = new Token(req.session.passport.user, signingKeys);
+        req.sessionOptions.expires = req.token.expiry;
       } catch (err) {
-        req.log.debug(err);
+        req.log.error(err);
         req.session = null;
         return res.redirect('/auth/login');
       }

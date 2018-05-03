@@ -64,11 +64,13 @@ test('should retrieve signing keys', async t => {
   nock(config.apiEndpoint)
     .get('/token_keys').times(1).reply(200, {keys: [{value: 'secret'}]});
 
-  const tokenKey = await client.getSigningKey();
-  t.equal(tokenKey, 'secret');
+  const tokenKeys = await client.getSigningKeys();
+  t.equal(tokenKeys.length, 1);
+  t.equal(tokenKeys[0], 'secret');
 
-  const cachedKey = await client.getSigningKey();
-  t.equal(cachedKey, 'secret');
+  const cachedKeys = await client.getSigningKeys();
+  t.equal(cachedKeys.length, 1);
+  t.equal(cachedKeys[0], 'secret');
 });
 
 test('should fail retrieve signing keys due to UAA being politely hacked...', async t => {
@@ -77,5 +79,5 @@ test('should fail retrieve signing keys due to UAA being politely hacked...', as
   await nock(config.apiEndpoint)
     .get('/token_keys').times(1).reply(400, {message: 'pwnd'});
 
-  t.rejects(async () => client.getSigningKey(), /status 400/);
+  t.rejects(async () => client.getSigningKeys(), /status 400/);
 });

@@ -69,12 +69,11 @@ npm test
 Start the server in development mode
 
 ```sh
-OAUTH_AUTHORIZATION_URL="https://login.$DEPLOY_ENV.dev.cloudpipeline.digital/oauth/authorize" \
-OAUTH_TOKEN_URL="https://uaa.$DEPLOY_ENV.dev.cloudpipeline.digital/oauth/token" \
+API_URL="https://api.$DEPLOY_ENV.dev.cloudpipeline.digital" \
+BILLING_URL="https://billing.$DEPLOY_ENV.dev.cloudpipeline.digital" \
+UAA_URL="https://uaa.$DEPLOY_ENV.dev.cloudpipeline.digital" \
 OAUTH_CLIENT_ID="my-client-id" \
 OAUTH_CLIENT_SECRET="my-secret" \
-API_URL="https://api.$DEPLOY_ENV.dev.cloudpipeline.digital" \
-UAA_URL="https://uaa.$DEPLOY_ENV.dev.cloudpipeline.digital" \
 NOTIFY_API_KEY="qwerty123456" \
 NOTIFY_WELCOME_TEMPLATE_ID="qwerty123456" \
 npm start

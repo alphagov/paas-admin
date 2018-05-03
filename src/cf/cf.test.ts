@@ -260,3 +260,14 @@ test('should be able to remove user space roles', async t => {
 
   t.equal(Object.keys(users).length, 0);
 });
+
+test('should obtain list of user roles for organisation and not find logged in user', async t => {
+  const client = new CloudFoundryClient(config);
+  const hasRole = await client.hasOrganizationRole(
+    '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    'not-existing-user',
+    'org_manager',
+  );
+
+  t.notOk(hasRole);
+});

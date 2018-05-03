@@ -2,6 +2,7 @@ import express from 'express';
 
 import { initContext } from '../../app/context';
 
+import { IAppConfig } from '../../app/app';
 import { IResponse } from './route';
 import Router from './router';
 
@@ -15,7 +16,7 @@ function handleResponse(res: express.Response) {
   };
 }
 
-export function expressMiddleware(router: Router): express.Application {
+export function expressMiddleware(router: Router, appConfig: IAppConfig): express.Application {
   const app = express();
 
   app.use((req: any, _res: express.Response, next: express.NextFunction) => {
@@ -32,11 +33,12 @@ export function expressMiddleware(router: Router): express.Application {
     }
 
     const params = {
+      ...req.query,
       ...req.params,
       ...route.parser.match(req.path),
     };
 
-    const ctx = initContext(req, router, route);
+    const ctx = initContext(req, router, route, appConfig);
 
     route.definition.action(ctx, params, req.body)
       .then(handleResponse(res))

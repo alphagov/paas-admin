@@ -198,6 +198,21 @@ export default class CloudFoundryClient {
     const response = await this.request('put', `/v2/organizations/${organizationGUID}/users`, {username});
     return response.data;
   }
+
+  public async hasOrganizationRole(
+    organizationGUID: string,
+    userGUID: string,
+    role: cf.OrganizationUserRoles,
+  ): Promise<boolean> {
+    const users = await this.usersForOrganization(organizationGUID);
+    const user = users.find((u: cf.IOrganizationUserRoles) => u.metadata.guid === userGUID);
+
+    if (!user) {
+      return false;
+    }
+
+    return user.entity.organization_roles.includes(role);
+  }
 }
 
 async function request(endpoint: string, method: string, url: string, opts?: any): Promise<AxiosResponse> {

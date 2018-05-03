@@ -5,6 +5,7 @@ import * as applications from '../applications';
 import * as organizations from '../organizations';
 import * as services from '../services';
 import * as spaces from '../spaces';
+import * as statement from '../statement';
 import * as users from '../users';
 import { IContext } from './context';
 
@@ -67,6 +68,11 @@ const router = new Router([
     method: 'post',
     name: 'admin.organizations.users.update',
     path: '/organisations/:organizationGUID/users/:userGUID',
+  },
+  {
+    action: statement.viewStatement,
+    name: 'admin.statement.view',
+    path: '/organisations/:organizationGUID/statements/:rangeStart',
   },
 ]);
 

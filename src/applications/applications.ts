@@ -1,4 +1,5 @@
 import { IContext } from '../app/context';
+import CloudFoundryClient from '../cf';
 import { IRoute } from '../cf/types';
 import { IParameters, IResponse } from '../lib/router';
 
@@ -9,11 +10,16 @@ function buildURL(route: IRoute): string {
 }
 
 export async function viewApplication(ctx: IContext, params: IParameters): Promise<IResponse> {
-  const application = await ctx.cf.application(params.applicationGUID);
-  const space = await ctx.cf.space(params.spaceGUID);
-  const organization = await ctx.cf.organization(params.organizationGUID);
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
 
-  const summary = await ctx.cf.applicationSummary(params.applicationGUID);
+  const application = await cf.application(params.applicationGUID);
+  const space = await cf.space(params.spaceGUID);
+  const organization = await cf.organization(params.organizationGUID);
+
+  const summary = await cf.applicationSummary(params.applicationGUID);
 
   const summarisedApplication = {
     entity: {
