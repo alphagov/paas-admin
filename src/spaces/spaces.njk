@@ -10,11 +10,10 @@
 {% endblock %}
 
 {% block main %}
-  <div class="govuk-o-grid">
+  <div class="govuk-o-grid govuk-!-mb-r8 govuk-!-mt-r5">
     <div class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
-      <h1 class="govuk-heading-xl">
-        <span class="govuk-caption-xl">Organisation</span>
-        {{ organization.entity.name }}
+      <h1 class="govuk-heading-l">
+        This organisation has {{ spaces | length }} spaces
       </h1>
     </div>
 
@@ -34,10 +33,6 @@
       </table>
     </div>
   </div>
-
-  <h2 class="govuk-heading-l">
-    This organisation has {{ spaces | length }} spaces
-  </h2>
 
   <details class="govuk-c-details" role="group">
     <summary class="govuk-c-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
