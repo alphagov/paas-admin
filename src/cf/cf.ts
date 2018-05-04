@@ -3,7 +3,9 @@ import axios, { AxiosResponse } from 'axios';
 import { authenticate } from '../uaa';
 import * as cf from './types';
 
-const DEFAULT_TIMEOUT = 5000;
+// FIXME: We're hitting issues with long running requests to CF API. We're setting a hard limit here,
+// but intend to roll it back to more acceptable/desired behavior in the future.
+const DEFAULT_TIMEOUT = 30000;
 
 interface IClientCredentials {
   readonly clientID: string;
