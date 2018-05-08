@@ -10,8 +10,10 @@ import { Token } from '.';
 type MiddlewareFunction = (req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void>;
 
 interface IConfig {
-  readonly oauthClientID: string;
-  readonly oauthClientSecret: string;
+  readonly clientID: string;
+  readonly clientSecret: string;
+  readonly authorizationURL: string;
+  readonly tokenURL: string;
   readonly uaaAPI: string;
 }
 
@@ -26,11 +28,11 @@ export default function authentication(config: IConfig) {
   const app = express();
 
   const options: StrategyOptions = {
-    authorizationURL: `${config.uaaAPI}/oauth/authorize`,
-    tokenURL: `${config.uaaAPI}/oauth/token`,
+    authorizationURL: config.authorizationURL,
     callbackURL: '',
-    clientID: config.oauthClientID,
-    clientSecret: config.oauthClientSecret,
+    clientID: config.clientID,
+    clientSecret: config.clientSecret,
+    tokenURL: config.tokenURL,
   };
 
   passport.use(new Strategy(options, (accessToken: string, refreshToken: string, profile: any, cb: any) => {
@@ -65,8 +67,8 @@ export default function authentication(config: IConfig) {
         const uaa = new UAAClient({
           apiEndpoint: config.uaaAPI,
           clientCredentials: {
-            clientID: config.oauthClientID,
-            clientSecret: config.oauthClientSecret,
+            clientID: config.clientID,
+            clientSecret: config.clientSecret,
           },
         });
 

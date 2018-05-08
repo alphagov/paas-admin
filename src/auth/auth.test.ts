@@ -37,8 +37,10 @@ app.use((req: any, _res, next) => {
 });
 
 app.use(auth({
-  oauthClientID: 'key',
-  oauthClientSecret: 'secret',
+  authorizationURL: 'https://example.com/login/oauth/authorize',
+  clientID: 'key',
+  clientSecret: 'secret',
+  tokenURL: 'https://example.com/uaa/oauth/token',
   uaaAPI: 'https://example.com/uaa',
 }));
 
@@ -58,7 +60,7 @@ test('the login page redirects to the authorize endpoint of the IDP', async t =>
   const response = await request(app).get('/auth/login');
 
   t.equal(response.status, 302);
-  t.equal(response.header.location, 'https://example.com/uaa/oauth/authorize?response_type=code&client_id=key');
+  t.equal(response.header.location, 'https://example.com/login/oauth/authorize?response_type=code&client_id=key');
 });
 
 test('can login with a code', async t => {

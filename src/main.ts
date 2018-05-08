@@ -2,6 +2,7 @@ import pino from 'pino';
 import sourceMapSupport from 'source-map-support';
 
 import app, { IAppConfig } from './app/app';
+import CloudFoundryClient from './cf';
 import Server from './server';
 
 sourceMapSupport.install();
@@ -31,8 +32,36 @@ function onShutdown() {
   process.exit(0);
 }
 
-async function main(cfg: IAppConfig) {
-  const server = new Server(app(cfg), {
+async function main() {
+  const cloudFoundryAPI = expectEnvVariable('API_URL');
+  let authorizationAPI = process.env.AUTHORIZATION_URL;
+  let uaaAPI = process.env.UAA_URL;
+
+  /* istanbul ignore next */
+  if (!authorizationAPI || !uaaAPI) {
+    const cf = new CloudFoundryClient({
+      apiEndpoint: cloudFoundryAPI,
+    });
+    const info = await cf.info();
+    authorizationAPI = info.authorization_endpoint;
+    uaaAPI = info.token_endpoint;
+  }
+
+  const config: IAppConfig = {
+    logger,
+    sessionSecret: process.env.SESSION_SECRET || 'mysecret',
+    allowInsecureSession: (process.env.ALLOW_INSECURE_SESSION === 'true'),
+    billingAPI: expectEnvVariable('BILLING_URL'),
+    oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
+    oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
+    cloudFoundryAPI,
+    authorizationAPI,
+    uaaAPI,
+    notifyAPIKey: expectEnvVariable('NOTIFY_API_KEY'),
+    notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null,
+  };
+
+  const server = new Server(app(config), {
     port: parseInt(process.env.PORT || '0', 10),
   });
 
@@ -40,7 +69,13 @@ async function main(cfg: IAppConfig) {
   process.once('SIGTERM', () => server.stop());
 
   await server.start();
-  pino().info({port: server.http.address().port}, `listening http://localhost:${server.http.address().port}/`);
+  pino().info({
+    authorizationAPI,
+    billingAPI: config.billingAPI,
+    cloudFoundryAPI,
+    port: server.http.address().port,
+    uaaAPI,
+  }, `listening http://localhost:${server.http.address().port}/`);
 
   /* istanbul ignore if  */
   if (module.hot) {
@@ -51,17 +86,4 @@ async function main(cfg: IAppConfig) {
   return server.wait();
 }
 
-const config: IAppConfig = {
-  logger,
-  sessionSecret: process.env.SESSION_SECRET || 'mysecret',
-  allowInsecureSession: (process.env.ALLOW_INSECURE_SESSION === 'true'),
-  billingAPI: expectEnvVariable('BILLING_URL'),
-  oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
-  oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
-  cloudFoundryAPI: expectEnvVariable('API_URL'),
-  uaaAPI: expectEnvVariable('UAA_URL'),
-  notifyAPIKey: expectEnvVariable('NOTIFY_API_KEY'),
-  notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null,
-};
-
-main(config).then(onShutdown).catch(onError);
+main().then(onShutdown).catch(onError);
