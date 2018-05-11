@@ -4,6 +4,11 @@ import qs from 'qs';
 
 const DEFAULT_TIMEOUT = 30000;
 
+interface IBillingClientConfig {
+  readonly apiEndpoint: string;
+  readonly accessToken?: string;
+}
+
 export default class BillingClient {
   constructor(private readonly config: IBillingClientConfig) {
     this.config = config;
@@ -28,8 +33,8 @@ export default class BillingClient {
     const response = await this.request({
       url: '/billable_events',
       params: {
-        range_start: params.rangeStart,
-        range_stop: params.rangeStop,
+        range_start: parseDate(params.rangeStart),
+        range_stop: parseDate(params.rangeStop),
         org_guid: params.orgGUIDs,
       },
     });
@@ -38,6 +43,41 @@ export default class BillingClient {
 
     return data.map(parseBillableEvent);
   }
+
+  public async getForecastEvents(params: IForecastParameters): Promise<ReadonlyArray<IBillableEvent>> {
+    const response = await this.request({
+      url: '/forecast_events',
+      params: {
+        range_start: parseDate(params.rangeStart),
+        range_stop: parseDate(params.rangeStop),
+        org_guid: params.orgGUIDs,
+        events: JSON.stringify(params.events.map(parseUsageEventResponse)),
+      },
+    });
+
+    const data: ReadonlyArray<IBillableEventResponse> = response.data;
+
+    return data.map(parseBillableEvent);
+  }
+
+  public async getPricingPlans(params: IRangeable): Promise<ReadonlyArray<IPricingPlan>> {
+    const response = await this.request({
+      url: '/pricing_plans',
+      params: {
+        range_start: parseDate(params.rangeStart),
+        range_stop: parseDate(params.rangeStop),
+      },
+    });
+
+    const data: ReadonlyArray<IPricingPlanResponse> = response.data;
+
+    return data.map(parsePricingPlan);
+  }
+}
+
+function parseDate(d: Date): string {
+  const m = moment(d);
+  return m.format('YYYY-MM-DD');
 }
 
 function parseTimestamp(s: string): Date {
@@ -66,13 +106,30 @@ function parseUsageEvent(ev: IUsageEventResponse): IUsageEvent {
     eventStop: parseTimestamp(ev.event_stop),
     resourceGUID: ev.resource_guid,
     resourceName: ev.resource_name,
-    resourceType: ev.resource_name,
+    resourceType: ev.resource_type,
     orgGUID: ev.org_guid,
     spaceGUID: ev.space_guid,
     planGUID: ev.plan_guid,
     numberOfNodes: ev.number_of_nodes,
     memoryInMB: ev.memory_in_mb,
     storageInMB: ev.storage_in_mb,
+  };
+}
+
+function parseUsageEventResponse(ev: IUsageEvent): IUsageEventResponse {
+  return {
+    event_guid: ev.eventGUID,
+    event_start: parseDate(ev.eventStart),
+    event_stop: parseDate(ev.eventStop),
+    resource_guid: ev.resourceGUID,
+    resource_name: ev.resourceName,
+    resource_type: ev.resourceType,
+    org_guid: ev.orgGUID,
+    space_guid: ev.spaceGUID,
+    plan_guid: ev.planGUID,
+    number_of_nodes: ev.numberOfNodes,
+    memory_in_mb: ev.memoryInMB,
+    storage_in_mb: ev.storageInMB,
   };
 }
 
@@ -99,6 +156,48 @@ function parseBillableEvent(ev: IBillableEventResponse): IBillableEvent {
       exVAT: parseNumber(ev.price.ex_vat),
       details: ev.price.details.map(parsePriceComponent),
     },
+  };
+}
+
+function parsePricingPlan(plan: IPricingPlanResponse): IPricingPlan {
+  return {
+    name: plan.name,
+    planGUID: plan.plan_guid,
+    validFrom: parseTimestamp(plan.valid_from),
+    components: plan.components.map(parseComponentResponse),
+    numberOfNodes: plan.number_of_nodes,
+    memoryInMB: plan.memory_in_mb,
+    storageInMB: plan.storage_in_mb,
+  };
+}
+
+// function parsePricingPlanResponse(plan: IPricingPlan): IPricingPlanResponse {
+//   return {
+//     name: plan.name,
+//     plan_guid: plan.planGUID,
+//     valid_from: parseDate(plan.validFrom),
+//     components: plan.components.map(parseComponent),
+//     number_of_nodes: plan.numberOfNodes,
+//     memory_in_mb: plan.memoryInMB,
+//     storage_in_mb: plan.storageInMB,
+//   };
+// }
+
+// function parseComponent(component: IComponent): IComponentResponse {
+//   return {
+//     name: component.name,
+//     currency_code: component.currencyCode,
+//     formula: component.formula,
+//     vat_code: component.vatCode,
+//   };
+// }
+
+function parseComponentResponse(component: IComponentResponse): IComponent {
+  return {
+    name: component.name,
+    currencyCode: component.currency_code,
+    formula: component.formula,
+    vatCode: component.vat_code,
   };
 }
 

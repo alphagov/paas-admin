@@ -1,3 +1,4 @@
+import moment from 'moment';
 import nock from 'nock';
 import { test } from 'tap';
 
@@ -58,13 +59,130 @@ test('should return billable events', async t => {
     accessToken: '__ACCESS_TOKEN__',
   });
   const response = await bc.getBillableEvents({
-    rangeStart: '2018-01-01',
-    rangeStop: '2018-01-02',
+    rangeStart: moment('2018-01-01').toDate(),
+    rangeStop: moment('2018-01-02').toDate(),
     orgGUIDs: ['3deb9f04-b449-4f94-b3dd-c73cefe5b275'],
   });
 
   t.equal(response.length, 1);
   t.equal(response[0].price.exVAT, 0.02);
+});
+
+test('should return forecast events', async t => {
+  const fakeEvents: ReadonlyArray<IUsageEvent> = [
+    {
+      eventGUID: '00000000-0000-0000-0000-000000000001',
+      resourceGUID: '00000000-0000-0000-0001-000000000001',
+      resourceName: 'fake-app-1',
+      resourceType: 'app',
+      orgGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      spaceGUID: '00000001-0001-0000-0000-000000000000',
+      eventStart: moment('2018-01-01').toDate(),
+      eventStop: moment('2018-01-02').toDate(),
+      planGUID: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+      numberOfNodes: 2,
+      memoryInMB: 2048,
+      storageInMB: 1024,
+    },
+  ];
+
+  // tslint:disable:max-line-length
+  nock(config.billingAPI)
+    // FIXME: We could totally use the fake events to generate the URL... QS however didn't work as expected :(
+    .get(`/forecast_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275&events=%5B%7B%22event_guid%22%3A%2200000000-0000-0000-0000-000000000001%22%2C%22event_start%22%3A%222018-01-01%22%2C%22event_stop%22%3A%222018-01-02%22%2C%22resource_guid%22%3A%2200000000-0000-0000-0001-000000000001%22%2C%22resource_name%22%3A%22fake-app-1%22%2C%22resource_type%22%3A%22app%22%2C%22org_guid%22%3A%223deb9f04-b449-4f94-b3dd-c73cefe5b275%22%2C%22space_guid%22%3A%2200000001-0001-0000-0000-000000000000%22%2C%22plan_guid%22%3A%22f4d4b95a-f55e-4593-8d54-3364c25798c4%22%2C%22number_of_nodes%22%3A2%2C%22memory_in_mb%22%3A2048%2C%22storage_in_mb%22%3A1024%7D%5D`)
+    .reply(200, `[
+      {
+        "event_guid": "aa30fa3c-725d-4272-9052-c7186d4968a6",
+        "event_start": "2001-01-01T00:00:00+00:00",
+        "event_stop": "2001-01-01T01:00:00+00:00",
+        "resource_guid": "c85e98f0-6d1b-4f45-9368-ea58263165a0",
+        "resource_name": "APP1",
+        "resource_type": "app",
+        "org_guid": "51ba75ef-edc0-47ad-a633-a8f6e8770944",
+        "space_guid": "276f4886-ac40-492d-a8cd-b2646637ba76",
+        "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
+        "number_of_nodes": 1,
+        "memory_in_mb": 1024,
+        "storage_in_mb": 0,
+        "price": {
+          "inc_vat": "0.012",
+          "ex_vat": "0.01",
+          "details": [
+            {
+              "name": "compute",
+              "plan_name": "PLAN1",
+              "start": "2001-01-01T00:00:00+00:00",
+              "stop": "2001-01-01T01:00:00+00:00",
+              "vat_rate": "0.2",
+              "vat_code": "Standard",
+              "currency_code": "GBP",
+              "currency_rate": "1",
+              "inc_vat": "0.012",
+              "ex_vat": "0.01"
+            }
+          ]
+        }
+      }
+    ]`);
+    // tslint:enable:max-line-length
+
+  const bc = new BillingClient({
+    apiEndpoint: config.billingAPI,
+    accessToken: '__ACCESS_TOKEN__',
+  });
+  const response = await bc.getForecastEvents({
+    rangeStart: moment('2018-01-01').toDate(),
+    rangeStop: moment('2018-01-02').toDate(),
+    orgGUIDs: ['3deb9f04-b449-4f94-b3dd-c73cefe5b275'],
+    events: fakeEvents,
+  });
+
+  t.equal(response.length, 1);
+  t.equal(response[0].price.exVAT, 0.01);
+});
+
+test('should return pricing plans', async t => {
+  // tslint:disable:max-line-length
+  nock(config.billingAPI)
+    .get(`/pricing_plans?range_start=2018-01-01&range_stop=2018-01-02`)
+    .reply(200, `[
+      {
+        "name": "PLAN2",
+        "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
+        "valid_from": "2002-01-01",
+        "components": [
+          {
+            "name": "cpu-usage",
+            "formula": "$number_of_nodes * 0.001 * $time_in_seconds",
+            "vat_code": "Standard",
+            "currency_code": "GBP"
+          },
+          {
+            "name": "storage-usage",
+            "formula": "$storage_in_mb * 0.0001 * $time_in_seconds",
+            "vat_code": "Standard",
+            "currency_code": "GBP"
+          }
+        ],
+        "memory_in_mb": 264,
+        "storage_in_mb": 265,
+        "number_of_nodes": 2
+      }
+    ]`);
+    // tslint:enable:max-line-length
+
+  const bc = new BillingClient({
+    apiEndpoint: config.billingAPI,
+    accessToken: '__ACCESS_TOKEN__',
+  });
+  const response = await bc.getPricingPlans({
+    rangeStart: moment('2018-01-01').toDate(),
+    rangeStop: moment('2018-01-02').toDate(),
+  });
+
+  t.equal(response.length, 1);
+  t.equal(response[0].components[0].currencyCode, 'GBP');
+  t.contains(response[0].validFrom.toString(), 'Jan 01 2002');
 });
 
 test('should throw an error when API response with 500', async t => {
@@ -78,8 +196,8 @@ test('should throw an error when API response with 500', async t => {
   });
 
   return t.rejects(bc.getBillableEvents({
-    rangeStart: '2018-01-01',
-    rangeStop: '2018-01-02',
+    rangeStart: moment('2018-01-01').toDate(),
+    rangeStop: moment('2018-01-02').toDate(),
     orgGUIDs: ['org-guid-500'],
   }), /failed with status 500/);
 });
@@ -94,8 +212,8 @@ test('should throw an error when API response with 500 and no data', async t => 
   });
 
   return t.rejects(bc.getBillableEvents({
-    rangeStart: '2018-01-01',
-    rangeStop: '2018-01-02',
+    rangeStart: moment('2018-01-01').toDate(),
+    rangeStop: moment('2018-01-02').toDate(),
     orgGUIDs: ['org-guid-500-no-data'],
   }), /failed with status 500/);
 });
@@ -119,8 +237,8 @@ test('should throw an error when API response contains invalid price', async t =
   });
 
   return t.rejects(bc.getBillableEvents({
-    rangeStart: '2018-01-01',
-    rangeStop: '2018-01-02',
+    rangeStart: moment('2018-01-01').toDate(),
+    rangeStop: moment('2018-01-02').toDate(),
     orgGUIDs: ['org-guid-bad-price'],
   }), /failed to parse 'not-a-number' as a number/);
 });
@@ -144,8 +262,8 @@ test('should throw an error when API response contains start_date', async t => {
   });
 
   return t.rejects(bc.getBillableEvents({
-    rangeStart: '2018-01-01',
-    rangeStop: '2018-01-02',
+    rangeStart: moment('2018-01-01').toDate(),
+    rangeStop: moment('2018-01-02').toDate(),
     orgGUIDs: ['org-guid-invalid-date'],
   }), /invalid date format: 14:36 20-04-2018/);
 });
