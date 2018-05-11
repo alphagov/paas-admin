@@ -41,6 +41,7 @@
     "@types/route-parser": "0.1.1",
     "@types/source-map-support": "0.4.0",
     "@types/supertest": "2.0.4",
+    "@types/uuid": "3.4.3",
     "@types/webpack-env": "1.13.5",
     "compression-webpack-plugin": "1.1.11",
     "css-loader": "0.28.11",
@@ -98,7 +99,8 @@
     "qs": "6.5.1",
     "route-parser": "0.0.5",
     "source-map-support": "0.5.4",
-    "tslib": "1.9.0"
+    "tslib": "1.9.0",
+    "uuid": "3.2.1"
   },
   "engines": {
     "node": "8.x.x",

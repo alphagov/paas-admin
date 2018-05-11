@@ -65,6 +65,44 @@ test('missing pages should redirect with a 302 if not authenticated', async (t: 
   t.equal(response.status, 302);
 });
 
+test('should be able to access pricing calculator without login', async (ts: any) => {
+  const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
+  const rangeStop = moment().endOf('month').format('YYYY-MM-DD');
+
+  nock(config.billingAPI)
+    .filteringPath((path: string) => {
+      if (path.includes('/forecast_events')) {
+        return '/billing/forecast_events';
+      }
+
+      return path;
+    })
+    .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
+    .reply(200, [])
+    .get(`/forecast_events`)
+    .reply(200, [])
+  ;
+
+  const app = init(config);
+  const response = await request(app).get('/calculator');
+
+  ts.equal(response.status, 200);
+});
+
+test('should be able to handle 500 error when accessing pricing calculator', async (ts: any) => {
+  const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
+  const rangeStop = moment().endOf('month').format('YYYY-MM-DD');
+
+  nock(config.billingAPI)
+    .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
+    .reply(500);
+
+  const app = init(config);
+  const response = await request(app).get('/calculator');
+
+  ts.equal(response.status, 500);
+});
+
 test('when authenticated', async (t: any) => {
   const app = init(config);
   const agent = request.agent(app);
