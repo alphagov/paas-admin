@@ -3,7 +3,7 @@ import nock from 'nock';
 import pino from 'pino';
 import { test } from 'tap';
 
-import { config } from '../app/app.test';
+import { config } from '../app/app.test.config';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
 import { organizations } from '../cf/cf.test.data';

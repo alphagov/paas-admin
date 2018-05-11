@@ -1,34 +1,18 @@
 import jwt from 'jsonwebtoken';
+import moment from 'moment';
 import nock from 'nock';
-import pino from 'pino';
 import request from 'supertest';
 import { test } from 'tap';
 
 import { info, organizations } from '../cf/cf.test.data';
 import Router, { IParameters } from '../lib/router';
 
-import init, { IAppConfig } from './app';
+import init from './app';
+import { config } from './app.test.config';
 import { IContext, initContext } from './context';
 import router from './router';
 
-const logger = pino({level: 'silent'});
-
 const tokenKey = 'tokensecret';
-const sessionSecret = 'mysecret';
-
-export const config: IAppConfig = {
-  logger,
-  sessionSecret,
-  allowInsecureSession: true,
-  billingAPI: 'https://example.com/billing',
-  oauthClientID: 'key',
-  oauthClientSecret: 'secret',
-  cloudFoundryAPI: 'https://example.com/api',
-  uaaAPI: 'https://example.com/uaa',
-  authorizationAPI: 'https://example.com/login',
-  notifyAPIKey: 'test-123456-qwerty',
-  notifyWelcomeTemplateID: 'qwerty-123456',
-};
 
 nock('https://example.com/uaa').persist()
   .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)

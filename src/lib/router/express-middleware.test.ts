@@ -2,7 +2,7 @@ import express from 'express';
 import request from 'supertest';
 import { test } from 'tap';
 
-import { config } from '../../app/app.test';
+import { config } from '../../app/app.test.config';
 import { NotFoundError } from './errors';
 import { expressMiddleware } from './express-middleware';
 import Router from './router';

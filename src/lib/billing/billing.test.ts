@@ -1,7 +1,7 @@
 import nock from 'nock';
 import { test } from 'tap';
 
-import { config } from '../../app/app.test';
+import { config } from '../../app/app.test.config';
 
 import { BillingClient } from '.';
 
