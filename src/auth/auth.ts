@@ -15,6 +15,7 @@ interface IConfig {
   readonly authorizationURL: string;
   readonly tokenURL: string;
   readonly uaaAPI: string;
+  readonly logoutURL: string;
 }
 
 /* istanbul ignore next */
@@ -58,7 +59,7 @@ export default function authentication(config: IConfig) {
 
   app.get('/auth/logout', (req: {logout: () => void}, res) => {
     req.logout();
-    res.redirect('/');
+    res.redirect(config.logoutURL);
   });
 
   app.use(syncMiddleware(async (req: any, res, next) => {
