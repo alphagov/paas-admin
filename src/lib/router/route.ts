@@ -2,7 +2,7 @@ import RouteParser from 'route-parser';
 import { URLSearchParams } from 'url';
 
 export interface IParameters {
-  readonly [i: string]: string;
+  readonly [i: string]: any;
 }
 export interface IResponse {
   readonly body?: object | string;

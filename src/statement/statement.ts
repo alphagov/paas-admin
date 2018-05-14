@@ -52,8 +52,8 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   });
 
   const filter = {
-    rangeStart: rangeStart.format(YYYMMDD),
-    rangeStop: rangeStart.add(1, 'month').format(YYYMMDD),
+    rangeStart: rangeStart.toDate(),
+    rangeStop: rangeStart.add(1, 'month').toDate(),
     orgGUIDs: [organization.metadata.guid],
   };
 

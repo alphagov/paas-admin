@@ -16,6 +16,7 @@ declare module 'tap' {
     end: () => void;
     equal: (a: any, b: any, comment?: string) => void;
     fail: (message: string, extra?: any) => void;
+    notMatch: (a: any, b: any) => void;
     notOk: (f: any, comment?: string) => void;
     ok: (f: any, comment?: string) => void;
     rejects: (f: any, r: any) => void;

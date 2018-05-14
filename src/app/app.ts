@@ -9,9 +9,11 @@ import { BaseLogger } from 'pino';
 
 import auth from '../auth';
 import { internalServerErrorMiddleware, pageNotFoundMiddleware } from '../errors';
-import { expressMiddleware as routerMiddleware } from '../lib/router';
+import { expressMiddleware as routerMiddleware, IResponse } from '../lib/router';
 
+import { getCalculator } from '../calculator';
 import csp from './app.csp';
+import { initContext } from './context';
 import router from './router';
 
 export interface IAppConfig {
@@ -62,6 +64,17 @@ export default function(config: IAppConfig) {
   app.use(express.urlencoded({extended: true}));
 
   app.get('/healthcheck', (_req: express.Request, res: express.Response) => res.send({message: 'OK'}));
+
+  app.get('/calculator', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('admin.home');
+    const ctx = initContext(req, router, route, config);
+
+    getCalculator(ctx, {...req.query, ...req.params, ...route.parser.match(req.path)})
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+  });
 
   // Authenticated endpoints follow
   app.use(auth({
