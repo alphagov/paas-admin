@@ -29,7 +29,23 @@ export class Token {
 }
 
 function verify(accessToken: string, signingKeys: ReadonlyArray<string>): IToken {
-  const rawToken: any = jwt.verify(accessToken, signingKeys[0]);
+  let rawToken: any;
+  let jwtError;
+
+  for (const key of signingKeys) {
+    try {
+      rawToken = jwt.verify(accessToken, key);
+      break; // Break out of the for loop, in order not to continue testing remaining keys.
+    } catch (err) {
+      // We're iterating over each key, in attempt to verify the JWT token.
+      // Throwing an error would prevent the next key to be tried.
+      jwtError = err;
+    }
+  }
+
+  if (typeof rawToken === 'undefined') {
+    throw jwtError;
+  }
 
   if (typeof rawToken !== 'object') {
     throw new Error('jwt: could not verify the token as no object has been verified');
