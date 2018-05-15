@@ -81,6 +81,7 @@ export default function(config: IAppConfig) {
     authorizationURL: `${config.authorizationAPI}/oauth/authorize`,
     clientID: config.oauthClientID,
     clientSecret: config.oauthClientSecret,
+    logoutURL: `${config.authorizationAPI}/logout.do`,
     tokenURL: `${config.uaaAPI}/oauth/token`,
     uaaAPI: config.uaaAPI,
   }));

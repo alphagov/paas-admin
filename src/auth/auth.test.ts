@@ -40,6 +40,7 @@ app.use(auth({
   authorizationURL: 'https://example.com/login/oauth/authorize',
   clientID: 'key',
   clientSecret: 'secret',
+  logoutURL: 'https://example.com/login/logout.do',
   tokenURL: 'https://example.com/uaa/oauth/token',
   uaaAPI: 'https://example.com/uaa',
 }));
@@ -109,7 +110,7 @@ test('can login with a code', async t => {
     const response = await agent.get('/auth/logout');
 
     ts.equal(response.status, 302);
-    ts.equal(response.header.location, '/');
+    ts.equal(response.header.location, 'https://example.com/login/logout.do');
   });
 
   await t.test('can not reach an endpoint behind authentication', async ts => {
