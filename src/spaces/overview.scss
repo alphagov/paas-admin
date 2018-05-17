@@ -1,0 +1,11 @@
+.space-overview {
+  word-break: normal;
+
+	th {
+    @include govuk-font-bold-16;
+  }
+
+  td {
+    @include govuk-font-regular-16
+  }
+}

@@ -5,13 +5,13 @@
 {% endblock %}
 
 {% block main %}
-  <h1 class="govuk-heading-xl">
-    <span class="govuk-caption-xl">Space</span>
+  <h1 class="govuk-heading-l">
+    <span class="govuk-caption-l">Space</span>
     {{ space.entity.name }}
   </h1>
 
-  <h2 class="govuk-heading-l">
-    This space has {{ applications | length }} applications
+  <h2 class="govuk-heading-m">
+    This space contains {{ applications | length }} applications
   </h2>
 
   {% if applications.length > 0 %}
@@ -42,20 +42,16 @@
               {{ (application.entity.disk_quota / 1024) | round(2) }}gb
             </td>
             <td class="govuk-c-table__cell ">
-              {{ application.entity.state }}
+              {{ application.entity.state | lower }}
             </td>
             <td class="govuk-c-table__cell ">
-              <small>{{ application.entity.urls | join(", ") }}</small>
+              {{ application.entity.urls | join(", ") }}
             </td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   {% endif %}
-
-  <h2 class="govuk-heading-l govuk-!-mt-r9">
-    This space has {{ space.entity.services | length }} services
-  </h2>
 
   {% if space.entity.services.length > 0 %}
     <table class="govuk-c-table space-overview">
