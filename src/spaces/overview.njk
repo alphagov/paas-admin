@@ -10,11 +10,24 @@
     {{ space.entity.name }}
   </h1>
 
-  <h2 class="govuk-heading-m">
+  <ul class="overview-tab">
+    <li class="current">Applications
+      <span class="number-of-items">{{ applications | length }}</span>
+    </li>
+    <li>Backing services
+      <span class="number-of-items">{{space.entity.services | length }}</span>
+    </li>
+    <li>Collaborators
+      <span class="number-of-items">7</span>
+    </li>
+  </ul>
+
+  {% if applications.length > 0 %}
+
+  <h2 class="govuk-heading-m paas-space-between-heading-and-table">
     This space contains {{ applications | length }} applications
   </h2>
 
-  {% if applications.length > 0 %}
     <table class="govuk-c-table space-overview">
       <thead class="govuk-c-table__head">
         <tr class="govuk-c-table__row">
@@ -54,6 +67,11 @@
   {% endif %}
 
   {% if space.entity.services.length > 0 %}
+
+    <h2 class="govuk-heading-m paas-space-between-heading-and-table">
+      This space contains {{ space.entity.services | length }} backing services
+    </h2>
+
     <table class="govuk-c-table space-overview">
       <thead class="govuk-c-table__head">
         <tr class="govuk-c-table__row">
