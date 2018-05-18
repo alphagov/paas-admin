@@ -1,0 +1,20 @@
+<ul class="overview-tab">
+  <li class="{% if routePartOf('admin.organizations.spaces.applications.view') %} active {% endif %}">
+    <a href="{{ linkTo('admin.organizations.spaces.applications.view', {
+      organizationGUID: organization.metadata.guid,
+      spaceGUID: space.metadata.guid
+    }) }}">
+      Applications
+      <span class="number-of-items">{{ space.entity.apps | length }}</span>
+    </a>
+  </li>
+  <li class="{% if routePartOf('admin.organizations.spaces.services.view') %} active {% endif %}">
+    <a href="{{ linkTo('admin.organizations.spaces.services.view', {
+      organizationGUID: organization.metadata.guid,
+      spaceGUID: space.metadata.guid
+    }) }}">
+      Backing services
+      <span class="number-of-items">{{space.entity.services | length }}</span>
+    </a>
+  </li>
+</ul>

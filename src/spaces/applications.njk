@@ -10,23 +10,13 @@
     {{ space.entity.name }}
   </h1>
 
-  <ul class="overview-tab">
-    <li class="current">Applications
-      <span class="number-of-items">{{ applications | length }}</span>
-    </li>
-    <li>Backing services
-      <span class="number-of-items">{{space.entity.services | length }}</span>
-    </li>
-    <li>Collaborators
-      <span class="number-of-items">7</span>
-    </li>
-  </ul>
+  {% include "./_tabs.njk" %}
 
   {% if applications.length > 0 %}
 
-  <h2 class="govuk-heading-m paas-space-between-heading-and-table">
-    This space contains {{ applications | length }} applications
-  </h2>
+    <h2 class="govuk-heading-m paas-space-between-heading-and-table">
+      This space contains {{ applications | length }} applications
+    </h2>
 
     <table class="govuk-c-table space-overview">
       <thead class="govuk-c-table__head">
@@ -64,41 +54,6 @@
         {% endfor %}
       </tbody>
     </table>
-  {% endif %}
 
-  {% if space.entity.services.length > 0 %}
-
-    <h2 class="govuk-heading-m paas-space-between-heading-and-table">
-      This space contains {{ space.entity.services | length }} backing services
-    </h2>
-
-    <table class="govuk-c-table space-overview">
-      <thead class="govuk-c-table__head">
-        <tr class="govuk-c-table__row">
-          <th class="govuk-c-table__header name" scope="col">Service name</th>
-          <th class="govuk-c-table__header" scope="col">Type</th>
-          <th class="govuk-c-table__header" scope="col">Plan</th>
-          <th class="govuk-c-table__header" scope="col">State</th>
-        </tr>
-      </thead>
-      <tbody class="govuk-c-table__body">
-        {% for service in space.entity.services %}
-          <tr class="govuk-c-table__row">
-            <th class="govuk-c-table__header" scope="row">
-              <a href="{{ linkTo('admin.organizations.spaces.services.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.guid}) }}" class="govuk-link">{{ service.name }}</a>
-            </th>
-            <td class="govuk-c-table__cell ">
-              {{ service.service_plan.service.label }}
-            </td>
-            <td class="govuk-c-table__cell ">
-              {{ service.service_plan.name }}
-            </td>
-            <td class="govuk-c-table__cell ">
-              {{ service.last_operation.state }}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
   {% endif %}
 {% endblock %}
