@@ -9,7 +9,8 @@ import {
 } from '../cf/types';
 import { IParameters, IResponse } from '../lib/router';
 
-import spaceOverviewTemplate from './overview.njk';
+import spaceApplicationsTemplate from './applications.njk';
+import spaceBackingServicesTemplate from './backing-services.njk';
 import spacesTemplate from './spaces.njk';
 
 function buildURL(route: IRoute): string {
@@ -49,8 +50,35 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
   }));
 
   return {
-    body: spaceOverviewTemplate.render({
+    body: spaceApplicationsTemplate.render({
       applications: summarisedApplications,
+      routePartOf: ctx.routePartOf,
+      linkTo: ctx.linkTo,
+      organization,
+      space: summarisedSpace,
+    }),
+  };
+}
+
+export async function listBackingServices(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
+
+  const space = await cf.space(params.spaceGUID);
+  const organization = await cf.organization(space.entity.organization_guid);
+
+  const summarisedSpace = {
+    entity: {
+      ...space.entity,
+      ...await cf.spaceSummary(space.metadata.guid),
+    },
+    metadata: space.metadata,
+  };
+
+  return {
+    body: spaceBackingServicesTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       organization,
