@@ -14,9 +14,14 @@ import router from './router';
 
 const tokenKey = 'tokensecret';
 
-nock('https://example.com/uaa').persist()
+nock(config.uaaAPI).persist()
   .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
-  .get('/token_keys').reply(200, {keys: [{value: tokenKey}]});
+  .get('/token_keys').reply(200, {keys: [{value: tokenKey}]})
+;
+
+nock(config.accountsAPI).persist()
+  .get('/users/uaa-user-123/documents').reply(200, `[]`)
+;
 
 test('should initContext correctly', async (t: any) => {
   const r = new Router([
