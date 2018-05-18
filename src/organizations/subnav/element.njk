@@ -6,12 +6,11 @@
   <nav class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
     <a href="/spaces/{{ organization.metadata.guid }}" class="govuk-link active">
     <a href="{{ linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link {% if not routePartOf('admin.organizations.users') %} active {% endif %}">
-      Org overview
+      Overview
     </a>
 
     <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link {% if routePartOf('admin.organizations.users') %} active {% endif %}">
-      Team members
+      Members
     </a>
   </nav>
 </div>
-  
