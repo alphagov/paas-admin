@@ -6,6 +6,7 @@ export default class Router {
 
   constructor(readonly routesConfig: ReadonlyArray<IRouteDefinition>) {
     this.routes = routesConfig.map((definition: IRouteDefinition) => new Route(definition));
+    this.validate();
   }
 
   public find(path: string, method: string = 'get'): Route {
@@ -32,5 +33,15 @@ export default class Router {
   /* istanbul ignore next */
   private defaultError(err: Error) {
     throw err;
+  }
+
+  private validate(): void {
+    const seen: {[key: string]: boolean} = {};
+    this.routes.forEach(r => {
+      if (seen[r.definition.name]) {
+        throw new Error(`duplicate route entry for name '${r.definition.name}'`);
+      }
+      seen[r.definition.name] = true;
+    });
   }
 }

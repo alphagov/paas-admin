@@ -54,7 +54,7 @@
 
   <div class="govuk-o-grid space-wrapper">
   {% for space in spaces %}
-    <a href="{{ linkTo('admin.organizations.spaces.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" id="space-{{ space.metadata.guid }}">
+    <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" id="space-{{ space.metadata.guid }}">
       <section class="govuk-o-grid space">
         <div class="govuk-o-grid__item govuk-o-grid__item--one-third">
           <h3>

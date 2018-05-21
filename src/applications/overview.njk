@@ -11,7 +11,7 @@
     <div class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
       {{ govukBackLink({
         text: 'Space: ' + space.entity.name,
-        href: linkTo('admin.organizations.spaces.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})
+        href: linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})
       }) }}
 
       <h1 class="govuk-heading-xl">

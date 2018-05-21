@@ -50,3 +50,21 @@ test('should find routes by name correctly', async t => {
   t.ok(router.findByName('test.home'));
   t.throws(() => router.findByName('random'), /named route not found/);
 });
+
+test('should raise error for duplicate route names', async t => {
+  t.throws(() => {
+    const router = new Router([
+      {
+        name: 'route.dupe',
+        action: async () => ({}),
+        path: '/a',
+      },
+      {
+        name: 'route.dupe',
+        action: async () => ({}),
+        path: '/b',
+      },
+    ]);
+    t.fail(`should have failed to setup router with dup routes but got ${router}`);
+  }, /duplicate route entry/);
+});
