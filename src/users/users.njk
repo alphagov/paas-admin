@@ -99,7 +99,7 @@
       </td>
       <td class="govuk-c-table__cell">
         {% for space in user.spaces %}
-          <a href="linkTo('admin.organizations.spaces.applications.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})" class="govuk-link">{{ space.entity.name }}</a>
+          <a href="linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})" class="govuk-link">{{ space.entity.name }}</a>
         {% endfor %}
       </td>
     </tr>

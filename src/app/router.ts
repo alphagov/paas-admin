@@ -29,12 +29,12 @@ const router = new Router([
   },
   {
     action: spaces.listApplications,
-    name: 'admin.organizations.spaces.applications.view',
+    name: 'admin.organizations.spaces.applications.list',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications',
   },
   {
     action: spaces.listBackingServices,
-    name: 'admin.organizations.spaces.services.view',
+    name: 'admin.organizations.spaces.services.list',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services',
   },
   {

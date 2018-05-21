@@ -1,6 +1,6 @@
 <ul class="overview-tab">
-  <li class="{% if routePartOf('admin.organizations.spaces.applications.view') %} active {% endif %}">
-    <a href="{{ linkTo('admin.organizations.spaces.applications.view', {
+  <li class="{% if routePartOf('admin.organizations.spaces.applications.list') %} active {% endif %}">
+    <a href="{{ linkTo('admin.organizations.spaces.applications.list', {
       organizationGUID: organization.metadata.guid,
       spaceGUID: space.metadata.guid
     }) }}">
@@ -8,8 +8,8 @@
       <span class="number-of-items">{{ space.entity.apps | length }}</span>
     </a>
   </li>
-  <li class="{% if routePartOf('admin.organizations.spaces.services.view') %} active {% endif %}">
-    <a href="{{ linkTo('admin.organizations.spaces.services.view', {
+  <li class="{% if routePartOf('admin.organizations.spaces.services.list') %} active {% endif %}">
+    <a href="{{ linkTo('admin.organizations.spaces.services.list', {
       organizationGUID: organization.metadata.guid,
       spaceGUID: space.metadata.guid
     }) }}">
