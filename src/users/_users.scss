@@ -1,4 +1,22 @@
+.user-roles {
+ h3 {
+  @include govuk-font-bold-19;
+ }
+
+ p {
+  @include govuk-font-regular-19;
+ }
+}
+
 table.user-list {
+
+  th {
+    @include govuk-font-bold-16;
+  }
+
+  td {
+    @include govuk-font-bold-16;
+  }
   .name {
     min-width: 280px;
     width: 35%;

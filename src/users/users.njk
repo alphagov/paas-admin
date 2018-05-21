@@ -13,7 +13,7 @@
       Team members
     </h1>
 
-    <p class="govuk-body-l">
+    <p class="govuk-body-m">
       Members can have organisation and space level roles.
       <br />
       To edit a members role go to their profile.
@@ -23,7 +23,7 @@
   <div class="govuk-grid-column-one-third text-right">
     {% if isAdmin or isManager %}
       {{ govukButton({
-        text: "Invite a new team member",
+        text: "Invite a new member",
         href: linkTo('admin.organizations.users.invite', {organizationGUID: organization.metadata.guid})
       }) }}
     {% endif %}
@@ -37,23 +37,23 @@
         </span>
       </summary>
 
-      <div class="govuk-details__text" aria-hidden="true">
-        <h3 class="heading-small">Org billing manager</h3>
+      <div class="govuk-details__text user-roles" aria-hidden="true">
+        <h3>Org billing manager</h3>
         <p>
-          Org billing manager
+          A superuser who can create and delete spaces within an org, and administer user roles, both within the org and its spaces. We recommend to have at least two org managers.
         </p>
 
-        <h3 class="heading-small">Org manager</h3>
+        <h3>Org auditor</h3>
         <p>
-          Org manager
+          A user who can view quota allocation and user roles across the org. Auditors can't change any of these configurations.
         </p>
 
-        <h3 class="heading-small">Org auditor</h3>
+        <h3>Org billing manager</h3>
         <p>
-          Org auditor
+          A user who can see billing, costs and quota information.
         </p>
 
-        <p>Go to a space to learn more about space level roles.</p>
+        <p><strong>Go to a space to learn more about space level roles.</strong></p>
       </div>
     </details>
   </div>
