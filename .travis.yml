@@ -2,10 +2,9 @@ language: node_js
 env:
   - NODE_ENV=production
   - NODE_ENV=development
-before_install: 
+before_install:
   - if [[ `npm -v` != 6* ]]; then npm i -g npm@6; fi
 install:
   - NODE_ENV=development npm install
 script:
   - npm test
-  - npm audit
