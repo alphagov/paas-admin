@@ -1,4 +1,5 @@
 import jmespath from 'jmespath';
+import showdown from 'showdown';
 
 export default function configure(env) {
   env.addFilter('query', (data, query) => {
@@ -24,5 +25,11 @@ export default function configure(env) {
 
   env.addFilter('currency', (n, precision) => {
     return parseFloat(n,10).toFixed(precision);
-  })
+  });
+
+  env.addFilter('markdown', (text) => {
+    const converter = new showdown.Converter();
+    return converter.makeHtml(text);
+  });
+
 }
