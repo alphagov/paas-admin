@@ -6,6 +6,7 @@
   "main": "src/main.ts",
   "repository": "https://github.com/alphagov/paas-admin",
   "scripts": {
+    "audit": "rm -rf dist/* && NODE_ENV=production npm run -s build && npm audit",
     "build": "npm run -s clean && webpack --config config/webpack.config.js",
     "watch": "ENABLE_WATCH=true ENABLE_TESTS=true npm run -s build",
     "test": "ENABLE_COVERAGE=true npm run -s test:unit && npm run -s lint",

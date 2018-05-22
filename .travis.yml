@@ -6,3 +6,4 @@ install:
   - NODE_ENV=development npm install
 script:
   - npm test
+  - npm audit
