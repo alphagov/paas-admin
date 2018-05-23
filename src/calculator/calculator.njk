@@ -12,14 +12,12 @@
     <div class="govuk-grid-column-one-half">
       <h1 class="paas-heading-l">Estimate your monthly costs</h1>
 
-      <p>
+      <p class="paas-calculator-lede">
         Service teams usually run 3 environments, such as:<br>
         Production, Integration and Staging.
       </p>
 
-      <p>
-        <strong>You can add multiple environments to your cost estimate.</strong>
-      </p>
+      <h1>Environment <span class="paas-example">(e.g. Production)</span></h1>
     </div>
   </div>
 
@@ -115,7 +113,7 @@
           </li>
         {% endfor %}
       </ul>
-      
+
       <p>Total estimated cost:</p>
 
       £{{ quota.exVAT | currency(2) }} per month
