@@ -17,14 +17,15 @@
         Production, Integration and Staging.
       </p>
 
-      <h1>Environment <span class="paas-example">(e.g. Production)</span></h1>
+      <h2>Environment <span class="paas-example">(e.g. Production)</span></h1>
     </div>
   </div>
 
-  <form class="govuk-grid-row" method="get">
-    <input type="hidden" name="estimate" value="{{ estimate | dump }}">
-
+  <div class ="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+    <form class="paas-pricing-form" method="get">
+      <input type="hidden" name="estimate" value="{{ estimate | dump }}">
+
       <details open>
         <summary>Calculate memory usage</summary>
 
@@ -96,37 +97,39 @@
           }) }}
         </details>
       {% endfor %}
-    </div>
+      </div>
 
     <div class="govuk-grid-column-one-third">
       <h4>Estimated cost summary</h4>
 
-      <p>
-        <em>Following prices are <strong>excluding vat</strong>.</em>
-      </p>
+        <p>
+          Following prices are <strong>excluding vat</strong>.
+        </p>
 
-      <ul>
-        {% for quote in quota.instances %}
-          <li>
-            {{ quote.resourceType }} - {{ quote.resourceName }}: {{ quote.price.exVAT | currency(2) }}
-            <button type="submit" name="remove[]" value="{{ quote.resourceGUID }}">remove</button>
-          </li>
-        {% endfor %}
-      </ul>
+        <ul>
+          {% for quote in quota.instances %}
+            <li>
+              {{ quote.resourceType }} - {{ quote.resourceName }}: {{ quote.price.exVAT | currency(2) }}
+              <button type="submit" name="remove[]" value="{{ quote.resourceGUID }}">remove</button>
+            </li>
+          {% endfor %}
+        </ul>
 
-      <p>Total estimated cost:</p>
+        <p class="paas-total">Total estimated cost:</p>
 
-      £{{ quota.exVAT | currency(2) }} per month
+        <p class="paas-price">£{{ quota.exVAT | currency(2) }}</p>
+        <p class="paas-month">per month</p>
 
-      <details>
-        <summary>Why this cost might vary</summary>
+        <details>
+          <summary>Why this cost might vary</summary>
 
-        <p>This estimate assumes constant usage at the levels you've provided. Final figures will vary as CPU/Postgres/ MySQL are charged based on hourly consumption and exchange rates will fluctuate.</p>
+          <p>This estimate assumes constant usage at the levels you've provided. Final figures will vary as CPU/Postgres/ MySQL are charged based on hourly consumption and exchange rates will fluctuate.</p>
 
-        <p>This cost estimate is dated: 26.01.2017 – 15:23. Estimates are liable to change over time.</p>
-      </details>
-    </div>
-  </form>
+          <p>This cost estimate is dated: 26.01.2017 – 15:23. Estimates are liable to change over time.</p>
+        </details>
+      </div>
+    </form>
+  </div>
 
   {{ params | dump }}
 

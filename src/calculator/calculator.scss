@@ -1,0 +1,49 @@
+.paas-summary-section {
+  padding-top: $govuk-spacing-scale-3;
+  padding-bottom: $govuk-spacing-scale-3;
+  padding-left: $govuk-spacing-scale-3;
+  padding-right: $govuk-spacing-scale-3;
+  background-color: $govuk-grey-4;
+  border: 10px $govuk-grey-3 solid;
+  @include govuk-font-regular-19;
+
+  h2 {
+    @include govuk-font-bold-24;
+  }
+
+  p {
+    @include govuk-font-regular-16;
+  }
+
+  span {
+
+  }
+
+  .paas-price {
+    @include govuk-font-bold-36;
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+
+  .paas-month {
+    @include govuk-font-bold-16;
+    margin-top: 0;
+  }
+
+  .paas-total {
+    margin-bottom: $govuk-spacing-scale-1;
+  }
+}
+
+.paas-calculator-lede {
+  margin-bottom: $govuk-spacing-scale-9;
+  @include govuk-font-regular-19;
+}
+
+.paas-example {
+  @include govuk-font-regular-24;
+}
+
+.paas-pricing-form {
+  border-top: 5px solid $govuk-text-colour;
+}
