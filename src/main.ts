@@ -52,6 +52,8 @@ async function main() {
     sessionSecret: process.env.SESSION_SECRET || 'mysecret',
     allowInsecureSession: (process.env.ALLOW_INSECURE_SESSION === 'true'),
     billingAPI: expectEnvVariable('BILLING_URL'),
+    accountsAPI: expectEnvVariable('ACCOUNTS_URL'),
+    accountsSecret: expectEnvVariable('ACCOUNTS_SECRET'),
     oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
     oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
     cloudFoundryAPI,
@@ -72,6 +74,7 @@ async function main() {
   pino().info({
     authorizationAPI,
     billingAPI: config.billingAPI,
+    accountsAPI: config.accountsAPI,
     cloudFoundryAPI,
     port: server.http.address().port,
     uaaAPI,

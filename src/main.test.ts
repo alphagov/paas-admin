@@ -10,6 +10,8 @@ const envVars = {
   AUTHORIZATION_URL: 'https://example.com/login',
   NOTIFY_API_KEY: 'notify-1234',
   BILLING_URL: 'https://example.com/billing',
+  ACCOUNTS_URL: 'https://example.com/accounts',
+  ACCOUNTS_SECRET: '__ACCOUNTS_SECRET__',
 };
 
 export interface IProcess extends ChildProcess {

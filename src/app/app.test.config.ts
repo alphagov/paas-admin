@@ -11,6 +11,8 @@ export const config: IAppConfig = {
   sessionSecret,
   allowInsecureSession: true,
   billingAPI: 'https://example.com/billing',
+  accountsAPI: 'https://example.com/accounts',
+  accountsSecret: 'acc_secret',
   oauthClientID: 'key',
   oauthClientSecret: 'secret',
   cloudFoundryAPI: 'https://example.com/api',

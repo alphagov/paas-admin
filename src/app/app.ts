@@ -16,9 +16,13 @@ import csp from './app.csp';
 import { initContext } from './context';
 import router from './router';
 
+import {termsCheckerMiddleware} from '../lib/terms-middleware/terms-middleware';
+
 export interface IAppConfig {
   readonly allowInsecureSession?: boolean;
   readonly billingAPI: string;
+  readonly accountsAPI: string;
+  readonly accountsSecret: string;
   readonly cloudFoundryAPI: string;
   readonly logger: BaseLogger;
   readonly notifyAPIKey: string;
@@ -84,6 +88,11 @@ export default function(config: IAppConfig) {
     logoutURL: `${config.authorizationAPI}/logout.do`,
     tokenURL: `${config.uaaAPI}/oauth/token`,
     uaaAPI: config.uaaAPI,
+  }));
+
+  app.use(termsCheckerMiddleware({
+    apiEndpoint: config.accountsAPI,
+    secret: config.accountsSecret,
   }));
 
   app.use(routerMiddleware(router, config));
