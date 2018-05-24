@@ -74,7 +74,7 @@ test('should redirect to view terms if there is a pending doc', async t => {
   t.equal(response.header.location, '/agreements/my-pending-doc');
 });
 
-test('should redirect to view terms if there is a pending doc', async t => {
+test('should render a terms document with a form that references the document id', async t => {
   const agent = request.agent(app);
   const response = await agent.get('/agreements/my-pending-doc');
   t.contains(response.text, '<input type="hidden" name="document_name" value="my-pending-doc">');
