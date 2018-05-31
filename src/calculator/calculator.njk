@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block main %}
-  <div class="govuk-o-grid">
-    <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
+  <div class="govuk-grid">
+    <div class="govuk-grid__item govuk-grid__item--one-half">
       <h1 class="paas-heading-l">Estimate your monthly costs</h1>
 
       <p>
@@ -23,15 +23,15 @@
     </div>
   </div>
 
-  <form class="govuk-o-grid" method="get">
+  <form class="govuk-grid" method="get">
     <input type="hidden" name="estimate" value="{{ estimate | dump }}">
 
-    <div class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
+    <div class="govuk-grid__item govuk-grid__item--two-thirds">
       <details open>
         <summary>Calculate memory usage</summary>
 
-        <div class="govuk-o-grid">
-          <div class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
+        <div class="govuk-grid">
+          <div class="govuk-grid__item govuk-grid__item--two-thirds">
             {{ govukInput({
               label: {
                 text: "App description"
@@ -41,8 +41,8 @@
             }) }}
           </div>
 
-          <div class="govuk-o-grid__item govuk-o-grid__item--one-third">
-            <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
+          <div class="govuk-grid__item govuk-grid__item--one-third">
+            <div class="govuk-grid__item govuk-grid__item--one-half">
               {{ govukInput({
                 label: {
                   text: "Memory"
@@ -52,7 +52,7 @@
               }) }}
             </div>
 
-            <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
+            <div class="govuk-grid__item govuk-grid__item--one-half">
               {{ govukInput({
                 label: {
                   text: "Instances"
@@ -86,7 +86,7 @@
           {{ govukRadios({
             idPrefix: service,
             name: service + "[plan]",
-            classes: "govuk-c-radios--inline",
+            classes: "govuk-radios--inline",
             fieldset: {
               legendText: "Choose a plan"
             },
@@ -100,7 +100,7 @@
       {% endfor %}
     </div>
 
-    <div class="govuk-o-grid__item govuk-o-grid__item--one-third">
+    <div class="govuk-grid__item govuk-grid__item--one-third">
       <h4>Estimated cost summary</h4>
 
       <p>

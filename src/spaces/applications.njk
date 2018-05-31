@@ -18,36 +18,36 @@
       This space contains {{ applications | length }} applications
     </h2>
 
-    <table class="govuk-c-table space-overview">
-      <thead class="govuk-c-table__head">
-        <tr class="govuk-c-table__row">
-          <th class="govuk-c-table__header name" scope="col">Application name</th>
-          <th class="govuk-c-table__header" scope="col">Instances</th>
-          <th class="govuk-c-table__header" scope="col">Memory</th>
-          <th class="govuk-c-table__header" scope="col">Disk</th>
-          <th class="govuk-c-table__header" scope="col">Status</th>
-          <th class="govuk-c-table__header" scope="col">URLs</th>
+    <table class="govuk-table space-overview">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header name" scope="col">Application name</th>
+          <th class="govuk-table__header" scope="col">Instances</th>
+          <th class="govuk-table__header" scope="col">Memory</th>
+          <th class="govuk-table__header" scope="col">Disk</th>
+          <th class="govuk-table__header" scope="col">Status</th>
+          <th class="govuk-table__header" scope="col">URLs</th>
         </tr>
       </thead>
-      <tbody class="govuk-c-table__body">
+      <tbody class="govuk-table__body">
         {% for application in applications %}
-          <tr class="govuk-c-table__row">
-            <th class="govuk-c-table__header" scope="row">
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">
               <a href="{{ linkTo('admin.organizations.spaces.applications.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid}) }}" class="govuk-link">{{ application.entity.name }}</a>
             </th>
-            <td class="govuk-c-table__cell ">
+            <td class="govuk-table__cell ">
               {{ application.entity.running_instances }}/{{ application.entity.instances }}
             </td>
-            <td class="govuk-c-table__cell ">
+            <td class="govuk-table__cell ">
               {{ (application.entity.memory / 1024) | round(2) }}gb
             </td>
-            <td class="govuk-c-table__cell ">
+            <td class="govuk-table__cell ">
               {{ (application.entity.disk_quota / 1024) | round(2) }}gb
             </td>
-            <td class="govuk-c-table__cell ">
+            <td class="govuk-table__cell ">
               {{ application.entity.state | lower }}
             </td>
-            <td class="govuk-c-table__cell ">
+            <td class="govuk-table__cell ">
               {{ application.entity.urls | join(", ") }}
             </td>
           </tr>

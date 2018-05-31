@@ -4,14 +4,14 @@
 
 <h4 class="govuk-heading-s">Organisation roles</h4>
 
-<details class="govuk-c-details" role="group">
-  <summary class="govuk-c-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
-    <span class="govuk-c-details__summary-text">
+<details class="govuk-details" role="group">
+  <summary class="govuk-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
+    <span class="govuk-details__summary-text">
       Org level role descriptions
     </span>
   </summary>
 
-  <div class="govuk-c-details__text" aria-hidden="true">
+  <div class="govuk-details__text" aria-hidden="true">
     <h3 class="heading-small">Org billing manager</h3>
     <p>An Org billing manager is a point of contact for billing</p>
     <h3 class="heading-small">Org manager</h3>
@@ -21,19 +21,19 @@
   </div>
 </details>
 
-<table id="roles" class="govuk-c-table permissions">
-  <thead class="govuk-c-table__head">
-    <tr class="govuk-c-table__row">
-      <th class="govuk-c-table__header name" scope="col">Org name</th>
-      <th class="govuk-c-table__header" scope="col">Org billing manager</th>
-      <th class="govuk-c-table__header" scope="col">Org manager</th>
-      <th class="govuk-c-table__header" scope="col">Org auditor</th>
+<table id="roles" class="govuk-table permissions">
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <th class="govuk-table__header name" scope="col">Org name</th>
+      <th class="govuk-table__header" scope="col">Org billing manager</th>
+      <th class="govuk-table__header" scope="col">Org manager</th>
+      <th class="govuk-table__header" scope="col">Org auditor</th>
     </tr>
   </thead>
-  <tbody class="govuk-c-table__body">
-    <tr class="govuk-c-table__row">
-      <th class="govuk-c-table__header" scope="row">{{ organization.entity.name }}</th>
-      <td class="govuk-c-table__cell ">
+  <tbody class="govuk-table__body">
+    <tr class="govuk-table__row">
+      <th class="govuk-table__header" scope="row">{{ organization.entity.name }}</th>
+      <td class="govuk-table__cell ">
         <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].billing_managers }}" name="org_roles[{{ organization.metadata.guid }}][billing_managers][current]">
         {{ govukCheckboxes({
           id: "org_roles[" + organization.metadata.guid + "][billing_managers]",
@@ -47,7 +47,7 @@
           ]
         }) }}
       </td>
-      <td class="govuk-c-table__cell ">
+      <td class="govuk-table__cell ">
         <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].managers }}" name="org_roles[{{ organization.metadata.guid }}][managers][current]">
         {{ govukCheckboxes({
           id: "org_roles[" + organization.metadata.guid + "][managers]",
@@ -61,7 +61,7 @@
           ]
         }) }}
       </td>
-      <td class="govuk-c-table__cell ">
+      <td class="govuk-table__cell ">
         <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].auditors }}" name="org_roles[{{ organization.metadata.guid }}][auditors][current]">
         {{ govukCheckboxes({
           id: "org_roles[" + organization.metadata.guid + "][auditors]",
@@ -81,14 +81,14 @@
 
 <h4 class="govuk-heading-s">Space roles</h4>
 
-<details class="govuk-c-details" role="group">
-  <summary class="govuk-c-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
-    <span class="govuk-c-details__summary-text">
+<details class="govuk-details" role="group">
+  <summary class="govuk-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
+    <span class="govuk-details__summary-text">
       Space level role descriptions
     </span>
   </summary>
 
-  <div class="govuk-c-details__text" aria-hidden="true">
+  <div class="govuk-details__text" aria-hidden="true">
     <h3 class="heading-small">Space manager</h3>
     <p>A Space manager can grant user roles within the space, and change properties of the space, such as the name. Being a Space Manager does not grant the ability to change apps or services, so you need the Space Developer role as well if you want to be able to do both things.</p>
     <h3 class="heading-small">Space developer</h3>
@@ -98,20 +98,20 @@
   </div>
 </details>
 
-<table class="govuk-c-table permissions">
-  <thead class="govuk-c-table__head">
-    <tr class="govuk-c-table__row">
-      <th class="govuk-c-table__header name" scope="col">Space name</th>
-      <th class="govuk-c-table__header" scope="col">Space manager</th>
-      <th class="govuk-c-table__header" scope="col">Space developer</th>
-      <th class="govuk-c-table__header" scope="col">Space auditor</th>
+<table class="govuk-table permissions">
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <th class="govuk-table__header name" scope="col">Space name</th>
+      <th class="govuk-table__header" scope="col">Space manager</th>
+      <th class="govuk-table__header" scope="col">Space developer</th>
+      <th class="govuk-table__header" scope="col">Space auditor</th>
     </tr>
   </thead>
-  <tbody class="govuk-c-table__body">
+  <tbody class="govuk-table__body">
     {% for space in spaces %}
-      <tr class="govuk-c-table__row">
-        <th class="govuk-c-table__header" scope="row">{{ space.entity.name }}</th>
-        <td class="govuk-c-table__cell ">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="row">{{ space.entity.name }}</th>
+        <td class="govuk-table__cell ">
           <input type="hidden" value="{{ values.space_roles[space.metadata.guid].managers }}" name="space_roles[{{ space.metadata.guid }}][managers][current]">
           {{ govukCheckboxes({
             id: "space_roles[" + space.metadata.guid + "][managers]",
@@ -125,7 +125,7 @@
             ]
           }) }}
         </td>
-        <td class="govuk-c-table__cell ">
+        <td class="govuk-table__cell ">
           <input type="hidden" value="{{ values.space_roles[space.metadata.guid].developers }}" name="space_roles[{{ space.metadata.guid }}][developers][current]">
           {{ govukCheckboxes({
             id: "space_roles[" + space.metadata.guid + "][developers]",
@@ -139,7 +139,7 @@
             ]
           }) }}
         </td>
-        <td class="govuk-c-table__cell ">
+        <td class="govuk-table__cell ">
           <input type="hidden" value="{{ values.space_roles[space.metadata.guid].auditors }}" name="space_roles[{{ space.metadata.guid }}][auditors][current]">
           {{ govukCheckboxes({
             id: "space_roles[" + space.metadata.guid + "][auditors]",

@@ -12,8 +12,8 @@
 {% endblock %}
 
 {% block main %}
-<div class="govuk-o-grid">
-  <div class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
+<div class="govuk-grid">
+  <div class="govuk-grid__item govuk-grid__item--two-thirds">
     <h1 class="heading-large">
       Team members
     </h1>
@@ -25,7 +25,7 @@
     </p>
   </div>
 
-  <div class="govuk-o-grid__item govuk-o-grid__item--one-third text-right">
+  <div class="govuk-grid__item govuk-grid__item--one-third text-right">
     {% if isAdmin or isManager %}
       {{ govukButton({
         text: "Invite a new team member",
@@ -34,15 +34,15 @@
     {% endif %}
   </div>
 
-  <div class="govuk-o-grid__item govuk-o-grid__item--full">
-    <details class="govuk-c-details" role="group">
-      <summary class="govuk-c-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
-        <span class="govuk-c-details__summary-text">
+  <div class="govuk-grid__item govuk-grid__item--full">
+    <details class="govuk-details" role="group">
+      <summary class="govuk-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
+        <span class="govuk-details__summary-text">
           What these roles mean
         </span>
       </summary>
 
-      <div class="govuk-c-details__text" aria-hidden="true">
+      <div class="govuk-details__text" aria-hidden="true">
         <h3 class="heading-small">Org billing manager</h3>
         <p>
           Org billing manager
@@ -64,40 +64,40 @@
   </div>
 </div>
 
-<table class="govuk-c-table user-list">
-  <thead class="govuk-c-table__head">
-    <tr class="govuk-c-table__row">
-      <th class="govuk-c-table__header name" scope="col">Name</th>
-      <th class="govuk-c-table__header is-billing-manager" scope="col">Org billing manager</th>
-      <th class="govuk-c-table__header is-org-manager" scope="col">Org manager</th>
-      <th class="govuk-c-table__header is-org-auditor" scope="col">Org auditor</th>
-      <th class="govuk-c-table__header spaces" scope="col">Spaces a collaborator on</th>
+<table class="govuk-table user-list">
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <th class="govuk-table__header name" scope="col">Name</th>
+      <th class="govuk-table__header is-billing-manager" scope="col">Org billing manager</th>
+      <th class="govuk-table__header is-org-manager" scope="col">Org manager</th>
+      <th class="govuk-table__header is-org-auditor" scope="col">Org auditor</th>
+      <th class="govuk-table__header spaces" scope="col">Spaces a collaborator on</th>
     </tr>
   </thead>
-  <tbody class="govuk-c-table__body">
+  <tbody class="govuk-table__body">
     {% for user in users %}
-    <tr class="govuk-c-table__row">
-      <td class="govuk-c-table__cell">
+    <tr class="govuk-table__row">
+      <td class="govuk-table__cell">
         <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
           {{ user.entity.username }}
         </a>
       </td>
-      <td class="govuk-c-table__cell">
+      <td class="govuk-table__cell">
         {% if 'billing_manager' in user.entity.organization_roles %}
           <img class="tick" alt="Yes" src="../static/images/tick.png">
         {% endif %}
       </td>
-      <td class="govuk-c-table__cell">
+      <td class="govuk-table__cell">
         {% if 'org_manager' in user.entity.organization_roles %}
           <img class="tick" alt="Yes" src="../static/images/tick.png">
         {% endif %}
       </td>
-      <td class="govuk-c-table__cell">
+      <td class="govuk-table__cell">
         {% if 'org_auditor' in user.entity.organization_roles %}
           <img class="tick" alt="Yes" src="../static/images/tick.png">
         {% endif %}
       </td>
-      <td class="govuk-c-table__cell">
+      <td class="govuk-table__cell">
         {% for space in user.spaces %}
           <a href="linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})" class="govuk-link">{{ space.entity.name }}</a>
         {% endfor %}

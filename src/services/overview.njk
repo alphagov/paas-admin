@@ -7,8 +7,8 @@
 {% endblock %}
 
 {% block main %}
-  <div class="govuk-o-grid">
-    <div class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
+  <div class="govuk-grid">
+    <div class="govuk-grid__item govuk-grid__item--two-thirds">
       {{ govukBackLink({
         text: 'Space: ' + space.entity.name,
         href: linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})
