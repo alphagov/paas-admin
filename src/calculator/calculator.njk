@@ -2,6 +2,7 @@
 {% from "@govuk-frontend/frontend/components/button/macro.njk" import govukButton %}
 {% from "@govuk-frontend/frontend/components/input/macro.njk" import govukInput %}
 {% from "@govuk-frontend/frontend/components/radios/macro.njk" import govukRadios %}
+{% from "@govuk-frontend/frontend/components/select/macro.njk" import govukSelect %}
 
 {% block page_title %}
   Pricing calculator
@@ -21,85 +22,83 @@
     </div>
   </div>
 
-  <div class ="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+  <div class ="govuk-grid-row paas-pricing-calculator">
+    <div class="govuk-grid-column-two-thirds" data-module="accordion-with-descriptions">
     <form class="paas-pricing-form" method="get">
       <input type="hidden" name="estimate" value="{{ estimate | dump }}">
 
-      <details open>
-        <summary>Calculate memory usage</summary>
-
-        <div class="govuk-grid-row">
-          <div class="govuk-grid-column-two-thirds">
-            {{ govukInput({
-              label: {
-                text: "App description"
-              },
-              id: "app-description",
-              name: "app[description]"
-            }) }}
-          </div>
-
-          <div class="govuk-grid-column-one-third">
-            <div class="govuk-grid-column-one-half">
-              {{ govukInput({
-                label: {
-                  text: "Memory"
-                },
-                id: "app-memory",
-                name: "app[memory]"
-              }) }}
-            </div>
-
-            <div class="govuk-grid-column-one-half">
-              {{ govukInput({
-                label: {
-                  text: "Instances"
-                },
-                id: "app-instances",
-                name: "app[instances]"
-              }) }}
-            </div>
-          </div>
-        </div>
-
-        {{ govukButton({
-          text: "Add application"
-        }) }}
-
-        <blockquote>
-          <p>
-            Compute charged by the Gigabyte-hour, on a pay-as-you-go basis. All usage rounded up to the nearest hour.
-          </p>
-
-          <p>
-            Load-balancing provided by the platform and included in price. Up to 10 GB/month bandwidth free. Multiple app instances are automatically balanced across availability zones.
-          </p>
-        </blockquote>
-      </details>
-
       {% for service, plans in services %}
-        <details>
-          <summary>{{ service }}</summary>
-
-          {{ govukRadios({
-            idPrefix: service,
-            name: service + "[plan]",
-            classes: "govuk-radios--inline",
-            fieldset: {
-              legendText: "Choose a plan"
-            },
-            items: plans | query("[].{text: name, value: planGUID}")
-          }) }}
-
-          {{ govukButton({
-            text: "Add service"
-          }) }}
-        </details>
+        <div class="paas-pricing-section">
+          <div class="subsection__header">
+            <h2 class="subsection__title"">{{ service }}</h2>
+          </div>
+          <section class="subsection__content govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+              <p>version 9.2</p>
+            </div>
+            <div class="govuk-grid-column-one-half govuk-grid-row">
+              <div class="govuk-grid-column-two-thirds">
+              {{ govukSelect({
+                id: "select-1",
+                name: "select-1",
+                items: [
+                  {
+                    value: 1,
+                    text: "GOV.UK frontend option 1"
+                  },
+                  {
+                    value: 2,
+                    text: "GOV.UK frontend option 2",
+                    selected: true
+                  },
+                  {
+                    value: 3,
+                    text: "GOV.UK frontend option 3"
+                  }
+                ]
+              }) }}
+              </div>
+              <div class="govuk-grid-column-one-third">
+                <button class="govuk-button" type="submit">+Add</button>
+              </div>
+            </div>
+          </section>
+          <section class="subsection__content govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+              <p>version 9.2</p>
+            </div>
+            <div class="govuk-grid-column-one-half govuk-grid-row">
+              <div class="govuk-grid-column-two-thirds">
+              {{ govukSelect({
+                id: "select-1",
+                name: "select-1",
+                items: [
+                  {
+                    value: 1,
+                    text: "GOV.UK frontend option 1"
+                  },
+                  {
+                    value: 2,
+                    text: "GOV.UK frontend option 2",
+                    selected: true
+                  },
+                  {
+                    value: 3,
+                    text: "GOV.UK frontend option 3"
+                  }
+                ]
+              }) }}
+              </div>
+              <div class="govuk-grid-column-one-third">
+                <button class="govuk-button" type="submit">+Add</button>
+              </div>
+            </div>
+          </section>
+        </div>
       {% endfor %}
-      </div>
+    </div>
 
-    <div class="govuk-grid-column-one-third">
+    <div class="govuk-grid-column-one-third paas-summary-section">
       <h4>Estimated cost summary</h4>
 
         <p>

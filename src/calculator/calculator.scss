@@ -47,3 +47,22 @@
 .paas-pricing-form {
   border-top: 5px solid $govuk-text-colour;
 }
+
+.paas-pricing-calculator {
+  .govuk-label {
+    margin-bottom: 0;
+  }
+
+  .govuk-select {
+    @include govuk-font-regular-16;
+  }
+
+  section {
+    border-top: 1px solid $govuk-border-colour;
+    padding-top: 14px;
+  }
+
+  section:first-of-type {
+    border-top: none;
+  }
+}
