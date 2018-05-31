@@ -23,111 +23,75 @@
   </div>
 
   <div class ="govuk-grid-row paas-pricing-calculator">
-    <div class="govuk-grid-column-two-thirds" data-module="accordion-with-descriptions">
-    <form class="paas-pricing-form" method="get">
-      <input type="hidden" name="estimate" value="{{ estimate | dump }}">
-
-      {% for service, plans in services %}
-        <div class="paas-pricing-section">
-          <div class="subsection__header">
-            <h2 class="subsection__title"">{{ service }}</h2>
+    <div class="govuk-grid-column-two-thirds paas-service-list" data-module="accordion-with-descriptions">
+      <div class="paas-service-list-inner">
+        {% for service, versions in services %}
+          <div class="paas-pricing-section">
+            <div class="subsection__header">
+              <h2 class="subsection__title">{{ service }}</h2>
+            </div>
+            {% for version, sizes in versions %}
+              <section class="subsection__content govuk-grid-row">
+                <form>
+                  <input type="hidden" name="estimate" value="{{ estimate | dump }}">
+                  <div class="govuk-grid-column-one-half service-version">
+                    <p>{{ service }} {{ version }}</p>
+                  </div>
+                  <div class="govuk-grid-column-one-half govuk-grid-row">
+                    <div class="govuk-grid-column-two-thirds">
+                      {{ govukSelect({
+                        id: "service-" + service + "-" + version,
+                        name: service + "[plan]",
+                        items: sizes | map({
+                          text: "name",
+                          value: "planGUID"
+                        })
+                      }) }}
+                    </div>
+                    <div class="govuk-grid-column-one-third">
+                      <button class="govuk-button" type="submit">+Add</button>
+                    </div>
+                  </div>
+                </form>
+              </section>
+            {% endfor %}
           </div>
-          <section class="subsection__content govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
-              <p>version 9.2</p>
-            </div>
-            <div class="govuk-grid-column-one-half govuk-grid-row">
-              <div class="govuk-grid-column-two-thirds">
-              {{ govukSelect({
-                id: "select-1",
-                name: "select-1",
-                items: [
-                  {
-                    value: 1,
-                    text: "GOV.UK frontend option 1"
-                  },
-                  {
-                    value: 2,
-                    text: "GOV.UK frontend option 2",
-                    selected: true
-                  },
-                  {
-                    value: 3,
-                    text: "GOV.UK frontend option 3"
-                  }
-                ]
-              }) }}
-              </div>
-              <div class="govuk-grid-column-one-third">
-                <button class="govuk-button" type="submit">+Add</button>
-              </div>
-            </div>
-          </section>
-          <section class="subsection__content govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
-              <p>version 9.2</p>
-            </div>
-            <div class="govuk-grid-column-one-half govuk-grid-row">
-              <div class="govuk-grid-column-two-thirds">
-              {{ govukSelect({
-                id: "select-1",
-                name: "select-1",
-                items: [
-                  {
-                    value: 1,
-                    text: "GOV.UK frontend option 1"
-                  },
-                  {
-                    value: 2,
-                    text: "GOV.UK frontend option 2",
-                    selected: true
-                  },
-                  {
-                    value: 3,
-                    text: "GOV.UK frontend option 3"
-                  }
-                ]
-              }) }}
-              </div>
-              <div class="govuk-grid-column-one-third">
-                <button class="govuk-button" type="submit">+Add</button>
-              </div>
-            </div>
-          </section>
-        </div>
-      {% endfor %}
+        {% endfor %}
+      </div>
     </div>
 
     <div class="govuk-grid-column-one-third paas-summary-section">
       <h4>Estimated cost summary</h4>
 
-        <p>
-          Following prices are <strong>excluding vat</strong>.
-        </p>
+      <p>
+        Following prices are <strong>excluding vat</strong>.
+      </p>
 
+      <form>
+        <input type="hidden" name="estimate" value="{{ estimate | dump }}">
         <ul>
           {% for quote in quota.instances %}
             <li>
-              {{ quote.resourceType }} - {{ quote.resourceName }}: {{ quote.price.exVAT | currency(2) }}
-              <button type="submit" name="remove[]" value="{{ quote.resourceGUID }}">remove</button>
+            {{ quote.resourceType }} - {{ quote.resourceName }}: {{ quote.price.exVAT | currency(2) }}
+            <button type="submit" name="remove[]" value="{{ quote.resourceGUID }}">remove</button>
             </li>
           {% endfor %}
         </ul>
+      </form>
 
-        <p class="paas-total">Total estimated cost:</p>
+      <p class="paas-total">Total estimated cost:</p>
 
-        <p class="paas-price">£{{ quota.exVAT | currency(2) }}</p>
-        <p class="paas-month">per month</p>
+      <p class="paas-price">£{{ quota.exVAT | currency(2) }}</p>
+      <p class="paas-month">per month</p>
 
-        <details>
-          <summary>Why this cost might vary</summary>
+      <details>
+        <summary>Why this cost might vary</summary>
 
-          <p>This estimate assumes constant usage at the levels you've provided. Final figures will vary as CPU/Postgres/ MySQL are charged based on hourly consumption and exchange rates will fluctuate.</p>
+        <p>This estimate assumes constant usage at the levels you've provided. Final figures will vary as CPU/Postgres/ MySQL are charged based on hourly consumption and exchange rates will fluctuate.</p>
 
-          <p>This cost estimate is dated: 26.01.2017 – 15:23. Estimates are liable to change over time.</p>
-        </details>
-      </div>
-    </form>
+        <p>This cost estimate is dated: 26.01.2017 – 15:23. Estimates are liable to change over time.</p>
+      </details>
+    </div>
   </div>
 
   {{ params | dump }}

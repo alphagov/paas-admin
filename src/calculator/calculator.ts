@@ -33,6 +33,22 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
     rangeStart: moment().startOf('month').toDate(),
     rangeStop: moment().endOf('month').toDate(),
   });
+  const servicesByName = hackAllTheUglyThingsPrettyPlease(plans);
+
+  /* istanbul ignore next */ // The `|| 'unknown'` and the following ifstatement are not precisely exciting to test.
+  const servicesByNameByVersion = Object.keys(servicesByName)
+    .reduce((services: {[i: string]: object}, name: string) => {
+      services[name] = servicesByName[name].reduce((servicesByVersion: {[i: string]: IPricingPlan[]}, service) => {
+        const version = service.name.split('-').pop() || 'unknown';
+        if (!servicesByVersion[version]) {
+          servicesByVersion[version] = [];
+        }
+        servicesByVersion[version].push(service);
+
+        return servicesByVersion;
+      }, {});
+      return services;
+    }, {});
 
   const estimate = prepareEstimate(params, plans);
   const quota = await getQuota(billing, estimate);
@@ -43,7 +59,7 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
       quota,
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      services: hackAllTheUglyThingsPrettyPlease(plans),
+      services: servicesByNameByVersion,
     }),
   };
 }
@@ -97,7 +113,7 @@ function prepareEstimate(params: IParameters, plans: ReadonlyArray<IPricingPlan>
     l.push({
       ...service,
       kind,
-      description: service.description || hackUglyPlanNamesPrettyPlease(plans, service) || 'unknown',
+      description: hackUglyPlanNamesPrettyPlease(plans, {...service, kind}) || service.description || 'unknown',
     });
     return l;
   }, []);
@@ -142,6 +158,11 @@ function hackAllTheUglyThingsPrettyPlease(plans: ReadonlyArray<IPricingPlan>) {
     }
 
     services[serviceName] = services[serviceName] || [];
+
+    /* istanbul ignore next */
+    if (!planName) {
+      throw new Error('cannot coop with the data - hackAllTheUglyThingsPrettyPlease');
+    }
 
     services[serviceName].push({
       ...plan,

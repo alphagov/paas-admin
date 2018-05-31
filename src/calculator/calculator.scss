@@ -44,11 +44,12 @@
   @include govuk-font-regular-24;
 }
 
-.paas-pricing-form {
-  border-top: 5px solid $govuk-text-colour;
-}
-
 .paas-pricing-calculator {
+
+  .paas-service-list-inner {
+    border-top: 5px solid $govuk-text-colour;
+  }
+
   .govuk-label {
     margin-bottom: 0;
   }
@@ -57,12 +58,23 @@
     @include govuk-font-regular-16;
   }
 
-  section {
+  section form {
     border-top: 1px solid $govuk-border-colour;
     padding-top: 14px;
+    margin: 0 15px;
   }
 
-  section:first-of-type {
-    border-top: none;
+  section:first-of-type form {
+    border-top: 0;
   }
+
+  .service-version {
+    padding-left: 0;
+  }
+
+  .govuk-button,
+  .govuk-form-group {
+    margin-bottom: 0;
+  }
+
 }

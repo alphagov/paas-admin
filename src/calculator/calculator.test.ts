@@ -33,7 +33,7 @@ test('should get calculator', async t => {
     .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
     .reply(200, `[
       {
-        "name": "PLAN2",
+        "name": "service PLAN2",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
         "valid_from": "2002-01-01",
         "components": [
@@ -150,7 +150,7 @@ test('should use calculator and ignore empty application', async t => {
     .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
     .reply(200, `[
       {
-        "name": "mysql medium",
+        "name": "mysql mysql-medium-5.7",
         "plan_guid": "_SERVICE_PLAN_GUID_",
         "valid_from": "2002-01-01",
         "components": [
@@ -167,9 +167,9 @@ test('should use calculator and ignore empty application', async t => {
             "currency_code": "GBP"
           }
         ],
-        "memory_in_mb": 264,
-        "storage_in_mb": 265,
-        "number_of_nodes": 2
+        "memory_in_mb": 345,
+        "storage_in_mb": 543,
+        "number_of_nodes": 1
       }
     ]`)
     .get(`/forecast_events`)
