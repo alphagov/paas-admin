@@ -8,22 +8,22 @@
 {% endblock %}
 
 {% block main %}
-<div class="govuk-grid">
-  <div class="govuk-grid__item govuk-grid__item--one-half">
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-half">
     {{ govukBackLink({
       text: "See all team members",
       href: linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid})
     }) }}
   </div>
 
-  <div class="govuk-grid__item govuk-grid__item--one-half govuk-!-pt-r1 text-right">
+  <div class="govuk-grid-column-one-half govuk-!-pt-r1 text-right">
     {{ govukButton({
       text: "Invite a new team member",
       href: linkTo('admin.organizations.users.invite', {organizationGUID: organization.metadata.guid})
     }) }}
   </div>
 
-  <div class="govuk-grid__item govuk-grid__item--full">
+  <div class="govuk-grid-column-full">
     {{ govukPanel({
       titleText: "Success!",
       text: "We've have sent your invitation"

@@ -12,8 +12,8 @@
 {% endblock %}
 
 {% block main %}
-<div class="govuk-grid">
-  <div class="govuk-grid__item govuk-grid__item--two-thirds">
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
     <h1 class="heading-large">
       Team members
     </h1>
@@ -25,7 +25,7 @@
     </p>
   </div>
 
-  <div class="govuk-grid__item govuk-grid__item--one-third text-right">
+  <div class="govuk-grid-column-one-third text-right">
     {% if isAdmin or isManager %}
       {{ govukButton({
         text: "Invite a new team member",
@@ -34,7 +34,7 @@
     {% endif %}
   </div>
 
-  <div class="govuk-grid__item govuk-grid__item--full">
+  <div class="govuk-grid-column-full">
     <details class="govuk-details" role="group">
       <summary class="govuk-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
         <span class="govuk-details__summary-text">

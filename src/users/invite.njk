@@ -10,8 +10,8 @@
 {% endblock %}
 
 {% block main %}
-<div class="govuk-grid">
-  <div class="govuk-grid__item govuk-grid__item--two-thirds">
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
     {{ govukBackLink({
       text: "See all team members",
       href: linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid})
