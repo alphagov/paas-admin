@@ -1,9 +1,9 @@
-<div class="govuk-o-grid subnav">
-  <div class="govuk-o-grid__item govuk-o-grid__item--one-third">
+<div class="govuk-grid-row subnav">
+  <div class="govuk-grid-column-one-third">
     <strong>{{ organization.entity.name }}</strong>
   </div>
 
-  <nav class="govuk-o-grid__item govuk-o-grid__item--two-thirds">
+  <nav class="govuk-grid-column-two-thirds">
     <a href="/spaces/{{ organization.metadata.guid }}" class="govuk-link active">
     <a href="{{ linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link {% if not routePartOf('admin.organizations.users') %} active {% endif %}">
       Overview

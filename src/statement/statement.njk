@@ -1,40 +1,40 @@
 {% extends "../layouts/govuk.njk" %}
-{% from "@govuk-frontend/input/macro.njk" import govukInput %}
-{% from "@govuk-frontend/button/macro.njk" import govukButton %}
-{% from "@govuk-frontend/panel/macro.njk" import govukPanel %}
-{% from "@govuk-frontend/back-link/macro.njk" import govukBackLink %}
-{% from "@govuk-frontend/details/macro.njk" import govukDetails %}
-{% from "@govuk-frontend/table/macro.njk" import govukTable %}
+{% from "@govuk-frontend/frontend/components/input/macro.njk" import govukInput %}
+{% from "@govuk-frontend/frontend/components/button/macro.njk" import govukButton %}
+{% from "@govuk-frontend/frontend/components/panel/macro.njk" import govukPanel %}
+{% from "@govuk-frontend/frontend/components/back-link/macro.njk" import govukBackLink %}
+{% from "@govuk-frontend/frontend/components/details/macro.njk" import govukDetails %}
+{% from "@govuk-frontend/frontend/components/table/macro.njk" import govukTable %}
 
 {% block page_title %}
   Statement
 {% endblock %}
 
 {% block main %}
-  <div class="govuk-o-grid">
-    <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
       <h1 class="govuk-heading-xl">
         <span class="govuk-caption-xl">Organisation</span>
         {{ organization.entity.name }}
       </h1>
     </div>
 
-    <div class="govuk-o-grid__item govuk-o-grid__item--one-half">
-      <table class="govuk-c-table">
-        <tbody class="govuk-c-table__body">
-          <tr class="govuk-c-table__row">
-            <th class="govuk-c-table__header" scope="row">
+    <div class="govuk-grid-column-one-half">
+      <table class="govuk-table">
+        <tbody class="govuk-table__body">
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">
               Period:
             </th>
-            <td class="govuk-c-table__cell govuk-c-table__cell--numeric">
+            <td class="govuk-table__cell govuk-table__cell--numeric">
               {{ filter.rangeStart }} to {{ filter.rangeStop }}
             </td>
           </tr>
-          <tr class="govuk-c-table__row">
-            <th class="govuk-c-table__header" scope="row">
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">
               USD Exchange rate:
             </th>
-            <td class="govuk-c-table__cell govuk-c-table__cell--numeric">
+            <td class="govuk-table__cell govuk-table__cell--numeric">
               {{ usdExchangeRate }} where applicable
             </td>
           </tr>
@@ -46,57 +46,57 @@
   <style>
     .sym { float: left; }
   </style>
-  <table class="govuk-c-table">
-    <thead class="govuk-c-table__head">
-      <tr class="govuk-c-table__row">
-        <th class="govuk-c-table__header" scope="col">Name</th>
-        <th class="govuk-c-table__header" scope="col">Plan</th>
-        <th class="govuk-c-table__header" scope="col" style="text-align: right">Ex VAT</th>
-        <th class="govuk-c-table__header" scope="col" style="text-align: right">Inc VAT</th>
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Name</th>
+        <th class="govuk-table__header" scope="col">Plan</th>
+        <th class="govuk-table__header" scope="col" style="text-align: right">Ex VAT</th>
+        <th class="govuk-table__header" scope="col" style="text-align: right">Inc VAT</th>
       </tr>
     </thead>
-    <tbody class="govuk-c-table__body">
+    <tbody class="govuk-table__body">
       {% for guid, items in items | groupby('spaceGUID') %}
-        <tr class="govuk-c-table__row">
-          <th class="govuk-c-table__header " colspan="4" style="padding-top: 40px;">{{ items[0].space.entity.name or guid }}</th>
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header " colspan="4" style="padding-top: 40px;">{{ items[0].space.entity.name or guid }}</th>
         </tr>
         {% for item in items %}
-          <tr class="govuk-c-table__row">
-            <td class="govuk-c-table__cell ">
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell ">
               {{ item.resourceName }}
             </td>
-            <td class="govuk-c-table__cell ">
+            <td class="govuk-table__cell ">
               {{ item.planName }}
             </td>
-            <td class="govuk-c-table__cell" style="text-align: right">
+            <td class="govuk-table__cell" style="text-align: right">
               <div class="sym">&pound;</div>
               {{ item.price.exVAT | currency(5) }}
             </td>
-            <td class="govuk-c-table__cell" style="text-align: right">
+            <td class="govuk-table__cell" style="text-align: right">
               <div class="sym">&pound;</div>
               {{ item.price.incVAT | currency(5) }}
             </td>
           </tr>
         {% endfor %}
-        <tr class="govuk-c-table__row" style="background: #efefef">
-          <th class="govuk-c-table__header " colspan="2">Sub-total</th>
-          <td class="govuk-c-table__cell" scope="col" style="text-align: right;">
+        <tr class="govuk-table__row" style="background: #efefef">
+          <th class="govuk-table__header " colspan="2">Sub-total</th>
+          <td class="govuk-table__cell" scope="col" style="text-align: right;">
             <div class="sym">&pound;</div>
             <strong>{{ items | query('[].price.exVAT') | sum | currency(5) }}</strong>
           </td>
-          <td class="govuk-c-table__cell" scope="col" style="text-align: right;">
+          <td class="govuk-table__cell" scope="col" style="text-align: right;">
             <div class="sym">&pound;</div>
             <strong>{{ items | query('[].price.incVAT') | sum | currency(5) }}</strong>
           </td>
         </tr>
       {% endfor %}
-      <tr class="govuk-c-table__row" style="background: #efefef">
-        <th class="govuk-c-table__header name" scope="col" colspan="2" style="height: 60px;">TOTAL</th>
-        <td class="govuk-c-table__cell" scope="col" style="text-align: right;">
+      <tr class="govuk-table__row" style="background: #efefef">
+        <th class="govuk-table__header name" scope="col" colspan="2" style="height: 60px;">TOTAL</th>
+        <td class="govuk-table__cell" scope="col" style="text-align: right;">
           <div class="sym">&pound;</div>
           <strong>{{ totals.exVAT | currency(5) }}</strong>
         </td>
-        <td class="govuk-c-table__cell" scope="col" style="text-align: right;">
+        <td class="govuk-table__cell" scope="col" style="text-align: right;">
           <div class="sym">&pound;</div>
           <strong>{{ totals.incVAT | currency(5) }}</strong>
         </td>

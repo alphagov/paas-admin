@@ -18,28 +18,28 @@
       This space contains {{ space.entity.services | length }} backing services
     </h2>
 
-    <table class="govuk-c-table space-overview">
-      <thead class="govuk-c-table__head">
-        <tr class="govuk-c-table__row">
-          <th class="govuk-c-table__header name" scope="col">Service name</th>
-          <th class="govuk-c-table__header" scope="col">Type</th>
-          <th class="govuk-c-table__header" scope="col">Plan</th>
-          <th class="govuk-c-table__header" scope="col">State</th>
+    <table class="govuk-table space-overview">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header name" scope="col">Service name</th>
+          <th class="govuk-table__header" scope="col">Type</th>
+          <th class="govuk-table__header" scope="col">Plan</th>
+          <th class="govuk-table__header" scope="col">State</th>
         </tr>
       </thead>
-      <tbody class="govuk-c-table__body">
+      <tbody class="govuk-table__body">
         {% for service in space.entity.services %}
-          <tr class="govuk-c-table__row">
-            <th class="govuk-c-table__header" scope="row">
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">
               <a href="{{ linkTo('admin.organizations.spaces.services.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.guid}) }}" class="govuk-link">{{ service.name }}</a>
             </th>
-            <td class="govuk-c-table__cell ">
+            <td class="govuk-table__cell ">
               {{ service.service_plan.service.label }}
             </td>
-            <td class="govuk-c-table__cell ">
+            <td class="govuk-table__cell ">
               {{ service.service_plan.name }}
             </td>
-            <td class="govuk-c-table__cell ">
+            <td class="govuk-table__cell ">
               {{ service.last_operation.state }}
             </td>
           </tr>
