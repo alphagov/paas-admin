@@ -34,7 +34,7 @@
     <tr class="govuk-c-table__row">
       <th class="govuk-c-table__header" scope="row">{{ organization.entity.name }}</th>
       <td class="govuk-c-table__cell ">
-        <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].billing_managers | default(0) }}" name="org_roles[{{ organization.metadata.guid }}][billing_managers][current]">
+        <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].billing_managers }}" name="org_roles[{{ organization.metadata.guid }}][billing_managers][current]">
         {{ govukCheckboxes({
           id: "org_roles[" + organization.metadata.guid + "][billing_managers]",
           name: "org_roles[" + organization.metadata.guid + "][billing_managers][desired]",
@@ -48,7 +48,7 @@
         }) }}
       </td>
       <td class="govuk-c-table__cell ">
-        <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].managers | default(0) }}" name="org_roles[{{ organization.metadata.guid }}][managers][current]">
+        <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].managers }}" name="org_roles[{{ organization.metadata.guid }}][managers][current]">
         {{ govukCheckboxes({
           id: "org_roles[" + organization.metadata.guid + "][managers]",
           name: "org_roles[" + organization.metadata.guid + "][managers][desired]",
@@ -62,7 +62,7 @@
         }) }}
       </td>
       <td class="govuk-c-table__cell ">
-        <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].auditors | default(0) }}" name="org_roles[{{ organization.metadata.guid }}][auditors][current]">
+        <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].auditors }}" name="org_roles[{{ organization.metadata.guid }}][auditors][current]">
         {{ govukCheckboxes({
           id: "org_roles[" + organization.metadata.guid + "][auditors]",
           name: "org_roles[" + organization.metadata.guid + "][auditors][desired]",
@@ -112,7 +112,7 @@
       <tr class="govuk-c-table__row">
         <th class="govuk-c-table__header" scope="row">{{ space.entity.name }}</th>
         <td class="govuk-c-table__cell ">
-          <input type="hidden" value="{{ values.space_roles[space.metadata.guid].managers | default(0) }}" name="space_roles[{{ space.metadata.guid }}][managers][current]">
+          <input type="hidden" value="{{ values.space_roles[space.metadata.guid].managers }}" name="space_roles[{{ space.metadata.guid }}][managers][current]">
           {{ govukCheckboxes({
             id: "space_roles[" + space.metadata.guid + "][managers]",
             name: "space_roles[" + space.metadata.guid + "][managers][desired]",
@@ -126,7 +126,7 @@
           }) }}
         </td>
         <td class="govuk-c-table__cell ">
-          <input type="hidden" value="{{ values.space_roles[space.metadata.guid].developers | default(0) }}" name="space_roles[{{ space.metadata.guid }}][developers][current]">
+          <input type="hidden" value="{{ values.space_roles[space.metadata.guid].developers }}" name="space_roles[{{ space.metadata.guid }}][developers][current]">
           {{ govukCheckboxes({
             id: "space_roles[" + space.metadata.guid + "][developers]",
             name: "space_roles[" + space.metadata.guid + "][developers][desired]",
@@ -140,7 +140,7 @@
           }) }}
         </td>
         <td class="govuk-c-table__cell ">
-          <input type="hidden" value="{{ values.space_roles[space.metadata.guid].auditors | default(0) }}" name="space_roles[{{ space.metadata.guid }}][auditors][current]">
+          <input type="hidden" value="{{ values.space_roles[space.metadata.guid].auditors }}" name="space_roles[{{ space.metadata.guid }}][auditors][current]">
           {{ govukCheckboxes({
             id: "space_roles[" + space.metadata.guid + "][auditors]",
             name: "space_roles[" + space.metadata.guid + "][auditors][desired]",

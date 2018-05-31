@@ -45,6 +45,29 @@ class ValidationError extends Error {
   }
 }
 
+interface IRoleValues {
+  org_roles: {
+    [key: string]: {
+      billing_managers: 0 | 1;
+      managers: 0 | 1;
+      auditors: 0 | 1;
+    };
+  };
+  space_roles: {
+    [key: string]: {
+      managers: 0 | 1;
+      developers: 0 | 1;
+      auditors: 0 | 1;
+    };
+  };
+}
+
+interface IUserPostBody {
+  email: string;
+  org_roles: IPermissions;
+  space_roles: IPermissions;
+}
+
 const VALID_EMAIL = /[^.]@[^.]/;
 
 async function setAllUserRolesForOrg(
@@ -209,7 +232,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
   const organization = await cf.organization(params.organizationGUID);
   const spaces = await cf.spaces(params.organizationGUID);
   const errors = [];
-  const values = merge({
+  const values: IUserPostBody = merge({
     org_roles: {[params.organizationGUID]: {}},
     space_roles: {},
   }, body);
@@ -351,12 +374,13 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
     throw new NotFoundError('user not found');
   }
 
-  const values = {
+  /* istanbul ignore next */
+  const values: IRoleValues = {
     org_roles: {
       [params.organizationGUID]: {
-        billing_managers: user.entity.organization_roles.includes('billing_manager'),
-        managers: user.entity.organization_roles.includes('org_manager'),
-        auditors: user.entity.organization_roles.includes('org_auditor'),
+        billing_managers: user.entity.organization_roles.includes('billing_manager') ? 1 : 0,
+        managers: user.entity.organization_roles.includes('org_manager') ? 1 : 0,
+        auditors: user.entity.organization_roles.includes('org_auditor') ? 1 : 0,
       },
     },
     space_roles: await spaces.reduce(async (next: Promise<any>, space: ISpace) => {
@@ -364,11 +388,10 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       const spaceUsers = await cf.usersForSpace(space.metadata.guid);
       const usr = spaceUsers.find((u: ISpaceUserRoles) => u.metadata.guid === params.userGUID);
 
-      /* istanbul ignore next */
       spaceRoles[space.metadata.guid] = {
-        managers: usr && usr.entity.space_roles.includes('space_manager'),
-        developers: usr && usr.entity.space_roles.includes('space_developer'),
-        auditors: usr && usr.entity.space_roles.includes('space_auditor'),
+        managers: usr && usr.entity.space_roles.includes('space_manager') ? 1 : 0,
+        developers: usr && usr.entity.space_roles.includes('space_developer') ? 1 : 0,
+        auditors: usr && usr.entity.space_roles.includes('space_auditor') ? 1 : 0,
       };
 
       return spaceRoles;
@@ -405,7 +428,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
   const organization = await cf.organization(params.organizationGUID);
   const spaces = await cf.spaces(params.organizationGUID);
   const errors = [];
-  const values = merge({
+  const values: IUserPostBody = merge({
     org_roles: {[params.organizationGUID]: {}},
     space_roles: {},
   }, body);
