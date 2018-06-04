@@ -3,9 +3,13 @@
   padding-bottom: $govuk-spacing-scale-3;
   padding-left: $govuk-spacing-scale-3;
   padding-right: $govuk-spacing-scale-3;
+  top: $govuk-spacing-scale-3;
   background-color: $govuk-grey-4;
   border: 10px $govuk-grey-3 solid;
   @include govuk-font-regular-19;
+  position: -webkit-sticky;
+  position: sticky;
+
 
   h2 {
     @include govuk-font-bold-24;
