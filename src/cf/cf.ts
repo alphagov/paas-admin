@@ -178,6 +178,16 @@ export default class CloudFoundryClient {
     return this.allResources(response);
   }
 
+  public async userServices(): Promise<cf.IUserServices[]> {
+    const response = await this.request('get', `/v2/user_provided_service_instances`);
+    return this.allResources(response);
+  }
+
+  public async userServiceInstance(instanceGUID: string): Promise<cf.IServiceInstance> {
+    const response = await this.request('get', `/v2/user_provided_service_instances/${instanceGUID}`);
+    return response.data;
+  }
+
   public async setOrganizationRole(
     organizationGUID: string,
     userGUID: string,
