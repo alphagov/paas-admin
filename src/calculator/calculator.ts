@@ -107,15 +107,15 @@ function prepareEstimate(params: IParameters, plans: ReadonlyArray<IPricingPlan>
   const {estimate, remove, ...services} = params;
   const oldEstimate: Estimate = JSON.parse(estimate || '[]');
   const serviceKinds: string[] = JSON.parse(JSON.stringify(Object.keys(services)));
-  const newServices: IService[] = serviceKinds.reduce((l: IService[], kind: string) => {
+  const newServices: IService[] = serviceKinds.reduce((list: IService[], kind: string) => {
     const service: IService = JSON.parse(JSON.stringify(services[kind]));
 
-    l.push({
+    list.push({
       ...service,
       kind,
       description: hackUglyPlanNamesPrettyPlease(plans, {...service, kind}) || service.description || 'unknown',
     });
-    return l;
+    return list;
   }, []);
 
   const newEstimate = [

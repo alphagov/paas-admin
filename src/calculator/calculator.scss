@@ -19,8 +19,16 @@
     @include govuk-font-regular-16;
   }
 
-  span {
+  li {
+    padding-bottom: 10px;
+    padding-top: 10px;
+  }
 
+  ul {
+    @include govuk-font-regular-16;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 
   .paas-price {
@@ -36,6 +44,8 @@
 
   .paas-total {
     margin-bottom: $govuk-spacing-scale-1;
+    border-top: 1px solid $govuk-border-colour;
+    padding-top: 40px;
   }
 }
 
