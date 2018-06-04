@@ -72,8 +72,8 @@
         <ul>
           {% for quote in quota.instances %}
             <li>
-            {{ quote.resourceType }} - {{ quote.resourceName }}: {{ quote.price.exVAT | currency(2) }}
-            <button type="submit" name="remove[]" value="{{ quote.resourceGUID }}">remove</button>
+              {{ quote.resourceType }} <button type="submit" name="remove[]" value="{{ quote.resourceGUID }}">remove</button><br>
+              {{ quote.resourceName }}: <span class="paas-service-price">&pound;{{ quote.price.exVAT | currency(2) }}</span>
             </li>
           {% endfor %}
         </ul>
@@ -81,15 +81,18 @@
 
       <p class="paas-total">Total estimated cost:</p>
 
-      <p class="paas-price">£{{ quota.exVAT | currency(2) }}</p>
+      <p class="paas-price">&pound;{{ quota.exVAT | currency(2) }}</p>
       <p class="paas-month">per month</p>
 
-      <details>
-        <summary>Why this cost might vary</summary>
+      <details class="govuk-details">
+        <summary class="govuk-details__summary">
+          <span class="govuk-details__summary-text">Why this cost might vary</span>
+        </summary>
+        <div class="govuk-details__text">
+          <p>This estimate assumes constant usage at the levels you've provided. Final figures will vary as CPU/Postgres/ MySQL are charged based on hourly consumption and exchange rates will fluctuate.</p>
 
-        <p>This estimate assumes constant usage at the levels you've provided. Final figures will vary as CPU/Postgres/ MySQL are charged based on hourly consumption and exchange rates will fluctuate.</p>
-
-        <p>This cost estimate is dated: 26.01.2017 – 15:23. Estimates are liable to change over time.</p>
+          <p>This cost estimate is dated: 26.01.2017 – 15:23. Estimates are liable to change over time.</p>
+        </div>
       </details>
     </div>
   </div>

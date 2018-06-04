@@ -22,6 +22,7 @@
   li {
     padding-bottom: 10px;
     padding-top: 10px;
+    border-bottom: 1px solid $govuk-border-colour;
   }
 
   ul {
@@ -44,8 +45,21 @@
 
   .paas-total {
     margin-bottom: $govuk-spacing-scale-1;
-    border-top: 1px solid $govuk-border-colour;
     padding-top: 40px;
+  }
+
+  .paas-service-price{
+    float: right;
+    display: inline-block;
+    clear: both;
+  }
+
+  button {
+    float: right;
+  }
+
+  .govuk-details {
+    margin-bottom: 0;
   }
 }
 
