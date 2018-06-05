@@ -37,6 +37,15 @@
     padding-right: 10px;
   }
 
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    @include govuk-font-regular-24;
+    margin: 0;
+    padding: 0;
+  }
+
   .paas-price {
     @include govuk-font-bold-36;
     margin-bottom: 0;
@@ -77,6 +86,7 @@
 
   .paas-service-list-inner {
     border-top: 5px solid $govuk-text-colour;
+    padding-top: $govuk-spacing-scale-6;
   }
 
   .govuk-label {
