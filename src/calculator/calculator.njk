@@ -69,14 +69,19 @@
 
       <form>
         <input type="hidden" name="estimate" value="{{ estimate | dump }}">
-        <ul>
+        <table>
+          <caption>Services added</caption>
           {% for quote in quota.instances %}
-            <li>
-              {{ quote.resourceType }} <button type="submit" name="remove[]" value="{{ quote.resourceGUID }}">remove</button><br>
-              {{ quote.resourceName }}: <span class="paas-service-price">&pound;{{ quote.price.exVAT | currency(2) }}</span>
-            </li>
+            <tr>
+                <td class="paas-service-heading">{{ quote.resourceType }}</td>
+                <td><button class="paas-remove-button" type="submit" name="remove[]" value="{{ quote.resourceGUID }}" arria-label="Remove">&times;</button></td>
+            </tr>
+            <tr>
+              <td>{{ quote.resourceName }}: </td>
+              <td class="paas-service-price">&pound;{{ quote.price.exVAT | currency(2) }}</td>
+            </tr>
           {% endfor %}
-        </ul>
+        </table>
       </form>
 
       <p class="paas-total">Total estimated cost:</p>

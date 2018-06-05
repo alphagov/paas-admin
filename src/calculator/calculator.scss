@@ -6,7 +6,7 @@
   top: $govuk-spacing-scale-3;
   background-color: $govuk-grey-4;
   border: 10px $govuk-grey-3 solid;
-  @include govuk-font-regular-19;
+  @include govuk-font-regular-16;
   position: -webkit-sticky;
   position: sticky;
 
@@ -15,27 +15,33 @@
     @include govuk-font-bold-24;
   }
 
-  p {
-    @include govuk-font-regular-16;
+  table {
+    width: 100%;
+    border-collapse: collapse;
   }
 
-  li {
+  tr:nth-child(even) td {
     padding-bottom: 10px;
-    padding-top: 10px;
     border-bottom: 1px solid $govuk-border-colour;
   }
 
-  ul {
-    @include govuk-font-regular-16;
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  tr:nth-child(odd) td {
+    padding-top: 10px;
+  }
+
+  td:nth-child(even) {
+    text-align:right;
+  }
+
+  td:nth-child(odd) {
+    padding-right: 10px;
   }
 
   .paas-price {
     @include govuk-font-bold-36;
     margin-bottom: 0;
     margin-top: 0;
+    display: block;
   }
 
   .paas-month {
@@ -48,18 +54,13 @@
     padding-top: 40px;
   }
 
-  .paas-service-price{
-    float: right;
-    display: inline-block;
-    clear: both;
-  }
-
-  button {
-    float: right;
-  }
-
   .govuk-details {
     margin-bottom: 0;
+  }
+
+  caption {
+    position: absolute;
+    left: -9999em;
   }
 }
 
