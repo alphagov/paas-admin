@@ -9,7 +9,7 @@
   @include govuk-font-regular-16;
   position: -webkit-sticky;
   position: sticky;
-
+  margin-top: 30px;
 
   h2 {
     @include govuk-font-bold-24;
@@ -60,7 +60,7 @@
 
   .paas-total {
     margin-bottom: $govuk-spacing-scale-1;
-    padding-top: 40px;
+    margin-top: $govuk-spacing-scale-6;
   }
 
   .govuk-details {
@@ -78,42 +78,53 @@
   @include govuk-font-regular-19;
 }
 
-.paas-example {
+span.paas-example {
   @include govuk-font-regular-24;
 }
 
-.paas-pricing-calculator {
+div.paas-service-list {
+  table caption {
+    border-bottom: 5px solid $govuk-black;
+    @include govuk-font-bold-24;
+    margin-bottom: 10px;
+  }
+}
 
-  .paas-service-list-inner {
-    border-top: 5px solid $govuk-text-colour;
-    padding-top: $govuk-spacing-scale-6;
+form.paas-service-selection {
+  text-align: right;
+
+  .govuk-form-group {
+    display: inline-block;
+    float: left;
+    margin: 0;
+    width: 80%;
   }
 
-  .govuk-label {
-    margin-bottom: 0;
-  }
-
-  .govuk-select {
+  select {
     @include govuk-font-regular-16;
   }
 
-  section form {
-    border-top: 1px solid $govuk-border-colour;
-    padding-top: 14px;
-    margin: 0 15px;
-  }
-
-  section:first-of-type form {
-    border-top: 0;
-  }
-
-  .service-version {
-    padding-left: 0;
-  }
-
-  .govuk-button,
-  .govuk-form-group {
+  label {
+    font-size: 0;
     margin-bottom: 0;
+    visibility: none;
   }
 
+  button {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: $govuk-blue;
+    cursor: pointer;
+    display: inline-block;
+    float: right;
+    @include govuk-font-regular-16;
+    margin: 0;
+    margin-top: 10px;
+    min-width: 43px;
+    padding: 0;
+    padding-left: 10px;
+    text-align: right;
+    width: 20%;
+  }
 }

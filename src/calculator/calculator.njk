@@ -17,47 +17,37 @@
         Service teams usually run 3 environments, such as:<br>
         Production, Integration and Staging.
       </p>
-
-      <h2>Environment <span class="paas-example">(e.g. Production)</span></h2>
     </div>
   </div>
 
   <div class ="govuk-grid-row paas-pricing-calculator">
-    <div class="govuk-grid-column-two-thirds paas-service-list" data-module="accordion-with-descriptions">
-      <div class="paas-service-list-inner">
-        {% for service, versions in services %}
-          <div class="paas-pricing-section">
-            <div class="subsection__header">
-              <h2 class="subsection__title">{{ service }}</h2>
-            </div>
+    <div class="govuk-grid-column-two-thirds paas-service-list">
+      <table class="govuk-table">
+        <caption class="govuk-table__caption">Environment <span class="paas-example">(e.g. Production)</span></caption>
+        <tbody class="govuk-table__body">
+          {% for service, versions in services %}
             {% for version, sizes in versions %}
-              <section class="subsection__content govuk-grid-row">
-                <form>
-                  <input type="hidden" name="estimate" value="{{ estimate | dump }}">
-                  <div class="govuk-grid-column-one-half service-version">
-                    <p>{{ service }} {{ version }}</p>
-                  </div>
-                  <div class="govuk-grid-column-one-half govuk-grid-row">
-                    <div class="govuk-grid-column-two-thirds">
-                      {{ govukSelect({
-                        id: "service-" + service + "-" + version,
-                        name: service + "[plan]",
-                        items: sizes | map({
-                          text: "name",
-                          value: "planGUID"
-                        })
-                      }) }}
-                    </div>
-                    <div class="govuk-grid-column-one-third">
-                      <button class="govuk-button" type="submit">+Add</button>
-                    </div>
-                  </div>
-                </form>
-              </section>
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell" scope="row">{{ service }} {{ version }}</td>
+                <td class="govuk-table__cell ">
+                  <form class="paas-service-selection">
+                    <input type="hidden" name="estimate" value="{{ estimate | dump }}">
+                    {{ govukSelect({
+                      id: "service-" + service + "-" + version,
+                      name: service + "[plan]",
+                      items: sizes | map({
+                        text: "name",
+                        value: "planGUID"
+                      })
+                    }) }}
+                    <button type="submit" class="paas-link-button">+ Add</button>
+                  </form>
+                </td>
+              </tr>
             {% endfor %}
-          </div>
-        {% endfor %}
-      </div>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
 
     <div class="govuk-grid-column-one-third paas-summary-section">
