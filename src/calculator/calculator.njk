@@ -20,10 +20,16 @@
     </div>
   </div>
 
-  <div class ="govuk-grid-row paas-pricing-calculator">
+  <div class ="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds paas-service-list">
       <table class="govuk-table">
-        <caption class="govuk-table__caption">Environment <span class="paas-example">(e.g. Production)</span></caption>
+        <caption class="govuk-table__caption">
+          Environment <span class="paas-example">(e.g. Production)</span>
+        </caption>
+        <thead>
+          <th>Service version</th>
+          <th>Select a service plan</th>
+        </thead>
         <tbody class="govuk-table__body">
           {% for service, versions in services %}
             {% for version, sizes in versions %}

@@ -1,15 +1,15 @@
 .paas-summary-section {
+  @include govuk-font-regular-16;
   padding-top: $govuk-spacing-scale-3;
   padding-bottom: $govuk-spacing-scale-3;
   padding-left: $govuk-spacing-scale-3;
   padding-right: $govuk-spacing-scale-3;
-  top: $govuk-spacing-scale-3;
   background-color: $govuk-grey-4;
   border: 10px $govuk-grey-3 solid;
-  @include govuk-font-regular-16;
   position: -webkit-sticky;
   position: sticky;
-  margin-top: 30px;
+  top: $govuk-spacing-scale-3;
+  margin-top: 76px;
 
   h2 {
     @include govuk-font-bold-24;
@@ -38,10 +38,10 @@
   }
 
   button {
+    @include govuk-font-regular-24;
     background: none;
     border: none;
     cursor: pointer;
-    @include govuk-font-regular-24;
     margin: 0;
     padding: 0;
   }
@@ -78,19 +78,23 @@
   @include govuk-font-regular-19;
 }
 
-span.paas-example {
+.paas-example {
   @include govuk-font-regular-24;
 }
 
-div.paas-service-list {
-  table caption {
-    border-bottom: 5px solid $govuk-black;
+.paas-service-list {
+  caption {
     @include govuk-font-bold-24;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+  }
+
+  th {
+    text-align: left;
+    border-bottom: 5px solid $govuk-black;
   }
 }
 
-form.paas-service-selection {
+.paas-service-selection {
   text-align: right;
 
   .govuk-form-group {
@@ -104,27 +108,27 @@ form.paas-service-selection {
     @include govuk-font-regular-16;
   }
 
+  /*Gov.Uk select macros do not allow you to exclude the label element even
+  though it should be optional and just leaves a blank label, so we are hiding
+  it with CSS.*/
   label {
-    font-size: 0;
     margin-bottom: 0;
-    visibility: none;
+    visibility: hidden;
   }
 
   button {
+    @include govuk-font-regular-16;
     background: none;
     border: none;
     box-shadow: none;
     color: $govuk-blue;
     cursor: pointer;
     display: inline-block;
-    float: right;
-    @include govuk-font-regular-16;
+    text-align: right;
     margin: 0;
     margin-top: 10px;
-    min-width: 43px;
     padding: 0;
     padding-left: 10px;
-    text-align: right;
-    width: 20%;
+    min-width: 43px;
   }
 }
