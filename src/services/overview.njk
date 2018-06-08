@@ -36,7 +36,7 @@
               text: 'Type'
             },
             {
-              text: service.service_plan.service.entity.label
+              text: service.service_plan.service.entity.label | default('User Provided Service')
             }
           ],
           [
@@ -44,7 +44,7 @@
               text: 'Plan'
             },
             {
-              text: service.service_plan.entity.name
+              text: service.service_plan.entity.name | default('N/A')
             }
           ],
           [
@@ -52,7 +52,7 @@
               text: 'State'
             },
             {
-              text: service.entity.last_operation.state
+              text: service.entity.last_operation.state | default('N/A')
             }
           ],
           [
