@@ -4,7 +4,6 @@
   </div>
 
   <nav class="govuk-grid-column-two-thirds">
-    <a href="/spaces/{{ organization.metadata.guid }}" class="govuk-link active">
     <a href="{{ linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link {% if not routePartOf('admin.organizations.users') %} active {% endif %}">
       Overview
     </a>
