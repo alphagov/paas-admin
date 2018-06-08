@@ -75,6 +75,17 @@ const router = new Router([
     path: '/organisations/:organizationGUID/users/:userGUID',
   },
   {
+    action: users.confirmDeletion,
+    name: 'admin.organizations.users.delete',
+    path: '/organisations/:organizationGUID/users/:userGUID/delete',
+  },
+  {
+    action: users.deleteUser,
+    method: 'post',
+    name: 'admin.organizations.users.delete.process',
+    path: '/organisations/:organizationGUID/users/:userGUID/delete',
+  },
+  {
     action: statement.viewStatement,
     name: 'admin.statement.view',
     path: '/organisations/:organizationGUID/statements/:rangeStart',

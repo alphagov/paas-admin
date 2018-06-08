@@ -196,7 +196,7 @@ export default class CloudFoundryClient {
   ): Promise<cf.IResource> {
     const response = await this.request(
       mod ? 'put' : 'delete',
-      `/v2/organizations/${organizationGUID}/${role}/${userGUID}`,
+      `/v2/organizations/${organizationGUID}/${role}/${userGUID}?recursive=true`,
     );
     return response.data;
   }

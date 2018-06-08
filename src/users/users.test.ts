@@ -334,6 +334,24 @@ test('ordinary set of tests', async suit => {
     t.contains(response.body, 'Invited a new team member');
   });
 
+  suit.test('should show the user delete page', async t => {
+    const response = await users.confirmDeletion(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      userGUID: 'uaa-user-edit-123456',
+    });
+
+    t.contains(response.body, 'Confirm user deletion');
+  });
+
+  suit.test('should update the user, set BillingManager role and show success - User Edit', async t => {
+    const response = await users.deleteUser(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      userGUID: '5ff19d4c-8fa0-4d74-94e0-52eac86d55a8',
+    }, {});
+
+    t.contains(response.body, 'Deleted a team member');
+  });
+
   suit.test('should show the user edit page', async t => {
     const response = await users.editUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
