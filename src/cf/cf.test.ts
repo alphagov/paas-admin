@@ -10,6 +10,7 @@ const config = {
   accessToken: 'qwerty123456',
 };
 
+// tslint:disable:max-line-length
 nock('https://example.com/api').persist()
   .get('/v2/info').reply(200, data.info)
   .get('/v2/organizations').reply(200, data.organizations)
@@ -26,6 +27,8 @@ nock('https://example.com/api').persist()
   .get('/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92').times(1).reply(200, data.serviceInstance)
   .get('/v2/service_plans/775d0046-7505-40a4-bfad-ca472485e332').times(1).reply(200, data.servicePlan)
   .get('/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5').times(1).reply(200, data.service)
+  .get('/v2/user_provided_service_instances').times(1).reply(200, data.userServices)
+  .get('/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87').times(1).reply(200, data.userServiceInstance)
   .get('/v2/users/uaa-id-253/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, data.spaces)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.userRolesForOrg)
   .get('/v2/spaces/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.userRolesForSpace)
@@ -46,6 +49,7 @@ nock('https://example.com/api').persist()
 nock('https://example.com/uaa').persist()
   .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
 ;
+// tslint:enable:max-line-length
 
 test('should fail to get token client without accessToken or clientCredentials', async t => {
   const client = new CloudFoundryClient({apiEndpoint: 'https://example.com/api'});
@@ -270,4 +274,19 @@ test('should obtain list of user roles for organisation and not find logged in u
   );
 
   t.notOk(hasRole);
+});
+
+test('should obtain list of user provided services', async t => {
+  const client = new CloudFoundryClient(config);
+  const services = await client.userServices();
+
+  t.ok(services.length > 0);
+  t.equal(services[0].entity.name, 'name-1696');
+});
+
+test('should obtain user provided service', async t => {
+  const client = new CloudFoundryClient(config);
+  const service = await client.userServiceInstance('e9358711-0ad9-4f2a-b3dc-289d47c17c87');
+
+  t.equal(service.entity.name, 'name-1700');
 });

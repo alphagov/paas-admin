@@ -34,13 +34,13 @@
               <a href="{{ linkTo('admin.organizations.spaces.services.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.guid}) }}" class="govuk-link">{{ service.name }}</a>
             </th>
             <td class="govuk-table__cell ">
-              {{ service.service_plan.service.label }}
+              {{ service.service_plan.service.label | default('User Provided Service') }}
             </td>
             <td class="govuk-table__cell ">
-              {{ service.service_plan.name }}
+              {{ service.service_plan.name | default('N/A') }}
             </td>
             <td class="govuk-table__cell ">
-              {{ service.last_operation.state }}
+              {{ service.last_operation.state | default('N/A') }}
             </td>
           </tr>
         {% endfor %}

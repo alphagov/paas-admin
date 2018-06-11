@@ -307,3 +307,19 @@ export interface ISpaceSummary {
   readonly name: string;
   readonly services: ReadonlyArray<IServiceSummary>;
 }
+
+export interface IUserServices {
+  readonly entity: {
+    readonly credentials: {[i: string]: string};
+    readonly name: string;
+    readonly route_service_url: string | null;
+    readonly routes_url: string;
+    readonly service_bindings_url: string;
+    readonly space_guid: string;
+    readonly space_url: string;
+    readonly syslog_drain_url: string;
+    readonly tags: ReadonlyArray<string>;
+    readonly type: string; // tslint:disable-line:no-reserved-keywords
+  };
+  readonly metadata: IMetadata;
+}

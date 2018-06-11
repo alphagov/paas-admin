@@ -10,18 +10,23 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
 
-  const service = await cf.serviceInstance(params.serviceGUID);
+  const userProvidedServices = await cf.userServices();
+  const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
+  const service = isUserProvidedService ?
+    await cf.userServiceInstance(params.serviceGUID) :
+    await cf.serviceInstance(params.serviceGUID);
+
   const space = await cf.space(params.spaceGUID);
   const organization = await cf.organization(params.organizationGUID);
 
-  const servicePlan = await cf.servicePlan(service.entity.service_plan_guid);
+  const servicePlan = !isUserProvidedService ? await cf.servicePlan(service.entity.service_plan_guid) : null;
 
   const summarisedService = {
     entity: service.entity,
     metadata: service.metadata,
     service_plan: {
       ...servicePlan,
-      service: await cf.service(servicePlan.entity.service_guid),
+      service: servicePlan ? await cf.service(servicePlan.entity.service_guid) : null,
     },
   };
 
