@@ -160,8 +160,14 @@ function parseBillableEvent(ev: IBillableEventResponse): IBillableEvent {
 }
 
 function parsePricingPlan(plan: IPricingPlanResponse): IPricingPlan {
+  // FIXME: extracting the serviceName from the planName is not a reliable
+  // method, and we do not want to have to give paas-admin scopes to look up
+  // this information if cf. A better solution is to get paas-billing should
+  // provide this information
+  const [serviceName, ...planName] = plan.name.split(/\s+/);
   return {
-    name: plan.name,
+    serviceName,
+    planName: planName.join(''),
     planGUID: plan.plan_guid,
     validFrom: parseTimestamp(plan.valid_from),
     components: plan.components.map(parseComponentResponse),
@@ -170,27 +176,6 @@ function parsePricingPlan(plan: IPricingPlanResponse): IPricingPlan {
     storageInMB: plan.storage_in_mb,
   };
 }
-
-// function parsePricingPlanResponse(plan: IPricingPlan): IPricingPlanResponse {
-//   return {
-//     name: plan.name,
-//     plan_guid: plan.planGUID,
-//     valid_from: parseDate(plan.validFrom),
-//     components: plan.components.map(parseComponent),
-//     number_of_nodes: plan.numberOfNodes,
-//     memory_in_mb: plan.memoryInMB,
-//     storage_in_mb: plan.storageInMB,
-//   };
-// }
-
-// function parseComponent(component: IComponent): IComponentResponse {
-//   return {
-//     name: component.name,
-//     currency_code: component.currencyCode,
-//     formula: component.formula,
-//     vat_code: component.vatCode,
-//   };
-// }
 
 function parseComponentResponse(component: IComponentResponse): IComponent {
   return {

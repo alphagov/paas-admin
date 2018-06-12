@@ -4,6 +4,18 @@
 {% from "@govuk-frontend/frontend/components/radios/macro.njk" import govukRadios %}
 {% from "@govuk-frontend/frontend/components/select/macro.njk" import govukSelect %}
 
+{% macro stateFields(state, remove="NONE") %}
+  <input type="hidden" name="rangeStart" value="{{ state.rangeStart }}" />
+  <input type="hidden" name="rangeStop" value="{{ state.rangeStop }}" />
+  {% for item in state.items %}
+    {% if remove == "NONE" or remove != loop.index0 %}
+      <input type="hidden" name="{{ "items[" + loop.index0 + "][planGUID]" }}" value="{{ item.planGUID }}" />
+      <input type="hidden" name="{{ "items[" + loop.index0 + "][numberOfNodes]" }}" value="{{ item.numberOfNodes }}" />
+      <input type="hidden" name="{{ "items[" + loop.index0 + "][memoryInMB]" }}" value="{{ item.memoryInMB }}" />
+    {% endif %}
+  {% endfor %}
+{% endmacro %}
+
 {% block page_title %}
   Pricing calculator
 {% endblock %}
@@ -23,29 +35,65 @@
   <div class ="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds paas-service-list">
       <table class="govuk-table">
-        <caption class="govuk-table__caption">
-          Environment <span class="paas-example">(e.g. Production)</span>
-        </caption>
         <thead>
-          <th>Service version</th>
-          <th>Select a service plan</th>
+          <th>Service</th>
+          <th>Select options</th>
         </thead>
         <tbody class="govuk-table__body">
-          {% for service, versions in services %}
-            {% for version, sizes in versions %}
+          {% for serviceName, plans in state.plans | groupby("serviceName") %}
+            {% for version, plans in plans | groupby("version") %}
               <tr class="govuk-table__row">
-                <td class="govuk-table__cell" scope="row">{{ service }} {{ version }}</td>
+                <td class="govuk-table__cell" scope="row">{{ serviceName }} {{ version }}</td>
                 <td class="govuk-table__cell ">
-                  <form class="paas-service-selection">
-                    <input type="hidden" name="estimate" value="{{ estimate | dump }}">
-                    {{ govukSelect({
-                      id: "service-" + service + "-" + version,
-                      name: service + "[plan]",
-                      items: sizes | map({
-                        text: "name",
-                        value: "planGUID"
-                      })
-                    }) }}
+                  <form class="paas-service-selection" method="get">
+                    {{ stateFields(state) }}
+                    {% if plans.length > 1 %}
+                      {{ govukSelect({
+                        id: "service-" + serviceName + "-" + version,
+                        name: "items[" + state.items.length + "][planGUID]",
+                        items: plans | map({
+                          text: "variant",
+                          value: "planGUID"
+                        })
+                        }) }}
+                        <input type="hidden" name="items[{{ state.items.length }}][numberOfNodes]" value="{{ plans[0].numberOfNodes }}" />
+                        <input type="hidden" name="items[{{ state.items.length }}][storageInMB]" value="{{ plans[0].storageInMB }}" />
+                    {% else %}
+                      <input type="hidden" name="items[{{ state.items.length }}][planGUID]" value="{{ plans[0].planGUID }}"> 
+                      {% if serviceName == "app" %}
+                        <div style="width: 46%">
+                          {{ govukSelect({
+                            id: "nodes-" + serviceName + "-" + version,
+                            name: "items[" + state.items.length + "][numberOfNodes]",
+                            items: [
+                              {text: "1 Instance", value: "1"},
+                              {text: "2 Instances", value: "2"},
+                              {text: "3 Instances", value: "3"},
+                              {text: "4 Instances", value: "4"},
+                              {text: "8 Instances", value: "8"},
+                              {text: "16 Instances", value: "16"},
+                              {text: "32 Instances", value: "32"},
+                              {text: "64 Instances", value: "64"},
+                              {text: "128 Instances", value: "128"}
+                            ]
+                          }) }}
+                        </div>
+                        <div style="width: 46%; margin-left: 14px; float:left">
+                          {{ govukSelect({
+                            id: "mem-" + serviceName + "-" + version,
+                            name: "items[" + state.items.length + "][memoryInMB]",
+                            items: [
+                              {text: "64 MB", value: "64"},
+                              {text: "128 MB", value: "128"},
+                              {text: "256 MB", value: "256"},
+                              {text: "1.0 GB", value: "1024"},
+                              {text: "1.5 GB", value: "1536"},
+                              {text: "2.0 GB", value: "2048"}
+                            ]
+                          }) }}
+                        </div>
+                      {% endif %}
+                    {% endif %}
                     <button type="submit" class="paas-link-button">+ Add</button>
                   </form>
                 </td>
@@ -63,26 +111,41 @@
         Following prices are <strong>excluding vat</strong>.
       </p>
 
-      <form>
-        <input type="hidden" name="estimate" value="{{ estimate | dump }}">
-        <table>
-          <caption>Services added</caption>
-          {% for quote in quota.instances %}
-            <tr>
-                <td class="paas-service-heading">{{ quote.resourceType }}</td>
-                <td><button class="paas-remove-button" type="submit" name="remove[]" value="{{ quote.resourceGUID }}" arria-label="Remove">&times;</button></td>
-            </tr>
-            <tr>
-              <td>{{ quote.resourceName }}: </td>
-              <td class="paas-service-price">&pound;{{ quote.price.exVAT | currency(2) }}</td>
-            </tr>
-          {% endfor %}
-        </table>
-      </form>
+      <table>
+        <caption>Services added</caption>
+        {% for event in quote.events %}
+          <tr>
+            <td class="paas-service-heading">
+              {{ event.resourceType }}
+            </td>
+            <td>
+              <form method="get">
+                {{ stateFields(state, remove=loop.index0) }}
+                <button class="paas-remove-button" type="submit" arria-label="Remove">&times;</button>
+              </form>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              {% if event.resourceType == "app" %}
+                {% if event.numberOfNodes > 0 %}
+                  {{ event.numberOfNodes }} Instances
+                {% endif %}
+                {% if event.memoryInMB > 0 %}
+                  {{ event.memoryInMB }} MB
+                {% endif %}
+              {% else %}
+                {{ event.resourceName }}
+              {% endif %}
+            </td>
+            <td class="paas-service-price">&pound;{{ event.price.exVAT | currency(2) }}</td>
+          </tr>
+        {% endfor %}
+      </table>
 
-      <p class="paas-total">Total estimated cost:</p>
+      <p class="paas-total">Total estimated cost (ex. VAT):</p>
 
-      <p class="paas-price">&pound;{{ quota.exVAT | currency(2) }}</p>
+      <p class="paas-price">&pound; {{ quote.exVAT | currency(2) }}</p>
       <p class="paas-month">per month</p>
 
       <details class="govuk-details">
@@ -92,7 +155,7 @@
         <div class="govuk-details__text">
           <p>This estimate assumes constant usage at the levels you've provided. Final figures will vary as CPU/Postgres/ MySQL are charged based on hourly consumption and exchange rates will fluctuate.</p>
 
-          <p>This cost estimate is dated: 26.01.2017 – 15:23. Estimates are liable to change over time.</p>
+          <p>Valid for period of {{ state.rangeStart }} to {{ state.rangeStop }}. Estimates are liable to change over time.</p>
         </div>
       </details>
     </div>

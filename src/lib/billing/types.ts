@@ -22,8 +22,9 @@ interface IPricingPlanResponse {
 }
 
 interface IPricingPlan {
-  readonly name: string;
+  readonly planName: string;
   readonly planGUID: string;
+  readonly serviceName: string;
   readonly validFrom: Date;
   readonly components: ReadonlyArray<IComponent>;
   readonly numberOfNodes: number;
