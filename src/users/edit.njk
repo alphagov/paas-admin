@@ -52,6 +52,10 @@
         text: "Save role changes"
       }) }}
     </form>
+
+    <a href="{{ linkTo('admin.organizations.users.delete', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
+      Remove user
+    </a>
   </div>
 </div>
 {% endblock %}

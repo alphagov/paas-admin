@@ -25,3 +25,11 @@ table.user-list {
     width: 20px;
   }
 }
+
+.paas-remove-user {
+  button + a {
+    display: inline-block;
+    margin-left: 15px;
+    margin-top: 8px;
+  }
+}

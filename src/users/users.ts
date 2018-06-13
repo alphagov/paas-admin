@@ -15,6 +15,8 @@ import { NotFoundError } from '../lib/router/errors';
 import NotificationClient from '../notify';
 import UAAClient from '../uaa';
 
+import deleteTemplate from './delete.njk';
+import deleteSuccessTemplate from './delete.success.njk';
 import editTemplate from './edit.njk';
 import editSuccessTemplate from './edit.success.njk';
 import inviteTemplate from './invite.njk';
@@ -485,4 +487,64 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
     /* istanbul ignore next */
     throw err;
   }
+}
+
+export async function confirmDeletion(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
+
+  const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+
+  /* istanbul ignore next */
+  if (!isAdmin && !isManager) {
+    throw new NotFoundError('not found');
+  }
+
+  const organization = await cf.organization(params.organizationGUID);
+  const orgUsers = await cf.usersForOrganization(params.organizationGUID);
+  const user = orgUsers.find((u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
+
+  return {
+    body: deleteTemplate.render({
+      routePartOf: ctx.routePartOf,
+      linkTo: ctx.linkTo,
+      organization,
+      user,
+    }),
+  };
+}
+
+export async function deleteUser(ctx: IContext, params: IParameters, _: object): Promise<IResponse> {
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
+
+  const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+
+  /* istanbul ignore next */
+  if (!isAdmin && !isManager) {
+    throw new NotFoundError('not found');
+  }
+
+  const organization = await cf.organization(params.organizationGUID);
+
+  await cf.setOrganizationRole(
+    params.organizationGUID,
+    params.userGUID,
+    'users',
+    false,
+  );
+
+  return {
+    body: deleteSuccessTemplate.render({
+      routePartOf: ctx.routePartOf,
+      linkTo: ctx.linkTo,
+      organization,
+    }),
+  };
 }
