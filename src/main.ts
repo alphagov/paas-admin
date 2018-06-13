@@ -82,8 +82,10 @@ async function main() {
 
   /* istanbul ignore if  */
   if (module.hot) {
-    module.hot.accept();
-    // module.hot.accept('./app', () => server.update(app(cfg)));
+    module.hot.accept('./app/app.ts', () => {
+      const updatedApp = require('./app/app').default;
+      server.update(updatedApp(config));
+    });
   }
 
   return server.wait();
