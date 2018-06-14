@@ -157,7 +157,6 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
 
   const organization = await cf.organization(params.organizationGUID);
   const users = await cf.usersForOrganization(params.organizationGUID);
-
   await Promise.all(users.map(async (user: IOrganizationUserRoles) => {
     const userWithSpaces = {
       ...user,
@@ -360,6 +359,10 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
   const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const users = await cf.usersForOrganization(params.organizationGUID);
+  const managers = users.filter((manager: IOrganizationUserRoles) =>
+    manager.entity.organization_roles.some(role => role === 'org_manager'),
+  );
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -405,6 +408,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       errors: [],
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      managers,
       organization,
       spaces,
       user,
