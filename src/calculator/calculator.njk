@@ -22,86 +22,84 @@
 
 {% block main %}
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-half">
+    <div class="govuk-grid-column-two-thirds">
       <h1 class="paas-heading-l">Estimate your monthly costs</h1>
 
       <p class="paas-calculator-lede">
         Service teams usually run 3 environments, such as:<br>
         Production, Integration and Staging.
       </p>
-    </div>
-  </div>
 
-  <div class ="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds paas-service-list">
-      <table class="govuk-table">
-        <thead>
-          <th>Service</th>
-          <th>Select options</th>
-        </thead>
-        <tbody class="govuk-table__body">
-          {% for serviceName, plans in state.plans | groupby("serviceName") %}
-            {% for version, plans in plans | groupby("version") %}
-              <tr class="govuk-table__row">
-                <td class="govuk-table__cell" scope="row">{{ serviceName }} {{ version }}</td>
-                <td class="govuk-table__cell ">
-                  <form class="paas-service-selection" method="get">
-                    {{ stateFields(state) }}
-                    {% if plans.length > 1 %}
-                      {{ govukSelect({
-                        id: "service-" + serviceName + "-" + version,
-                        name: "items[" + state.items.length + "][planGUID]",
-                        items: plans | map({
-                          text: "variant",
-                          value: "planGUID"
-                        })
-                        }) }}
-                        <input type="hidden" name="items[{{ state.items.length }}][numberOfNodes]" value="{{ plans[0].numberOfNodes }}" />
-                        <input type="hidden" name="items[{{ state.items.length }}][storageInMB]" value="{{ plans[0].storageInMB }}" />
-                    {% else %}
-                      <input type="hidden" name="items[{{ state.items.length }}][planGUID]" value="{{ plans[0].planGUID }}"> 
-                      {% if serviceName == "app" %}
-                        <div style="width: 46%">
-                          {{ govukSelect({
-                            id: "nodes-" + serviceName + "-" + version,
-                            name: "items[" + state.items.length + "][numberOfNodes]",
-                            items: [
-                              {text: "1 Instance", value: "1"},
-                              {text: "2 Instances", value: "2"},
-                              {text: "3 Instances", value: "3"},
-                              {text: "4 Instances", value: "4"},
-                              {text: "8 Instances", value: "8"},
-                              {text: "16 Instances", value: "16"},
-                              {text: "32 Instances", value: "32"},
-                              {text: "64 Instances", value: "64"},
-                              {text: "128 Instances", value: "128"}
-                            ]
+      <div class="paas-service-list">
+        <table class="govuk-table">
+          <thead>
+            <th>Service</th>
+            <th>Select options</th>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for serviceName, plans in state.plans | groupby("serviceName") %}
+              {% for version, plans in plans | groupby("version") %}
+                <tr class="govuk-table__row">
+                  <td class="govuk-table__cell" scope="row">{{ serviceName }} {{ version }}</td>
+                  <td class="govuk-table__cell ">
+                    <form class="paas-service-selection" method="get">
+                      {{ stateFields(state) }}
+                      {% if plans.length > 1 %}
+                        {{ govukSelect({
+                          id: "service-" + serviceName + "-" + version,
+                          name: "items[" + state.items.length + "][planGUID]",
+                          items: plans | map({
+                            text: "variant",
+                            value: "planGUID"
+                          })
                           }) }}
-                        </div>
-                        <div style="width: 46%; margin-left: 14px; float:left">
-                          {{ govukSelect({
-                            id: "mem-" + serviceName + "-" + version,
-                            name: "items[" + state.items.length + "][memoryInMB]",
-                            items: [
-                              {text: "64 MB", value: "64"},
-                              {text: "128 MB", value: "128"},
-                              {text: "256 MB", value: "256"},
-                              {text: "1.0 GB", value: "1024"},
-                              {text: "1.5 GB", value: "1536"},
-                              {text: "2.0 GB", value: "2048"}
-                            ]
-                          }) }}
-                        </div>
+                          <input type="hidden" name="items[{{ state.items.length }}][numberOfNodes]" value="{{ plans[0].numberOfNodes }}" />
+                          <input type="hidden" name="items[{{ state.items.length }}][storageInMB]" value="{{ plans[0].storageInMB }}" />
+                      {% else %}
+                        <input type="hidden" name="items[{{ state.items.length }}][planGUID]" value="{{ plans[0].planGUID }}">
+                        {% if serviceName == "app" %}
+                          <div style="width: 46%">
+                            {{ govukSelect({
+                              id: "nodes-" + serviceName + "-" + version,
+                              name: "items[" + state.items.length + "][numberOfNodes]",
+                              items: [
+                                {text: "1 Instance", value: "1"},
+                                {text: "2 Instances", value: "2"},
+                                {text: "3 Instances", value: "3"},
+                                {text: "4 Instances", value: "4"},
+                                {text: "8 Instances", value: "8"},
+                                {text: "16 Instances", value: "16"},
+                                {text: "32 Instances", value: "32"},
+                                {text: "64 Instances", value: "64"},
+                                {text: "128 Instances", value: "128"}
+                              ]
+                            }) }}
+                          </div>
+                          <div style="width: 46%; margin-left: 14px; float:left">
+                            {{ govukSelect({
+                              id: "mem-" + serviceName + "-" + version,
+                              name: "items[" + state.items.length + "][memoryInMB]",
+                              items: [
+                                {text: "64 MB", value: "64"},
+                                {text: "128 MB", value: "128"},
+                                {text: "256 MB", value: "256"},
+                                {text: "1.0 GB", value: "1024"},
+                                {text: "1.5 GB", value: "1536"},
+                                {text: "2.0 GB", value: "2048"}
+                              ]
+                            }) }}
+                          </div>
+                        {% endif %}
                       {% endif %}
-                    {% endif %}
-                    <button type="submit" class="paas-link-button">+ Add</button>
-                  </form>
-                </td>
-              </tr>
+                      <button type="submit" class="paas-link-button">+ Add</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
             {% endfor %}
-          {% endfor %}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="govuk-grid-column-one-third paas-summary-section">
@@ -160,7 +158,5 @@
       </details>
     </div>
   </div>
-
-  {{ params | dump }}
 
 {% endblock %}
