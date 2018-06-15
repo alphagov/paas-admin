@@ -86,6 +86,12 @@ const router = new Router([
     path: '/organisations/:organizationGUID/users/:userGUID/delete',
   },
   {
+    action: users.resendInvitation,
+    method: 'post',
+    name: 'admin.organizations.users.invite.resend',
+    path: '/organisations/:organizationGUID/users/:userGUID/invite',
+  },
+  {
     action: statement.viewStatement,
     name: 'admin.statement.view',
     path: '/organisations/:organizationGUID/statements/:rangeStart',

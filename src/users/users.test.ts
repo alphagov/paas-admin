@@ -116,6 +116,7 @@ test('ordinary set of tests', async suit => {
 
   nock(config.uaaAPI).persist()
     .get('/Users?filter=email+eq+%22imeCkO@test.org%22').reply(200, uaaData.usersByEmail)
+    .get('/Users?filter=email+eq+%22user@example.com%22').reply(200, uaaData.usersByEmail)
     .get('/Users?filter=email+eq+%22jeff@jeff.com%22').reply(200, uaaData.noFoundUsersByEmail)
     .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation').reply(200, uaaData.invite)
     .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
@@ -330,6 +331,22 @@ test('ordinary set of tests', async suit => {
         }),
       },
     });
+
+    t.contains(response.body, 'Invited a new team member');
+  });
+
+  suit.test('should fail if the user does not exist in org', async t => {
+    t.rejects(users.resendInvitation(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      userGUID: 'not-existing-user',
+    }, {}), /user not found/);
+  });
+
+  suit.test('should resend user invite', async t => {
+    const response = await users.resendInvitation(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      userGUID: 'uaa-id-253',
+    }, {});
 
     t.contains(response.body, 'Invited a new team member');
   });
