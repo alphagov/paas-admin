@@ -1,4 +1,5 @@
 import { IContext } from '../app/context';
+import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
 import CloudFoundryClient from '../cf';
 import {
   IApplication,
@@ -22,6 +23,14 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
+
+  const isAdmin = ctx.token.hasAnyScope(
+    CLOUD_CONTROLLER_ADMIN,
+    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  );
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
   const space = await cf.space(params.spaceGUID);
   const applications = await cf.applications(params.spaceGUID);
@@ -56,6 +65,9 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
       linkTo: ctx.linkTo,
       organization,
       space: summarisedSpace,
+      isAdmin,
+      isBillingManager,
+      isManager,
     }),
   };
 }
@@ -65,6 +77,14 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
+
+  const isAdmin = ctx.token.hasAnyScope(
+    CLOUD_CONTROLLER_ADMIN,
+    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  );
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
   const space = await cf.space(params.spaceGUID);
   const organization = await cf.organization(space.entity.organization_guid);
@@ -83,6 +103,9 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
       linkTo: ctx.linkTo,
       organization,
       space: summarisedSpace,
+      isAdmin,
+      isBillingManager,
+      isManager,
     }),
   };
 }
@@ -92,6 +115,14 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
+
+  const isAdmin = ctx.token.hasAnyScope(
+    CLOUD_CONTROLLER_ADMIN,
+    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  );
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
   const spaces = await cf.spaces(params.organizationGUID);
   const organization = await cf.organization(params.organizationGUID);
@@ -140,6 +171,9 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
       organization: summerisedOrganization,
       spaces: summarisedSpaces,
       users,
+      isAdmin,
+      isBillingManager,
+      isManager,
     }),
   };
 }

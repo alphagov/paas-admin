@@ -1,12 +1,12 @@
 import moment from 'moment';
 import { IContext } from '../app/context';
+import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
 import CloudFoundryClient from '../cf';
 import { ISpace } from '../cf/types';
 import { BillingClient } from '../lib/billing';
 import { IParameters, IResponse, NotFoundError } from '../lib/router';
 
 import usageTemplate from './statement.njk';
-import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_READ_ONLY_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR } from '../auth';
 
 interface IResourceUsage {
   readonly resourceGUID: string;
@@ -129,6 +129,9 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       totals,
       items,
       usdExchangeRate,
+      isAdmin,
+      isBillingManager,
+      isManager,
     }),
   };
 }
