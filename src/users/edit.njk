@@ -45,6 +45,12 @@
       }) }}
     {% endif %}
 
+    <form method="post" action="{{ linkTo('admin.organizations.users.invite.resend', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-!-mt-r6">
+      {{ govukButton({
+        text: "Resend user invite"
+      }) }}
+    </form>
+
     <form method="post" class="govuk-!-mt-r6">
       {% include "./permissions.njk" %}
 

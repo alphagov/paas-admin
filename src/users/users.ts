@@ -373,6 +373,84 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
   }
 }
 
+export async function resendInvitation(ctx: IContext, params: IParameters, _: object): Promise<IResponse> {
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+  });
+
+  const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+
+  /* istanbul ignore next */
+  if (!isAdmin && !isManager) {
+    throw new NotFoundError('not found');
+  }
+
+  const organization = await cf.organization(params.organizationGUID);
+  const users = await cf.usersForOrganization(params.organizationGUID);
+  const user = users.find((u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
+
+  if (!user) {
+    throw new NotFoundError('user not found within the organisation');
+  }
+
+  /* istanbul ignore next */
+  if (!VALID_EMAIL.test(user.entity.username)) {
+    throw new Error('a valid email address is required');
+  }
+
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
+  const uaaUser = await uaa.findUser(user.entity.username);
+  let userGUID = uaaUser && uaaUser.id;
+
+  /* istanbul ignore next */
+  if (!userGUID) {
+    throw new Error('the user does not exist');
+  }
+
+  const invitation = await uaa.inviteUser(
+    user.entity.username,
+    'user_invitation',
+    'https://www.cloud.service.gov.uk/next-steps?success',
+  );
+
+  /* istanbul ignore next */
+  if (!invitation) { // TODO: test me
+    throw new ValidationError([{field: 'email', message: 'a valid email address is required'}]);
+  }
+
+  userGUID = invitation.userId;
+
+  const notify = new NotificationClient({
+    apiKey: ctx.app.notifyAPIKey,
+    templates: {
+      welcome: ctx.app.notifyWelcomeTemplateID,
+    },
+  });
+
+  await notify.sendWelcomeEmail(user.entity.username, {
+    organisation: organization.entity.name,
+    url: invitation.inviteLink,
+  });
+
+  return {
+    body: inviteSuccessTemplate.render({
+      errors: [],
+      routePartOf: ctx.routePartOf,
+      linkTo: ctx.linkTo,
+      organization,
+    }),
+  };
+}
+
 export async function editUser(ctx: IContext, params: IParameters): Promise<IResponse> {
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
