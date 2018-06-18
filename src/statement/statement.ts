@@ -29,6 +29,15 @@ interface IResourceGroup {
 
 const YYYMMDD = 'YYYY-MM-DD';
 
+export async function statementRedirection(ctx: IContext, params: IParameters): Promise<IResponse> {
+  return {
+    redirect: ctx.linkTo('admin.statement.view', {
+      organizationGUID: params.organizationGUID,
+      rangeStart: moment().startOf('month').format(YYYMMDD),
+    }),
+  };
+}
+
 export async function viewStatement(ctx: IContext, params: IParameters): Promise<IResponse> {
   const rangeStart = moment(params.rangeStart, YYYMMDD);
   if (!rangeStart.isValid()) {

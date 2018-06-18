@@ -1,1 +1,1 @@
-export { viewStatement } from './statement';
+export * from './statement';
