@@ -363,6 +363,9 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
   const managers = users.filter((manager: IOrganizationUserRoles) =>
     manager.entity.organization_roles.some(role => role === 'org_manager'),
   );
+  const billingManagers = users.filter((manager: IOrganizationUserRoles) =>
+    manager.entity.organization_roles.some(role => role === 'billing_manager'),
+  );
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -409,6 +412,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       managers,
+      billingManagers,
       organization,
       spaces,
       user,
