@@ -11,5 +11,11 @@
     <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link {% if routePartOf('admin.organizations.users') %} active {% endif %}">
       Members
     </a>
+
+    {% if isAdmin or isManager or isBillingManager %}
+      <a href="{{ linkTo('admin.statement.dispatcher', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link {% if routePartOf('admin.statement') %} active {% endif %}">
+        Billing
+      </a>
+    {% endif %}
   </nav>
 </div>
