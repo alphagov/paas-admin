@@ -204,6 +204,28 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
   const organization = await cf.organization(params.organizationGUID);
   const spaces = await cf.spaces(params.organizationGUID);
 
+  /* istanbul ignore next */
+  const values: IRoleValues = {
+    org_roles: {
+      [params.organizationGUID]: {
+        billing_managers: 0,
+        managers: 0,
+        auditors: 0,
+      },
+    },
+    space_roles: await spaces.reduce(async (next: Promise<any>, space: ISpace) => {
+      const spaceRoles = await next;
+
+      spaceRoles[space.metadata.guid] = {
+        managers: 0,
+        developers: 0,
+        auditors: 0,
+      };
+
+      return spaceRoles;
+    }, Promise.resolve({})),
+  };
+
   return {
     body: inviteTemplate.render({
       errors: [],
@@ -211,7 +233,7 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
       linkTo: ctx.linkTo,
       organization,
       spaces,
-      values: {},
+      values,
     }),
   };
 }
