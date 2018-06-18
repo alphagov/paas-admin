@@ -90,15 +90,26 @@
           </td>
         </tr>
       {% endfor %}
+      <tr class="govuk-table__row" >
+        <th class="govuk-table__header name" scope="col" colspan="2" style="padding-top: 60px;">Admin Fee</th>
+        <td class="govuk-table__cell" scope="col" style="text-align: right; padding-top: 60px;">
+          <div class="sym">&pound;</div>
+          <strong>{{ (totals.exVAT/100*10) | currency(5) }}</strong>
+        </td>
+        <td class="govuk-table__cell" scope="col" style="text-align: right; padding-top: 60px;">
+          <div class="sym">&pound;</div>
+          <strong>{{ (totals.incVAT/100*10) | currency(5) }}</strong>
+        </td>
+      </tr>
       <tr class="govuk-table__row" style="background: #efefef">
         <th class="govuk-table__header name" scope="col" colspan="2" style="height: 60px;">TOTAL</th>
         <td class="govuk-table__cell" scope="col" style="text-align: right;">
           <div class="sym">&pound;</div>
-          <strong>{{ totals.exVAT | currency(5) }}</strong>
+          <strong>{{ (totals.exVAT + totals.exVAT/100*10)  | currency(5) }}</strong>
         </td>
         <td class="govuk-table__cell" scope="col" style="text-align: right;">
           <div class="sym">&pound;</div>
-          <strong>{{ totals.incVAT | currency(5) }}</strong>
+          <strong>{{ (totals.incVAT + totals.incVAT/100*10) | currency(5) }}</strong>
         </td>
       </tr>
     </tbody>
