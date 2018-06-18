@@ -30,10 +30,12 @@ interface IResourceGroup {
 const YYYMMDD = 'YYYY-MM-DD';
 
 export async function statementRedirection(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const date = params.rangeStart ? moment(params.rangeStart) : moment();
+
   return {
     redirect: ctx.linkTo('admin.statement.view', {
       organizationGUID: params.organizationGUID,
-      rangeStart: moment().startOf('month').format(YYYMMDD),
+      rangeStart: date.startOf('month').format(YYYMMDD),
     }),
   };
 }
@@ -129,6 +131,14 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     exVAT: events.reduce((sum, event) => sum + event.price.exVAT, 0),
   };
 
+  const listOfPastYearMonths: {[i: string]: string} = {};
+
+  for (let i = 0; i < 12; i++) {
+    const month = moment().subtract(i, 'month').startOf('month');
+
+    listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format('MMMM')} ${month.format('YYYY')}`;
+  }
+
   return {
     body: usageTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -138,6 +148,9 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       totals,
       items,
       usdExchangeRate,
+      isCurrentMonth: Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
+      listOfPastYearMonths,
+      selectedMonth: params.rangeStart,
       isAdmin,
       isBillingManager,
       isManager,

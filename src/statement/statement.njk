@@ -5,6 +5,7 @@
 {% from "@govuk-frontend/frontend/components/back-link/macro.njk" import govukBackLink %}
 {% from "@govuk-frontend/frontend/components/details/macro.njk" import govukDetails %}
 {% from "@govuk-frontend/frontend/components/table/macro.njk" import govukTable %}
+{% from "@govuk-frontend/frontend/components/select/macro.njk" import govukSelect %}
 
 {% block page_title %}
   Statement
@@ -27,7 +28,17 @@
               Period:
             </th>
             <td class="govuk-table__cell govuk-table__cell--numeric">
-              {{ filter.rangeStart }} to {{ filter.rangeStop }}
+              <form method="get" action="{{ linkTo('admin.statement.dispatcher', {organizationGUID: organization.metadata.guid}) }}" class="paas-statement-range">
+                <select class="govuk-select" id="rangeStart" name="rangeStart">
+                  {% for rangeStart, rangeTitle in listOfPastYearMonths %}
+                    <option value="{{ rangeStart }}" {% if selectedMonth == rangeStart  %}selected{% endif %}>{{ rangeTitle }}</option>
+                  {% endfor %}
+                </select>
+
+                {{ govukButton({
+                  text: "Go"
+                }) }}
+              </form>
             </td>
           </tr>
           <tr class="govuk-table__row">
@@ -43,78 +54,82 @@
     </div>
   </div>
 
-  <style>
-    .sym { float: left; }
-  </style>
-  <table class="govuk-table">
-    <thead class="govuk-table__head">
-      <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="col">Name</th>
-        <th class="govuk-table__header" scope="col">Plan</th>
-        <th class="govuk-table__header" scope="col" style="text-align: right">Ex VAT</th>
-        <th class="govuk-table__header" scope="col" style="text-align: right">Inc VAT</th>
-      </tr>
-    </thead>
-    <tbody class="govuk-table__body">
-      {% for guid, items in items | groupby('spaceGUID') %}
+  {% if items | length %}
+    {% if isCurrentMonth %}
+      <p class="paas-table-notification">
+        This statement shows up to date provisional usage data for current month.
+      </p>
+    {% endif %}
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-          <th class="govuk-table__header " colspan="4" style="padding-top: 40px;">{{ items[0].space.entity.name or guid }}</th>
+          <th class="govuk-table__header" scope="col">Name</th>
+          <th class="govuk-table__header" scope="col">Plan</th>
+          <th class="govuk-table__header" scope="col" style="text-align: right">Ex VAT</th>
+          <th class="govuk-table__header" scope="col" style="text-align: right">Inc VAT</th>
         </tr>
-        {% for item in items %}
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for guid, items in items | groupby('spaceGUID') %}
           <tr class="govuk-table__row">
-            <td class="govuk-table__cell ">
-              {{ item.resourceName }}
-            </td>
-            <td class="govuk-table__cell ">
-              {{ item.planName }}
-            </td>
-            <td class="govuk-table__cell" style="text-align: right">
+            <th class="govuk-table__header " colspan="4" style="padding-top: 40px;">{{ items[0].space.entity.name or guid }}</th>
+          </tr>
+          {% for item in items %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell ">
+                {{ item.resourceName }}
+              </td>
+              <td class="govuk-table__cell ">
+                {{ item.planName }}
+              </td>
+              <td class="govuk-table__cell" style="text-align: right">
+                <div class="sym">&pound;</div>
+                {{ item.price.exVAT | currency(5) }}
+              </td>
+              <td class="govuk-table__cell" style="text-align: right">
+                <div class="sym">&pound;</div>
+                {{ item.price.incVAT | currency(5) }}
+              </td>
+            </tr>
+          {% endfor %}
+          <tr class="govuk-table__row" style="background: #efefef">
+            <th class="govuk-table__header " colspan="2">Sub-total</th>
+            <td class="govuk-table__cell" scope="col" style="text-align: right;">
               <div class="sym">&pound;</div>
-              {{ item.price.exVAT | currency(5) }}
+              <strong>{{ items | query('[].price.exVAT') | sum | currency(5) }}</strong>
             </td>
-            <td class="govuk-table__cell" style="text-align: right">
+            <td class="govuk-table__cell" scope="col" style="text-align: right;">
               <div class="sym">&pound;</div>
-              {{ item.price.incVAT | currency(5) }}
+              <strong>{{ items | query('[].price.incVAT') | sum | currency(5) }}</strong>
             </td>
           </tr>
         {% endfor %}
-        <tr class="govuk-table__row" style="background: #efefef">
-          <th class="govuk-table__header " colspan="2">Sub-total</th>
-          <td class="govuk-table__cell" scope="col" style="text-align: right;">
+        <tr class="govuk-table__row" >
+          <th class="govuk-table__header name" scope="col" colspan="2" style="padding-top: 60px;">Admin Fee</th>
+          <td class="govuk-table__cell" scope="col" style="text-align: right; padding-top: 60px;">
             <div class="sym">&pound;</div>
-            <strong>{{ items | query('[].price.exVAT') | sum | currency(5) }}</strong>
+            <strong>{{ (totals.exVAT/100*10) | currency(5) }}</strong>
           </td>
-          <td class="govuk-table__cell" scope="col" style="text-align: right;">
+          <td class="govuk-table__cell" scope="col" style="text-align: right; padding-top: 60px;">
             <div class="sym">&pound;</div>
-            <strong>{{ items | query('[].price.incVAT') | sum | currency(5) }}</strong>
+            <strong>{{ (totals.incVAT/100*10) | currency(5) }}</strong>
           </td>
         </tr>
-      {% endfor %}
-      <tr class="govuk-table__row" >
-        <th class="govuk-table__header name" scope="col" colspan="2" style="padding-top: 60px;">Admin Fee</th>
-        <td class="govuk-table__cell" scope="col" style="text-align: right; padding-top: 60px;">
-          <div class="sym">&pound;</div>
-          <strong>{{ (totals.exVAT/100*10) | currency(5) }}</strong>
-        </td>
-        <td class="govuk-table__cell" scope="col" style="text-align: right; padding-top: 60px;">
-          <div class="sym">&pound;</div>
-          <strong>{{ (totals.incVAT/100*10) | currency(5) }}</strong>
-        </td>
-      </tr>
-      <tr class="govuk-table__row" style="background: #efefef">
-        <th class="govuk-table__header name" scope="col" colspan="2" style="height: 60px;">TOTAL</th>
-        <td class="govuk-table__cell" scope="col" style="text-align: right;">
-          <div class="sym">&pound;</div>
-          <strong>{{ (totals.exVAT + totals.exVAT/100*10)  | currency(5) }}</strong>
-        </td>
-        <td class="govuk-table__cell" scope="col" style="text-align: right;">
-          <div class="sym">&pound;</div>
-          <strong>{{ (totals.incVAT + totals.incVAT/100*10) | currency(5) }}</strong>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+        <tr class="govuk-table__row" style="background: #efefef">
+          <th class="govuk-table__header name" scope="col" colspan="2" style="height: 60px;">TOTAL</th>
+          <td class="govuk-table__cell" scope="col" style="text-align: right;">
+            <div class="sym">&pound;</div>
+            <strong>{{ (totals.exVAT + totals.exVAT/100*10)  | currency(5) }}</strong>
+          </td>
+          <td class="govuk-table__cell" scope="col" style="text-align: right;">
+            <div class="sym">&pound;</div>
+            <strong>{{ (totals.incVAT + totals.incVAT/100*10) | currency(5) }}</strong>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  {% else %}
+    <p class="paas-table-notification">There is no record of any usage for that period.</p>
+  {% endif %}
 
 {% endblock %}
-
-
