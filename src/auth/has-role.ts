@@ -26,6 +26,16 @@ export class Token {
   public hasScope(scope: string): boolean {
     return this.scopes.includes(scope);
   }
+
+  public hasAnyScope(...scopes: string[]): boolean { // tslint:disable-line:readonly-array
+    for (const scope of scopes) {
+      if (this.scopes.includes(scope)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 
 function verify(accessToken: string, signingKeys: ReadonlyArray<string>): IToken {

@@ -3,9 +3,10 @@ import { IContext } from '../app/context';
 import CloudFoundryClient from '../cf';
 import { ISpace } from '../cf/types';
 import { BillingClient } from '../lib/billing';
-import { IParameters, IResponse } from '../lib/router';
+import { IParameters, IResponse, NotFoundError } from '../lib/router';
 
 import usageTemplate from './statement.njk';
+import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_READ_ONLY_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR } from '../auth';
 
 interface IResourceUsage {
   readonly resourceGUID: string;
@@ -42,6 +43,19 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
+
+  const isAdmin = ctx.token.hasAnyScope(
+    CLOUD_CONTROLLER_ADMIN,
+    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  );
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
+
+  /* istanbul ignore next */
+  if (!isAdmin && !isManager && !isBillingManager) {
+    throw new NotFoundError('not found');
+  }
 
   const organization = await cf.organization(params.organizationGUID);
   const spaces = await cf.spaces(params.organizationGUID);
