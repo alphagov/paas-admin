@@ -157,7 +157,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
 
   const organization = await cf.organization(params.organizationGUID);
   const users = await cf.usersForOrganization(params.organizationGUID);
-  await Promise.all(users.map(async (user: IOrganizationUserRoles) => {
+  const usersWithSpaces = await Promise.all(users.map(async (user: IOrganizationUserRoles) => {
     const userWithSpaces = {
       ...user,
       spaces: new Array(),
@@ -172,7 +172,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
       ); // TODO: permissions issue here
     }
 
-    return user;
+    return userWithSpaces;
   }));
 
   return {
@@ -181,7 +181,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
       isAdmin,
       isManager,
       linkTo: ctx.linkTo,
-      users,
+      users: usersWithSpaces,
       organization,
     }),
   };
