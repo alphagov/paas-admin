@@ -87,6 +87,35 @@ gorouter's self-signed cert (e.g. on bosh-lite).
 You should be able to edit files in the `./src` directory and the changes will
 automatically be updated.
 
+## Quick local start for review/troubleshooting
+
+Provided you have logged in CF and have AWS credentials
+
+1. Update uaa user:
+
+```
+DEPLOY_ENV=...
+uaac target https://uaa.${DEPLOY_ENV}.dev.cloudpipeline.digital
+uaac token client get admin -s $(aws s3 cp s3://gds-paas-${DEPLOY_ENV}-state/cf-secrets.yml  - | grep secrets_uaa_admin_client_secret | cut -f2 -d " ")
+uaac client update paas-admin --redirect-uri http://localhost:3000/auth/login/callback
+```
+
+2. Get the command to start the server:
+
+```
+cf target -o admin -s public
+cf env paas-admin | awk '/User-Provided/ { printing=1; next} /^$/ { printing=0 ; next} printing  {gsub(": ","=\""); gsub("$", "\" \\"); print; next  } END { print "npm start"}'
+
+```
+
+3. Undo the paas-admin client change once done:
+
+
+```
+uaac client update paas-admin --redirect-uri https://admin.${DEPLOY_ENV}.dev.cloudpipeline.digital/auth/login/callback
+```
+
+
 ## Production builds
 
 The `NODE_ENV` environment variable alters the build process to bundle all
@@ -123,3 +152,4 @@ This project is fairly young and may not be a right fit for different needs yet.
 You may be interested in investigating other tools, such as
 [Stratos](https://github.com/cloudfoundry-incubator/stratos) which may become
 an official tool some day.
+

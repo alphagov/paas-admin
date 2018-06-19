@@ -86,7 +86,7 @@
             <p class="govuk-grid-column-full">
               {{ (space.entity.memory_allocated / 1024) | round(2) }}gb of
               {% if space.entity.quota %}
-                {{ (space.entity.quota.memory_limit / 1024) | round(2) }}gb
+                {{ (space.entity.quota.entity.memory_limit / 1024) | round(2) }}gb
               {% else %}
                 no limit
               {% endif %}
