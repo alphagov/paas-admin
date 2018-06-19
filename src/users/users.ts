@@ -457,6 +457,14 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
 
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
   const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
   const users = await cf.usersForOrganization(params.organizationGUID);
@@ -482,6 +490,8 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
     throw new NotFoundError('user not found');
   }
 
+  const uaaUser = await uaa.getUser(user.metadata.guid);
+
   /* istanbul ignore next */
   const values: IRoleValues = {
     org_roles: {
@@ -506,8 +516,10 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
     }, Promise.resolve({})),
   };
 
+  /* istanbul ignore next */
   return {
     body: editTemplate.render({
+      isActive: uaaUser.active && uaaUser.verified,
       errors: [],
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,

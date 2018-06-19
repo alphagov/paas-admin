@@ -81,3 +81,15 @@ test('should fail retrieve signing keys due to UAA being politely hacked...', as
 
   t.rejects(async () => client.getSigningKeys(), /status 400/);
 });
+
+test('should retrieve particular user successfully', async t => {
+  const client = new UAAClient(config);
+  const id = 'uaa-id-123';
+
+  await nock(config.apiEndpoint)
+    .get(`/Users/${id}`).times(1).reply(200, {id});
+
+  const user = await client.getUser(id);
+
+  t.equal(user.id, id);
+});
