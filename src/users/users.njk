@@ -73,9 +73,13 @@
     {% for user in users %}
     <tr class="govuk-table__row">
       <td class="govuk-table__cell">
-        <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
+        {% if isAdmin or isManager %}
+          <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
+            {{ user.entity.username }}
+          </a>
+        {% else %}
           {{ user.entity.username }}
-        </a>
+        {% endif%}
       </td>
       <td class="govuk-table__cell">
         {% if 'billing_manager' in user.entity.organization_roles %}
@@ -94,7 +98,7 @@
       </td>
       <td class="govuk-table__cell">
         {% for space in user.spaces %}
-          <a href="linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})" class="govuk-link">{{ space.entity.name }}</a>
+          <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" class="govuk-link">{{ space.entity.name }}</a>
         {% endfor %}
       </td>
     </tr>

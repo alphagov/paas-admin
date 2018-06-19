@@ -115,9 +115,13 @@
           {% for user in managers %}
             <tr class="govuk-table__row">
               <td class="govuk-table__cell">
-                <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}">
+                {% if isAdmin or isManager %}
+                  <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}">
+                    {{ user.entity.username }}
+                  </a>
+                {% else %}
                   {{ user.entity.username }}
-                </a>
+                {% endif %}
               </td>
             </tr>
           {% endfor %}
