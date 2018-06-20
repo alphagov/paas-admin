@@ -83,6 +83,11 @@ export default class UAAClient {
     });
   }
 
+  public async getUser(userGUID: string) {
+    const response = await this.request('get', `/Users/${userGUID}`);
+    return response.data;
+  }
+
   public async findUser(email: string) {
     const params = {filter: `email eq ${JSON.stringify(email)}`};
     const response = await this.request('get', '/Users', {params});

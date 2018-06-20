@@ -115,6 +115,7 @@ test('ordinary set of tests', async suit => {
   ;
 
   nock(config.uaaAPI).persist()
+    .get('/Users/uaa-user-edit-123456').reply(200, uaaData.usersByEmail)
     .get('/Users?filter=email+eq+%22imeCkO@test.org%22').reply(200, uaaData.usersByEmail)
     .get('/Users?filter=email+eq+%22user@example.com%22').reply(200, uaaData.usersByEmail)
     .get('/Users?filter=email+eq+%22jeff@jeff.com%22').reply(200, uaaData.noFoundUsersByEmail)

@@ -45,11 +45,14 @@
       }) }}
     {% endif %}
 
-    <form method="post" action="{{ linkTo('admin.organizations.users.invite.resend', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-!-mt-r6">
-      {{ govukButton({
-        text: "Resend user invite"
-      }) }}
-    </form>
+    {% if not isActive %}
+      <form method="post" action="{{ linkTo('admin.organizations.users.invite.resend', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-!-mt-r6">
+        <p>It would appear the user did not setup their account yet.</p>
+        {{ govukButton({
+          text: "Resend user invite"
+        }) }}
+      </form>
+    {% endif %}
 
     <form method="post" class="govuk-!-mt-r6">
       {% include "./permissions.njk" %}
@@ -60,7 +63,7 @@
     </form>
 
     <a href="{{ linkTo('admin.organizations.users.delete', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
-      Remove user
+      Remove user from Organisation
     </a>
   </div>
 </div>
