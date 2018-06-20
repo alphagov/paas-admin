@@ -11,6 +11,7 @@ import * as data from '../cf/cf.test.data';
 import { viewApplication } from '.';
 
 nock('https://example.com/api').persist()
+  .get('/v2/organizations/6e1ca5aa-55f1-4110-a97f-1f3473e771b9/user_roles').times(1).reply(200, data.userRolesForOrg)
   .get('/v2/apps/15b3885d-0351-4b9b-8697-86641668c123').times(1).reply(200, data.app)
   .get('/v2/apps/15b3885d-0351-4b9b-8697-86641668c123/summary').times(1).reply(200, data.appSummary)
   .get('/v2/spaces/7846301e-c84c-4ba9-9c6a-2dfdae948d52').times(1).reply(200, data.space)

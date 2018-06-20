@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import moment from 'moment';
 import nock from 'nock';
 import pino from 'pino';
 import { test } from 'tap';
@@ -12,6 +13,7 @@ import * as statement from '.';
 
 // tslint:disable:max-line-length
 nock(config.cloudFoundryAPI)
+  .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').times(1).reply(200, data.userRolesForOrg)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275').times(1).reply(200, data.organization)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces').times(1).reply(200, data.spaces)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').times(1).reply(200, data.users)
@@ -31,14 +33,14 @@ nock(config.billingAPI)
 
 const tokenKey = 'secret';
 const token = jwt.sign({
-  user_id: 'uaa-user-123',
+  user_id: 'uaa-id-253',
   scope: [],
   exp: 2535018460,
 }, tokenKey);
 const ctx: IContext = {
   app: config,
   routePartOf: () => false,
-  linkTo: () => '__LINKED_TO__',
+  linkTo: (name, params) => `${name}/${params ? params.rangeStart : ''}`,
   log: pino({level: 'silent'}),
   token: new Token(token, [tokenKey]),
 };
@@ -68,4 +70,22 @@ test('should throw an error due to selecting middle of the month', async t => {
       rangeStart: '2018-01-15',
     })
   , /expected rangeStart to be the first of the month/);
+});
+
+test('should redirect to correct statement', async (t: any) => {
+  const response = await statement.statementRedirection(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    rangeStart: '2018-01-01',
+  });
+
+  t.contains(response.redirect, '/2018-01-01');
+});
+
+test('should redirect to current statement', async (t: any) => {
+  const response = await statement.statementRedirection(ctx, {
+    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+  });
+  const currentMonth = moment().startOf('month').format('YYYY-MM-DD');
+
+  t.contains(response.redirect, `/${currentMonth}`);
 });

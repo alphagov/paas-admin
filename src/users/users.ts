@@ -1,7 +1,7 @@
 import merge from 'merge-deep';
 
 import { IContext } from '../app/context';
-import { CLOUD_CONTROLLER_ADMIN } from '../auth';
+import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
 import CloudFoundryClient from '../cf';
 import {
   IOrganizationUserRoles,
@@ -152,8 +152,13 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
 
-  const isAdmin = await ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
+  const isAdmin = ctx.token.hasAnyScope(
+    CLOUD_CONTROLLER_ADMIN,
+    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  );
   const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
   const organization = await cf.organization(params.organizationGUID);
   const users = await cf.usersForOrganization(params.organizationGUID);
@@ -180,6 +185,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
       routePartOf: ctx.routePartOf,
       isAdmin,
       isManager,
+      isBillingManager,
       linkTo: ctx.linkTo,
       users: usersWithSpaces,
       organization,
@@ -195,6 +201,7 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
   const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -234,6 +241,9 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
       organization,
       spaces,
       values,
+      isAdmin,
+      isBillingManager,
+      isManager,
     }),
   };
 }
@@ -246,6 +256,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
   const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -350,6 +361,9 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
         organization,
+        isAdmin,
+        isBillingManager,
+        isManager,
       }),
     };
   } catch (err) {
@@ -363,6 +377,9 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
           organization,
           spaces,
           values,
+          isAdmin,
+          isBillingManager,
+          isManager,
         }),
         status: 400,
       };
@@ -467,6 +484,8 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
   const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
+
   const users = await cf.usersForOrganization(params.organizationGUID);
   const managers = users.filter((manager: IOrganizationUserRoles) =>
     manager.entity.organization_roles.some(role => role === 'org_manager'),
@@ -529,6 +548,9 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       spaces,
       user,
       values,
+      isAdmin,
+      isBillingManager,
+      isManager,
     }),
   };
 }
@@ -541,6 +563,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
   const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -585,6 +608,9 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
         organization,
+        isAdmin,
+        isBillingManager,
+        isManager,
       }),
     };
   } catch (err) {
@@ -599,6 +625,9 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
           spaces,
           user,
           values,
+          isAdmin,
+          isBillingManager,
+          isManager,
         }),
         status: 400,
       };
@@ -617,6 +646,7 @@ export async function confirmDeletion(ctx: IContext, params: IParameters): Promi
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
   const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -633,6 +663,9 @@ export async function confirmDeletion(ctx: IContext, params: IParameters): Promi
       linkTo: ctx.linkTo,
       organization,
       user,
+      isAdmin,
+      isBillingManager,
+      isManager,
     }),
   };
 }
@@ -645,6 +678,7 @@ export async function deleteUser(ctx: IContext, params: IParameters, _: object):
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
   const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -665,6 +699,9 @@ export async function deleteUser(ctx: IContext, params: IParameters, _: object):
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       organization,
+      isAdmin,
+      isBillingManager,
+      isManager,
     }),
   };
 }

@@ -96,6 +96,11 @@ const router = new Router([
     name: 'admin.statement.view',
     path: '/organisations/:organizationGUID/statements/:rangeStart',
   },
+  {
+    action: statement.statementRedirection,
+    name: 'admin.statement.dispatcher',
+    path: '/organisations/:organizationGUID/statements',
+  },
 ]);
 
 export default router;

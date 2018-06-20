@@ -1,9 +1,10 @@
 import moment from 'moment';
 import { IContext } from '../app/context';
+import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
 import CloudFoundryClient from '../cf';
 import { ISpace } from '../cf/types';
 import { BillingClient } from '../lib/billing';
-import { IParameters, IResponse } from '../lib/router';
+import { IParameters, IResponse, NotFoundError } from '../lib/router';
 
 import usageTemplate from './statement.njk';
 
@@ -28,6 +29,17 @@ interface IResourceGroup {
 
 const YYYMMDD = 'YYYY-MM-DD';
 
+export async function statementRedirection(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const date = params.rangeStart ? moment(params.rangeStart) : moment();
+
+  return {
+    redirect: ctx.linkTo('admin.statement.view', {
+      organizationGUID: params.organizationGUID,
+      rangeStart: date.startOf('month').format(YYYMMDD),
+    }),
+  };
+}
+
 export async function viewStatement(ctx: IContext, params: IParameters): Promise<IResponse> {
   const rangeStart = moment(params.rangeStart, YYYMMDD);
   if (!rangeStart.isValid()) {
@@ -42,6 +54,19 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
+
+  const isAdmin = ctx.token.hasAnyScope(
+    CLOUD_CONTROLLER_ADMIN,
+    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  );
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
+
+  /* istanbul ignore next */
+  if (!isAdmin && !isManager && !isBillingManager) {
+    throw new NotFoundError('not found');
+  }
 
   const organization = await cf.organization(params.organizationGUID);
   const spaces = await cf.spaces(params.organizationGUID);
@@ -106,6 +131,14 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     exVAT: events.reduce((sum, event) => sum + event.price.exVAT, 0),
   };
 
+  const listOfPastYearMonths: {[i: string]: string} = {};
+
+  for (let i = 0; i < 12; i++) {
+    const month = moment().subtract(i, 'month').startOf('month');
+
+    listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format('MMMM')} ${month.format('YYYY')}`;
+  }
+
   return {
     body: usageTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -115,6 +148,12 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       totals,
       items,
       usdExchangeRate,
+      isCurrentMonth: Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
+      listOfPastYearMonths,
+      selectedMonth: params.rangeStart,
+      isAdmin,
+      isBillingManager,
+      isManager,
     }),
   };
 }

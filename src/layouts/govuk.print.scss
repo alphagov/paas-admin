@@ -15,3 +15,17 @@ th {
 style + table {
   margin-top: 30px;
 }
+
+.paas-statement-range button {
+  display: none;
+}
+
+.paas-statement-range select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+}

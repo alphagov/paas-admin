@@ -58,6 +58,13 @@ test('should have scopes', async t => {
   t.ok(token.hasScope('read-write'));
 });
 
+test('should have scopes', async t => {
+  const accessToken = jwt.sign({exp: (time + (24 * 60 * 60)), scope: ['read-write', 'write-read']}, tokenKeys[0]);
+  const token = new Token(accessToken, tokenKeys);
+  t.ok(token.hasAnyScope('write-read'));
+  t.notOk(token.hasAnyScope('admin'));
+});
+
 test('should succeed when verifying with older key', async t => {
   const accessToken = jwt.sign({exp: (time + (24 * 60 * 60)), scope: ['read-write']}, tokenKeys[1]);
   const token = new Token(accessToken, tokenKeys);

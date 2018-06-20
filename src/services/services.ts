@@ -1,4 +1,5 @@
 import { IContext } from '../app/context';
+import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
 import CloudFoundryClient from '../cf';
 import { IParameters, IResponse } from '../lib/router';
 
@@ -9,6 +10,14 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
+
+  const isAdmin = ctx.token.hasAnyScope(
+    CLOUD_CONTROLLER_ADMIN,
+    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  );
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
+  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
   const userProvidedServices = await cf.userServices();
   const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
@@ -37,6 +46,9 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
       organization,
       service: summarisedService,
       space,
+      isAdmin,
+      isBillingManager,
+      isManager,
     }),
   };
 }

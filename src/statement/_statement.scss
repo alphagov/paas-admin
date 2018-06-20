@@ -1,0 +1,20 @@
+.paas-statement-range {
+    select {
+        width: 80%;
+    }
+
+    button {
+        margin-bottom: 5px;
+        width: 18%;
+    }
+}
+
+.sym {
+    float: left;
+}
+
+.paas-table-notification {
+    @include govuk-font-regular-24;
+    padding: 25px 0;
+    text-align: center;
+}
