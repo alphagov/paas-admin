@@ -62,10 +62,10 @@
   <thead class="govuk-table__head">
     <tr class="govuk-table__row">
       <th class="govuk-table__header name" scope="col">Name</th>
-      <th class="govuk-table__header is-billing-manager" scope="col">Org billing manager</th>
       <th class="govuk-table__header is-org-manager" scope="col">Org manager</th>
+      <th class="govuk-table__header is-billing-manager" scope="col">Org billing manager</th>
       <th class="govuk-table__header is-org-auditor" scope="col">Org auditor</th>
-      <th class="govuk-table__header spaces" scope="col">Spaces a collaborator on</th>
+      <th class="govuk-table__header spaces" scope="col">Spaces assigned or can access</th>
     </tr>
   </thead>
   <tbody class="govuk-table__body">
@@ -81,12 +81,12 @@
         {% endif%}
       </td>
       <td class="govuk-table__cell">
-        {% if 'billing_manager' in user.entity.organization_roles %}
+        {% if 'org_manager' in user.entity.organization_roles %}
           <img class="tick" alt="Yes" src="../static/images/tick.png">
         {% endif %}
       </td>
       <td class="govuk-table__cell">
-        {% if 'org_manager' in user.entity.organization_roles %}
+        {% if 'billing_manager' in user.entity.organization_roles %}
           <img class="tick" alt="Yes" src="../static/images/tick.png">
         {% endif %}
       </td>
