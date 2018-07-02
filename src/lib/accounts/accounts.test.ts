@@ -2,7 +2,7 @@ import moment from 'moment';
 import nock from 'nock';
 import { test } from 'tap';
 
-import { config } from '../../app/app.test.config';
+import { config } from '../../components/app/app.test.config';
 
 import { AccountsClient } from '.';
 

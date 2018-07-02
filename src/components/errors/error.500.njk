@@ -1,0 +1,11 @@
+{% extends "../../layouts/govuk.njk" %}
+
+{% block page_title %}
+  Internal Server Error
+{% endblock %}
+
+{% block main %}
+  <h1 class="govuk-heading-xl">Sorry an error occurred</h1>
+  <p class="govuk-body">Something went wrong while processing the request.</p>
+  <pre><code>{{ message.stack }}</code></pre>
+{% endblock %}

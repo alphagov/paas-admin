@@ -2,20 +2,19 @@
 @import 'elements';
 @import 'header';
 
-@import '../calculator/calculator';
+@import '../components/calculator/calculator';
 
-@import '../organizations/subnav/element';
+@import '../components/organizations/organizations';
+@import '../components/organizations/subnav/element';
 
-@import '../spaces/spaces';
-@import '../spaces/applications';
+@import '../components/spaces/spaces';
+@import '../components/spaces/applications';
 
-@import '../users/users';
-@import '../users/permissions';
-@import '../users/users';
+@import '../components/users/users';
+@import '../components/users/permissions';
+@import '../components/users/users';
 
-@import '../organizations/_organizations';
-
-@import '../statement/_statement';
+@import '../components/statements/statements';
 
 .text-right {
   text-align: right;
