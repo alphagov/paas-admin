@@ -28,7 +28,6 @@
   "author": "GOV.UK PaaS Team",
   "license": "MIT",
   "devDependencies": {
-    "@govuk-frontend/frontend": "0.0.30-alpha",
     "@types/compression": "0.0.36",
     "@types/express": "4.11.1",
     "@types/helmet": "0.0.37",
