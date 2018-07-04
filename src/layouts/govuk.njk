@@ -1,63 +1,102 @@
-{% extends "govuk_template_jinja/views/layouts/govuk_template.html" %}
-{% from "@govuk-frontend/frontend/components/phase-banner/macro.njk" import govukPhaseBanner %}
+{% from "govuk-frontend/components/header/macro.njk" import govukHeader %}
+{% from "govuk-frontend/components/phase-banner/macro.njk" import govukPhaseBanner %}
+{% from "govuk-frontend/components/footer/macro.njk" import govukFooter %}
 
-{% set homepage_url = '/' %}
+{% extends "govuk-frontend/template.njk" %}
 
-{% block page_title %}PaaS Administration{% endblock %}
+{% set htmlLang = "en" %}
+{% set themeColor = "blue" %}
+{% set bodyClasses = "govuk-body" %}
+
+{% block pageTitle %}PaaS Administration Tool{% endblock %}
+
+{% block headIcons %}
+  {{ super() }}
+{% endblock %}
 
 {% block head %}
-  <link href="./govuk.screen.scss" media="screen" rel="stylesheet" type="text/css" />
-  <link href="./govuk.print.scss" media="print" rel="stylesheet" type="text/css" />
+  <!--[if !IE 8]><!-->
+    <link href="./govuk.screen.scss" media="screen" rel="stylesheet" />
+  <!--<![endif]-->
+
+  <!--[if IE 8]>
+    <link href="./govuk.screen.ie8.scss" media="screen" rel="stylesheet" />
+  <![endif]-->
+
+  {# For older browsers to allow them to recognise HTML5 elements such as `<header>` #}
+  <!--[if lt IE 9]>
+    <script src="/html5-shiv/html5shiv.js"></script>
+  <![endif]-->
 {% endblock %}
 
-{% block inside_header %}
-  <div class="header-title">
-    Platform as a Service
-  </div>
-  <div class="navigation">
-    <ul>
-      <li><a href="/">My Organisations</a></li>
-      <li><a href="https://docs.cloud.service.gov.uk/">Documentation</a></li>
-      <li><a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">Support</a></li>
-      <li><a href="/auth/logout">Sign out</a></li>
-    <ul>
-  </div>
+{% block bodyStart %}
 {% endblock %}
 
-{% block cookie_message %}
-  <p>GOV.UK uses cookies to make the site simpler. <a href="#">Find out more about cookies</a></p>
+{% block header %}
+  {{ govukHeader({
+    homepageUrl: "/",
+    containerClasses: "govuk-width-container",
+    serviceName: "Platform as a Service",
+    serviceUrl: "https://www.cloud.service.gov.uk/",
+    navigation: [
+      {
+        href: "/",
+        text: "My Organisations"
+      },
+      {
+        href: "https://docs.cloud.service.gov.uk/",
+        text: "Documentation"
+      },
+      {
+        href: "mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk",
+        text: "Support"
+      },
+      {
+        href: "/auth/logout",
+        text: "Sign out"
+      }
+    ]
+  }) }}
 {% endblock %}
 
-{% block footer_support_links %}
-  <nav class="footer-nav">
-    <ul>
-      <li>Built by the <a href="https://www.gov.uk/government/organisations/government-digital-service">Government Digital Service</a></li>
-      <li><a href="#">Cookies</a></li>
-    </ul>
-  </nav>
+{% block main %}
+  {{ super() }}
+{% endblock %}
+
+{% block beforeContent %}
+  {{ govukPhaseBanner({
+    tag: {
+      text: 'alpha'
+    },
+    html: 'This is a new service – your <a class="govuk-link" href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">feedback</a> will help us to improve it.'
+  }) }}
+
+  {% if organization %}
+    {% include "../components/organizations/subnav/element.njk" %}
+  {% endif %}
 {% endblock %}
 
 {% block content %}
-  <div class="govuk-width-container">
-    {{ govukPhaseBanner({
-      tag: {
-        text: 'alpha'
-      },
-      html: 'This is a new service – your <a class="govuk-link" href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">feedback</a> will help us to improve it.'
-    }) }}
-
-    <main class="govuk-main-wrapper {% if organization %} with-subnav {% endif %} {% block main_classes %}{% endblock %}">
-      {% if organization %}
-        {% include "../components/organizations/subnav/element.njk" %}
-      {% endif %}
-
-      {% block main %}
-        No content rendered to 'main' block
-      {% endblock %}
-    </main>
-  </div>
+  
 {% endblock %}
 
-{% block body_end %}
+{% block footer %}
+  {{ govukFooter({
+    meta: {
+      items: [
+        {
+          href: "https://www.gov.uk/government/organisations/government-digital-service",
+          text: "Built by the Government Digital Service"
+        },
+        {
+          href: "https://www.cloud.service.gov.uk/cookies",
+          text: "Cookies"
+        }
+      ]
+    }
+  }) }}
+{% endblock %}
 
+{% block bodyEnd %}
+  <script src="/assets/all.js"></script>
 {% endblock %}

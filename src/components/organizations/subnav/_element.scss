@@ -1,42 +1,37 @@
-main.with-subnav {
-  padding-top: 0;
+.govuk-phase-banner + .subnav {
+  border-bottom: 1px solid govuk-colour("grey-2");
+  margin: 0;
 
-  .subnav {
-    border-bottom: 1px solid $govuk-grey-2;
+  div:first-of-type {
+    padding-left: 0;
+  }
+
+  strong {
+    display: inline-block;
+    padding-bottom: govuk-spacing(2);
+    padding-top: govuk-spacing(2);
+  }
+
+  nav {
     margin: 0;
-    margin-bottom: $govuk-spacing-scale-8;
+    padding-right: 0;
+    text-align: right;
 
-    div:first-of-type {
-      padding-left: 0;
-    }
-
-    strong {
+    a {
+      border-bottom: govuk-spacing(1) solid transparent;
       display: inline-block;
-      padding-bottom: $govuk-spacing-scale-2;
-      padding-top: $govuk-spacing-scale-2;
-    }
+      margin-left: govuk-spacing(2);
+      padding-bottom: govuk-spacing(2);
+      padding-top: govuk-spacing(2);
+      text-decoration: none;
+      transition: border-bottom .1s ease;
 
-    nav {
-      margin: 0;
-      padding-right: 0;
-      text-align: right;
+      &:last-of-type {
+        padding-right: 0;
+      }
 
-      a {
-        border-bottom: $govuk-spacing-scale-1 solid transparent;
-        display: inline-block;
-        margin-left: $govuk-spacing-scale-2;
-        padding-bottom: $govuk-spacing-scale-2;
-        padding-top: $govuk-spacing-scale-2;
-        text-decoration: none;
-        transition: border-bottom .1s ease;
-
-        &:last-of-type {
-          padding-right: 0;
-        }
-
-        &.active {
-          border-bottom: $govuk-spacing-scale-1 solid $govuk-black;
-        }
+      &.active {
+        border-bottom: govuk-spacing(1) solid govuk-colour("black");
       }
     }
   }

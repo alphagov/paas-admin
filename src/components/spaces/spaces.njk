@@ -1,15 +1,17 @@
 {% extends "../../layouts/govuk.njk" %}
-{% from "@govuk-frontend/frontend/components/input/macro.njk" import govukInput %}
-{% from "@govuk-frontend/frontend/components/button/macro.njk" import govukButton %}
-{% from "@govuk-frontend/frontend/components/panel/macro.njk" import govukPanel %}
-{% from "@govuk-frontend/frontend/components/back-link/macro.njk" import govukBackLink %}
-{% from "@govuk-frontend/frontend/components/details/macro.njk" import govukDetails %}
+{% from "govuk-frontend/components/input/macro.njk" import govukInput %}
+{% from "govuk-frontend/components/button/macro.njk" import govukButton %}
+{% from "govuk-frontend/components/panel/macro.njk" import govukPanel %}
+{% from "govuk-frontend/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk-frontend/components/details/macro.njk" import govukDetails %}
 
-{% block page_title %}
+{% block pageTitle %}
   Spaces
 {% endblock %}
 
-{% block main %}
+{% block content %}
+  {{ super() }}
+
   <div class="govuk-grid-row govuk-!-mb-r8 govuk-!-mt-r5">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">
@@ -55,7 +57,7 @@
 
   <div class="govuk-grid-row space-wrapper">
   {% for space in spaces %}
-    <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" id="space-{{ space.metadata.guid }}">
+    <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" id="space-{{ space.metadata.guid }}" class="govuk-link">
       <section class="govuk-grid-row space">
         <div class="govuk-grid-column-one-third">
           <h3>
@@ -117,7 +119,7 @@
             <tr class="govuk-table__row">
               <td class="govuk-table__cell">
                 {% if isAdmin or isManager %}
-                  <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}">
+                  <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
                     {{ user.entity.username }}
                   </a>
                 {% else %}

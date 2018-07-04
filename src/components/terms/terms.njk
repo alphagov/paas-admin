@@ -1,11 +1,13 @@
 {% extends "../../layouts/govuk.njk" %}
-{% from "@govuk-frontend/frontend/components/button/macro.njk" import govukButton %}
+{% from "govuk-frontend/components/button/macro.njk" import govukButton %}
 
-{% block page_title %}
+{% block pageTitle %}
   Terms
 {% endblock %}
 
-{% block main %}
+{% block content %}
+  {{ super() }}
+
   <form method="post" action="/agreements">
     <div class="md">
       {{ document.content | markdown | safe }}

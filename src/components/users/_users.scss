@@ -1,21 +1,21 @@
 .user-roles {
  h3 {
-  @include govuk-font-bold-19;
+  @include govuk-font($size: 19, $weight: bold);;
  }
 
  p {
-  @include govuk-font-regular-19;
+  @include govuk-font($size: 19);;
  }
 }
 
 table.user-list {
 
   th {
-    @include govuk-font-bold-16;
+    @include govuk-font($size: 16, $weight: bold);;
   }
 
   td {
-    @include govuk-font-bold-16;
+    @include govuk-font($size: 16, $weight: bold);;
   }
   .name {
     min-width: 280px;

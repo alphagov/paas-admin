@@ -14,7 +14,7 @@
 }
 
 .paas-table-notification {
-    @include govuk-font-regular-24;
+    @include govuk-font($size: 24);;
     padding: 25px 0;
     text-align: center;
 }
