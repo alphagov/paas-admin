@@ -143,10 +143,7 @@ if (process.env.ENABLE_SERVER === 'true') {
 
 cfg.externals.push(nodeModules({whitelist: [
   /govuk-frontend/,
-  /govuk_template_jinja/,
   /webpack\/hot/
 ]}));
-
-cfg = enableTemplate(cfg);
 
 module.exports = cfg;
