@@ -9,7 +9,7 @@
     "build": "npm run -s clean && webpack --config config/webpack.config.js",
     "watch": "ENABLE_WATCH=true ENABLE_TESTS=true npm run -s build",
     "test": "ENABLE_COVERAGE=true npm run -s test:unit && npm run -s lint && npm run -s test:vulnerabilities",
-    "test:unit": "ENABLE_TESTS=true npm run -s build",
+    "test:unit": "jest --coverage",
     "test:audit": "npm audit",
     "test:vulnerabilities": "if npm audit | grep -E -B9999 '\\d+\\s+(high|critical)'; then npm audit; else exit 0; fi",
     "lint": "npm run -s lint:ts && npm run -s lint:sass",
@@ -51,6 +51,7 @@
     "file-loader": "1.1.11",
     "glob": "7.1.2",
     "html-loader": "0.5.5",
+    "identity-obj-proxy": "3.0.0",
     "imports-loader": "0.8.0",
     "istanbul-instrumenter-loader": "3.0.1",
     "jest": "23.2.0",
@@ -110,5 +111,42 @@
   "engines": {
     "node": "8.x.x",
     "npm": ">=5.x.x"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/.+.njk",
+      "<rootDir>/config/",
+      "index.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest",
+      "^.+\\.(css|scss|sass)$": "identity-obj-proxy",
+      "^.+\\.(html|njk)$": "<rootDir>/config/jest/njk.js",
+      "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/config/jest/file.js"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.json"
+      }
+    },
+    "testMatch": [
+      "<rootDir>/src/**/*.test.+(ts|tsx|js|jsx)"
+    ]
   }
 }

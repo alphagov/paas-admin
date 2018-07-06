@@ -2,8 +2,6 @@ const path = require('path');
 const CompressionPlugin = require('compression-webpack-plugin');
 const webpack = require('webpack');
 const nodeModules = require('webpack-node-externals');
-const enableTemplate = require('./template.config');
-const enableTests = require('./tests.config');
 const enableServer = require('./server.config');
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -141,10 +139,6 @@ if (process.env.ENABLE_WATCH === 'true') {
 
 if (process.env.ENABLE_SERVER === 'true') {
   cfg = enableServer(cfg);
-}
-
-if (process.env.ENABLE_TESTS === 'true') {
-  cfg = enableTests(cfg);
 }
 
 cfg.externals.push(nodeModules({whitelist: [

@@ -1,3 +1,3 @@
 declare module '*.njk' {
-  export function render(params: object): string;
+  export function render(params: object, cb?: any): string;
 }
