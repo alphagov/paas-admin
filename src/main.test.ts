@@ -1,8 +1,8 @@
 import { ChildProcess, spawn } from 'child_process';
 import request from 'supertest';
-import { test } from 'tap';
 
 const envVars = {
+  PATH: process.env.PATH,
   OAUTH_CLIENT_ID: 'uaa-id',
   OAUTH_CLIENT_SECRET: 'uaa-secret',
   API_URL: 'https://example.com/api',
@@ -19,67 +19,75 @@ export interface IProcess extends ChildProcess {
   port?: number;
 }
 
-test('should listen on a random port by default', async ts => {
-  const proc = await run(envVars);
-  ts.ok(proc.port > 0);
-  await ts.resolves(request(`http://localhost:${proc.port}`).get('/healthcheck').expect(200));
-  kill(proc);
-});
+describe.only('main test suite', () => {
+  it('should listen on a random port by default', async () => {
+    const proc = await run(envVars);
+    expect(proc.port).toBeGreaterThan(0);
 
-test('should listen on PORT environment variable', async ts => {
-  const newEnvVars = {...envVars, PORT: 4551};
-  const proc = await run(newEnvVars);
-  await ts.resolves(request(`http://localhost:4551`).get('/healthcheck').expect(200));
-  kill(proc);
-});
+    const response = await request(`http://localhost:${proc.port}`).get('/healthcheck');
+    expect(response.status).toEqual(200);
 
-test('should emit structured request logs', async ts => {
-  const newEnvVars = {...envVars, LOG_LEVEL: 'info'};
-
-  const proc = await run(newEnvVars);
-  try {
-    await ts.resolves(request(`http://localhost:${proc.port}`).get('/healthcheck').expect(200));
-
-    const line = await waitForOutput(proc, /request completed/);
-    const data = JSON.parse(line);
-    ts.ok(data.req);
-    ts.equal(data.req.method, 'GET');
-  } catch (err) {
-    ts.fail(err);
-  }
-  kill(proc);
-});
-
-test('should exit gracefully on SIGTERM', async ts => {
-  const proc = await run(envVars);
-  const code = await kill(proc, 'SIGTERM');
-  ts.equal(code, 0);
-});
-
-test('should exit gracefully on SIGINT', async ts => {
-  const proc = await run(envVars);
-  const code = await kill(proc, 'SIGINT');
-  ts.equal(code, 0);
-});
-
-test('should exit with non-zero status on error (invalid PORT)', ts => {
-  const newEnvVars = {...envVars, PORT: -1};
-  const proc = spawn(process.argv0, ['./dist/main.js'], {env: newEnvVars});
-  proc.once('error', ts.fail);
-  proc.once('close', code => {
-    ts.ok(code > 0);
-    ts.end();
+    kill(proc);
   });
-});
 
-test('should exit due to a missing variable', ts => {
-  const newEnvVars = {...envVars};
-  newEnvVars.API_URL = '';
-  const proc = spawn(process.argv0, ['./dist/main.js'], {env: newEnvVars});
-  proc.once('error', ts.fail);
-  proc.once('close', code => {
-    ts.ok(code > 0);
-    ts.end();
+  it('should listen on PORT environment variable', async () => {
+    const newEnvVars = {...envVars, PORT: 4551};
+    const proc = await run(newEnvVars);
+    const response = await request(`http://localhost:4551`).get('/healthcheck');
+
+    expect(response.status).toEqual(200);
+    kill(proc);
+  });
+
+  it('should emit structured request logs', async () => {
+    const newEnvVars = {...envVars, LOG_LEVEL: 'info'};
+
+    const proc = await run(newEnvVars);
+    try {
+      const response = await request(`http://localhost:${proc.port}`).get('/healthcheck');
+      expect(response.status).toEqual(200);
+
+      const line = await waitForOutput(proc, /request completed/);
+      const data = JSON.parse(line);
+      expect(data.req).toBeDefined();
+      expect(data.req.method).toEqual('GET');
+    } catch (err) {
+      expect(err).not.toBeDefined();
+    }
+    kill(proc);
+  });
+
+  it('should exit gracefully on SIGTERM', async () => {
+    const proc = await run(envVars);
+    const code = await kill(proc, 'SIGTERM');
+    expect(code).toEqual(0);
+  });
+
+  it('should exit gracefully on SIGINT', async () => {
+    const proc = await run(envVars);
+    const code = await kill(proc, 'SIGINT');
+    expect(code).toEqual(0);
+  });
+
+  it('should exit with non-zero status on error (invalid PORT)', (done) => {
+    const newEnvVars = {...envVars, PORT: -1};
+    const proc = spawn(process.argv0, ['./dist/main.js'], {env: newEnvVars});
+    proc.once('error', fail);
+    proc.once('close', code => {
+      expect(code).not.toEqual(0);
+      done();
+    });
+  });
+
+  it('should exit due to a missing variable', (done) => {
+    const newEnvVars = {...envVars};
+    newEnvVars.API_URL = '';
+    const proc = spawn(process.argv0, ['./dist/main.js'], {env: newEnvVars});
+    proc.once('error', fail);
+    proc.once('close', code => {
+      expect(code).not.toEqual(0);
+      done();
+    });
   });
 });
 

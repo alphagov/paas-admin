@@ -5,147 +5,186 @@ import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import pino from 'pino';
 import request from 'supertest';
-import { test } from 'tap';
-
-import UAAClient from '../../lib/uaa';
 
 import auth from '.';
 
-const app = express();
+describe('auth test suite', () => {
+  const app = express();
+  const tokenKey = 'secret';
+  const logger = pino({level: 'silent'});
 
-const tokenKey = 'secret';
+  app.use(pinoMiddleware({logger}));
 
-nock('https://example.com/uaa').persist()
-  .get('/token_keys').reply(200, {keys: [{value: tokenKey}]});
+  app.use(cookieSession({name: 'auth-test', keys: ['mysecret']}));
 
-const logger = pino({level: 'silent'});
+  app.use(auth({
+    authorizationURL: 'https://example.com/login/oauth/authorize',
+    clientID: 'key',
+    clientSecret: 'secret',
+    logoutURL: 'https://example.com/login/logout.do',
+    tokenURL: 'https://example.com/uaa/oauth/token',
+    uaaAPI: 'https://example.com/uaa',
+  }));
 
-app.use(pinoMiddleware({logger}));
-
-app.use(cookieSession({name: 'auth-test', keys: ['mysecret']}));
-
-app.use((req: any, _res, next) => {
-  req.uaa = new UAAClient({
-    apiEndpoint: 'https://example.com/uaa',
-    clientCredentials: {
-      clientID: 'client',
-      clientSecret: 'secret',
-    },
+  app.get('/test', (_req, res) => {
+    res.status(200);
+    res.send('OK');
   });
 
-  next();
-});
+  describe('when configured correctly', () => {
+    nock('https://example.com/uaa').persist()
+      .get('/token_keys').reply(200, {keys: [{value: tokenKey}]});
 
-app.use(auth({
-  authorizationURL: 'https://example.com/login/oauth/authorize',
-  clientID: 'key',
-  clientSecret: 'secret',
-  logoutURL: 'https://example.com/login/logout.do',
-  tokenURL: 'https://example.com/uaa/oauth/token',
-  uaaAPI: 'https://example.com/uaa',
-}));
+    it('can not reach an endpoint behind authentication ', async () => {
+      const response = await request(app).get('/test');
 
-app.get('/test', (_req, res) => {
-  res.status(200);
-  res.send('OK');
-});
-
-test('can not reach an endpoint behind authentication ', async t => {
-  const response = await request(app).get('/test');
-
-  t.equal(response.status, 302);
-  t.equal(response.header.location, '/auth/login');
-});
-
-test('the login page redirects to the authorize endpoint of the IDP', async t => {
-  const response = await request(app).get('/auth/login');
-
-  t.equal(response.status, 302);
-  t.equal(response.header.location, 'https://example.com/login/oauth/authorize?response_type=code&client_id=key');
-});
-
-test('can login with a code', async t => {
-  const time = Math.floor(Date.now() / 1000);
-  const token = jwt.sign({
-    user_id: 'uaa-user-123',
-    scope: [],
-    exp: (time + (24 * 60 * 60)),
-  }, tokenKey);
-
-  // Capture the request to the given URL and prepare a response.
-  nock('https://example.com/uaa')
-    .post('/oauth/token')
-    .times(1)
-    .reply(200, {
-      access_token: token, // eslint-disable-line camelcase
-      token_type: 'bearer', // eslint-disable-line camelcase
-      refresh_token: '__refresh_token__', // eslint-disable-line camelcase
-      expires_in: (24 * 60 * 60), // eslint-disable-line camelcase
-      scope: 'openid oauth.approvals',
-      jti: '__jti__',
+      expect(response.status).toEqual(302);
+      expect(response.header.location).toEqual('/auth/login');
     });
 
-  const agent = request.agent(app);
+    it('the login page redirects to the authorize endpoint of the IDP', async () => {
+      const response = await request(app).get('/auth/login');
 
-  await t.test('can reach an endpoint behind authentication', async ts => {
-    const response = await agent.get('/test');
-
-    ts.equal(response.status, 302);
-  });
-
-  await t.test('should authenticate successfully', async ts => {
-    const response = await agent.get('/auth/login/callback?code=__fakecode&state=__fakestate');
-
-    ts.equal(response.status, 302);
-    ts.contains(response.header.location, '/');
-  });
-
-  await t.test('can reach an endpoint behind authentication', async ts => {
-    const response = await agent.get('/test');
-
-    ts.equal(response.status, 200);
-  });
-
-  await t.test('does logout the user', async ts => {
-    const response = await agent.get('/auth/logout');
-
-    ts.equal(response.status, 302);
-    ts.equal(response.header.location, 'https://example.com/login/logout.do');
-  });
-
-  await t.test('can not reach an endpoint behind authentication', async ts => {
-    const response = await request(app).get('/test');
-
-    ts.equal(response.status, 302);
-    ts.equal(response.header.location, '/auth/login');
-  });
-});
-
-test('when faulty token is returned', async t => {
-  const agent = request.agent(app);
-
-  // Capture the request to the given URL and prepare a response.
-  nock('https://example.com/uaa')
-    .post('/oauth/token')
-    .times(1)
-    .reply(200, {
-      access_token: '__access_token__', // eslint-disable-line camelcase
-      token_type: 'bearer', // eslint-disable-line camelcase
-      refresh_token: '__refresh_token__', // eslint-disable-line camelcase
-      expires_in: (24 * 60 * 60), // eslint-disable-line camelcase
-      scope: 'openid oauth.approvals',
-      jti: '__jti__',
+      expect(response.status).toEqual(302);
+      expect(response.header.location)
+        .toEqual('https://example.com/login/oauth/authorize?response_type=code&client_id=key');
     });
 
-  await t.test('should authenticate successfully', async ts => {
-    const response = await agent.get('/auth/login/callback?code=__fakecode__&state=__fakestate__');
+    describe('can login with a code', () => {
+      const time = Math.floor(Date.now() / 1000);
+      const token = jwt.sign({
+        user_id: 'uaa-user-123',
+        scope: [],
+        exp: (time + (24 * 60 * 60)),
+      }, tokenKey);
 
-    ts.equal(response.status, 302);
+      // Capture the request to the given URL and prepare a response.
+      nock('https://example.com/uaa')
+        .post('/oauth/token')
+        .times(1)
+        .reply(200, {
+          access_token: token,
+          token_type: 'bearer',
+          refresh_token: '__refresh_token__',
+          expires_in: (24 * 60 * 60),
+          scope: 'openid oauth.approvals',
+          jti: '__jti__',
+        });
+
+      const agent = request.agent(app);
+
+      it('can reach an endpoint behind authentication', async () => {
+        const response = await agent.get('/test');
+
+        expect(response.status).toEqual(302);
+      });
+
+      it('should authenticate successfully', async () => {
+        const response = await agent.get('/auth/login/callback?code=__fakecode&state=__fakestate');
+
+        response.header['set-cookie'][0]
+          .split(',')
+          .map((item: string) => item.split(';')[0])
+          .forEach((cookie: string) => agent.jar.setCookie(cookie));
+
+        expect(response.status).toEqual(302);
+        expect(response.header.location).toContain('/');
+      });
+
+      it('can reach an endpoint behind authentication', async () => {
+        const response = await agent.get('/test');
+
+        expect(response.status).toEqual(200);
+      });
+
+      it('does logout the user', async () => {
+        const response = await agent.get('/auth/logout');
+
+        expect(response.status).toEqual(302);
+        expect(response.header.location).toEqual('https://example.com/login/logout.do');
+      });
+
+      it('can not reach an endpoint behind authentication', async () => {
+        const response = await request(app).get('/test');
+
+        expect(response.status).toEqual(302);
+        expect(response.header.location).toEqual('/auth/login');
+      });
+    });
+
+    describe('when faulty token is returned', () => {
+      const agent = request.agent(app);
+
+      nock('https://example.com/uaa')
+        .post('/oauth/token')
+        .times(1)
+        .reply(200, {
+          access_token: '__access_token__',
+          token_type: 'bearer',
+          refresh_token: '__refresh_token__',
+          expires_in: (24 * 60 * 60),
+          scope: 'openid oauth.approvals',
+          jti: '__jti__',
+        });
+
+      it('should authenticate successfully', async () => {
+        const response = await agent.get('/auth/login/callback?code=__fakecode__&state=__fakestate__');
+
+        expect(response.status).toEqual(302);
+      });
+
+      it('should be redirected to login due to faulty token', async () => {
+        const response = await agent.get('/test');
+
+        expect(response.status).toEqual(302);
+      });
+    });
   });
 
-  await t.test('should be redirected to login due to faulty token', async ts => {
-    const response = await agent.get('/test');
+  describe('when misconfigured', () => {
+    const agent = request.agent(app);
+    const time = Math.floor(Date.now() / 1000);
+    const token = jwt.sign({
+      user_id: 'uaa-user-123',
+      scope: [],
+      exp: (time + (24 * 60 * 60)),
+    }, tokenKey);
 
-    ts.equal(response.status, 302);
+    beforeAll(() => {
+      nock.cleanAll();
+
+      nock('https://example.com/uaa').persist()
+        .get('/token_keys').reply(500);
+
+      nock('https://example.com/uaa')
+        .post('/oauth/token')
+        .times(1)
+        .reply(200, {
+          access_token: token,
+          token_type: 'bearer',
+          refresh_token: '__refresh_token__',
+          expires_in: (24 * 60 * 60),
+          scope: 'openid oauth.approvals',
+          jti: '__jti__',
+        });
+    });
+
+    it('should authenticate successfully', async () => {
+      const response = await agent.get('/auth/login/callback?code=__fakecode&state=__fakestate');
+
+      response.header['set-cookie'][0]
+        .split(',')
+        .map((item: string) => item.split(';')[0])
+        .forEach((cookie: string) => agent.jar.setCookie(cookie));
+
+      expect(response.status).toEqual(302);
+      expect(response.header.location).toContain('/');
+    });
+
+    it('should be redirected to login due faulty /token_keys endpoint', async () => {
+      const response = await agent.get('/test');
+
+      expect(response.status).toEqual(302);
+    });
   });
 });

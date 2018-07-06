@@ -1,72 +1,71 @@
 import jwt from 'jsonwebtoken';
-import { test } from 'tap';
 
 import { Token } from '.';
 
 const tokenKeys: ReadonlyArray<string> = ['secret', 'old-secret'];
 const time = Math.floor(Date.now() / 1000);
 
-test('should throw error if unverifiable accessToken', async t => {
+it('should throw error if unverifiable accessToken', async () => {
   const accessToken = jwt.sign({}, 'bad-secret');
-  t.throws(() => {
+  expect(() => {
     const token = new Token(accessToken, tokenKeys);
-    t.notOk(token);
-  }, /invalid signature/);
+    expect(token).not.toBeTruthy();
+  }).toThrow(/invalid signature/);
 });
 
-test('should throw error if signed token is a string', async t => {
+it('should throw error if signed token is a string', async () => {
   const accessToken = jwt.sign('not-an-object', tokenKeys[0]);
-  t.throws(() => {
+  expect(() => {
     const token = new Token(accessToken, tokenKeys);
-    t.notOk(token);
-  }, /could not verify the token as no object has been verified/);
+    expect(token).not.toBeTruthy();
+  }).toThrow(/could not verify the token as no object has been verified/);
 });
 
-test('should throw error if expiry is missing', async t => {
+it('should throw error if expiry is missing', async () => {
   const accessToken = jwt.sign({}, tokenKeys[0]);
-  t.throws(() => {
+  expect(() => {
     const token = new Token(accessToken, tokenKeys);
-    t.notOk(token);
-  }, /could not verify the token as no exp have been decoded/);
+    expect(token).not.toBeTruthy();
+  }).toThrow(/could not verify the token as no exp have been decoded/);
 });
 
-test('should throw error if scope is not an array', async t => {
+it('should throw error if scope is not an array', async () => {
   const accessToken = jwt.sign({exp: (time + (24 * 60 * 60)), scope: 'not-an-array'}, tokenKeys[0]);
-  t.throws(() => {
+  expect(() => {
     const token = new Token(accessToken, tokenKeys);
-    t.notOk(token);
-  }, /could not verify the token as no scope/);
+    expect(token).not.toBeTruthy();
+  }).toThrow(/could not verify the token as no scope/);
 });
 
-test('should have expiry', async t => {
+it('should have expiry', async () => {
   const accessToken = jwt.sign({exp: (time + (24 * 60 * 60)), scope: []}, tokenKeys[0]);
   const token = new Token(accessToken, tokenKeys);
-  t.ok(token.expiry);
-  t.ok(typeof token.expiry === 'number');
+  expect(token.expiry).toBeDefined();
+  expect(typeof token.expiry).toEqual('number');
 });
 
-test('should have scopes', async t => {
+it('should have scopes', async () => {
   const accessToken = jwt.sign({exp: (time + (24 * 60 * 60)), scope: ['read-write']}, tokenKeys[0]);
   const token = new Token(accessToken, tokenKeys);
-  t.ok(token.scopes);
-  t.ok(token.scopes[0] === 'read-write');
+  expect(token.scopes).toBeDefined();
+  expect(token.scopes[0]).toEqual('read-write');
 });
 
-test('should have scopes', async t => {
+it('should have scopes', async () => {
   const accessToken = jwt.sign({exp: (time + (24 * 60 * 60)), scope: ['read-write']}, tokenKeys[0]);
   const token = new Token(accessToken, tokenKeys);
-  t.ok(token.hasScope('read-write'));
+  expect(token.hasScope('read-write')).toBeTruthy();
 });
 
-test('should have scopes', async t => {
+it('should have scopes', async () => {
   const accessToken = jwt.sign({exp: (time + (24 * 60 * 60)), scope: ['read-write', 'write-read']}, tokenKeys[0]);
   const token = new Token(accessToken, tokenKeys);
-  t.ok(token.hasAnyScope('write-read'));
-  t.notOk(token.hasAnyScope('admin'));
+  expect(token.hasAnyScope('write-read')).toBeTruthy();
+  expect(token.hasAnyScope('admin')).toBeFalsy();
 });
 
-test('should succeed when verifying with older key', async t => {
+it('should succeed when verifying with older key', async () => {
   const accessToken = jwt.sign({exp: (time + (24 * 60 * 60)), scope: ['read-write']}, tokenKeys[1]);
   const token = new Token(accessToken, tokenKeys);
-  t.ok(token.expiry);
+  expect(token.expiry).toBeDefined();
 });

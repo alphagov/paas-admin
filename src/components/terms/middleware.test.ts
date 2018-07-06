@@ -2,7 +2,6 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import request from 'supertest';
-import { test } from 'tap';
 
 import { config } from '../app/app.test.config';
 import { Token } from '../auth';
@@ -61,46 +60,48 @@ nock(config.accountsAPI)
   .post('/agreements').reply(201, ``)
 ;
 
-test('should only active middleware if token present', async t => {
-  const agent = request.agent(app);
-  const response = await agent.get('/');
-  t.contains(response.text, 'HOME');
-  t.equal(response.status, 200);
-});
-
-test('should redirect to view terms if there is a pending doc', async t => {
-  const agent = request.agent(app);
-  const response = await agent.get('/user-with-pending').redirects(0);
-  t.equal(response.status, 302);
-  t.equal(response.header.location, '/agreements/my-pending-doc');
-});
-
-test('should render a terms document with a form that references the document id', async t => {
-  const agent = request.agent(app);
-  const response = await agent.get('/agreements/my-pending-doc');
-  t.contains(response.text, '<input type="hidden" name="document_name" value="my-pending-doc">');
-  t.contains(response.text, 'my-pending-doc-content-1');
-  t.equal(response.status, 200);
-});
-
-test('should NOT redirect if there are no pending docs', async t => {
-  const agent = request.agent(app);
-  const response = await agent.get('/user-without-pending');
-  t.equal(response.text, 'HOME');
-  t.equal(response.status, 200);
-});
-
-test('should handle POST /agreements', async t => {
-  const agent = request.agent(app);
-  const response = await agent.post('/agreements').type('form').send({
-    document_name: 'my-doc',
+describe('terms test suite', () => {
+  it('should only active middleware if token present', async () => {
+    const agent = request.agent(app);
+    const response = await agent.get('/');
+    expect(response.text).toContain('HOME');
+    expect(response.status).toEqual(200);
   });
-  t.equal(response.status, 302);
-});
 
-test('should skip middleware if method not a GET request', async t => {
-  const agent = request.agent(app);
-  const response = await agent.post('/user-with-pending');
-  t.equal(response.text, 'HOME');
-  t.equal(response.status, 200);
+  it('should redirect to view terms if there is a pending doc', async () => {
+    const agent = request.agent(app);
+    const response = await agent.get('/user-with-pending').redirects(0);
+    expect(response.status).toEqual(302);
+    expect(response.header.location).toEqual('/agreements/my-pending-doc');
+  });
+
+  it('should render a terms document with a form that references the document id', async () => {
+    const agent = request.agent(app);
+    const response = await agent.get('/agreements/my-pending-doc');
+    expect(response.text).toContain('<input type="hidden" name="document_name" value="my-pending-doc">');
+    expect(response.text).toContain('my-pending-doc-content-1');
+    expect(response.status).toEqual(200);
+  });
+
+  it('should NOT redirect if there are no pending docs', async () => {
+    const agent = request.agent(app);
+    const response = await agent.get('/user-without-pending');
+    expect(response.text).toEqual('HOME');
+    expect(response.status).toEqual(200);
+  });
+
+  it('should handle POST /agreements', async () => {
+    const agent = request.agent(app);
+    const response = await agent.post('/agreements').type('form').send({
+      document_name: 'my-doc',
+    });
+    expect(response.status).toEqual(302);
+  });
+
+  it('should skip middleware if method not a GET request', async () => {
+    const agent = request.agent(app);
+    const response = await agent.post('/user-with-pending');
+    expect(response.text).toEqual('HOME');
+    expect(response.status).toEqual(200);
+  });
 });

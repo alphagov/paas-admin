@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import pino from 'pino';
-import { test } from 'tap';
 
 import * as data from '../../lib/cf/cf.test.data';
 
@@ -39,28 +38,30 @@ const ctx: IContext = {
   token: new Token(token, [tokenKey]),
 };
 
-test('should show the spaces pages', async t => {
-  const response = await spaces.listSpaces(ctx, {
-    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+describe('spaces test suite', () => {
+  it('should show the spaces pages', async () => {
+    const response = await spaces.listSpaces(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    });
+
+    expect(response.body).toContain('Spaces');
   });
 
-  t.contains(response.body, 'Spaces');
-});
+  it('should show list of applications in space', async () => {
+    const response = await spaces.listApplications(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      spaceGUID: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
+    });
 
-test('should show list of applications in space', async t => {
-  const response = await spaces.listApplications(ctx, {
-    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-    spaceGUID: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
+    expect(response.body).toContain('name-1382 - Overview');
   });
 
-  t.contains(response.body, 'name-1382 - Overview');
-});
+  it('should show list of services in space', async () => {
+    const response = await spaces.listBackingServices(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      spaceGUID: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
+    });
 
-test('should show list of services in space', async t => {
-  const response = await spaces.listBackingServices(ctx, {
-    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-    spaceGUID: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
+    expect(response.body).toContain('name-1382 - Overview');
   });
-
-  t.contains(response.body, 'name-1382 - Overview');
 });

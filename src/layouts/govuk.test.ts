@@ -1,7 +1,8 @@
-import { test } from 'tap';
 import govukTemplate from './govuk.njk';
 
-test('it should render ok without any special parameters', async t => {
-  const html = govukTemplate.render({});
-  t.contains(html, 'Platform as a Service');
+describe('layout test suite', () => {
+  it('it should render ok without any special parameters', async () => {
+    const html = govukTemplate.render({});
+    expect(html).toContain('Platform as a Service');
+  });
 });
