@@ -19,6 +19,8 @@ export interface IProcess extends ChildProcess {
   port?: number;
 }
 
+jest.setTimeout(30000);
+
 describe.only('main test suite', () => {
   it('should listen on a random port by default', async () => {
     const proc = await run(envVars);
@@ -27,7 +29,7 @@ describe.only('main test suite', () => {
     const response = await request(`http://localhost:${proc.port}`).get('/healthcheck');
     expect(response.status).toEqual(200);
 
-    kill(proc);
+    await kill(proc);
   });
 
   it('should listen on PORT environment variable', async () => {
