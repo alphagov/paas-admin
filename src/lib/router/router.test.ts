@@ -1,4 +1,4 @@
-import {test} from 'tap';
+import { test } from 'tap';
 
 import Router from './router';
 

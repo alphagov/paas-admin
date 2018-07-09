@@ -1,0 +1,51 @@
+{% extends "../../layouts/govuk.njk" %}
+
+{% block page_title %}
+  {{ space.entity.name }} - Overview
+{% endblock %}
+
+{% block main %}
+  <h1 class="govuk-heading-l">
+    <span class="govuk-caption-l">Space</span>
+    {{ space.entity.name }}
+  </h1>
+
+  {% include "./_tabs.njk" %}
+
+  {% if space.entity.services.length > 0 %}
+
+    <h2 class="govuk-heading-m paas-space-between-heading-and-table">
+      This space contains {{ space.entity.services | length }} backing services
+    </h2>
+
+    <table class="govuk-table space-overview">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header name" scope="col">Service name</th>
+          <th class="govuk-table__header" scope="col">Type</th>
+          <th class="govuk-table__header" scope="col">Plan</th>
+          <th class="govuk-table__header" scope="col">State</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for service in space.entity.services %}
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="row">
+              <a href="{{ linkTo('admin.organizations.spaces.services.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.guid}) }}" class="govuk-link">{{ service.name }}</a>
+            </th>
+            <td class="govuk-table__cell ">
+              {{ service.service_plan.service.label | default('User Provided Service') }}
+            </td>
+            <td class="govuk-table__cell ">
+              {{ service.service_plan.name | default('N/A') }}
+            </td>
+            <td class="govuk-table__cell ">
+              {{ service.last_operation.state | default('N/A') }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+{% endblock %}

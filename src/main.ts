@@ -1,8 +1,9 @@
 import pino from 'pino';
 import sourceMapSupport from 'source-map-support';
 
-import app, { IAppConfig } from './app/app';
-import CloudFoundryClient from './cf';
+import app, { IAppConfig } from './components/app';
+import CloudFoundryClient from './lib/cf';
+
 import Server from './server';
 
 sourceMapSupport.install();
@@ -82,8 +83,8 @@ async function main() {
 
   /* istanbul ignore if  */
   if (module.hot) {
-    module.hot.accept('./app/app.ts', () => {
-      const updatedApp = require('./app/app').default;
+    module.hot.accept('./components/app/app.ts', () => {
+      const updatedApp = require('./components/app/app').default;
       server.update(updatedApp(config));
     });
   }

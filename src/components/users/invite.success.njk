@@ -1,0 +1,37 @@
+{% extends "../../layouts/govuk.njk" %}
+{% from "@govuk-frontend/frontend/components/button/macro.njk" import govukButton %}
+{% from "@govuk-frontend/frontend/components/back-link/macro.njk" import govukBackLink %}
+{% from "@govuk-frontend/frontend/components/panel/macro.njk" import govukPanel %}
+
+{% block page_title %}
+  Invited a new team member
+{% endblock %}
+
+{% block main %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-half">
+    {{ govukBackLink({
+      text: "See all team members",
+      href: linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid})
+    }) }}
+  </div>
+
+  <div class="govuk-grid-column-one-half govuk-!-pt-r1 text-right">
+    {{ govukButton({
+      text: "Invite a new team member",
+      href: linkTo('admin.organizations.users.invite', {organizationGUID: organization.metadata.guid})
+    }) }}
+  </div>
+
+  <div class="govuk-grid-column-full">
+    {{ govukPanel({
+      titleText: "Success!",
+      text: "We've have sent your invitation"
+    }) }}
+  </div>
+
+  {% if errors and errors.length > 0 %}
+    <p>{{ errors | query("[].message") | join(", ") }}</p>
+  {% endif %}
+</div>
+{% endblock %}
