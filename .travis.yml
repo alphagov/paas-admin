@@ -5,4 +5,5 @@ env:
 install:
   - NODE_ENV=development npm install
 script:
+  - npm run build
   - npm test

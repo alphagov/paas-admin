@@ -1,8 +1,8 @@
 {% extends "../../layouts/govuk.njk" %}
-{% from "@govuk-frontend/frontend/components/button/macro.njk" import govukButton %}
-{% from "@govuk-frontend/frontend/components/input/macro.njk" import govukInput %}
-{% from "@govuk-frontend/frontend/components/radios/macro.njk" import govukRadios %}
-{% from "@govuk-frontend/frontend/components/select/macro.njk" import govukSelect %}
+{% from "govuk-frontend/components/button/macro.njk" import govukButton %}
+{% from "govuk-frontend/components/input/macro.njk" import govukInput %}
+{% from "govuk-frontend/components/radios/macro.njk" import govukRadios %}
+{% from "govuk-frontend/components/select/macro.njk" import govukSelect %}
 
 {% macro stateFields(state, remove="NONE") %}
   <input type="hidden" name="rangeStart" value="{{ state.rangeStart }}" />
@@ -16,11 +16,13 @@
   {% endfor %}
 {% endmacro %}
 
-{% block page_title %}
+{% block pageTitle %}
   Pricing calculator
 {% endblock %}
 
-{% block main %}
+{% block content %}
+  {{ super() }}
+
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-half">
       <h1 class="paas-heading-l">Estimate your monthly costs</h1>

@@ -1,7 +1,7 @@
-import jmespath from 'jmespath';
-import showdown from 'showdown';
+const jmespath = require('jmespath');
+const showdown = require('showdown');
 
-export default function configure(env) {
+function configure(env) {
   env.addFilter('query', (data, query) => {
     return jmespath.search(data, query);
   });
@@ -31,5 +31,6 @@ export default function configure(env) {
     const converter = new showdown.Converter();
     return converter.makeHtml(text);
   });
-
 }
+
+module.exports = configure;

@@ -1,1 +1,1 @@
-export { default as BillingClient } from './billing';
+export { default, default as BillingClient } from './billing';

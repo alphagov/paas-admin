@@ -2,11 +2,11 @@
   word-break: normal;
 
 	th {
-    @include govuk-font-bold-16;
+    @include govuk-font($size: 16, $weight: bold);;
   }
 
   td {
-    @include govuk-font-regular-16
+    @include govuk-font($size: 16);
   }
 }
 
@@ -16,7 +16,7 @@
   border-bottom: 1px solid #ccc;
   margin-bottom: 40px;
   margin-top: 50px;
-  @include govuk-font-bold-19;
+  @include govuk-font($size: 19, $weight: bold);;
 
   li {
     padding-top: 10px;

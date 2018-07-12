@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import nock from 'nock';
 import pino from 'pino';
-import { test } from 'tap';
 
 import * as data from '../../lib/cf/cf.test.data';
 
@@ -46,47 +45,45 @@ const ctx: IContext = {
   token: new Token(token, [tokenKey]),
 };
 
-test('should require a valid rangeStart param', async t => {
-  return t.rejects(
-    statement.viewStatement(ctx, {
+describe('statements test suite', () => {
+  it('should require a valid rangeStart param', async () => {
+    await expect(statement.viewStatement(ctx, {
+        organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+        rangeStart: 'not-a-date',
+      })).rejects.toThrow(/invalid rangeStart provided/);
+  });
+
+  it('should show the statement page', async () => {
+    const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-      rangeStart: 'not-a-date',
-    })
-  , /invalid rangeStart provided/);
-});
+      rangeStart: '2018-01-01',
+    });
 
-test('should show the statement page', async t => {
-  const response = await statement.viewStatement(ctx, {
-    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-    rangeStart: '2018-01-01',
+    expect(response.body).toContain('Statement');
   });
 
-  t.contains(response.body, 'Statement');
-});
+  it('should throw an error due to selecting middle of the month', async () => {
+    await expect(statement.viewStatement(ctx, {
+        organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+        rangeStart: '2018-01-15',
+      })).rejects.toThrow(/expected rangeStart to be the first of the month/);
+  });
 
-test('should throw an error due to selecting middle of the month', async t => {
-  return t.rejects(
-    statement.viewStatement(ctx, {
+  it('should redirect to correct statement', async () => {
+    const response = await statement.statementRedirection(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-      rangeStart: '2018-01-15',
-    })
-  , /expected rangeStart to be the first of the month/);
-});
+      rangeStart: '2018-01-01',
+    });
 
-test('should redirect to correct statement', async (t: any) => {
-  const response = await statement.statementRedirection(ctx, {
-    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-    rangeStart: '2018-01-01',
+    expect(response.redirect).toContain('/2018-01-01');
   });
 
-  t.contains(response.redirect, '/2018-01-01');
-});
+  it('should redirect to current statement', async () => {
+    const response = await statement.statementRedirection(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    });
+    const currentMonth = moment().startOf('month').format('YYYY-MM-DD');
 
-test('should redirect to current statement', async (t: any) => {
-  const response = await statement.statementRedirection(ctx, {
-    organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    expect(response.redirect).toContain(`/${currentMonth}`);
   });
-  const currentMonth = moment().startOf('month').format('YYYY-MM-DD');
-
-  t.contains(response.redirect, `/${currentMonth}`);
 });

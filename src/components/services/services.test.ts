@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import pino from 'pino';
-import {test} from 'tap';
 
 import * as data from '../../lib/cf/cf.test.data';
 
@@ -37,22 +36,24 @@ const ctx: IContext = {
   token: new Token(token, [tokenKey]),
 };
 
-test('should show the service overview page', async t => {
-  const response = await viewService(ctx, {
-    organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-    serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-    spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+describe('services test suite', () => {
+  it('should show the service overview page', async () => {
+    const response = await viewService(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+    });
+
+    expect(response.body).toContain('name-1508 - Service Overview');
   });
 
-  t.contains(response.body, 'name-1508 - Service Overview');
-});
+  it('should show the user provided service overview page', async () => {
+    const response = await viewService(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+    });
 
-test('should show the user provided service overview page', async t => {
-  const response = await viewService(ctx, {
-    organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-    serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
-    spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+    expect(response.body).toContain('name-1700 - Service Overview');
   });
-
-  t.contains(response.body, 'name-1700 - Service Overview');
 });

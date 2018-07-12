@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import pino from 'pino';
-import { test } from 'tap';
 
 import { organizations } from '../../lib/cf/cf.test.data';
 
@@ -27,8 +26,10 @@ const ctx: IContext = {
   token: new Token(token, [tokenKey]),
 };
 
-test('should show the organisation pages', async t => {
-  const response = await listOrganizations(ctx, {});
+describe('organizations test suite', () => {
+  it('should show the organisation pages', async () => {
+    const response = await listOrganizations(ctx, {});
 
-  t.contains(response.body, 'Choose an organisation');
+    expect(response.body).toContain('Choose an organisation');
+  });
 });

@@ -2,7 +2,6 @@ import express from 'express';
 import pinoMiddleware from 'express-pino-logger';
 import pino from 'pino';
 import request from 'supertest';
-import { test } from 'tap';
 
 import Router, { NotFoundError } from '../../lib/router';
 
@@ -27,32 +26,34 @@ app.use((req: any, _res, next) => {
   next();
 });
 
-test('should display an internal-server-error 500 error page for errors', async t => {
-  app.use('/bang', (_req, _res, _next) => {
-    throw new Error('bang');
+describe('errors test suite', () => {
+  it('should display an internal-server-error 500 error page for errors', async () => {
+    app.use('/bang', (_req, _res, _next) => {
+      throw new Error('bang');
+    });
+    app.use(internalServerErrorMiddleware);
+    const response = await request(app).get('/bang');
+
+    expect(response.status).toEqual(500);
+    expect(response.text).toContain('Sorry an error occurred');
   });
-  app.use(internalServerErrorMiddleware);
-  const response = await request(app).get('/bang');
 
-  t.equal(response.status, 500);
-  t.contains(response.text, 'Sorry an error occurred');
-});
+  it('should display an not-found 404 error page if a route throws that type of error', async () => {
+    app.get('/throw-not-found', (_req, _res) => {
+      throw new NotFoundError('TEST CASE');
+    });
+    app.use(internalServerErrorMiddleware);
+    const response = await request(app).get('/throw-not-found');
 
-test('should display an not-found 404 error page if a route throws that type of error', async t => {
-  app.get('/throw-not-found', (_req, _res) => {
-    throw new NotFoundError('TEST CASE');
+    expect(response.status).toEqual(404);
+    expect(response.text).toContain('Page not found');
   });
-  app.use(internalServerErrorMiddleware);
-  const response = await request(app).get('/throw-not-found');
 
-  t.equal(response.status, 404);
-  t.contains(response.text, 'Page not found');
-});
+  it('should display an not-found 404 error page for missing pages', async () => {
+    app.use(pageNotFoundMiddleware);
+    const response = await request(app).get('/not-to-exist');
 
-test('should display an not-found 404 error page for missing pages', async t => {
-  app.use(pageNotFoundMiddleware);
-  const response = await request(app).get('/not-to-exist');
-
-  t.equal(response.status, 404);
-  t.contains(response.text, 'Page not found');
+    expect(response.status).toEqual(404);
+    expect(response.text).toContain('Page not found');
+  });
 });

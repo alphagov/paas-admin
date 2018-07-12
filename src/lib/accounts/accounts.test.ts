@@ -1,6 +1,5 @@
 import moment from 'moment';
 import nock from 'nock';
-import { test } from 'tap';
 
 import { config } from '../../components/app/app.test.config';
 
@@ -48,46 +47,48 @@ nock(cfg.apiEndpoint)
   .post('/agreements').reply(201, ``)
 ;
 
-test('should fetch a document', async t => {
-  const ac = new AccountsClient(cfg);
-  const doc = await ac.getDocument('my-doc');
-  t.equal(doc.name, 'my-doc');
-  t.equal(doc.validFrom.toString(), moment('2018-04-20T14:36:09+00:00').toDate().toString());
-  t.equal(doc.content, 'my-doc-content');
-});
+describe('lib/accounts test suite', () => {
+  it('should fetch a document', async () => {
+    const ac = new AccountsClient(cfg);
+    const doc = await ac.getDocument('my-doc');
+    expect(doc.name).toEqual('my-doc');
+    expect(doc.validFrom.toString()).toEqual(moment('2018-04-20T14:36:09+00:00').toDate().toString());
+    expect(doc.content).toEqual('my-doc-content');
+  });
 
-test('should fail to fetch a document with invalid timestamp', async t => {
-  const ac = new AccountsClient(cfg);
-  return t.rejects(ac.getDocument('bad-timestamp-doc'), /invalid date format/);
-});
+  it('should fail to fetch a document with invalid timestamp', async () => {
+    const ac = new AccountsClient(cfg);
+    await expect(ac.getDocument('bad-timestamp-doc')).rejects.toThrow(/invalid date format/);
+  });
 
-test('should pass though json errors from response if available', async t => {
-  const ac = new AccountsClient(cfg);
-  return t.rejects(ac.getDocument('json-500'), /internal-server-error-json/);
-});
+  it('should pass though json errors from response if available', async () => {
+    const ac = new AccountsClient(cfg);
+    await expect(ac.getDocument('json-500')).rejects.toThrow(/internal-server-error-json/);
+  });
 
-test('should pass though json errors from response if available', async t => {
-  const ac = new AccountsClient(cfg);
-  return t.rejects(ac.getDocument('plain-500'), /failed with status 500/);
-});
+  it('should pass though json errors from response if available', async () => {
+    const ac = new AccountsClient(cfg);
+    await expect(ac.getDocument('plain-500')).rejects.toThrow(/failed with status 500/);
+  });
 
-test('should update a document', async t => {
-  const ac = new AccountsClient(cfg);
-  const ok = await ac.putDocument('my-doc', 'my-new-doc-content');
-  t.ok(ok);
-});
+  it('should update a document', async () => {
+    const ac = new AccountsClient(cfg);
+    const ok = await ac.putDocument('my-doc', 'my-new-doc-content');
+    expect(ok).toBeTruthy();
+  });
 
-test('should fetch pending documents for a user', async t => {
-  const ac = new AccountsClient(cfg);
-  const docs = await ac.getPendingDocumentsForUserUUID('7fab36d8-a63a-4543-9a24-d7a3fe2f128b');
-  t.equal(docs.length, 1);
-  t.equal(docs[0].name, 'my-doc-1');
-  t.equal(docs[0].validFrom.toString(), moment('2018-04-20T14:36:09+00:00').toDate().toString());
-  t.equal(docs[0].content, 'my-pending-doc-content-1');
-});
+  it('should fetch pending documents for a user', async () => {
+    const ac = new AccountsClient(cfg);
+    const docs = await ac.getPendingDocumentsForUserUUID('7fab36d8-a63a-4543-9a24-d7a3fe2f128b');
+    expect(docs.length).toEqual(1);
+    expect(docs[0].name).toEqual('my-doc-1');
+    expect(docs[0].validFrom.toString()).toEqual(moment('2018-04-20T14:36:09+00:00').toDate().toString());
+    expect(docs[0].content).toEqual('my-pending-doc-content-1');
+  });
 
-test('should create an agreement', async t => {
-  const ac = new AccountsClient(cfg);
-  const ok = await ac.createAgreement('my-doc', '7fab36d8-a63a-4543-9a24-d7a3fe2f128b');
-  t.ok(ok);
+  it('should create an agreement', async () => {
+    const ac = new AccountsClient(cfg);
+    const ok = await ac.createAgreement('my-doc', '7fab36d8-a63a-4543-9a24-d7a3fe2f128b');
+    expect(ok).toBeTruthy();
+  });
 });

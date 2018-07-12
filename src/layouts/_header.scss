@@ -1,6 +1,6 @@
 .header-wrapper {
   a {
-    color: $govuk-white;
+    color: #fff;
     text-decoration: none;
 
     &:hover {
@@ -11,7 +11,7 @@
 
 .header-title {
   color: #fff;
-  @include govuk-font-regular-24;
+  @include govuk-font($size: 24);;
   float: left;
   margin-top: 8px;
 }
@@ -25,10 +25,10 @@
 .navigation {
   float:right;
   display: block;
-  margin-right: $govuk-spacing-scale-3;
+  margin-right: govuk-spacing(3);
   margin-top: 7px;
   padding-top: 0;
-  @include govuk-font-bold-16;
+  @include govuk-font($size: 16, $weight: bold);;
 
   ul {
     margin: 0;
@@ -37,6 +37,6 @@
   li {
     list-style-type: none;
     display: inline;
-    margin-left: $govuk-spacing-scale-3;
+    margin-left: govuk-spacing(3);
   }
 }

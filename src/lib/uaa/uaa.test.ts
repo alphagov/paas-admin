@@ -1,5 +1,4 @@
 import nock from 'nock';
-import { test } from 'tap';
 
 import UAAClient from './uaa';
 import * as data from './uaa.test.data';
@@ -19,77 +18,79 @@ nock('https://example.com/uaa').persist()
   .get('/failure/404').times(1).reply(404, `{"error": "FAKE_404"}`)
   .get('/failure/500').times(1).reply(500, `FAKE_500`);
 
-// IMPORTANT: The following tests are useless in TypeScript :(
+describe('lib/uaa test suite', () => {
+  // IMPORTANT: The following tests are useless in TypeScript :(
 
-// test('authenticate function requires clientID and clientSecret', async t => {
-//   await t.rejects(authenticate('https://example.com/uaa', {clientSecret: 'secret'}), /clientID is required/);
-//   await t.rejects(authenticate('https://example.com/uaa', {clientID: 'my-id'}), /clientSecret is required/);
-// });
+  // it('authenticate function requires clientID and clientSecret', async () => {
+  //   await t.rejects(authenticate('https://example.com/uaa', {clientSecret: 'secret'}), /clientID is required/);
+  //   await t.rejects(authenticate('https://example.com/uaa', {clientID: 'my-id'}), /clientSecret is required/);
+  // });
 
-// test('UAAClient requires clientCredentials', async t => {
-//   const client = new UAAClient({apiEndpoint: 'https://example.com/uaa', clientCredentials: {clientID: 'my-id'}});
-//   return t.rejects(client.getAccessToken(), /clientSecret is required/);
-// });
+  // it('UAAClient requires clientCredentials', async () => {
+  //   const client = new UAAClient({apiEndpoint: 'https://example.com/uaa', clientCredentials: {clientID: 'my-id'}});
+  //   return t.rejects(client.getAccessToken(), /clientSecret is required/);
+  // });
 
-// test('UAAClient requires clientCredentials', async t => {
-//   const client = new UAAClient({apiEndpoint: 'https://example.com/uaa'});
-//   return t.rejects(client.getAccessToken(), /unable to get access token/);
-// });
+  // it('UAAClient requires clientCredentials', async () => {
+  //   const client = new UAAClient({apiEndpoint: 'https://example.com/uaa'});
+  //   return t.rejects(client.getAccessToken(), /unable to get access token/);
+  // });
 
-test('should throw an error when receiving 404', async t => {
-  const client = new UAAClient(config);
-  return t.rejects(client.request('get', '/failure/404'), 'FAKE_404');
-});
+  it('should throw an error when receiving 404', async () => {
+    const client = new UAAClient(config);
+    await expect(client.request('get', '/failure/404')).rejects.toThrow(/FAKE_404/);
+  });
 
-test('should throw an error when unrecognised error', async t => {
-  const client = new UAAClient(config);
-  return t.rejects(client.request('get', '/failure/500'), 'FAKE_500');
-});
+  it('should throw an error when unrecognised error', async () => {
+    const client = new UAAClient(config);
+    await expect(client.request('get', '/failure/500')).rejects.toThrow(/status 500/);
+  });
 
-test('should find a user by email', async t => {
-  const client = new UAAClient(config);
-  const user = await client.findUser('imeCkO@test.org');
-  t.equal(user.userName, 'imeCkO@test.org');
-});
+  it('should find a user by email', async () => {
+    const client = new UAAClient(config);
+    const user = await client.findUser('imeCkO@test.org');
+    expect(user.userName).toEqual('imeCkO@test.org');
+  });
 
-test('should invite a user by email', async t => {
-  const client = new UAAClient(config);
-  const invitation = await client.inviteUser('user1@71xl2o.com', 'client-id', 'https://example.com/');
-  t.equal(invitation.userId, '5ff19d4c-8fa0-4d74-94e0-52eac86d55a8');
-});
+  it('should invite a user by email', async () => {
+    const client = new UAAClient(config);
+    const invitation = await client.inviteUser('user1@71xl2o.com', 'client-id', 'https://example.com/');
+    expect(invitation.userId).toEqual('5ff19d4c-8fa0-4d74-94e0-52eac86d55a8');
+  });
 
-test('should retrieve signing keys', async t => {
-  const client = new UAAClient(config);
+  it('should retrieve signing keys', async () => {
+    const client = new UAAClient(config);
 
-  nock(config.apiEndpoint)
-    .get('/token_keys').times(1).reply(200, {keys: [{value: 'secret'}]});
+    nock(config.apiEndpoint)
+      .get('/token_keys').times(1).reply(200, {keys: [{value: 'secret'}]});
 
-  const tokenKeys = await client.getSigningKeys();
-  t.equal(tokenKeys.length, 1);
-  t.equal(tokenKeys[0], 'secret');
+    const tokenKeys = await client.getSigningKeys();
+    expect(tokenKeys.length).toEqual(1);
+    expect(tokenKeys[0]).toEqual('secret');
 
-  const cachedKeys = await client.getSigningKeys();
-  t.equal(cachedKeys.length, 1);
-  t.equal(cachedKeys[0], 'secret');
-});
+    const cachedKeys = await client.getSigningKeys();
+    expect(cachedKeys.length).toEqual(1);
+    expect(cachedKeys[0]).toEqual('secret');
+  });
 
-test('should fail retrieve signing keys due to UAA being politely hacked...', async t => {
-  const client = new UAAClient(config);
+  it('should fail retrieve signing keys due to UAA being politely hacked...', async () => {
+    const client = new UAAClient(config);
 
-  await nock(config.apiEndpoint)
-    .get('/token_keys').times(1).reply(400, {message: 'pwnd'});
+    await nock(config.apiEndpoint)
+      .get('/token_keys').times(1).reply(400, {message: 'pwnd'});
 
-  t.rejects(async () => client.getSigningKeys(), /status 400/);
-});
+    await expect(client.getSigningKeys()).rejects.toThrow(/status 400/);
+  });
 
-test('should retrieve particular user successfully', async t => {
-  const client = new UAAClient(config);
-  const id = 'uaa-id-123';
+  it('should retrieve particular user successfully', async () => {
+    const client = new UAAClient(config);
+    const id = 'uaa-id-123';
 
-  await nock(config.apiEndpoint)
-    .get(`/Users/${id}`).times(1).reply(200, {id});
+    await nock(config.apiEndpoint)
+      .get(`/Users/${id}`).times(1).reply(200, {id});
 
-  const user = await client.getUser(id);
+    const user = await client.getUser(id);
 
-  t.equal(user.id, id);
+    expect(user.id).toEqual(id);
+  });
 });

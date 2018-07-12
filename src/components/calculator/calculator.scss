@@ -1,18 +1,18 @@
 .paas-summary-section {
-  @include govuk-font-regular-16;
-  padding-top: $govuk-spacing-scale-3;
-  padding-bottom: $govuk-spacing-scale-3;
-  padding-left: $govuk-spacing-scale-3;
-  padding-right: $govuk-spacing-scale-3;
-  background-color: $govuk-grey-4;
-  border: 10px $govuk-grey-3 solid;
+  @include govuk-font($size: 16);;
+  padding-top: govuk-spacing(3);
+  padding-bottom: govuk-spacing(3);
+  padding-left: govuk-spacing(3);
+  padding-right: govuk-spacing(3);
+  background-color: govuk-colour("grey-4");
+  border: 10px govuk-colour("grey-3") solid;
   position: -webkit-sticky;
   position: sticky;
-  top: $govuk-spacing-scale-3;
+  top: govuk-spacing(3);
   margin-top: 25px;
 
   h2 {
-    @include govuk-font-bold-24;
+    @include govuk-font($size: 24, $weight: bold);;
   }
 
   table {
@@ -38,7 +38,7 @@
   }
 
   button {
-    @include govuk-font-regular-24;
+    @include govuk-font($size: 24);;
     background: none;
     border: none;
     cursor: pointer;
@@ -47,20 +47,20 @@
   }
 
   .paas-price {
-    @include govuk-font-bold-36;
+    @include govuk-font($size: 36, $weight: bold);;
     margin-bottom: 0;
     margin-top: 0;
     display: block;
   }
 
   .paas-month {
-    @include govuk-font-bold-16;
+    @include govuk-font($size: 16, $weight: bold);;
     margin-top: 0;
   }
 
   .paas-total {
-    margin-bottom: $govuk-spacing-scale-1;
-    margin-top: $govuk-spacing-scale-6;
+    margin-bottom: govuk-spacing(1);
+    margin-top: govuk-spacing(6);
   }
 
   .govuk-details {
@@ -74,23 +74,23 @@
 }
 
 .paas-calculator-lede {
-  margin-bottom: $govuk-spacing-scale-9;
-  @include govuk-font-regular-19;
+  margin-bottom: govuk-spacing(9);
+  @include govuk-font($size: 19);;
 }
 
 .paas-example {
-  @include govuk-font-regular-24;
+  @include govuk-font($size: 24);;
 }
 
 .paas-service-list {
   caption {
-    @include govuk-font-bold-24;
+    @include govuk-font($size: 24, $weight: bold);;
     margin-bottom: 20px;
   }
 
   th {
     text-align: left;
-    border-bottom: 5px solid $govuk-black;
+    border-bottom: 5px solid govuk-colour("black");
   }
 }
 
@@ -105,7 +105,7 @@
   }
 
   select {
-    @include govuk-font-regular-16;
+    @include govuk-font($size: 16);;
   }
 
   /*Gov.Uk select macros do not allow you to exclude the label element even
@@ -117,11 +117,11 @@
   }
 
   button {
-    @include govuk-font-regular-16;
+    @include govuk-font($size: 16);;
     background: none;
     border: none;
     box-shadow: none;
-    color: $govuk-blue;
+    color: govuk-colour("blue");
     cursor: pointer;
     display: inline-block;
     text-align: right;
