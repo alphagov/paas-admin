@@ -20,15 +20,6 @@
     border-collapse: collapse;
   }
 
-  tr:nth-child(even) td {
-    padding-bottom: 10px;
-    border-bottom: 1px solid $govuk-border-colour;
-  }
-
-  tr:nth-child(odd) td {
-    padding-top: 10px;
-  }
-
   td:nth-child(even) {
     text-align:right;
   }
@@ -44,6 +35,27 @@
     cursor: pointer;
     margin: 0;
     padding: 0;
+  }
+
+  .paas-service-items {
+    border-bottom: 1px solid $govuk-border-colour;
+  }
+
+  .paas-service-price {
+    padding-bottom: 10px;
+  }
+
+  .paas-service-heading {
+    padding-top: 10px;
+  }
+
+  .paas-admin-fee {
+    border-bottom: 1px solid $govuk-border-colour;
+
+    td {
+      padding-bottom: 10px;
+      padding-top: 25px;
+    }
   }
 
   .paas-price {

@@ -110,44 +110,50 @@
       <h2>Estimated cost summary</h2>
 
       <p>
-        Following prices are <strong>excluding vat</strong>.
+        Following prices are <strong>excluding VAT</strong>:
       </p>
 
       <table>
         <caption>Services added</caption>
         {% for event in quote.events %}
-          <tr>
-            <td class="paas-service-heading">
-              {{ event.resourceType }}
-            </td>
-            <td>
-              <form method="get">
-                {{ stateFields(state, remove=loop.index0) }}
-                <button class="paas-remove-button" type="submit" arria-label="Remove">&times;</button>
-              </form>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              {% if event.resourceType == "app" %}
-                {% if event.numberOfNodes > 0 %}
-                  {{ event.numberOfNodes }} Instances
-                {% endif %}
-                {% if event.memoryInMB > 0 %}
-                  {{ event.memoryInMB }} MB
-                {% endif %}
-              {% else %}
-                {{ event.resourceName }}
+        <tr>
+          <td class="paas-service-heading">
+            {{ event.resourceType }}
+          </td>
+          <td>
+            <form method="get">
+              {{ stateFields(state, remove=loop.index0) }}
+              <button class="paas-remove-button" type="submit" arria-label="Remove">&times;</button>
+            </form>
+          </td>
+        </tr>
+        <tr class="paas-service-items">
+          <td>
+            {% if event.resourceType == "app" %}
+              {% if event.numberOfNodes > 0 %}
+                {{ event.numberOfNodes }} Instances
               {% endif %}
-            </td>
-            <td class="paas-service-price">&pound;{{ event.price.exVAT | currency(2) }}</td>
-          </tr>
+              {% if event.memoryInMB > 0 %}
+                {{ event.memoryInMB }} MB
+              {% endif %}
+            {% else %}
+              {{ event.resourceName }}
+            {% endif %}
+          </td>
+          <td class="paas-service-price">&pound;{{ event.price.exVAT | currency(2) }}</td>
+        </tr>
         {% endfor %}
+        {% if quote.exVAT > 0 %}
+        <tr class="paas-admin-fee">
+          <td>admin fee 10&percnt;</td>
+          <td class="paas-service-price">&pound; {{ (quote.exVAT/100*10) | currency(2) }}</td>
+        </tr>
+        {% endif %}
       </table>
 
       <p class="paas-total">Total estimated cost (ex. VAT):</p>
 
-      <p class="paas-price">&pound; {{ quote.exVAT | currency(2) }}</p>
+      <p class="paas-price">&pound; {{ (quote.exVAT + quote.exVAT/100*10) | currency(2) }}</p>
       <p class="paas-month">per month</p>
 
       <details class="govuk-details">
