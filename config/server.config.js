@@ -1,11 +1,15 @@
 const webpack = require('webpack');
-const StartServerPlugin = require('start-server-webpack-plugin');
+const NodemonPlugin = require('nodemon-webpack-plugin');
+const path = require('path');
 
 module.exports = cfg => {
-  cfg.plugins.push(new StartServerPlugin('main.js'));
   if (cfg.watch) {
-    cfg.plugins.push(new webpack.HotModuleReplacementPlugin());
-    cfg.entry.main.push('webpack/hot/poll?1000');
+    cfg.plugins.push(new NodemonPlugin({
+      watch: path.resolve('./dist'),
+      ignore: ['*.map'],
+      verbose: true,
+      script: './dist/main.js'
+    }));
   }
   return cfg;
 };

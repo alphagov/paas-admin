@@ -141,9 +141,6 @@ if (process.env.ENABLE_SERVER === 'true') {
   cfg = enableServer(cfg);
 }
 
-cfg.externals.push(nodeModules({whitelist: [
-  /govuk-frontend/,
-  /webpack\/hot/
-]}));
+cfg.externals.push(nodeModules({whitelist: []}));
 
 module.exports = cfg;
