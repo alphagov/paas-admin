@@ -81,14 +81,6 @@ async function main() {
     uaaAPI,
   }, `listening http://localhost:${server.http.address().port}/`);
 
-  /* istanbul ignore if  */
-  if (module.hot) {
-    module.hot.accept('./components/app/app.ts', () => {
-      const updatedApp = require('./components/app/app').default;
-      server.update(updatedApp(config));
-    });
-  }
-
   return server.wait();
 }
 
