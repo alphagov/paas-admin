@@ -49,12 +49,10 @@ export async function viewCostReport(
   const orgs = await cf.organizations();
   const orgGUIDs = orgs.map(o => o.metadata.guid);
 
-  const orgQuotas: {[key: string]: IOrganizationQuota} =
-  (await Promise.all(
-    orgs.map((org: IOrganization) => {
-      return cf.organizationQuota(
-        org.entity.quota_definition_guid,
-      ).then(quota => ({[org.metadata.guid]: quota}));
+  const orgQuotas: {[key: string]: IOrganizationQuota} = (await Promise.all(
+    orgs.map(async (org: IOrganization) => {
+      const quota = await cf.organizationQuota(org.entity.quota_definition_guid);
+      return {[org.metadata.guid]: quota};
     }),
   ))
   .reduce(/* istanbul ignore next */ (accumulator, quota) => {
@@ -89,7 +87,7 @@ export async function viewCostReport(
 
 export function aggregateBillingEvents(
   billableEvents: ReadonlyArray<IBillableEvent>,
-): {[key: string]: ReadonlyArray<IBillableEvent>}{
+): {[key: string]: ReadonlyArray<IBillableEvent>} {
   return billableEvents
     .reduce(
       (

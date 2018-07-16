@@ -21,7 +21,7 @@ export default class NotificationClient {
     this.templates = config.templates || {};
   }
 
-  public sendWelcomeEmail(emailAddress: string, personalisation: IParameters = {}) {
+  public async sendWelcomeEmail(emailAddress: string, personalisation: IParameters = {}) {
     /* istanbul ignore next */
     if (!this.templates.welcome) {
       throw new Error(`notifications: templates.welcome: id is required`);
