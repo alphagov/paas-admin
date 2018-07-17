@@ -68,8 +68,12 @@ async function main() {
     port: parseInt(process.env.PORT || '0', 10),
   });
 
-  process.once('SIGINT', () => server.stop());
-  process.once('SIGTERM', () => server.stop());
+  process.once('SIGINT', () => {
+    server.stop().catch(err => console.error(err));
+  });
+  process.once('SIGTERM', () => {
+    server.stop().catch(err => console.error(err));
+  });
 
   await server.start();
   pino().info({

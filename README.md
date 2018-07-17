@@ -96,7 +96,7 @@ Provided you have logged in CF and have AWS credentials
 ```
 DEPLOY_ENV=...
 uaac target https://uaa.${DEPLOY_ENV}.dev.cloudpipeline.digital
-uaac token client get admin -s $(aws s3 cp s3://gds-paas-${DEPLOY_ENV}-state/cf-secrets.yml  - | grep secrets_uaa_admin_client_secret | cut -f2 -d " ")
+uaac token client get admin -s $(aws s3 cp s3://gds-paas-${DEPLOY_ENV}-state/cf-vars-store.yml  - | grep uaa_admin_client_secret | cut -f2 -d " ")
 uaac client update paas-admin --redirect-uri http://localhost:3000/auth/login/callback
 ```
 

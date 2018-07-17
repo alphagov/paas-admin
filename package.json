@@ -13,7 +13,7 @@
     "test:audit": "npm audit",
     "test:vulnerabilities": "if npm audit | grep -E -B9999 '\\d+\\s+(high|critical)'; then npm audit; else exit 0; fi",
     "lint": "npm run -s lint:ts && npm run -s lint:sass",
-    "lint:ts": "tslint --format codeFrame ./src/**/*.ts",
+    "lint:ts": "tslint --format codeFrame -p .",
     "lint:sass": "sass-lint -v",
     "fix": "npm run -s fix:js",
     "fix:ts": "tslint ./src/**/*.ts --fix",

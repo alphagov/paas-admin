@@ -38,7 +38,7 @@ describe.only('main test suite', () => {
     const response = await request(`http://localhost:4551`).get('/healthcheck');
 
     expect(response.status).toEqual(200);
-    kill(proc);
+    return kill(proc);
   });
 
   it('should emit structured request logs', async () => {
@@ -56,7 +56,7 @@ describe.only('main test suite', () => {
     } catch (err) {
       expect(err).not.toBeDefined();
     }
-    kill(proc);
+    return kill(proc);
   });
 
   it('should exit gracefully on SIGTERM', async () => {
@@ -152,7 +152,7 @@ async function waitForOutput(proc: IProcess, regexp: RegExp, attempt?: number): 
       return reject(new Error(`timeout waiting for log line to match: ${regexp.toString()}\n
       proc logs: ${proc.logs.join('\n')}`));
     }
-    return resolve(sleep(100).then(() => waitForOutput(proc, regexp, att + 1)));
+    return resolve(sleep(100).then(async () => waitForOutput(proc, regexp, att + 1)));
   });
 }
 

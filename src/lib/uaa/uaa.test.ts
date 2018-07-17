@@ -76,17 +76,17 @@ describe('lib/uaa test suite', () => {
   it('should fail retrieve signing keys due to UAA being politely hacked...', async () => {
     const client = new UAAClient(config);
 
-    await nock(config.apiEndpoint)
+    nock(config.apiEndpoint)
       .get('/token_keys').times(1).reply(400, {message: 'pwnd'});
 
-    await expect(client.getSigningKeys()).rejects.toThrow(/status 400/);
+    return expect(client.getSigningKeys()).rejects.toThrow(/status 400/);
   });
 
   it('should retrieve particular user successfully', async () => {
     const client = new UAAClient(config);
     const id = 'uaa-id-123';
 
-    await nock(config.apiEndpoint)
+    nock(config.apiEndpoint)
       .get(`/Users/${id}`).times(1).reply(200, {id});
 
     const user = await client.getUser(id);

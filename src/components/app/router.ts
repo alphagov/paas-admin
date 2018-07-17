@@ -2,6 +2,7 @@ import Router, { IParameters } from '../../lib/router';
 
 import * as applications from '../applications';
 import * as organizations from '../organizations';
+import * as reports from '../reports';
 import * as services from '../services';
 import * as spaces from '../spaces';
 import * as statements from '../statements';
@@ -99,6 +100,11 @@ const router = new Router([
     action: statements.statementRedirection,
     name: 'admin.statement.dispatcher',
     path: '/organisations/:organizationGUID/statements',
+  },
+  {
+    action: reports.viewCostReport,
+    name: 'admin.reports.view',
+    path: '/reports/cost/:rangeStart',
   },
 ]);
 

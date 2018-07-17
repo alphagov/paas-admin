@@ -12,7 +12,7 @@ describe('server test suite', () => {
     const port = server.http.address().port;
     expect(port > 0).toBeTruthy(); // has a non-zero port number
     await request(`http://localhost:${port}`).get('/').expect('SPECTRUM_IS_GREEN').expect(200);
-    server.stop();
+    return server.stop();
   });
 
   it('should start on the given port', async () => {
@@ -23,7 +23,7 @@ describe('server test suite', () => {
     const port = server.http.address().port;
     expect(port).toEqual(7612); // has assigned port
     await request(`http://localhost:${port}`).get('/').expect('FULLY_ACKNOWLEDGED_BROADCAST').expect(200);
-    server.stop();
+    return server.stop();
   });
 
   it('should stop when asked', async () => {
@@ -48,7 +48,7 @@ describe('server test suite', () => {
     await request(`http://localhost:${port}`).get('/').expect('HANDLER_A').catch(fail);
     server.update(handlerB);
     await request(`http://localhost:${port}`).get('/').expect('HANDLER_B').catch(fail);
-    server.stop();
+    return server.stop();
   });
 
   it('should be able to update the handler event if not started', async () => {
@@ -61,14 +61,14 @@ describe('server test suite', () => {
     await server.start();
     const port = server.http.address().port;
     await request(`http://localhost:${port}`).get('/').expect('HANDLER_B').catch(fail);
-    server.stop();
+    return server.stop();
   });
 
   it('should fail to start an already started server', async () => {
     const server = new Server(express());
     await server.start();
     await expect(server.start()).rejects.toThrow(/already started/);
-    server.stop();
+    return server.stop();
   });
 
   it('should fail to wait on a stopped server', async () => {
