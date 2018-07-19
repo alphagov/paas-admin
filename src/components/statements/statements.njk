@@ -15,44 +15,93 @@
   {{ super() }}
 
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-half">
-      <h1 class="govuk-heading-xl">
-        <span class="govuk-caption-xl">Organisation</span>
-        {{ organization.entity.name }}
+    <div class="govuk-grid-column-full">
+      <h1 class="govuk-heading-l paas-billing-heading">
+        Monthly billing statement
       </h1>
     </div>
 
-    <div class="govuk-grid-column-one-half">
-      <table class="govuk-table">
-        <tbody class="govuk-table__body">
-          <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">
-              Period:
-            </th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">
-              <form method="get" action="{{ linkTo('admin.statement.dispatcher', {organizationGUID: organization.metadata.guid}) }}" class="paas-statement-range">
+    <div class="govuk-grid-column-full">
+      <form method="get" action="{{ linkTo('admin.statement.dispatcher', {organizationGUID: organization.metadata.guid}) }}" class="paas-statement-range">
+        <table class="govuk-table paas-statement-filters">
+          <tbody class="govuk-table__body">
+            <tr class="govuk-table__row">
+              <th class="govuk-table__header" scope="column">
+                Month
+              </th>
+              <th class="govuk-table__header" scope="column">
+                Spaces
+              </th>
+              <th class="govuk-table__header" scope="column">
+                Services and apps
+              </th>
+              <th class="govuk-table__header paas-hidden-table-header" scope="column">
+              Filter
+              </th>
+            </tr>
+            <tr>
+              <td class="govuk-table__cell govuk-table__cell--numeric">
                 <select class="govuk-select" id="rangeStart" name="rangeStart">
                   {% for rangeStart, rangeTitle in listOfPastYearMonths %}
                     <option value="{{ rangeStart }}" {% if selectedMonth == rangeStart  %}selected{% endif %}>{{ rangeTitle }}</option>
                   {% endfor %}
                 </select>
+              </td>
+              <td class="govuk-table__cell govuk-table__cell--numeric">
+                <select class="govuk-select" id="rangeStart" name="rangeStart">
+                  {% for rangeStart, rangeTitle in listOfPastYearMonths %}
+                    <option value="{{ rangeStart }}" {% if selectedMonth == rangeStart  %}selected{% endif %}>{{ rangeTitle }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td class="govuk-table__cell govuk-table__cell--numeric">
+                <select class="govuk-select" id="rangeStart" name="rangeStart">
+                  {% for rangeStart, rangeTitle in listOfPastYearMonths %}
+                    <option value="{{ rangeStart }}" {% if selectedMonth == rangeStart  %}selected{% endif %}>{{ rangeTitle }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td class="govuk-table__cell paas-statement-filter">
+                {{ govukButton({text: "Filter"}) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
 
-                {{ govukButton({
-                  text: "Go"
-                }) }}
-              </form>
-            </td>
-          </tr>
-          <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">
-              USD Exchange rate:
-            </th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">
-              {{ usdExchangeRate }} where applicable
-            </td>
-          </tr>
-        </tbody>
+    <div class="govuk-grid-column-full">
+      <table>
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header" scope="row">
+            Exchange rate:
+          </th>
+          <th>
+            &pound;1,920.00
+          </th>
+          <th>
+            &pound;2,144.80
+          </th>
+        </tr>
+        <tr>
+          <td class="govuk-table__cell govuk-table__cell--numeric">
+            &pound;1 to &dollar;{{(1 -  usdExchangeRate + 1) | currency(2)}}
+          </td>
+          <td>ex VAT</td>
+          <td>inc VAT at 20&percnt;</td>
+        </tr>
       </table>
+      {% if selectedSpace.name == "All spaces" %}
+        {% set spaceText = "" %}
+      {% else  %}
+        {% set spaceText = "space" %}
+      {% endif %}
+      {% if selectedPlan.name == "All services" %}
+        {% set serviceText = "" %}
+      {% else %}
+        {% set serviceText = "service" %}
+      {% endif %}
+      <h3 class="govuk-heading-s">Cost breakdown: <span class="paas-text-regular">{{ items | length }} items in</span> {{ currentMonth }} <span class="paas-text-regular"> in </span> {{ selectedSpace.name | lower }} <span class="paas-text-regular"> {{ spaceText }} with </span> {{ selectedPlan.name | lower }} <span class="paas-text-regular"> {{ serviceText }}</span></h3>
     </div>
   </div>
 

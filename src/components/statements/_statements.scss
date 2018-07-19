@@ -1,20 +1,66 @@
-.paas-statement-range {
-    select {
-        width: 80%;
-    }
+@mixin hidden {
+  position: absolute !important;
+  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+}
 
-    button {
-        margin-bottom: 5px;
-        width: 18%;
-    }
+.paas-statement-range {
+  select {
+    //width: 80%;
+  }
+
+  button {
+    margin-bottom: 5px;
+  }
+}
+
+.paas-hidden-table-header {
+  @include hidden;
 }
 
 .sym {
-    float: left;
+  float: left;
+}
+
+.paas-billing-heading {
+  margin-bottom: 20px;
 }
 
 .paas-table-notification {
-    @include govuk-font($size: 24);;
-    padding: 25px 0;
-    text-align: center;
+  @include govuk-font($size: 24);
+  padding: 25px 0;
+  text-align: center;
+}
+
+.paas-statement-filter {
+  width: 23%;
+
+  .govuk-button {
+    width: 100%;
+  }
+}
+
+.paas-statement-filters {
+  //Check which version we're using as it's not recognising govuk-colour("grey-3")
+  background-color:  govuk-colour("grey-3");
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 15px;
+  padding-bottom: 30px;
+  border-collapse: separate;
+
+  .govuk-table__header,
+  .govuk-table__cell {
+    border-bottom: 0;
+    padding-bottom: 0;
+    padding-top: 0.32632em
+  }
+
+  .govuk-table__header {
+    @include govuk-font($size: 16, $weight: bold);
+  }
+}
+
+.paas-statement-total-summary {
+
 }
