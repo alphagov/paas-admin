@@ -71,24 +71,24 @@
     </div>
 
     <div class="govuk-grid-column-full">
-      <table>
+      <table class="govuk-table paas-exchange-rate">
         <tr class="govuk-table__row">
           <th class="govuk-table__header" scope="row">
-            Exchange rate:
+            Total cost for May
           </th>
-          <th>
+          <th class="paas-month-price paas-month-price-demphasised">
             &pound;1,920.00
           </th>
-          <th>
+          <th class="paas-month-price">
             &pound;2,144.80
           </th>
         </tr>
-        <tr>
-          <td class="govuk-table__cell govuk-table__cell--numeric">
-            &pound;1 to &dollar;{{(1 -  usdExchangeRate + 1) | currency(2)}}
+        <tr class="paas-month-total-information">
+          <td class="govuk-table__cell">
+            Exchange rate: &pound;1 to &dollar;{{(1 -  usdExchangeRate + 1) | currency(2)}}
           </td>
-          <td>ex VAT</td>
-          <td>inc VAT at 20&percnt;</td>
+          <td class="paas-month-price">ex VAT</td>
+          <td td class="paas-month-price">inc VAT at 20&percnt;</td>
         </tr>
       </table>
       {% if selectedSpace.name == "All spaces" %}
@@ -111,7 +111,7 @@
         This statement shows up to date provisional usage data for current month.
       </p>
     {% endif %}
-    <table class="govuk-table">
+    <table class="govuk-table paas-table-billing-statement">
       <thead class="govuk-table__head">
         <tr class="govuk-table__row">
           <th class="govuk-table__header" scope="col">Name</th>
@@ -134,11 +134,11 @@
                 {{ item.planName }}
               </td>
               <td class="govuk-table__cell" style="text-align: right">
-                <div class="sym">&pound;</div>
+                <span class="currency">&pound;</span>
                 {{ item.price.exVAT | currency(5) }}
               </td>
               <td class="govuk-table__cell" style="text-align: right">
-                <div class="sym">&pound;</div>
+                <span class="currency">&pound;</span>
                 {{ item.price.incVAT | currency(5) }}
               </td>
             </tr>
@@ -146,11 +146,11 @@
           <tr class="govuk-table__row" style="background: #efefef">
             <th class="govuk-table__header " colspan="2">Sub-total</th>
             <td class="govuk-table__cell" scope="col" style="text-align: right;">
-              <div class="sym">&pound;</div>
+              <span class="currency">&pound;</span>
               <strong>{{ items | query('[].price.exVAT') | sum | currency(5) }}</strong>
             </td>
             <td class="govuk-table__cell" scope="col" style="text-align: right;">
-              <div class="sym">&pound;</div>
+              <span class="currency">&pound;</span>
               <strong>{{ items | query('[].price.incVAT') | sum | currency(5) }}</strong>
             </td>
           </tr>
@@ -158,22 +158,22 @@
         <tr class="govuk-table__row" >
           <th class="govuk-table__header name" scope="col" colspan="2" style="padding-top: 60px;">Admin Fee</th>
           <td class="govuk-table__cell" scope="col" style="text-align: right; padding-top: 60px;">
-            <div class="sym">&pound;</div>
+            <span class="currency">&pound;</span>
             <strong>{{ (totals.exVAT/100*10) | currency(5) }}</strong>
           </td>
           <td class="govuk-table__cell" scope="col" style="text-align: right; padding-top: 60px;">
-            <div class="sym">&pound;</div>
+            <span class="currency">&pound;</span>
             <strong>{{ (totals.incVAT/100*10) | currency(5) }}</strong>
           </td>
         </tr>
         <tr class="govuk-table__row" style="background: #efefef">
           <th class="govuk-table__header name" scope="col" colspan="2" style="height: 60px;">TOTAL</th>
           <td class="govuk-table__cell" scope="col" style="text-align: right;">
-            <div class="sym">&pound;</div>
+            <span class="currency">&pound;</span>
             <strong>{{ (totals.exVAT + totals.exVAT/100*10)  | currency(5) }}</strong>
           </td>
           <td class="govuk-table__cell" scope="col" style="text-align: right;">
-            <div class="sym">&pound;</div>
+            <span class="currency">&pound;</span>
             <strong>{{ (totals.incVAT + totals.incVAT/100*10) | currency(5) }}</strong>
           </td>
         </tr>

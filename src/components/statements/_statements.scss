@@ -5,20 +5,47 @@
 }
 
 .paas-statement-range {
-  select {
-    //width: 80%;
-  }
-
   button {
     margin-bottom: 5px;
   }
+}
+
+.paas-exchange-rate {
+  border: 10px solid govuk-colour("grey-3");
+  background-color: govuk-colour("grey-4");
+  padding: 10px;
+  border-collapse: separate;
+
+  .govuk-table__header,
+  .govuk-table__cell {
+    border-bottom: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+  }
+}
+
+.paas-month-price-demphasised{
+  font-weight: normal;
+}
+
+.paas-table-billing-statement {
+  @include govuk-font($size: 16);
+}
+
+.paas-month-total-information {
+   @include govuk-font($size: 16);
+   color: govuk-colour("grey-1");
+}
+
+.paas-month-price {
+  text-align: right;
 }
 
 .paas-hidden-table-header {
   @include hidden;
 }
 
-.sym {
+.currency {
   float: left;
 }
 
@@ -42,7 +69,7 @@
 
 .paas-statement-filters {
   //Check which version we're using as it's not recognising govuk-colour("grey-3")
-  background-color:  govuk-colour("grey-3");
+  background-color: govuk-colour("grey-3");
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 15px;
