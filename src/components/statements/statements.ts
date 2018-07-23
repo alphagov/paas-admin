@@ -56,6 +56,8 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     throw new Error('expected rangeStart to be the first of the month');
   }
 
+  const currentMonth = rangeStart.format('MMMM');
+
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
@@ -157,6 +159,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       isCurrentMonth: Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
       listOfPastYearMonths,
       selectedMonth: params.rangeStart,
+      currentMonth,
       isAdmin,
       isBillingManager,
       isManager,

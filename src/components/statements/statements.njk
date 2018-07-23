@@ -74,13 +74,13 @@
       <table class="govuk-table paas-exchange-rate">
         <tr class="govuk-table__row">
           <th class="govuk-table__header" scope="row">
-            Total cost for May
+            Total cost for {{ currentMonth }}
           </th>
           <th class="paas-month-price paas-month-price-demphasised">
-            &pound;1,920.00
+            &pound;{{ (totals.exVAT + totals.exVAT/100*10)  | currency(5) }}
           </th>
           <th class="paas-month-price">
-            &pound;2,144.80
+            &pound;{{ (totals.incVAT + totals.incVAT/100*10) | currency(5) }}
           </th>
         </tr>
         <tr class="paas-month-total-information">
