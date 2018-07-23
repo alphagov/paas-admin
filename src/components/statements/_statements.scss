@@ -10,11 +10,16 @@
   }
 }
 
+.paas-text-regular {
+  font-weight: 500;
+}
+
 .paas-exchange-rate {
   border: 10px solid govuk-colour("grey-3");
   background-color: govuk-colour("grey-4");
   padding: 10px;
   border-collapse: separate;
+  margin-bottom: govuk-spacing(4);
 
   .govuk-table__header,
   .govuk-table__cell {

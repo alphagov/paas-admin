@@ -13,6 +13,7 @@ import {
 } from '../auth';
 
 import usageTemplate from './statements.njk';
+import { space } from '../../lib/cf/cf.test.data';
 
 interface IResourceUsage {
   readonly resourceGUID: string;
@@ -37,17 +38,20 @@ const YYYMMDD = 'YYYY-MM-DD';
 
 export async function statementRedirection(ctx: IContext, params: IParameters): Promise<IResponse> {
   const date = params.rangeStart ? moment(params.rangeStart) : moment();
+  console.log("redirect???");
 
   return {
     redirect: ctx.linkTo('admin.statement.view', {
       organizationGUID: params.organizationGUID,
-      rangeStart: date.startOf('month').format(YYYMMDD),
+      rangeStart: date.startOf('month').format(YYYMMDD)
     }),
   };
 }
 
 export async function viewStatement(ctx: IContext, params: IParameters): Promise<IResponse> {
   const rangeStart = moment(params.rangeStart, YYYMMDD);
+  const selectedSpace = params.space ? params.space : 'All spaces';
+  console.log('params', params);
   if (!rangeStart.isValid()) {
     throw new Error('invalid rangeStart provided');
   }
@@ -147,6 +151,30 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format('MMMM')} ${month.format('YYYY')}`;
   }
 
+  const tempArray: any = [];
+  const spacesAll = items.filter(item => {
+    if (!tempArray.includes(item.spaceGUID)) {
+      tempArray.push(item.spaceGUID);
+      return true;
+    }
+  }).map(item => {
+      return { spaceGUID: item.spaceGUID, name: item.space.entity.name };
+  });
+
+  function compare(a: any, b: any) {
+    if (a.name < b.name) {
+      return -1;
+    }
+    if (a.name > b.name) {
+      return 1;
+    }
+    return 0;
+  }
+
+  spacesAll.sort(compare);
+  spacesAll.unshift({ spaceGUID: 'none', name: 'All spaces' });
+  console.log(JSON.stringify(spacesAll, null, 2));
+
   return {
     body: usageTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -155,10 +183,12 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       filter,
       totals,
       items,
+      spacesAll,
       usdExchangeRate,
       isCurrentMonth: Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
       listOfPastYearMonths,
       selectedMonth: params.rangeStart,
+      selectedSpace,
       currentMonth,
       isAdmin,
       isBillingManager,

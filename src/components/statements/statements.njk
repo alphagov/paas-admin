@@ -22,7 +22,7 @@
     </div>
 
     <div class="govuk-grid-column-full">
-      <form method="get" action="{{ linkTo('admin.statement.dispatcher', {organizationGUID: organization.metadata.guid}) }}" class="paas-statement-range">
+      <form method="get" action="{{ linkTo('admin.statement.view', {organizationGUID: organization.metadata.guid, rangeStart: selectedMonth}) }}" class="paas-statement-range">
         <table class="govuk-table paas-statement-filters">
           <tbody class="govuk-table__body">
             <tr class="govuk-table__row">
@@ -47,22 +47,21 @@
                   {% endfor %}
                 </select>
               </td>
+              <p>Herre{{ selectedSpace }}</p>
               <td class="govuk-table__cell govuk-table__cell--numeric">
-                <select class="govuk-select" id="rangeStart" name="rangeStart">
-                  {% for rangeStart, rangeTitle in listOfPastYearMonths %}
-                    <option value="{{ rangeStart }}" {% if selectedMonth == rangeStart  %}selected{% endif %}>{{ rangeTitle }}</option>
+                <select class="govuk-select" id="space" name="space">
+                  {% for space in spacesAll %}
+                    <option value="{{ space.spaceGUID }}" {% if selectedSpace == space.spaceGUID %}selected{% endif %}> {{ space.name }}</option>
                   {% endfor %}
                 </select>
               </td>
               <td class="govuk-table__cell govuk-table__cell--numeric">
-                <select class="govuk-select" id="rangeStart" name="rangeStart">
-                  {% for rangeStart, rangeTitle in listOfPastYearMonths %}
-                    <option value="{{ rangeStart }}" {% if selectedMonth == rangeStart  %}selected{% endif %}>{{ rangeTitle }}</option>
-                  {% endfor %}
+                <select class="govuk-select" id="services" name="services">
+                    <option value="{{ space }}">All services</option>
                 </select>
               </td>
               <td class="govuk-table__cell paas-statement-filter">
-                {{ govukButton({text: "Filter"}) }}
+                {{ govukButton({text: "Filter" }) }}
               </td>
             </tr>
           </tbody>
