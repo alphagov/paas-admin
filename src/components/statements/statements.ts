@@ -49,8 +49,8 @@ export async function statementRedirection(ctx: IContext, params: IParameters): 
 
 export async function viewStatement(ctx: IContext, params: IParameters): Promise<IResponse> {
   const rangeStart = moment(params.rangeStart, YYYMMDD);
-  const selectedSpace = params.space ? params.space : 'All spaces';
-  const selectedPlan = params.services ? params.services : 'All services';
+  const selectedSpaceParam = params.space ? params.space : 'All spaces';
+  const selectedPlanParam = params.services ? params.services : 'All services';
   console.log('params', params);
   if (!rangeStart.isValid()) {
     throw new Error('invalid rangeStart provided');
@@ -176,17 +176,17 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   spacesAll.sort(compare);
   spacesAll.unshift(spaceDefault);
 
-  let selectedSpaceAll: any = spacesAll.filter(spaceItem => {
-    return spaceItem.spaceGUID === selectedSpace;
+  let selectedSpace: any = spacesAll.filter(spaceItem => {
+    return spaceItem.spaceGUID === selectedSpaceParam;
   });
 
-  selectedSpaceAll = selectedSpaceAll[0] ? selectedSpaceAll[0] : spaceDefault;
+  selectedSpace = selectedSpace[0] ? selectedSpace[0] : spaceDefault;
 
   const filterSpaces = items.filter(item => {
-    if (selectedSpaceAll.spaceGUID === 'none') {
+    if (selectedSpace.spaceGUID === 'none') {
       return item;
     } else {
-      if (selectedSpaceAll.spaceGUID === item.spaceGUID){
+      if (selectedSpace.spaceGUID === item.spaceGUID){
         return item;
     }
   });
@@ -208,24 +208,22 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   plans.sort(compare);
   plans.unshift(planDefault);
 
-  let selectedPlanAll: any = plans.filter(planItem => {
-    return planItem.planGUID === selectedPlan;
+  let selectedPlan: any = plans.filter(planItem => {
+    return planItem.planGUID === selectedPlanParam;
   });
 
-  selectedPlanAll = selectedPlanAll[0] ? selectedPlanAll[0] : planDefault;
+  selectedPlan = selectedPlan[0] ? selectedPlan[0] : planDefault;
 
   const filterPlans = items.filter(item => {
-    if (selectedPlanAll.planGUID === 'none') {
+    if (selectedPlan.planGUID === 'none') {
       return item;
     } else {
-      if (plans.planGUID === item.planGUID) {
+      if (selectedPlan.planGUID === item.planGUID) {
         return item;
       }
     });
 
-  //items = filterPlans
-  //console.log('filterplans', filterPlans);
-  //console.log('items', items, 'plans', plans);
+  items = filterPlans
 
   return { body: usageTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -241,8 +239,8 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
         Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
       listOfPastYearMonths,
       selectedMonth: params.rangeStart,
-      selectedSpaceAll,
-      selectedPlanAll,
+      selectedSpace,
+      selectedPlan,
       currentMonth,
       isAdmin,
       isBillingManager,
