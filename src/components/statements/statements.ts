@@ -38,7 +38,6 @@ const YYYMMDD = 'YYYY-MM-DD';
 
 export async function statementRedirection(ctx: IContext, params: IParameters): Promise<IResponse> {
   const date = params.rangeStart ? moment(params.rangeStart) : moment();
-  console.log("redirect???");
 
   return {
     redirect: ctx.linkTo('admin.statement.view', {
@@ -51,6 +50,7 @@ export async function statementRedirection(ctx: IContext, params: IParameters): 
 export async function viewStatement(ctx: IContext, params: IParameters): Promise<IResponse> {
   const rangeStart = moment(params.rangeStart, YYYMMDD);
   const selectedSpace = params.space ? params.space : 'All spaces';
+  const selectedPlan = params.services ? params.services : 'All services';
   console.log('params', params);
   if (!rangeStart.isValid()) {
     throw new Error('invalid rangeStart provided');
@@ -135,7 +135,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     }};
   }, {});
 
-  const items = Object.values(itemsObject);
+  let items = Object.values(itemsObject);
 
   /* istanbul ignore next */
   const totals = {
@@ -151,7 +151,8 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format('MMMM')} ${month.format('YYYY')}`;
   }
 
-  const tempArray: any = [];
+  let tempArray: any = [];
+
   const spacesAll = items.filter(item => {
     if (!tempArray.includes(item.spaceGUID)) {
       tempArray.push(item.spaceGUID);
@@ -171,12 +172,62 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     return 0;
   }
 
+  const spaceDefault = { spaceGUID: 'none', name: 'All spaces' };
   spacesAll.sort(compare);
-  spacesAll.unshift({ spaceGUID: 'none', name: 'All spaces' });
-  console.log(JSON.stringify(spacesAll, null, 2));
+  spacesAll.unshift(spaceDefault);
 
-  return {
-    body: usageTemplate.render({
+  let selectedSpaceAll: any = spacesAll.filter(spaceItem => {
+    return spaceItem.spaceGUID === selectedSpace;
+  });
+
+  selectedSpaceAll = selectedSpaceAll[0] ? selectedSpaceAll[0] : spaceDefault;
+
+  const filterSpaces = items.filter(item => {
+    if (selectedSpaceAll.spaceGUID === 'none') {
+      return item;
+    } else {
+      if (selectedSpaceAll.spaceGUID === item.spaceGUID){
+        return item;
+    }
+  });
+
+  items = filterSpaces;
+
+  ////Plans
+  tempArray = [];
+  const plans = items.filter(item => {
+    if (!tempArray.includes(item.planGUID)) {
+      tempArray.push(item.planGUID);
+      return true;
+    }
+  }).map(item => {
+    return { planGUID: item.planGUID, name: item.planName };
+  });
+
+  const planDefault = { planGUID: 'none', name: 'All services' };
+  plans.sort(compare);
+  plans.unshift(planDefault);
+
+  let selectedPlanAll: any = plans.filter(planItem => {
+    return planItem.planGUID === selectedPlan;
+  });
+
+  selectedPlanAll = selectedPlanAll[0] ? selectedPlanAll[0] : planDefault;
+
+  const filterPlans = items.filter(item => {
+    if (selectedPlanAll.planGUID === 'none') {
+      return item;
+    } else {
+      if (plans.planGUID === item.planGUID) {
+        return item;
+      }
+    });
+
+  //items = filterPlans
+  //console.log('filterplans', filterPlans);
+  //console.log('items', items, 'plans', plans);
+
+  return { body: usageTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       organization,
@@ -184,15 +235,17 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       totals,
       items,
       spacesAll,
+      plans,
       usdExchangeRate,
-      isCurrentMonth: Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
+      isCurrentMonth:
+        Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
       listOfPastYearMonths,
       selectedMonth: params.rangeStart,
-      selectedSpace,
+      selectedSpaceAll,
+      selectedPlanAll,
       currentMonth,
       isAdmin,
       isBillingManager,
       isManager,
-    }),
-  };
+    }) };
 }
