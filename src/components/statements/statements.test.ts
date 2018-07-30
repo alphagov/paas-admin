@@ -62,6 +62,10 @@ describe('statements test suite', () => {
     expect(response.body).toContain('Statement');
   });
 
+  /*it ('should filter on spaces', async () => {
+    const response
+  });*/
+
   it('should throw an error due to selecting middle of the month', async () => {
     await expect(statement.viewStatement(ctx, {
         organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',

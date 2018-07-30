@@ -49,15 +49,15 @@
               </td>
               <td class="govuk-table__cell">
                 <select class="govuk-select" id="space" name="space">
-                  {% for space in spacesAll %}
-                    <option value="{{ space.spaceGUID }}" {% if selectedSpace.spaceGUID == space.spaceGUID %}selected{% endif %}> {{ space.name }}</option>
+                  {% for space in spaceFilters %}
+                    <option value="{{ space.GUID }}" {% if selectedSpace.GUID == space.GUID %}selected{% endif %}> {{ space.name }}</option>
                   {% endfor %}
                 </select>
               </td>
               <td class="govuk-table__cell">
                 <select class="govuk-select" id="services" name="services">
-                  {% for plan in plans %}
-                    <option value="{{ plan.planGUID }}" {% if selectedPlan.planGUID == plan.planGUID %}selected{% endif %}>{{ plan.name }}</option>
+                  {% for plan in planFilters %}
+                    <option value="{{ plan.GUID }}" {% if selectedPlan.GUID == plan.GUID %}selected{% endif %}>{{ plan.name }}</option>
                   {% endfor %}
                 </select>
               </td>

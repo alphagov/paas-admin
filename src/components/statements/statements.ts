@@ -13,7 +13,6 @@ import {
 } from '../auth';
 
 import usageTemplate from './statements.njk';
-import { space } from '../../lib/cf/cf.test.data';
 
 interface IResourceUsage {
   readonly resourceGUID: string;
@@ -21,7 +20,7 @@ interface IResourceUsage {
   readonly resourceType: string;
   readonly orgGUID: string;
   readonly spaceGUID: string;
-  readonly space?: ISpace;
+  readonly space: ISpace;
   readonly planGUID: string;
   readonly planName: string;
   readonly price: {
@@ -34,6 +33,11 @@ interface IResourceGroup {
   readonly [key: string]: IResourceUsage;
 }
 
+interface IFilterTuple {
+  GUID: string;
+  name: string;
+}
+
 const YYYMMDD = 'YYYY-MM-DD';
 
 export async function statementRedirection(ctx: IContext, params: IParameters): Promise<IResponse> {
@@ -42,7 +46,7 @@ export async function statementRedirection(ctx: IContext, params: IParameters): 
   return {
     redirect: ctx.linkTo('admin.statement.view', {
       organizationGUID: params.organizationGUID,
-      rangeStart: date.startOf('month').format(YYYMMDD)
+      rangeStart: date.startOf('month').format(YYYMMDD),
     }),
   };
 }
@@ -51,7 +55,6 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   const rangeStart = moment(params.rangeStart, YYYMMDD);
   const selectedSpaceParam = params.space ? params.space : 'All spaces';
   const selectedPlanParam = params.services ? params.services : 'All services';
-  console.log('params', params);
   if (!rangeStart.isValid()) {
     throw new Error('invalid rangeStart provided');
   }
@@ -151,18 +154,34 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format('MMMM')} ${month.format('YYYY')}`;
   }
 
-  let tempArray: any = [];
+  function filterList(itemsList: any, itemKeys: any, filterGUID: string) {
+    const tempArray: string[] = [];
+    const filteredItems = itemsList
+      .filter((item: any) => {
+        if (!tempArray.includes(item[filterGUID])) {
+          tempArray.push(item[filterGUID]);
+          return true;
+        }
+      })
+      .map((item: any) => {
+        const itemName = itemKeys.length > 1 ? getFilterName(item, itemKeys) : item[itemKeys];
+        return { GUID : item[filterGUID], name: itemName };
+      });
+    return filteredItems;
+  }
 
-  const spacesAll = items.filter(item => {
-    if (!tempArray.includes(item.spaceGUID)) {
-      tempArray.push(item.spaceGUID);
-      return true;
+  const spaceKeys = ['space', 'entity', 'name'];
+  const spaceFilters = filterList(items, spaceKeys, 'spaceGUID');
+
+  function getFilterName(tempItem: any, itemKeys: string) {
+    let namedItem = tempItem;
+    for (const key of itemKeys) {
+      namedItem = namedItem[key];
     }
-  }).map(item => {
-      return { spaceGUID: item.spaceGUID, name: item.space.entity.name };
-  });
+    return namedItem;
+  }
 
-  function compare(a: any, b: any) {
+  function compare(a: IFilterTuple, b: IFilterTuple) {
     if (a.name < b.name) {
       return -1;
     }
@@ -172,58 +191,44 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     return 0;
   }
 
-  const spaceDefault = { spaceGUID: 'none', name: 'All spaces' };
-  spacesAll.sort(compare);
-  spacesAll.unshift(spaceDefault);
+  const spaceDefault = { GUID: 'none', name: 'All spaces' };
+  spaceFilters.sort(compare);
+  spaceFilters.unshift(spaceDefault);
 
-  let selectedSpace: any = spacesAll.filter(spaceItem => {
-    return spaceItem.spaceGUID === selectedSpaceParam;
-  });
+  function selectedFilter(filterCollection: any, selectedParameter: string) {
+    return filterCollection.filter((filterItem: any) => {
+      return filterItem.GUID === selectedParameter;
+    })[0];
+  }
 
-  selectedSpace = selectedSpace[0] ? selectedSpace[0] : spaceDefault;
+  let selectedSpace: IFilterTuple = selectedFilter(spaceFilters, selectedSpaceParam);
 
-  const filterSpaces = items.filter(item => {
-    if (selectedSpace.spaceGUID === 'none') {
-      return item;
-    } else {
-      if (selectedSpace.spaceGUID === item.spaceGUID){
+  selectedSpace = selectedSpace ? selectedSpace : spaceDefault;
+
+  function filterItems(itemsToFilter: any, filterGUID: string, selectedFilterItem: IFilterTuple) {
+    return itemsToFilter.filter((item: any) => {
+      if (selectedFilterItem.GUID === 'none') {
         return item;
-    }
-  });
-
-  items = filterSpaces;
-
-  ////Plans
-  tempArray = [];
-  const plans = items.filter(item => {
-    if (!tempArray.includes(item.planGUID)) {
-      tempArray.push(item.planGUID);
-      return true;
-    }
-  }).map(item => {
-    return { planGUID: item.planGUID, name: item.planName };
-  });
-
-  const planDefault = { planGUID: 'none', name: 'All services' };
-  plans.sort(compare);
-  plans.unshift(planDefault);
-
-  let selectedPlan: any = plans.filter(planItem => {
-    return planItem.planGUID === selectedPlanParam;
-  });
-
-  selectedPlan = selectedPlan[0] ? selectedPlan[0] : planDefault;
-
-  const filterPlans = items.filter(item => {
-    if (selectedPlan.planGUID === 'none') {
-      return item;
-    } else {
-      if (selectedPlan.planGUID === item.planGUID) {
+      }
+      if (selectedFilterItem.GUID === item[filterGUID]) {
         return item;
       }
     });
+  }
 
-  items = filterPlans
+  items = filterItems(items, 'spaceGUID', selectedSpace);
+
+  const planKeys = ['planName'];
+  const planFilters = filterList(items, planKeys, 'planGUID');
+  const planDefault = { GUID: 'none', name: 'All services' };
+  planFilters.sort(compare);
+  planFilters.unshift(planDefault);
+
+  let selectedPlan = selectedFilter(planFilters, selectedPlanParam);
+
+  selectedPlan = selectedPlan ? selectedPlan : planDefault;
+
+  items = filterItems(items, 'planGUID', selectedPlan);
 
   return { body: usageTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -232,8 +237,8 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       filter,
       totals,
       items,
-      spacesAll,
-      plans,
+      spaceFilters,
+      planFilters,
       usdExchangeRate,
       isCurrentMonth:
         Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
