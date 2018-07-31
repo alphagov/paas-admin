@@ -14,6 +14,8 @@ const config = {
 nock('https://example.com/uaa').persist()
   .get('/Users?filter=email+eq+%22imeCkO@test.org%22').times(1).reply(200, data.usersByEmail)
   .post('/invite_users?redirect_uri=https://example.com/&client_id=client-id').times(1).reply(200, data.invite)
+  .post('/Users').times(1).reply(201, data.user)
+  .delete('/Users/47ea627c-45b4-4b2b-ab76-3683068fdc89').times(1).reply(200, data.user)
   .post('/oauth/token?grant_type=client_credentials').times(1).reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
   .get('/failure/404').times(1).reply(404, `{"error": "FAKE_404"}`)
   .get('/failure/500').times(1).reply(500, `FAKE_500`);
@@ -56,6 +58,18 @@ describe('lib/uaa test suite', () => {
     const client = new UAAClient(config);
     const invitation = await client.inviteUser('user1@71xl2o.com', 'client-id', 'https://example.com/');
     expect(invitation.userId).toEqual('5ff19d4c-8fa0-4d74-94e0-52eac86d55a8');
+  });
+
+  it('should create a user', async () => {
+    const client = new UAAClient(config);
+    const user = await client.createUser('user1@example.com', 'some-password');
+    expect(user.id).toEqual('47ea627c-45b4-4b2b-ab76-3683068fdc89');
+  });
+
+  it('should delete a user', async () => {
+    const client = new UAAClient(config);
+    const user = await client.deleteUser('47ea627c-45b4-4b2b-ab76-3683068fdc89');
+    expect(user.id).toEqual('47ea627c-45b4-4b2b-ab76-3683068fdc89');
   });
 
   it('should retrieve signing keys', async () => {

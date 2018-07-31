@@ -103,6 +103,31 @@ export default class UAAClient {
     );
     return response.data.new_invites[0];
   }
+
+  public async createUser(email: string, password: string) {
+    const data = {
+      userName: email,
+      password,
+      name: {},
+      emails: [ { value: email, primary: true } ],
+      active : true,
+      verified : true,
+    };
+    const response = await this.request(
+      'post',
+      '/Users',
+      {data},
+    );
+    return response.data;
+  }
+
+  public async deleteUser(userId: string) {
+    const response = await this.request(
+      'delete',
+      `/Users/${userId}`,
+    );
+    return response.data;
+  }
 }
 
 async function request(endpoint: string, method: string, url: string, opts: any) {

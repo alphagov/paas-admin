@@ -313,6 +313,14 @@ export interface ISpaceSummary {
   readonly services: ReadonlyArray<IServiceSummary>;
 }
 
+export interface IUser {
+  readonly entity: {
+    readonly admin: boolean;
+    readonly active: boolean;
+  };
+  readonly metadata: IMetadata;
+}
+
 export interface IUserServices {
   readonly entity: {
     readonly credentials: {[i: string]: string};

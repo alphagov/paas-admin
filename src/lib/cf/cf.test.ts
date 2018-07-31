@@ -32,6 +32,8 @@ nock('https://example.com/api').persist()
   .get('/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5').times(1).reply(200, data.service)
   .get('/v2/user_provided_service_instances').times(1).reply(200, data.userServices)
   .get('/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87').times(1).reply(200, data.userServiceInstance)
+  .post('/v2/users').reply(201, data.user)
+  .delete('/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177?async=false').reply(204)
   .get('/v2/users/uaa-id-253/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, data.spaces)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.userRolesForOrg)
   .get('/v2/spaces/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.userRolesForSpace)
@@ -247,6 +249,17 @@ describe('lib/cf test suite', () => {
     expect(service.entity.label).toEqual('label-58');
   });
 
+  test('should create a user', async () => {
+    const client = new CloudFoundryClient(config);
+    const user = await client.createUser('guid-cb24b36d-4656-468e-a50d-b53113ac6177');
+    expect(user.metadata.guid).toEqual('guid-cb24b36d-4656-468e-a50d-b53113ac6177');
+  });
+
+  test('should delete a user', async () => {
+    const client = new CloudFoundryClient(config);
+    expect(async () => client.deleteUser('guid-cb24b36d-4656-468e-a50d-b53113ac6177')).not.toThrowError();
+  });
+
   test('should obtain list of user roles for organisation', async () => {
     const client = new CloudFoundryClient(config);
     const users = await client.usersForOrganization('3deb9f04-b449-4f94-b3dd-c73cefe5b275');
@@ -265,7 +278,7 @@ describe('lib/cf test suite', () => {
     expect(users[0].entity.space_roles.length).toEqual(3);
   });
 
-  test('should be able to create new user by username', async () => {
+  test('should be able to assign a user to an organisation by username', async () => {
     const client = new CloudFoundryClient(config);
     const organization = await client.assignUserToOrganizationByUsername(
       'guid-cb24b36d-4656-468e-a50d-b53113ac6177',
