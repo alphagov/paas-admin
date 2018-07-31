@@ -17,7 +17,7 @@
     "lint:ts": "tslint --format codeFrame -p .",
     "lint:sass": "sass-lint -v",
     "fix": "npm run -s fix:js",
-    "fix:ts": "tslint ./src/**/*.ts --fix",
+    "fix:ts": "tslint -p . --fix",
     "fix:sass": "sass-lint --fix ./src",
     "fix:vulnerabilities": "npm audit fix --update-binary",
     "start": "export PORT=${PORT-3000}; export LOG_LEVEL=${LOG_LEVEL-warn}; if [ \"$NODE_ENV\" = 'production' ]; then npm run -s start:production; else npm run -s start:dev; fi",
