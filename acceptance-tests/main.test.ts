@@ -3,15 +3,21 @@ import expect from 'expect';
 import axios from 'axios';
 import CloudFoundryClient from '../src/lib/cf/cf';
 import UAAClient, { authenticateUser } from '../src/lib/uaa';
+import { AccountsClient } from '../src/lib/accounts';
 import Browser from 'zombie';
 
 const {
   PAAS_ADMIN_BASE_URL,
   CF_API_BASE_URL,
+  ACCOUNTS_API_BASE_URL,
+  ACCOUNTS_PASSWORD,
   ADMIN_USERNAME,
   ADMIN_PASSWORD,
 } = process.env;
 if (!PAAS_ADMIN_BASE_URL) { throw 'PAAS_ADMIN_BASE_URL environment variable not set' }
+if (!CF_API_BASE_URL) { throw 'CF_API_BASE_URL environment variable not set' }
+if (!ACCOUNTS_API_BASE_URL) { throw 'ACCOUNTS_API_BASE_URL environment variable not set' }
+if (!ACCOUNTS_PASSWORD) { throw 'ACCOUNTS_PASSWORD environment variable not set' }
 if (!ADMIN_USERNAME) { throw 'ADMIN_USERNAME environment variable not set' }
 if (!ADMIN_PASSWORD) { throw 'ADMIN_PASSWORD environment variable not set' }
 
@@ -60,6 +66,12 @@ describe('paas-admin', function () {
 
       const uaaUser = await uaaClient.createUser(managerUserEmail, managerUserPassword);
       await cfClient.createUser(uaaUser.id);
+
+      // Accept all pending documents:
+      const accountsClient = new AccountsClient({ apiEndpoint: ACCOUNTS_API_BASE_URL, secret: ACCOUNTS_PASSWORD });
+      const pendingDocuments = await accountsClient.getPendingDocumentsForUserUUID(uaaUser.id);
+      await Promise.all(pendingDocuments.map(d => accountsClient.createAgreement(d.name, uaaUser.id)));
+
       managerUserGuid = uaaUser.id;
     });
 
