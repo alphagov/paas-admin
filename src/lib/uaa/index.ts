@@ -1,1 +1,1 @@
-export { default, authenticate } from './uaa';
+export { default, authenticate, authenticateUser } from './uaa';
