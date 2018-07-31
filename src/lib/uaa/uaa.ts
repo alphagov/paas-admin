@@ -7,9 +7,14 @@ interface IClientCredentials {
   readonly clientSecret: string;
 }
 
+interface IUserCredentials {
+  readonly username: string;
+  readonly password: string;
+}
+
 interface IClientConfig {
   readonly apiEndpoint: string;
-  readonly clientCredentials: IClientCredentials;
+  readonly clientCredentials?: IClientCredentials;
   readonly accessToken?: string;
   readonly signingKeys?: ReadonlyArray<string>;
 }
@@ -17,7 +22,7 @@ interface IClientConfig {
 export default class UAAClient {
   private accessToken: string;
   private readonly apiEndpoint: string;
-  private readonly clientCredentials: IClientCredentials;
+  private readonly clientCredentials?: IClientCredentials;
   private signingKeys: ReadonlyArray<string>;
 
   constructor(config: IClientConfig) {
@@ -103,6 +108,31 @@ export default class UAAClient {
     );
     return response.data.new_invites[0];
   }
+
+  public async createUser(email: string, password: string) {
+    const data = {
+      userName: email,
+      password,
+      name: {},
+      emails: [ { value: email, primary: true } ],
+      active : true,
+      verified : true,
+    };
+    const response = await this.request(
+      'post',
+      '/Users',
+      {data},
+    );
+    return response.data;
+  }
+
+  public async deleteUser(userId: string) {
+    const response = await this.request(
+      'delete',
+      `/Users/${userId}`,
+    );
+    return response.data;
+  }
 }
 
 async function request(endpoint: string, method: string, url: string, opts: any) {
@@ -146,6 +176,32 @@ export async function authenticate(endpoint: string, clientCredentials: IClientC
     auth: {
       username: clientCredentials.clientID,
       password: clientCredentials.clientSecret,
+    },
+  });
+  return response.data.access_token;
+}
+
+export async function authenticateUser(endpoint: string, userCredentials: IUserCredentials) {
+  /* istanbul ignore next */
+  if (!userCredentials.username) {
+    throw new TypeError('authenticateUser: username is required');
+  }
+
+  /* istanbul ignore next */
+  if (!userCredentials.password) {
+    throw new TypeError('authenticateUser: password is required');
+  }
+
+  const response = await request(endpoint, 'post', '/oauth/token', {
+    timeout: DEFAULT_TIMEOUT,
+    params: {
+      response_type: 'token',
+      grant_type: 'password',
+      ...userCredentials,
+    },
+    withCredentials: true,
+    auth: {
+      username: 'cf',
     },
   });
   return response.data.access_token;

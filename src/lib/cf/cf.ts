@@ -19,6 +19,8 @@ interface IClientConfig {
   readonly tokenEndpoint?: string;
 }
 
+type httpMethod = 'post' | 'get' | 'put' | 'delete';
+
 export default class CloudFoundryClient {
   private accessToken: string;
   private readonly apiEndpoint: string;
@@ -66,7 +68,7 @@ export default class CloudFoundryClient {
     return this.accessToken;
   }
 
-  public async request(method: string, url: string, data?: any, params?: any): Promise<AxiosResponse> {
+  public async request(method: httpMethod, url: string, data?: any, params?: any): Promise<AxiosResponse> {
     const token = await this.getAccessToken();
     return request(this.apiEndpoint, method, url, {
       headers: {Authorization: `Bearer ${token}`},
@@ -93,6 +95,11 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
+  public async createOrganization(orgRequest: cf.IOrganizationRequest): Promise<cf.IOrganization> {
+    const response = await this.request('post', `/v2/organizations`, orgRequest);
+    return response.data;
+  }
+
   public async organizations(): Promise<cf.IOrganization[]> {
     const response = await this.request('get', `/v2/organizations`);
     return this.allResources(response);
@@ -101,6 +108,21 @@ export default class CloudFoundryClient {
   public async organization(organizationGUID: string): Promise<cf.IOrganization> {
     const response = await this.request('get', `/v2/organizations/${organizationGUID}`);
     return response.data;
+  }
+
+  public async deleteOrganization(orgRequest: {guid: string, recursive: boolean, async: boolean}): Promise<void> {
+    const query = `?recursive=${orgRequest.recursive}&async=${orgRequest.async}`;
+    await this.request('delete', `/v2/organizations/${orgRequest.guid}${query}`, orgRequest);
+  }
+
+  public async quotaDefinitions(search?: { name: string }): Promise<cf.IOrganizationQuota[]> {
+    let query = '';
+    if (search && search.name) {
+      query = `?q=name:${search.name}`;
+    }
+    const response = await this.request('get', `/v2/quota_definitions${query}`);
+    const all = await this.allResources(response);
+    return all;
   }
 
   public async organizationQuota(quotaGUID: string): Promise<cf.IOrganizationQuota> {
@@ -168,6 +190,15 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
+  public async createUser(userId: string): Promise<cf.IUser> {
+    const response = await this.request('post', '/v2/users', { guid: userId });
+    return response.data;
+  }
+
+  public async deleteUser(userId: string): Promise<void> {
+    await this.request('delete', `/v2/users/${userId}?async=false`);
+  }
+
   public async usersForOrganization(organizationGUID: string): Promise<cf.IOrganizationUserRoles[]> {
     const response = await this.request('get', `/v2/organizations/${organizationGUID}/user_roles`);
     return this.allResources(response);
@@ -227,7 +258,7 @@ export default class CloudFoundryClient {
   }
 }
 
-async function request(endpoint: string, method: string, url: string, opts?: any): Promise<AxiosResponse> {
+async function request(endpoint: string, method: httpMethod, url: string, opts?: any): Promise<AxiosResponse> {
   const response = await axios.request({
     method,
     url,

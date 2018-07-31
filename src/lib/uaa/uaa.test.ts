@@ -1,6 +1,6 @@
 import nock from 'nock';
 
-import UAAClient from './uaa';
+import UAAClient, { authenticateUser } from './uaa';
 import * as data from './uaa.test.data';
 
 const config = {
@@ -14,7 +14,12 @@ const config = {
 nock('https://example.com/uaa').persist()
   .get('/Users?filter=email+eq+%22imeCkO@test.org%22').times(1).reply(200, data.usersByEmail)
   .post('/invite_users?redirect_uri=https://example.com/&client_id=client-id').times(1).reply(200, data.invite)
-  .post('/oauth/token?grant_type=client_credentials').times(1).reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+  .post('/Users').times(1).reply(201, data.user)
+  .delete('/Users/47ea627c-45b4-4b2b-ab76-3683068fdc89').times(1).reply(200, data.user)
+  .post('/oauth/token').query((x: any) => x.grant_type === 'client_credentials')
+    .times(1).reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+  .post('/oauth/token').query((x: any) => x.grant_type === 'password')
+    .times(1).reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
   .get('/failure/404').times(1).reply(404, `{"error": "FAKE_404"}`)
   .get('/failure/500').times(1).reply(500, `FAKE_500`);
 
@@ -58,6 +63,18 @@ describe('lib/uaa test suite', () => {
     expect(invitation.userId).toEqual('5ff19d4c-8fa0-4d74-94e0-52eac86d55a8');
   });
 
+  it('should create a user', async () => {
+    const client = new UAAClient(config);
+    const user = await client.createUser('user1@example.com', 'some-password');
+    expect(user.id).toEqual('47ea627c-45b4-4b2b-ab76-3683068fdc89');
+  });
+
+  it('should delete a user', async () => {
+    const client = new UAAClient(config);
+    const user = await client.deleteUser('47ea627c-45b4-4b2b-ab76-3683068fdc89');
+    expect(user.id).toEqual('47ea627c-45b4-4b2b-ab76-3683068fdc89');
+  });
+
   it('should retrieve signing keys', async () => {
     const client = new UAAClient(config);
 
@@ -92,5 +109,13 @@ describe('lib/uaa test suite', () => {
     const user = await client.getUser(id);
 
     expect(user.id).toEqual(id);
+  });
+
+  it('should authenticate a user', async () => {
+    const accessToken = await authenticateUser(
+      config.apiEndpoint,
+      { username: 'brucebanner', password: 'youwouldntlikemewhenimangry' },
+    );
+    expect(accessToken).toEqual('FAKE_ACCESS_TOKEN');
   });
 });

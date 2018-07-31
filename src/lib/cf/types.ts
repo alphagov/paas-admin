@@ -90,6 +90,11 @@ export interface IInfo {
 export type OrganizationUserRoles = 'org_user' | 'org_manager' | 'org_auditor' | 'billing_manager';
 export type OrganizationUserRoleEndpoints = 'users' | 'managers' | 'auditors' | 'billing_managers';
 
+export interface IOrganizationRequest {
+  readonly name: string;
+  readonly quota_definition_guid: string;
+}
+
 export interface IOrganization {
   readonly entity: {
     readonly app_events_url: string;
@@ -306,6 +311,14 @@ export interface ISpaceSummary {
   readonly guid: string;
   readonly name: string;
   readonly services: ReadonlyArray<IServiceSummary>;
+}
+
+export interface IUser {
+  readonly entity: {
+    readonly admin: boolean;
+    readonly active: boolean;
+  };
+  readonly metadata: IMetadata;
 }
 
 export interface IUserServices {

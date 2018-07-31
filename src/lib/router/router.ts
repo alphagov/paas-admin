@@ -30,11 +30,6 @@ export default class Router {
     return route;
   }
 
-  /* istanbul ignore next */
-  private defaultError(err: Error) {
-    throw err;
-  }
-
   private validate(): void {
     const seen: {[key: string]: boolean} = {};
     this.routes.forEach(r => {
