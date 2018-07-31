@@ -19,6 +19,8 @@ interface IClientConfig {
   readonly tokenEndpoint?: string;
 }
 
+type httpMethod = 'post' | 'get' | 'put' | 'delete';
+
 export default class CloudFoundryClient {
   private accessToken: string;
   private readonly apiEndpoint: string;
@@ -66,7 +68,7 @@ export default class CloudFoundryClient {
     return this.accessToken;
   }
 
-  public async request(method: string, url: string, data?: any, params?: any): Promise<AxiosResponse> {
+  public async request(method: httpMethod, url: string, data?: any, params?: any): Promise<AxiosResponse> {
     const token = await this.getAccessToken();
     return request(this.apiEndpoint, method, url, {
       headers: {Authorization: `Bearer ${token}`},
@@ -227,7 +229,7 @@ export default class CloudFoundryClient {
   }
 }
 
-async function request(endpoint: string, method: string, url: string, opts?: any): Promise<AxiosResponse> {
+async function request(endpoint: string, method: httpMethod, url: string, opts?: any): Promise<AxiosResponse> {
   const response = await axios.request({
     method,
     url,
