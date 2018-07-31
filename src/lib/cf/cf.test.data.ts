@@ -98,6 +98,14 @@ export const organizationQuota = `{
   }
 }`;
 
+export const organizationQuotas = `{
+  "total_results": 1,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [ ${organizationQuota} ]
+}`;
+
 export const spaces = `{
   "total_results": 1,
   "total_pages": 1,

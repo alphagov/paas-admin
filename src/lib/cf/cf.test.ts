@@ -12,8 +12,12 @@ const config = {
 // tslint:disable:max-line-length
 nock('https://example.com/api').persist()
   .get('/v2/info').reply(200, data.info)
+  .post('/v2/organizations').reply(201, data.organization)
   .get('/v2/organizations').reply(200, data.organizations)
   .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, data.organization)
+  .delete('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20?recursive=true&async=false').reply(204)
+  .get('/v2/quota_definitions').reply(200, data.organizations)
+  .get('/v2/quota_definitions?q=name:the-system_domain-org-name').reply(200, data.organizations)
   .get('/v2/quota_definitions/80f3e539-a8c0-4c43-9c72-649df53da8cb').reply(200, data.organizationQuota)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces').reply(200, data.spaces)
   .get('/v2/spaces/be1f9c1d-e629-488e-a560-a35b545f0ad7/apps').reply(200, data.apps)
@@ -92,6 +96,15 @@ describe('lib/cf test suite', () => {
     await expect(client.request('get', '/v2/failure/500')).rejects.toThrow(/status 500/);
   });
 
+  test('should create an organisation', async () => {
+    const client = new CloudFoundryClient(config);
+    const organization = await client.createOrganization({
+      name: 'some-org-name', quota_definition_guid: 'some-quota-definition-guid',
+    });
+
+    expect(organization.entity.name).toEqual('the-system_domain-org-name');
+  });
+
   test('should obtain list of organisations', async () => {
     const client = new CloudFoundryClient(config);
     const organizations = await client.organizations();
@@ -105,6 +118,31 @@ describe('lib/cf test suite', () => {
     const organization = await client.organization('a7aff246-5f5b-4cf8-87d8-f316053e4a20');
 
     expect(organization.entity.name).toEqual('the-system_domain-org-name');
+  });
+
+  test('should delete an organisation', async () => {
+    const client = new CloudFoundryClient(config);
+    await client.deleteOrganization({
+      guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      recursive: true,
+      async: false,
+    });
+  });
+
+  test('should list all quota definitions', async () => {
+    const client = new CloudFoundryClient(config);
+    const quotas = await client.quotaDefinitions();
+
+    expect(quotas.length).toBe(1);
+    expect(quotas[0].entity.name).toEqual('the-system_domain-org-name');
+  });
+
+  test('should filter quota definitions', async () => {
+    const client = new CloudFoundryClient(config);
+    const quotas = await client.quotaDefinitions({name: 'the-system_domain-org-name'});
+
+    expect(quotas.length).toBe(1);
+    expect(quotas[0].entity.name).toEqual('the-system_domain-org-name');
   });
 
   test('should obtain organisation quota', async () => {

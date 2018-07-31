@@ -95,6 +95,11 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
+  public async createOrganization(orgRequest: cf.IOrganizationRequest): Promise<cf.IOrganization> {
+    const response = await this.request('post', `/v2/organizations`, orgRequest);
+    return response.data;
+  }
+
   public async organizations(): Promise<cf.IOrganization[]> {
     const response = await this.request('get', `/v2/organizations`);
     return this.allResources(response);
@@ -103,6 +108,21 @@ export default class CloudFoundryClient {
   public async organization(organizationGUID: string): Promise<cf.IOrganization> {
     const response = await this.request('get', `/v2/organizations/${organizationGUID}`);
     return response.data;
+  }
+
+  public async deleteOrganization(orgRequest: {guid: string, recursive: boolean, async: boolean}): Promise<void> {
+    const query = `?recursive=${orgRequest.recursive}&async=${orgRequest.async}`;
+    await this.request('delete', `/v2/organizations/${orgRequest.guid}${query}`, orgRequest);
+  }
+
+  public async quotaDefinitions(search?: { name: string }): Promise<cf.IOrganizationQuota[]> {
+    let query = '';
+    if (search && search.name) {
+      query = `?q=name:${search.name}`;
+    }
+    const response = await this.request('get', `/v2/quota_definitions${query}`);
+    const all = await this.allResources(response);
+    return all;
   }
 
   public async organizationQuota(quotaGUID: string): Promise<cf.IOrganizationQuota> {
