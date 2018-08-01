@@ -45,7 +45,7 @@ export async function statementRedirection(ctx: IContext, params: IParameters): 
 
   return {
     redirect: ctx.linkTo('admin.statement.view', {
-      organizationGUID: params.organizationGUID,
+      ...params,
       rangeStart: date.startOf('month').format(YYYMMDD),
     }),
   };

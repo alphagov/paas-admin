@@ -22,7 +22,7 @@
     </div>
 
     <div class="govuk-grid-column-full">
-      <form method="get" action="{{ linkTo('admin.statement.view', {organizationGUID: organization.metadata.guid, rangeStart: selectedMonth}) }}" class="paas-statement-range">
+      <form method="get" action="{{ linkTo('admin.statement.dispatcher', {organizationGUID: organization.metadata.guid}) }}" class="paas-statement-range">
         <table class="govuk-table paas-statement-filters">
           <tbody class="govuk-table__body">
             <tr class="govuk-table__row">
