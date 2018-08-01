@@ -3,6 +3,7 @@ import moment from 'moment';
 import nock from 'nock';
 import pino from 'pino';
 
+import * as billingData from '../../lib/billing/billing.test.data';
 import * as data from '../../lib/cf/cf.test.data';
 
 import { config } from '../app/app.test.config';
@@ -10,25 +11,68 @@ import { IContext } from '../app/context';
 import { Token } from '../auth';
 
 import * as statement from '.';
+import { ISortable, ISortableBy, ISortableDirection, order, sortByName } from './statements';
+
+const resourceTemplate = {
+  resourceGUID: '',
+  resourceName: '',
+  resourceType: '',
+  orgGUID: '',
+  spaceGUID: '',
+  space: {},
+  planGUID: '',
+  planName: '',
+  price: {
+    incVAT: 0,
+    exVAT: 0,
+  },
+};
+
+const spaceTemplate = {
+  entity: {
+    allow_ssh: false,
+    app_events_url: '',
+    apps_url: '',
+    auditors_url: '',
+    developers_url: '',
+    domains_url: '',
+    events_url: '',
+    managers_url: '',
+    name: '',
+    organization_guid: '',
+    organization_url: '',
+    routes_url: '',
+    security_groups_url: '',
+    service_instances_url: '',
+    space_quota_definition_guid: null,
+    staging_security_groups_url: '',
+  },
+  metadata: {
+    guid: '',
+    url: '',
+    created_at: '',
+    updated_at: '',
+  },
+};
 
 // tslint:disable:max-line-length
-nock(config.cloudFoundryAPI)
-  .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').times(1).reply(200, data.userRolesForOrg)
-  .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275').times(1).reply(200, data.organization)
-  .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces').times(1).reply(200, data.spaces)
-  .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').times(1).reply(200, data.users)
-  .get('/v2/quota_definitions/dcb680a9-b190-4838-a3d2-b84aa17517a6').times(1).reply(200, data.organizationQuota)
-  .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/summary').times(2).reply(200, data.spaceSummary)
-  .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/summary').times(2).reply(200, data.spaceSummary)
-  .get('/v2/organizations/6e1ca5aa-55f1-4110-a97f-1f3473e771b9').times(1).reply(200, data.organization)
-  .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/apps').times(1).reply(200, data.apps)
-  .get('/v2/apps/cd897c8c-3171-456d-b5d7-3c87feeabbd1/summary').times(1).reply(200, data.appSummary)
-  .get('/v2/apps/efd23111-72d1-481e-8168-d5395e0ea5f0/summary').times(1).reply(200, data.appSummary)
-  .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3').times(1).reply(200, data.space)
-  .get('/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019').times(1).reply(200, data.spaceQuota);
+nock(config.cloudFoundryAPI).persist()
+  .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.userRolesForOrg)
+  .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, data.organization)
+  .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces').reply(200, data.spaces)
+  .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.users)
+  .get('/v2/quota_definitions/dcb680a9-b190-4838-a3d2-b84aa17517a6').reply(200, data.organizationQuota)
+  .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/summary').reply(200, data.spaceSummary)
+  .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/summary').reply(200, data.spaceSummary)
+  .get('/v2/organizations/6e1ca5aa-55f1-4110-a97f-1f3473e771b9').reply(200, data.organization)
+  .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/apps').reply(200, data.apps)
+  .get('/v2/apps/cd897c8c-3171-456d-b5d7-3c87feeabbd1/summary').reply(200, data.appSummary)
+  .get('/v2/apps/efd23111-72d1-481e-8168-d5395e0ea5f0/summary').reply(200, data.appSummary)
+  .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3').reply(200, data.space)
+  .get('/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019').reply(200, data.spaceQuota);
 
-nock(config.billingAPI)
-  .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, `[]`);
+nock(config.billingAPI).persist()
+  .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, billingData.billableEvents);
 // tslint:enable:max-line-length
 
 const tokenKey = 'secret';
@@ -62,9 +106,17 @@ describe('statements test suite', () => {
     expect(response.body).toContain('Statement');
   });
 
-  /*it ('should filter on spaces', async () => {
-    const response
-  });*/
+  it ('should be able to use filters', async () => {
+    const response = await statement.viewStatement(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: '2018-01-01',
+      space: 'f8ff7538-9a11-4c26-83a0-f4e0474ae19e',
+      service: '9d071c77-7a68-4346-9981-e8dafac95b6f',
+    });
+
+    expect(response.body).toContain('Statement');
+    expect(response.body).toContain('batman');
+  });
 
   it('should throw an error due to selecting middle of the month', async () => {
     await expect(statement.viewStatement(ctx, {
@@ -89,5 +141,80 @@ describe('statements test suite', () => {
     const currentMonth = moment().startOf('month').format('YYYY-MM-DD');
 
     expect(response.redirect).toContain(`/${currentMonth}`);
+  });
+
+  it('should sort by different fields correctly', async () => {
+    const a = [
+      {...resourceTemplate, resourceName: 'z', planName: 'Athens', space: {
+        ...spaceTemplate,
+        entity: {...spaceTemplate.entity, name: '3'},
+      }},
+      {...resourceTemplate, resourceName: 'a', planName: 'Berlin', space: {
+        ...spaceTemplate,
+        entity: {...spaceTemplate.entity, name: '4'},
+      }},
+      {...resourceTemplate, resourceName: 'b', planName: 'Dublin', space: {
+        ...spaceTemplate,
+        entity: {...spaceTemplate.entity, name: '1'},
+      }},
+      {...resourceTemplate, resourceName: 'd', planName: 'Berlin', space: {
+        ...spaceTemplate,
+        entity: {...spaceTemplate.entity, name: '3'},
+      }},
+      {...resourceTemplate, resourceName: 'd', planName: 'Cairo', space: {
+        ...spaceTemplate,
+        entity: {...spaceTemplate.entity, name: '2'},
+      }},
+    ];
+
+    const cases = [
+      {sort: 'name', order: 'asc', out: ['a', 'b', 'd', 'd', 'z']},
+      {sort: 'space', order: 'asc', out: ['1', '2', '3', '3', '4']},
+      {sort: 'plan', order: 'asc', out: ['Athens', 'Berlin', 'Berlin', 'Cairo', 'Dublin']},
+      {sort: 'name', order: 'desc', out: ['z', 'd', 'd', 'b', 'a']},
+      {sort: 'space', order: 'desc', out: ['4', '3', '3', '2', '1']},
+      {sort: 'plan', order: 'desc', out: ['Dublin', 'Cairo', 'Berlin', 'Berlin', 'Athens']},
+    ];
+
+    for (const c of cases) {
+      const sortable: ISortable = {
+        order: c.order as ISortableDirection,
+        sort: c.sort as ISortableBy,
+      };
+
+      const z = order([...a], sortable);
+
+      z.forEach((t, i) => {
+        switch (c.sort) {
+          case 'name':
+            expect(t.resourceName).toEqual(c.out[i]);
+            break;
+          case 'space':
+            expect(t.space.entity.name).toEqual(c.out[i]);
+            break;
+          case 'plan':
+            expect(t.planName).toEqual(c.out[i]);
+            break;
+        }
+      });
+    }
+  });
+
+  it('should sort by entity name correctly', async () => {
+    const a = [
+      {entity: {name: 'z'}, metadata: {guid: 'z'}},
+      {entity: {name: 'a'}, metadata: {guid: 'a'}},
+      {entity: {name: 'b'}, metadata: {guid: 'b'}},
+      {entity: {name: 'd'}, metadata: {guid: 'd'}},
+      {entity: {name: 'd'}, metadata: {guid: 'd'}},
+    ];
+
+    a.sort(sortByName);
+
+    expect(a[0].entity.name).toEqual('a');
+    expect(a[1].entity.name).toEqual('b');
+    expect(a[2].entity.name).toEqual('d');
+    expect(a[3].entity.name).toEqual('d');
+    expect(a[4].entity.name).toEqual('z');
   });
 });

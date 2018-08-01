@@ -34,8 +34,36 @@ interface IResourceGroup {
 }
 
 interface IFilterTuple {
-  GUID: string;
-  name: string;
+  readonly metadata: {
+    readonly guid: string;
+  };
+  readonly entity: {
+    readonly name: string;
+  };
+}
+
+interface IResourceWithSpace {
+  readonly space: {
+    readonly entity: {
+      readonly name: string;
+    };
+  };
+}
+
+interface IResourceWithResourceName {
+  readonly resourceName: string;
+}
+
+interface IResourceWithPlanName {
+  readonly planName: string;
+}
+
+export type ISortableBy = 'name' | 'space' | 'plan';
+export type ISortableDirection = 'asc' | 'desc';
+
+export interface ISortable {
+  readonly sort: ISortableBy;
+  readonly order: ISortableDirection;
 }
 
 const YYYMMDD = 'YYYY-MM-DD';
@@ -53,8 +81,8 @@ export async function statementRedirection(ctx: IContext, params: IParameters): 
 
 export async function viewStatement(ctx: IContext, params: IParameters): Promise<IResponse> {
   const rangeStart = moment(params.rangeStart, YYYMMDD);
-  const selectedSpaceParam = params.space ? params.space : 'All spaces';
-  const selectedPlanParam = params.services ? params.services : 'All services';
+  const filterSpace = params.space ? params.space : 'none';
+  const filterService = params.service ? params.service : 'none';
   if (!rangeStart.isValid()) {
     throw new Error('invalid rangeStart provided');
   }
@@ -140,12 +168,6 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
 
   let items = Object.values(itemsObject);
 
-  /* istanbul ignore next */
-  const totals = {
-    incVAT: events.reduce((sum, event) => sum + event.price.incVAT, 0),
-    exVAT: events.reduce((sum, event) => sum + event.price.exVAT, 0),
-  };
-
   const listOfPastYearMonths: {[i: string]: string} = {};
 
   for (let i = 0; i < 12; i++) {
@@ -154,81 +176,45 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format('MMMM')} ${month.format('YYYY')}`;
   }
 
-  function filterList(itemsList: any, itemKeys: any, filterGUID: string) {
-    const tempArray: string[] = [];
-    const filteredItems = itemsList
-      .filter((item: any) => {
-        if (!tempArray.includes(item[filterGUID])) {
-          tempArray.push(item[filterGUID]);
-          return true;
-        }
-      })
-      .map((item: any) => {
-        const itemName = itemKeys.length > 1 ? getFilterName(item, itemKeys) : item[itemKeys];
-        return { GUID : item[filterGUID], name: itemName };
-      });
-    return filteredItems;
-  }
-
-  const spaceKeys = ['space', 'entity', 'name'];
-  const spaceFilters = filterList(items, spaceKeys, 'spaceGUID');
-
-  function getFilterName(tempItem: any, itemKeys: string) {
-    let namedItem = tempItem;
-    for (const key of itemKeys) {
-      namedItem = namedItem[key];
+  const plans = items.reduce((all: any[], next) => {
+    if (!all.find(i => i.entity.name === next.planName)) {
+      all.push({metadata: {guid: next.planGUID}, entity: {name: next.planName}});
     }
-    return namedItem;
-  }
 
-  function compare(a: IFilterTuple, b: IFilterTuple) {
-    if (a.name < b.name) {
-      return -1;
-    }
-    if (a.name > b.name) {
-      return 1;
-    }
-    return 0;
-  }
+    return all;
+  }, []);
 
-  const spaceDefault = { GUID: 'none', name: 'All spaces' };
-  spaceFilters.sort(compare);
-  spaceFilters.unshift(spaceDefault);
-
-  function selectedFilter(filterCollection: any, selectedParameter: string) {
-    return filterCollection.filter((filterItem: any) => {
-      return filterItem.GUID === selectedParameter;
-    })[0];
-  }
-
-  let selectedSpace: IFilterTuple = selectedFilter(spaceFilters, selectedSpaceParam);
-
-  selectedSpace = selectedSpace ? selectedSpace : spaceDefault;
-
-  function filterItems(itemsToFilter: any, filterGUID: string, selectedFilterItem: IFilterTuple) {
-    return itemsToFilter.filter((item: any) => {
-      if (selectedFilterItem.GUID === 'none') {
-        return item;
+  if (filterSpace !== 'none') {
+    items = items.reduce((all: IResourceUsage[], next: IResourceUsage) => {
+      if (next.spaceGUID === params.space) {
+        all.push(next);
       }
-      if (selectedFilterItem.GUID === item[filterGUID]) {
-        return item;
-      }
-    });
+      return all;
+    }, []);
   }
 
-  items = filterItems(items, 'spaceGUID', selectedSpace);
+  if (filterService !== 'none') {
+    items = items.reduce((all: IResourceUsage[], next: IResourceUsage) => {
+      if (next.planGUID === params.service) {
+        all.push(next);
+      }
+      return all;
+    }, []);
+  }
 
-  const planKeys = ['planName'];
-  const planFilters = filterList(items, planKeys, 'planGUID');
-  const planDefault = { GUID: 'none', name: 'All services' };
-  planFilters.sort(compare);
-  planFilters.unshift(planDefault);
+  const orderBy = params.sort || 'name';
+  const orderDirection = params.order || 'asc';
 
-  let selectedPlan = selectedFilter(planFilters, selectedPlanParam);
+  const listSpaces = [{metadata: {guid: 'none'}, entity: {name: 'All spaces'}}, ...spaces.sort(sortByName)];
+  const listPlans = [{metadata: {guid: 'none'}, entity: {name: 'All Services'}}, ...plans.sort(sortByName)];
 
-  selectedPlan = selectedPlan ? selectedPlan : planDefault;
+  const filteredItems = order(items, {sort: orderBy, order: orderDirection});
 
-  items = filterItems(items, 'planGUID', selectedPlan);
+  /* istanbul ignore next */
+  const totals = {
+    incVAT: filteredItems.reduce((sum, event) => sum + event.price.incVAT, 0),
+    exVAT: filteredItems.reduce((sum, event) => sum + event.price.exVAT, 0),
+  };
 
   return { body: usageTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -236,19 +222,78 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       organization,
       filter,
       totals,
-      items,
-      spaceFilters,
-      planFilters,
+      items: filteredItems,
+      spaces: listSpaces,
+      plans: listPlans,
       usdExchangeRate,
       isCurrentMonth:
         Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
       listOfPastYearMonths,
-      selectedMonth: params.rangeStart,
-      selectedSpace,
-      selectedPlan,
+      filterMonth: params.rangeStart,
+      filterSpace: listSpaces.find(i => i.metadata.guid === (params.space || 'none')),
+      filterService: listPlans.find(i => i.metadata.guid === (params.service || 'none')),
+      orderBy,
+      orderDirection,
       currentMonth,
       isAdmin,
       isBillingManager,
       isManager,
     }) };
+}
+
+ // tslint:disable-next-line:readonly-array
+export function order(items: IResourceUsage[], sort: ISortable): IResourceUsage[] {
+  switch (sort.sort) {
+    case 'plan':
+      items.sort(sortByPlan);
+      break;
+    case 'space':
+      items.sort(sortBySpace);
+      break;
+    case 'name':
+    default:
+      items.sort(sortByResourceName);
+  }
+
+  return sort.order === 'asc' ? items : items.reverse();
+}
+
+export function sortByName(a: IFilterTuple, b: IFilterTuple) {
+  if (a.entity.name < b.entity.name) {
+    return -1;
+  }
+  if (a.entity.name > b.entity.name) {
+    return 1;
+  }
+  return 0;
+}
+
+export function sortByResourceName(a: IResourceWithResourceName, b: IResourceWithResourceName) {
+  if (a.resourceName < b.resourceName) {
+    return -1;
+  }
+  if (a.resourceName > b.resourceName) {
+    return 1;
+  }
+  return 0;
+}
+
+export function sortByPlan(a: IResourceWithPlanName, b: IResourceWithPlanName) {
+  if (a.planName < b.planName) {
+    return -1;
+  }
+  if (a.planName > b.planName) {
+    return 1;
+  }
+  return 0;
+}
+
+export function sortBySpace(a: IResourceWithSpace, b: IResourceWithSpace) {
+  if (a.space.entity.name < b.space.entity.name) {
+    return -1;
+  }
+  if (a.space.entity.name > b.space.entity.name) {
+    return 1;
+  }
+  return 0;
 }
