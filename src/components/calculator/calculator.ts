@@ -50,10 +50,7 @@ function whitelistServices(p: IPricingPlan): boolean {
 }
 
 function blacklistCompose(p: IPricingPlan): boolean {
-  if (/compose/.test(p.planName)) {
-    return false;
-  }
-  return true;
+  return !/compose/.test(p.planName);
 }
 
 function sizeToNumber(s: string): string {

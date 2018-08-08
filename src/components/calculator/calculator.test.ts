@@ -336,7 +336,7 @@ describe('calculator test suite', () => {
     // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {});
-    expect(response.body).not.toContain('_COMPOSE_PLAN_');
+    expect(response.body).not.toContain('compose');
   });
 
   it('should show postgres plan wih version', async () => {
