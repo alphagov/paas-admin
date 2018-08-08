@@ -45,15 +45,12 @@ function toVersionedPricingPlans(plan: IPricingPlan): IVersionedPricingPlan {
 }
 
 function whitelistServices(p: IPricingPlan): boolean {
-  const whitelist = ['app', 'postgres', 'mysql', 'redis'];
+  const whitelist = ['app', 'postgres', 'mysql', 'redis', 'elasticsearch'];
   return whitelist.some(name => name === p.serviceName);
 }
 
 function blacklistCompose(p: IPricingPlan): boolean {
-  if (/compose/.test(p.planName)) {
-    return false;
-  }
-  return true;
+  return !/compose/.test(p.planName);
 }
 
 function sizeToNumber(s: string): string {

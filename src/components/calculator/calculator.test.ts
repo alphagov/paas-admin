@@ -32,26 +32,56 @@ describe('calculator test suite', () => {
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(200, `[
         {
-          "name": "service PLAN2",
+          "name": "app",
           "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-          "valid_from": "2002-01-01",
+          "valid_from": "2017-01-01T00:00:00+00:00",
           "components": [
             {
-              "name": "cpu-usage",
-              "formula": "$number_of_nodes * 0.001 * $time_in_seconds",
+              "name": "instance",
+              "formula": "ceil($time_in_seconds/3600) * 0.01",
               "vat_code": "Standard",
-              "currency_code": "GBP"
-            },
-            {
-              "name": "storage-usage",
-              "formula": "$storage_in_mb * 0.0001 * $time_in_seconds",
-              "vat_code": "Standard",
-              "currency_code": "GBP"
+              "currency_code": "USD"
             }
           ],
-          "memory_in_mb": 264,
-          "storage_in_mb": 265,
-          "number_of_nodes": 2
+          "memory_in_mb": 0,
+          "storage_in_mb": 524288,
+          "number_of_nodes": 0
+        },
+        {
+          "name": "postgres tiny-9.6",
+          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c5",
+          "valid_from": "2017-01-01T00:00:00+00:00",
+          "components": [],
+          "memory_in_mb": 0,
+          "storage_in_mb": 0,
+          "number_of_nodes": 0
+        },
+        {
+          "name": "mysql large-ha-5.7",
+          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c6",
+          "valid_from": "2017-01-01T00:00:00+00:00",
+          "components": [],
+          "memory_in_mb": 0,
+          "storage_in_mb": 0,
+          "number_of_nodes": 0
+        },
+        {
+          "name": "redis tiny-clustered-3.2",
+          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c7",
+          "valid_from": "2017-01-01T00:00:00+00:00",
+          "components": [],
+          "memory_in_mb": 0,
+          "storage_in_mb": 0,
+          "number_of_nodes": 0
+        },
+        {
+          "name": "elasticsearch small-ha-6.x",
+          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c8",
+          "valid_from": "2017-01-01T00:00:00+00:00",
+          "components": [],
+          "memory_in_mb": 0,
+          "storage_in_mb": 0,
+          "number_of_nodes": 0
         },
         {
           "name": "prometheus",
@@ -67,6 +97,11 @@ describe('calculator test suite', () => {
     const response = await getCalculator(ctx, {});
 
     expect(response.body).toContain('Pricing calculator');
+    expect(response.body).toMatch(/\bapp\b/);
+    expect(response.body).toMatch(/\bpostgres\b/);
+    expect(response.body).toMatch(/\bmysql\b/);
+    expect(response.body).toMatch(/\bredis\b/);
+    expect(response.body).toMatch(/\belasticsearch\b/);
   });
 
   it('should use calculator when provided fake services', async () => {
@@ -336,7 +371,7 @@ describe('calculator test suite', () => {
     // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {});
-    expect(response.body).not.toContain('_COMPOSE_PLAN_');
+    expect(response.body).not.toContain('compose');
   });
 
   it('should show postgres plan wih version', async () => {
