@@ -14,6 +14,8 @@ import {
 
 import usageTemplate from './statements.njk';
 
+export const adminFee = .1;
+
 interface IResourceUsage {
   readonly resourceGUID: string;
   readonly resourceName: string;
@@ -235,6 +237,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       orderBy,
       orderDirection,
       currentMonth,
+      adminFee,
       isAdmin,
       isBillingManager,
       isManager,
