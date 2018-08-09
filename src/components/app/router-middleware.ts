@@ -11,6 +11,11 @@ function handleResponse(res: express.Response) {
       return res.redirect(r.redirect);
     }
 
+    if (r.download) {
+      res.attachment(r.download.name);
+      return res.send(r.download.data);
+    }
+
     res.status(r.status || 200).send(r.body);
   };
 }

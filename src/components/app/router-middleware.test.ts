@@ -37,6 +37,11 @@ describe('app test suite - router-middleware', () => {
         action: async (_c, p, _b) => ({body: {message: `Hello, ${p.name}!`}}),
         path: '/hello/:name',
       },
+      {
+        name: 'download',
+        action: async (_c, _p, _b) => ({download: {data: `text`, name: 'download.txt'}}),
+        path: '/download',
+      },
     ]);
 
     function linkTo(name: string, params: IParameters = {}) {
@@ -61,6 +66,7 @@ describe('app test suite - router-middleware', () => {
     const redirectResponse = await agent.get('/redirect');
     const notFoundResponse = await agent.get('/404');
     const serverErrorResponse = await agent.get('/500');
+    const downloadResponse = await agent.get('/download');
 
     expect(linkTo('hello', {name: 'World'})).toEqual('/hello/World');
     expect(linkTo('home')).toEqual('/');
@@ -71,5 +77,6 @@ describe('app test suite - router-middleware', () => {
     expect(redirectResponse.header.location).toEqual('/');
     expect(notFoundResponse.status).toEqual(404);
     expect(serverErrorResponse.status).toEqual(500);
+    expect(downloadResponse.header['content-disposition']).toEqual(`attachment; filename="download.txt"`);
   });
 });
