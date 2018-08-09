@@ -112,8 +112,9 @@ describe('statements test suite', () => {
       rangeStart: '2018-01-01',
     });
 
-    expect(response.download).toBeDefined();
-    expect(response.download.name).toEqual('statement-2018-02-01.csv');
+    const filename = response.download ? response.download.name : '__FAIL__';
+
+    expect(filename).toEqual('statement-2018-02-01.csv');
   });
 
   it ('should be able to use filters', async () => {

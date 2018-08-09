@@ -36,7 +36,7 @@
                 Services and apps
               </th>
               <th class="govuk-table__header paas-hidden-table-header" scope="column">
-              Filter
+                Filter
               </th>
             </tr>
             <tr>
@@ -109,7 +109,7 @@
       </table>
 
       <p>
-        <a href="{{ linkTo('admin.statement.download', {organizationGUID: organization.metadata.guid, rangeStart: filterMonth}) }}" class="govuk-link">
+        <a href="{{ linkTo('admin.statement.download', {organizationGUID: organization.metadata.guid, rangeStart: filterMonth}) }}" class="govuk-link download">
           Download a spreadsheet of these items
         </a>
       </p>
@@ -139,19 +139,19 @@
               {% if orderBy == "name" %}
                 <input type="hidden" name="order" value="{{ newOrder }}">
               {% endif %}
-              <button type="submit" name="sort" value="name" class="govuk-button {{ orderDirection if orderBy == 'name' }}">Name</button>
+              <button type="submit" name="sort" value="name" class="govuk-button filter-header {{ orderDirection if orderBy == 'name' }}">Name</button>
             </th>
             <th class="govuk-table__header" scope="col">
               {% if orderBy == "space" %}
                 <input type="hidden" name="order" value="{{ newOrder }}">
               {% endif %}
-              <button type="submit" name="sort" value="space" class="govuk-button {{ orderDirection if orderBy == 'space' }}">Space</button>
+              <button type="submit" name="sort" value="space" class="govuk-button filter-header {{ orderDirection if orderBy == 'space' }}">Space</button>
             </th>
             <th class="govuk-table__header" scope="col">
               {% if orderBy == "plan" %}
                 <input type="hidden" name="order" value="{{ newOrder }}">
               {% endif %}
-              <button type="submit" name="sort" value="plan" class="govuk-button {{ orderDirection if orderBy == 'plan' }}">Plan</button>
+              <button type="submit" name="sort" value="plan" class="govuk-button filter-header {{ orderDirection if orderBy == 'plan' }}">Plan</button>
             </th>
             <th class="govuk-table__header" scope="col" style="text-align: right">Ex VAT</th>
             <th class="govuk-table__header" scope="col" style="text-align: right">Inc VAT</th>

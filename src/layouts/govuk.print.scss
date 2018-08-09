@@ -2,9 +2,14 @@ table {
   width: 100%;
 }
 
-#global-header,
+.govuk-skip-link,
+.govuk-header,
 .govuk-phase-banner,
-.subnav {
+.paas-hidden-table-header,
+.paas-exchange-rate +p .download,
+.subnav,
+.paas-statement-range button:not(.filter-header),
+.govuk-footer {
   display: none;
 }
 
@@ -16,10 +21,6 @@ style + table {
   margin-top: 30px;
 }
 
-.paas-statement-range button {
-  display: none;
-}
-
 .paas-statement-range select {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -28,4 +29,22 @@ style + table {
   font-size: 16px;
   margin: 0;
   padding: 0;
+}
+
+.paas-exchange-rate {
+  margin-top: 15px;
+}
+
+.filter-header {
+  background: none;
+  border: none;
+  line-height: 20px;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  padding: 0.52632em 1.05263em 0.52632em 0;
+
+  &:after {
+    display: none;
+  }
 }
