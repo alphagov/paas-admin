@@ -212,10 +212,19 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
 
   const filteredItems = order(items, {sort: orderBy, order: orderDirection});
 
+  if (params.download) {
+    return {
+      download: {
+        data: composeCSV(filteredItems),
+        name: `statement-${rangeStart.format(YYYMMDD)}.csv`,
+      },
+    };
+  }
+
   /* istanbul ignore next */
   const totals = {
-    incVAT: filteredItems.reduce((sum, event) => sum + event.price.incVAT, 0),
     exVAT: filteredItems.reduce((sum, event) => sum + event.price.exVAT, 0),
+    incVAT: filteredItems.reduce((sum, event) => sum + event.price.incVAT, 0),
   };
 
   return { body: usageTemplate.render({
@@ -242,6 +251,10 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       isBillingManager,
       isManager,
     }) };
+}
+
+export async function downloadCSV(ctx: IContext, params: IParameters): Promise<IResponse> {
+  return viewStatement(ctx, {...params, download: true});
 }
 
  // tslint:disable-next-line:readonly-array
@@ -299,4 +312,40 @@ export function sortBySpace(a: IResourceWithSpace, b: IResourceWithSpace) {
     return 1;
   }
   return 0;
+}
+
+export function composeCSV(items: ReadonlyArray<IResourceUsage>): string {
+  const lines = ['Name,Space,Plan,Ex VAT,Inc VAT'];
+
+  for (const item of items) {
+    const fields = [
+      item.resourceName,
+      item.space.entity.name,
+      item.planName,
+      item.price.exVAT.toFixed(2),
+      item.price.incVAT.toFixed(2),
+    ];
+
+    lines.push(fields.join(','));
+  }
+
+  /* istanbul ignore next */
+  const totals = {
+    exVAT: items.reduce((sum, event) => sum + event.price.exVAT, 0),
+    incVAT: items.reduce((sum, event) => sum + event.price.incVAT, 0),
+  };
+  const adminFees = {
+    exVAT: (totals.exVAT * adminFee),
+    incVAT: (totals.incVAT * adminFee),
+  };
+  const toatlsIncludingAdminFee = {
+    exVAT: (totals.exVAT + adminFees.exVAT).toFixed(2),
+    incVAT: (totals.incVAT + adminFees.incVAT).toFixed(2),
+  };
+
+  lines.push(',,,,');
+  lines.push(`10% Administration fees,,,${adminFees.exVAT.toFixed(2)},${adminFees.incVAT.toFixed(2)}`);
+  lines.push(`Total,,,${toatlsIncludingAdminFee.exVAT},${toatlsIncludingAdminFee.incVAT}`);
+
+  return lines.join('\n');
 }

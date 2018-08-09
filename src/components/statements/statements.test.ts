@@ -11,22 +11,7 @@ import { IContext } from '../app/context';
 import { Token } from '../auth';
 
 import * as statement from '.';
-import { ISortable, ISortableBy, ISortableDirection, order, sortByName } from './statements';
-
-const resourceTemplate = {
-  resourceGUID: '',
-  resourceName: '',
-  resourceType: '',
-  orgGUID: '',
-  spaceGUID: '',
-  space: {},
-  planGUID: '',
-  planName: '',
-  price: {
-    incVAT: 0,
-    exVAT: 0,
-  },
-};
+import { composeCSV, ISortable, ISortableBy, ISortableDirection, order, sortByName } from './statements';
 
 const spaceTemplate = {
   entity: {
@@ -38,7 +23,7 @@ const spaceTemplate = {
     domains_url: '',
     events_url: '',
     managers_url: '',
-    name: '',
+    name: 'prod',
     organization_guid: '',
     organization_url: '',
     routes_url: '',
@@ -52,6 +37,21 @@ const spaceTemplate = {
     url: '',
     created_at: '',
     updated_at: '',
+  },
+};
+
+const resourceTemplate = {
+  resourceGUID: '',
+  resourceName: 'api',
+  resourceType: 'app',
+  orgGUID: '',
+  spaceGUID: '',
+  space: spaceTemplate,
+  planGUID: '',
+  planName: 'app',
+  price: {
+    exVAT: 1.0,
+    incVAT: 1.2,
   },
 };
 
@@ -106,11 +106,21 @@ describe('statements test suite', () => {
     expect(response.body).toContain('Statement');
   });
 
+  it('should prepare statement to download', async () => {
+    const response = await statement.downloadCSV(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: '2018-01-01',
+    });
+
+    expect(response.download).toBeDefined();
+    expect(response.download.name).toEqual('statement-2018-02-01.csv');
+  });
+
   it ('should be able to use filters', async () => {
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       rangeStart: '2018-01-01',
-      space: 'f8ff7538-9a11-4c26-83a0-f4e0474ae19e',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
       service: '9d071c77-7a68-4346-9981-e8dafac95b6f',
     });
 
@@ -216,5 +226,14 @@ describe('statements test suite', () => {
     expect(a[2].entity.name).toEqual('d');
     expect(a[3].entity.name).toEqual('d');
     expect(a[4].entity.name).toEqual('z');
+  });
+
+  it('should compose csv content correctly', async () => {
+    const content = composeCSV([resourceTemplate]);
+
+    expect(content).toContain('Name,Space,Plan,Ex VAT,Inc VAT');
+    expect(content).toContain('api,prod,app,1.00,1.20');
+    expect(content).toContain('10% Administration fees,,,0.10,0.12');
+    expect(content).toContain('Total,,,1.10,1.32');
   });
 });

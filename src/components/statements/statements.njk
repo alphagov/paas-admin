@@ -107,6 +107,12 @@
           <td td class="paas-month-price">inc VAT at 20&percnt;</td>
         </tr>
       </table>
+
+      <p>
+        <a href="{{ linkTo('admin.statement.download', {organizationGUID: organization.metadata.guid, rangeStart: filterMonth}) }}" class="govuk-link">
+          Download a spreadsheet of these items
+        </a>
+      </p>
     </div>
   </div>
 

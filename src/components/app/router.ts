@@ -92,6 +92,11 @@ const router = new Router([
     path: '/organisations/:organizationGUID/users/:userGUID/invite',
   },
   {
+    action: statements.downloadCSV,
+    name: 'admin.statement.download',
+    path: '/organisations/:organizationGUID/statements/:rangeStart/download',
+  },
+  {
     action: statements.viewStatement,
     name: 'admin.statement.view',
     path: '/organisations/:organizationGUID/statements/:rangeStart',
