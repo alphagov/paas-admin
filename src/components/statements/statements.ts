@@ -12,6 +12,7 @@ import {
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
 
+import errorsTemplate from '../errors/error.500.njk';
 import usageTemplate from './statements.njk';
 
 export const adminFee = .1;
@@ -127,7 +128,16 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     orgGUIDs: [organization.metadata.guid],
   };
 
-  const events = await billingClient.getBillableEvents(filter);
+  let events;
+  try {
+    events = await billingClient.getBillableEvents(filter);
+  } catch {
+    return {
+      body: errorsTemplate.render({
+        errorMessage: 'Billing is currently unavailable, please try again later.',
+      }),
+    };
+  }
 
   /* istanbul ignore next */
   const cleanEvents = events.map(ev => ({
