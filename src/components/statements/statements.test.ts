@@ -71,7 +71,7 @@ nock(config.cloudFoundryAPI).persist()
   .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3').reply(200, data.space)
   .get('/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019').reply(200, data.spaceQuota);
 
-nock(config.billingAPI).persist()
+nock(config.billingAPI)
   .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, billingData.billableEvents);
 // tslint:enable:max-line-length
 
@@ -90,6 +90,12 @@ const ctx: IContext = {
 };
 
 describe('statements test suite', () => {
+
+  //tslint:disable:max-line-length
+  nock(config.billingAPI)
+    .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, `[]`);
+  //tslint:enable:max-line-length
+
   it('should require a valid rangeStart param', async () => {
     await expect(statement.viewStatement(ctx, {
         organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -118,6 +124,11 @@ describe('statements test suite', () => {
   });
 
   it ('should be able to use filters', async () => {
+    // tslint:disable:max-line-length
+    nock(config.billingAPI)
+      .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, billingData.billableEvents);
+    // tslint:enable:max-line-length
+
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       rangeStart: '2018-01-01',
@@ -236,5 +247,17 @@ describe('statements test suite', () => {
     expect(content).toContain('api,prod,app,1.00,1.20');
     expect(content).toContain('10% Administration fees,,,0.10,0.12');
     expect(content).toContain('Total,,,1.10,1.32');
+  });
+
+  //tslint:disable:max-line-length
+  nock(config.billingAPI)
+    .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(500, `[]`);
+  //tslint:enable:max-line-length
+
+  it('should show error if billing API unavailable', async () => {
+    await expect(statement.viewStatement(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: '2018-01-01',
+    })).rejects.toThrow(/Billing is currently unavailable, please try again later./);
   });
 });

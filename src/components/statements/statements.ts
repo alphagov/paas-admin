@@ -127,7 +127,12 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     orgGUIDs: [organization.metadata.guid],
   };
 
-  const events = await billingClient.getBillableEvents(filter);
+  let events;
+  try {
+    events = await billingClient.getBillableEvents(filter);
+  } catch {
+    throw new Error('Billing is currently unavailable, please try again later.');
+  }
 
   /* istanbul ignore next */
   const cleanEvents = events.map(ev => ({
