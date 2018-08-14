@@ -13,7 +13,9 @@ export function internalServerErrorMiddleware(err: Error, req: any, res: express
   }
 
   res.status(500);
-  res.send(internalServerError.render({}));
+  res.send(internalServerError.render({
+    errorMessage: err.message,
+  }));
 }
 
 export function pageNotFoundMiddleware(_req: any, res: express.Response, _next: express.NextFunction) {
