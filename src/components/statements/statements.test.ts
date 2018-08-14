@@ -90,6 +90,12 @@ const ctx: IContext = {
 };
 
 describe('statements test suite', () => {
+
+  //tslint:disable:max-line-length
+  nock(config.billingAPI)
+    .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, `[]`);
+  //tslint:enable:max-line-length
+
   it('should require a valid rangeStart param', async () => {
     await expect(statement.viewStatement(ctx, {
         organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -236,5 +242,19 @@ describe('statements test suite', () => {
     expect(content).toContain('api,prod,app,1.00,1.20');
     expect(content).toContain('10% Administration fees,,,0.10,0.12');
     expect(content).toContain('Total,,,1.10,1.32');
+  });
+
+  it('should show error if billing API unavailable', async () => {
+    //tslint:disable:max-line-length
+    nock(config.billingAPI)
+      .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(500, `[]`);
+    //tslint:enable:max-line-length
+
+    const response = await statement.viewStatement(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: '2018-01-01',
+    });
+
+    expect(response.body).toContain('Billing is currently unavailable, please try again later.');
   });
 });
