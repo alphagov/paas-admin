@@ -4,8 +4,15 @@ import { URLSearchParams } from 'url';
 export interface IParameters {
   readonly [i: string]: any;
 }
+
+export interface IDownload {
+  readonly data: string;
+  readonly name: string;
+}
+
 export interface IResponse {
   readonly body?: object | string;
+  readonly download?: IDownload;
   readonly redirect?: string;
   readonly status?: number;
 }

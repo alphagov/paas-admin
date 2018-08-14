@@ -78,6 +78,7 @@ describe('users test suite', async () => {
     .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8').reply(200, `{}`)
     .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, cfData.userRolesForOrg)
     .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/user_roles').reply(200, cfData.userRolesForSpace)
+    .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/user_roles').reply(200, cfData.userRolesForSpace)
     .get('/v2/info').reply(200, cfData.info)
     .post('/v2/users').reply(200, cfData.user)
     .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true').reply(200, `{}`)
