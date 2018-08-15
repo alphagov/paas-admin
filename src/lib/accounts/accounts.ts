@@ -114,7 +114,7 @@ function latestOnly(docs: {[key: string]: IUserDocument}, doc: IUserDocument) {
 function parseTimestamp(s: string): Date {
   const m = moment(s, moment.ISO_8601);
   if (!m.isValid()) {
-    throw new Error(`invalid date format: ${s}`);
+    throw new Error(`AccountsClient: invalid date format: ${s}`);
   }
   return moment(s, moment.ISO_8601).toDate();
 }

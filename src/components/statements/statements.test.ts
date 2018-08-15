@@ -144,7 +144,7 @@ describe('statements test suite', () => {
     await expect(statement.viewStatement(ctx, {
         organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
         rangeStart: '2018-01-15',
-      })).rejects.toThrow(/expected rangeStart to be the first of the month/);
+      })).rejects.toThrow(/Billing Statement: expected rangeStart to be the first day of the month/);
   });
 
   it('should redirect to correct statement', async () => {

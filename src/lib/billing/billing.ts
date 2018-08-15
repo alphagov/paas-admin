@@ -83,7 +83,7 @@ function parseDate(d: Date): string {
 function parseTimestamp(s: string): Date {
   const m = moment(s, moment.ISO_8601);
   if (!m.isValid()) {
-    throw new Error(`invalid date format: ${s}`);
+    throw new Error(`BillingClient: invalid date format: ${s}`);
   }
 
   return moment(s, moment.ISO_8601).toDate();
@@ -93,7 +93,7 @@ function parseNumber(s: string): number {
   const n = parseFloat(s);
 
   if (isNaN(n)) {
-    throw new Error(`failed to parse '${s}' as a number`);
+    throw new Error(`BillingClient: failed to parse '${s}' as a number`);
   }
 
   return n;
@@ -197,7 +197,7 @@ async function request(req: AxiosRequestConfig): Promise<AxiosResponse> {
   const response = await axios.request(reqWithDefaults);
 
   if (response.status < 200 || response.status >= 300) {
-    let msg = `billing: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;
+    let msg = `BillingClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;
 
     if (typeof response.data === 'object') {
       msg = `${msg} and data ${JSON.stringify(response.data)}`;

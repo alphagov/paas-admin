@@ -86,11 +86,11 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   const filterSpace = params.space ? params.space : 'none';
   const filterService = params.service ? params.service : 'none';
   if (!rangeStart.isValid()) {
-    throw new Error('invalid rangeStart provided');
+    throw new Error('Billing Statement: invalid rangeStart provided');
   }
 
   if (rangeStart.date() > 1) {
-    throw new Error('expected rangeStart to be the first of the month');
+    throw new Error('Billing Statement: expected rangeStart to be the first day of the month');
   }
 
   const currentMonth = rangeStart.format('MMMM');

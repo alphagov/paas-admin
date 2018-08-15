@@ -34,7 +34,7 @@ export default class Router {
     const seen: {[key: string]: boolean} = {};
     this.routes.forEach(r => {
       if (seen[r.definition.name]) {
-        throw new Error(`duplicate route entry for name '${r.definition.name}'`);
+        throw new Error(`Router: duplicate route entry for name '${r.definition.name}'`);
       }
       seen[r.definition.name] = true;
     });
