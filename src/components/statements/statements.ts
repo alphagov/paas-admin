@@ -11,6 +11,7 @@ import {
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
+import { UserFriendlyError } from '../errors';
 
 import usageTemplate from './statements.njk';
 
@@ -131,7 +132,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   try {
     events = await billingClient.getBillableEvents(filter);
   } catch {
-    throw new Error('Billing is currently unavailable, please try again later.');
+    throw new UserFriendlyError('Billing is currently unavailable, please try again later.');
   }
 
   /* istanbul ignore next */
