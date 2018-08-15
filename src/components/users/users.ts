@@ -80,7 +80,7 @@ const VALID_EMAIL = /[^.]@[^.]/;
 async function setAllUserRolesForOrg(
   cf: CloudFoundryClient,
   params: IParameters,
-  roles: {[i: string]: IPermissions},
+  roles: {readonly [i: string]: IPermissions},
 ): Promise<any> {
   const spaces = await cf.spaces(params.organizationGUID);
 
@@ -178,7 +178,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
 
     /* istanbul ignore next */
     try {
-      userWithSpaces.spaces = await cf.spacesForUserInOrganization(user.metadata.guid, params.organizationGUID);
+      userWithSpaces.spaces = [...await cf.spacesForUserInOrganization(user.metadata.guid, params.organizationGUID)];
     } catch {
       ctx.log.warn(
         `BUG: users has no permission to fetch spacesForUser: ${user.metadata.guid}`,

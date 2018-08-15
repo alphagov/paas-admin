@@ -87,7 +87,7 @@ export async function viewCostReport(
 
 export function aggregateBillingEvents(
   billableEvents: ReadonlyArray<IBillableEvent>,
-): {[key: string]: ReadonlyArray<IBillableEvent>} {
+): {readonly [key: string]: ReadonlyArray<IBillableEvent>} {
   return billableEvents
     .reduce(
       (
@@ -104,8 +104,8 @@ export function aggregateBillingEvents(
 
 export function createOrgCostRecords(
   orgs: ReadonlyArray<IOrganization>,
-  orgQuotas: {[key: string]: IOrganizationQuota},
-  orgBillableEvents: {[key: string]: ReadonlyArray<IBillableEvent>},
+  orgQuotas: {readonly [key: string]: IOrganizationQuota},
+  orgBillableEvents: {readonly [key: string]: ReadonlyArray<IBillableEvent>},
 ): ReadonlyArray<IOrgCostRecord> {
   return orgs
   .map(org => {

@@ -218,7 +218,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   const orderBy = params.sort || 'name';
   const orderDirection = params.order || 'asc';
 
-  const listSpaces = [{metadata: {guid: 'none'}, entity: {name: 'All spaces'}}, ...spaces.sort(sortByName)];
+  const listSpaces = [{metadata: {guid: 'none'}, entity: {name: 'All spaces'}}, ...[...spaces].sort(sortByName)];
   const listPlans = [{metadata: {guid: 'none'}, entity: {name: 'All Services'}}, ...plans.sort(sortByName)];
 
   const filteredItems = order(items, {sort: orderBy, order: orderDirection});
