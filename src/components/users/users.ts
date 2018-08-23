@@ -162,11 +162,14 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
-  const organization = await cf.organization(params.organizationGUID);
-  const users = await cf.usersForOrganization(params.organizationGUID);
+  const [isManager, isBillingManager, organization, users] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+    cf.organization(params.organizationGUID),
+    cf.usersForOrganization(params.organizationGUID),
+  ]);
+
   const usersWithSpaces = await Promise.all(users.map(async (user: IOrganizationUserRoles) => {
     const userWithSpaces = {
       ...user,
@@ -205,16 +208,21 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
+
+  const [isManager, isBillingManager] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+  ]);
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
     throw new NotFoundError('not found');
   }
 
-  const organization = await cf.organization(params.organizationGUID);
-  const spaces = await cf.spaces(params.organizationGUID);
+  const [organization, spaces] = await Promise.all([
+    cf.organization(params.organizationGUID),
+    cf.spaces(params.organizationGUID),
+  ]);
 
   /* istanbul ignore next */
   const values: IRoleValues = {
@@ -260,16 +268,20 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
+  const [isManager, isBillingManager] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+  ]);
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
     throw new NotFoundError('not found');
   }
 
-  const organization = await cf.organization(params.organizationGUID);
-  const spaces = await cf.spaces(params.organizationGUID);
+  const [organization, spaces] = await Promise.all([
+    cf.organization(params.organizationGUID),
+    cf.spaces(params.organizationGUID),
+  ]);
   const errors = [];
   const values: IUserPostBody = merge({
     org_roles: {[params.organizationGUID]: {}},
@@ -409,8 +421,10 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
     throw new NotFoundError('not found');
   }
 
-  const organization = await cf.organization(params.organizationGUID);
-  const users = await cf.usersForOrganization(params.organizationGUID);
+  const [organization, users] = await Promise.all([
+    cf.organization(params.organizationGUID),
+    cf.usersForOrganization(params.organizationGUID),
+  ]);
   const user = users.find((u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
 
   if (!user) {
@@ -488,8 +502,10 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
+  const [isManager, isBillingManager] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+  ]);
 
   const users = await cf.usersForOrganization(params.organizationGUID);
   const managers = users.filter((manager: IOrganizationUserRoles) =>
@@ -504,10 +520,12 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
     throw new NotFoundError('not found');
   }
 
-  const organization = await cf.organization(params.organizationGUID);
-  const spaces = await cf.spaces(params.organizationGUID);
+  const [organization, spaces, orgUsers] = await Promise.all([
+    cf.organization(params.organizationGUID),
+    cf.spaces(params.organizationGUID),
+    cf.usersForOrganization(params.organizationGUID),
+  ]);
 
-  const orgUsers = await cf.usersForOrganization(params.organizationGUID);
   const user = orgUsers.find((u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
 
   if (!user) {
@@ -567,23 +585,27 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
+  const [isManager, isBillingManager] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+  ]);
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
     throw new NotFoundError('not found');
   }
 
-  const organization = await cf.organization(params.organizationGUID);
-  const spaces = await cf.spaces(params.organizationGUID);
+  const [organization, spaces, orgUsers] = await Promise.all([
+    cf.organization(params.organizationGUID),
+    cf.spaces(params.organizationGUID),
+    cf.usersForOrganization(params.organizationGUID),
+  ]);
   const errors = [];
   const values: IUserPostBody = merge({
     org_roles: {[params.organizationGUID]: {}},
     space_roles: {},
   }, body);
 
-  const orgUsers = await cf.usersForOrganization(params.organizationGUID);
   const user = orgUsers.find((u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
 
   try {
@@ -650,16 +672,20 @@ export async function confirmDeletion(ctx: IContext, params: IParameters): Promi
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
+  const [isManager, isBillingManager] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+  ]);
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
     throw new NotFoundError('not found');
   }
 
-  const organization = await cf.organization(params.organizationGUID);
-  const orgUsers = await cf.usersForOrganization(params.organizationGUID);
+  const [organization, orgUsers] = await Promise.all([
+    cf.organization(params.organizationGUID),
+    cf.usersForOrganization(params.organizationGUID),
+  ]);
   const user = orgUsers.find((u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
 
   return {
@@ -682,8 +708,10 @@ export async function deleteUser(ctx: IContext, params: IParameters, _: object):
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
+  const [isManager, isBillingManager] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+  ]);
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {

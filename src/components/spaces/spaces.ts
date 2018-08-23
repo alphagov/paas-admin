@@ -1,7 +1,6 @@
 import CloudFoundryClient from '../../lib/cf';
 import {
   IApplication,
-  IApplicationSummary,
   IOrganizationUserRoles,
   IRoute,
   ISpace,
@@ -30,20 +29,14 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
-  const space = await cf.space(params.spaceGUID);
-  const applications = await cf.applications(params.spaceGUID);
-  const organization = await cf.organization(space.entity.organization_guid);
-
-  const summarisedSpace = {
-    entity: {
-      ...space.entity,
-      ...await cf.spaceSummary(space.metadata.guid),
-    },
-    metadata: space.metadata,
-  };
+  const [isManager, isBillingManager, space, applications, organization] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+    cf.space(params.spaceGUID),
+    cf.applications(params.spaceGUID),
+    cf.organization(params.organizationGUID),
+  ]);
 
   const summarisedApplications = await Promise.all(applications.map(async (application: IApplication) => {
     const summary = await cf.applicationSummary(application.metadata.guid);
@@ -65,7 +58,7 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       organization,
-      space: summarisedSpace,
+      space,
       isAdmin,
       isBillingManager,
       isManager,
@@ -84,26 +77,22 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
-  const space = await cf.space(params.spaceGUID);
-  const organization = await cf.organization(space.entity.organization_guid);
-
-  const summarisedSpace = {
-    entity: {
-      ...space.entity,
-      ...await cf.spaceSummary(space.metadata.guid),
-    },
-    metadata: space.metadata,
-  };
+  const [isManager, isBillingManager, space, services, userServices, organization] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+    cf.space(params.spaceGUID),
+    cf.services(params.spaceGUID),
+    cf.userServices(params.spaceGUID),
+    cf.organization(params.organizationGUID),
+  ]);
 
   return {
     body: spaceBackingServicesTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       organization,
-      space: summarisedSpace,
+      space,
       isAdmin,
       isBillingManager,
       isManager,
@@ -122,30 +111,35 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
-  const spaces = await cf.spaces(params.organizationGUID);
-  const organization = await cf.organization(params.organizationGUID);
-  const users = await cf.usersForOrganization(params.organizationGUID);
+  const [isManager, isBillingManager, spaces, organization, users] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+    cf.spaces(params.organizationGUID),
+    cf.organization(params.organizationGUID),
+    cf.usersForOrganization(params.organizationGUID),
+  ]);
+
   const managers = users.filter((user: IOrganizationUserRoles) =>
     user.entity.organization_roles.some(role => role === 'org_manager'),
   );
 
   const summarisedSpaces = await Promise.all(spaces.map(async (space: ISpace) => {
-    const summary = await cf.spaceSummary(space.metadata.guid);
+    const [applications, quota] = await Promise.all([
+      cf.applications(space.metadata.guid),
+      space.entity.space_quota_definition_guid ?
+          cf.spaceQuota(space.entity.space_quota_definition_guid) : Promise.resolve(null),
+    ]);
 
     return {
       entity: {
         ...space.entity,
-        ...summary,
 
-        running_apps: summary.apps.filter((app: IApplicationSummary) => app.running_instances > 0),
-        stopped_apps: summary.apps.filter((app: IApplicationSummary) => app.running_instances === 0),
-        memory_allocated: summary.apps.reduce((allocated: number, app: IApplicationSummary) =>
-          allocated + app.memory, 0),
-        quota: space.entity.space_quota_definition_guid ?
-          await cf.spaceQuota(space.entity.space_quota_definition_guid) : null,
+        running_apps: applications.filter((app: IApplication) => app.entity.state.toLowerCase() !== 'stopped'),
+        stopped_apps: applications.filter((app: IApplication) => app.entity.state.toLowerCase() === 'stopped'),
+        memory_allocated: applications.reduce((allocated: number, app: IApplication) =>
+          allocated + app.entity.memory, 0),
+        quota,
       },
       metadata: space.metadata,
     };
