@@ -17,7 +17,7 @@ export default class Server {
 
   public async start() {
     if (this.http) {
-      throw new Error('cannot start server: server is already started');
+      throw new Error('Server: cannot start server: server is already started');
     }
     this.http = createServer(this.handler);
     this.http.listen(this.port);
@@ -29,7 +29,7 @@ export default class Server {
 
   public async stop() {
     if (!this.http) {
-      throw new Error('cannot stop server: server is not started');
+      throw new Error('Server: cannot stop server: server is not started');
     }
     const wait = this.wait();
     const h = this.http;
@@ -40,7 +40,7 @@ export default class Server {
 
   public async wait() {
     if (!this.http) {
-      throw new Error('cannot wait on server: server is not started');
+      throw new Error('Server: cannot wait on server: server is not started');
     }
     return new Promise((resolve, reject) => {
       this.http.once('close', resolve);

@@ -68,7 +68,7 @@ export default class UAAClient {
     });
 
     if (response.status < 200 || response.status >= 300) {
-      let msg = `uaa: failed to obtain signing key due to status ${response.status}`;
+      let msg = `UAAClient: failed to obtain signing key due to status ${response.status}`;
       /* istanbul ignore next */
       if (typeof response.data === 'object') {
         msg = `${msg} and data ${JSON.stringify(response.data)}`;
@@ -146,7 +146,7 @@ async function request(endpoint: string, method: string, url: string, opts: any)
     ...opts,
   });
   if (response.status < 200 || response.status >= 300) {
-    let msg = `uaa: ${method} ${url} failed with status ${response.status}`;
+    let msg = `UAAClient: ${method} ${url} failed with status ${response.status}`;
     if (typeof response.data === 'object') {
       msg = `${msg} and data ${JSON.stringify(response.data)}`;
     }
@@ -158,12 +158,12 @@ async function request(endpoint: string, method: string, url: string, opts: any)
 export async function authenticate(endpoint: string, clientCredentials: IClientCredentials) {
   /* istanbul ignore next */
   if (!clientCredentials.clientID) {
-    throw new TypeError('authenticate: clientID is required');
+    throw new TypeError('UAAClient: authenticate: clientID is required');
   }
 
   /* istanbul ignore next */
   if (!clientCredentials.clientSecret) {
-    throw new TypeError('authenticate: clientSecret is required');
+    throw new TypeError('UAAClient: authenticate: clientSecret is required');
   }
 
   const response = await request(endpoint, 'post', '/oauth/token', {
@@ -184,12 +184,12 @@ export async function authenticate(endpoint: string, clientCredentials: IClientC
 export async function authenticateUser(endpoint: string, userCredentials: IUserCredentials) {
   /* istanbul ignore next */
   if (!userCredentials.username) {
-    throw new TypeError('authenticateUser: username is required');
+    throw new TypeError('UAAClient: authenticateUser: username is required');
   }
 
   /* istanbul ignore next */
   if (!userCredentials.password) {
-    throw new TypeError('authenticateUser: password is required');
+    throw new TypeError('UAAClient: authenticateUser: password is required');
   }
 
   const response = await request(endpoint, 'post', '/oauth/token', {

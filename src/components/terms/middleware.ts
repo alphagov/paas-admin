@@ -29,15 +29,15 @@ export function termsCheckerMiddleware(config: IAccountsClientConfig): express.H
     const token: Token = (req as any).token;
     /* istanbul ignore next */
     if (!token || !token.userID) {
-      throw new Error('cannot create agreement without a userID');
+      throw new Error('TOU: cannot create agreement without a `userID` field');
     }
     /* istanbul ignore next */
     if (!req.body) {
-      throw new Error('expected a request body, hint: have you configured a body parser?');
+      throw new Error('TOU: expected a request body, hint: have you configured a body parser?');
     }
     /* istanbul ignore next */
     if (!req.body.document_name) {
-      throw new Error('expected a request body with document_name');
+      throw new Error('TOU: expected a request body containing `document_name` field');
     }
     await accounts.createAgreement(req.body.document_name, token.userID);
     res.redirect('/');

@@ -419,7 +419,7 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
 
   /* istanbul ignore next */
   if (!VALID_EMAIL.test(user.entity.username)) {
-    throw new Error('a valid email address is required');
+    throw new Error('User: a valid email address is required.');
   }
 
   const uaa = new UAAClient({
@@ -435,7 +435,7 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
 
   /* istanbul ignore next */
   if (!userGUID) {
-    throw new Error('the user does not exist');
+    throw new Error('User: the user does not exist');
   }
 
   const invitation = await uaa.inviteUser(

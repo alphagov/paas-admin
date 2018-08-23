@@ -41,7 +41,7 @@ export default class Route {
   public composeURL(params: IParameters = {}): string {
     const url = this.parser.reverse(params);
     if (!url) {
-      throw new Error(`could not compose url: ${this.definition.path}`);
+      throw new Error(`Route: could not compose url: ${this.definition.path}`);
     }
 
     const used = this.parser.match(url);

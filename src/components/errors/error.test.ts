@@ -5,7 +5,7 @@ import request from 'supertest';
 
 import Router, { NotFoundError } from '../../lib/router';
 
-import { internalServerErrorMiddleware, pageNotFoundMiddleware } from '.';
+import { internalServerErrorMiddleware, pageNotFoundMiddleware, UserFriendlyError } from '.';
 
 const logger = pino({level: 'silent'});
 const app = express();
@@ -36,6 +36,18 @@ describe('errors test suite', () => {
 
     expect(response.status).toEqual(500);
     expect(response.text).toContain('Sorry an error occurred');
+  });
+
+  it('should display a user friendly 500 page with error', async () => {
+    app.use('/friendly-bang', (_req, _res, _next) => {
+      throw new UserFriendlyError('friendly-bang');
+    });
+    app.use(internalServerErrorMiddleware);
+    const response = await request(app).get('/friendly-bang');
+
+    expect(response.status).toEqual(500);
+    expect(response.text).toContain('Sorry an error occurred');
+    expect(response.text).toContain('friendly-bang');
   });
 
   it('should display an not-found 404 error page if a route throws that type of error', async () => {

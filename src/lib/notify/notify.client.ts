@@ -24,7 +24,7 @@ export default class NotificationClient {
   public async sendWelcomeEmail(emailAddress: string, personalisation: IParameters = {}) {
     /* istanbul ignore next */
     if (!this.templates.welcome) {
-      throw new Error(`notifications: templates.welcome: id is required`);
+      throw new Error(`NotifyClient: templates.welcome: id is required`);
     }
 
     const templateID = this.templates.welcome;
