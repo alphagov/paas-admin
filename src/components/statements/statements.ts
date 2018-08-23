@@ -106,16 +106,21 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
+
+  const [isManager, isBillingManager] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+  ]);
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager && !isBillingManager) {
     throw new NotFoundError('not found');
   }
 
-  const organization = await cf.organization(params.organizationGUID);
-  const spaces = await cf.spaces(params.organizationGUID);
+  const [organization, spaces] = await Promise.all([
+    cf.organization(params.organizationGUID),
+    cf.spaces(params.organizationGUID),
+  ]);
 
   const billingClient = new BillingClient({
     apiEndpoint: ctx.app.billingAPI,

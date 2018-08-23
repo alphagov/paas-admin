@@ -209,8 +209,8 @@ export default class CloudFoundryClient {
     return this.allResources(response);
   }
 
-  public async userServices(): Promise<cf.IUserServices[]> {
-    const response = await this.request('get', `/v2/user_provided_service_instances`);
+  public async userServices(spaceGUID: string): Promise<cf.IUserServices[]> {
+    const response = await this.request('get', `/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`);
     return this.allResources(response);
   }
 

@@ -17,17 +17,20 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
-  const userProvidedServices = await cf.userServices();
+  const [isManager, isBillingManager, userProvidedServices, space, organization] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+    cf.userServices(params.spaceGUID),
+    cf.space(params.spaceGUID),
+    cf.organization(params.organizationGUID),
+  ]);
+
   const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
+
   const service = isUserProvidedService ?
     await cf.userServiceInstance(params.serviceGUID) :
     await cf.serviceInstance(params.serviceGUID);
-
-  const space = await cf.space(params.spaceGUID);
-  const organization = await cf.organization(params.organizationGUID);
 
   const servicePlan = !isUserProvidedService ? await cf.servicePlan(service.entity.service_plan_guid) : null;
 

@@ -22,20 +22,21 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
-  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
-  const isBillingManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager');
 
-  const application = await cf.application(params.applicationGUID);
-  const space = await cf.space(params.spaceGUID);
-  const organization = await cf.organization(params.organizationGUID);
-
-  const summary = await cf.applicationSummary(params.applicationGUID);
+  const [isManager, isBillingManager, application, space, organization, applicationSummary] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+    cf.application(params.applicationGUID),
+    cf.space(params.spaceGUID),
+    cf.organization(params.organizationGUID),
+    cf.applicationSummary(params.applicationGUID),
+  ]);
 
   const summarisedApplication = {
     entity: {
       ...application.entity,
-      ...summary,
-      urls: summary.routes.map(buildURL),
+      ...applicationSummary,
+      urls: applicationSummary.routes.map(buildURL),
     },
     metadata: application.metadata,
   };

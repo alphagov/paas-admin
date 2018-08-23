@@ -14,11 +14,11 @@
 
   {% include "./_tabs.njk" %}
 
-  {% if applications.length > 0 %}
+  <h2 class="govuk-heading-m paas-space-between-heading-and-table">
+    This space contains {{ applications | length }} application{% if applications.length != 1 %}s{% endif %}
+  </h2>
 
-    <h2 class="govuk-heading-m paas-space-between-heading-and-table">
-      This space contains {{ applications | length }} applications
-    </h2>
+  {% if applications.length > 0 %}
 
     <table class="govuk-table space-overview">
       <thead class="govuk-table__head">

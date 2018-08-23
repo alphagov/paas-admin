@@ -5,7 +5,7 @@
       spaceGUID: space.metadata.guid
     }) }}">
       Applications
-      <span class="number-of-items">{{ space.entity.apps | length }}</span>
+      {# <span class="number-of-items">{{ space.entity.apps | length }}</span> #}
     </a>
   </li>
   <li class="{% if routePartOf('admin.organizations.spaces.services.list') %} active {% endif %}">
@@ -14,7 +14,7 @@
       spaceGUID: space.metadata.guid
     }) }}">
       Backing services
-      <span class="number-of-items">{{space.entity.services | length }}</span>
+      {# <span class="number-of-items">{{space.entity.services | length }}</span> #}
     </a>
   </li>
 </ul>
