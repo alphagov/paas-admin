@@ -21,7 +21,7 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
   const [isManager, isBillingManager, userProvidedServices, space, organization] = await Promise.all([
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
-    cf.userServices(),
+    cf.userServices(params.spaceGUID),
     cf.space(params.spaceGUID),
     cf.organization(params.organizationGUID),
   ]);

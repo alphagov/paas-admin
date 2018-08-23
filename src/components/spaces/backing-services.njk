@@ -14,11 +14,11 @@
 
   {% include "./_tabs.njk" %}
 
-  {% if space.entity.services.length > 0 %}
-
     <h2 class="govuk-heading-m paas-space-between-heading-and-table">
-      This space contains {{ space.entity.services | length }} backing services
+      This space contains {{ services | length }} backing service{% if services.length != 1 %}s{% endif %}
     </h2>
+
+  {% if services.length > 0 %}
 
     <table class="govuk-table space-overview">
       <thead class="govuk-table__head">
@@ -30,7 +30,7 @@
         </tr>
       </thead>
       <tbody class="govuk-table__body">
-        {% for service in space.entity.services %}
+        {% for service in services %}
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">
               <a href="{{ linkTo('admin.organizations.spaces.services.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.guid}) }}" class="govuk-link">{{ service.name }}</a>

@@ -30,7 +30,7 @@ nock('https://example.com/api').persist()
   .get('/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92').times(1).reply(200, data.serviceInstance)
   .get('/v2/service_plans/775d0046-7505-40a4-bfad-ca472485e332').times(1).reply(200, data.servicePlan)
   .get('/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5').times(1).reply(200, data.service)
-  .get('/v2/user_provided_service_instances').times(1).reply(200, data.userServices)
+  .get('/v2/user_provided_service_instances?q=space_guid:594c1fa9-caed-454b-9ed8-643a093ff91d').times(1).reply(200, data.userServices)
   .get('/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87').times(1).reply(200, data.userServiceInstance)
   .post('/v2/users').reply(201, data.user)
   .delete('/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177?async=false').reply(204)
@@ -330,7 +330,7 @@ describe('lib/cf test suite', () => {
 
   test('should obtain list of user provided services', async () => {
     const client = new CloudFoundryClient(config);
-    const services = await client.userServices();
+    const services = await client.userServices('594c1fa9-caed-454b-9ed8-643a093ff91d');
 
     expect(services.length > 0).toBeTruthy();
     expect(services[0].entity.name).toEqual('name-1696');

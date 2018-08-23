@@ -89,6 +89,7 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
 
   return {
     body: spaceBackingServicesTemplate.render({
+      services: [...services, ...userServices],
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       organization,
