@@ -100,7 +100,7 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
-  public async organizations(): Promise<cf.IOrganization[]> {
+  public async organizations(): Promise<ReadonlyArray<cf.IOrganization>> {
     const response = await this.request('get', `/v2/organizations`);
     return this.allResources(response);
   }
@@ -110,12 +110,16 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
-  public async deleteOrganization(orgRequest: {guid: string, recursive: boolean, async: boolean}): Promise<void> {
+  public async deleteOrganization(orgRequest: {
+    readonly guid: string,
+    readonly recursive: boolean,
+    readonly async: boolean,
+  }): Promise<void> {
     const query = `?recursive=${orgRequest.recursive}&async=${orgRequest.async}`;
     await this.request('delete', `/v2/organizations/${orgRequest.guid}${query}`, orgRequest);
   }
 
-  public async quotaDefinitions(search?: { name: string }): Promise<cf.IOrganizationQuota[]> {
+  public async quotaDefinitions(search?: { readonly name: string }): Promise<ReadonlyArray<cf.IOrganizationQuota>> {
     let query = '';
     if (search && search.name) {
       query = `?q=name:${search.name}`;
@@ -130,7 +134,7 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
-  public async spaces(organizationGUID: string): Promise<cf.ISpace[]> {
+  public async spaces(organizationGUID: string): Promise<ReadonlyArray<cf.ISpace>> {
     const response = await this.request('get', `/v2/organizations/${organizationGUID}/spaces`);
     return this.allResources(response);
   }
@@ -150,12 +154,12 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
-  public async spacesForUserInOrganization(user: string, organization: string): Promise<cf.IResource[]> {
+  public async spacesForUserInOrganization(user: string, organization: string): Promise<ReadonlyArray<cf.IResource>> {
     const response = await this.request('get', `/v2/users/${user}/spaces?q=organization_guid:${organization}`);
     return this.allResources(response);
   }
 
-  public async applications(spaceGUID: string): Promise<cf.IApplication[]> {
+  public async applications(spaceGUID: string): Promise<ReadonlyArray<cf.IApplication>> {
     const response = await this.request('get', `/v2/spaces/${spaceGUID}/apps`);
     return this.allResources(response);
   }
@@ -170,7 +174,7 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
-  public async services(spaceGUID: string): Promise<cf.IServiceInstance[]> {
+  public async services(spaceGUID: string): Promise<ReadonlyArray<cf.IServiceInstance>> {
     const response = await this.request('get', `/v2/spaces/${spaceGUID}/service_instances`);
     return this.allResources(response);
   }
@@ -199,17 +203,17 @@ export default class CloudFoundryClient {
     await this.request('delete', `/v2/users/${userId}?async=false`);
   }
 
-  public async usersForOrganization(organizationGUID: string): Promise<cf.IOrganizationUserRoles[]> {
+  public async usersForOrganization(organizationGUID: string): Promise<ReadonlyArray<cf.IOrganizationUserRoles>> {
     const response = await this.request('get', `/v2/organizations/${organizationGUID}/user_roles`);
     return this.allResources(response);
   }
 
-  public async usersForSpace(spaceGUID: string): Promise<cf.ISpaceUserRoles[]> {
+  public async usersForSpace(spaceGUID: string): Promise<ReadonlyArray<cf.ISpaceUserRoles>> {
     const response = await this.request('get', `/v2/spaces/${spaceGUID}/user_roles`);
     return this.allResources(response);
   }
 
-  public async userServices(spaceGUID: string): Promise<cf.IUserServices[]> {
+  public async userServices(spaceGUID: string): Promise<ReadonlyArray<cf.IUserServices>> {
     const response = await this.request('get', `/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`);
     return this.allResources(response);
   }

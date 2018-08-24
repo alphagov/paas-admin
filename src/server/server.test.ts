@@ -34,7 +34,7 @@ describe('server test suite', () => {
     const port = server.http.address().port;
     await request(`http://localhost:${port}`).get('/').expect(200);
     await server.stop();
-    expect(await request(`http://localhost:${port}`).get('/').timeout(500)).toBeUndefined();
+    return expect(request(`http://localhost:${port}`).get('/').timeout(500)).rejects.toThrow(/ECONNREFUSED/);
   });
 
   it('should replace the handler when updated', async () => {

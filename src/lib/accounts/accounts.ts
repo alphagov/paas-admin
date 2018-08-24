@@ -90,25 +90,26 @@ export class AccountsClient {
     });
     const data: ReadonlyArray<IUserDocumentResponse> = response.data;
     const initialMap: {[key: string]: IUserDocument} = {};
-    return Object.values(
-      data.map(parseUserDocument)
-      .reduce(latestOnly, initialMap),
-    ).filter(pendingOnly);
+    return Object.values(data.map(parseUserDocument).reduce(latestOnly, initialMap))
+      .filter(pendingOnly);
   }
 }
 
-function pendingOnly(doc: IUserDocument) {
+function pendingOnly(doc: IUserDocument): boolean {
   return doc.agreementDate === null;
 }
 
-function latestOnly(docs: {[key: string]: IUserDocument}, doc: IUserDocument) {
-    if (!docs[doc.name]) {
-      docs[doc.name] = doc;
-    }
-    if (docs[doc.name].validFrom < doc.validFrom) {
-      docs[doc.name] = doc;
-    }
-    return docs;
+function latestOnly(docs: {readonly [key: string]: IUserDocument}, doc: IUserDocument) {
+  const reducedDocs = {...docs};
+
+  if (!reducedDocs[doc.name]) {
+    reducedDocs[doc.name] = doc;
+  }
+  if (reducedDocs[doc.name].validFrom < doc.validFrom) {
+    reducedDocs[doc.name] = doc;
+  }
+
+  return reducedDocs;
 }
 
 function parseTimestamp(s: string): Date {

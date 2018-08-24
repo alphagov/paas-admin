@@ -50,7 +50,6 @@ uaac client update paas-admin --redirect-uri http://localhost:3000/auth/login/ca
   [NVM](https://github.com/creationix/nvm) (`nvm use` in this repo) for version
 management
 * [npm](https://www.npmjs.com/) versions `> 5.5.1`
-* You will need a username/password for the govuk-frontend project ([why?](#updating-the-govuk-frontend-module))
 
 ## Getting Started
 
@@ -137,15 +136,6 @@ production build and calls `cf push`:
 ```sh
 npm run push
 ```
-
-## Updating the govuk-frontend module
-
-Right now the lovely govuk-frontend project is in private beta and they require
-a password to access their npm packages. We currently vendor the package to
-avoid needing to distribute the password just to build `paas-admin`.
-
-To update the module you must first login to npm as the `govuk-frontend-test`
-user.
 
 ## Alternatives
 
