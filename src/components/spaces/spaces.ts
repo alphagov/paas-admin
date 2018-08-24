@@ -3,6 +3,7 @@ import {
   IApplication,
   IOrganizationUserRoles,
   IRoute,
+  IServiceInstance,
   ISpace,
 } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
@@ -87,9 +88,23 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
     cf.organization(params.organizationGUID),
   ]);
 
+  const summarisedServices = await Promise.all(services.map(async (service: IServiceInstance) => {
+    const [plan, serviceDefinition] = await Promise.all([
+      cf.servicePlan(service.entity.service_plan_guid),
+      cf.service(service.entity.service_guid),
+    ]);
+
+    return {
+      definition: serviceDefinition,
+      entity: service.entity,
+      metadata: service.metadata,
+      plan,
+    };
+  }));
+
   return {
     body: spaceBackingServicesTemplate.render({
-      services: [...services, ...userServices],
+      services: [...summarisedServices, ...userServices],
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       organization,

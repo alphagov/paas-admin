@@ -522,6 +522,7 @@ export const services = `{
         "credentials": {
           "creds-key-60": "creds-val-60"
         },
+        "service_guid": "775d0046-7505-40a4-bfad-ca472485e332",
         "service_plan_guid": "fcf57f7f-3c51-49b2-b252-dc24e0f7dcab",
         "space_guid": "f858c6b3-f6b1-4ae8-81dd-8e8747657fbe",
         "gateway_data": null,
