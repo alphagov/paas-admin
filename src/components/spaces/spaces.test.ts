@@ -24,6 +24,8 @@ nock('https://example.com/api').persist()
   .get('/v2/apps/cd897c8c-3171-456d-b5d7-3c87feeabbd1/summary').reply(200, data.appSummary)
   .get('/v2/apps/efd23111-72d1-481e-8168-d5395e0ea5f0/summary').reply(200, data.appSummary)
   .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/service_instances').reply(200, data.services)
+  .get('/v2/service_plans/fcf57f7f-3c51-49b2-b252-dc24e0f7dcab').reply(200, data.servicePlan)
+  .get('/v2/services/775d0046-7505-40a4-bfad-ca472485e332').reply(200, data.service)
   .get('/v2/user_provided_service_instances?q=space_guid:bc8d3381-390d-4bd7-8c71-25309900a2e3').reply(200, data.services)
   .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3').reply(200, data.space)
   .get('/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019').reply(200, data.spaceQuota);
@@ -68,5 +70,6 @@ describe('spaces test suite', () => {
     });
 
     expect(response.body).toContain('name-2064 - Overview');
+    expect(response.body).toContain('name-2104');
   });
 });

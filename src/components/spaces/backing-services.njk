@@ -33,16 +33,16 @@
         {% for service in services %}
           <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">
-              <a href="{{ linkTo('admin.organizations.spaces.services.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.guid}) }}" class="govuk-link">{{ service.name }}</a>
+              <a href="{{ linkTo('admin.organizations.spaces.services.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid}) }}" class="govuk-link">{{ service.entity.name }}</a>
             </th>
             <td class="govuk-table__cell ">
-              {{ service.service_plan.service.label | default('User Provided Service') }}
+              {{ service.definition.entity.label | default('User Provided Service') }}
             </td>
             <td class="govuk-table__cell ">
-              {{ service.service_plan.name | default('N/A') }}
+              {{ service.plan.entity.name | default('N/A') }}
             </td>
             <td class="govuk-table__cell ">
-              {{ service.last_operation.state | default('N/A') }}
+              {{ service.entity.last_operation.state | default('N/A') }}
             </td>
           </tr>
         {% endfor %}
