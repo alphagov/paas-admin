@@ -12,7 +12,7 @@
     "test:unit": "jest --coverage",
     "test:audit": "npm audit",
     "test:vulnerabilities": "if npm audit | grep -E -B9999 '\\d+\\s+(high|critical)'; then npm audit; else exit 0; fi",
-    "test:acceptance": "ts-mocha --exit -p . acceptance-tests/**/*.test.ts",
+    "test:acceptance": "ts-mocha --exit acceptance-tests/**/*.test.ts",
     "lint": "npm run -s lint:ts && npm run -s lint:sass",
     "lint:ts": "tslint --format codeFrame -p .",
     "lint:sass": "sass-lint -v",
