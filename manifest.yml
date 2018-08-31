@@ -2,5 +2,5 @@
 applications:
 - name: paas-admin
   command: node dist/main.js
-  memory: 256M
+  memory: 512M
   buildpack: nodejs_buildpack
