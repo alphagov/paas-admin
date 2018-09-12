@@ -46,7 +46,7 @@ const resourceTemplate = {
   resourceType: 'app',
   orgGUID: '',
   spaceGUID: '',
-  space: spaceTemplate,
+  spaceName: 'prod',
   planGUID: '',
   planName: 'app',
   price: {

@@ -74,6 +74,7 @@ interface IUsageEvent {
   readonly resourceType: string;
   readonly orgGUID: string;
   readonly spaceGUID: string;
+  readonly spaceName: string;
   readonly planGUID: string;
   readonly numberOfNodes: number;
   readonly memoryInMB: number;
@@ -93,6 +94,7 @@ interface IUsageEventResponse {
   readonly resource_type: string;
   readonly org_guid: string;
   readonly space_guid: string;
+  readonly space_name: string;
   readonly plan_guid: string;
   readonly number_of_nodes: number;
   readonly memory_in_mb: number;

@@ -117,6 +117,7 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
         resourceType: (state.plans.find(p => p.planGUID === item.planGUID) || {serviceName: 'unknown'}).serviceName,
         orgGUID: '00000001-0000-0000-0000-000000000000',
         spaceGUID: '00000001-0001-0000-0000-000000000000',
+        spaceName: 'spaceName',
         eventStart: rangeStart.toDate(),
         eventStop: rangeStop.toDate(),
         planGUID: item.planGUID,
