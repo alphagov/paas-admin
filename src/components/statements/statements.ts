@@ -2,7 +2,6 @@ import moment from 'moment';
 
 import { BillingClient } from '../../lib/billing';
 import CloudFoundryClient from '../../lib/cf';
-import { ISpace } from '../../lib/cf/types';
 import { IParameters, IResponse, NotFoundError } from '../../lib/router';
 
 import { IContext } from '../app/context';
@@ -23,7 +22,7 @@ interface IResourceUsage {
   readonly resourceType: string;
   readonly orgGUID: string;
   readonly spaceGUID: string;
-  readonly space: ISpace;
+  readonly spaceName: string;
   readonly planGUID: string;
   readonly planName: string;
   readonly price: {
@@ -37,20 +36,8 @@ interface IResourceGroup {
 }
 
 interface IFilterTuple {
-  readonly metadata: {
-    readonly guid: string;
-  };
-  readonly entity: {
-    readonly name: string;
-  };
-}
-
-interface IResourceWithSpace {
-  readonly space: {
-    readonly entity: {
-      readonly name: string;
-    };
-  };
+  readonly guid: string;
+  readonly name: string;
 }
 
 interface IResourceWithResourceName {
@@ -117,10 +104,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     throw new NotFoundError('not found');
   }
 
-  const [organization, spaces] = await Promise.all([
-    cf.organization(params.organizationGUID),
-    cf.spaces(params.organizationGUID),
-  ]);
+  const organization = await cf.organization(params.organizationGUID);
 
   const billingClient = new BillingClient({
     apiEndpoint: ctx.app.billingAPI,
@@ -165,7 +149,6 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
         ...event,
         planName: event.price.details.map(pc => pc.planName.replace('Free', 'micro'))
           .find(name => name !== '') || 'unknown',
-        space: spaces.find(s => s.metadata.guid === event.spaceGUID),
       }};
     }
 
@@ -189,14 +172,6 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format('MMMM')} ${month.format('YYYY')}`;
   }
 
-  const plans = items.reduce((all: any[], next) => {
-    if (!all.find(i => i.entity.name === next.planName)) {
-      all.push({metadata: {guid: next.planGUID}, entity: {name: next.planName}});
-    }
-
-    return all;
-  }, []);
-
   if (filterSpace !== 'none') {
     items = items.reduce((all: IResourceUsage[], next: IResourceUsage) => {
       if (next.spaceGUID === params.space) {
@@ -218,8 +193,24 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   const orderBy = params.sort || 'name';
   const orderDirection = params.order || 'asc';
 
-  const listSpaces = [{metadata: {guid: 'none'}, entity: {name: 'All spaces'}}, ...[...spaces].sort(sortByName)];
-  const listPlans = [{metadata: {guid: 'none'}, entity: {name: 'All Services'}}, ...plans.sort(sortByName)];
+  const spaces = items.reduce((all: any[], next) => {
+    if (!all.find(i => i.guid === next.spaceGUID)) {
+      all.push({guid: next.spaceGUID, name: next.spaceName});
+    }
+
+    return all;
+  }, []);
+
+  const plans = items.reduce((all: any[], next) => {
+    if (!all.find(i => i.guid === next.planGUID)) {
+      all.push({guid: next.planGUID, name: next.planName});
+    }
+
+    return all;
+  }, []);
+
+  const listSpaces = [{guid: 'none', name: 'All spaces'}, ...[...spaces].sort(sortByName)];
+  const listPlans = [{guid: 'none', name: 'All Services'}, ...plans.sort(sortByName)];
 
   const filteredItems = order(items, {sort: orderBy, order: orderDirection});
 
@@ -252,8 +243,8 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
         Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
       listOfPastYearMonths,
       filterMonth: params.rangeStart,
-      filterSpace: listSpaces.find(i => i.metadata.guid === (params.space || 'none')),
-      filterService: listPlans.find(i => i.metadata.guid === (params.service || 'none')),
+      filterSpace: listSpaces.find(i => i.guid === (params.space || 'none')),
+      filterService: listPlans.find(i => i.guid === (params.service || 'none')),
       orderBy,
       orderDirection,
       currentMonth,
@@ -286,10 +277,10 @@ export function order(items: IResourceUsage[], sort: ISortable): IResourceUsage[
 }
 
 export function sortByName(a: IFilterTuple, b: IFilterTuple) {
-  if (a.entity.name < b.entity.name) {
+  if (a.name < b.name) {
     return -1;
   }
-  if (a.entity.name > b.entity.name) {
+  if (a.name > b.name) {
     return 1;
   }
   return 0;
@@ -315,11 +306,11 @@ export function sortByPlan(a: IResourceWithPlanName, b: IResourceWithPlanName) {
   return 0;
 }
 
-export function sortBySpace(a: IResourceWithSpace, b: IResourceWithSpace) {
-  if (a.space.entity.name < b.space.entity.name) {
+export function sortBySpace(a: IResourceUsage, b: IResourceUsage) {
+  if (a.spaceName < b.spaceName) {
     return -1;
   }
-  if (a.space.entity.name > b.space.entity.name) {
+  if (a.spaceName > b.spaceName) {
     return 1;
   }
   return 0;
@@ -331,7 +322,7 @@ export function composeCSV(items: ReadonlyArray<IResourceUsage>): string {
   for (const item of items) {
     const fields = [
       item.resourceName,
-      item.space.entity.name,
+      item.spaceName,
       item.planName,
       item.price.exVAT.toFixed(2),
       item.price.incVAT.toFixed(2),
