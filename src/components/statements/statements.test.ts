@@ -96,7 +96,7 @@ describe('statements test suite', () => {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       rangeStart: '2018-01-01',
       space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
-      service: '9d071c77-7a68-4346-9981-e8dafac95b6f',
+      service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
     });
 
     expect(response.body).toContain('Statement');
@@ -172,20 +172,20 @@ describe('statements test suite', () => {
 
   it('should sort by entity name correctly', async () => {
     const a = [
-      {entity: {name: 'z'}, metadata: {guid: 'z'}},
-      {entity: {name: 'a'}, metadata: {guid: 'a'}},
-      {entity: {name: 'b'}, metadata: {guid: 'b'}},
-      {entity: {name: 'd'}, metadata: {guid: 'd'}},
-      {entity: {name: 'd'}, metadata: {guid: 'd'}},
+      {name: 'z', guid: 'z'},
+      {name: 'a', guid: 'a'},
+      {name: 'b', guid: 'b'},
+      {name: 'd', guid: 'd'},
+      {name: 'd', guid: 'd'},
     ];
 
     a.sort(sortByName);
 
-    expect(a[0].entity.name).toEqual('a');
-    expect(a[1].entity.name).toEqual('b');
-    expect(a[2].entity.name).toEqual('d');
-    expect(a[3].entity.name).toEqual('d');
-    expect(a[4].entity.name).toEqual('z');
+    expect(a[0].name).toEqual('a');
+    expect(a[1].name).toEqual('b');
+    expect(a[2].name).toEqual('d');
+    expect(a[3].name).toEqual('d');
+    expect(a[4].name).toEqual('z');
   });
 
   it('should compose csv content correctly', async () => {

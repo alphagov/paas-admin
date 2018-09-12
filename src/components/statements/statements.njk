@@ -50,14 +50,14 @@
               <td class="govuk-table__cell">
                 <select class="govuk-select" id="space" name="space">
                   {% for space in spaces %}
-                    <option value="{{ space.metadata.guid }}" {% if filterSpace.metadata.guid == space.metadata.guid %}selected{% endif %}> {{ space.entity.name }}</option>
+                    <option value="{{ space.guid }}" {% if filterSpace.guid == space.guid %}selected{% endif %}> {{ space.name }}</option>
                   {% endfor %}
                 </select>
               </td>
               <td class="govuk-table__cell">
                 <select class="govuk-select" id="service" name="service">
                   {% for plan in plans %}
-                    <option value="{{ plan.metadata.guid }}" {% if filterService.metadata.guid == plan.metadata.guid %}selected{% endif %}>{{ plan.entity.name }}</option>
+                    <option value="{{ plan.guid }}" {% if filterService.guid == plan.guid %}selected{% endif %}>{{ plan.name }}</option>
                   {% endfor %}
                 </select>
               </td>
