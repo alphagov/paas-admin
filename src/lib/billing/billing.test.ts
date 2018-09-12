@@ -79,6 +79,7 @@ describe('lib/billing test suite', () => {
         resourceType: 'app',
         orgGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
         spaceGUID: '00000001-0001-0000-0000-000000000000',
+        spaceName: 'spaceName',
         eventStart: moment('2018-01-01').toDate(),
         eventStop: moment('2018-01-02').toDate(),
         planGUID: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
@@ -91,7 +92,7 @@ describe('lib/billing test suite', () => {
     // tslint:disable:max-line-length
     nock(config.billingAPI)
       // FIXME: We could totally use the fake events to generate the URL... QS however didn't work as expected :(
-      .get(`/forecast_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275&events=%5B%7B%22event_guid%22%3A%2200000000-0000-0000-0000-000000000001%22%2C%22event_start%22%3A%222018-01-01%22%2C%22event_stop%22%3A%222018-01-02%22%2C%22resource_guid%22%3A%2200000000-0000-0000-0001-000000000001%22%2C%22resource_name%22%3A%22fake-app-1%22%2C%22resource_type%22%3A%22app%22%2C%22org_guid%22%3A%223deb9f04-b449-4f94-b3dd-c73cefe5b275%22%2C%22space_guid%22%3A%2200000001-0001-0000-0000-000000000000%22%2C%22plan_guid%22%3A%22f4d4b95a-f55e-4593-8d54-3364c25798c4%22%2C%22number_of_nodes%22%3A2%2C%22memory_in_mb%22%3A2048%2C%22storage_in_mb%22%3A1024%7D%5D`)
+      .get(`/forecast_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275&events=%5B%7B%22event_guid%22%3A%2200000000-0000-0000-0000-000000000001%22%2C%22event_start%22%3A%222018-01-01%22%2C%22event_stop%22%3A%222018-01-02%22%2C%22resource_guid%22%3A%2200000000-0000-0000-0001-000000000001%22%2C%22resource_name%22%3A%22fake-app-1%22%2C%22resource_type%22%3A%22app%22%2C%22org_guid%22%3A%223deb9f04-b449-4f94-b3dd-c73cefe5b275%22%2C%22space_guid%22%3A%2200000001-0001-0000-0000-000000000000%22%2C%22space_name%22%3A%22spaceName%22%2C%22plan_guid%22%3A%22f4d4b95a-f55e-4593-8d54-3364c25798c4%22%2C%22number_of_nodes%22%3A2%2C%22memory_in_mb%22%3A2048%2C%22storage_in_mb%22%3A1024%7D%5D`)
       .reply(200, `[
         {
           "event_guid": "aa30fa3c-725d-4272-9052-c7186d4968a6",
