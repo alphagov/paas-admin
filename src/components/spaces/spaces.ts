@@ -150,7 +150,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     return {
       entity: {
         ...space.entity,
-
+        apps: applications,
         running_apps: applications.filter((app: IApplication) => app.entity.state.toLowerCase() !== 'stopped'),
         stopped_apps: applications.filter((app: IApplication) => app.entity.state.toLowerCase() === 'stopped'),
         memory_allocated: applications.reduce((allocated: number, app: IApplication) =>

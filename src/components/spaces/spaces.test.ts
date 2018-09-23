@@ -54,6 +54,14 @@ describe('spaces test suite', () => {
     expect(response.body).toContain('Spaces');
   });
 
+  it('should show the spaces page application counter', async () => {
+    const response = await spaces.listSpaces(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    });
+
+    expect(response.body).toContain('has 1 apps');
+  });
+
   it('should show list of applications in space', async () => {
     const response = await spaces.listApplications(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
