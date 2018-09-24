@@ -22,6 +22,7 @@ interface IResourceItem {
 }
 
 interface ICalculatorState {
+  monthOfEstimate: string;
   rangeStart: string;
   rangeStop: string;
   items: ReadonlyArray<IResourceItem>;
@@ -74,6 +75,7 @@ function byEventGUID(e1: IBillableEvent, e2: IBillableEvent) {
 }
 
 export async function getCalculator(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const monthOfEstimate = moment().format('MMMM YYYY');
   const rangeStart = params.rangeStart || moment().startOf('month').format('YYYY-MM-DD');
   const rangeStop = params.rangeStop || moment().endOf('month').format('YYYY-MM-DD');
   const billing = new BillingClient({
@@ -87,6 +89,7 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
      .map(toVersionedPricingPlans)
      .sort(bySize);
   const state: ICalculatorState = {
+    monthOfEstimate,
     rangeStart,
     rangeStop,
     items: params.items || [],
