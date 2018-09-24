@@ -107,10 +107,10 @@
     </div>
 
     <div class="govuk-grid-column-one-third paas-summary-section">
-      <h2>Estimated cost summary</h2>
+      <h2>Estimated cost</h2>
 
       <p>
-        Following prices are <strong>excluding VAT</strong>:
+        Prices excluding VAT:
       </p>
 
       <table>
@@ -151,19 +151,19 @@
         {% endif %}
       </table>
 
-      <p class="paas-total">Total estimated cost (ex. VAT):</p>
+      <p class="paas-total">Estimated monthly cost</p>
 
       <p class="paas-price">&pound; {{ (quote.exVAT + quote.exVAT/100*10) | currency(2) }}</p>
       <p class="paas-month">per month</p>
 
       <details class="govuk-details">
         <summary class="govuk-details__summary">
-          <span class="govuk-details__summary-text">Why this cost might vary</span>
+          <span class="govuk-details__summary-text">Why costs may vary</span>
         </summary>
         <div class="govuk-details__text">
-          <p>This estimate assumes constant usage at the levels you've provided. Final figures will vary as CPU/Postgres/ MySQL are charged based on hourly consumption and exchange rates will fluctuate.</p>
-
-          <p>Valid for period of {{ state.rangeStart }} to {{ state.rangeStop }}. Estimates are liable to change over time.</p>
+          <p>The estimate assumes constant usage at the levels provided by you.</p>
+          <p>CPU/Postgres and MySQL are charged based on hourly consumption and may change based on exchange rates.</p>
+          <p>Valid {{ state.monthOfEstimate }}. Estimates are subject to change.</p>
         </div>
       </details>
     </div>
