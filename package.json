@@ -30,6 +30,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/compression": "0.0.36",
+    "@types/csurf": "^1.9.35",
     "@types/express": "4.16.0",
     "@types/helmet": "0.0.38",
     "@types/jest": "23.3.1",
@@ -90,6 +91,7 @@
     "axios": "0.18.0",
     "compression": "1.7.3",
     "cookie-session": "2.0.0-beta.3",
+    "csurf": "^1.9.0",
     "express": "4.16.3",
     "express-pino-logger": "4.0.0",
     "express-static-gzip": "1.1.1",

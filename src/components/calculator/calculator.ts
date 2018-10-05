@@ -99,10 +99,11 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
 
   return {
     body: calculatorTemplate.render({
-      state,
-      quote,
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
+      state,
+      quote,
     }),
   };
 }

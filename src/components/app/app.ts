@@ -1,5 +1,6 @@
 import compression from 'compression';
 import cookieSession from 'cookie-session';
+import csrf from 'csurf';
 import express from 'express';
 import pinoMiddleware from 'express-pino-logger';
 import staticGzip from 'express-static-gzip';
@@ -66,6 +67,7 @@ export default function(config: IAppConfig) {
 
   app.use(helmet());
   app.use(helmet.contentSecurityPolicy(csp));
+  app.use(csrf());
 
   app.use(express.urlencoded({extended: true}));
 

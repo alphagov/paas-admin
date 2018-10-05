@@ -19,6 +19,7 @@
 
   <div class="govuk-grid-column-two-thirds">
     <form method="post" class="govuk-!-mt-r6 paas-remove-user">
+      <input type="hidden" name="_csrf" value="{{ csrf }}" />
       <h2 class="govuk-heading-l">Are you sure you'd like to remove the following user?</h2>
 
       <p class="govuk-heading-m">{{ user.entity.username }}</p>

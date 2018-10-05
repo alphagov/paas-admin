@@ -191,6 +191,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
   return {
     body: usersTemplate.render({
       routePartOf: ctx.routePartOf,
+      csrf: ctx.csrf,
       isAdmin,
       isManager,
       isBillingManager,
@@ -251,6 +252,7 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
       errors: [],
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
       organization,
       spaces,
       values,
@@ -377,6 +379,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
         errors,
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
+        csrf: ctx.csrf,
         organization,
         isAdmin,
         isBillingManager,
@@ -388,9 +391,10 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
     if (err instanceof ValidationError) {
       return {
         body: inviteTemplate.render({
-          errors: err.errors,
           routePartOf: ctx.routePartOf,
           linkTo: ctx.linkTo,
+          csrf: ctx.csrf,
+          errors: err.errors,
           organization,
           spaces,
           values,
@@ -479,9 +483,10 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
 
   return {
     body: inviteSuccessTemplate.render({
-      errors: [],
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
+      errors: [],
       organization,
     }),
   };
@@ -565,6 +570,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       errors: [],
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
       managers,
       billingManagers,
       organization,
@@ -634,6 +640,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
       body: editSuccessTemplate.render({
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
+        csrf: ctx.csrf,
         organization,
         isAdmin,
         isBillingManager,
@@ -645,9 +652,10 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
     if (err instanceof ValidationError) {
       return {
         body: editTemplate.render({
-          errors: err.errors,
           routePartOf: ctx.routePartOf,
           linkTo: ctx.linkTo,
+          csrf: ctx.csrf,
+          errors: err.errors,
           organization,
           spaces,
           user,
@@ -692,6 +700,7 @@ export async function confirmDeletion(ctx: IContext, params: IParameters): Promi
     body: deleteTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
       organization,
       user,
       isAdmin,
@@ -731,6 +740,7 @@ export async function deleteUser(ctx: IContext, params: IParameters, _: object):
     body: deleteSuccessTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
       organization,
       isAdmin,
       isBillingManager,

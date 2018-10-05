@@ -15,6 +15,7 @@ export interface IContext {
   readonly linkTo: (name: string, params?: IParameters) => string;
   readonly log: Logger;
   readonly token: Token;
+  readonly csrf: string;
 }
 
 export function initContext(req: any, router: Router, route: Route, config: IAppConfig): IContext {
@@ -24,5 +25,6 @@ export function initContext(req: any, router: Router, route: Route, config: IApp
     linkTo: (name: string, params: IParameters = {}) => router.findByName(name).composeURL(params),
     log: req.log,
     token: req.token,
+    csrf: req.csrfToken(),
   };
 }
