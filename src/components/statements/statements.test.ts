@@ -50,6 +50,7 @@ const ctx: IContext = {
   linkTo: (name, params) => `${name}/${params ? params.rangeStart : ''}`,
   log: pino({level: 'silent'}),
   token: new Token(token, [tokenKey]),
+  csrf: '',
 };
 
 describe('statements test suite', () => {

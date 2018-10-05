@@ -31,6 +31,7 @@ describe('applications test suite', () => {
     linkTo: () => '__LINKED_TO__',
     log: pino({level: 'silent'}),
     token: new Token(token, [tokenKey]),
+    csrf: '',
   };
 
   it('should show the application overview page', async () => {

@@ -48,6 +48,11 @@ describe('app test suite - router-middleware', () => {
       return router.findByName(name).composeURL(params);
     }
 
+    app.use((req: express.Request, _res: express.Response, next: express.NextFunction) => {
+      req.csrfToken = () => '';
+      next();
+    });
+
     app.use(routerMiddleware(router, config));
 
     app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
