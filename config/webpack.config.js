@@ -14,7 +14,8 @@ let cfg = {
   mode: NODE_ENV,
 
   entry: {
-    main: ['./src/main.ts']
+    main: ['./src/main.ts'],
+    "assets/init": ['./src/frontend/javascript/init.js']
   },
 
   output: {
