@@ -67,9 +67,9 @@ export default function(config: IAppConfig) {
 
   app.use(helmet());
   app.use(helmet.contentSecurityPolicy(csp));
-  app.use(csrf());
 
   app.use(express.urlencoded({extended: true}));
+  app.use(csrf());
 
   app.get('/healthcheck', (_req: express.Request, res: express.Response) => res.send({message: 'OK'}));
 
