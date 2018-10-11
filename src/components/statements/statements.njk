@@ -42,21 +42,21 @@
             </tr>
             <tr>
               <td class="govuk-table__cell">
-                <select class="govuk-select" id="rangeStart" name="rangeStart">
+                <select class="govuk-select govuk-!-width-full" id="rangeStart" name="rangeStart">
                   {% for rangeStart, rangeTitle in listOfPastYearMonths %}
                     <option value="{{ rangeStart }}" {% if filterMonth == rangeStart  %}selected{% endif %}>{{ rangeTitle }}</option>
                   {% endfor %}
                 </select>
               </td>
               <td class="govuk-table__cell">
-                <select class="govuk-select" id="space" name="space">
+                <select class="govuk-select govuk-!-width-full" id="space" name="space">
                   {% for space in spaces %}
                     <option value="{{ space.guid }}" {% if filterSpace.guid == space.guid %}selected{% endif %}> {{ space.name }}</option>
                   {% endfor %}
                 </select>
               </td>
               <td class="govuk-table__cell">
-                <select class="govuk-select" id="service" name="service">
+                <select class="govuk-select govuk-!-width-full" id="service" name="service">
                   {% for plan in plans %}
                     <option value="{{ plan.guid }}" {% if filterService.guid == plan.guid %}selected{% endif %}>{{ plan.name }}</option>
                   {% endfor %}
