@@ -15,6 +15,8 @@ const app = express();
 app.use(express.urlencoded({extended: true}));
 
 app.use((req: any, _res: any, next: any) => {
+  req.log = console;
+  req.csrfToken = () => '';
   const fakeUserID = req.path.slice(1);
   if (!fakeUserID) {
     next();
@@ -94,13 +96,14 @@ describe('terms test suite', () => {
     const agent = request.agent(app);
     const response = await agent.post('/agreements').type('form').send({
       document_name: 'my-doc',
+      _csrf: '',
     });
     expect(response.status).toEqual(302);
   });
 
   it('should skip middleware if method not a GET request', async () => {
     const agent = request.agent(app);
-    const response = await agent.post('/user-with-pending');
+    const response = await agent.post('/user-with-pending').send({_csrf: ''});
     expect(response.text).toEqual('HOME');
     expect(response.status).toEqual(200);
   });
