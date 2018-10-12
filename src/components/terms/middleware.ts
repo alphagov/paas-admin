@@ -22,7 +22,10 @@ export function termsCheckerMiddleware(config: IAccountsClientConfig): express.H
 
   app.get('/agreements/:name', sync(async (req, res) => {
     const document = await accounts.getDocument(req.params.name);
-    res.send(termsTemplate.render({document}));
+    res.send(termsTemplate.render({
+      document,
+      csrf: req.csrfToken(),
+    }));
   }));
 
   app.post('/agreements', sync(async (req, res) => {

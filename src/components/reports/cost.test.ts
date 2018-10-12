@@ -33,6 +33,7 @@ const ctx: IContext = {
   linkTo: () => '__LINKED_TO__',
   log: pino({level: 'silent'}),
   token: new Token(token, [tokenKey]),
+  csrf: '',
 };
 
 describe('cost report test suite', () => {

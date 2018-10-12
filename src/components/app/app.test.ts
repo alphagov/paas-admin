@@ -35,7 +35,7 @@ describe('app test suite', () => {
         path: '/',
       },
     ]);
-    const ctx = initContext({}, r, r.find('/'), config);
+    const ctx = initContext({csrfToken: () => ''}, r, r.find('/'), config);
 
     expect(ctx.routePartOf('test')).toBeTruthy();
     expect(ctx.routePartOf('te')).toBeTruthy();

@@ -229,9 +229,11 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     incVAT: filteredItems.reduce((sum, event) => sum + event.price.incVAT, 0),
   };
 
-  return { body: usageTemplate.render({
+  return {
+    body: usageTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
       organization,
       filter,
       totals,
@@ -252,7 +254,8 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       isAdmin,
       isBillingManager,
       isManager,
-    }) };
+    }),
+  };
 }
 
 export async function downloadCSV(ctx: IContext, params: IParameters): Promise<IResponse> {

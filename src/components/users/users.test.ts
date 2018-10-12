@@ -23,6 +23,7 @@ const ctx: IContext = {
   linkTo: () => '__LINKED_TO__',
   log: pino({level: 'silent'}),
   token: new Token(accessToken, [tokenKey]),
+  csrf: '',
 };
 
 function composeOrgRoles(setup: object) {

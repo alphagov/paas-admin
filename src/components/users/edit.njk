@@ -49,6 +49,7 @@
 
     {% if not isActive %}
       <form method="post" action="{{ linkTo('admin.organizations.users.invite.resend', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-!-mt-r6">
+        <input type="hidden" name="_csrf" value="{{ csrf }}" />
         <p>It would appear the user did not setup their account yet.</p>
         {{ govukButton({
           text: "Resend user invite"
@@ -57,6 +58,7 @@
     {% endif %}
 
     <form method="post" class="govuk-!-mt-r6">
+      <input type="hidden" name="_csrf" value="{{ csrf }}" />
       {% include "./permissions.njk" %}
 
       {{ govukButton({

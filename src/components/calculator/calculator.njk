@@ -48,6 +48,7 @@
                 <td class="govuk-table__cell" scope="row">{{ serviceName }} {{ version }}</td>
                 <td class="govuk-table__cell ">
                   <form class="paas-service-selection" method="get">
+                    <input type="hidden" name="_csrf" value="{{ csrf }}" />
                     {{ stateFields(state) }}
                     {% if plans.length > 1 %}
                       {{ govukSelect({
@@ -122,6 +123,7 @@
           </td>
           <td>
             <form method="get">
+              <input type="hidden" name="_csrf" value="{{ csrf }}" />
               {{ stateFields(state, remove=loop.index0) }}
               <button class="paas-remove-button" type="submit" arria-label="Remove">&times;</button>
             </form>

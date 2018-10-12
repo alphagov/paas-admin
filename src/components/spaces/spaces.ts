@@ -55,9 +55,10 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
 
   return {
     body: spaceApplicationsTemplate.render({
-      applications: summarisedApplications,
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
+      applications: summarisedApplications,
       organization,
       space,
       isAdmin,
@@ -104,9 +105,10 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
 
   return {
     body: spaceBackingServicesTemplate.render({
-      services: [...summarisedServices, ...userServices],
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
+      services: [...summarisedServices, ...userServices],
       organization,
       space,
       isAdmin,
@@ -178,6 +180,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     body: spacesTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
       managers,
       organization: summerisedOrganization,
       spaces: summarisedSpaces,

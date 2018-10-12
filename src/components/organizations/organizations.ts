@@ -27,6 +27,7 @@ export async function listOrganizations(ctx: IContext, _params: IParameters): Pr
     body: organizationsTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
       cfDownloadLinkLocation,
       cfDownloadLinkSource,
       documentationLink,

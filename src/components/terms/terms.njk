@@ -9,6 +9,7 @@
   {{ super() }}
 
   <form method="post" action="/agreements">
+    <input type="hidden" name="_csrf" value="{{ csrf }}" />
     <div class="md">
       {{ document.content | markdown | safe }}
     </div>

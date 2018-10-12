@@ -46,6 +46,7 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
       application: summarisedApplication,
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
+      csrf: ctx.csrf,
       space,
       organization,
       isAdmin,
