@@ -104,6 +104,30 @@ describe('statements test suite', () => {
     expect(response.body).toContain('batman');
   });
 
+  it ('populates filter dropdowns with all spaces / services', async () => {
+    // tslint:disable:max-line-length
+    nock(config.billingAPI)
+      .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, billingData.billableEvents);
+    // tslint:enable:max-line-length
+
+    const response = await statement.viewStatement(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: '2018-01-01',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
+      service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+    });
+
+    // Spaces
+    expect(response.body).toContain('All spaces</option>');
+    expect(response.body).toContain('pretty-face</option>');
+    expect(response.body).toContain('real-hero</option>');
+
+    // Services and apps
+    expect(response.body).toContain('All Services</option>');
+    expect(response.body).toContain('app</option>');
+    expect(response.body).toContain('staging</option>');
+  });
+
   it('should throw an error due to selecting middle of the month', async () => {
     await expect(statement.viewStatement(ctx, {
         organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',

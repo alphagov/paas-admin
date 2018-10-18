@@ -162,7 +162,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     }};
   }, {});
 
-  let items = Object.values(itemsObject);
+  const items = Object.values(itemsObject);
 
   const listOfPastYearMonths: {[i: string]: string} = {};
 
@@ -170,24 +170,6 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     const month = moment().subtract(i, 'month').startOf('month');
 
     listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format('MMMM')} ${month.format('YYYY')}`;
-  }
-
-  if (filterSpace !== 'none') {
-    items = items.reduce((all: IResourceUsage[], next: IResourceUsage) => {
-      if (next.spaceGUID === params.space) {
-        all.push(next);
-      }
-      return all;
-    }, []);
-  }
-
-  if (filterService !== 'none') {
-    items = items.reduce((all: IResourceUsage[], next: IResourceUsage) => {
-      if (next.planGUID === params.service) {
-        all.push(next);
-      }
-      return all;
-    }, []);
   }
 
   const orderBy = params.sort || 'name';
@@ -212,7 +194,10 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   const listSpaces = [{guid: 'none', name: 'All spaces'}, ...[...spaces].sort(sortByName)];
   const listPlans = [{guid: 'none', name: 'All Services'}, ...plans.sort(sortByName)];
 
-  const filteredItems = order(items, {sort: orderBy, order: orderDirection});
+  const itemsFilteredBySpaceAndService = items
+    .filter(item => filterSpace   === 'none' || item.spaceGUID === params.space)
+    .filter(item => filterService === 'none' || item.planGUID  === params.service);
+  const filteredItems = order(itemsFilteredBySpaceAndService, {sort: orderBy, order: orderDirection});
 
   if (params.download) {
     return {
