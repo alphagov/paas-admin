@@ -194,10 +194,10 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   const listSpaces = [{guid: 'none', name: 'All spaces'}, ...[...spaces].sort(sortByName)];
   const listPlans = [{guid: 'none', name: 'All Services'}, ...plans.sort(sortByName)];
 
-  const itemsFilteredBySpaceAndService = items
-    .filter(item => filterSpace   === 'none' || item.spaceGUID === params.space)
-    .filter(item => filterService === 'none' || item.planGUID  === params.service);
-  const filteredItems = order(itemsFilteredBySpaceAndService, {sort: orderBy, order: orderDirection});
+  const unorderedFilteredItems = items.filter(item =>
+      (filterSpace   === 'none' || item.spaceGUID === filterSpace) &&
+      (filterService === 'none' || item.planGUID  === filterService));
+  const filteredItems = order(unorderedFilteredItems, {sort: orderBy, order: orderDirection});
 
   if (params.download) {
     return {
