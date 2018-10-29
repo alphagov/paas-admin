@@ -25,6 +25,7 @@ export interface IAppConfig {
   readonly accountsAPI: string;
   readonly accountsSecret: string;
   readonly cloudFoundryAPI: string;
+  readonly awsRegion: string;
   readonly logger: BaseLogger;
   readonly notifyAPIKey: string;
   readonly notifyWelcomeTemplateID: string | null;
