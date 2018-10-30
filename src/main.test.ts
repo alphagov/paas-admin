@@ -6,6 +6,7 @@ const envVars = {
   OAUTH_CLIENT_ID: 'uaa-id',
   OAUTH_CLIENT_SECRET: 'uaa-secret',
   API_URL: 'https://example.com/api',
+  AWS_REGION: 'eu-west-1',
   UAA_URL: 'https://example.com/uaa',
   AUTHORIZATION_URL: 'https://example.com/login',
   NOTIFY_API_KEY: 'notify-1234',
