@@ -11,7 +11,7 @@ import {
 import NotificationClient from '../../lib/notify';
 import { IParameters, IResponse } from '../../lib/router';
 import { NotFoundError } from '../../lib/router/errors';
-import UAAClient from '../../lib/uaa';
+import UAAClient, { IUaaInvitation } from '../../lib/uaa';
 
 import { IContext } from '../app/context';
 import {
@@ -326,7 +326,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
 
     const uaaUser = await uaa.findUser(values.email);
     let userGUID = uaaUser && uaaUser.id;
-    let invitation;
+    let invitation: IUaaInvitation | undefined;
 
     if (!userGUID) {
       invitation = await uaa.inviteUser(

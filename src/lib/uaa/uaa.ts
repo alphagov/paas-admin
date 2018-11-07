@@ -19,6 +19,11 @@ interface IClientConfig {
   readonly signingKeys?: ReadonlyArray<string>;
 }
 
+export interface IUaaInvitation {
+  userId: string;
+  inviteLink: string;
+}
+
 export default class UAAClient {
   private accessToken: string;
   private readonly apiEndpoint: string;
@@ -99,7 +104,7 @@ export default class UAAClient {
     return response.data.resources[0];
   }
 
-  public async inviteUser(email: string, clientID: string, redirectURI: string) {
+  public async inviteUser(email: string, clientID: string, redirectURI: string): Promise<IUaaInvitation> {
     const data = {emails: [email]};
     const response = await this.request(
       'post',
