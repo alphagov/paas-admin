@@ -492,6 +492,7 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
   await notify.sendWelcomeEmail(user.entity.username, {
     organisation: organization.entity.name,
     url: invitation.inviteLink,
+    location: platformLocation(ctx),
   });
 
   return {
