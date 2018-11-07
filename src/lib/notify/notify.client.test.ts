@@ -10,7 +10,8 @@ describe('lib/notify test suite', () => {
       .post('/').reply(200, {content: {body: 'FAKE_NOTIFY_RESPONSE'}});
 
     const notify = new NotificationClient({apiKey: 'test-key-1234', templates: {welcome: 'WELCOME_ID'}});
-    const notifyResponse = await notify.sendWelcomeEmail('jeff@jeff.com');
+    const personalisation = {url: 'https://default.url', organisation: 'DefaultOrg', location: 'DefaultLocation'};
+    const notifyResponse = await notify.sendWelcomeEmail('jeff@jeff.com', personalisation);
 
     expect(notifyResponse.body.content.body).toContain('FAKE_NOTIFY_RESPONSE');
   });

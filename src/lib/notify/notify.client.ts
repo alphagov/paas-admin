@@ -1,7 +1,5 @@
 import { NotifyClient } from 'notifications-node-client';
 
-import { IParameters } from '../router';
-
 interface ITemplates {
   readonly [name: string]: string | null;
 }
@@ -9,6 +7,12 @@ interface ITemplates {
 interface IConfig {
   readonly apiKey: string;
   readonly templates: ITemplates;
+}
+
+interface IWelcomeEmailParameters {
+  readonly organisation: string;
+  readonly url: string;
+  readonly location: string;
 }
 
 export default class NotificationClient {
@@ -21,7 +25,7 @@ export default class NotificationClient {
     this.templates = config.templates || {};
   }
 
-  public async sendWelcomeEmail(emailAddress: string, personalisation: IParameters = {}) {
+  public async sendWelcomeEmail(emailAddress: string, personalisation: IWelcomeEmailParameters) {
     /* istanbul ignore next */
     if (!this.templates.welcome) {
       throw new Error(`NotifyClient: templates.welcome: id is required`);
