@@ -198,6 +198,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
       linkTo: ctx.linkTo,
       users: usersWithSpaces,
       organization,
+      location: ctx.app.awsRegion,
     }),
   };
 }
@@ -259,6 +260,7 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
       isAdmin,
       isBillingManager,
       isManager,
+      location: ctx.app.awsRegion,
     }),
   };
 }
@@ -385,6 +387,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
         isAdmin,
         isBillingManager,
         isManager,
+        location: ctx.app.awsRegion,
       }),
     };
   } catch (err) {
@@ -402,6 +405,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
           isAdmin,
           isBillingManager,
           isManager,
+          location: ctx.app.awsRegion,
         }),
         status: 400,
       };
@@ -490,6 +494,7 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
       csrf: ctx.csrf,
       errors: [],
       organization,
+      location: ctx.app.awsRegion,
     }),
   };
 }
@@ -582,6 +587,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       isAdmin,
       isBillingManager,
       isManager,
+      location: ctx.app.awsRegion,
     }),
   };
 }
@@ -647,6 +653,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
         isAdmin,
         isBillingManager,
         isManager,
+        location: ctx.app.awsRegion,
       }),
     };
   } catch (err) {
@@ -665,6 +672,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
           isAdmin,
           isBillingManager,
           isManager,
+          location: ctx.app.awsRegion,
         }),
         status: 400,
       };
@@ -708,6 +716,7 @@ export async function confirmDeletion(ctx: IContext, params: IParameters): Promi
       isAdmin,
       isBillingManager,
       isManager,
+      location: ctx.app.awsRegion,
     }),
   };
 }
@@ -747,6 +756,7 @@ export async function deleteUser(ctx: IContext, params: IParameters, _: object):
       isAdmin,
       isBillingManager,
       isManager,
+      location: ctx.app.awsRegion,
     }),
   };
 }

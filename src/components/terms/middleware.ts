@@ -16,7 +16,7 @@ function sync(f: MiddlewareFunction) {
   };
 }
 
-export function termsCheckerMiddleware(config: IAccountsClientConfig): express.Handler {
+export function termsCheckerMiddleware(location: string, config: IAccountsClientConfig): express.Handler {
   const accounts = new AccountsClient(config);
   const app = express();
 
@@ -25,6 +25,7 @@ export function termsCheckerMiddleware(config: IAccountsClientConfig): express.H
     res.send(termsTemplate.render({
       document,
       csrf: req.csrfToken(),
+      location,
     }));
   }));
 

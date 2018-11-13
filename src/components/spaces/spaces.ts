@@ -64,6 +64,7 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
       isAdmin,
       isBillingManager,
       isManager,
+      location: ctx.app.awsRegion,
     }),
   };
 }
@@ -114,6 +115,7 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
       isAdmin,
       isBillingManager,
       isManager,
+      location: ctx.app.awsRegion,
     }),
   };
 }
@@ -188,6 +190,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
       isAdmin,
       isBillingManager,
       isManager,
+      location: ctx.app.awsRegion,
     }),
   };
 }

@@ -95,7 +95,7 @@ export default function(config: IAppConfig) {
     uaaAPI: config.uaaAPI,
   }));
 
-  app.use(termsCheckerMiddleware({
+  app.use(termsCheckerMiddleware(config.awsRegion, {
     apiEndpoint: config.accountsAPI,
     secret: config.accountsSecret,
   }));

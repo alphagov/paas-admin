@@ -31,7 +31,7 @@ app.use((req: any, _res: any, next: any) => {
   next();
 });
 
-app.use(termsCheckerMiddleware({
+app.use(termsCheckerMiddleware(config.awsRegion, {
   apiEndpoint: config.accountsAPI,
   secret: config.accountsSecret,
 }));
