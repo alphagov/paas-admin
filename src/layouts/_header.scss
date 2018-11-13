@@ -40,3 +40,16 @@
     margin-left: govuk-spacing(3);
   }
 }
+
+.paas-govuk-tag {
+  @extend .govuk-tag;
+  float: right;
+}
+
+.paas-govuk-tag-london {
+  background-color: #005ea5;
+}
+
+.paas-govuk-tag-ireland {
+  background-color: #85994b;
+}
