@@ -33,9 +33,21 @@ function onShutdown() {
   process.exit(0);
 }
 
+/* istanbul ignore next */
+function platformLocation(region: string): string {
+  switch (region) {
+    case 'eu-west-1':
+      return 'Ireland';
+    case 'eu-west-2':
+      return 'London';
+    default:
+      return region;
+  }
+}
+
 async function main() {
   const cloudFoundryAPI = expectEnvVariable('API_URL');
-  const awsRegion = expectEnvVariable('AWS_REGION');
+  const awsRegion = platformLocation(expectEnvVariable('AWS_REGION'));
   let authorizationAPI = process.env.AUTHORIZATION_URL;
   let uaaAPI = process.env.UAA_URL;
 

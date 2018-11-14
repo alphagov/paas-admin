@@ -77,18 +77,6 @@ interface IUserPostBody {
 
 const VALID_EMAIL = /[^.]@[^.]/;
 
-/* istanbul ignore next */
-function platformLocation(ctx: IContext): string {
-  switch (ctx.app.awsRegion) {
-    case 'eu-west-1':
-      return 'Ireland';
-    case 'eu-west-2':
-      return 'London';
-    default:
-      return ctx.app.awsRegion;
-  }
-}
-
 async function setAllUserRolesForOrg(
   cf: CloudFoundryClient,
   params: IParameters,
@@ -379,7 +367,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
         await notify.sendWelcomeEmail(values.email, {
           organisation: organization.entity.name,
           url: invitation.inviteLink,
-          location: platformLocation(ctx),
+          location: ctx.app.awsRegion,
         });
       } catch (err) {
         ctx.log.error(`a user was assigned to org ${params.organizationGUID} ` +
@@ -492,7 +480,7 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
   await notify.sendWelcomeEmail(user.entity.username, {
     organisation: organization.entity.name,
     url: invitation.inviteLink,
-    location: platformLocation(ctx),
+    location: ctx.app.awsRegion,
   });
 
   return {
