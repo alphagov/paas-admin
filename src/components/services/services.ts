@@ -54,7 +54,7 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.awsRegion,
+      location: ctx.app.location,
     }),
   };
 }

@@ -198,7 +198,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
       linkTo: ctx.linkTo,
       users: usersWithSpaces,
       organization,
-      location: ctx.app.awsRegion,
+      location: ctx.app.location,
     }),
   };
 }
@@ -260,7 +260,7 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.awsRegion,
+      location: ctx.app.location,
     }),
   };
 }
@@ -369,7 +369,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
         await notify.sendWelcomeEmail(values.email, {
           organisation: organization.entity.name,
           url: invitation.inviteLink,
-          location: ctx.app.awsRegion,
+          location: ctx.app.location,
         });
       } catch (err) {
         ctx.log.error(`a user was assigned to org ${params.organizationGUID} ` +
@@ -387,7 +387,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
         isAdmin,
         isBillingManager,
         isManager,
-        location: ctx.app.awsRegion,
+        location: ctx.app.location,
       }),
     };
   } catch (err) {
@@ -405,7 +405,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
           isAdmin,
           isBillingManager,
           isManager,
-          location: ctx.app.awsRegion,
+          location: ctx.app.location,
         }),
         status: 400,
       };
@@ -484,7 +484,7 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
   await notify.sendWelcomeEmail(user.entity.username, {
     organisation: organization.entity.name,
     url: invitation.inviteLink,
-    location: ctx.app.awsRegion,
+    location: ctx.app.location,
   });
 
   return {
@@ -494,7 +494,7 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
       csrf: ctx.csrf,
       errors: [],
       organization,
-      location: ctx.app.awsRegion,
+      location: ctx.app.location,
     }),
   };
 }
@@ -587,7 +587,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.awsRegion,
+      location: ctx.app.location,
     }),
   };
 }
@@ -653,7 +653,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
         isAdmin,
         isBillingManager,
         isManager,
-        location: ctx.app.awsRegion,
+        location: ctx.app.location,
       }),
     };
   } catch (err) {
@@ -672,7 +672,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
           isAdmin,
           isBillingManager,
           isManager,
-          location: ctx.app.awsRegion,
+          location: ctx.app.location,
         }),
         status: 400,
       };
@@ -716,7 +716,7 @@ export async function confirmDeletion(ctx: IContext, params: IParameters): Promi
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.awsRegion,
+      location: ctx.app.location,
     }),
   };
 }
@@ -756,7 +756,7 @@ export async function deleteUser(ctx: IContext, params: IParameters, _: object):
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.awsRegion,
+      location: ctx.app.location,
     }),
   };
 }
