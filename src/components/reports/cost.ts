@@ -82,6 +82,7 @@ export async function viewCostReport(
       quotaCostRecords,
       totalBillables,
       billableEventCount,
+      location: ctx.app.location,
     }),
   };
 }

@@ -16,7 +16,7 @@ export const config: IAppConfig = {
   oauthClientID: 'key',
   oauthClientSecret: 'secret',
   cloudFoundryAPI: 'https://example.com/api',
-  awsRegion: 'eu-west-1',
+  location: 'eu-west-1',
   uaaAPI: 'https://example.com/uaa',
   authorizationAPI: 'https://example.com/login',
   notifyAPIKey: 'test-123456-qwerty',

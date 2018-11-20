@@ -32,6 +32,7 @@ export async function listOrganizations(ctx: IContext, _params: IParameters): Pr
       cfDownloadLinkSource,
       documentationLink,
       organizations,
+      location: ctx.app.location,
     }),
   };
 }

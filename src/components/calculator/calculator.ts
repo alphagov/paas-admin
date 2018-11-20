@@ -104,6 +104,7 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
       csrf: ctx.csrf,
       state,
       quote,
+      location: ctx.app.location,
     }),
   };
 }
