@@ -170,23 +170,30 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     cf.usersForOrganization(params.organizationGUID),
   ]);
 
-  const usersWithSpaces = await Promise.all(users.map(async (user: IOrganizationUserRoles) => {
-    const userWithSpaces = {
-      ...user,
-      spaces: new Array(),
-    };
+  const mySpaces = await cf.spaces(params.organizationGUID);
 
-    /* istanbul ignore next */
-    try {
-      userWithSpaces.spaces = [...await cf.spacesForUserInOrganization(user.metadata.guid, params.organizationGUID)];
-    } catch {
-      ctx.log.warn(
-        `BUG: users has no permission to fetch spacesForUser: ${user.metadata.guid}`,
-      ); // TODO: permissions issue here
-    }
+  const userGuidToUser = users.reduce((acc, user) => ({...acc, [user.metadata.guid]: user}), {} as any);
 
-    return userWithSpaces;
+  const spaceUserLists = await Promise.all(mySpaces.map(async space => {
+    return {space, users: await cf.usersForSpace(space.metadata.guid)};
   }));
+
+  const userObject: any = {};
+
+  for (const spaceUsers of spaceUserLists) {
+    const space = spaceUsers.space;
+    for (const spaceUser of spaceUsers.users) {
+      if (spaceUser.metadata.guid in userObject) {
+        userObject[spaceUser.metadata.guid].spaces.push(space);
+      } else {
+        userObject[spaceUser.metadata.guid] = {
+          spaces: [space],
+          orgRoles: userGuidToUser[spaceUser.metadata.guid].entity.organization_roles,
+          username: spaceUser.entity.username,
+        };
+      }
+    }
+  }
 
   return {
     body: usersTemplate.render({
@@ -196,7 +203,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
       isManager,
       isBillingManager,
       linkTo: ctx.linkTo,
-      users: usersWithSpaces,
+      users: userObject,
       organization,
       location: ctx.app.location,
     }),

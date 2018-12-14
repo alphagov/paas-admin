@@ -71,29 +71,29 @@
     </tr>
   </thead>
   <tbody class="govuk-table__body">
-    {% for user in users %}
+    {% for guid, user in users %}
     <tr class="govuk-table__row">
       <td class="govuk-table__cell">
         {% if isAdmin or isManager %}
-          <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
-            {{ user.entity.username }}
+          <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: guid}) }}" class="govuk-link">
+            {{ user.username }}
           </a>
         {% else %}
-          {{ user.entity.username }}
+          {{ user.username }}
         {% endif%}
       </td>
       <td class="govuk-table__cell">
-        {% if 'org_manager' in user.entity.organization_roles %}
+        {% if 'org_manager' in user.orgRoles %}
           <img class="tick" alt="Yes" src="./tick.png">
         {% endif %}
       </td>
       <td class="govuk-table__cell">
-        {% if 'billing_manager' in user.entity.organization_roles %}
+        {% if 'billing_manager' in user.orgRoles %}
           <img class="tick" alt="Yes" src="./tick.png">
         {% endif %}
       </td>
       <td class="govuk-table__cell">
-        {% if 'org_auditor' in user.entity.organization_roles %}
+        {% if 'org_auditor' in user.orgRoles %}
           <img class="tick" alt="Yes" src="./tick.png">
         {% endif %}
       </td>
