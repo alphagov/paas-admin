@@ -9,6 +9,7 @@ import {
   OrganizationUserRoleEndpoints,
   OrganizationUserRoles,
 } from '../../lib/cf/types';
+import { groupByAndMap } from '../../lib/helpers/arrays';
 import NotificationClient from '../../lib/notify';
 import { IParameters, IResponse } from '../../lib/router';
 import { NotFoundError } from '../../lib/router/errors';
@@ -58,8 +59,8 @@ interface ISpaceUsers {
   readonly users: ReadonlyArray<ISpaceUserRoles>;
 }
 
-interface IUserByGuid {
-  readonly [guid: string]: IOrganizationUserRoles;
+interface ISpacesByUserGuid {
+  readonly [guid: string]: ReadonlyArray<ISpace>;
 }
 
 class ValidationError extends Error {
@@ -171,48 +172,25 @@ async function setAllUserRolesForOrg(
   ));
 }
 
-/**
- * Transforms a list of organization roles and a list of lists of space roles
- * into a form that's easier to work with in the view layer.
- *
- * @param userOrgRoles An array of users with roles for a particular org
- * @param spaceUserLists An array of spaces, where each space has a list of
- * users with roles for that space (a user may have access to multiple spaces)
- *
- * @returns A map like this:
- * ```
- * {
- *   [userGuid1]: { orgRoles: ..., username: ..., spaces: ...},
- *   [userGuid2]: { orgRoles: ..., username: ..., spaces: ...},
- * }
- * ```
- */
 export function _getUserRolesByGuid(
     userOrgRoles: ReadonlyArray<IOrganizationUserRoles>,
     spaceUserLists: ReadonlyArray<ISpaceUsers>,
   ): IUserRolesByGuid {
 
-  const usersOrgRolesByGuid: IUserByGuid =
-    userOrgRoles.reduce((acc, user) => ({...acc, [user.metadata.guid]: user}), {});
+  const spacesByUser =
+    spaceUserLists.reduce<ISpacesByUserGuid>((spacesByUserAcc1, spaceUsers) => ({
+      ...spacesByUserAcc1,
+      ...groupByAndMap(spaceUsers.users, user => user.metadata.guid, _ => spaceUsers.space),
+    }), {});
 
-  return spaceUserLists.reduce<IUserRolesByGuid>((userRolesByGuidAcc1, spaceUsers) => {
-    const space = spaceUsers.space;
-    return {
-      ...userRolesByGuidAcc1,
-      ...spaceUsers.users.reduce<IUserRolesByGuid>((userRolesByGuidAcc2, spaceUser) => {
-        const username = spaceUser.entity.username;
-        const userGuid = spaceUser.metadata.guid;
-        const orgRoles = usersOrgRolesByGuid[userGuid].entity.organization_roles;
-        const userRoles = userRolesByGuidAcc2[userGuid];
-        return {
-          ...userRolesByGuidAcc2,
-          [userGuid]: userRoles
-            ? { ...userRoles,       spaces: [...userRoles.spaces, space] }
-            : { orgRoles, username, spaces: [space] },
-        };
-      }, {}),
-    };
-  }, {});
+  return userOrgRoles.reduce((acc, user) => ({
+    ...acc,
+    [user.metadata.guid]: {
+      username: user.entity.username,
+      orgRoles: user.entity.organization_roles,
+      spaces: spacesByUser[user.metadata.guid] || [],
+    },
+  }), {});
 }
 
 export async function listUsers(ctx: IContext, params: IParameters): Promise<IResponse> {

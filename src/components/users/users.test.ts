@@ -663,7 +663,7 @@ describe('_getUserRolesByGuid', () => {
     const userOrgRoles: any = [
       {
         metadata: {guid: 'some-user-guid'},
-        entity: {organization_roles: ['org_manager']},
+        entity: {organization_roles: ['org_manager'], username: 'some-user-name'},
       },
     ];
     const spaceUserLists: any = [];
@@ -672,7 +672,7 @@ describe('_getUserRolesByGuid', () => {
     expect(result).toEqual({
       'some-user-guid': {
         orgRoles: ['org_manager'],
-        username: 'TODO',
+        username: 'some-user-name',
         spaces: [],
       },
     });
