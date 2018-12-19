@@ -7,6 +7,7 @@ import {
   ISpace,
   ISpaceUserRoles,
   OrganizationUserRoleEndpoints,
+  OrganizationUserRoles,
 } from '../../lib/cf/types';
 import NotificationClient from '../../lib/notify';
 import { IParameters, IResponse } from '../../lib/router';
@@ -40,6 +41,25 @@ interface IPermissions {
       readonly desired?: string;
     };
   };
+}
+
+interface IUserRoles {
+    readonly spaces: ReadonlyArray<ISpace>;
+    readonly orgRoles: ReadonlyArray<OrganizationUserRoles>;
+    readonly username: string;
+}
+
+interface IUserRolesByGuid {
+  readonly [guid: string]: IUserRoles;
+}
+
+interface ISpaceUsers {
+  readonly space: ISpace;
+  readonly users: ReadonlyArray<ISpaceUserRoles>;
+}
+
+interface IUserByGuid {
+  readonly [guid: string]: IOrganizationUserRoles;
 }
 
 class ValidationError extends Error {
@@ -151,6 +171,50 @@ async function setAllUserRolesForOrg(
   ));
 }
 
+/**
+ * Transforms a list of organization roles and a list of lists of space roles
+ * into a form that's easier to work with in the view layer.
+ *
+ * @param userOrgRoles An array of users with roles for a particular org
+ * @param spaceUserLists An array of spaces, where each space has a list of
+ * users with roles for that space (a user may have access to multiple spaces)
+ *
+ * @returns A map like this:
+ * ```
+ * {
+ *   [userGuid1]: { orgRoles: ..., username: ..., spaces: ...},
+ *   [userGuid2]: { orgRoles: ..., username: ..., spaces: ...},
+ * }
+ * ```
+ */
+export function _getUserRolesByGuid(
+    userOrgRoles: ReadonlyArray<IOrganizationUserRoles>,
+    spaceUserLists: ReadonlyArray<ISpaceUsers>,
+  ): IUserRolesByGuid {
+
+  const usersOrgRolesByGuid: IUserByGuid =
+    userOrgRoles.reduce((acc, user) => ({...acc, [user.metadata.guid]: user}), {});
+
+  return spaceUserLists.reduce<IUserRolesByGuid>((userRolesByGuidAcc1, spaceUsers) => {
+    const space = spaceUsers.space;
+    return {
+      ...userRolesByGuidAcc1,
+      ...spaceUsers.users.reduce<IUserRolesByGuid>((userRolesByGuidAcc2, spaceUser) => {
+        const username = spaceUser.entity.username;
+        const userGuid = spaceUser.metadata.guid;
+        const orgRoles = usersOrgRolesByGuid[userGuid].entity.organization_roles;
+        const userRoles = userRolesByGuidAcc2[userGuid];
+        return {
+          ...userRolesByGuidAcc2,
+          [userGuid]: userRoles
+            ? { ...userRoles,       spaces: [...userRoles.spaces, space] }
+            : { orgRoles, username, spaces: [space] },
+        };
+      }, {}),
+    };
+  }, {});
+}
+
 export async function listUsers(ctx: IContext, params: IParameters): Promise<IResponse> {
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
@@ -163,37 +227,20 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
 
-  const [isManager, isBillingManager, organization, users] = await Promise.all([
+  const [isManager, isBillingManager, organization, userOrgRoles] = await Promise.all([
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
     cf.organization(params.organizationGUID),
     cf.usersForOrganization(params.organizationGUID),
   ]);
 
-  const mySpaces = await cf.spaces(params.organizationGUID);
+  const spacesVisibleToUser = await cf.spaces(params.organizationGUID);
 
-  const userGuidToUser = users.reduce((acc, user) => ({...acc, [user.metadata.guid]: user}), {} as any);
-
-  const spaceUserLists = await Promise.all(mySpaces.map(async space => {
+  const spaceUserLists = await Promise.all(spacesVisibleToUser.map(async space => {
     return {space, users: await cf.usersForSpace(space.metadata.guid)};
   }));
 
-  const userObject: any = {};
-
-  for (const spaceUsers of spaceUserLists) {
-    const space = spaceUsers.space;
-    for (const spaceUser of spaceUsers.users) {
-      if (spaceUser.metadata.guid in userObject) {
-        userObject[spaceUser.metadata.guid].spaces.push(space);
-      } else {
-        userObject[spaceUser.metadata.guid] = {
-          spaces: [space],
-          orgRoles: userGuidToUser[spaceUser.metadata.guid].entity.organization_roles,
-          username: spaceUser.entity.username,
-        };
-      }
-    }
-  }
+  const userRolesByGuid = _getUserRolesByGuid(userOrgRoles, spaceUserLists);
 
   return {
     body: usersTemplate.render({
@@ -203,7 +250,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
       isManager,
       isBillingManager,
       linkTo: ctx.linkTo,
-      users: userObject,
+      users: userRolesByGuid,
       organization,
       location: ctx.app.location,
     }),

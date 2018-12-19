@@ -650,3 +650,31 @@ describe('permissions calling cc api', async () => {
     expect(response.body).toContain('Updated a team member');
   });
 });
+
+describe('_getUserRolesByGuid', () => {
+  it('should return an empty map if there are no users', () => {
+    const userOrgRoles: any = [];
+    const spaceUserLists: any = [];
+    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+    expect(result).toEqual({});
+  });
+
+  it('should return org roles of a user that has no space access', () => {
+    const userOrgRoles: any = [
+      {
+        metadata: {guid: 'some-user-guid'},
+        entity: {organization_roles: ['org_manager']},
+      },
+    ];
+    const spaceUserLists: any = [];
+
+    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+    expect(result).toEqual({
+      'some-user-guid': {
+        orgRoles: ['org_manager'],
+        username: 'TODO',
+        spaces: [],
+      },
+    });
+  });
+});
