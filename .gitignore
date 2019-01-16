@@ -105,6 +105,8 @@ typings/
 # dotenv environment variables file
 .env
 
+# VSCode project settings
+.vscode/
 
 ### Windows ###
 # Windows thumbnail cache files

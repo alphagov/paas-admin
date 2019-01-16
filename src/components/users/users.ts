@@ -9,7 +9,6 @@ import {
   OrganizationUserRoleEndpoints,
   OrganizationUserRoles,
 } from '../../lib/cf/types';
-import { groupByAndMap } from '../../lib/helpers/arrays';
 import NotificationClient from '../../lib/notify';
 import { IParameters, IResponse } from '../../lib/router';
 import { NotFoundError } from '../../lib/router/errors';
@@ -57,10 +56,6 @@ interface IUserRolesByGuid {
 interface ISpaceUsers {
   readonly space: ISpace;
   readonly users: ReadonlyArray<ISpaceUserRoles>;
-}
-
-interface ISpacesByUserGuid {
-  readonly [guid: string]: ReadonlyArray<ISpace>;
 }
 
 class ValidationError extends Error {
@@ -177,20 +172,24 @@ export function _getUserRolesByGuid(
     spaceUserLists: ReadonlyArray<ISpaceUsers>,
   ): IUserRolesByGuid {
 
-  const spacesByUser =
-    spaceUserLists.reduce<ISpacesByUserGuid>((spacesByUserAcc1, spaceUsers) => ({
-      ...spacesByUserAcc1,
-      ...groupByAndMap(spaceUsers.users, user => user.metadata.guid, _ => spaceUsers.space),
-    }), {});
+  const spacesByUser: {[key: string]: ISpace[]} = {};
+  for (const spaceUserList of spaceUserLists) {
+    for (const user of spaceUserList.users) {
+      const spaces = spacesByUser[user.metadata.guid] || [];
+      spaces.push(spaceUserList.space);
+      spacesByUser[user.metadata.guid] = spaces;
+    }
+  }
 
-  return userOrgRoles.reduce((acc, user) => ({
-    ...acc,
-    [user.metadata.guid]: {
+  const userRolesByGuid: {[key: string]: IUserRoles} = {};
+  for (const user of userOrgRoles) {
+    userRolesByGuid[user.metadata.guid] = {
       username: user.entity.username,
       orgRoles: user.entity.organization_roles,
       spaces: spacesByUser[user.metadata.guid] || [],
-    },
-  }), {});
+    };
+  }
+  return userRolesByGuid;
 }
 
 export async function listUsers(ctx: IContext, params: IParameters): Promise<IResponse> {
