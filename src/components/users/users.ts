@@ -204,14 +204,13 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
 
-  const [isManager, isBillingManager, organization, userOrgRoles] = await Promise.all([
+  const [isManager, isBillingManager, organization, userOrgRoles, spacesVisibleToUser] = await Promise.all([
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
     cf.organization(params.organizationGUID),
     cf.usersForOrganization(params.organizationGUID),
+    cf.spaces(params.organizationGUID),
   ]);
-
-  const spacesVisibleToUser = await cf.spaces(params.organizationGUID);
 
   const spaceUserLists = await Promise.all(spacesVisibleToUser.map(async space => {
     return {space, users: await cf.usersForSpace(space.metadata.guid)};

@@ -99,7 +99,13 @@
       </td>
       <td class="govuk-table__cell">
         {% set comma = joiner(", ") %}
-        {% for space in user.spaces %}{{ comma() }}<a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" class="govuk-link">{{ space.entity.name }}</a>{% endfor %}
+        {% for space in user.spaces %}
+          {{ comma() }}
+          <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}"
+            class="govuk-link">
+            {{ space.entity.name }}
+          </a>
+        {% endfor %}
       </td>
     </tr>
     {% endfor %}
