@@ -650,3 +650,120 @@ describe('permissions calling cc api', async () => {
     expect(response.body).toContain('Updated a team member');
   });
 });
+
+describe('_getUserRolesByGuid', () => {
+  it('should return an empty map if there are no users', () => {
+    const userOrgRoles: any = [];
+    const spaceUserLists: any = [];
+    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+    expect(result).toEqual({});
+  });
+
+  it('should return org roles of a user that has no space access', () => {
+    const userOrgRoles: any = [
+      {
+        metadata: {guid: 'some-user-guid'},
+        entity: {organization_roles: ['org_manager'], username: 'some-user-name'},
+      },
+    ];
+    const spaceUserLists: any = [];
+
+    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+    expect(result).toEqual({
+      'some-user-guid': {
+        orgRoles: ['org_manager'],
+        username: 'some-user-name',
+        spaces: [],
+      },
+    });
+  });
+
+  it('should return roles and space of a user that has access to one space', () => {
+    const userOrgRoles: any = [
+      {
+        metadata: {guid: 'some-user-guid'},
+        entity: {organization_roles: ['org_manager'], username: 'some-user-name'},
+      },
+    ];
+
+    const space = {metadata: {guid: 'some-space-guid'}} as any;
+    const user = {metadata: {guid: 'some-user-guid'}} as any;
+
+    const spaceUserLists = [{
+      space,
+      users: [user],
+    }];
+
+    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+    expect(result).toEqual({
+      'some-user-guid': {
+        orgRoles: ['org_manager'],
+        username: 'some-user-name',
+        spaces: [space],
+      },
+    });
+  });
+
+  it('should return roles and spaces of a user that has access to multiple spaces', () => {
+    const userOrgRoles: any = [
+      {
+        metadata: {guid: 'some-user-guid'},
+        entity: {organization_roles: ['org_manager'], username: 'some-user-name'},
+      },
+    ];
+
+    const spaces = [1, 2, 3].map(i => ({metadata: {guid: `some-space-guid-${i}`}})) as any[];
+    const user = {metadata: {guid: 'some-user-guid'}} as any;
+
+    const spaceUserLists = spaces.map(space => ({
+      space,
+      users: [user],
+    }));
+
+    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+    expect(result).toEqual({
+      'some-user-guid': {
+        orgRoles: ['org_manager'],
+        username: 'some-user-name',
+        spaces,
+      },
+    });
+  });
+
+  it('should return users, roles and spaces of multiple users', () => {
+    const userOrgRoles: any = [0, 1, 2].map(i => (
+      {
+        metadata: {guid: `some-user-guid-${i}`},
+        entity: {organization_roles: ['org_manager'], username: `some-user-name-${i}`},
+      }
+    ));
+
+    const space: any = (i: number) => ({metadata: {guid: `some-space-guid-${i}`}});
+    const user: any = (i: number) => ({metadata: {guid: `some-user-guid-${i}`}});
+
+    const spaceUserLists = [
+      { space: space(0), users: [user(0), user(1)]},
+      { space: space(1), users: [user(1), user(2)]},
+      { space: space(2), users: [user(0), user(1), user(2)]},
+    ];
+
+    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+    expect(result).toEqual({
+      'some-user-guid-0': {
+        orgRoles: ['org_manager'],
+        username: 'some-user-name-0',
+        spaces: [space(0), space(2)],
+      },
+      'some-user-guid-1': {
+        orgRoles: ['org_manager'],
+        username: 'some-user-name-1',
+        spaces: [space(0), space(1), space(2)],
+      },
+      'some-user-guid-2': {
+        orgRoles: ['org_manager'],
+        username: 'some-user-name-2',
+        spaces: [space(1), space(2)],
+      },
+    });
+  });
+});

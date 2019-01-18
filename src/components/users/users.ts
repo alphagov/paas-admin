@@ -7,6 +7,7 @@ import {
   ISpace,
   ISpaceUserRoles,
   OrganizationUserRoleEndpoints,
+  OrganizationUserRoles,
 } from '../../lib/cf/types';
 import NotificationClient from '../../lib/notify';
 import { IParameters, IResponse } from '../../lib/router';
@@ -40,6 +41,21 @@ interface IPermissions {
       readonly desired?: string;
     };
   };
+}
+
+interface IUserRoles {
+    readonly spaces: ReadonlyArray<ISpace>;
+    readonly orgRoles: ReadonlyArray<OrganizationUserRoles>;
+    readonly username: string;
+}
+
+interface IUserRolesByGuid {
+  readonly [guid: string]: IUserRoles;
+}
+
+interface ISpaceUsers {
+  readonly space: ISpace;
+  readonly users: ReadonlyArray<ISpaceUserRoles>;
 }
 
 class ValidationError extends Error {
@@ -151,6 +167,31 @@ async function setAllUserRolesForOrg(
   ));
 }
 
+export function _getUserRolesByGuid(
+    userOrgRoles: ReadonlyArray<IOrganizationUserRoles>,
+    spaceUserLists: ReadonlyArray<ISpaceUsers>,
+  ): IUserRolesByGuid {
+
+  const spacesByUser: {[key: string]: ISpace[]} = {};
+  for (const spaceUserList of spaceUserLists) {
+    for (const user of spaceUserList.users) {
+      const spaces = spacesByUser[user.metadata.guid] || [];
+      spaces.push(spaceUserList.space);
+      spacesByUser[user.metadata.guid] = spaces;
+    }
+  }
+
+  const userRolesByGuid: {[key: string]: IUserRoles} = {};
+  for (const user of userOrgRoles) {
+    userRolesByGuid[user.metadata.guid] = {
+      username: user.entity.username,
+      orgRoles: user.entity.organization_roles,
+      spaces: spacesByUser[user.metadata.guid] || [],
+    };
+  }
+  return userRolesByGuid;
+}
+
 export async function listUsers(ctx: IContext, params: IParameters): Promise<IResponse> {
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
@@ -163,30 +204,19 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
 
-  const [isManager, isBillingManager, organization, users] = await Promise.all([
+  const [isManager, isBillingManager, organization, userOrgRoles, spacesVisibleToUser] = await Promise.all([
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
     cf.organization(params.organizationGUID),
     cf.usersForOrganization(params.organizationGUID),
+    cf.spaces(params.organizationGUID),
   ]);
 
-  const usersWithSpaces = await Promise.all(users.map(async (user: IOrganizationUserRoles) => {
-    const userWithSpaces = {
-      ...user,
-      spaces: new Array(),
-    };
-
-    /* istanbul ignore next */
-    try {
-      userWithSpaces.spaces = [...await cf.spacesForUserInOrganization(user.metadata.guid, params.organizationGUID)];
-    } catch {
-      ctx.log.warn(
-        `BUG: users has no permission to fetch spacesForUser: ${user.metadata.guid}`,
-      ); // TODO: permissions issue here
-    }
-
-    return userWithSpaces;
+  const spaceUserLists = await Promise.all(spacesVisibleToUser.map(async space => {
+    return {space, users: await cf.usersForSpace(space.metadata.guid)};
   }));
+
+  const userRolesByGuid = _getUserRolesByGuid(userOrgRoles, spaceUserLists);
 
   return {
     body: usersTemplate.render({
@@ -196,7 +226,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
       isManager,
       isBillingManager,
       linkTo: ctx.linkTo,
-      users: usersWithSpaces,
+      users: userRolesByGuid,
       organization,
       location: ctx.app.location,
     }),
