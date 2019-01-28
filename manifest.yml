@@ -4,3 +4,4 @@ applications:
   command: node dist/main.js
   memory: 512M
   buildpack: nodejs_buildpack
+  stack: cflinuxfs3
