@@ -19,18 +19,12 @@ export async function listOrganizations(ctx: IContext, _params: IParameters): Pr
   });
 
   const organizations = await cf.organizations().then(sortOrganizationsByName);
-  const cfDownloadLinkLocation = 'https://packages.cloudfoundry.org/stable?release=';
-  const cfDownloadLinkSource = '&amp;source=github';
-  const documentationLink = 'https://docs.cloud.service.gov.uk/#';
 
   return {
     body: organizationsTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       csrf: ctx.csrf,
-      cfDownloadLinkLocation,
-      cfDownloadLinkSource,
-      documentationLink,
       organizations,
       location: ctx.app.location,
     }),
