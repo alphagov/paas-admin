@@ -16,16 +16,13 @@ We’ve added your account to the following organisation in our ((location)) reg
 New organisations are created on our London platform. If you require hosting in Ireland please contact gov-uk-paas-support@digital.cabinet-office.gov.uk.
 
 Read more about organisations:
-https://docs.cloud.service.gov.uk/#organisations
-
-You can find advice about choosing a password:
-https://docs.cloud.service.gov.uk/#choosing-passwords
+https://docs.cloud.service.gov.uk/orgs_spaces_users.html
 
 To get started, look at our Quick Setup Guide:
-https://docs.cloud.service.gov.uk/#quick-setup-guide
+https://docs.cloud.service.gov.uk/get_started.html
 
 You can find our privacy policy here:
-https://docs.cloud.service.gov.uk/#privacy-policy
+https://www.cloud.service.gov.uk/privacy-notice
 
 To check the status of GOV.UK PaaS, and see the availability of live
 applications and database connectivity, visit
