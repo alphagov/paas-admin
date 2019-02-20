@@ -37,6 +37,7 @@
         <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].billing_managers }}" name="org_roles[{{ organization.metadata.guid }}][billing_managers][current]">
         {% if  (billingManagers | length < 2) and (values.org_roles[organization.metadata.guid].billing_managers) %}
           {% set isCheckboxDisabled = true %}
+          <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].billing_managers }}" name="org_roles[{{ organization.metadata.guid }}][billing_managers][desired]">
         {% else %}
           {% set isCheckboxDisabled = false %}
         {% endif %}
@@ -57,6 +58,7 @@
         <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].managers }}" name="org_roles[{{ organization.metadata.guid }}][managers][current]">
         {% if  (managers | length < 2) and (values.org_roles[organization.metadata.guid].managers) %}
           {% set isCheckboxDisabled = true %}
+          <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].managers }}" name="org_roles[{{ organization.metadata.guid }}][managers][desired]">
         {% else %}
           {% set isCheckboxDisabled = false %}
         {% endif %}
