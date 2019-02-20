@@ -373,7 +373,7 @@ describe('users test suite', async () => {
     expect(response.body).toContain('Confirm user deletion');
   });
 
-  it('should update the user, set BillingManager role and show success - User Edit', async () => {
+  it('should update the user, set BillingManager role and show success - User Edit', async () => { // TODO: fix label
     const response = await users.deleteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: '5ff19d4c-8fa0-4d74-94e0-52eac86d55a8',
@@ -429,6 +429,32 @@ describe('users test suite', async () => {
     expect(response.body).toContain('Updated a team member');
   });
 
+  it('should update the user, remove BillingManager role and show success - User Edit', async () => {
+    const scope = nock(ctx.app.cloudFoundryAPI)
+    // tslint:disable:max-line-length
+    .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
+      // tslint:enable:max-line-length
+    ;
+    const response = await users.updateUser(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      userGUID: 'uaa-user-changeperms-123456',
+    }, {
+      org_roles: {
+        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+          billing_managers: {
+            current: '1',
+          },
+        }),
+      },
+      space_roles: {
+        '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+      },
+    });
+    expect(response.body).toContain('Updated a team member');
+    expect(scope.isDone());
+    scope.done();
+  });
+
   it('should update the user, set OrgManager role and show success - User Edit', async () => {
     const response = await users.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -450,6 +476,36 @@ describe('users test suite', async () => {
     expect(response.body).toContain('Updated a team member');
   });
 
+  it('should update the user, remove OrgManager role and show success - User Edit', async () => {
+    const scope = nock(ctx.app.cloudFoundryAPI)
+    // tslint:disable:max-line-length
+    .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
+      // tslint:enable:max-line-length
+    ;
+    const response = await users.updateUser(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      userGUID: 'uaa-user-changeperms-123456',
+    }, {
+      org_roles: {
+        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+          managers: {
+            current: '1',
+          },
+          auditors: {
+            current: '1',
+            desired: '1',
+          },
+        }),
+      },
+      space_roles: {
+        '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+      },
+    });
+    expect(response.body).toContain('Updated a team member');
+    expect(scope.isDone());
+    scope.done();
+  });
+
   it('should update the user, set OrgAuditor role and show success - User Edit', async () => {
     const response = await users.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -469,6 +525,32 @@ describe('users test suite', async () => {
     });
 
     expect(response.body).toContain('Updated a team member');
+  });
+
+  it('should update the user, remove OrgAuditor role and show success - User Edit', async () => {
+    const scope = nock(ctx.app.cloudFoundryAPI)
+    // tslint:disable:max-line-length
+    .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
+      // tslint:enable:max-line-length
+    ;
+    const response = await users.updateUser(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      userGUID: 'uaa-user-changeperms-123456',
+    }, {
+      org_roles: {
+        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+          auditors: {
+            current: '1',
+          },
+        }),
+      },
+      space_roles: {
+        '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+      },
+    });
+    expect(response.body).toContain('Updated a team member');
+    expect(scope.isDone());
+    scope.done();
   });
 
   it('should update the user, set SpaceManager role and show success - User Edit', async () => {

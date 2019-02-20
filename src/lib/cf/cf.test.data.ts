@@ -787,6 +787,33 @@ export const userRolesForOrg = `{
     },
     {
       "metadata": {
+        "guid": "uaa-user-changeperms-123456",
+        "url": "/v2/users/uaa-user-changeperms-123456",
+        "created_at": "2016-06-08T16:41:35Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "user@example.com",
+        "organization_roles": [
+          "org_user",
+          "org_manager",
+          "org_auditor",
+          "billing_manager"
+        ],
+        "spaces_url": "/v2/users/uaa-user-changeperms-123456/spaces",
+        "organizations_url": "/v2/users/uaa-user-changeperms-123456/organizations",
+        "managed_organizations_url": "/v2/users/uaa-user-changeperms-123456/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-user-changeperms-123456/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-user-changeperms-123456/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-user-changeperms-123456/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-user-changeperms-123456/audited_spaces"
+      }
+    },
+    {
+      "metadata": {
         "guid": "99022be6-feb8-4f78-96f3-7d11f4d476f1",
         "url": "/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1",
         "created_at": "2016-06-08T16:41:35Z",

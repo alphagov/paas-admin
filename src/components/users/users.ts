@@ -29,6 +29,8 @@ import inviteTemplate from './invite.njk';
 import inviteSuccessTemplate from './invite.success.njk';
 import usersTemplate from './users.njk';
 
+import { isUndefined } from 'util';
+
 interface IInvalid {
   readonly field: string;
   readonly message: string;
@@ -120,7 +122,7 @@ async function setAllUserRolesForOrg(
         return Promise.resolve(undefined);
       }
 
-      if (!newPermission && oldPermission === '0') {
+      if (isUndefined(newPermission) && oldPermission === '0') {
         return Promise.resolve(undefined);
       }
 
@@ -153,7 +155,7 @@ async function setAllUserRolesForOrg(
         return Promise.resolve(undefined);
       }
 
-      if (!newPermission && oldPermission === '0') {
+      if (isUndefined(newPermission) && oldPermission === '0') {
         return Promise.resolve(undefined);
       }
 
