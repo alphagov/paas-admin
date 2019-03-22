@@ -65,7 +65,17 @@ Execute the unit tests to ensure everything looks good:
 npm test
 ```
 
-Start the server in development mode
+Start the server pointing at stubbed APIs
+
+```sh
+# In one terminal tab
+npm run start:stub-api
+
+# In a second terminal tab
+npm run start:with-stub-api
+```
+
+Start the server pointing at real APIs in development mode
 
 ```sh
 API_URL="https://api.$DEPLOY_ENV.dev.cloudpipeline.digital" \
@@ -77,6 +87,7 @@ OAUTH_CLIENT_SECRET="my-secret" \
 ACCOUNTS_SECRET="my-accounts-secret" \
 NOTIFY_API_KEY="qwerty123456" \
 NOTIFY_WELCOME_TEMPLATE_ID="qwerty123456" \
+AWS_REGION="eu-west-2" \
 npm start
 ```
 
