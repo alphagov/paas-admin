@@ -76,7 +76,6 @@ interface IUsageEvent {
   readonly spaceGUID: string;
   readonly spaceName: string;
   readonly planGUID: string;
-  readonly quotaGUID: string;
   readonly numberOfNodes: number;
   readonly memoryInMB: number;
   readonly storageInMB: number;
@@ -84,6 +83,7 @@ interface IUsageEvent {
 
 interface IBillableEvent extends IUsageEvent {
   readonly price: IPrice;
+  readonly quotaGUID: string | null;
 }
 
 interface IUsageEventResponse {
@@ -97,13 +97,13 @@ interface IUsageEventResponse {
   readonly space_guid: string;
   readonly space_name: string;
   readonly plan_guid: string;
-  readonly quota_definition_guid: string;
   readonly number_of_nodes: number;
   readonly memory_in_mb: number;
   readonly storage_in_mb: number;
 }
 
 interface IBillableEventResponse extends IUsageEventResponse {
+  readonly quota_definition_guid: string | null;
   price: {
     readonly inc_vat: string;
     readonly ex_vat: string;

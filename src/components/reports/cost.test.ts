@@ -208,7 +208,7 @@ describe('cost report test suite', () => {
       {
         eventGUID: '', eventStart: new Date(), eventStop: new Date(),
         resourceGUID: '', resourceName: '', resourceType: '', orgGUID: '',
-        spaceGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
+        spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
         storageInMB: 0,
         price: {
           incVAT:  10,
@@ -219,7 +219,7 @@ describe('cost report test suite', () => {
       {
           eventGUID: '', eventStart: new Date(), eventStop: new Date(),
           resourceGUID: '', resourceName: '', resourceType: '', orgGUID: '',
-          spaceGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
+          spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
           storageInMB: 0,
           price: {
             incVAT:  5.5,
@@ -297,7 +297,7 @@ describe('cost report test suite', () => {
     const a1 = {
       eventGUID: '', eventStart: new Date(), eventStop: new Date(),
       resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'a',
-      spaceGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
+      spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
       storageInMB: 0,
       price: {
         incVAT:  1,
@@ -308,7 +308,7 @@ describe('cost report test suite', () => {
     const a2 = {
       eventGUID: '', eventStart: new Date(), eventStop: new Date(),
       resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'a',
-      spaceGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
+      spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
       storageInMB: 0,
       price: {
         incVAT:  1,
@@ -319,7 +319,7 @@ describe('cost report test suite', () => {
     const b1 = {
       eventGUID: '', eventStart: new Date(), eventStop: new Date(),
       resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'b',
-      spaceGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
+      spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
       storageInMB: 0,
       price: {
         incVAT:  1,
@@ -456,7 +456,7 @@ describe('cost report test suite', () => {
           {
             eventGUID: '', eventStart: new Date(), eventStop: new Date(),
             resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'b',
-            spaceGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
+            spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
             storageInMB: 0,
             price: {
               incVAT:  1,
@@ -467,7 +467,7 @@ describe('cost report test suite', () => {
           {
             eventGUID: '', eventStart: new Date(), eventStop: new Date(),
             resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'b',
-            spaceGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
+            spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
             storageInMB: 0,
             price: {
               incVAT:  1.5,
@@ -480,7 +480,7 @@ describe('cost report test suite', () => {
           {
             eventGUID: '', eventStart: new Date(), eventStop: new Date(),
             resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'b',
-            spaceGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
+            spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
             storageInMB: 0,
             price: {
               incVAT:  1,

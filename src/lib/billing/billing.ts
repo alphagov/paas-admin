@@ -111,7 +111,6 @@ function parseUsageEvent(ev: IUsageEventResponse): IUsageEvent {
     spaceGUID: ev.space_guid,
     spaceName: ev.space_name,
     planGUID: ev.plan_guid,
-    quotaGUID: ev.quota_definition_guid,
     numberOfNodes: ev.number_of_nodes,
     memoryInMB: ev.memory_in_mb,
     storageInMB: ev.storage_in_mb,
@@ -130,7 +129,6 @@ function parseUsageEventResponse(ev: IUsageEvent): IUsageEventResponse {
     space_guid: ev.spaceGUID,
     space_name: ev.spaceName,
     plan_guid: ev.planGUID,
-    quota_definition_guid: ev.quotaGUID,
     number_of_nodes: ev.numberOfNodes,
     memory_in_mb: ev.memoryInMB,
     storage_in_mb: ev.storageInMB,
@@ -155,6 +153,7 @@ function parsePriceComponent(pc: IPriceComponentResponse): IPriceComponent {
 function parseBillableEvent(ev: IBillableEventResponse): IBillableEvent {
   return {
     ...parseUsageEvent(ev),
+    quotaGUID: ev.quota_definition_guid,
     price: {
       incVAT: parseNumber(ev.price.inc_vat),
       exVAT: parseNumber(ev.price.ex_vat),
