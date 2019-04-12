@@ -49,9 +49,22 @@ export async function viewCostReport(
   const orgs = await cf.organizations();
   const orgGUIDs = orgs.map(o => o.metadata.guid);
 
+  const billableEvents = await billingClient.getBillableEvents({
+    rangeStart, rangeStop, orgGUIDs,
+  });
+
+  const orgBillableEvents = aggregateBillingEvents(billableEvents);
+
   const orgQuotas: {[key: string]: IOrganizationQuota} = (await Promise.all(
     orgs.map(async (org: IOrganization) => {
-      const quota = await cf.organizationQuota(org.entity.quota_definition_guid);
+      const orgBillableEvent = orgBillableEvents[org.metadata.guid];
+      let orgQuotaGUID;
+      if (orgBillableEvent === undefined) {
+        orgQuotaGUID = org.entity.quota_definition_guid;
+      } else {
+        orgQuotaGUID = orgBillableEvent[0].quotaGUID;
+      }
+      const quota = await cf.organizationQuota(orgQuotaGUID);
       return {[org.metadata.guid]: quota};
     }),
   ))
@@ -59,11 +72,6 @@ export async function viewCostReport(
     return { ...accumulator, ...quota };
   });
 
-  const billableEvents = await billingClient.getBillableEvents({
-    rangeStart, rangeStop, orgGUIDs,
-  });
-
-  const orgBillableEvents = aggregateBillingEvents(billableEvents);
   const orgCostRecords = createOrgCostRecords(
     orgs,
     orgQuotas,
