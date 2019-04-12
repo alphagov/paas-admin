@@ -189,7 +189,9 @@ describe('app test suite', () => {
     it('should store a session in a signed cookie', async () => {
       const response = await request(app).get('/test');
 
-      expect(response.header['set-cookie'][0]).toContain('pazmin-session.sig');
+      expect(response.header['set-cookie'].some(
+        (x: string) => x.includes('pazmin-session.sig')))
+        .toBe(true);
     });
 
     it('should redirect homepage to organisations', async () => {
