@@ -36,6 +36,18 @@ const ctx: IContext = {
   csrf: '',
 };
 
+const defaultBillableEvent = {
+  eventGUID: '', eventStart: new Date(), eventStop: new Date(),
+  resourceGUID: '', resourceName: '', resourceType: '', orgGUID: '',
+  spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
+  storageInMB: 0,
+  price: {
+    incVAT:  0,
+    exVAT:   0,
+    details: [],
+  },
+};
+
 describe('cost report test suite', () => {
   it('should report zero for zero billables', async () => {
     const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
@@ -88,7 +100,7 @@ describe('cost report test suite', () => {
         "org_guid": "7f9c0e11-e7f1-41d7-9d3f-cb9d05110f9e",
         "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-        "quota_definition_guid":"3f2dd80c-7dfb-4e7f-b8a9-406b0b8abfa3",
+        "quota_definition_guid": "3f2dd80c-7dfb-4e7f-b8a9-406b0b8abfa3",
         "number_of_nodes": 1,
         "memory_in_mb": 64,
         "storage_in_mb": 0,
@@ -154,7 +166,7 @@ describe('cost report test suite', () => {
         "org_guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
         "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-        "quota_definition_guid":"dcb680a9-b190-4838-a3d2-b84aa17517a6",
+        "quota_definition_guid": "dcb680a9-b190-4838-a3d2-b84aa17517a6",
         "number_of_nodes": 1,
         "memory_in_mb": 64,
         "storage_in_mb": 0,
@@ -205,28 +217,8 @@ describe('cost report test suite', () => {
 
   it('n sumRecords', async () => {
     const summed = reports.sumRecords([
-      {
-        eventGUID: '', eventStart: new Date(), eventStop: new Date(),
-        resourceGUID: '', resourceName: '', resourceType: '', orgGUID: '',
-        spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
-        storageInMB: 0,
-        price: {
-          incVAT:  10,
-          exVAT:   11,
-          details: [],
-        },
-      },
-      {
-          eventGUID: '', eventStart: new Date(), eventStop: new Date(),
-          resourceGUID: '', resourceName: '', resourceType: '', orgGUID: '',
-          spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
-          storageInMB: 0,
-          price: {
-            incVAT:  5.5,
-            exVAT:   5.5,
-            details: [],
-          },
-      },
+      {...defaultBillableEvent, price: {incVAT: 10, exVAT: 11, details: []}},
+      {...defaultBillableEvent, price: {incVAT: 5.5, exVAT: 5.5, details: []}},
     ]);
     expect(summed.incVAT).toEqual(15.5);
     expect(summed.exVAT).toEqual(16.5);
@@ -294,39 +286,9 @@ describe('cost report test suite', () => {
   });
 
   it('n aggregateBillingEvents', async () => {
-    const a1 = {
-      eventGUID: '', eventStart: new Date(), eventStop: new Date(),
-      resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'a',
-      spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
-      storageInMB: 0,
-      price: {
-        incVAT:  1,
-        exVAT:   2,
-        details: [],
-      },
-    };
-    const a2 = {
-      eventGUID: '', eventStart: new Date(), eventStop: new Date(),
-      resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'a',
-      spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
-      storageInMB: 0,
-      price: {
-        incVAT:  1,
-        exVAT:   2,
-        details: [],
-      },
-    };
-    const b1 = {
-      eventGUID: '', eventStart: new Date(), eventStop: new Date(),
-      resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'b',
-      spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
-      storageInMB: 0,
-      price: {
-        incVAT:  1,
-        exVAT:   2,
-        details: [],
-      },
-    };
+    const a1 = {...defaultBillableEvent, orgGUID: 'a', price: {incVAT: 1, exVAT: 2, details: []}};
+    const a2 = {...defaultBillableEvent, orgGUID: 'a', price: {incVAT: 1, exVAT: 2, details: []}};
+    const b1 = {...defaultBillableEvent, orgGUID: 'b', price: {incVAT: 1, exVAT: 2, details: []}};
 
     const events = reports.aggregateBillingEvents([a1, a2, b1]);
     expect(Object.keys(events)).toContain('a');
@@ -453,42 +415,10 @@ describe('cost report test suite', () => {
       },
       {
         'org-a': [
-          {
-            eventGUID: '', eventStart: new Date(), eventStop: new Date(),
-            resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'b',
-            spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
-            storageInMB: 0,
-            price: {
-              incVAT:  1,
-              exVAT:   2,
-              details: [],
-            },
-          },
-          {
-            eventGUID: '', eventStart: new Date(), eventStop: new Date(),
-            resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'b',
-            spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
-            storageInMB: 0,
-            price: {
-              incVAT:  1.5,
-              exVAT:   2.5,
-              details: [],
-            },
-          },
+          {...defaultBillableEvent, orgGUID: 'b', price: {incVAT: 1, exVAT: 2, details: []}},
+          {...defaultBillableEvent, orgGUID: 'b', price: {incVAT: 1.5, exVAT: 2.5, details: []}},
         ],
-        'org-b': [
-          {
-            eventGUID: '', eventStart: new Date(), eventStop: new Date(),
-            resourceGUID: '', resourceName: '', resourceType: '', orgGUID: 'b',
-            spaceGUID: '', quotaGUID: '', spaceName: '', planGUID: '', numberOfNodes: 0, memoryInMB: 0,
-            storageInMB: 0,
-            price: {
-              incVAT:  1,
-              exVAT:   2.5,
-              details: [],
-            },
-          },
-        ],
+        'org-b': [{...defaultBillableEvent, orgGUID: 'b', price: {incVAT: 1, exVAT: 2.5, details: []}}],
       },
     );
 

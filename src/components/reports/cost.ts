@@ -59,11 +59,7 @@ export async function viewCostReport(
     orgs.map(async (org: IOrganization) => {
       const orgBillableEvent = orgBillableEvents[org.metadata.guid];
       let orgQuotaGUID;
-      if (orgBillableEvent === undefined) {
-        orgQuotaGUID = org.entity.quota_definition_guid;
-      } else {
-        orgQuotaGUID = orgBillableEvent[0].quotaGUID;
-      }
+      orgQuotaGUID = orgBillableEvent === undefined ? org.entity.quota_definition_guid : orgBillableEvent[0].quotaGUID;
       const quota = await cf.organizationQuota(orgQuotaGUID);
       return {[org.metadata.guid]: quota};
     }),
