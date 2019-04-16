@@ -20,6 +20,7 @@ describe('lib/billing test suite', () => {
         "org_guid": "7f9c0e11-e7f1-41d7-9d3f-cb9d05110f9e",
         "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
+        "quota_definition_guid": "3f2dd80c-7dfb-4e7f-b8a9-406b0b8abfa3",
         "number_of_nodes": 1,
         "memory_in_mb": 64,
         "storage_in_mb": 0,

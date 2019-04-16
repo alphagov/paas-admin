@@ -153,6 +153,7 @@ function parsePriceComponent(pc: IPriceComponentResponse): IPriceComponent {
 function parseBillableEvent(ev: IBillableEventResponse): IBillableEvent {
   return {
     ...parseUsageEvent(ev),
+    quotaGUID: ev.quota_definition_guid,
     price: {
       incVAT: parseNumber(ev.price.inc_vat),
       exVAT: parseNumber(ev.price.ex_vat),

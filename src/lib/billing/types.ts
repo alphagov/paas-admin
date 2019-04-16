@@ -83,6 +83,7 @@ interface IUsageEvent {
 
 interface IBillableEvent extends IUsageEvent {
   readonly price: IPrice;
+  readonly quotaGUID?: string;
 }
 
 interface IUsageEventResponse {
@@ -102,6 +103,7 @@ interface IUsageEventResponse {
 }
 
 interface IBillableEventResponse extends IUsageEventResponse {
+  readonly quota_definition_guid?: string;
   price: {
     readonly inc_vat: string;
     readonly ex_vat: string;

@@ -142,7 +142,7 @@ async function setAllUserRolesForOrg(
   ];
 
   await Promise.all(
-    spaces.map((space: ISpace) => spaceRoleEndpoints.map((role: string) => {
+    spaces.map((space: ISpace) => spaceRoleEndpoints.map(async (role: string) => {
       /* istanbul ignore next */
       if (!roles.space[space.metadata.guid]) {
         return Promise.resolve(undefined);
