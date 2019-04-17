@@ -88,6 +88,15 @@ describe('calculator test suite', () => {
           "name": "prometheus",
           "valid_from": "2002-01-01",
           "components": []
+        },
+        {
+          "name": "aws-s3-bucket default",
+          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c9",
+          "valid_from": "2017-01-01T00:00:00+00:00",
+          "components": [],
+          "memory_in_mb": 0,
+          "storage_in_mb": 0,
+          "number_of_nodes": 0
         }
       ]`)
       .get(`/forecast_events?range_start=${rangeStart}&range_stop=${rangeStop}&org_guid=00000001-0000-0000-0000-000000000000&events=%5B%5D`)
@@ -103,6 +112,7 @@ describe('calculator test suite', () => {
     expect(response.body).toMatch(/\bmysql\b/);
     expect(response.body).toMatch(/\bredis\b/);
     expect(response.body).toMatch(/\belasticsearch\b/);
+    expect(response.body).toMatch(/\baws-s3-bucket\b/);
   });
 
   it('should use calculator when provided fake services', async () => {
