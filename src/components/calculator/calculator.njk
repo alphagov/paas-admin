@@ -34,7 +34,7 @@
     </div>
   </div>
 
-  <div class ="govuk-grid-row">
+  <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds paas-service-list">
       <table class="govuk-table">
         <thead>
@@ -45,7 +45,12 @@
           {% for serviceName, plans in state.plans | groupby("serviceName") %}
             {% for version, plans in plans | groupby("version") %}
               <tr class="govuk-table__row">
-                <td class="govuk-table__cell" scope="row">{{ serviceName }} {{ version }}</td>
+                <td class="govuk-table__cell" scope="row">
+                  {{ serviceName }}
+                  {% if plans.length != 1 or version != 'default' %}
+                    {{ version }}
+                  {% endif %}
+                </td>
                 <td class="govuk-table__cell ">
                   <form class="paas-service-selection" method="get">
                     {{ stateFields(state) }}

@@ -461,7 +461,7 @@ describe('calculator test suite', () => {
     // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {});
-    expect(response.body).toContain('postgres 9.6');
+    expect(response.body).toMatch(/postgres\s+9.6/);
   });
 
   it('should use calculator and ignore empty application', async () => {
@@ -518,5 +518,40 @@ describe('calculator test suite', () => {
     });
 
     expect(response.body).toContain('Pricing calculator');
+  });
+
+  it('should omit printing "default" when there is only a default pricing plan', async () => {
+    const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
+    const rangeStop = moment().endOf('month').format('YYYY-MM-DD');
+
+    // tslint:disable:max-line-length
+    nock(config.billingAPI)
+      .filteringPath((path: string) => {
+        if (path.includes('/forecast_events')) {
+          return '/billing/forecast_events';
+        }
+
+        return path;
+      })
+      .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
+      .reply(200, `[
+        {
+          "name": "aws-s3-bucket default",
+          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c2",
+          "valid_from": "2017-01-01T00:00:00+00:00",
+          "components": [],
+          "memory_in_mb": 0,
+          "storage_in_mb": 0,
+          "number_of_nodes": 0
+        }
+      ]`)
+      .get(`/forecast_events`)
+      .reply(200, `[]`)
+    ;
+    // tslint:enable:max-line-length
+
+    const response = await getCalculator(ctx, {});
+    expect(response.body).toContain('aws-s3-bucket');
+    expect(response.body).not.toMatch(/aws-s3-bucket\s+default/);
   });
 });
