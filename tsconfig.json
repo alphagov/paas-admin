@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "strictNullChecks": false,
     "strict": true,
     "outDir": "dist",
     "module": "commonjs",
@@ -16,7 +15,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "isolatedModules": false,
     "pretty": true,
     "allowJs": true,
