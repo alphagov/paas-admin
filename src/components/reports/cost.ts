@@ -29,6 +29,10 @@ interface IQuotaCostRecord extends ICostable {
   readonly quotaName: string;
 }
 
+function getFirstBillableEventQuotaGUID(billableEvents: ReadonlyArray<IBillableEvent>): string | undefined {
+  return billableEvents && billableEvents[0] && billableEvents[0].quotaGUID;
+}
+
 export async function viewCostReport(
   ctx: IContext,
   params: IParameters,
@@ -57,9 +61,9 @@ export async function viewCostReport(
 
   const orgQuotas: {[key: string]: IOrganizationQuota} = (await Promise.all(
     orgs.map(async (org: IOrganization) => {
-      const orgBillableEvent = orgBillableEvents[org.metadata.guid];
-      let orgQuotaGUID;
-      orgQuotaGUID = orgBillableEvent === undefined ? org.entity.quota_definition_guid : orgBillableEvent[0].quotaGUID;
+      const orgQuotaGUID =
+        getFirstBillableEventQuotaGUID(orgBillableEvents[org.metadata.guid]) ||
+        org.entity.quota_definition_guid;
       const quota = await cf.organizationQuota(orgQuotaGUID);
       return {[org.metadata.guid]: quota};
     }),
