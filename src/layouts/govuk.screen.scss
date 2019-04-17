@@ -19,8 +19,6 @@ $govuk-global-styles: true;
 
 @import '../components/statements/statements';
 
-@import './contrast-fix';
-
 .text-right {
   text-align: right;
 }
