@@ -23,6 +23,7 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const isAdmin = ctx.token.hasAnyScope(
@@ -73,6 +74,7 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const isAdmin = ctx.token.hasAnyScope(
@@ -124,6 +126,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const isAdmin = ctx.token.hasAnyScope(

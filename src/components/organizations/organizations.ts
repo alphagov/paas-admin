@@ -16,6 +16,7 @@ export async function listOrganizations(ctx: IContext, _params: IParameters): Pr
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const organizations = await cf.organizations().then(sortOrganizationsByName);

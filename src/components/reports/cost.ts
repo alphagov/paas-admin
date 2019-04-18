@@ -49,6 +49,7 @@ export async function viewCostReport(
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const orgs = (await cf.organizations()).filter(org => {

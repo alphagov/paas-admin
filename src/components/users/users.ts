@@ -198,6 +198,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const isAdmin = ctx.token.hasAnyScope(
@@ -239,6 +240,7 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
@@ -301,6 +303,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
@@ -452,6 +455,7 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
@@ -535,6 +539,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const uaa = new UAAClient({
@@ -628,6 +633,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
@@ -719,6 +725,7 @@ export async function confirmDeletion(ctx: IContext, params: IParameters): Promi
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
@@ -757,6 +764,7 @@ export async function deleteUser(ctx: IContext, params: IParameters, _: object):
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
