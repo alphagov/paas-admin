@@ -5,7 +5,7 @@ const tokenKey = 'tokensecret';
 function mockUAA(app: express.Application, config: {stubApiPort: string, adminPort: string}) {
   const { adminPort } = config;
   const fakeJwt = jwt.sign({
-    user_id: 'some-user',
+    user_id: '99022be6-feb8-4f78-96f3-7d11f4d476f1',
     scope: [],
     exp: 2535018460,
   }, tokenKey);

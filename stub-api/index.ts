@@ -1,6 +1,7 @@
 import express from 'express';
 import stubUaa from './stub-uaa';
 import stubAccounts from './stub-accounts';
+import stubBilling from './stub-billing';
 import stubCf from './stub-cf';
 
 const app = express();
@@ -19,6 +20,7 @@ app.use((req, _res, next) => {
 
 stubUaa(app, config);
 stubAccounts(app, config);
+stubBilling(app, config);
 stubCf(app, config);
 
 app.listen(stubApiPort, () => console.log(`${cyan}stub-api${reset} Started, listening on port ${stubApiPort}`));
