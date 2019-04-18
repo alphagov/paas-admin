@@ -50,7 +50,11 @@ export async function viewCostReport(
     apiEndpoint: ctx.app.cloudFoundryAPI,
   });
 
-  const orgs = await cf.organizations();
+  const orgs = (await cf.organizations()).filter(org => {
+    const name = org.entity.name;
+    // ignore orgs used by tests
+    return !(name.match(/^(CAT|SMOKE|PERF|ACC)/));
+  });
   const orgGUIDs = orgs.map(o => o.metadata.guid);
 
   const billableEvents = await billingClient.getBillableEvents({

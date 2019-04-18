@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import moment from 'moment';
 import qs from 'qs';
 
-const DEFAULT_TIMEOUT = 180000;
+const DEFAULT_TIMEOUT = 300000;
 
 interface IBillingClientConfig {
   readonly apiEndpoint: string;

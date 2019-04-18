@@ -9,7 +9,7 @@ import Server from './server';
 sourceMapSupport.install();
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || 'warn',
+  level: process.env.LOG_LEVEL || 'info',
 });
 
 function expectEnvVariable(variableName: string): string {
