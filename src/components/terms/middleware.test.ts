@@ -34,6 +34,7 @@ app.use((req: any, _res: any, next: any) => {
 app.use(termsCheckerMiddleware(config.location, {
   apiEndpoint: config.accountsAPI,
   secret: config.accountsSecret,
+  logger: config.logger,
 }));
 
 app.use((_req: express.Request, res: express.Response, _next: express.NextFunction) => {

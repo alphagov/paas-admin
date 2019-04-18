@@ -1,3 +1,4 @@
+import pino from 'pino';
 import moment from 'moment';
 import nock from 'nock';
 
@@ -8,6 +9,7 @@ import { AccountsClient } from '.';
 const cfg = {
   apiEndpoint: config.accountsAPI,
   secret: config.accountsSecret,
+  logger: pino({level: 'silent'}),
 };
 
 nock(cfg.apiEndpoint)
