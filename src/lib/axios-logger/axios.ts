@@ -1,7 +1,7 @@
-import { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { BaseLogger } from 'pino';
 
-export function NewAxiosRequestInterceptor(name: string, logger: BaseLogger) {
+function newAxiosRequestInterceptor(name: string, logger: BaseLogger) {
   return (cfg: AxiosRequestConfig) => {
     const { url, method } = cfg;
 
@@ -16,7 +16,7 @@ export function NewAxiosRequestInterceptor(name: string, logger: BaseLogger) {
   };
 }
 
-export function NewAxiosResponseInterceptor(name: string, logger: BaseLogger) {
+function newAxiosResponseInterceptor(name: string, logger: BaseLogger) {
   return (resp: AxiosResponse) => {
     const {config, status} = resp;
     const {url, method} = config;
@@ -38,7 +38,7 @@ export function NewAxiosResponseInterceptor(name: string, logger: BaseLogger) {
   };
 }
 
-export function NewAxiosErrorInterceptor(name: string, logger: BaseLogger) {
+function newAxiosErrorInterceptor(name: string, logger: BaseLogger) {
   return (err: any) => {
     logger.error({
       error: err, message: `${name} encountered error`,
@@ -46,4 +46,15 @@ export function NewAxiosErrorInterceptor(name: string, logger: BaseLogger) {
 
     return err;
   };
+}
+
+export function Intercept(inst: AxiosInstance, name: string, log: BaseLogger) {
+  inst.interceptors.request.use(
+    newAxiosRequestInterceptor(name, log),
+    newAxiosErrorInterceptor(name, log),
+  );
+  inst.interceptors.response.use(
+    newAxiosResponseInterceptor(name, log),
+    newAxiosErrorInterceptor(name, log),
+  );
 }
