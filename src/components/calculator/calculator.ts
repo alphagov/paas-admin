@@ -1,5 +1,6 @@
 import moment from 'moment';
 import uuid from 'uuid';
+import { groupBy, mapValues } from 'lodash';
 
 import { BillingClient } from '../../lib/billing';
 import { IParameters, IResponse } from '../../lib/router';
@@ -27,22 +28,7 @@ interface ICalculatorState {
   rangeStop: string;
   items: ReadonlyArray<IResourceItem>;
   plans: ReadonlyArray<IPricingPlan>;
-}
-
-interface IVersionedPricingPlan extends IPricingPlan {
-  version: string;
-  variant: string;
-}
-
-function toVersionedPricingPlans(plan: IPricingPlan): IVersionedPricingPlan {
-  const parts = plan.planName.split('-');
-  const version = parts.slice(-1).join('');
-  const variant = parts.slice(0, -1).join('-');
-  return {
-    ...plan,
-    version,
-    variant,
-  };
+  clusteredPlans: Map<String, Map<String, IPricingPlan>>;
 }
 
 function whitelistServices(p: IPricingPlan): boolean {
@@ -54,11 +40,11 @@ function whitelistServices(p: IPricingPlan): boolean {
     'elasticsearch',
     'aws-s3-bucket',
   ];
-  return whitelist.some(name => name === p.serviceName);
+  return whitelist.some(name => name === p.metadata.serviceName);
 }
 
 function blacklistCompose(p: IPricingPlan): boolean {
-  return !/compose/.test(p.planName);
+  return !/compose/.test(p.metadata.planName);
 }
 
 function sizeToNumber(s: string): string {
@@ -72,13 +58,18 @@ function sizeToNumber(s: string): string {
 }
 
 function bySize(a: IPricingPlan, b: IPricingPlan): number {
-  const nameA = sizeToNumber(a.planName);
-  const nameB = sizeToNumber(b.planName);
+  const nameA = sizeToNumber(a.metadata.planVariant);
+  const nameB = sizeToNumber(b.metadata.planVariant);
   return nameA > nameB ? 1 : -1;
 }
 
 function byEventGUID(e1: IBillableEvent, e2: IBillableEvent) {
   return e1.eventGUID > e2.eventGUID ? 1 : -1;
+}
+
+function clusterPricingPlans(plans: ReadonlyArray<IPricingPlan>): Map<String, Map<String, IPricingPlan>> {
+  const plansByService = groupBy(plans, p => p.metadata.serviceName);
+  return mapValues(plansByService, ps => groupBy(ps, p => p.metadata.planVersion));
 }
 
 export async function getCalculator(ctx: IContext, params: IParameters): Promise<IResponse> {
@@ -89,19 +80,19 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
     apiEndpoint: ctx.app.billingAPI,
     logger: ctx.app.logger,
   });
-  const plans = (await billing.getPricingPlans({
+  const pricingPlans = await billing.getPricingPlans({
     rangeStart: moment(rangeStart).toDate(),
     rangeStop: moment(rangeStop).toDate(),
-  })).filter(whitelistServices)
-     .filter(blacklistCompose)
-     .map(toVersionedPricingPlans)
-     .sort(bySize);
+  });
+  const filteredPlans = pricingPlans.filter(whitelistServices).filter(blacklistCompose).sort(bySize);
+  const clusteredPlans = clusterPricingPlans(filteredPlans);
   const state: ICalculatorState = {
     monthOfEstimate,
     rangeStart,
     rangeStop,
     items: params.items || [],
-    plans,
+    plans: filteredPlans,
+    clusteredPlans,
   };
   const quote = await getQuote(billing, state);
 
@@ -126,8 +117,8 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
       {
         eventGUID: uuid.v1(),
         resourceGUID: uuid.v4(),
-        resourceName: (state.plans.find(p => p.planGUID === item.planGUID) || {planName: 'unknown'}).planName,
-        resourceType: (state.plans.find(p => p.planGUID === item.planGUID) || {serviceName: 'unknown'}).serviceName,
+        resourceName: (state.plans.find(p => p.planGUID === item.planGUID) || {planName: 'unknown'}).metadata.planName,
+        resourceType: (state.plans.find(p => p.planGUID === item.planGUID) || {serviceName: 'unknown'}).metadata.serviceName,
         orgGUID: '00000001-0000-0000-0000-000000000000',
         spaceGUID: '00000001-0001-0000-0000-000000000000',
         spaceName: 'spaceName',

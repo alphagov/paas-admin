@@ -42,8 +42,8 @@
           <th>Select options</th>
         </thead>
         <tbody class="govuk-table__body">
-          {% for serviceName, plans in state.plans | groupby("serviceName") %}
-            {% for version, plans in plans | groupby("version") %}
+          {% for serviceName, plans in state.clusteredPlans %}
+            {% for version, plans in plans %}
               <tr class="govuk-table__row">
                 <td class="govuk-table__cell" scope="row">
                   {{ serviceName }}

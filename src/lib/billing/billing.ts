@@ -167,14 +167,9 @@ function parseBillableEvent(ev: IBillableEventResponse): IBillableEvent {
 }
 
 function parsePricingPlan(plan: IPricingPlanResponse): IPricingPlan {
-  // FIXME: extracting the serviceName from the planName is not a reliable
-  // method, and we do not want to have to give paas-admin scopes to look up
-  // this information if cf. A better solution is to get paas-billing should
-  // provide this information
-  const [serviceName, ...planName] = plan.name.split(/\s+/);
   return {
-    serviceName,
-    planName: planName.join(''),
+    name: plan.name,
+    metadata: parsePricingPlanMetadata(plan.name),
     planGUID: plan.plan_guid,
     validFrom: parseTimestamp(plan.valid_from),
     components: plan.components.map(parseComponentResponse),
@@ -182,6 +177,18 @@ function parsePricingPlan(plan: IPricingPlanResponse): IPricingPlan {
     memoryInMB: plan.memory_in_mb,
     storageInMB: plan.storage_in_mb,
   };
+}
+
+function parsePricingPlanMetadata(name: string): IPricingPlanMetadata {
+  const [serviceName, ...planNameWords] = name.split(/\s+/);
+  const planName = planNameWords.join('');
+  const planNameParts = planName.split('-');
+  return {
+    serviceName,
+    planName,
+    planVersion: planNameParts.slice(-1).join(''),
+    planVariant: planNameParts.slice(0, -1).join('-'),
+  }
 }
 
 function parseComponentResponse(component: IComponentResponse): IComponent {

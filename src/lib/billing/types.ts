@@ -22,14 +22,70 @@ interface IPricingPlanResponse {
 }
 
 interface IPricingPlan {
-  readonly planName: string;
+  readonly name: string;
+  readonly metadata: IPricingPlanMetadata;
   readonly planGUID: string;
-  readonly serviceName: string;
   readonly validFrom: Date;
   readonly components: ReadonlyArray<IComponent>;
   readonly numberOfNodes: number;
   readonly memoryInMB: number;
   readonly storageInMB: number;
+}
+
+// Our Billing API provides one unstructured name field for each pricing plan.
+// We parse that into structured metadata about the plan. Here's an example.
+//
+// 1. The Billing API gives us this pricing plan name:
+//
+//    "mysql large-ha-5.7"
+//
+// 2. For the service name, use everything before the first space:
+//
+//    serviceName = "mysql"
+//
+// 3. For the planName, use everything after the first space:
+//
+//    planName = "large-ha-5.7"
+//
+// 4. For the plan version, use everything after the final dash in the plan name:
+//
+//    planVersion = "5.7"
+//
+// 5. For the plan variant, use everything before the final dash in the plan name:
+//
+//    planVariant = "large-ha"
+//
+// 6. If there are no dashes in the plan name, we populate the plan version and
+//    leave the plan variant empty.
+//
+// This works well for complex services which expose a version of the
+// underlying database engine as well as the database's configuration.
+//
+// But we also expose simpler things through the Billing API (e.g.,
+// Cloud Foundry app running costs.) For those, the parsing still works well.
+// Say the pricing plan name from the Billing API is:
+//
+//     "aws-s3-bucket default"
+//
+// That parses to:
+//
+//     serviceName = "aws-s3-bucket"
+//     planName    = "default"
+//     planVersion = "default"
+//     planVariant = ""
+//
+// By clustering pricing plans by serviceName and planVersion, we can then render
+// a pretty Pricing Calculator.
+//
+// FIXME: extracting metadata from the planName is not a reliable
+// method, and we do not want to have to give paas-admin scopes to look up
+// this information in cf. A better solution is to get paas-billing to
+// provide this information.
+interface IPricingPlanMetadata {
+  readonly serviceName: string;
+  readonly planName: string;
+  readonly planVersion: string;
+  readonly planVariant: string;
 }
 
 interface IComponentResponse {
