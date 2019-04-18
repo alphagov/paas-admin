@@ -87,6 +87,7 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
   const rangeStop = params.rangeStop || moment().endOf('month').format('YYYY-MM-DD');
   const billing = new BillingClient({
     apiEndpoint: ctx.app.billingAPI,
+    logger: ctx.app.logger,
   });
   const plans = (await billing.getPricingPlans({
     rangeStart: moment(rangeStart).toDate(),

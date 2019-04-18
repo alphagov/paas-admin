@@ -1,12 +1,15 @@
+import { BaseLogger } from 'pino';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import moment from 'moment';
 import qs from 'qs';
+import {Intercept} from '../axios-logger/axios';
 
 const DEFAULT_TIMEOUT = 300000;
 
 interface IBillingClientConfig {
   readonly apiEndpoint: string;
   readonly accessToken?: string;
+  readonly logger: BaseLogger;
 }
 
 export default class BillingClient {
@@ -26,7 +29,7 @@ export default class BillingClient {
         });
       },
       ...req,
-    });
+    }, this.config.logger);
   }
 
   public async getBillableEvents(params: IEventFilter): Promise<ReadonlyArray<IBillableEvent>> {
@@ -189,7 +192,7 @@ function parseComponentResponse(component: IComponentResponse): IComponent {
   };
 }
 
-async function request(req: AxiosRequestConfig): Promise<AxiosResponse> {
+async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<AxiosResponse> {
   const reqWithDefaults = {
     method: 'get',
     validateStatus,
@@ -197,7 +200,10 @@ async function request(req: AxiosRequestConfig): Promise<AxiosResponse> {
     ...req,
   };
 
-  const response = await axios.request(reqWithDefaults);
+  const instance = axios.create();
+  Intercept(instance, 'billing', logger);
+
+  const response = await instance.request(reqWithDefaults);
 
   if (response.status < 200 || response.status >= 300) {
     let msg = `BillingClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;

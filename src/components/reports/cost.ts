@@ -43,6 +43,7 @@ export async function viewCostReport(
   const billingClient = new BillingClient({
     apiEndpoint: ctx.app.billingAPI,
     accessToken: ctx.token.accessToken,
+    logger: ctx.app.logger,
   });
 
   const cf = new CloudFoundryClient({

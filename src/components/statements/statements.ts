@@ -109,6 +109,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   const billingClient = new BillingClient({
     apiEndpoint: ctx.app.billingAPI,
     accessToken: ctx.token.accessToken,
+    logger: ctx.app.logger,
   });
 
   const filter = {
