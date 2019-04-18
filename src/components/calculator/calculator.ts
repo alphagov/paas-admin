@@ -46,7 +46,14 @@ function toVersionedPricingPlans(plan: IPricingPlan): IVersionedPricingPlan {
 }
 
 function whitelistServices(p: IPricingPlan): boolean {
-  const whitelist = ['app', 'postgres', 'mysql', 'redis', 'elasticsearch'];
+  const whitelist = [
+    'app',
+    'postgres',
+    'mysql',
+    'redis',
+    'elasticsearch',
+    'aws-s3-bucket',
+  ];
   return whitelist.some(name => name === p.serviceName);
 }
 
