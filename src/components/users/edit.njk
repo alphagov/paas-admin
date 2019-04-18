@@ -52,7 +52,8 @@
         <input type="hidden" name="_csrf" value="{{ csrf }}" />
         <p>It would appear the user did not setup their account yet.</p>
         {{ govukButton({
-          text: "Resend user invite"
+          text: "Resend user invite",
+          preventDoubleClick: true
         }) }}
       </form>
     {% endif %}
@@ -62,7 +63,8 @@
       {% include "./permissions.njk" %}
 
       {{ govukButton({
-        text: "Save role changes"
+        text: "Save role changes",
+        preventDoubleClick: true
       }) }}
     </form>
 

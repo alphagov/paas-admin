@@ -25,7 +25,8 @@
       <p class="govuk-heading-m">{{ user.entity.username }}</p>
 
       {{ govukButton({
-        text: "Yes, remove from organisation"
+        text: "Yes, remove from organisation",
+        preventDoubleClick: true
       }) }}
 
       <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
