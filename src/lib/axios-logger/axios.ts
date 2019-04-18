@@ -40,9 +40,7 @@ function newAxiosResponseInterceptor(name: string, logger: BaseLogger) {
 
 function newAxiosErrorInterceptor(name: string, logger: BaseLogger) {
   return (err: any) => {
-    logger.error({
-      error: err, message: `${name} encountered error`,
-    });
+    logger.error({message: `${name} encountered error`});
 
     return err;
   };
