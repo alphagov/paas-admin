@@ -1,7 +1,8 @@
-import { BaseLogger } from 'pino';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import moment from 'moment';
+import { BaseLogger } from 'pino';
 import qs from 'qs';
+
 import {Intercept} from '../axios-logger/axios';
 
 const DEFAULT_TIMEOUT = 300000;

@@ -1,5 +1,5 @@
-import pino from 'pino';
 import nock from 'nock';
+import pino from 'pino';
 
 import * as data from './cf.test.data';
 

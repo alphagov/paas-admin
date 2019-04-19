@@ -1,5 +1,5 @@
-import { BaseLogger } from 'pino';
 import axios, { AxiosResponse } from 'axios';
+import { BaseLogger } from 'pino';
 
 import { authenticate } from '../uaa';
 import * as cf from './types';
@@ -270,7 +270,14 @@ export default class CloudFoundryClient {
   }
 }
 
-async function request(endpoint: string, method: httpMethod, url: string, logger: BaseLogger, opts?: any): Promise<AxiosResponse> {
+async function request(
+  endpoint: string,
+  method: httpMethod,
+  url: string,
+  logger: BaseLogger,
+  opts?: any,
+): Promise<AxiosResponse> {
+
   const instance = axios.create();
   Intercept(instance, 'cf', logger);
 
