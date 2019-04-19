@@ -1,6 +1,8 @@
 import { NotFoundError } from './errors';
 import Route, { IRouteDefinition } from './route';
 
+import apm from 'elastic-apm-node';
+
 export default class Router {
   public readonly routes: ReadonlyArray<Route>;
 
@@ -16,6 +18,8 @@ export default class Router {
     if (!route) {
       throw new NotFoundError(`unregistered route: ${path}`);
     }
+
+    apm.setTransactionName(`${route.method.toUpperCase()} ${path}`);
 
     return route;
   }

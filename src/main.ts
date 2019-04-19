@@ -1,4 +1,40 @@
 import pino from 'pino';
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+});
+
+import apm from 'elastic-apm-node';
+/* istanbul ignore next */
+{
+  const isApmEnabled = ['yes', 'true'].includes((process.env.ENABLE_APM || '').toLowerCase());
+
+  const apmServiceName = process.env.APM_SERVICE_NAME || 'paas-admin-local';
+
+  const apmSecretToken = process.env.APM_SECRET_TOKEN;
+  if (isApmEnabled && !apmSecretToken) {
+    throw new Error('APM_SECRET_TOKEN is a required environment variable');
+  }
+
+  const apmServerUrl = process.env.APM_SERVER_URL;
+  if (isApmEnabled && !apmServerUrl) {
+    throw new Error('APM_SERVER_URL is a required environment variable');
+  }
+
+  if (isApmEnabled) {
+    logger.info({
+      message: `Starting apm with name ${apmServiceName} -> ${apmServerUrl}`,
+    });
+  }
+
+  apm.start({
+    serviceName: apmServiceName,
+    secretToken: apmSecretToken,
+    serverUrl:   apmServerUrl,
+    active: isApmEnabled,
+    logger,
+  });
+}
+
 import sourceMapSupport from 'source-map-support';
 
 import app, { IAppConfig } from './components/app';
@@ -7,10 +43,6 @@ import CloudFoundryClient from './lib/cf';
 import Server from './server';
 
 sourceMapSupport.install();
-
-const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
-});
 
 function expectEnvVariable(variableName: string): string {
   const value = process.env[variableName] || '';
