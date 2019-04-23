@@ -98,6 +98,7 @@ export default function(config: IAppConfig) {
   app.use(termsCheckerMiddleware(config.location, {
     apiEndpoint: config.accountsAPI,
     secret: config.accountsSecret,
+    logger: config.logger,
   }));
 
   app.use(routerMiddleware(router, config));

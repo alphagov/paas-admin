@@ -1,5 +1,6 @@
 import moment from 'moment';
 import nock from 'nock';
+import pino from 'pino';
 
 import { config } from '../../components/app/app.test.config';
 
@@ -60,6 +61,7 @@ describe('lib/billing test suite', () => {
     const bc = new BillingClient({
       apiEndpoint: config.billingAPI,
       accessToken: '__ACCESS_TOKEN__',
+      logger: pino({level: 'silent'}),
     });
     const response = await bc.getBillableEvents({
       rangeStart: moment('2018-01-01').toDate(),
@@ -133,6 +135,7 @@ describe('lib/billing test suite', () => {
     const bc = new BillingClient({
       apiEndpoint: config.billingAPI,
       accessToken: '__ACCESS_TOKEN__',
+      logger: pino({level: 'silent'}),
     });
     const response = await bc.getForecastEvents({
       rangeStart: moment('2018-01-01').toDate(),
@@ -178,6 +181,7 @@ describe('lib/billing test suite', () => {
     const bc = new BillingClient({
       apiEndpoint: config.billingAPI,
       accessToken: '__ACCESS_TOKEN__',
+      logger: pino({level: 'silent'}),
     });
     const response = await bc.getPricingPlans({
       rangeStart: moment('2018-01-01').toDate(),
@@ -197,6 +201,7 @@ describe('lib/billing test suite', () => {
     const bc = new BillingClient({
       apiEndpoint: config.billingAPI,
       accessToken: '__ACCESS_TOKEN__',
+      logger: pino({level: 'silent'}),
     });
 
     await expect(bc.getBillableEvents({
@@ -213,6 +218,7 @@ describe('lib/billing test suite', () => {
     const bc = new BillingClient({
       apiEndpoint: config.billingAPI,
       accessToken: '__ACCESS_TOKEN__',
+      logger: pino({level: 'silent'}),
     });
 
     await expect(bc.getBillableEvents({
@@ -238,6 +244,7 @@ describe('lib/billing test suite', () => {
     const bc = new BillingClient({
       apiEndpoint: config.billingAPI,
       accessToken: '__ACCESS_TOKEN__',
+      logger: pino({level: 'silent'}),
     });
 
     await expect(bc.getBillableEvents({
@@ -263,6 +270,7 @@ describe('lib/billing test suite', () => {
     const bc = new BillingClient({
       apiEndpoint: config.billingAPI,
       accessToken: '__ACCESS_TOKEN__',
+      logger: pino({level: 'silent'}),
     });
 
     await expect(bc.getBillableEvents({

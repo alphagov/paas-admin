@@ -43,11 +43,13 @@ export async function viewCostReport(
   const billingClient = new BillingClient({
     apiEndpoint: ctx.app.billingAPI,
     accessToken: ctx.token.accessToken,
+    logger: ctx.app.logger,
   });
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const orgs = (await cf.organizations()).filter(org => {

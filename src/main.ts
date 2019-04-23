@@ -55,6 +55,7 @@ async function main() {
   if (!authorizationAPI || !uaaAPI) {
     const cf = new CloudFoundryClient({
       apiEndpoint: cloudFoundryAPI,
+      logger,
     });
     const info = await cf.info();
     authorizationAPI = info.authorization_endpoint;

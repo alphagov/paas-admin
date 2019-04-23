@@ -1,5 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import moment from 'moment';
+import { BaseLogger } from 'pino';
+
+import {Intercept} from '../axios-logger/axios';
 
 const DEFAULT_TIMEOUT = 5000;
 
@@ -26,6 +29,7 @@ export interface IUserDocument extends IDocument {
 export interface IAccountsClientConfig {
   readonly apiEndpoint: string;
   readonly secret: string;
+  readonly logger: BaseLogger;
 }
 
 export class AccountsClient {
@@ -44,7 +48,7 @@ export class AccountsClient {
         'Content-Type': 'application/json',
       },
       ...req,
-    });
+    }, this.config.logger);
   }
 
   public async getDocument(name: string): Promise<IDocument> {
@@ -135,14 +139,16 @@ function parseUserDocument(doc: IUserDocumentResponse): IUserDocument {
   };
 }
 
-async function request(req: AxiosRequestConfig): Promise<AxiosResponse> {
+async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<AxiosResponse> {
   const reqWithDefaults = {
     method: 'get',
     validateStatus,
     timeout: DEFAULT_TIMEOUT,
     ...req,
   };
-  const response = await axios.request(reqWithDefaults);
+  const instance = axios.create();
+  Intercept(instance, 'billing', logger);
+  const response = await instance.request(reqWithDefaults);
   if (response.status < 200 || response.status >= 300) {
     let msg = `AccountsClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;
     if (typeof response.data === 'object') {

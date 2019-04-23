@@ -1,7 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
+import { BaseLogger } from 'pino';
 
 import { authenticate } from '../uaa';
 import * as cf from './types';
+
+import {Intercept} from '../axios-logger/axios';
 
 // FIXME: We're hitting issues with long running requests to CF API. We're setting a hard limit here,
 // but intend to roll it back to more acceptable/desired behavior in the future.
@@ -17,6 +20,7 @@ interface IClientConfig {
   readonly apiEndpoint: string;
   readonly clientCredentials?: IClientCredentials;
   readonly tokenEndpoint?: string;
+  readonly logger: BaseLogger;
 }
 
 type httpMethod = 'post' | 'get' | 'put' | 'delete';
@@ -27,12 +31,16 @@ export default class CloudFoundryClient {
   private tokenEndpoint: string;
   private readonly clientCredentials: IClientCredentials;
 
+  private readonly logger: BaseLogger;
+
   constructor(config: IClientConfig) {
     this.apiEndpoint = config.apiEndpoint;
     this.tokenEndpoint = config.tokenEndpoint || '';
 
     this.accessToken = config.accessToken || '';
     this.clientCredentials = config.clientCredentials || {clientID: '', clientSecret: ''};
+
+    this.logger = config.logger;
   }
 
   public async getTokenEndpoint() {
@@ -70,7 +78,7 @@ export default class CloudFoundryClient {
 
   public async request(method: httpMethod, url: string, data?: any, params?: any): Promise<AxiosResponse> {
     const token = await this.getAccessToken();
-    return request(this.apiEndpoint, method, url, {
+    return request(this.apiEndpoint, method, url, this.logger, {
       headers: {Authorization: `Bearer ${token}`},
       data,
       params,
@@ -91,7 +99,7 @@ export default class CloudFoundryClient {
   }
 
   public async info(): Promise<cf.IInfo> {
-    const response = await request(this.apiEndpoint, 'get', '/v2/info');
+    const response = await request(this.apiEndpoint, 'get', '/v2/info', this.logger);
     return response.data;
   }
 
@@ -262,8 +270,18 @@ export default class CloudFoundryClient {
   }
 }
 
-async function request(endpoint: string, method: httpMethod, url: string, opts?: any): Promise<AxiosResponse> {
-  const response = await axios.request({
+async function request(
+  endpoint: string,
+  method: httpMethod,
+  url: string,
+  logger: BaseLogger,
+  opts?: any,
+): Promise<AxiosResponse> {
+
+  const instance = axios.create();
+  Intercept(instance, 'cf', logger);
+
+  const response = await instance.request({
     method,
     url,
     baseURL: endpoint,

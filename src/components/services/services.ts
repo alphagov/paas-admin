@@ -10,6 +10,7 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
   });
 
   const isAdmin = ctx.token.hasAnyScope(

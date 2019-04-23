@@ -1,4 +1,5 @@
 import nock from 'nock';
+import pino from 'pino';
 
 import * as data from './cf.test.data';
 
@@ -7,6 +8,7 @@ import CloudFoundryClient from '.';
 const config = {
   apiEndpoint: 'https://example.com/api',
   accessToken: 'qwerty123456',
+  logger: pino({level: 'silent'}),
 };
 
 // tslint:disable:max-line-length
@@ -58,7 +60,10 @@ nock('https://example.com/uaa').persist()
 
 describe('lib/cf test suite', () => {
   test('should fail to get token client without accessToken or clientCredentials', async () => {
-    const client = new CloudFoundryClient({apiEndpoint: 'https://example.com/api'});
+    const client = new CloudFoundryClient({
+      apiEndpoint: 'https://example.com/api',
+      logger: pino({level: 'silent'}),
+    });
     await expect(client.getAccessToken()).rejects.toThrow(/accessToken or clientCredentials are required/);
   });
 
@@ -66,6 +71,7 @@ describe('lib/cf test suite', () => {
     const client = new CloudFoundryClient({
       apiEndpoint: 'https://example.com/api',
       clientCredentials: {clientID: 'my-id', clientSecret: 'my-secret'},
+      logger: pino({level: 'silent'}),
     });
 
     expect(await client.getAccessToken()).toEqual('TOKEN_FROM_ENDPOINT');
