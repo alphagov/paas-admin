@@ -3,7 +3,7 @@ import moment from 'moment';
 import { BaseLogger } from 'pino';
 import qs from 'qs';
 
-import {Intercept} from '../axios-logger/axios';
+import {intercept} from '../axios-logger/axios';
 
 const DEFAULT_TIMEOUT = 300000;
 
@@ -202,7 +202,7 @@ async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<Axi
   };
 
   const instance = axios.create();
-  Intercept(instance, 'billing', logger);
+  intercept(instance, 'billing', logger);
 
   const response = await instance.request(reqWithDefaults);
 

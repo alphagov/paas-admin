@@ -46,7 +46,7 @@ function newAxiosErrorInterceptor(name: string, logger: BaseLogger) {
   };
 }
 
-export function Intercept(inst: AxiosInstance, name: string, log: BaseLogger) {
+export function intercept(inst: AxiosInstance, name: string, log: BaseLogger) {
   inst.interceptors.request.use(
     newAxiosRequestInterceptor(name, log),
     newAxiosErrorInterceptor(name, log),

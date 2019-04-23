@@ -4,7 +4,7 @@ import { BaseLogger } from 'pino';
 import { authenticate } from '../uaa';
 import * as cf from './types';
 
-import {Intercept} from '../axios-logger/axios';
+import {intercept} from '../axios-logger/axios';
 
 // FIXME: We're hitting issues with long running requests to CF API. We're setting a hard limit here,
 // but intend to roll it back to more acceptable/desired behavior in the future.
@@ -279,7 +279,7 @@ async function request(
 ): Promise<AxiosResponse> {
 
   const instance = axios.create();
-  Intercept(instance, 'cf', logger);
+  intercept(instance, 'cf', logger);
 
   const response = await instance.request({
     method,
