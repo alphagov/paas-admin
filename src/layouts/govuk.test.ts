@@ -7,7 +7,8 @@ describe('layout test suite', () => {
   });
 
   it('it should fail to render with no parameters', async () => {
-    const html = govukTemplate.render({});
-    expect(html).toBeNull();
+    expect(
+      () => { govukTemplate.render({}); },
+    ).toThrowError();
   });
 });
