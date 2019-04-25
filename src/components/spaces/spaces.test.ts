@@ -61,6 +61,8 @@ describe('spaces test suite', () => {
     });
 
     expect(response.body).toContain('has 1 apps');
+
+    expect(response.body).toContain('2gb');
   });
 
   it('should show list of applications in space', async () => {

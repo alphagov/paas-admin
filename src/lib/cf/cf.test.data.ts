@@ -478,7 +478,7 @@ export const appSummary = `{
   "detected_buildpack_guid": null,
   "environment_json": null,
   "memory": 1024,
-  "instances": 1,
+  "instances": 2,
   "disk_quota": 1024,
   "state": "STOPPED",
   "version": "d457b51a-d7cb-494d-b39e-3171ec75bd60",
