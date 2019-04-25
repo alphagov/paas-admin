@@ -63,7 +63,7 @@
     "mocha": "^5.2.0",
     "nock": "10.0.6",
     "node-sass": "^4.11.0",
-    "nodemon-webpack-plugin": "^4.0.3",
+    "nodemon-webpack-plugin": "^4.0.8",
     "npm": "^6.4.1",
     "nyc": "12.0.2",
     "postcss-loader": "3.0.0",
