@@ -161,7 +161,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
         running_apps: applications.filter((app: IApplication) => app.entity.state.toLowerCase() !== 'stopped'),
         stopped_apps: applications.filter((app: IApplication) => app.entity.state.toLowerCase() === 'stopped'),
         memory_allocated: applications.reduce((allocated: number, app: IApplication) =>
-          allocated + app.entity.memory, 0),
+          allocated + (app.entity.memory * app.entity.instances), 0),
         quota,
       },
       metadata: space.metadata,
