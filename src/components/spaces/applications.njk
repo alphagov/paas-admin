@@ -37,13 +37,19 @@
             <th class="govuk-table__header" scope="row">
               <a href="{{ linkTo('admin.organizations.spaces.applications.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid}) }}" class="govuk-link">{{ application.entity.name }}</a>
             </th>
-            <td class="govuk-table__cell ">
-              {{ application.entity.running_instances }}/{{ application.entity.instances }}
+            <td class="govuk-table__cell " title="{{ application.entity.running_instances }} running / {{ application.entity.instances }} desired">
+              {{ application.entity.running_instances }}
+              /
+              {{ application.entity.instances }}
             </td>
-            <td class="govuk-table__cell ">
+            <td class="govuk-table__cell " title="Total: {{ ((application.entity.memory * application.entity.instances) / 1024) | round(2) }}gb">
+              {{ application.entity.instances }}
+              &times;
               {{ (application.entity.memory / 1024) | round(2) }}gb
             </td>
-            <td class="govuk-table__cell ">
+            <td class="govuk-table__cell " title="Total: {{ ((application.entity.disk_quota * application.entity.instances) / 1024) | round(2) }}gb">
+              {{ application.entity.instances }}
+              &times;
               {{ (application.entity.disk_quota / 1024) | round(2) }}gb
             </td>
             <td class="govuk-table__cell ">

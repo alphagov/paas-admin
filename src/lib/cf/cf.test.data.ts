@@ -479,7 +479,7 @@ export const appSummary = `{
   "environment_json": null,
   "memory": 1024,
   "instances": 2,
-  "disk_quota": 1024,
+  "disk_quota": 4096,
   "state": "STOPPED",
   "version": "d457b51a-d7cb-494d-b39e-3171ec75bd60",
   "command": null,
