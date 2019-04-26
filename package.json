@@ -110,7 +110,7 @@
     "passport-local": "1.0.0",
     "passport-oauth2": "1.4.0",
     "pino": "5.12.3",
-    "qs": "6.5.2",
+    "qs": "6.7.0",
     "route-parser": "0.0.5",
     "showdown": "1.8.6",
     "source-map-support": "0.5.8",
