@@ -105,7 +105,7 @@ describe('app test suite', () => {
     expect(response.status).toEqual(500);
   });
 
-  describe('when authenticated', async () => {
+  describe('when authenticated', () => {
     const app = init(config);
     const agent = request.agent(app);
     const time = Math.floor(Date.now() / 1000);
@@ -206,7 +206,7 @@ describe('app test suite', () => {
     });
   });
 
-  describe('when token expires', async () => {
+  describe('when token expires', () => {
     const app = init(config);
     const agent = request.agent(app);
     const time = Math.floor(Date.now() / 1000);
