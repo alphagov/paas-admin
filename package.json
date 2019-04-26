@@ -103,7 +103,7 @@
     "jmespath": "0.15.0",
     "jsonwebtoken": "8.5.1",
     "merge-deep": "3.0.2",
-    "moment": "2.22.2",
+    "moment": "2.24.0",
     "notifications-node-client": "^4.2.0",
     "nunjucks": "3.2.0",
     "passport": "0.4.0",
