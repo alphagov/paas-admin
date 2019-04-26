@@ -115,6 +115,23 @@ describe('calculator test suite', () => {
     expect(response.body).toMatch(/\baws-s3-bucket\b/);
   });
 
+  it('should get a zero quote if no items are specified', async () => {
+    const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
+    const rangeStop = moment().endOf('month').format('YYYY-MM-DD');
+
+    nock(config.billingAPI)
+      .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
+      .reply(200, `[]`);
+
+    const response = await getCalculator(ctx, {
+      items: [],
+    });
+
+    expect(response.body).toContain('Pricing calculator');
+    expect(response.body).toContain('<p class="paas-price">&pound; 0.00</p>');
+
+  });
+
   it('should use calculator when provided fake services', async () => {
     const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
     const rangeStop = moment().endOf('month').format('YYYY-MM-DD');
