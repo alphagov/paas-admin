@@ -103,7 +103,10 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
     items: params.items || [],
     plans,
   };
-  const quote = await getQuote(billing, state);
+  let quote: IQuote = { events: [], exVAT: 0, incVAT: 0 };
+  if (params.items && params.items.length) {
+    quote = await getQuote(billing, state);
+  }
 
   return {
     body: calculatorTemplate.render({
