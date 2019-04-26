@@ -5,10 +5,4 @@ describe('layout test suite', () => {
     const html = govukTemplate.render({location: 'Taggy McTaggington'});
     expect(html).toContain('Taggy McTaggington');
   });
-
-  it('it should fail to render with no parameters', async () => {
-    expect(
-      () => { govukTemplate.render({}); },
-    ).toThrowError();
-  });
 });
