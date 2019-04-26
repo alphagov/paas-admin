@@ -1,3 +1,4 @@
+import apm from 'elastic-apm-node';
 import express from 'express';
 
 import { NotFoundError } from '../../lib/router';
@@ -21,6 +22,7 @@ function platformLocation(region: string): string {
 
 export function internalServerErrorMiddleware(err: Error, req: any, res: express.Response, next: express.NextFunction) {
   req.log.error(err);
+  apm.captureError(err);
 
   if (err instanceof NotFoundError) {
     return pageNotFoundMiddleware(req, res, next);
