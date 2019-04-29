@@ -133,18 +133,14 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       'conduit-tunnel' : ev.resourceName,
   }));
 
-  let usdExchangeRate: number = 1;
+  const currencyRates = await billingClient.getCurrencyRates(filter);
+  // FIXME: Ideally we should support multiple USD currency rates, or not show this information
+  const usdCurrencyRate = currencyRates.filter(currencyRate => currencyRate.code === 'USD')[0];
 
   /* istanbul ignore next */
   const itemsObject: IResourceGroup = cleanEvents.reduce((resources: IResourceGroup, event: IBillableEvent) => {
     const key = [event.orgGUID, event.spaceGUID, event.planGUID, event.resourceName].join(':');
     const {[key]: resource, ...rest} = resources;
-
-    event.price.details.forEach(detail => {
-      if (detail.currencyCode === 'USD') {
-        usdExchangeRate = detail.currencyRate;
-      }
-    });
 
     if (!resource) {
       return {...rest, [key]: {
@@ -227,7 +223,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       items: filteredItems,
       spaces: listSpaces,
       plans: listPlans,
-      usdExchangeRate,
+      usdCurrencyRate,
       isCurrentMonth:
         Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
       listOfPastYearMonths,

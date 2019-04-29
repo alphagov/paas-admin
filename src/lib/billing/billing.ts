@@ -77,6 +77,34 @@ export default class BillingClient {
 
     return data.map(parsePricingPlan);
   }
+
+  public async getCurrencyRates(params: IRangeable): Promise<ReadonlyArray<IRate>> {
+    const response = await this.request({
+      url: '/currency_rates',
+      params: {
+        range_start: parseDate(params.rangeStart),
+        range_stop: parseDate(params.rangeStop),
+      },
+    });
+
+    const data: ReadonlyArray<IRateResponse> = response.data;
+
+    return data.map(parseRate);
+  }
+
+  public async getVATRates(params: IRangeable): Promise<ReadonlyArray<IRate>> {
+    const response = await this.request({
+      url: '/vat_rates',
+      params: {
+        range_start: parseDate(params.rangeStart),
+        range_stop: parseDate(params.rangeStop),
+      },
+    });
+
+    const data: ReadonlyArray<IRateResponse> = response.data;
+
+    return data.map(parseRate);
+  }
 }
 
 function parseDate(d: Date): string {
@@ -148,7 +176,6 @@ function parsePriceComponent(pc: IPriceComponentResponse): IPriceComponent {
     VATCode: pc.vat_code,
     VATRate: parseNumber(pc.vat_rate),
     currencyCode: pc.currency_code,
-    currencyRate: parseNumber(pc.currency_rate),
     incVAT: parseNumber(pc.inc_vat),
     exVAT: parseNumber(pc.ex_vat),
   };
@@ -193,6 +220,14 @@ function parseComponentResponse(component: IComponentResponse): IComponent {
   };
 }
 
+function parseRate(rate: IRateResponse): IRate {
+  return {
+    code: rate.code,
+    validFrom: parseTimestamp(rate.valid_from),
+    rate: parseNumber(rate.rate),
+  };
+}
+
 async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<AxiosResponse> {
   const reqWithDefaults = {
     method: 'get',
@@ -208,6 +243,10 @@ async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<Axi
 
   if (response.status < 200 || response.status >= 300) {
     let msg = `BillingClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;
+
+    if (typeof reqWithDefaults.params === 'object') {
+      msg = `${msg} and params ${JSON.stringify(reqWithDefaults.params)}`;
+    }
 
     if (typeof response.data === 'object') {
       msg = `${msg} and data ${JSON.stringify(response.data)}`;

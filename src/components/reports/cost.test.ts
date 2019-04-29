@@ -117,8 +117,7 @@ describe('cost report test suite', () => {
               "inc_vat": "0.012",
               "vat_rate": "0.2",
               "vat_code": "Standard",
-              "currency_code": "USD",
-              "currency_rate": "0.8"
+              "currency_code": "GBP"
             },
             {
               "name": "platform",
@@ -129,8 +128,7 @@ describe('cost report test suite', () => {
               "inc_vat": "0.012",
               "vat_rate": "0.2",
               "vat_code": "Standard",
-              "currency_code": "USD",
-              "currency_rate": "0.8"
+              "currency_code": "GBP"
             }
           ]
         }
@@ -183,8 +181,7 @@ describe('cost report test suite', () => {
               "inc_vat": "0.012",
               "vat_rate": "0.2",
               "vat_code": "Standard",
-              "currency_code": "USD",
-              "currency_rate": "0.8"
+              "currency_code": "GBP"
             },
             {
               "name": "platform",
@@ -195,8 +192,7 @@ describe('cost report test suite', () => {
               "inc_vat": "0.012",
               "vat_rate": "0.2",
               "vat_code": "Standard",
-              "currency_code": "USD",
-              "currency_rate": "0.8"
+              "currency_code": "GBP"
             }
           ]
         }

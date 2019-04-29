@@ -38,8 +38,7 @@ describe('lib/billing test suite', () => {
               "inc_vat": "0.012",
               "vat_rate": "0.2",
               "vat_code": "Standard",
-              "currency_code": "USD",
-              "currency_rate": "0.8"
+              "currency_code": "GBP"
             },
             {
               "name": "platform",
@@ -50,8 +49,7 @@ describe('lib/billing test suite', () => {
               "inc_vat": "0.012",
               "vat_rate": "0.2",
               "vat_code": "Standard",
-              "currency_code": "USD",
-              "currency_rate": "0.8"
+              "currency_code": "GBP"
             }
           ]
         }
@@ -122,7 +120,6 @@ describe('lib/billing test suite', () => {
                 "vat_rate": "0.2",
                 "vat_code": "Standard",
                 "currency_code": "GBP",
-                "currency_rate": "1",
                 "inc_vat": "0.012",
                 "ex_vat": "0.01"
               }
@@ -191,6 +188,96 @@ describe('lib/billing test suite', () => {
     expect(response.length).toEqual(1);
     expect(response[0].components[0].currencyCode).toEqual('GBP');
     expect(response[0].validFrom.toString()).toContain('Jan 01 2002');
+  });
+
+  it('should return currency rates', async () => {
+    // tslint:disable:max-line-length
+    nock(config.billingAPI)
+      .get(`/currency_rates?range_start=2018-01-01&range_stop=2019-01-01`)
+      .reply(200, `[
+        {
+          "code": "GBP",
+          "rate": 1.0,
+          "valid_from": "2017-01-01"
+        },
+        {
+          "code": "USD",
+          "rate": 0.8,
+          "valid_from": "2017-01-01"
+        },
+        {
+          "code": "USD",
+          "rate": 0.9,
+          "valid_from": "2018-06-01"
+        }
+      ]`);
+      // tslint:enable:max-line-length
+
+    const bc = new BillingClient({
+      apiEndpoint: config.billingAPI,
+      accessToken: '__ACCESS_TOKEN__',
+      logger: pino({level: 'silent'}),
+    });
+    const response = await bc.getCurrencyRates({
+      rangeStart: moment('2018-01-01').toDate(),
+      rangeStop: moment('2019-01-01').toDate(),
+    });
+
+    expect(response.length).toEqual(3);
+    expect(response[0].code).toEqual('GBP');
+    expect(response[0].rate).toEqual(1.0);
+    expect(response[0].validFrom.toString()).toContain('Jan 01 2017');
+    expect(response[1].code).toEqual('USD');
+    expect(response[1].rate).toEqual(0.8);
+    expect(response[1].validFrom.toString()).toContain('Jan 01 2017');
+    expect(response[2].code).toEqual('USD');
+    expect(response[2].rate).toEqual(0.9);
+    expect(response[2].validFrom.toString()).toContain('Jun 01 2018');
+  });
+
+  it('should return VAT rates', async () => {
+    // tslint:disable:max-line-length
+    nock(config.billingAPI)
+      .get(`/vat_rates?range_start=2018-01-01&range_stop=2019-01-01`)
+      .reply(200, `[
+        {
+          "code": "Standard",
+          "rate": 0.2,
+          "valid_from": "2017-01-01"
+        },
+        {
+          "code": "Reduced",
+          "rate": 0.05,
+          "valid_from": "2017-01-01"
+        },
+        {
+          "code": "Zero",
+          "rate": 0.0,
+          "valid_from": "2018-06-01"
+        }
+      ]`);
+      // tslint:enable:max-line-length
+
+    const bc = new BillingClient({
+      apiEndpoint: config.billingAPI,
+      accessToken: '__ACCESS_TOKEN__',
+      logger: pino({level: 'silent'}),
+    });
+    const response = await bc.getVATRates({
+      rangeStart: moment('2018-01-01').toDate(),
+      rangeStop: moment('2019-01-01').toDate(),
+    });
+
+    expect(response.length).toEqual(3);
+    expect(response[0].code).toEqual('Standard');
+    expect(response[0].rate).toEqual(0.2);
+    expect(response[0].validFrom.toString()).toContain('Jan 01 2017');
+    expect(response[1].code).toEqual('Reduced');
+    expect(response[1].rate).toEqual(0.05);
+    expect(response[1].validFrom.toString()).toContain('Jan 01 2017');
+    expect(response[2].code).toEqual('Zero');
+    expect(response[2].rate).toEqual(0.0);
+    expect(response[2].validFrom.toString()).toContain('Jun 01 2018');
   });
 
   it('should throw an error when API response with 500', async () => {
