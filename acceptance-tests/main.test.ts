@@ -1,3 +1,4 @@
+import pino from 'pino';
 import {describe,it,before,after} from 'mocha';
 import expect from 'expect';
 import axios from 'axios';
@@ -56,19 +57,28 @@ describe('paas-admin', function () {
     before(async () => {
       cfClient = new CloudFoundryClient({
         apiEndpoint: CF_API_BASE_URL,
+        logger: pino({level: 'silent'}),
       });
 
       const cfInfo = await cfClient.info();
       const accessToken = await authenticateUser(cfInfo.authorization_endpoint, { username: ADMIN_USERNAME, password: ADMIN_PASSWORD });
 
       uaaClient =  new UAAClient({ apiEndpoint: cfInfo.authorization_endpoint, accessToken: accessToken });
-      cfClient = new CloudFoundryClient({ apiEndpoint: CF_API_BASE_URL, accessToken: accessToken });
+      cfClient = new CloudFoundryClient({
+        apiEndpoint: CF_API_BASE_URL,
+        accessToken: accessToken,
+        logger: pino({level: 'silent'}),
+      });
 
       const uaaUser = await uaaClient.createUser(managerUserEmail, managerUserPassword);
       await cfClient.createUser(uaaUser.id);
 
       // Accept all pending documents:
-      const accountsClient = new AccountsClient({ apiEndpoint: ACCOUNTS_API_BASE_URL, secret: ACCOUNTS_PASSWORD });
+      const accountsClient = new AccountsClient({
+        apiEndpoint: ACCOUNTS_API_BASE_URL,
+        secret: ACCOUNTS_PASSWORD,
+        logger: pino({level: 'silent'}),
+      });
       const pendingDocuments = await accountsClient.getPendingDocumentsForUserUUID(uaaUser.id);
       await Promise.all(pendingDocuments.map(d => accountsClient.createAgreement(d.name, uaaUser.id)));
 
