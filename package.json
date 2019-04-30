@@ -43,7 +43,7 @@
     "@types/passport-oauth2": "1.4.8",
     "@types/pino": "4.16.1",
     "@types/qs": "6.5.3",
-    "@types/route-parser": "0.1.1",
+    "@types/route-parser": "0.1.2",
     "@types/source-map-support": "0.5.0",
     "@types/supertest": "^2.0.5",
     "@types/uuid": "3.4.4",
