@@ -169,6 +169,32 @@ function mockBilling(app: express.Application, _config: { stubApiPort: string, a
         }
       }]))
   });
+  app.get('/currency_rates', (_req, res) => {
+    res.send(JSON.stringify([{
+      code: "GBP",
+      valid_from: "2001-01-01T00:00:00+00:00",
+      rate: 1.0,
+    }, {
+      code: "USD",
+      valid_from: "2001-01-01T00:00:00+00:00",
+      rate: 0.8,
+    }]))
+  });
+  app.get('/vat_rates', (_req, res) => {
+    res.send(JSON.stringify([{
+      code: "Standard",
+      valid_from: "2001-01-01T00:00:00+00:00",
+      rate: 0.2,
+    }, {
+      code: "Reduced",
+      valid_from: "2001-01-01T00:00:00+00:00",
+      rate: 0.05,
+    }, {
+      code: "Zero",
+      valid_from: "2001-01-01T00:00:00+00:00",
+      rate: 0.0,
+    }]))
+  });
 };
 
 export default mockBilling;

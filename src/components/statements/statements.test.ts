@@ -58,6 +58,8 @@ describe('statements test suite', () => {
   //tslint:disable:max-line-length
   nock(config.billingAPI)
     .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, `[]`);
+  nock(config.billingAPI)
+    .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01').reply(200, `[]`);
   //tslint:enable:max-line-length
 
   it('should require a valid rangeStart param', async () => {
@@ -77,6 +79,11 @@ describe('statements test suite', () => {
   });
 
   it('should prepare statement to download', async () => {
+    //tslint:disable:max-line-length
+    nock(config.billingAPI)
+      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01').reply(200, `[]`);
+    //tslint:enable:max-line-length
+
     const response = await statement.downloadCSV(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       rangeStart: '2018-01-01',
@@ -91,6 +98,8 @@ describe('statements test suite', () => {
     // tslint:disable:max-line-length
     nock(config.billingAPI)
       .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, billingData.billableEvents);
+    nock(config.billingAPI)
+      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01').reply(200, billingData.currencyRates);
     // tslint:enable:max-line-length
 
     const response = await statement.viewStatement(ctx, {
@@ -108,6 +117,8 @@ describe('statements test suite', () => {
     // tslint:disable:max-line-length
     nock(config.billingAPI)
       .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, billingData.billableEvents);
+    nock(config.billingAPI)
+      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01').reply(200, billingData.currencyRates);
     // tslint:enable:max-line-length
 
     const response = await statement.viewStatement(ctx, {
@@ -126,6 +137,42 @@ describe('statements test suite', () => {
     expect(response.body).toContain('All Services</option>');
     expect(response.body).toContain('app</option>');
     expect(response.body).toContain('staging</option>');
+  });
+
+  it('does not outputs USD rate if not known', async () => {
+    // tslint:disable:max-line-length
+    nock(config.billingAPI)
+      .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, billingData.billableEvents);
+    nock(config.billingAPI)
+      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01').reply(200, []);
+    // tslint:enable:max-line-length
+
+    const response = await statement.viewStatement(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: '2018-01-01',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
+      service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+    });
+
+    expect(response.body).not.toContain('Exchange rate');
+  });
+
+  it('outputs USD rate if set', async () => {
+    // tslint:disable:max-line-length
+    nock(config.billingAPI)
+      .get('/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20').reply(200, billingData.billableEvents);
+    nock(config.billingAPI)
+      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01').reply(200, [{code: 'USD', rate: 0.8, valid_from: '2017-01-01'}]);
+    // tslint:enable:max-line-length
+
+    const response = await statement.viewStatement(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: '2018-01-01',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
+      service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+    });
+
+    expect(response.body).toContain('&pound;1 to &dollar;1.25');
   });
 
   it('should throw an error due to selecting middle of the month', async () => {

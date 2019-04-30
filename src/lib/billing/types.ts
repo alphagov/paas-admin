@@ -54,7 +54,6 @@ interface IPriceComponent {
   readonly VATCode: string;
   readonly VATRate: number;
   readonly currencyCode: string;
-  readonly currencyRate: number;
   readonly incVAT: number;
   readonly exVAT: number;
 }
@@ -122,4 +121,16 @@ interface IPriceComponentResponse {
   readonly currency_rate: string;
   readonly inc_vat: string;
   readonly ex_vat: string;
+}
+
+interface IRateResponse {
+  readonly code: string;
+  readonly valid_from: string;
+  readonly rate: string;
+}
+
+interface IRate {
+  readonly code: string;
+  readonly validFrom: Date;
+  readonly rate: number;
 }

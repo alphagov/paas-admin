@@ -191,7 +191,6 @@ describe('calculator test suite', () => {
                 "vat_rate": "0.2",
                 "vat_code": "Standard",
                 "currency_code": "GBP",
-                "currency_rate": "1",
                 "inc_vat": "0.012",
                 "ex_vat": "0.01"
               }
@@ -270,7 +269,6 @@ describe('calculator test suite', () => {
                 "vat_rate": "0.2",
                 "vat_code": "Standard",
                 "currency_code": "GBP",
-                "currency_rate": "1",
                 "inc_vat": "0.012",
                 "ex_vat": "0.01"
               }
@@ -302,7 +300,6 @@ describe('calculator test suite', () => {
                 "vat_rate": "0.2",
                 "vat_code": "Standard",
                 "currency_code": "GBP",
-                "currency_rate": "1",
                 "inc_vat": "0.012",
                 "ex_vat": "0.01"
               }
@@ -334,7 +331,6 @@ describe('calculator test suite', () => {
                 "vat_rate": "0.2",
                 "vat_code": "Standard",
                 "currency_code": "GBP",
-                "currency_rate": "1",
                 "inc_vat": "0.012",
                 "ex_vat": "0.01"
               }

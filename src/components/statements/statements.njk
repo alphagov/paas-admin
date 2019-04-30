@@ -101,9 +101,11 @@
           <td td class="paas-month-price"><small>&pound;{{ (totals.incVAT * adminFee) | currency(2) }}</small></td>
         </tr>
         <tr class="paas-month-total-information">
-          <td class="govuk-table__cell">
-            Exchange rate: &pound;1 to &dollar;{{(1 -  usdExchangeRate + 1) | currency(2)}}
-          </td>
+          {% if usdCurrencyRate %}
+            <td class="govuk-table__cell">
+              Exchange rate: &pound;1 to &dollar;{{1.0 / usdCurrencyRate.rate | currency(2)}}
+            </td>
+          {% endif %}
           <td class="paas-month-price">ex VAT</td>
           <td td class="paas-month-price">inc VAT at 20&percnt;</td>
         </tr>
