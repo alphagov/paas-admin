@@ -114,7 +114,7 @@
     "qs": "6.7.0",
     "route-parser": "0.0.5",
     "showdown": "1.8.6",
-    "source-map-support": "0.5.8",
+    "source-map-support": "0.5.12",
     "tslib": "1.9.3",
     "uuid": "3.3.2"
   },
