@@ -1,5 +1,6 @@
 const path = require('path');
 const CompressionPlugin = require('compression-webpack-plugin');
+const OptimizeCssnanoPlugin = require('@intervolga/optimize-cssnano-plugin');
 const webpack = require('webpack');
 const nodeModules = require('webpack-node-externals');
 const enableServer = require('./server.config');
@@ -80,7 +81,6 @@ let cfg = {
           {
             loader: 'css-loader',
             options: {
-              minimize: NODE_ENV === 'production',
               sourceMap: true
             }
           },
@@ -140,6 +140,19 @@ if (process.env.ENABLE_WATCH === 'true') {
 
 if (process.env.ENABLE_SERVER === 'true') {
   cfg = enableServer(cfg);
+}
+
+if (NODE_ENV === "production") {
+  cfg.plugins.push(new OptimizeCssnanoPlugin({
+    sourceMap: false,
+    cssnanoOptions: {
+      preset: ['default', {
+        discardComments: {
+          removeAll: true,
+        },
+      }],
+    },
+  }));
 }
 
 cfg.externals.push(nodeModules({whitelist: []}));
