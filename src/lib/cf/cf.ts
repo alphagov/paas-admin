@@ -241,6 +241,12 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
+  public async cflinuxfs2StackGUID(): Promise<string | undefined> {
+    const response = await this.stacks();
+    const cflinuxfs2 = response.filter((stack: cf.IStack) => stack.entity.name === 'cflinuxfs2');
+    return cflinuxfs2.length > 0 ? cflinuxfs2[0].metadata.guid : undefined;
+  }
+
   public async setOrganizationRole(
     organizationGUID: string,
     userGUID: string,
