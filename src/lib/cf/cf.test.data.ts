@@ -504,6 +504,144 @@ export const appSummary = `{
   "ports": null
 }`;
 
+export const dockerApp = `{
+  "metadata": {
+    "guid": "646f636b-6572-0d0a-8697-86641668c123",
+    "url": "/v2/apps/15b3885d-0351-4b9b-8697-86641668c123",
+    "created_at": "2016-06-08T16:41:44Z",
+    "updated_at": "2016-06-08T16:41:44Z"
+  },
+  "entity": {
+    "name": "name-1337",
+    "production": false,
+    "space_guid": "7846301e-c84c-4ba9-9c6a-2dfdae948d52",
+    "stack_guid": "bb9ca94f-b456-4ebd-ab09-eb7987cce728",
+    "buildpack": null,
+    "detected_buildpack": null,
+    "detected_buildpack_guid": null,
+    "environment_json": null,
+    "memory": 1024,
+    "instances": 1,
+    "disk_quota": 1024,
+    "state": "STOPPED",
+    "version": "df19a7ea-2003-4ecb-a909-e630e43f2719",
+    "command": null,
+    "console": false,
+    "debug": null,
+    "staging_task_id": null,
+    "package_state": "PENDING",
+    "health_check_http_endpoint": "",
+    "health_check_type": "port",
+    "health_check_timeout": null,
+    "staging_failed_reason": null,
+    "staging_failed_description": null,
+    "diego": false,
+    "docker_image": "governmentpaas/is-cool",
+    "docker_credentials": {
+      "username": null,
+      "password": null
+    },
+    "package_updated_at": "2016-06-08T16:41:45Z",
+    "detected_start_command": "",
+    "enable_ssh": true,
+    "ports": null,
+    "space_url": "/v2/spaces/7846301e-c84c-4ba9-9c6a-2dfdae948d52",
+    "stack_url": "/v2/stacks/bb9ca94f-b456-4ebd-ab09-eb7987cce728",
+    "routes_url": "/v2/apps/15b3885d-0351-4b9b-8697-86641668c123/routes",
+    "events_url": "/v2/apps/15b3885d-0351-4b9b-8697-86641668c123/events",
+    "service_bindings_url": "/v2/apps/15b3885d-0351-4b9b-8697-86641668c123/service_bindings",
+    "route_mappings_url": "/v2/apps/15b3885d-0351-4b9b-8697-86641668c123/route_mappings"
+  }
+}`;
+
+export const dockerAppSummary = `{
+  "guid": "646f636b-6572-0d0a-8697-86641668c123",
+  "name": "name-1337",
+  "routes": [
+    {
+      "guid": "2d642293-7448-45c6-a864-937c77b9c09a",
+      "host": "host-1",
+      "port": null,
+      "path": "",
+      "domain": {
+        "guid": "02e200d3-5b18-497b-aafd-17fc3bece05f",
+        "name": "domain-1.example.com"
+      }
+    }
+  ],
+  "running_instances": 0,
+  "services": [
+    {
+      "guid": "307f8c47-7796-4d90-bd40-6a56764e37b3",
+      "name": "name-82",
+      "bound_app_count": 1,
+      "last_operation": null,
+      "dashboard_url": null,
+      "service_plan": {
+        "guid": "a7229730-4c4a-418c-a449-9d9f1f2fb3c2",
+        "name": "name-83",
+        "service": {
+          "guid": "724a9245-900e-47cb-b924-0a7a98dea977",
+          "label": "label-1",
+          "provider": null,
+          "version": null
+        }
+      }
+    }
+  ],
+  "available_domains": [
+    {
+      "guid": "02e200d3-5b18-497b-aafd-17fc3bece05f",
+      "name": "domain-1.example.com",
+      "owning_organization_guid": "58a46adc-2e73-4f9c-b7ba-5e72e875cd18"
+    },
+    {
+      "guid": "f067af33-4141-4e69-bbd5-d7b3e01140fa",
+      "name": "customer-app-domain1.com",
+      "router_group_guid": null,
+      "router_group_type": null
+    },
+    {
+      "guid": "ccdb1696-d3e3-4786-a9c1-11bc64b2090a",
+      "name": "customer-app-domain2.com",
+      "router_group_guid": null,
+      "router_group_type": null
+    }
+  ],
+  "production": false,
+  "space_guid": "1053174d-eb79-4f16-bf82-9f83a52d6e84",
+  "stack_guid": "bb9ca94f-b456-4ebd-ab09-eb7987cce728",
+  "buildpack": null,
+  "detected_buildpack": null,
+  "detected_buildpack_guid": null,
+  "environment_json": null,
+  "memory": 1024,
+  "instances": 2,
+  "disk_quota": 4096,
+  "state": "STOPPED",
+  "version": "d457b51a-d7cb-494d-b39e-3171ec75bd60",
+  "command": null,
+  "console": false,
+  "debug": null,
+  "staging_task_id": null,
+  "package_state": "PENDING",
+  "health_check_http_endpoint": "",
+  "health_check_type": "port",
+  "health_check_timeout": null,
+  "staging_failed_reason": null,
+  "staging_failed_description": null,
+  "diego": false,
+  "docker_image": "governmentpaas/is-cool",
+  "docker_credentials": {
+   "username": null,
+   "password": null
+  },
+  "package_updated_at": "2016-06-08T16:41:22Z",
+  "detected_start_command": "",
+  "enable_ssh": true,
+  "ports": null
+}`;
+
 export const services = `{
   "total_results": 1,
   "total_pages": 1,
