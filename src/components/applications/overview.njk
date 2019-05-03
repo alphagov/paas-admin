@@ -43,10 +43,10 @@
           ],
           [
             {
-              text: 'Stack'
+              text: ('Docker Image' if application.entity.docker_image else 'Stack')
             },
             {
-              text: stack.entity.name
+              text: (application.entity.docker_image or stack.entity.name)
             }
           ],
           [
