@@ -44,6 +44,8 @@ nock('https://example.com/api').persist()
   .delete('/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/users/uaa-id-236?recursive=true').reply(204, {})
   .put('/v2/spaces/594c1fa9-caed-454b-9ed8-643a093ff91d/developer/uaa-id-381').reply(201, data.userRoles)
   .delete('/v2/spaces/594c1fa9-caed-454b-9ed8-643a093ff91d/developer/uaa-id-381').reply(204, {})
+  .get('/v2/stacks').reply(201, data.stacks)
+  .get('/v2/stacks/bb9ca94f-b456-4ebd-ab09-eb7987cce728').reply(204, data.stack)
   .get('/v2/failure/404').reply(404, `{"error": "FAKE_404"}`)
   .get('/v2/failure/500').reply(500, `FAKE_500`)
   .get('/v2/test').reply(200, `{"next_url":"/v2/test?page=2","resources":["a"]}`)
@@ -347,5 +349,21 @@ describe('lib/cf test suite', () => {
     const service = await client.userServiceInstance('e9358711-0ad9-4f2a-b3dc-289d47c17c87');
 
     expect(service.entity.name).toEqual('name-1700');
+  });
+
+  test('should obtain list of stacks', async () => {
+    const client = new CloudFoundryClient(config);
+    const stacks = await client.stacks();
+
+    expect(stacks.length > 0).toBeTruthy();
+    expect(stacks[0].entity.name).toEqual('cflinuxfs2');
+    expect(stacks[1].entity.name).toEqual('cflinuxfs3');
+  });
+
+  test('should obtain a stack', async () => {
+    const client = new CloudFoundryClient(config);
+    const stack = await client.stack('bb9ca94f-b456-4ebd-ab09-eb7987cce728');
+
+    expect(stack.entity.name).toEqual('cflinuxfs3');
   });
 });

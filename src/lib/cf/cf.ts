@@ -231,6 +231,16 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
+  public async stacks(): Promise<ReadonlyArray<cf.IStack>> {
+    const response = await this.request('get', `/v2/stacks`);
+    return this.allResources(response);
+  }
+
+  public async stack(stackGUID: string): Promise<cf.IStack> {
+    const response = await this.request('get', `/v2/stacks/${stackGUID}`);
+    return response.data;
+  }
+
   public async setOrganizationRole(
     organizationGUID: string,
     userGUID: string,

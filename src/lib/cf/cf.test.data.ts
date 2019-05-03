@@ -223,7 +223,7 @@ export const spaceSummary = `{
       "name": "name-1388",
       "production": false,
       "space_guid": "50ae42f6-346d-4eca-9e97-f8c9e04d5fbe",
-      "stack_guid": "8d4152c3-d2bb-44ac-9036-b2a8c95f24ef",
+      "stack_guid": "bb9ca94f-b456-4ebd-ab09-eb7987cce728",
       "buildpack": null,
       "detected_buildpack": null,
       "detected_buildpack_guid": null,
@@ -327,7 +327,7 @@ export const apps = `{
         "name": "name-2131",
         "production": false,
         "space_guid": "be1f9c1d-e629-488e-a560-a35b545f0ad7",
-        "stack_guid": "ab968358-43eb-4a5b-80e7-351f194028f7",
+        "stack_guid": "bb9ca94f-b456-4ebd-ab09-eb7987cce728",
         "buildpack": null,
         "detected_buildpack": null,
         "environment_json": null,
@@ -356,7 +356,7 @@ export const apps = `{
         "enable_ssh": true,
         "ports": null,
         "space_url": "/v2/spaces/be1f9c1d-e629-488e-a560-a35b545f0ad7",
-        "stack_url": "/v2/stacks/ab968358-43eb-4a5b-80e7-351f194028f7",
+        "stack_url": "/v2/stacks/bb9ca94f-b456-4ebd-ab09-eb7987cce728",
         "routes_url": "/v2/apps/efd23111-72d1-481e-8168-d5395e0ea5f0/routes",
         "events_url": "/v2/apps/efd23111-72d1-481e-8168-d5395e0ea5f0/events",
         "service_bindings_url": "/v2/apps/efd23111-72d1-481e-8168-d5395e0ea5f0/service_bindings",
@@ -377,7 +377,7 @@ export const app = `{
     "name": "name-2401",
     "production": false,
     "space_guid": "7846301e-c84c-4ba9-9c6a-2dfdae948d52",
-    "stack_guid": "7e03186d-a438-4285-b3b7-c426532e1df2",
+    "stack_guid": "bb9ca94f-b456-4ebd-ab09-eb7987cce728",
     "buildpack": null,
     "detected_buildpack": null,
     "detected_buildpack_guid": null,
@@ -408,7 +408,7 @@ export const app = `{
     "enable_ssh": true,
     "ports": null,
     "space_url": "/v2/spaces/7846301e-c84c-4ba9-9c6a-2dfdae948d52",
-    "stack_url": "/v2/stacks/7e03186d-a438-4285-b3b7-c426532e1df2",
+    "stack_url": "/v2/stacks/bb9ca94f-b456-4ebd-ab09-eb7987cce728",
     "routes_url": "/v2/apps/15b3885d-0351-4b9b-8697-86641668c123/routes",
     "events_url": "/v2/apps/15b3885d-0351-4b9b-8697-86641668c123/events",
     "service_bindings_url": "/v2/apps/15b3885d-0351-4b9b-8697-86641668c123/service_bindings",
@@ -472,7 +472,7 @@ export const appSummary = `{
   ],
   "production": false,
   "space_guid": "1053174d-eb79-4f16-bf82-9f83a52d6e84",
-  "stack_guid": "aff73b55-7767-4928-b0ce-502cca863be0",
+  "stack_guid": "bb9ca94f-b456-4ebd-ab09-eb7987cce728",
   "buildpack": null,
   "detected_buildpack": null,
   "detected_buildpack_guid": null,
@@ -958,5 +958,51 @@ export const userServices = `{
       }
     }
   ]
+}`;
+
+export const stacks = `{
+  "total_results": 2,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "dd63d39a-85f8-48ef-bb73-89097192cfcb",
+        "url": "/v2/stacks/dd63d39a-85f8-48ef-bb73-89097192cfcb",
+        "created_at": "2019-04-08T15:15:16Z",
+        "updated_at": "2019-04-08T15:15:16Z"
+      },
+      "entity": {
+        "name": "cflinuxfs2",
+        "description": "Cloud Foundry Linux-based filesystem (Ubuntu 14.04)"
+      }
+    },
+    {
+      "metadata": {
+        "guid": "bb9ca94f-b456-4ebd-ab09-eb7987cce728",
+        "url": "/v2/stacks/bb9ca94f-b456-4ebd-ab09-eb7987cce728",
+        "created_at": "2019-04-08T15:15:16Z",
+        "updated_at": "2019-04-08T15:15:16Z"
+      },
+      "entity": {
+        "name": "cflinuxfs3",
+        "description": "Cloud Foundry Linux-based filesystem (Ubuntu 18.04)"
+      }
+    }
+  ]
+}`;
+
+export const stack = `{
+  "metadata": {
+    "guid": "bb9ca94f-b456-4ebd-ab09-eb7987cce728",
+    "url": "/v2/stacks/bb9ca94f-b456-4ebd-ab09-eb7987cce728",
+    "created_at": "2019-04-08T15:15:16Z",
+    "updated_at": "2019-04-08T15:15:16Z"
+  },
+  "entity": {
+    "name": "cflinuxfs3",
+    "description": "Cloud Foundry Linux-based filesystem (Ubuntu 18.04)"
+  }
 }`;
 // tslint:enable:max-line-length
