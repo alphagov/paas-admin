@@ -336,3 +336,11 @@ export interface IUserServices {
   };
   readonly metadata: IMetadata;
 }
+
+export interface IStack {
+  readonly entity: {
+    readonly name: string;
+    readonly description: string;
+  };
+  readonly metadata: IMetadata;
+}
