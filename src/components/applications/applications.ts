@@ -42,6 +42,8 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
     metadata: application.metadata,
   };
 
+  const stack = await cf.stack(application.entity.stack_guid);
+
   return {
     body: applicationOverviewTemplate.render({
       application: summarisedApplication,
@@ -49,6 +51,7 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
       linkTo: ctx.linkTo,
       csrf: ctx.csrf,
       space,
+      stack,
       organization,
       isAdmin,
       isBillingManager,
