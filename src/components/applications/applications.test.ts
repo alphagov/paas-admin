@@ -53,5 +53,7 @@ describe('applications test suite', () => {
     });
 
     expect(response.body).toMatch(/cflinuxfs3/);
+    expect(response.body).toMatch(/Stack/);
+    expect(response.body).not.toMatch(/Docker Image/);
   });
 });
