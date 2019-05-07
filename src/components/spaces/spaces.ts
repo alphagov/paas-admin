@@ -32,12 +32,13 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
 
-  const [isManager, isBillingManager, space, applications, organization] = await Promise.all([
+  const [isManager, isBillingManager, space, applications, organization, cflinuxfs2StackGUID] = await Promise.all([
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
     cf.space(params.spaceGUID),
     cf.applications(params.spaceGUID),
     cf.organization(params.organizationGUID),
+    cf.cflinuxfs2StackGUID(),
   ]);
 
   const summarisedApplications = await Promise.all(applications.map(async (application: IApplication) => {
@@ -54,14 +55,19 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
     };
   }));
 
+  /* istanbul ignore next */
+  // tslint:disable:max-line-length
+  const cflinuxfs2UpgradeNeeded = cflinuxfs2StackGUID && summarisedApplications.filter((app: IApplication) => app.entity.stack_guid === cflinuxfs2StackGUID).length > 0;
   return {
     body: spaceApplicationsTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       csrf: ctx.csrf,
       applications: summarisedApplications,
+      cflinuxfs2UpgradeNeeded,
       organization,
       space,
+      cflinuxfs2StackGUID,
       isAdmin,
       isBillingManager,
       isManager,
@@ -135,12 +141,13 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
 
-  const [isManager, isBillingManager, spaces, organization, users] = await Promise.all([
+  const [isManager, isBillingManager, spaces, organization, users, cflinuxfs2StackGUID] = await Promise.all([
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
     cf.spaces(params.organizationGUID),
     cf.organization(params.organizationGUID),
     cf.usersForOrganization(params.organizationGUID),
+    cf.cflinuxfs2StackGUID(),
   ]);
 
   const managers = users.filter((user: IOrganizationUserRoles) =>
@@ -154,12 +161,16 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
           cf.spaceQuota(space.entity.space_quota_definition_guid) : Promise.resolve(null),
     ]);
 
+    /* istanbul ignore next */
+    // tslint:disable:max-line-length
+    const cflinuxfs2UpgradeNeededInSpace = cflinuxfs2StackGUID && applications.some((app: IApplication) => app.entity.stack_guid === cflinuxfs2StackGUID);
     return {
       entity: {
         ...space.entity,
         apps: applications,
         running_apps: applications.filter((app: IApplication) => app.entity.state.toLowerCase() !== 'stopped'),
         stopped_apps: applications.filter((app: IApplication) => app.entity.state.toLowerCase() === 'stopped'),
+        cflinuxfs2UpgradeNeeded: cflinuxfs2UpgradeNeededInSpace,
         memory_allocated: applications.reduce((allocated: number, app: IApplication) =>
           allocated + (app.entity.memory * app.entity.instances), 0),
         quota,
@@ -181,6 +192,8 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     metadata: organization.metadata,
   };
 
+  const cflinuxfs2UpgradeNeeded = summarisedSpaces.some((s: any) => s.entity.cflinuxfs2UpgradeNeeded);
+
   return {
     body: spacesTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -194,6 +207,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
       isBillingManager,
       isManager,
       location: ctx.app.location,
+      cflinuxfs2UpgradeNeeded,
     }),
   };
 }

@@ -366,4 +366,21 @@ describe('lib/cf test suite', () => {
 
     expect(stack.entity.name).toEqual('cflinuxfs3');
   });
+
+  test('should get the GUID of cflinuxfs2', async () => {
+    const client = new CloudFoundryClient(config);
+    const cflinuxfs2StackGUID = await client.cflinuxfs2StackGUID();
+
+    expect(cflinuxfs2StackGUID).toEqual('dd63d39a-85f8-48ef-bb73-89097192cfcb');
+  });
+
+  test('should return undefined when cflinuxfs2 is not present', async () => {
+    nock.cleanAll();
+    nock('https://example.com/api').get('/v2/stacks').reply(200, data.stacksWithoutCflinuxfs2);
+
+    const client = new CloudFoundryClient(config);
+    const cflinuxfs2StackGUID = await client.cflinuxfs2StackGUID();
+
+    expect(cflinuxfs2StackGUID).toEqual(undefined);
+  });
 });

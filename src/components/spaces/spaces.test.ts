@@ -27,6 +27,7 @@ nock('https://example.com/api').persist()
   .get('/v2/service_plans/fcf57f7f-3c51-49b2-b252-dc24e0f7dcab').reply(200, data.servicePlan)
   .get('/v2/services/775d0046-7505-40a4-bfad-ca472485e332').reply(200, data.service)
   .get('/v2/user_provided_service_instances?q=space_guid:bc8d3381-390d-4bd7-8c71-25309900a2e3').reply(200, data.services)
+  .get('/v2/stacks').reply(200, data.spaces)
   .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3').reply(200, data.space)
   .get('/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019').reply(200, data.spaceQuota);
 // tslint:enable:max-line-length

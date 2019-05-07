@@ -28,6 +28,19 @@
     padding-left: govuk-spacing(3) - 1px;
   }
 
+  &.space-warning {
+    border-color: #b10e1e;
+
+    .space-warning-wrapper {
+      clear: both;
+      padding: 16px 0 0 15px;
+
+      .govuk-warning-text {
+        margin-bottom: 0;
+      }
+    }
+  }
+
   h4 {
     @include govuk-font($size: 16);;
   }

@@ -55,10 +55,31 @@
     </div>
   </details>
 
+  {% if cflinuxfs2UpgradeNeeded %}
+    <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="error-summary">
+      <h2 class="govuk-error-summary__title" id="error-summary-title">
+        Application(s) need upgrading or they may go offline
+      </h2>
+      <div class="govuk-error-summary__body">
+        <p>Some spaces below in this space are using the <code>cflinuxfs2</code> stack, which is now deprecated. For security reasons we will soon be force-upgrading apps to <code>cflinuxfs3</code>. It is possible that this will break your application. You can prevent this happening by <a href="https://docs.cloud.service.gov.uk/guidance.html#upgrading-from-cflinuxfs2">performing the upgrade yourself</a>.</p>
+        <p>Applications in the following spaces are affected:</p>
+        <ul class="govuk-list govuk-error-summary__list">
+          {% for space in spaces %}
+            {% if space.entity.cflinuxfs2UpgradeNeeded %}
+              <li>
+                <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" color="#b10e1e">{{ space.entity.name }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+
   <div class="govuk-grid-row space-wrapper">
   {% for space in spaces %}
     <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" id="space-{{ space.metadata.guid }}" class="govuk-link">
-      <section class="govuk-grid-row space">
+      <section class="govuk-grid-row space {% if space.entity.cflinuxfs2UpgradeNeeded %} space-warning {% endif %}">
         <div class="govuk-grid-column-one-third">
           <h3>
             <span class="paas-caption">Space:</span>
@@ -96,6 +117,18 @@
             </p>
           </div>
         </div>
+
+        {% if space.entity.cflinuxfs2UpgradeNeeded %}
+          <div class="space-warning-wrapper">
+            <div class="govuk-warning-text">
+              <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+              <strong class="govuk-warning-text__text">
+                <span class="govuk-warning-text__assistive">Warning</span>
+                Application(s) in this space need upgrading or they may go offline soon
+              </strong>
+            </div>
+          </div>
+        {% endif %}
       </section>
     </a>
   {% endfor %}

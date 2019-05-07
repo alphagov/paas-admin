@@ -20,6 +20,27 @@
 
   {% if applications.length > 0 %}
 
+    {% if cflinuxfs2UpgradeNeeded %}
+      <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="error-summary">
+        <h2 class="govuk-error-summary__title" id="error-summary-title">
+          Application(s) need upgrading or they may go offline
+        </h2>
+        <div class="govuk-error-summary__body">
+          <p>Some applications in this space are using the <code>cflinuxfs2</code> stack, which is now deprecated. For security reasons we will soon be force-upgrading apps to <code>cflinuxfs3</code>. It is possible that this will break your application. You can prevent this happening by <a href="https://docs.cloud.service.gov.uk/guidance.html#upgrading-from-cflinuxfs2">performing the upgrade yourself</a>.</p>
+          <p>The following applications are affected:</p>
+          <ul class="govuk-list govuk-error-summary__list">
+            {% for application in applications %}
+              {% if application.entity.stack_guid === cflinuxfs2StackGUID %}
+                <li>
+                  <a href="{{ linkTo('admin.organizations.spaces.applications.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid}) }}" color="#b10e1e">{{ application.entity.name }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endif %}
+
     <table class="govuk-table space-overview">
       <thead class="govuk-table__head">
         <tr class="govuk-table__row">
