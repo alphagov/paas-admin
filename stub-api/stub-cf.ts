@@ -45,6 +45,8 @@ function mockCF(app: express.Application, config: {stubApiPort: string, adminPor
   app.get('/v2/users/uaa-id-253/spaces'              , (_, res) => res.send(testData.spaces));
   app.get('/v2/organizations/:guid/user_roles'       , (_, res) => res.send(testData.userRolesForOrg));
   app.get('/v2/spaces/:guid/user_roles'              , (_, res) => res.send(testData.userRolesForSpace));
+  app.get('/v2/stacks'                               , (_, res) => res.send(testData.stacks));
+  app.get('/v2/stacks/:guid'                         , (_, res) => res.send(testData.stack));
 };
 
 export default mockCF;
