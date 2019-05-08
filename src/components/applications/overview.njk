@@ -43,23 +43,8 @@
             {
               text: application.entity.name
             }
-          ],
-          [
-            {
-              text: 'Detected Buildpack'
-            },
-            {
-              text: application.entity.detected_buildpack
-            }
-          ],
-          [
-            {
-              text: ('Docker Image' if application.entity.docker_image else 'Stack')
-            },
-            {
-              text: (application.entity.docker_image or stack.entity.name)
-            }
-          ],
+          ]
+        ].concat(actualRuntimeInfo).concat([
           [
             {
               text: 'Instances'
@@ -116,7 +101,7 @@
               text: application.entity.ports
             }
           ]
-        ]
+        ])
       }) }}
 
       <h4 class="govuk-heading-s">On the commandline</h4>

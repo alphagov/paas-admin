@@ -59,6 +59,7 @@ describe('applications test suite', () => {
 
     expect(response.body).toMatch(/Stack/);
     expect(response.body).toMatch(/cflinuxfs3/);
+    expect(response.body).toMatch(/Detected Buildpack/);
     expect(response.body).not.toMatch(/Docker Image/);
     expect(response.body).not.toMatch(/This application needs upgrading or it may go offline/);
   });
@@ -72,6 +73,7 @@ describe('applications test suite', () => {
 
     expect(response.body).not.toMatch(/Stack/);
     expect(response.body).not.toMatch(/cflinuxfs3/);
+    expect(response.body).not.toMatch(/Detected Buildpack/);
     expect(response.body).toMatch(/Docker Image/);
     expect(response.body).toMatch(/governmentpaas\/is-cool/);
   });
