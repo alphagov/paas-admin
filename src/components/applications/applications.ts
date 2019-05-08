@@ -44,9 +44,29 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
 
   const stack = await cf.stack(application.entity.stack_guid);
 
+  const appRuntimeInfo = [
+    [
+      {text: 'Detected Buildpack'},
+      {text: summarisedApplication.entity.detected_buildpack},
+    ],
+    [
+      {text: 'Stack'},
+      {text: stack.entity.name},
+    ],
+  ];
+  const dockerRuntimeInfo = [
+    [
+      {text: 'Docker Image'},
+      {text: summarisedApplication.entity.docker_image},
+    ],
+  ];
+  const isDocker = summarisedApplication.entity.docker_image != null;
+  const actualRuntimeInfo = isDocker ? dockerRuntimeInfo : appRuntimeInfo;
+
   return {
     body: applicationOverviewTemplate.render({
       application: summarisedApplication,
+      actualRuntimeInfo,
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       csrf: ctx.csrf,
