@@ -3,15 +3,18 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: alpine
-    tag: "3.6"
+    repository: node
+    tag: 8-alpine
 inputs:
   - name: repo
 run:
+  dir: repo
   path: sh
   args:
-    - -e
+    - -ex
     - -c
     - |
-      echo "skipping, the tests are running on Travis: https://travis-ci.org/alphagov/paas-admin"
-
+      NODE_ENV=development npm install
+      npm run build
+      NODE_ENV=development npm test
+      NODE_ENV=production npm test
