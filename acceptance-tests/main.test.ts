@@ -94,11 +94,11 @@ describe('paas-admin', function () {
 
     before(async () => {
       await <any>browser.visit(PAAS_ADMIN_BASE_URL);
-      browser.assert.text('h1', 'Welcome!');
+      browser.assert.text('button', 'Continue');
 
       await <any>browser.fill('username', managerUserEmail);
       await <any>browser.fill('password', managerUserPassword);
-      await <any>browser.pressButton('Sign in');
+      await <any>browser.pressButton('Continue');
       browser.assert.text('a', /Sign out/);
     });
 
