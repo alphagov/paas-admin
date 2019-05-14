@@ -158,7 +158,12 @@
               <button type="submit" name="sort" value="plan" class="govuk-button filter-header {{ orderDirection if orderBy == 'plan' }}">Plan</button>
             </th>
             <th class="govuk-table__header" scope="col" style="text-align: right">Ex VAT</th>
-            <th class="govuk-table__header" scope="col" style="text-align: right">Inc VAT</th>
+            <th class="govuk-table__header" scope="col" style="text-align: right">
+              {% if orderBy == "amount" %}
+                <input type="hidden" name="order" value="{{ newOrder }}">
+              {% endif %}
+              <button type="submit" name="sort" value="amount" class="govuk-button filter-header {{ orderDirection if orderBy == 'amount' }}">Inc VAT</button>
+            </th>
           </tr>
         </thead>
         <tbody class="govuk-table__body">

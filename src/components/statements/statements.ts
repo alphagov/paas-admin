@@ -48,7 +48,7 @@ interface IResourceWithPlanName {
   readonly planName: string;
 }
 
-export type ISortableBy = 'name' | 'space' | 'plan';
+export type ISortableBy = 'name' | 'space' | 'plan' | 'amount';
 export type ISortableDirection = 'asc' | 'desc';
 
 export interface ISortable {
@@ -254,6 +254,9 @@ export function order(items: IResourceUsage[], sort: ISortable): IResourceUsage[
       break;
     case 'space':
       items.sort(sortBySpace);
+      break;
+    case 'amount':
+      items.sort((x, y) => x.price.incVAT - y.price.incVAT);
       break;
     case 'name':
     default:
