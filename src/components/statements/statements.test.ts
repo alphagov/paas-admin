@@ -202,11 +202,11 @@ describe('statements test suite', () => {
 
   it('should sort by different fields correctly', async () => {
     const a = [
-      {...resourceTemplate, resourceName: 'z', planName: 'Athens', spaceName: '3'},
-      {...resourceTemplate, resourceName: 'a', planName: 'Berlin', spaceName: '4'},
-      {...resourceTemplate, resourceName: 'b', planName: 'Dublin', spaceName: '1'},
-      {...resourceTemplate, resourceName: 'd', planName: 'Berlin', spaceName: '3'},
-      {...resourceTemplate, resourceName: 'd', planName: 'Cairo', spaceName: '2'},
+      {...resourceTemplate, resourceName: 'z', planName: 'Athens', spaceName: '3', price: { exVAT: 0, incVAT: 1}},
+      {...resourceTemplate, resourceName: 'a', planName: 'Berlin', spaceName: '4', price: { exVAT: 0, incVAT: 2}},
+      {...resourceTemplate, resourceName: 'b', planName: 'Dublin', spaceName: '1', price: { exVAT: 0, incVAT: 3}},
+      {...resourceTemplate, resourceName: 'd', planName: 'Berlin', spaceName: '3', price: { exVAT: 0, incVAT: 4}},
+      {...resourceTemplate, resourceName: 'd', planName: 'Cairo', spaceName: '2', price: { exVAT: 0, incVAT: 5}},
     ];
 
     const cases = [
@@ -216,6 +216,8 @@ describe('statements test suite', () => {
       {sort: 'name', order: 'desc', out: ['z', 'd', 'd', 'b', 'a']},
       {sort: 'space', order: 'desc', out: ['4', '3', '3', '2', '1']},
       {sort: 'plan', order: 'desc', out: ['Dublin', 'Cairo', 'Berlin', 'Berlin', 'Athens']},
+      {sort: 'amount', order: 'desc', out: [5, 4, 3, 2, 1]},
+      {sort: 'amount', order: 'asc', out: [1, 2, 3, 4, 5]},
     ];
 
     for (const c of cases) {
@@ -237,6 +239,11 @@ describe('statements test suite', () => {
           case 'plan':
             expect(t.planName).toEqual(c.out[i]);
             break;
+          case 'amount':
+            expect(t.price.incVAT).toEqual(c.out[i]);
+            break;
+          default:
+            fail(`Unexpected sort: ${c.sort}`);
         }
       });
     }
