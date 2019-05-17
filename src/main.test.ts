@@ -13,6 +13,7 @@ const envVars = {
   BILLING_URL: 'https://example.com/billing',
   ACCOUNTS_URL: 'https://example.com/accounts',
   ACCOUNTS_SECRET: '__ACCOUNTS_SECRET__',
+  TEST_TIMEOUT: process.env.TEST_TIMEOUT as string,
 };
 
 export interface IProcess extends ChildProcess {
@@ -20,7 +21,7 @@ export interface IProcess extends ChildProcess {
   port?: number;
 }
 
-jest.setTimeout(30000);
+jest.setTimeout(parseInt(envVars.TEST_TIMEOUT, 10) || 30000);
 
 describe.only('main test suite', () => {
   it('should listen on a random port by default', async () => {
