@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import pino from 'pino';
+import * as uaaData from '../../lib/uaa/uaa.test.data';
 
 import { config } from '../app/app.test.config';
 import { IContext } from '../app/context';
@@ -60,6 +61,10 @@ const ctx: IContext = {
   token: new Token(token, [tokenKey]),
   csrf: '',
 };
+
+nock(ctx.app.uaaAPI).persist()
+  .get(`/Users/uaa-user-123`).reply(200, uaaData.gdsUser)
+  .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`);
 
 describe('organizations test suite', () => {
   it('should show the organisation pages', async () => {

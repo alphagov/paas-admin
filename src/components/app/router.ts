@@ -1,5 +1,6 @@
 import Router, { IParameters } from '../../lib/router';
 
+import * as account from '../account';
 import * as applications from '../applications';
 import * as organizations from '../organizations';
 import * as reports from '../reports';
@@ -111,6 +112,17 @@ const router = new Router([
     name: 'admin.reports.view',
     path: '/reports/cost/:rangeStart',
   },
+  {
+    action: account.getUseGoogleSSO,
+    name: 'account.use-google-sso.view',
+    path: '/my-account/use-google-sso'
+  },
+  {
+    action: account.postUseGoogleSSO,
+    name: 'account.use-google-sso.post',
+    method: 'post',
+    path: '/my-account/use-google-sso',
+  }
 ]);
 
 export default router;

@@ -5,6 +5,7 @@ import request from 'supertest';
 
 import { info, organizations } from '../../lib/cf/cf.test.data';
 import Router, { IParameters } from '../../lib/router';
+import * as uaaData from '../../lib/uaa/uaa.test.data';
 
 import init from './app';
 import { config } from './app.test.config';
@@ -16,6 +17,7 @@ const tokenKey = 'tokensecret';
 nock(config.uaaAPI).persist()
   .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
   .get('/token_keys').reply(200, {keys: [{value: tokenKey}]})
+  .get(`/Users/uaa-user-123`).reply(200, uaaData.gdsUser)
 ;
 
 nock(config.accountsAPI).persist()

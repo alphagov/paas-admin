@@ -1,8 +1,8 @@
 import CloudFoundryClient from '../../lib/cf';
 import { IOrganization } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
-
 import { IContext } from '../app/context';
+import * as account from '../account';
 
 import organizationsTemplate from './organizations.njk';
 
@@ -19,7 +19,10 @@ export async function listOrganizations(ctx: IContext, _params: IParameters): Pr
     logger: ctx.app.logger,
   });
 
-  const organizations = await cf.organizations().then(sortOrganizationsByName);
+  const [organizations, user] = await Promise.all([
+    cf.organizations().then(sortOrganizationsByName),
+    account.fetchLoggedInUser(ctx),
+  ]);
 
   return {
     body: organizationsTemplate.render({
@@ -28,6 +31,7 @@ export async function listOrganizations(ctx: IContext, _params: IParameters): Pr
       csrf: ctx.csrf,
       organizations,
       location: ctx.app.location,
+      user: user
     }),
   };
 }
