@@ -1,6 +1,6 @@
 import nock, {RequestBodyMatcher} from 'nock';
 
-import UAAClient, {authenticateUser, UaaOrigin} from './uaa';
+import UAAClient, {authenticateUser} from './uaa';
 import * as data from './uaa.test.data';
 
 const config = {
@@ -58,7 +58,9 @@ describe('lib/uaa test suite', () => {
 
   it('should invite a user by email', async () => {
     nock('https://example.com/uaa').persist()
-      .post('/invite_users?redirect_uri=https://example.com/&client_id=client-id').times(1).reply(200, data.invite)
+      .post('/invite_users?redirect_uri=https://example.com/&client_id=client-id')
+      .times(1)
+      .reply(200, data.invite);
 
     const client = new UAAClient(config);
     const invitation = await client.inviteUser('user1@71xl2o.com', 'client-id', 'https://example.com/');
@@ -131,14 +133,14 @@ describe('lib/uaa test suite', () => {
   });
 
   it('should set the user\'s origin', async () => {
-    let isCorrectPatchBody: RequestBodyMatcher = (body) => body.origin == "google";
+    const isCorrectPatchBody: RequestBodyMatcher = (body) => body.origin === 'google';
 
     nock(config.apiEndpoint)
       .get(`/Users/${data.userId}`).reply(200, data.user)
       .put(`/Users/${data.userId}`, isCorrectPatchBody).reply(200, data.user);
 
     const client = new UAAClient(config);
-    const updatedUser = await client.setUserOrigin(data.userId, "google");
+    const updatedUser = await client.setUserOrigin(data.userId, 'google');
     expect(updatedUser.id).toEqual(data.userId);
-  })
+  });
 });

@@ -1,4 +1,4 @@
-export const userId = "47ea627c-45b4-4b2b-ab76-3683068fdc89";
+export const userId = '47ea627c-45b4-4b2b-ab76-3683068fdc89';
 
 export const usersByEmail = `{
   "resources" : [ {

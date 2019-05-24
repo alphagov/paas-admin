@@ -1,8 +1,8 @@
 import {IParameters, IResponse} from '../../lib/router';
 import UAAClient, {IUaaUser} from '../../lib/uaa';
 import {IContext} from '../app';
-import useGoogleSSOTemplate from './use-google-sso.njk';
 import successfulUpliftTemplate from './successful-uplift.njk';
+import useGoogleSSOTemplate from './use-google-sso.njk';
 
 export class AccountUser {
   constructor(private user: IUaaUser) {
@@ -41,7 +41,7 @@ export async function getUseGoogleSSO(ctx: IContext, _params: IParameters): Prom
 
   if (!user.isGDSUser) {
     return {
-      redirect: ctx.linkTo("admin.home")
+      redirect: ctx.linkTo('admin.home'),
     };
   }
 
@@ -51,8 +51,8 @@ export async function getUseGoogleSSO(ctx: IContext, _params: IParameters): Prom
       linkTo: ctx.linkTo,
       csrf: ctx.csrf,
       location: ctx.app.location,
-      user: user,
-    })
+      user,
+    }),
   };
 }
 
@@ -71,8 +71,8 @@ export async function postUseGoogleSSO(ctx: IContext, _params: IParameters): Pro
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       csrf: ctx.csrf,
-      location: ctx.app.location
-    })
+      location: ctx.app.location,
+    }),
   };
 }
 

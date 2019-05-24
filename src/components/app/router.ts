@@ -115,14 +115,14 @@ const router = new Router([
   {
     action: account.getUseGoogleSSO,
     name: 'account.use-google-sso.view',
-    path: '/my-account/use-google-sso'
+    path: '/my-account/use-google-sso',
   },
   {
     action: account.postUseGoogleSSO,
     name: 'account.use-google-sso.post',
     method: 'post',
     path: '/my-account/use-google-sso',
-  }
+  },
 ]);
 
 export default router;

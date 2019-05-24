@@ -134,7 +134,6 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   }));
 
   const currencyRates = await billingClient.getCurrencyRates(filter);
-  // FIXME: Ideally we should support multiple USD currency rates, or not show this information
   const usdCurrencyRate = currencyRates.filter(currencyRate => currencyRate.code === 'USD')[0];
 
   /* istanbul ignore next */

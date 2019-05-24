@@ -361,7 +361,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
       );
 
       /* istanbul ignore next */
-      if (!invitation) { // TODO: test me
+      if (!invitation) {
         throw new ValidationError([{field: 'email', message: 'a valid email address is required'}]);
       }
 
@@ -504,7 +504,7 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
   );
 
   /* istanbul ignore next */
-  if (!invitation) { // TODO: test me
+  if (!invitation) {
     throw new ValidationError([{field: 'email', message: 'a valid email address is required'}]);
   }
 

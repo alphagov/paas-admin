@@ -1,8 +1,8 @@
 import CloudFoundryClient from '../../lib/cf';
 import { IOrganization } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
-import { IContext } from '../app/context';
 import * as account from '../account';
+import { IContext } from '../app/context';
 
 import organizationsTemplate from './organizations.njk';
 
@@ -31,7 +31,7 @@ export async function listOrganizations(ctx: IContext, _params: IParameters): Pr
       csrf: ctx.csrf,
       organizations,
       location: ctx.app.location,
-      user: user
+      user,
     }),
   };
 }

@@ -194,7 +194,7 @@ function parseBillableEvent(ev: IBillableEventResponse): IBillableEvent {
 }
 
 function parsePricingPlan(plan: IPricingPlanResponse): IPricingPlan {
-  // FIXME: extracting the serviceName from the planName is not a reliable
+  // NOTE: extracting the serviceName from the planName is not a reliable
   // method, and we do not want to have to give paas-admin scopes to look up
   // this information if cf. A better solution is to get paas-billing should
   // provide this information

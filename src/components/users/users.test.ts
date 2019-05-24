@@ -175,25 +175,6 @@ describe('users test suite', () => {
     expect(response.status).toEqual(400);
   });
 
-  // TODO: implement this when refactoring tests
-  // tslint:disable:max-line-length
-  // it('should show error message when email is invalid acording to invite_users', async () => {
-  //   nock('https://example.com/uaa')
-  //     .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation').reply(200, `{new_invites: []}`)
-  //     .get('/Users?filter=email+eq+%22bang@thingcom%22').reply(200, uaaData.noFoundUsersByEmail)
-  //   ;
-  //   const response = await request(app)
-  //     .post('/3deb9f04-b449-4f94-b3dd-c73cefe5b275/invite')
-  //     .type('form')
-  //     .send({
-  //       email: 'bang@thingcom',
-  //       'org_roles[3deb9f04-b449-4f94-b3dd-c73cefe5b275][billing_managers]': '1'
-  //     });
-  //   t.equal(response.status, 400);
-  //   expect(response.text).toContain('a valid email address is required');
-  // });
-  // tslint:enable:max-line-length
-
   it('should show error message when invitee is already a member of org', async () => {
     const response = await users.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -373,7 +354,7 @@ describe('users test suite', () => {
     expect(response.body).toContain('Confirm user deletion');
   });
 
-  it('should update the user, set BillingManager role and show success - User Edit', async () => { // TODO: fix label
+  it('should update the user, set BillingManager role and show success - User Edit', async () => {
     const response = await users.deleteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: '5ff19d4c-8fa0-4d74-94e0-52eac86d55a8',
