@@ -87,7 +87,7 @@
     "no-document-write": true,
     "no-eval": true,
     "no-exec-script": true,
-    "no-function-constructor-with-string-args": true,
+    "function-constructor": true,
     "no-http-string": [
       true,
       "http://www.example.com/?.*",
@@ -96,7 +96,6 @@
     ],
     "no-inner-html": true,
     "no-octal-literal": true,
-    "no-reserved-keywords": true,
     "non-literal-require": true,
     "possible-timing-attack": true,
     "react-anchor-blank-noopener": true,

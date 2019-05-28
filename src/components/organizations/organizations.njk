@@ -80,6 +80,13 @@
         <h3><a href="https://status.cloud.service.gov.uk/" class="govuk-link">Get GOV.UK PaaS status updates</a></h3>
         <p>Check the status of GOV.UK PaaS, and see the availability of live applications and database connectivity. We recommend you sign up to this service to get alerts and incident updates.</p>
       </div>
+
+      {% if user.isGDSUser %}
+      <div class="govuk-grid-column-one-third">
+        <h3><a href="{{ linkTo("account.use-google-sso.view") }}" class="govuk-link">Set up Google single sign-on</a></h3>
+        <p>GOV.UK PaaS supports Google single sign-on as an authentication method</p>
+      </div>
+      {% endif %}
     </div>
   </div>
 

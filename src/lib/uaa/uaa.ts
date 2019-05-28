@@ -1,4 +1,5 @@
 import axios from 'axios';
+import * as types from './uaa.types';
 
 const DEFAULT_TIMEOUT = 1000;
 
@@ -18,6 +19,8 @@ interface IClientConfig {
   readonly accessToken?: string;
   readonly signingKeys?: ReadonlyArray<string>;
 }
+
+export type UaaOrigin = 'uaa' | 'google';
 
 export interface IUaaInvitation {
   userId: string;
@@ -87,21 +90,23 @@ export default class UAAClient {
 
   public async request(method: string, url: string, opts: any = {}) {
     const token = await this.getAccessToken();
+    const requiredHeaders = {Authorization: `Bearer ${token}`};
+
+    opts.headers = { ...(opts.headers || {}), ...requiredHeaders };
     return request(this.apiEndpoint, method, url, {
-      headers: {Authorization: `Bearer ${token}`},
       ...opts,
     });
   }
 
-  public async getUser(userGUID: string) {
+  public async getUser(userGUID: string): Promise<types.IUaaUser> {
     const response = await this.request('get', `/Users/${userGUID}`);
-    return response.data;
+    return response.data as types.IUaaUser;
   }
 
-  public async findUser(email: string) {
+  public async findUser(email: string): Promise<types.IUaaUser> {
     const params = {filter: `email eq ${JSON.stringify(email)}`};
     const response = await this.request('get', '/Users', {params});
-    return response.data.resources[0];
+    return response.data.resources[0] as types.IUaaUser;
   }
 
   public async inviteUser(email: string, clientID: string, redirectURI: string): Promise<IUaaInvitation> {
@@ -119,9 +124,9 @@ export default class UAAClient {
       userName: email,
       password,
       name: {},
-      emails: [ { value: email, primary: true } ],
-      active : true,
-      verified : true,
+      emails: [{value: email, primary: true}],
+      active: true,
+      verified: true,
     };
     const response = await this.request(
       'post',
@@ -137,6 +142,19 @@ export default class UAAClient {
       `/Users/${userId}`,
     );
     return response.data;
+  }
+
+  public async setUserOrigin(userId: string, origin: UaaOrigin): Promise<types.IUaaUser> {
+    const user = await this.getUser(userId);
+    user.origin = origin;
+    const reqOpts = {
+      data: user,
+      headers: {
+        'If-Match': '*',
+      },
+    };
+    const response = await this.request('put', `/Users/${userId}`, reqOpts);
+    return response.data as types.IUaaUser;
   }
 }
 
@@ -176,7 +194,7 @@ export async function authenticate(endpoint: string, clientCredentials: IClientC
     params: {
       grant_type: 'client_credentials',
     },
-    // TODO: I think this might be leaking the auth details in the url - consider using header directly?
+
     withCredentials: true,
     auth: {
       username: clientCredentials.clientID,
