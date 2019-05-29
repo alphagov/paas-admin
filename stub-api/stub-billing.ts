@@ -41,27 +41,27 @@ function mockBilling(app: express.Application, _config: { stubApiPort: string, a
       {
         ...defaultBillingEvent,
         resource_name: 'down',
-        price: {inc_vat: "334.00", ex_vat: "314.00", details: [{...defaultPriceDetails, plan_name: "magical-plan"}]}
+        price: {inc_vat: "334.00", ex_vat: "314.00", details: [{...defaultPriceDetails, plan_name: "fantastical-plan"}]}
       },
       {
         ...defaultBillingEvent,
         resource_name: 'strange',
-        price: {inc_vat: "10.00", ex_vat: "8.00", details: [{...defaultPriceDetails, plan_name: "magical-plan"}]}
+        price: {inc_vat: "10.00", ex_vat: "8.00", details: [{...defaultPriceDetails, plan_name: "wizardly-plan"}]}
       },
       {
         ...defaultBillingEvent,
         resource_name: 'charm',
-        price: {inc_vat: "532.00", ex_vat: "512.00", details: [{...defaultPriceDetails, plan_name: "magical-plan"}]}
+        price: {inc_vat: "532.00", ex_vat: "512.00", details: [{...defaultPriceDetails, plan_name: "witching-plan"}]}
       },
       {
         ...defaultBillingEvent,
         resource_name: 'bottom',
-        price: {inc_vat: "100.00", ex_vat: "80.00", details: [{...defaultPriceDetails, plan_name: "magical-plan"}]}
+        price: {inc_vat: "100.00", ex_vat: "80.00", details: [{...defaultPriceDetails, plan_name: "sorcerous-plan"}]}
       },
       {
         ...defaultBillingEvent,
         resource_name: 'top',
-        price: {inc_vat: "100.00", ex_vat: "80.00", details: [{...defaultPriceDetails, plan_name: "magical-plan"}]}
+        price: {inc_vat: "100.00", ex_vat: "80.00", details: [{...defaultPriceDetails, plan_name: "supernatural-plan"}]}
       },
     ]));
   });

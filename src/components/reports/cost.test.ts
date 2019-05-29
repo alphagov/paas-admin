@@ -13,11 +13,11 @@ import * as reports from '../reports';
 // tslint:disable:max-line-length
 nock(config.cloudFoundryAPI)
   .get('/v2/organizations')
-  .times(3)
+  .times(5)
   .reply(200, data.organizations)
 
   .get('/v2/quota_definitions/dcb680a9-b190-4838-a3d2-b84aa17517a6')
-  .times(3)
+  .times(5)
   .reply(200, data.organizationQuota)
 ;
 
@@ -142,6 +142,54 @@ describe('cost report test suite', () => {
 
     expect((response.body || '').toString().match(/£0[.]00/g))
       .toHaveLength(4);
+  });
+
+  it('should filter billable events by service plan', async () => {
+    const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
+
+    nock(config.billingAPI)
+      .get('/billable_events')
+      .query(true)
+      .times(2)
+      .reply(200, `[{
+        "event_guid": "fecc9eb5-b027-42fe-ba1f-d90a0474b620",
+        "event_start": "2018-04-20T14:36:09+00:00",
+        "event_stop": "2018-04-20T14:45:46+00:00",
+        "resource_guid": "a585feac-32a1-44f6-92e2-cdb1377e42f4",
+        "resource_name": "api-availability-test-app",
+        "resource_type": "app",
+        "org_guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
+        "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
+        "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
+        "quota_definition_guid": "dcb680a9-b190-4838-a3d2-b84aa17517a6",
+        "number_of_nodes": 1,
+        "memory_in_mb": 64,
+        "storage_in_mb": 0,
+        "price": {
+          "ex_vat": "1337.13",
+          "inc_vat": "1337.00",
+          "details": [
+            {
+              "name": "instance",
+              "start": "2018-04-20T14:36:09+00:00",
+              "stop": "2018-04-20T14:45:46+00:00",
+              "plan_name": "matching plan",
+              "ex_vat": "1337.13",
+              "inc_vat": "1337.00",
+              "vat_rate": "0.2",
+              "vat_code": "Standard",
+              "currency_code": "GBP"
+            }
+          ]
+        }
+      }]`);
+
+    const firstResponse = await reports.viewCostReport(ctx, {rangeStart, service: 'matching plan'});
+    expect((firstResponse.body || '').toString()).toMatch(/£1337\.13/);
+
+    const secondResponse = await reports.viewCostReport(ctx, {rangeStart, service: 'non-matching plan'});
+    expect((secondResponse.body || '').toString()).not.toMatch(/£1337\.13/);
+    expect((secondResponse.body || '').toString()).toMatch(/£0\.00/);
   });
 
   it('should report some billables and attribute to org', async () => {
