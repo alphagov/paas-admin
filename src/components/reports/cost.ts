@@ -40,6 +40,13 @@ export async function viewCostReport(
   const rangeStart = moment(params.rangeStart, 'YYYY-MM-DD').toDate();
   const rangeStop  = moment(rangeStart).add(1, 'month').toDate();
 
+  let serviceFilter = (_: IBillableEvent) => true;
+  if (params.service) {
+    serviceFilter = (billableEvent: IBillableEvent) => billableEvent.price.details.some(
+      details => details.planName.includes(params.service),
+    );
+  }
+
   const billingClient = new BillingClient({
     apiEndpoint: ctx.app.billingAPI,
     accessToken: ctx.token.accessToken,
@@ -61,7 +68,7 @@ export async function viewCostReport(
 
   const billableEvents = await billingClient.getBillableEvents({
     rangeStart, rangeStop, orgGUIDs,
-  });
+  }).then(events => events.filter(serviceFilter));
 
   const orgBillableEvents = aggregateBillingEvents(billableEvents);
 
