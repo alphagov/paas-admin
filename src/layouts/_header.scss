@@ -41,9 +41,17 @@
   }
 }
 
-.paas-govuk-tag {
+a.paas-govuk-tag {
   @extend .govuk-tag;
   float: right;
+
+  &:visited, &:hover, &:link {
+    color: #fff;
+  }
+  
+  &:hover {
+    border-bottom: 3px solid #fff;
+  }
 }
 
 .paas-govuk-tag-london {
