@@ -52,12 +52,12 @@ a.paas-govuk-tag {
   &:hover {
     border-bottom: 3px solid #fff;
   }
-}
 
-.paas-govuk-tag-london {
-  background-color: #005ea5;
-}
+  &.paas-govuk-tag-london {
+    background-color: #005ea5;
+  }
 
-.paas-govuk-tag-ireland {
-  background-color: #006435;
+  &.paas-govuk-tag-ireland {
+    background-color: #006435;
+  }
 }
