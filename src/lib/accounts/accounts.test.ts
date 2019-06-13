@@ -30,6 +30,13 @@ nock(cfg.apiEndpoint)
     error: internal-server-error-plain
   `)
   .put('/documents/my-doc').reply(201, ``)
+  .get('/users/4f11eb3b-f45c-4fd3-9241-533d29a0582b').reply(404)
+  .get('/users/1d2a9ece-3d06-4aa7-bffc-c521cf7ef6cb').reply(500)
+  .get('/users/7fab36d8-a63a-4543-9a24-d7a3fe2f128b').reply(200, `{
+    "user_uuid": "7fab36d8-a63a-4543-9a24-d7a3fe2f128b",
+    "username": "example@example.org",
+    "user_email": "example@example.org"
+  }`)
   .get('/users/7fab36d8-a63a-4543-9a24-d7a3fe2f128b/documents').reply(200, `[{
     "name": "my-doc-1",
     "content": "my-pending-doc-content-1",
@@ -47,6 +54,7 @@ nock(cfg.apiEndpoint)
     "agreement_date": "2018-05-21T16:52:55.624084Z"
   }]`)
   .post('/agreements').reply(201, ``)
+  .post('/users/').reply(201, ``)
 ;
 
 describe('lib/accounts test suite', () => {
@@ -93,4 +101,32 @@ describe('lib/accounts test suite', () => {
     const ok = await ac.createAgreement('my-doc', '7fab36d8-a63a-4543-9a24-d7a3fe2f128b');
     expect(ok).toBeTruthy();
   });
+
+  it('should return null when a user cannot be found', async () => {
+    const ac = new AccountsClient(cfg);
+    const user = await ac.getUser('4f11eb3b-f45c-4fd3-9241-533d29a0582b');
+    expect(user).toBeNull();
+  });
+
+  it('should pass along any errors from a non-404', async () => {
+    const ac = new AccountsClient(cfg);
+    await expect(ac.getUser('1d2a9ece-3d06-4aa7-bffc-c521cf7ef6cb')).rejects.toThrowError();
+  });
+
+  it('should get a user', async () => {
+    const ac = new AccountsClient(cfg);
+    const user = await ac.getUser('7fab36d8-a63a-4543-9a24-d7a3fe2f128b');
+    expect(user).toBeTruthy();
+
+    if (user) {
+      expect(user.uuid).toEqual('7fab36d8-a63a-4543-9a24-d7a3fe2f128b');
+    }
+  });
+
+  it('should create a user', async () => {
+    const ac = new AccountsClient(cfg);
+    const ok = await ac.createUser('4f11eb3b-f45c-4fd3-9241-533d29a0582b', 'user_name', 'e@ma.il');
+    expect(ok).toBeTruthy();
+  });
+
 });

@@ -69,6 +69,7 @@ describe('users test suite', () => {
   const nockCF = nock(ctx.app.cloudFoundryAPI).persist();
   const nockUAA = nock(ctx.app.uaaAPI).persist();
   const nockNotify = nock(/api.notifications.service.gov.uk/).persist();
+  const nockAccounts = nock(ctx.app.accountsAPI).persist();
 
   nockCF
     .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, cfData.organization)
@@ -133,6 +134,9 @@ describe('users test suite', () => {
     .filteringPath(() => '/')
     .post('/').reply(200, {notify: 'FAKE_NOTIFY_RESPONSE'})
   ;
+
+  nockAccounts
+    .post('/users/').reply(201);
   // tslint:enable:max-line-length
 
   afterAll(() => {
@@ -327,6 +331,27 @@ describe('users test suite', () => {
     });
 
     expect(response.body).toContain('Invited a new team member');
+  });
+
+  it('should invite the user, and add them to accounts', async () => {
+    await users.inviteUser(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    }, {
+      email: 'jeff@jeff.com',
+      org_roles: {
+        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+          billing_managers: {
+            current: '0',
+            desired: '1',
+          },
+        }),
+      },
+      space_roles: {
+        '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+      },
+    });
+
+    expect(nockAccounts.isDone()).toBeTruthy();
   });
 
   it('should fail if the user does not exist in org', async () => {

@@ -1,5 +1,8 @@
 import merge from 'merge-deep';
 
+import {isUndefined} from 'util';
+import {AccountsClient} from '../../lib/accounts';
+
 import CloudFoundryClient from '../../lib/cf';
 import {
   IOrganizationUserRoles,
@@ -10,16 +13,12 @@ import {
   OrganizationUserRoles,
 } from '../../lib/cf/types';
 import NotificationClient from '../../lib/notify';
-import { IParameters, IResponse } from '../../lib/router';
-import { NotFoundError } from '../../lib/router/errors';
-import UAAClient, { IUaaInvitation } from '../../lib/uaa';
+import {IParameters, IResponse} from '../../lib/router';
+import {NotFoundError} from '../../lib/router/errors';
+import UAAClient, {IUaaInvitation} from '../../lib/uaa';
 
-import { IContext } from '../app/context';
-import {
-  CLOUD_CONTROLLER_ADMIN,
-  CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-  CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-} from '../auth';
+import {IContext} from '../app/context';
+import {CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN} from '../auth';
 
 import deleteTemplate from './delete.njk';
 import deleteSuccessTemplate from './delete.success.njk';
@@ -28,8 +27,6 @@ import editSuccessTemplate from './edit.success.njk';
 import inviteTemplate from './invite.njk';
 import inviteSuccessTemplate from './invite.success.njk';
 import usersTemplate from './users.njk';
-
-import { isUndefined } from 'util';
 
 interface IInvalid {
   readonly field: string;
@@ -46,9 +43,9 @@ interface IPermissions {
 }
 
 interface IUserRoles {
-    readonly spaces: ReadonlyArray<ISpace>;
-    readonly orgRoles: ReadonlyArray<OrganizationUserRoles>;
-    readonly username: string;
+  readonly spaces: ReadonlyArray<ISpace>;
+  readonly orgRoles: ReadonlyArray<OrganizationUserRoles>;
+  readonly username: string;
 }
 
 interface IUserRolesByGuid {
@@ -98,7 +95,7 @@ const VALID_EMAIL = /[^.]@[^.]/;
 async function setAllUserRolesForOrg(
   cf: CloudFoundryClient,
   params: IParameters,
-  roles: {readonly [i: string]: IPermissions},
+  roles: { readonly [i: string]: IPermissions },
 ): Promise<any> {
   const spaces = await cf.spaces(params.organizationGUID);
 
@@ -143,38 +140,38 @@ async function setAllUserRolesForOrg(
 
   await Promise.all(
     spaces.map((space: ISpace) => spaceRoleEndpoints.map(async (role: string) => {
-      /* istanbul ignore next */
-      if (!roles.space[space.metadata.guid]) {
-        return Promise.resolve(undefined);
-      }
+        /* istanbul ignore next */
+        if (!roles.space[space.metadata.guid]) {
+          return Promise.resolve(undefined);
+        }
 
-      const oldPermission = roles.space[space.metadata.guid][role].current;
-      const newPermission = roles.space[space.metadata.guid][role].desired;
+        const oldPermission = roles.space[space.metadata.guid][role].current;
+        const newPermission = roles.space[space.metadata.guid][role].desired;
 
-      if (newPermission && newPermission === oldPermission) {
-        return Promise.resolve(undefined);
-      }
+        if (newPermission && newPermission === oldPermission) {
+          return Promise.resolve(undefined);
+        }
 
-      if (isUndefined(newPermission) && oldPermission === '0') {
-        return Promise.resolve(undefined);
-      }
+        if (isUndefined(newPermission) && oldPermission === '0') {
+          return Promise.resolve(undefined);
+        }
 
-      return cf.setSpaceRole(
-        space.metadata.guid,
-        params.userGUID,
-        role,
-        newPermission === '1',
-      );
-    }),
-  ));
+        return cf.setSpaceRole(
+          space.metadata.guid,
+          params.userGUID,
+          role,
+          newPermission === '1',
+        );
+      }),
+    ));
 }
 
 export function _getUserRolesByGuid(
-    userOrgRoles: ReadonlyArray<IOrganizationUserRoles>,
-    spaceUserLists: ReadonlyArray<ISpaceUsers>,
-  ): IUserRolesByGuid {
+  userOrgRoles: ReadonlyArray<IOrganizationUserRoles>,
+  spaceUserLists: ReadonlyArray<ISpaceUsers>,
+): IUserRolesByGuid {
 
-  const spacesByUser: {[key: string]: ISpace[]} = {};
+  const spacesByUser: { [key: string]: ISpace[] } = {};
   for (const spaceUserList of spaceUserLists) {
     for (const user of spaceUserList.users) {
       const spaces = spacesByUser[user.metadata.guid] || [];
@@ -183,7 +180,7 @@ export function _getUserRolesByGuid(
     }
   }
 
-  const userRolesByGuid: {[key: string]: IUserRoles} = {};
+  const userRolesByGuid: { [key: string]: IUserRoles } = {};
   for (const user of userOrgRoles) {
     userRolesByGuid[user.metadata.guid] = {
       username: user.entity.username,
@@ -349,6 +346,12 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
       },
     });
 
+    const accounts = new AccountsClient({
+      apiEndpoint: ctx.app.accountsAPI,
+      secret: ctx.app.accountsSecret,
+      logger: ctx.app.logger,
+    });
+
     const uaaUser = await uaa.findUser(values.email);
     let userGUID = uaaUser && uaaUser.id;
     let invitation: IUaaInvitation | undefined;
@@ -366,6 +369,8 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
       }
 
       userGUID = invitation.userId;
+
+      await accounts.createUser(userGUID, values.email, values.email);
     }
 
     const users = await cf.usersForOrganization(params.organizationGUID);
@@ -408,7 +413,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
         });
       } catch (err) {
         ctx.log.error(`a user was assigned to org ${params.organizationGUID} ` +
-        `but sending the invite email failed: ${err.message}`);
+          `but sending the invite email failed: ${err.message}`);
       }
     }
 

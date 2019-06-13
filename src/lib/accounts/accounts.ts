@@ -32,6 +32,18 @@ export interface IAccountsClientConfig {
   readonly logger: BaseLogger;
 }
 
+export interface IAccountsUserResponse {
+  readonly user_uuid: string;
+  readonly username: string;
+  readonly user_email: string;
+}
+
+export interface IAccountsUser {
+  readonly uuid: string;
+  readonly username: string;
+  readonly email: string;
+}
+
 export class AccountsClient {
   constructor(private readonly config: IAccountsClientConfig) {
     this.config = config;
@@ -97,6 +109,37 @@ export class AccountsClient {
     return Object.values(data.map(parseUserDocument).reduce(latestOnly, initialMap))
       .filter(pendingOnly);
   }
+
+  public async getUser(uuid: string): Promise<IAccountsUser | null> {
+    try {
+      const response = await this.request({
+        url: `/users/${uuid}`,
+      });
+
+      const data: IAccountsUserResponse = response.data;
+      return parseUser(data);
+    } catch (err) {
+      if (err.response.status === 404) {
+        return null;
+      }
+
+      throw err;
+    }
+  }
+
+  public async createUser(uuid: string, username: string, email: string): Promise<boolean> {
+    const response = await this.request({
+      url: `/users/`,
+      method: 'post',
+      data: JSON.stringify({
+        user_uuid: uuid,
+        username,
+        user_email: email,
+      }),
+    });
+
+    return response.status === 201;
+  }
 }
 
 function pendingOnly(doc: IUserDocument): boolean {
@@ -139,6 +182,14 @@ function parseUserDocument(doc: IUserDocumentResponse): IUserDocument {
   };
 }
 
+function parseUser(user: IAccountsUserResponse): IAccountsUser {
+  return {
+    uuid: user.user_uuid,
+    username: user.username,
+    email: user.user_email,
+  };
+}
+
 async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<AxiosResponse> {
   const reqWithDefaults = {
     method: 'get',
@@ -154,11 +205,33 @@ async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<Axi
     if (typeof response.data === 'object') {
       msg = `${msg} and data ${JSON.stringify(response.data)}`;
     }
-    throw new Error(msg);
+    throw responseError(msg, req, response.status, reqWithDefaults, response);
   }
   return response;
 }
 
 function validateStatus(status: number) {
   return status > 0 && status < 501;
+}
+
+// This is taken from the unexported axios/lib/core/enhanceError.js.
+// It's needed because we trap all response codes and wrap them in
+// some error handling that sets a human friendly error message.
+// That behaviour is expected by other methods.
+function responseError(
+  message: string,
+  config: object,
+  responseCode: number,
+  req: AxiosRequestConfig,
+  response: AxiosResponse,
+) {
+  const err = new Error(message) as any;
+  err.config = config;
+  if (responseCode) {
+    err.code = responseCode;
+  }
+
+  err.request = req;
+  err.response = response;
+  return err;
 }
