@@ -15,7 +15,7 @@ function mockAccounts(app: express.Application, _config: IStubServerPorts): expr
   // in our stub data, in order for everything to
   // fit together.
   const cfUsers = JSON.parse(cfStubData.users);
-  const userIds = cfUsers.resources.map(x => x.metadata.guid);
+  const userIds = cfUsers.resources.map((x: any) => x.metadata.guid);
   userIds.push(uaaStubData.userId);
   for (const id of userIds) {
     app.get(`/users/${id}`, (_req, res) => {

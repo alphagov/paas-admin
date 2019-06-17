@@ -44,7 +44,7 @@ const apis: readonly IStubServerConfig[] = [
 ];
 
 for (const api of apis) {
-  let app = express();
+  let app: express.Application = express();
   app.use((req, _res, next) => {
     console.log(`${cyan}stub-${api.name}-api${reset} ${req.method} ${req.path}`);
     next();

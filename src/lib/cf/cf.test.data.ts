@@ -951,6 +951,33 @@ export const users = `{
         "managed_spaces_url": "/v2/users/uaa-id-253/managed_spaces",
         "audited_spaces_url": "/v2/users/uaa-id-253/audited_spaces"
       }
+    },
+    {
+      "metadata": {
+        "guid": "uaa-id-879",
+        "url": "/v2/users/uaa-id-879",
+        "created_at": "2016-06-08T16:41:35Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "admin": false,
+        "active": false,
+        "default_space_guid": null,
+        "username": "user@uaa.example.com",
+        "organization_roles": [
+          "org_user",
+          "org_manager",
+          "org_auditor",
+          "billing_manager"
+        ],
+        "spaces_url": "/v2/users/uaa-id-879/spaces",
+        "organizations_url": "/v2/users/uaa-id-879/organizations",
+        "managed_organizations_url": "/v2/users/uaa-id-879/managed_organizations",
+        "billing_managed_organizations_url": "/v2/users/uaa-id-879/billing_managed_organizations",
+        "audited_organizations_url": "/v2/users/uaa-id-879/audited_organizations",
+        "managed_spaces_url": "/v2/users/uaa-id-879/managed_spaces",
+        "audited_spaces_url": "/v2/users/uaa-id-879/audited_spaces"
+      }
     }
   ]
 }`;
