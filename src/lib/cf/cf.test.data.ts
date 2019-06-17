@@ -936,7 +936,7 @@ export const users = `{
         "admin": false,
         "active": false,
         "default_space_guid": null,
-        "username": "user@example.com",
+        "username": "user@uaa.example.com",
         "organization_roles": [
           "org_user",
           "org_manager",
@@ -1018,7 +1018,7 @@ export const userRolesForOrg = `{
         "admin": false,
         "active": false,
         "default_space_guid": null,
-        "username": "user@example.com",
+        "username": "user@uaa.example.com",
         "organization_roles": [
           "org_user",
           "org_manager",
@@ -1045,7 +1045,7 @@ export const userRolesForOrg = `{
         "admin": false,
         "active": false,
         "default_space_guid": null,
-        "username": "user@example.com",
+        "username": "user@uaa.example.com",
         "organization_roles": [
           "org_user",
           "org_manager",
@@ -1072,7 +1072,7 @@ export const userRolesForOrg = `{
         "admin": false,
         "active": false,
         "default_space_guid": null,
-        "username": "user@example.com",
+        "username": "user@uaa.example.com",
         "organization_roles": [
           "org_user",
           "org_manager",
@@ -1099,7 +1099,7 @@ export const userRolesForOrg = `{
         "admin": false,
         "active": false,
         "default_space_guid": null,
-        "username": "user@example.com",
+        "username": "user@uaa.example.com",
         "organization_roles": [
           "org_user",
           "org_manager",
