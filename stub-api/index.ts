@@ -4,23 +4,55 @@ import stubAccounts from './stub-accounts';
 import stubBilling from './stub-billing';
 import stubCf from './stub-cf';
 
-const app = express();
+export interface IStubServerConfig {
+  name: string;
+  ports: IStubServerPorts;
+  factory: StubServerFactory;
+}
+export interface IStubServerPorts {
+  apiPort: number,
+  adminPort: number,
+}
+export type StubServerFactory = (app: express.Application, config: IStubServerPorts) => express.Application;
 
-const adminPort = process.env['PORT'] || '3000';
-const stubApiPort = process.env['STUB_API_PORT'] || '3001';
-const config = {adminPort: adminPort, stubApiPort: stubApiPort};
+const adminPort = parseInt(process.env['PORT'] || '3000', 10);
 
 const cyan = '\x1b[36m';
 const reset = '\x1b[0m';
 
-app.use((req, _res, next) => {
-  console.log(`${cyan}stub-api${reset} ${req.method} ${req.path}`);
-  next();
-});
+const apis: readonly IStubServerConfig[] = [
+  {
+    name: 'accounts',
+    ports: { adminPort, apiPort: parseInt(process.env['STUB_ACCOUNTS_PORT'] || '3001', 10) },
+    factory: stubAccounts,
+  },
+  {
+    name: 'billing',
+    ports: { adminPort, apiPort: parseInt(process.env['STUB_BILLING_PORT'] || '3002', 10)},
+    factory: stubBilling,
+  },
+  {
+    name: 'cf',
+    ports: {adminPort, apiPort: parseInt(process.env['STUB_CF_PORT'] || '3003', 10)},
+    factory: stubCf,
+  },
+  {
+    name: 'uaa',
+    ports: {adminPort, apiPort: parseInt(process.env['STUB_UAA_PORT'] || '3004', 10)},
+    factory: stubUaa,
+  },
+];
 
-stubUaa(app, config);
-stubAccounts(app, config);
-stubBilling(app, config);
-stubCf(app, config);
+for (const api of apis) {
+  let app = express();
+  app.use((req, _res, next) => {
+    console.log(`${cyan}stub-${api.name}-api${reset} ${req.method} ${req.path}`);
+    next();
+  });
 
-app.listen(stubApiPort, () => console.log(`${cyan}stub-api${reset} Started, listening on port ${stubApiPort}`));
+  app = api.factory(app, api.ports);
+  app.listen(
+    api.ports.apiPort,
+    () => console.log(`${cyan}stub-${api.name}-api${reset} Started, listening on port ${api.ports.apiPort}`),
+  );
+}
