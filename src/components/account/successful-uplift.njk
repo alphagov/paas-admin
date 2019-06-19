@@ -15,7 +15,7 @@
           titleText: "SSO Activation Successful"
         }) }}
         <p>
-          You can now log in using Google SSO. You have not been logged out now.
+          You can now log in using {{ providerName | capitalize }} SSO. You have not been logged out now.
         </p>
         <a href="{{ linkTo("admin.home") }}">Back to account</a>
       </section>

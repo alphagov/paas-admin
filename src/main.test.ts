@@ -13,7 +13,11 @@ const envVars = {
   BILLING_URL: 'https://example.com/billing',
   ACCOUNTS_URL: 'https://example.com/accounts',
   ACCOUNTS_SECRET: '__ACCOUNTS_SECRET__',
+  MS_CLIENT_ID: 'CLIENTID',
+  MS_CLIENT_SECRET: 'CLIENTSECRET',
+  MS_TENANT_ID: 'TENANTID',
   TEST_TIMEOUT: process.env.TEST_TIMEOUT as string,
+  DOMAIN_NAME: 'https://admin.example.com',
 };
 
 export interface IProcess extends ChildProcess {
@@ -74,7 +78,7 @@ describe.only('main test suite', () => {
   });
 
   it('should exit with non-zero status on error (invalid PORT)', (done) => {
-    const newEnvVars = {...envVars, PORT: -1};
+    const newEnvVars = {...envVars, PORT: '-1'};
     const proc = spawn(process.argv0, ['./dist/main.js'], {env: newEnvVars});
     proc.once('error', fail);
     proc.once('close', code => {
@@ -101,6 +105,7 @@ async function run(env = {}): Promise<any> {
     let isListening = false;
     const logs = proc.logs || [];
 
+    // @ts-ignore
     proc.stdout.on('data', data => {
       logs.push(data.toString());
       if (!isListening && /listening/.test(data.toString())) {

@@ -133,6 +133,22 @@ const router = new Router([
     method: 'post',
     path: '/my-account/use-google-sso',
   },
+  {
+    action: account.getUseMicrosoftSSO,
+    name: 'account.use-microsoft-sso.view',
+    path: '/my-account/use-microsoft-sso',
+  },
+  {
+    action: account.postUseMicrosoftSSO,
+    name: 'account.use-microsoft-sso.post',
+    method: 'post',
+    path: '/my-account/use-microsoft-sso',
+  },
+  {
+    action: account.getMicrosoftOIDCCallback,
+    name: 'account.use-microsoft-sso-callback.get',
+    path: '/my-account/use-microsoft-sso/callback',
+  },
 ]);
 
 export default router;

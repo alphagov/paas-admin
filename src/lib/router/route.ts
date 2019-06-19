@@ -1,5 +1,5 @@
 import RouteParser from 'route-parser';
-import { URLSearchParams } from 'url';
+import {URL, URLSearchParams} from 'url';
 
 export interface IParameters {
   readonly [i: string]: any;
@@ -60,6 +60,12 @@ export default class Route {
     const searchParams = new URLSearchParams(extra);
 
     return `${url}?${searchParams.toString()}`;
+  }
+
+  public composeAbsoluteURL(domain: string, params: IParameters = {}): string {
+    const path = this.composeURL(params);
+    const domainURL = new URL(path, domain);
+    return domainURL.toString();
   }
 
   public matches(path: string): boolean {

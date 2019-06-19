@@ -5,6 +5,9 @@ import {IContext} from '../app';
 import {createTestContext} from '../app/app.test-helpers';
 import {Token} from '../auth';
 import * as account from './account';
+import OIDC, {IAuthorizationErrorResponse} from './oidc';
+
+jest.mock('./oidc');
 
 describe('account test suite', () => {
   let ctx: IContext;
@@ -71,79 +74,170 @@ describe('account test suite', () => {
     });
   });
 
-  describe('AccountUser', () => {
+  describe('account.use-microsoft-sso-view', () => {
+    beforeEach(() => {
+      // @ts-ignore
+      OIDC.mockClear();
+    });
 
-    describe('name', () => {
-      it('name combines user\'s given and family names', () => {
-        // We don't have a full implementation of this type
-        // because it's used to represent a JSON payload
-        const uaaUser: any = {
-          name: {
-            givenName: 'User',
-            familyName: 'Name',
+    it('returns an error view when MS SSO is not configured', async () => {
+      ctx = createTestContext();
+
+      (ctx as any).app.oidcProviders.clear();
+
+      const response = await account.getUseMicrosoftSSO(ctx, {});
+      expect(response.body).toContain('error');
+    });
+
+    it('returns a confirmation page', async () => {
+      ctx = setUpUAA(uaaData.user);
+      const response = await account.getUseMicrosoftSSO(ctx, {});
+      expect(response.body).toContain('Activate');
+    });
+  });
+
+  describe('account.use-microsoft-sso.post', () => {
+    beforeEach(() => {
+      // @ts-ignore
+      OIDC.mockClear();
+    });
+
+    it('returns an error view when MS SSO is not configured', async () => {
+      ctx = createTestContext();
+
+      (ctx as any).app.oidcProviders.clear();
+
+      const response = await account.postUseMicrosoftSSO(ctx, {});
+      expect(response.body).toContain('error');
+    });
+
+    it('redirects to the OIDC authority\'s authorization endpoint', async () => {
+      ctx = setUpUAA(uaaData.user);
+
+      const redirectURL = 'https://foo.bar';
+
+      // @ts-ignore
+      OIDC.mockImplementation(() => {
+        return {
+          getAuthorizationOIDCURL: () => {
+            return redirectURL;
           },
         };
+      });
 
-        const acctUser = new account.AccountUser(uaaUser);
-        expect(acctUser.name).toEqual('User Name');
+      const response = await account.postUseMicrosoftSSO(ctx, {});
+      expect(response.redirect).toEqual(redirectURL);
+    });
+  });
+
+  describe('account.use-microsoft-sso-callback.get', () => {
+    beforeEach(() => {
+      // @ts-ignore
+      OIDC.mockClear();
+    });
+
+    it('returns an error view when MS SSO is not configured', async () => {
+      ctx = createTestContext();
+
+      (ctx as any).app.oidcProviders.clear();
+
+      const response = await account.getMicrosoftOIDCCallback(ctx, {});
+      expect(response.body).toContain('error');
+    });
+
+    describe('when the OIDC provider returns an error', () => {
+      it('if the error is "access_denied", returns an access denied message', async () => {
+        ctx = createTestContext();
+        const state = 'foobar';
+
+        const params: IAuthorizationErrorResponse = {
+          error: 'access_denied',
+          error_description: 'Access denied',
+          error_uri: '',
+          state,
+        };
+
+        const response = await account.getMicrosoftOIDCCallback(ctx, params);
+        expect(response.body).toContain('Access Denied');
+      });
+
+      it('if the error is "temporarily_unavailable", returns a try again error', async () => {
+        ctx = createTestContext();
+        const state = 'foobar';
+
+        const params: IAuthorizationErrorResponse = {
+          error: 'temporarily_unavailable',
+          error_description: 'Temporarily unavailable',
+          error_uri: '',
+          state,
+        };
+
+        const response = await account.getMicrosoftOIDCCallback(ctx, params);
+        expect(response.body).toContain('try again later');
+      });
+
+      it('if the error is not "access_denied" or "temporarily_unavailable", returns a generic error', async () => {
+        ctx = createTestContext();
+        const state = 'foobar';
+
+        const params: IAuthorizationErrorResponse = {
+          error: 'server_error',
+          error_description: 'Server error',
+          error_uri: '',
+          state,
+        };
+
+        const response = await account.getMicrosoftOIDCCallback(ctx, params);
+        expect(response.body).toContain('error');
+      });
+
+      it('logs any error received', async () => {
+        ctx = createTestContext();
+        (ctx as any).app.logger.error = jest.fn();
+        const state = 'foobar';
+
+        const params: IAuthorizationErrorResponse = {
+          error: 'server_error',
+          error_description: 'Server error',
+          error_uri: '',
+          state,
+        };
+
+        await account.getMicrosoftOIDCCallback(ctx, params);
+        expect(ctx.app.logger.error).toHaveBeenCalled();
       });
     });
 
-    describe('email', () => {
-      it('email returns the users username', () => {
-        const uaaUser: any = {userName: 'foo@bar.org'};
-
-        const acctUser = new account.AccountUser(uaaUser);
-        expect(acctUser.email).toEqual('foo@bar.org');
+    it('when the callback is successful, returns a success template', async () => {
+      // @ts-ignore
+      OIDC.mockImplementation(() => {
+        return {
+          oidcCallback: async () => {
+            return true;
+          },
+        };
       });
+
+      ctx = createTestContext();
+
+      const response = await account.getMicrosoftOIDCCallback(ctx, {});
+      expect((response.body as string).toLowerCase()).toContain('successful');
     });
 
-    describe('isGDSUser', () => {
-      it('returns false if the user\'s username isn\'t a GDS one', () => {
-        const uaaUser: any = {userName: 'foo@bar.org'};
-
-        const acctUser = new account.AccountUser(uaaUser);
-        expect(acctUser.isGDSUser).toBeFalsy();
+    it('when the callback is unsuccessful, returns a failure template', async () => {
+      // @ts-ignore
+      OIDC.mockImplementation(() => {
+        return {
+          oidcCallback: async () => {
+            return false;
+          },
+        };
       });
 
-      it('returns true if the user\'s primary email address is a GDS one', () => {
-        const uaaUser: any = {userName: 'fake.address+paas-admin@digital.cabinet-office.gov.uk'};
+      ctx = createTestContext();
 
-        const acctUser = new account.AccountUser(uaaUser);
-        expect(acctUser.isGDSUser).toBeTruthy();
-      });
-    });
-
-    describe('authenticationMethod', () => {
-      it('returns u&p if the user\'s origin is uaa', () => {
-        const uaaUser: any = {origin: 'uaa'};
-
-        const acctUser = new account.AccountUser(uaaUser);
-        expect(acctUser.authenticationMethod).toEqual('Username & password');
-      });
-
-      it('returns google if the user\'s origin is google', () => {
-        const uaaUser: any = {origin: 'google'};
-
-        const acctUser = new account.AccountUser(uaaUser);
-        expect(acctUser.authenticationMethod).toEqual('Google');
-      });
-
-      it('returns unknown if the user\'s origin is not uaa or google', () => {
-        const uaaUser: any = {origin: 'other'};
-
-        const acctUser = new account.AccountUser(uaaUser);
-        expect(acctUser.authenticationMethod).toEqual('Unknown');
-      });
-    });
-
-    describe('origin', () => {
-      it('returns the origin of the underlying user', () => {
-        const uaaUser: any = {origin: 'foo'};
-
-        const acctUser = new account.AccountUser(uaaUser);
-        expect(acctUser.origin).toEqual('foo');
-      });
+      const response = await account.getMicrosoftOIDCCallback(ctx, {});
+      expect((response.body as string).toLowerCase()).toContain('unable to activate');
     });
   });
 });

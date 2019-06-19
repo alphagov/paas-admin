@@ -244,12 +244,13 @@ async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<Axi
   if (response.status < 200 || response.status >= 300) {
     let msg = `BillingClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;
 
+    /* istanbul ignore else  */
     if (typeof reqWithDefaults.params === 'object') {
-      msg = `${msg} and params ${JSON.stringify(reqWithDefaults.params)}`;
+      msg += ` and params ${JSON.stringify(reqWithDefaults.params)}`;
     }
 
     if (typeof response.data === 'object') {
-      msg = `${msg} and data ${JSON.stringify(response.data)}`;
+      msg += ` and data ${JSON.stringify(response.data)}`;
     }
 
     throw new Error(msg);

@@ -1,6 +1,6 @@
 import Route from './route';
 
-describe ('lib/router test suite - route', () => {
+describe('lib/router test suite - route', () => {
   it('should call for action correctly', async () => {
     const delRoute = new Route({
       name: 'test.del.route',
@@ -37,16 +37,44 @@ describe ('lib/router test suite - route', () => {
     expect(putResponse.body).toMatch(/PUT ROUTE/);
   });
 
-  it('should compose URL correctly', async () => {
-    const route = new Route({
-      name: 'test.route',
-      action: async () => ({}),
-      path: '/hello/:name',
+  describe('composing urls', () => {
+    it('should compose relative URLs correctly', async () => {
+      const route = new Route({
+        name: 'test.route',
+        action: async () => ({}),
+        path: '/hello/:name',
+      });
+
+      expect(route.composeURL({name: 'world'})).toEqual('/hello/world');
+      expect(route.composeURL({name: 'world', q: 'query'})).toEqual('/hello/world?q=query');
+      expect(() => route.composeURL({})).toThrow(/could not compose url: \/hello\/:name/);
     });
 
-    expect(route.composeURL({name: 'world'})).toEqual('/hello/world');
-    expect(route.composeURL({name: 'world', q: 'query'})).toEqual('/hello/world?q=query');
-    expect(() => route.composeURL({})).toThrow(/could not compose url: \/hello\/:name/);
+    it('should compose absolute URLs correctly', async () => {
+      const domain = 'https://example.org/';
+      const parameterisedRoute = new Route({
+        name: 'test.route',
+        action: async () => ({}),
+        path: '/hello/:name',
+      });
+      const unparameterisedRoute = new Route({
+        name: 'test.route',
+        action: async () => ({}),
+        path: '/hello/',
+      });
+
+      expect(unparameterisedRoute.composeAbsoluteURL(domain))
+        .toEqual('https://example.org/hello/');
+
+      expect(parameterisedRoute.composeAbsoluteURL(domain, {name: 'world'}))
+        .toEqual('https://example.org/hello/world');
+
+      expect(parameterisedRoute.composeAbsoluteURL(domain, {name: 'world', q: 'query'}))
+        .toEqual('https://example.org/hello/world?q=query');
+
+      expect(() => parameterisedRoute.composeAbsoluteURL(domain, {}))
+        .toThrow(/could not compose url: \/hello\/:name/);
+    });
   });
 
   it('should match route correctly', async () => {
