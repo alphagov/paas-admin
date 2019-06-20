@@ -229,7 +229,7 @@ function parseRate(rate: IRateResponse): IRate {
 }
 
 async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<AxiosResponse> {
-  const reqWithDefaults = {
+  const reqWithDefaults: AxiosRequestConfig = {
     method: 'get',
     validateStatus,
     timeout: DEFAULT_TIMEOUT,

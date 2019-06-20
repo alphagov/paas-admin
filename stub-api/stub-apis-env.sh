@@ -1,0 +1,22 @@
+#!/bin/sh
+
+export PORT=${PORT-3000}
+
+export STUB_ACCOUNTS_PORT=${STUB_ACCOUNTS_PORT-1337}
+export STUB_BILLING_PORT=${STUB_BILLING_PORT-1338}
+export STUB_CF_PORT=${STUB_CF_PORT-1339}
+export STUB_UAA_PORT=${STUB_UAA_PORT-1340}
+
+
+export ACCOUNTS_URL=http://0:${STUB_ACCOUNTS_PORT}
+export BILLING_URL=http://0:${STUB_BILLING_PORT}
+export API_URL=http://0:${STUB_CF_PORT}
+export UAA_URL=http://0:${STUB_UAA_PORT}
+export AUTHORIZATION_URL=http://0:${STUB_UAA_PORT}
+
+export OAUTH_CLIENT_ID=my-client-id
+export OAUTH_CLIENT_SECRET=my-secret
+export ACCOUNTS_SECRET=my-accounts-secret
+export NOTIFY_API_KEY=qwerty123456
+export NOTIFY_WELCOME_TEMPLATE_ID=qwerty123456
+export AWS_REGION=eu-west-2

@@ -30,6 +30,13 @@ nock('https://example.com/api').persist()
   .get('/v2/stacks').reply(200, data.spaces)
   .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3').reply(200, data.space)
   .get('/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019').reply(200, data.spaceQuota);
+
+nock('https://example.com/accounts').persist()
+  .get('/users/uaa-id-253').reply(200, JSON.stringify({
+    user_uuid: 'uaa-id-253',
+    username: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
+    user_email: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
+  }));
 // tslint:enable:max-line-length
 
 const tokenKey = 'secret';

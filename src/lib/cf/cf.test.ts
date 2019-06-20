@@ -273,7 +273,7 @@ describe('lib/cf test suite', () => {
     const users = await client.usersForOrganization('3deb9f04-b449-4f94-b3dd-c73cefe5b275');
 
     expect(users.length > 0).toBeTruthy();
-    expect(users[0].entity.username).toEqual('user@example.com');
+    expect(users[0].entity.username).toEqual('user@uaa.example.com');
     expect(users[0].entity.organization_roles.length).toEqual(4);
   });
 

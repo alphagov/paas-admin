@@ -1,15 +1,10 @@
+import {AccountsClient} from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
-import {
-  IApplication,
-  IOrganizationUserRoles,
-  IRoute,
-  IServiceInstance,
-  ISpace,
-} from '../../lib/cf/types';
-import { IParameters, IResponse } from '../../lib/router';
+import {IApplication, IOrganizationUserRoles, IRoute, IServiceInstance, ISpace} from '../../lib/cf/types';
+import {IParameters, IResponse} from '../../lib/router';
 
-import { IContext } from '../app/context';
-import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
+import {IContext} from '../app/context';
+import {CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN} from '../auth';
 
 import spaceApplicationsTemplate from './applications.njk';
 import spaceBackingServicesTemplate from './backing-services.njk';
@@ -135,6 +130,12 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     logger: ctx.app.logger,
   });
 
+  const accountsClient = new AccountsClient({
+    apiEndpoint: ctx.app.accountsAPI,
+    secret: ctx.app.accountsSecret,
+    logger: ctx.app.logger,
+  });
+
   const isAdmin = ctx.token.hasAnyScope(
     CLOUD_CONTROLLER_ADMIN,
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
@@ -146,7 +147,9 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
     cf.spaces(params.organizationGUID),
     cf.organization(params.organizationGUID),
-    cf.usersForOrganization(params.organizationGUID),
+    cf.usersForOrganization(params.organizationGUID).then(async (orgUsers) => {
+      return hydrateAccountsUsernames(orgUsers, accountsClient);
+    }),
     cf.cflinuxfs2StackGUID(),
   ]);
 
@@ -158,7 +161,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     const [applications, quota] = await Promise.all([
       cf.applications(space.metadata.guid),
       space.entity.space_quota_definition_guid ?
-          cf.spaceQuota(space.entity.space_quota_definition_guid) : Promise.resolve(null),
+        cf.spaceQuota(space.entity.space_quota_definition_guid) : Promise.resolve(null),
     ]);
 
     /* istanbul ignore next */
@@ -185,7 +188,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
 
       quota: await cf.organizationQuota(organization.entity.quota_definition_guid),
       memory_allocated: summarisedSpaces
-        .reduce((allocated: number, space: {entity: {memory_allocated: number}}) => {
+        .reduce((allocated: number, space: { entity: { memory_allocated: number } }) => {
           return allocated + space.entity.memory_allocated;
         }, 0),
     },
@@ -210,4 +213,34 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
       cflinuxfs2UpgradeNeeded,
     }),
   };
+}
+
+async function hydrateAccountsUsernames(
+  userRoles: ReadonlyArray<IOrganizationUserRoles>,
+  accountsClient: AccountsClient,
+): Promise<ReadonlyArray<IOrganizationUserRoles>> {
+
+  const users = await Promise.all(userRoles.map(async (user: IOrganizationUserRoles) => {
+    const accountsUser = await accountsClient.getUser(user.metadata.guid);
+    return {
+      entity: {
+        active: user.entity.active,
+        admin: user.entity.admin,
+        audited_organizations_url: user.entity.audited_organizations_url,
+        audited_spaces_url: user.entity.audited_spaces_url,
+        billing_managed_organizations_url: user.entity.billing_managed_organizations_url,
+        default_space_guid: user.entity.default_space_guid,
+        managed_organizations_url: user.entity.managed_organizations_url,
+        managed_spaces_url: user.entity.managed_spaces_url,
+        organization_roles: user.entity.organization_roles,
+        organizations_url: user.entity.organizations_url,
+        spaces_url: user.entity.spaces_url,
+        username: accountsUser && accountsUser.username ? accountsUser.username : user.entity.username,
+      },
+      metadata: user.metadata,
+    };
+
+  }));
+
+  return users as ReadonlyArray<IOrganizationUserRoles>;
 }
