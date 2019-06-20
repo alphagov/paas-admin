@@ -83,7 +83,7 @@
     "tslint-immutable": "5.5.2",
     "tslint-microsoft-contrib": "6.2.0",
     "typescript": "3.4.5",
-    "url-loader": "1.1.2",
+    "url-loader": "2.0.0",
     "webpack": "4.32.2",
     "webpack-cli": "3.3.2",
     "webpack-node-externals": "1.7.2",
