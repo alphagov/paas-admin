@@ -1,8 +1,9 @@
 import express from 'express';
 import * as testData from '../src/lib/cf/cf.test.data';
+import {IStubServerPorts} from './index';
 
-function mockCF(app: express.Application, config: {stubApiPort: string, adminPort: string}) {
-  const { stubApiPort } = config;
+function mockCF(app: express.Application, config: IStubServerPorts): express.Application {
+  const { apiPort } = config;
 
   const info = JSON.stringify({
     name: "",
@@ -10,8 +11,8 @@ function mockCF(app: express.Application, config: {stubApiPort: string, adminPor
     support: "https://youtu.be/ZZ5LpwO-An4",
     version: 0,
     description: "",
-    authorization_endpoint: `http://0:${stubApiPort}`,
-    token_endpoint: `http://0:${stubApiPort}`,
+    authorization_endpoint: `http://0:${apiPort}`,
+    token_endpoint: `http://0:${apiPort}`,
     min_cli_version: null,
     min_recommended_cli_version: null,
     app_ssh_endpoint: null,
@@ -47,6 +48,8 @@ function mockCF(app: express.Application, config: {stubApiPort: string, adminPor
   app.get('/v2/spaces/:guid/user_roles'              , (_, res) => res.send(testData.userRolesForSpace));
   app.get('/v2/stacks'                               , (_, res) => res.send(testData.stacks));
   app.get('/v2/stacks/:guid'                         , (_, res) => res.send(testData.stack));
+
+  return app;
 };
 
 export default mockCF;

@@ -2,14 +2,15 @@ import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import pino from 'pino';
 
+import * as users from '.';
+import {AccountsClient} from '../../lib/accounts';
+
 import * as cfData from '../../lib/cf/cf.test.data';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 
-import { config } from '../app/app.test.config';
-import { IContext } from '../app/context';
-import { Token } from '../auth';
-
-import * as users from '.';
+import {config} from '../app/app.test.config';
+import {IContext} from '../app/context';
+import {Token} from '../auth';
 
 const tokenKey = 'secret';
 
@@ -124,7 +125,7 @@ describe('users test suite', () => {
   nockUAA
     .get('/Users/uaa-user-edit-123456').reply(200, uaaData.usersByEmail)
     .get('/Users?filter=email+eq+%22imeCkO@test.org%22').reply(200, uaaData.usersByEmail)
-    .get('/Users?filter=email+eq+%22user@example.com%22').reply(200, uaaData.usersByEmail)
+    .get('/Users?filter=email+eq+%22user@uaa.example.com%22').reply(200, uaaData.usersByEmail)
     .get('/Users?filter=email+eq+%22jeff@jeff.com%22').reply(200, uaaData.noFoundUsersByEmail)
     .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation').reply(200, uaaData.invite)
     .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
@@ -437,8 +438,8 @@ describe('users test suite', () => {
 
   it('should update the user, remove BillingManager role and show success - User Edit', async () => {
     const scope = nock(ctx.app.cloudFoundryAPI)
-    // tslint:disable:max-line-length
-    .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
+      // tslint:disable:max-line-length
+        .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
       // tslint:enable:max-line-length
     ;
     const response = await users.updateUser(ctx, {
@@ -484,8 +485,8 @@ describe('users test suite', () => {
 
   it('should update the user, remove OrgManager role and show success - User Edit', async () => {
     const scope = nock(ctx.app.cloudFoundryAPI)
-    // tslint:disable:max-line-length
-    .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
+      // tslint:disable:max-line-length
+        .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
       // tslint:enable:max-line-length
     ;
     const response = await users.updateUser(ctx, {
@@ -535,8 +536,8 @@ describe('users test suite', () => {
 
   it('should update the user, remove OrgAuditor role and show success - User Edit', async () => {
     const scope = nock(ctx.app.cloudFoundryAPI)
-    // tslint:disable:max-line-length
-    .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
+      // tslint:disable:max-line-length
+        .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
       // tslint:enable:max-line-length
     ;
     const response = await users.updateUser(ctx, {
@@ -740,14 +741,36 @@ describe('permissions calling cc api', () => {
 });
 
 describe('_getUserRolesByGuid', () => {
-  it('should return an empty map if there are no users', () => {
+  let nockAccounts: nock.Scope;
+
+  beforeEach(() => {
+    nockAccounts = nock(ctx.app.accountsAPI).persist();
+
+    nockAccounts
+      .get('/users/some-user-guid-0').reply(200, JSON.stringify({
+      user_uuid: 'some-user-guid-0',
+      user_email: 'some-user-guid-0@fake.digital.cabinet-office.gov.uk',
+      username: 'some-fake-username-from-paas-accounts',
+    }))
+      .get('/users/some-user-guid-1').reply(404)
+      .get('/users/some-user-guid-2').reply(404);
+  });
+
+  it('should return an empty map if there are no users', async () => {
     const userOrgRoles: any = [];
     const spaceUserLists: any = [];
-    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+
+    const accountsClient = new AccountsClient({
+      apiEndpoint: ctx.app.accountsAPI,
+      secret: ctx.app.accountsSecret,
+      logger: ctx.app.logger,
+    });
+
+    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
     expect(result).toEqual({});
   });
 
-  it('should return org roles of a user that has no space access', () => {
+  it('should return org roles of a user that has no space access', async () => {
     const userOrgRoles: any = [
       {
         metadata: {guid: 'some-user-guid'},
@@ -756,7 +779,13 @@ describe('_getUserRolesByGuid', () => {
     ];
     const spaceUserLists: any = [];
 
-    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+    const accountsClient = new AccountsClient({
+      apiEndpoint: ctx.app.accountsAPI,
+      secret: ctx.app.accountsSecret,
+      logger: ctx.app.logger,
+    });
+
+    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
     expect(result).toEqual({
       'some-user-guid': {
         orgRoles: ['org_manager'],
@@ -766,7 +795,7 @@ describe('_getUserRolesByGuid', () => {
     });
   });
 
-  it('should return roles and space of a user that has access to one space', () => {
+  it('should return roles and space of a user that has access to one space', async () => {
     const userOrgRoles: any = [
       {
         metadata: {guid: 'some-user-guid'},
@@ -782,7 +811,13 @@ describe('_getUserRolesByGuid', () => {
       users: [user],
     }];
 
-    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+    const accountsClient = new AccountsClient({
+      apiEndpoint: ctx.app.accountsAPI,
+      secret: ctx.app.accountsSecret,
+      logger: ctx.app.logger,
+    });
+
+    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
     expect(result).toEqual({
       'some-user-guid': {
         orgRoles: ['org_manager'],
@@ -792,7 +827,7 @@ describe('_getUserRolesByGuid', () => {
     });
   });
 
-  it('should return roles and spaces of a user that has access to multiple spaces', () => {
+  it('should return roles and spaces of a user that has access to multiple spaces', async () => {
     const userOrgRoles: any = [
       {
         metadata: {guid: 'some-user-guid'},
@@ -808,7 +843,13 @@ describe('_getUserRolesByGuid', () => {
       users: [user],
     }));
 
-    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+    const accountsClient = new AccountsClient({
+      apiEndpoint: ctx.app.accountsAPI,
+      secret: ctx.app.accountsSecret,
+      logger: ctx.app.logger,
+    });
+
+    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
     expect(result).toEqual({
       'some-user-guid': {
         orgRoles: ['org_manager'],
@@ -818,7 +859,7 @@ describe('_getUserRolesByGuid', () => {
     });
   });
 
-  it('should return users, roles and spaces of multiple users', () => {
+  it('should return users, roles and spaces of multiple users', async () => {
     const userOrgRoles: any = [0, 1, 2].map(i => (
       {
         metadata: {guid: `some-user-guid-${i}`},
@@ -830,16 +871,22 @@ describe('_getUserRolesByGuid', () => {
     const user: any = (i: number) => ({metadata: {guid: `some-user-guid-${i}`}});
 
     const spaceUserLists = [
-      { space: space(0), users: [user(0), user(1)]},
-      { space: space(1), users: [user(1), user(2)]},
-      { space: space(2), users: [user(0), user(1), user(2)]},
+      {space: space(0), users: [user(0), user(1)]},
+      {space: space(1), users: [user(1), user(2)]},
+      {space: space(2), users: [user(0), user(1), user(2)]},
     ];
 
-    const result = users._getUserRolesByGuid(userOrgRoles, spaceUserLists);
+    const accountsClient = new AccountsClient({
+      apiEndpoint: ctx.app.accountsAPI,
+      secret: ctx.app.accountsSecret,
+      logger: ctx.app.logger,
+    });
+
+    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
     expect(result).toEqual({
       'some-user-guid-0': {
         orgRoles: ['org_manager'],
-        username: 'some-user-name-0',
+        username: 'some-fake-username-from-paas-accounts',
         spaces: [space(0), space(2)],
       },
       'some-user-guid-1': {
@@ -851,6 +898,38 @@ describe('_getUserRolesByGuid', () => {
         orgRoles: ['org_manager'],
         username: 'some-user-name-2',
         spaces: [space(1), space(2)],
+      },
+    });
+  });
+
+  it('should get the user\'s username from accounts, falling back to UAA', async () => {
+    const userOrgRoles: any = [0, 1].map(i => (
+      {
+        metadata: {guid: `some-user-guid-${i}`},
+        entity: {organization_roles: ['org_manager'], username: `some-user-name-${i}`},
+      }
+    ));
+
+    const space: any = (i: number) => ({metadata: {guid: `some-space-guid-${i}`}});
+    const user: any = (i: number) => ({metadata: {guid: `some-user-guid-${i}`}});
+
+    const spaceUserLists = [
+      {space: space(0), users: [user(0), user(1)]},
+    ];
+
+    const accountsClient = new AccountsClient({
+      apiEndpoint: ctx.app.accountsAPI,
+      secret: ctx.app.accountsSecret,
+      logger: ctx.app.logger,
+    });
+
+    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
+    expect(result).toMatchObject({
+      'some-user-guid-0': {
+        username: 'some-fake-username-from-paas-accounts',
+      },
+      'some-user-guid-1': {
+        username: 'some-user-name-1',
       },
     });
   });

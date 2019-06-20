@@ -1,4 +1,5 @@
 import express from 'express';
+import {IStubServerPorts} from './index';
 
 const defaultPriceDetails = {
   name: "default-price-name",
@@ -30,7 +31,7 @@ const defaultBillingEvent = {
   storage_in_mb: 0,
   price: {}
 };
-function mockBilling(app: express.Application, _config: { stubApiPort: string, adminPort: string }) {
+function mockBilling(app: express.Application, _config: IStubServerPorts): express.Application {
   app.get('/billable_events', (_req, res) => {
     res.send(JSON.stringify([
       {
@@ -195,6 +196,8 @@ function mockBilling(app: express.Application, _config: { stubApiPort: string, a
       rate: 0.0,
     }]))
   });
+
+  return app;
 };
 
 export default mockBilling;

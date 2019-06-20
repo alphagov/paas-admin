@@ -1,11 +1,13 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import {IUaaEmail, IUaaGroup, IUaaName, IUaaPhoneNumber, IUaaUser} from '../src/lib/uaa';
-import * as uaa from '../src/lib/uaa';
+import {IUaaUser} from '../src/lib/uaa';
+import {IStubServerPorts} from './index';
+
+;
 
 const tokenKey = 'tokensecret';
 const userId = '99022be6-feb8-4f78-96f3-7d11f4d476f1';
-function mockUAA(app: express.Application, config: {stubApiPort: string, adminPort: string}) {
+function mockUAA(app: express.Application, config: IStubServerPorts): express.Application {
   const { adminPort } = config;
   const fakeJwt = jwt.sign({
     user_id: userId,
@@ -16,8 +18,8 @@ function mockUAA(app: express.Application, config: {stubApiPort: string, adminPo
   const userPayload: IUaaUser = {
     meta: {
       version: 0,
-      created: "2019-01-01T00:00:00",
-      lastModified: "2019-01-02T00:00:00",
+      created: '2019-01-01T00:00:00',
+      lastModified: '2019-01-02T00:00:00',
     },
     id: userId,
     externalId: 'stub-user',
@@ -44,20 +46,21 @@ function mockUAA(app: express.Application, config: {stubApiPort: string, adminPo
 
   app.post(
     '/oauth/token',
-    (_req, res) => res.send(JSON.stringify({access_token: fakeJwt}))
+    (_req, res) => res.send(JSON.stringify({access_token: fakeJwt})),
   );
 
   app.get(
     '/oauth/authorize',
     (_req, res) => {
+      // tslint:disable-next-line:no-http-string
       const location = `http://0:${adminPort}/auth/login/callback?code=some-code`;
       res.redirect(301, location);
-    }
+    },
   );
 
   app.get(
     '/token_keys',
-    (_req, res) => res.send(JSON.stringify({keys: [{value: tokenKey}]}))
+    (_req, res) => res.send(JSON.stringify({keys: [{value: tokenKey}]})),
   );
 
   app.get(
@@ -70,8 +73,10 @@ function mockUAA(app: express.Application, config: {stubApiPort: string, adminPo
     `/Users/${userId}`,
     (_req, res) => {
       res.send(JSON.stringify(userPayload));
-    }
-  )
+    },
+  );
+
+  return app;
 }
 
 export default mockUAA;

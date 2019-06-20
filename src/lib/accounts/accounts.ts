@@ -198,7 +198,7 @@ async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<Axi
     ...req,
   };
   const instance = axios.create();
-  intercept(instance, 'billing', logger);
+  intercept(instance, 'accounts', logger);
   const response = await instance.request(reqWithDefaults);
   if (response.status < 200 || response.status >= 300) {
     let msg = `AccountsClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;

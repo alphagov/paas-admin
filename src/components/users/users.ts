@@ -166,10 +166,11 @@ async function setAllUserRolesForOrg(
     ));
 }
 
-export function _getUserRolesByGuid(
+export async function _getUserRolesByGuid(
   userOrgRoles: ReadonlyArray<IOrganizationUserRoles>,
   spaceUserLists: ReadonlyArray<ISpaceUsers>,
-): IUserRolesByGuid {
+  accountsClient: AccountsClient,
+): Promise<IUserRolesByGuid> {
 
   const spacesByUser: { [key: string]: ISpace[] } = {};
   for (const spaceUserList of spaceUserLists) {
@@ -182,8 +183,10 @@ export function _getUserRolesByGuid(
 
   const userRolesByGuid: { [key: string]: IUserRoles } = {};
   for (const user of userOrgRoles) {
+    const accountsUser = await accountsClient.getUser(user.metadata.guid);
+
     userRolesByGuid[user.metadata.guid] = {
-      username: user.entity.username,
+      username: accountsUser && accountsUser.username ? accountsUser.username : user.entity.username,
       orgRoles: user.entity.organization_roles,
       spaces: spacesByUser[user.metadata.guid] || [],
     };
@@ -216,7 +219,13 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     return {space, users: await cf.usersForSpace(space.metadata.guid)};
   }));
 
-  const userRolesByGuid = _getUserRolesByGuid(userOrgRoles, spaceUserLists);
+  const accountsClient = new AccountsClient({
+    apiEndpoint: ctx.app.accountsAPI,
+    secret: ctx.app.accountsSecret,
+    logger: ctx.app.logger,
+  });
+
+  const userRolesByGuid = await _getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
 
   return {
     body: usersTemplate.render({

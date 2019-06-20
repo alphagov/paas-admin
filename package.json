@@ -22,8 +22,8 @@
     "fix:vulnerabilities": "npm audit fix --update-binary",
     "start": "export PORT=${PORT-3000}; export LOG_LEVEL=${LOG_LEVEL-warn}; if [ \"$NODE_ENV\" = 'production' ]; then npm run -s start:production; else npm run -s start:dev; fi",
     "start:dev": "NODE_ENV=development ENABLE_WATCH=true ENABLE_SERVER=true ALLOW_INSECURE_SESSION=true npm run -s build",
-    "start:stub-api": "STUB_API_PORT=${STUB_API_PORT-1337} PORT=${PORT-3000} ts-node stub-api/index.ts",
-    "start:with-stub-api": "STUB_API_PORT=${STUB_API_PORT-1337}; API_URL=http://0:${STUB_API_PORT} BILLING_URL=http://0:${STUB_API_PORT} ACCOUNTS_URL=http://0:${STUB_API_PORT} UAA_URL=http://0:${STUB_API_PORT} OAUTH_CLIENT_ID=my-client-id OAUTH_CLIENT_SECRET=my-secret ACCOUNTS_SECRET=my-accounts-secret NOTIFY_API_KEY=qwerty123456 NOTIFY_WELCOME_TEMPLATE_ID=qwerty123456 AWS_REGION=eu-west-2 npm start",
+    "start:stub-api": "source ./stub-api/stub-apis-env.sh; ts-node stub-api/index.ts",
+    "start:with-stub-api": "source ./stub-api/stub-apis-env.sh; npm start",
     "start:production": "NODE_ENV=production ALLOW_INSECURE_SESSION=true npm run -s build && node dist/main.js",
     "push": "NODE_ENV=production npm run -s build && cf push",
     "clean": "rm -rf dist/* || echo 'already clean'"
