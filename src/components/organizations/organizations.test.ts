@@ -1,13 +1,9 @@
-import jwt from 'jsonwebtoken';
 import nock from 'nock';
-import pino from 'pino';
+
+import {listOrganizations} from '.';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
-
-import { config } from '../app/app.test.config';
-import { IContext } from '../app/context';
-import { Token } from '../auth';
-
-import { listOrganizations } from '.';
+import {createTestContext} from '../app/app.test-helpers';
+import {IContext} from '../app/context';
 
 const organizationTemplate = (name: string, guid: string) => `{
   "metadata": {
@@ -47,20 +43,7 @@ const organizations = `{
 }`;
 nock('https://example.com/api').get('/v2/organizations').times(2).reply(200, organizations);
 
-const tokenKey = 'secret';
-const token = jwt.sign({
-  user_id: 'uaa-user-123',
-  scope: [],
-  exp: 2535018460,
-}, tokenKey);
-const ctx: IContext = {
-  app: config,
-  routePartOf: () => false,
-  linkTo: () => '__LINKED_TO__',
-  log: pino({level: 'silent'}),
-  token: new Token(token, [tokenKey]),
-  csrf: '',
-};
+const ctx: IContext = createTestContext();
 
 nock(ctx.app.uaaAPI).persist()
   .get(`/Users/uaa-user-123`).reply(200, uaaData.gdsUser)
@@ -86,14 +69,14 @@ describe('organizations test suite', () => {
 });
 
 function extractOrganizations(responseBody: string): ReadonlyArray<string> {
-    const re = /(.-org-name-\d)/g;
-    const matches = [];
-    while (true) {
-      const match = re.exec(responseBody);
-      if (match) {
-        matches.push(match[0]);
-      } else {
-        return matches;
-      }
+  const re = /(.-org-name-\d)/g;
+  const matches = [];
+  while (true) {
+    const match = re.exec(responseBody);
+    if (match) {
+      matches.push(match[0]);
+    } else {
+      return matches;
     }
+  }
 }

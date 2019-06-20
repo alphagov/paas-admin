@@ -1,14 +1,10 @@
-import jwt from 'jsonwebtoken';
 import nock from 'nock';
-import pino from 'pino';
+
+import {viewApplication} from '.';
 
 import * as data from '../../lib/cf/cf.test.data';
-
-import { config } from '../app/app.test.config';
-import { IContext } from '../app/context';
-import { Token } from '../auth';
-
-import { viewApplication } from '.';
+import {createTestContext} from '../app/app.test-helpers';
+import {IContext} from '../app/context';
 
 describe('applications test suite', () => {
   nock('https://example.com/api').persist()
@@ -25,20 +21,7 @@ describe('applications test suite', () => {
     .get('/v2/stacks/bb9ca94f-b456-4ebd-ab09-eb7987cce728').times(1).reply(200, data.stack)
     .get('/v2/stacks/dd63d39a-85f8-48ef-bb73-89097192cfcb').times(1).reply(200, data.stackCflinuxfs2);
 
-  const tokenKey = 'secret';
-  const token = jwt.sign({
-    user_id: 'uaa-user-123',
-    scope: [],
-    exp: 2535018460,
-  }, tokenKey);
-  const ctx: IContext = {
-    app: config,
-    routePartOf: () => false,
-    linkTo: () => '__LINKED_TO__',
-    log: pino({level: 'silent'}),
-    token: new Token(token, [tokenKey]),
-    csrf: '',
-  };
+  const ctx: IContext = createTestContext();
 
   it('should show the application overview page', async () => {
     const response = await viewApplication(ctx, {

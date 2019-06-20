@@ -1,13 +1,11 @@
-import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import nock from 'nock';
-import pino from 'pino';
+import {createTestContext} from '../app/app.test-helpers';
 
 import * as data from '../../lib/cf/cf.test.data';
 
 import { config } from '../app/app.test.config';
 import { IContext } from '../app/context';
-import { Token } from '../auth';
 import * as reports from '../reports';
 
 const defaultBillable = {
@@ -25,20 +23,7 @@ describe('html visualisation report test suite', () => {
     .times(5)
     .reply(200, data.organizations);
 
-  const tokenKey = 'secret';
-  const token = jwt.sign({
-    user_id: 'uaa-user-123',
-    scope: [],
-    exp: 2535018460,
-  }, tokenKey);
-  const ctx: IContext = {
-    app: config,
-    routePartOf: () => false,
-    linkTo: () => '__LINKED_TO__',
-    log: pino({level: 'silent'}),
-    token: new Token(token, [tokenKey]),
-    csrf: '',
-  };
+  const ctx: IContext = createTestContext();
 
   it('should show empty report for zero billables', async () => {
     const rangeStart = moment().startOf('month').format('YYYY-MM-DD');

@@ -1,10 +1,8 @@
 import jwt from 'jsonwebtoken';
 import nock, {RequestBodyMatcher} from 'nock';
-
-import pino = require('pino');
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 import {IContext} from '../app';
-import {config} from '../app/app.test.config';
+import {createTestContext} from '../app/app.test-helpers';
 import {Token} from '../auth';
 import * as account from './account';
 
@@ -157,14 +155,10 @@ function setUpUAA(userData: string): IContext {
     exp: 2535018460,
   }, 'secret');
 
-  const ctx = {
-    app: config,
-    routePartOf: () => false,
+  const ctx = createTestContext({
     linkTo: (routeName: string) => routeName,
-    log: pino({level: 'silent'}),
     token: new Token(token, ['secret']),
-    csrf: ' ',
-  };
+  });
 
   nock.cleanAll();
   nock(ctx.app.uaaAPI)
