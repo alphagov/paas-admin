@@ -11,5 +11,9 @@
     <a href="{{ linkTo('admin.reports.viewbyservice', { rangeStart: rangeStart }) }}" class="govuk-link {% if report === 'cost-by-service' %} active {% endif %}" class="govuk-link">
       By service
     </a>
+
+    <a href="{{ linkTo('admin.reports.visualisation', { rangeStart: rangeStart }) }}" class="govuk-link {% if report === 'visualisation' %} active {% endif %}" class="govuk-link">
+      Visualisation
+    </a>
   </nav>
 </div>

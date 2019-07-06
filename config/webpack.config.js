@@ -16,7 +16,8 @@ let cfg = {
 
   entry: {
     main: ['./src/main.ts'],
-    "assets/init": ['./src/frontend/javascript/init.js']
+    "assets/init": ['./src/frontend/javascript/init.js'],
+    "assets/sankey": ['./src/frontend/javascript/sankey.js'],
   },
 
   output: {
