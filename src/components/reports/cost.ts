@@ -97,6 +97,9 @@ export async function viewCostReport(
 
   return {
     body: costReportTemplate.render({
+      report: 'cost',
+      linkTo: ctx.linkTo,
+      rangeStart: moment(rangeStart).format('YYYY-MM-DD'),
       csrf: ctx.csrf,
       date: moment(rangeStart).format('MMMM YYYY'),
       orgCostRecords: Object.values(orgCostRecords),

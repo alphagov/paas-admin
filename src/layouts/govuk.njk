@@ -106,6 +106,9 @@
   {% if organization %}
     {% include "../components/organizations/subnav/element.njk" %}
   {% endif %}
+  {% if report %}
+    {% include "../components/reports/subnav/element.njk" %}
+  {% endif %}
 {% endblock %}
 
 {% block content %}

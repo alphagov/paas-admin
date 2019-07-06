@@ -55,6 +55,9 @@ export async function viewCostByServiceReport(
 
   return {
     body: costReportTemplate.render({
+      report: 'cost-by-service',
+      linkTo: ctx.linkTo,
+      rangeStart: moment(rangeStart).format('YYYY-MM-DD'),
       csrf: ctx.csrf,
       date: moment(rangeStart).format('MMMM YYYY'),
       billablesByService,
