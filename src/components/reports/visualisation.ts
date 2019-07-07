@@ -6,7 +6,21 @@ import BillingClient from '../../lib/billing';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
+import { IBillableByOrganisationAndService } from './cost-by-service';
 import visualisationTemplate from './visualisation.njk';
+
+interface ID3SankeyNode {
+  name: string;
+}
+interface ID3SankeyLink {
+  source: number;
+  target: number;
+  value: number;
+}
+interface ID3SankeyInput {
+  nodes: ReadonlyArray<ID3SankeyNode>;
+  links: ReadonlyArray<ID3SankeyLink>;
+}
 
 export async function viewVisualisation(
   ctx: IContext,
@@ -38,19 +52,7 @@ export async function viewVisualisation(
   });
 
   const billablesByOrganisationAndService = getBillableEventsByOrganisationAndService(billableEvents, orgsByGUID);
-
-  const services = uniq(billablesByOrganisationAndService.map(x => x.serviceGroup));
-  const orgNames = uniq(billablesByOrganisationAndService.map(x => x.orgName));
-  const nodes = services.concat(orgNames);
-  const nodeIndexByName = nodes.reduce((acc, x, index) => ({...acc, [x]: index}), {}) as any;
-  const data = {
-    nodes: nodes.map(x => ({name: x})),
-    links: billablesByOrganisationAndService.map(x => ({
-      source: nodeIndexByName[x.serviceGroup],
-      target: nodeIndexByName[x.orgName],
-      value: x.incVAT,
-    })),
-  };
+  const data = buildD3SankeyInput(billablesByOrganisationAndService);
 
   return {
     body: visualisationTemplate.render({
@@ -59,8 +61,24 @@ export async function viewVisualisation(
       rangeStart: moment(rangeStart).format('YYYY-MM-DD'),
       csrf: ctx.csrf,
       date: moment(rangeStart).format('MMMM YYYY'),
-      data: nodes.length > 0 ? data : null,
+      data: data.nodes.length > 0 ? data : null,
       location: ctx.app.location,
     }),
+  };
+}
+
+export function buildD3SankeyInput(billables: ReadonlyArray<IBillableByOrganisationAndService>): ID3SankeyInput {
+  const services = uniq(billables.map(x => x.serviceGroup));
+  const orgNames = uniq(billables.map(x => x.orgName));
+  const nodes = services.concat(orgNames);
+  const nodeIndexByName = nodes
+    .reduce((acc, x, index) => ({...acc, [x]: index}), {}) as {[_: string]: number};
+  return {
+    nodes: nodes.map(x => ({name: x})),
+    links: billables.map(x => ({
+      source: nodeIndexByName[x.serviceGroup],
+      target: nodeIndexByName[x.orgName],
+      value: x.incVAT,
+    })),
   };
 }
