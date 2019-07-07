@@ -42,6 +42,12 @@ function mockBilling(app: express.Application, _config: IStubServerPorts): expre
       {
         ...defaultBillingEvent,
         resource_name: 'down',
+        price: {inc_vat: "34.00", ex_vat: "14.00", details: [{...defaultPriceDetails, plan_name: "fantastical-plan"}]}
+      },
+      {
+        ...defaultBillingEvent,
+        resource_name: 'down',
+        org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
         price: {inc_vat: "334.00", ex_vat: "314.00", details: [{...defaultPriceDetails, plan_name: "fantastical-plan"}]}
       },
       {
@@ -56,12 +62,20 @@ function mockBilling(app: express.Application, _config: IStubServerPorts): expre
       },
       {
         ...defaultBillingEvent,
+        resource_name: 'charm',
+        org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        price: {inc_vat: "132.00", ex_vat: "112.00", details: [{...defaultPriceDetails, plan_name: "witching-plan"}]}
+      },
+      {
+        ...defaultBillingEvent,
         resource_name: 'bottom',
+        org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
         price: {inc_vat: "100.00", ex_vat: "80.00", details: [{...defaultPriceDetails, plan_name: "sorcerous-plan"}]}
       },
       {
         ...defaultBillingEvent,
         resource_name: 'top',
+        org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
         price: {inc_vat: "100.00", ex_vat: "80.00", details: [{...defaultPriceDetails, plan_name: "supernatural-plan"}]}
       },
     ]));
