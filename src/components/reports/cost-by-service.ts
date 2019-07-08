@@ -10,13 +10,13 @@ import { IContext } from '../app/context';
 
 import costReportTemplate from './cost-by-service.njk';
 
-interface IBillableByService {
+export interface IBillableByService {
   serviceGroup: string;
   incVAT: number;
   exVAT: number;
 }
 
-interface IBillableByOrganisationAndService extends IBillableByService {
+export interface IBillableByOrganisationAndService extends IBillableByService {
   orgGUID: string;
   orgName: string;
 }

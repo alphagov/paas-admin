@@ -64,6 +64,8 @@ export default function(config: IAppConfig) {
   app.use('/assets', staticGzip('dist/assets', {immutable: true}));
   app.use('/assets', staticGzip('node_modules/govuk-frontend', {immutable: true}));
   app.use('/assets', staticGzip('node_modules/govuk-frontend/assets', {immutable: true}));
+  app.use('/assets', staticGzip('node_modules/d3/dist', {immutable: true}));
+  app.use('/assets', staticGzip('node_modules/d3-sankey/dist', {immutable: true}));
   app.use(compression());
 
   app.use(helmet());

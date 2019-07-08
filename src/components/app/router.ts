@@ -118,6 +118,11 @@ const router = new Router([
     path: '/reports/cost-by-service/:rangeStart',
   },
   {
+    action: reports.viewVisualisation,
+    name: 'admin.reports.visualisation',
+    path: '/reports/visualisation/:rangeStart',
+  },
+  {
     action: account.getUseGoogleSSO,
     name: 'account.use-google-sso.view',
     path: '/my-account/use-google-sso',
