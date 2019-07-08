@@ -11,7 +11,7 @@ var height = svgElem.clientHeight;
 var sankey = d3.sankey()
   .nodeAlign(d3.sankeyLeft)
   .nodeWidth(15)
-  .nodePadding(10)
+  .nodePadding(14)
   .extent([[1, 5], [width - 1, height - 5]]);
 
 var _sankey = sankey(data);
@@ -79,7 +79,7 @@ link.append("title")
   .text(function (d) { return d.source.name + " \u2192 " + d.target.name + "\n" + format(d.value); });
 
 svg.append("g")
-  .style("font", "10px sans-serif")
+  .style("font", "14px sans-serif")
   .selectAll("text")
   .data(nodes)
   .join("text")
