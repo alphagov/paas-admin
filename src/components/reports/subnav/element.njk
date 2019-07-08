@@ -1,0 +1,15 @@
+<div class="govuk-grid-row subnav">
+  <div class="govuk-grid-column-one-third">
+    <strong>{{ organization.entity.name }}</strong>
+  </div>
+
+  <nav class="govuk-grid-column-two-thirds">
+    <a href="{{ linkTo('admin.reports.view', { rangeStart: rangeStart }) }}" class="govuk-link {% if report === 'cost' %} active {% endif %}" class="govuk-link">
+      Summary
+    </a>
+
+    <a href="{{ linkTo('admin.reports.viewbyservice', { rangeStart: rangeStart }) }}" class="govuk-link {% if report === 'cost-by-service' %} active {% endif %}" class="govuk-link">
+      By service
+    </a>
+  </nav>
+</div>
