@@ -78,7 +78,7 @@
     "ts-jest": "24.0.2",
     "ts-loader": "6.0.2",
     "ts-mocha": "^6.0.0",
-    "ts-node": "^8.2.0",
+    "ts-node": "^8.3.0",
     "tslint": "5.17.0",
     "tslint-consistent-codestyle": "1.15.1",
     "tslint-immutable": "6.0.0",
