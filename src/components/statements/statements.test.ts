@@ -1,17 +1,17 @@
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import nock from 'nock';
-import pino from 'pino';
+
+import * as statement from '.';
 
 import * as billingData from '../../lib/billing/billing.test.data';
 import * as data from '../../lib/cf/cf.test.data';
+import {createTestContext} from '../app/app.test-helpers';
 
-import { config } from '../app/app.test.config';
-import { IContext } from '../app/context';
-import { Token } from '../auth';
-
-import * as statement from '.';
-import { composeCSV, ISortable, ISortableBy, ISortableDirection, order, sortByName } from './statements';
+import {config} from '../app/app.test.config';
+import {IContext} from '../app/context';
+import {Token} from '../auth';
+import {composeCSV, ISortable, ISortableBy, ISortableDirection, order, sortByName} from './statements';
 
 const resourceTemplate = {
   resourceGUID: '',
@@ -44,14 +44,10 @@ const token = jwt.sign({
   scope: [],
   exp: 2535018460,
 }, tokenKey);
-const ctx: IContext = {
-  app: config,
-  routePartOf: () => false,
-  linkTo: (name, params) => `${name}/${params ? params.rangeStart : ''}`,
-  log: pino({level: 'silent'}),
+const ctx: IContext = createTestContext({
+  linkTo: (name: any, params: any) => `${name}/${params ? params.rangeStart : ''}`,
   token: new Token(token, [tokenKey]),
-  csrf: '',
-};
+});
 
 describe('statements test suite', () => {
 

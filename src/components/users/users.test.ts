@@ -1,14 +1,13 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
-import pino from 'pino';
 
 import * as users from '.';
+
 import {AccountsClient} from '../../lib/accounts';
 
 import * as cfData from '../../lib/cf/cf.test.data';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
-
-import {config} from '../app/app.test.config';
+import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 import {Token} from '../auth';
 
@@ -18,14 +17,9 @@ const time = Math.floor(Date.now() / 1000);
 const rawToken = {user_id: 'uaa-id-253', scope: [], exp: (time + (24 * 60 * 60))};
 const accessToken = jwt.sign(rawToken, tokenKey);
 
-const ctx: IContext = {
-  app: config,
-  routePartOf: () => false,
-  linkTo: () => '__LINKED_TO__',
-  log: pino({level: 'silent'}),
+const ctx: IContext = createTestContext({
   token: new Token(accessToken, [tokenKey]),
-  csrf: '',
-};
+});
 
 function composeOrgRoles(setup: object) {
   const defaultRoles = {

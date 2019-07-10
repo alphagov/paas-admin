@@ -1,14 +1,10 @@
-import jwt from 'jsonwebtoken';
 import nock from 'nock';
-import pino from 'pino';
+
+import {viewService} from '.';
 
 import * as data from '../../lib/cf/cf.test.data';
-
-import { config } from '../app/app.test.config';
-import { IContext } from '../app/context';
-import { Token } from '../auth';
-
-import { viewService } from '.';
+import {createTestContext} from '../app/app.test-helpers';
+import {IContext} from '../app/context';
 
 // tslint:disable:max-line-length
 nock('https://example.com/api')
@@ -22,20 +18,7 @@ nock('https://example.com/api')
   .get('/v2/user_provided_service_instances/54e4c645-7d20-4271-8c27-8cc904e1e7ee').times(1).reply(200, data.userServiceInstance);
 // tslint:enable:max-line-length
 
-const tokenKey = 'secret';
-const token = jwt.sign({
-  user_id: 'uaa-user-123',
-  scope: [],
-  exp: 2535018460,
-}, tokenKey);
-const ctx: IContext = {
-  app: config,
-  routePartOf: () => false,
-  linkTo: () => '__LINKED_TO__',
-  log: pino({level: 'silent'}),
-  token: new Token(token, [tokenKey]),
-  csrf: '',
-};
+const ctx: IContext = createTestContext();
 
 describe('services test suite', () => {
   it('should show the service overview page', async () => {

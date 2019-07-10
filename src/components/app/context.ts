@@ -16,6 +16,7 @@ export interface IContext {
   readonly log: Logger;
   readonly token: Token;
   readonly csrf: string;
+  readonly session: CookieSessionInterfaces.CookieSessionObject;
 }
 
 export function initContext(req: any, router: Router, route: Route, config: IAppConfig): IContext {
@@ -26,5 +27,6 @@ export function initContext(req: any, router: Router, route: Route, config: IApp
     log: req.log,
     token: req.token,
     csrf: req.csrfToken(),
+    session: req.session,
   };
 }

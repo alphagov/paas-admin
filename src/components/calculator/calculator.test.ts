@@ -1,27 +1,12 @@
-import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import nock from 'nock';
-import pino from 'pino';
+import {createTestContext} from '../app/app.test-helpers';
 
-import { config } from '../app/app.test.config';
-import { IContext } from '../app/context';
-import { Token } from '../auth';
-import { getCalculator } from '../calculator';
+import {config} from '../app/app.test.config';
+import {IContext} from '../app/context';
+import {getCalculator} from '../calculator';
 
-const tokenKey = 'secret';
-const token = jwt.sign({
-  user_id: 'uaa-user-123',
-  scope: [],
-  exp: 2535018460,
-}, tokenKey);
-const ctx: IContext = {
-  app: config,
-  routePartOf: () => false,
-  linkTo: () => '__LINKED_TO__',
-  log: pino({level: 'silent'}),
-  token: new Token(token, [tokenKey]),
-  csrf: '',
-};
+const ctx: IContext = createTestContext();
 
 describe('calculator test suite', () => {
   it('should get calculator', async () => {

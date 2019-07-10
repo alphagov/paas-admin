@@ -1,14 +1,10 @@
-import jwt from 'jsonwebtoken';
 import nock from 'nock';
-import pino from 'pino';
-
-import * as data from '../../lib/cf/cf.test.data';
-
-import { config } from '../app/app.test.config';
-import { IContext } from '../app/context';
-import { Token } from '../auth';
 
 import * as spaces from '.';
+
+import * as data from '../../lib/cf/cf.test.data';
+import {createTestContext} from '../app/app.test-helpers';
+import {IContext} from '../app/context';
 
 // tslint:disable:max-line-length
 nock('https://example.com/api').persist()
@@ -39,20 +35,7 @@ nock('https://example.com/accounts').persist()
   }));
 // tslint:enable:max-line-length
 
-const tokenKey = 'secret';
-const token = jwt.sign({
-  user_id: 'uaa-user-123',
-  scope: [],
-  exp: 2535018460,
-}, tokenKey);
-const ctx: IContext = {
-  app: config,
-  routePartOf: () => false,
-  linkTo: () => '__LINKED_TO__',
-  log: pino({level: 'silent'}),
-  token: new Token(token, [tokenKey]),
-  csrf: '',
-};
+const ctx: IContext = createTestContext();
 
 describe('spaces test suite', () => {
   it('should show the spaces pages', async () => {
