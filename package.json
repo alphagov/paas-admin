@@ -106,7 +106,7 @@
     "helmet": "3.18.0",
     "jmespath": "0.15.0",
     "jsonwebtoken": "8.5.1",
-    "lodash": "^4.5.0",
+    "lodash": "^4.17.13",
     "merge-deep": "3.0.2",
     "moment": "2.24.0",
     "notifications-node-client": "^4.6.0",
