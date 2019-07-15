@@ -86,7 +86,7 @@
     "typescript": "3.5.3",
     "url-loader": "2.0.1",
     "webpack": "4.35.3",
-    "webpack-cli": "3.3.5",
+    "webpack-cli": "3.3.6",
     "webpack-node-externals": "1.7.2",
     "webpack-shell-plugin": "0.5.0",
     "zombie": "^6.1.4"
