@@ -170,8 +170,10 @@ describe('app test suite', () => {
       it('should have a Content Security Policy set', () => {
         expect(response.header['content-security-policy']).toContain(
           `default-src 'none'; style-src 'self' 'unsafe-inline'; ` +
-          `script-src 'self' www.google-analytics.com 'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU=' ` +
-          `'sha256-G29/qSW/JHHANtFhlrZVDZW1HOkCDRc78ggbqwwIJ2g='; img-src 'self' www.google-analytics.com; ` +
+          `script-src 'self' 'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU=' ` +
+          `'sha256-G29/qSW/JHHANtFhlrZVDZW1HOkCDRc78ggbqwwIJ2g=' www.google-analytics.com ` +
+          `www.googletagmanager.com 'sha256-3PKQVkjJP08zzrQZEDAfQN6ScCpPnpo3b3VEocvDsdg='; ` +
+          `img-src 'self' www.google-analytics.com; ` +
           `connect-src 'self' www.google-analytics.com; frame-src 'self'; font-src 'self' data:; ` +
           `object-src 'self'; media-src 'self'`,
         );
