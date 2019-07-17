@@ -20,7 +20,7 @@ interface IClientConfig {
   readonly signingKeys?: ReadonlyArray<string>;
 }
 
-export type UaaOrigin = 'uaa' | 'google';
+export type UaaOrigin = 'uaa' | 'google' | 'microsoft';
 
 export interface IUaaInvitation {
   userId: string;
@@ -92,7 +92,7 @@ export default class UAAClient {
     const token = await this.getAccessToken();
     const requiredHeaders = {Authorization: `Bearer ${token}`};
 
-    opts.headers = { ...(opts.headers || {}), ...requiredHeaders };
+    opts.headers = {...(opts.headers || {}), ...requiredHeaders};
     return request(this.apiEndpoint, method, url, {
       ...opts,
     });
@@ -144,9 +144,19 @@ export default class UAAClient {
     return response.data;
   }
 
-  public async setUserOrigin(userId: string, origin: UaaOrigin): Promise<types.IUaaUser> {
+  public async setUserOrigin(
+    userId: string,
+    origin: UaaOrigin,
+    originIdentifier?: string,
+  ): Promise<types.IUaaUser> {
     const user = await this.getUser(userId);
     user.origin = origin;
+
+    /* istanbul ignore if */
+    if (originIdentifier) {
+      user.userName = originIdentifier;
+    }
+
     const reqOpts = {
       data: user,
       headers: {

@@ -1,0 +1,23 @@
+{% extends "../../layouts/govuk.njk" %}
+{% from "govuk-frontend/components/panel/macro.njk" import govukPanel %}
+
+{% block pageTitle %}
+  Sorry, there is a problem with the service – SSO Access Denied – GOV.UK PaaS
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">Sorry, there is a problem activating {{ providerName | capitalize }} SSO</h1>
+      <p class="govuk-body">Access Denied</p>
+      <p class="govuk-body">We're unable to access information about you. You may need to provide conset with your SSO provider when asked.</p>
+      <p class="govuk-body">
+        If you have any queries, send an email to
+        <a class="govuk-link" href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">support</a>.
+      </p>
+      <a href="{{ linkTo("admin.home") }}">Back to account</a>
+    </div>
+  </div>
+{% endblock %}

@@ -1,9 +1,16 @@
+import apm from 'elastic-apm-node';
 import pino from 'pino';
+import sourceMapSupport from 'source-map-support';
+
+import app, {IAppConfig, IOIDCConfig, OIDCProviderName} from './components/app';
+import CloudFoundryClient from './lib/cf';
+
+import Server from './server';
+
 const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
 });
 
-import apm from 'elastic-apm-node';
 /* istanbul ignore next */
 {
   const isApmEnabled = ['yes', 'true'].includes((process.env.ENABLE_APM || '').toLowerCase());
@@ -29,18 +36,11 @@ import apm from 'elastic-apm-node';
   apm.start({
     serviceName: apmServiceName,
     secretToken: apmSecretToken,
-    serverUrl:   apmServerUrl,
+    serverUrl: apmServerUrl,
     active: isApmEnabled,
     logger,
   });
 }
-
-import sourceMapSupport from 'source-map-support';
-
-import app, { IAppConfig } from './components/app';
-import CloudFoundryClient from './lib/cf';
-
-import Server from './server';
 
 sourceMapSupport.install();
 
@@ -94,6 +94,15 @@ async function main() {
     uaaAPI = info.token_endpoint;
   }
 
+  const providers = new Map<OIDCProviderName, IOIDCConfig>();
+  providers.set('microsoft', {
+    providerName: 'microsoft',
+    clientID: expectEnvVariable('MS_CLIENT_ID'),
+    clientSecret: expectEnvVariable('MS_CLIENT_SECRET'),
+    // tslint:disable-next-line:max-line-length
+    discoveryURL: `https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration`,
+  });
+
   const config: IAppConfig = {
     logger,
     sessionSecret: process.env.SESSION_SECRET || 'mysecret',
@@ -109,6 +118,8 @@ async function main() {
     uaaAPI,
     notifyAPIKey: expectEnvVariable('NOTIFY_API_KEY'),
     notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null,
+    oidcProviders: providers,
+    domainName: expectEnvVariable('DOMAIN_NAME'),
   };
 
   const server = new Server(app(config), {

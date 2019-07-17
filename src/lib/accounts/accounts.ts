@@ -227,10 +227,7 @@ function responseError(
 ) {
   const err = new Error(message) as any;
   err.config = config;
-  if (responseCode) {
-    err.code = responseCode;
-  }
-
+  err.code = responseCode;
   err.request = req;
   err.response = response;
   return err;

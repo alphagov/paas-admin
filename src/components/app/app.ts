@@ -34,6 +34,17 @@ export interface IAppConfig {
   readonly sessionSecret: string;
   readonly uaaAPI: string;
   readonly authorizationAPI: string;
+  readonly oidcProviders: Map<OIDCProviderName, IOIDCConfig>;
+  readonly domainName: string;
+}
+
+export type OIDCProviderName = 'microsoft';
+
+export interface IOIDCConfig {
+  readonly providerName: string;
+  readonly clientID: string;
+  readonly clientSecret: string;
+  readonly discoveryURL: string;
 }
 
 export default function(config: IAppConfig) {

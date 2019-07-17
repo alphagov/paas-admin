@@ -1,11 +1,18 @@
 import pino from 'pino';
 
-import { IAppConfig } from './app';
+import {IAppConfig, IOIDCConfig, OIDCProviderName} from './app';
 
 const logger = pino({level: 'silent'});
 
 const sessionSecret = 'mysecret';
 
+const providers = new Map<OIDCProviderName, IOIDCConfig>();
+providers.set('microsoft', {
+  providerName: 'microsoft',
+  clientID: 'CLIENTID',
+  clientSecret: 'CLIENTSECRET',
+  discoveryURL: 'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration',
+});
 export const config: IAppConfig = {
   logger,
   sessionSecret,
@@ -21,4 +28,6 @@ export const config: IAppConfig = {
   authorizationAPI: 'https://example.com/login',
   notifyAPIKey: 'test-123456-qwerty',
   notifyWelcomeTemplateID: 'qwerty-123456',
+  oidcProviders: providers,
+  domainName: 'https://admin.example.com/',
 };

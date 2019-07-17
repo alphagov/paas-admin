@@ -37,6 +37,7 @@ nock(cfg.apiEndpoint)
     "username": "example@example.org",
     "user_email": "example@example.org"
   }`)
+  .get('/users/error').reply(500)
   .get('/users/7fab36d8-a63a-4543-9a24-d7a3fe2f128b/documents').reply(200, `[{
     "name": "my-doc-1",
     "content": "my-pending-doc-content-1",
@@ -129,4 +130,12 @@ describe('lib/accounts test suite', () => {
     expect(ok).toBeTruthy();
   });
 
+  it('should reject the promise when the response is not a 2xx, 3xx or 404', async () => {
+    const ac = new AccountsClient(cfg);
+    await expect(ac.getUser('error'))
+      .rejects
+      .toEqual(expect.objectContaining({
+        code: 500,
+      }));
+  });
 });

@@ -1,0 +1,75 @@
+{% extends "../../layouts/govuk.njk" %}
+{% from "govuk-frontend/components/button/macro.njk" import govukButton %}
+
+{% block pageTitle %}
+  Use Microsoft SSO
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+  <a href="{{ linkTo("admin.home") }}" class="govuk-back-link">Back</a>
+  <div class="govuk-grid-row">
+    {% if user.origin == "uaa" %}
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">
+          Using Microsoft single sign-on (SSO)
+        </h1>
+        <section id="sso-process-explanation">
+          <p>
+            Activating Microsoft single sign-on for your GOV.UK PaaS account means you can no longer
+            sign in using your existing username and password. Instead, you will sign in using
+            using the Microsoft single sign-on option on the log in screen.
+          </p>
+          <p>
+            You will also need to
+            <a href="https://docs.cloud.service.gov.uk/get_started.html#use-the-single-sign-on-function">
+              use single sign-on on at the command line
+            </a>.
+          </p>
+        </section>
+
+        <form method="post" action="{{ linkTo("account.use-microsoft-sso.post") }}" class="govuk-form">
+          <input type="hidden" name="_csrf" value="{{ csrf }}" />
+          {{ govukButton({
+            text: "Activate Microsoft single sign-on"
+          }) }}
+        </form>
+      </div>
+    {% elif user.origin == "microsoft" %}
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">Using Microsoft single sign-on (SSO)</h1>
+        <section id="opt-out-process-explanation">
+          <p>
+            You are currently set up to use Microsoft single sign-on.
+            You will also need to
+            <a href="https://docs.cloud.service.gov.uk/get_started.html#use-the-single-sign-on-function">
+              use single sign-on on at the command line
+            </a>.
+          </p>
+          <p>
+            If you would like to switch sign-on method, send an email to
+            <a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">support</a>.
+          </p>
+        </section>
+      </div>
+    {% else %}
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">Using single sign-on (SSO)</h1>
+        <section id="opt-out-process-explanation">
+          <p>
+            You are currently set up to use another single sign-on provider.
+            You will also need to
+            <a href="https://docs.cloud.service.gov.uk/get_started.html#use-the-single-sign-on-function">
+              use single sign-on on at the command line
+            </a>.
+          </p>
+          <p>
+            If you would like begin using Microsoft single sign-on, send an email to
+            <a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">support</a>.
+          </p>
+        </section>
+      </div>
+    {% endif %}
+  </div>
+
+{% endblock %}

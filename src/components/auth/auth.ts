@@ -76,7 +76,7 @@ export default function authentication(config: IConfig) {
 
         const signingKeys = await uaa.getSigningKeys();
         req.token = new Token(req.session.passport.user, signingKeys);
-        req.sessionOptions.expires = req.token.expiry;
+        req.sessionOptions.expires = new Date(req.token.expiry * 1000 /* as milliseconds */);
       } catch (err) {
         req.log.error(err);
         req.session = null;

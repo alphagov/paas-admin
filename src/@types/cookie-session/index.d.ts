@@ -91,6 +91,8 @@ declare namespace CookieSessionInterfaces {
       isPopulated: boolean;
 
       [propertyName: string]: any;
+
+      save(): void;
   }
 
   interface CookieSessionRequest {

@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import * as _ from 'lodash';
 import pino from 'pino';
 import {Token} from '../auth';
 import {config} from './app.test.config';
@@ -16,13 +17,18 @@ class FakeSession implements CookieSessionInterfaces.CookieSessionObject {
   }
 
   readonly [propertyName: string]: any
+
+  public save(): void {
+    // Does nothing
+  }
 }
 
 export function createTestContext(ctx?: {}): IContext {
-  return {
+  return _.cloneDeep({
     app: config,
     routePartOf: () => false,
     linkTo: () => '__LINKED_TO__',
+    absoluteLinkTo: () => '__ABSOLUTE_LINKED_TO__',
     log: pino({level: 'silent'}),
     token: new Token(
       jwt.sign({
@@ -34,5 +40,5 @@ export function createTestContext(ctx?: {}): IContext {
     csrf: '',
     session: new FakeSession(),
     ...ctx,
-  };
+  });
 }
