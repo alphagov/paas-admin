@@ -115,6 +115,7 @@ describe('app test suite', () => {
       user_id: 'uaa-user-123',
       scope: [],
       exp: (time + (24 * 60 * 60)),
+      origin: 'uaa',
     }, tokenKey);
 
     nock('https://example.com/uaa')

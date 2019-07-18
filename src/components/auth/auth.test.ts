@@ -56,6 +56,7 @@ describe('auth test suite', () => {
         user_id: 'uaa-user-123',
         scope: [],
         exp: (time + (24 * 60 * 60)),
+        origin: 'uaa',
       }, tokenKey);
 
       // Capture the request to the given URL and prepare a response.
@@ -148,6 +149,7 @@ describe('auth test suite', () => {
       user_id: 'uaa-user-123',
       scope: [],
       exp: (time + (24 * 60 * 60)),
+      origin: 'uaa',
     }, tokenKey);
 
     beforeAll(() => {

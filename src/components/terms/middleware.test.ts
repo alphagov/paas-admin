@@ -24,6 +24,7 @@ app.use((req: any, _res: any, next: any) => {
   }
   const accessToken = jwt.sign({
     exp: (now + (24 * 60 * 60)),
+    origin: 'uaa',
     scope: [],
     user_id: fakeUserID,
   }, tokenKeys[0]);
