@@ -31,7 +31,7 @@ export function internalServerErrorMiddleware(err: Error, req: any, res: express
     res.send(internalServerError.render({
       errorMessage: err.message,
       context: {
-        csrf: '',
+        csrf: req.csrfToken(),
         location: platformLocation(
           process.env.AWS_REGION || /* istanbul ignore next */ '',
         ),
@@ -44,7 +44,7 @@ export function internalServerErrorMiddleware(err: Error, req: any, res: express
   res.status(500);
   res.send(internalServerError.render({
     context: {
-      csrf: '',
+      csrf: req.csrfToken(),
       location: platformLocation(
         process.env.AWS_REGION || /* istanbul ignore next */ '',
       ),
@@ -52,11 +52,11 @@ export function internalServerErrorMiddleware(err: Error, req: any, res: express
   }));
 }
 
-export function pageNotFoundMiddleware(_req: any, res: express.Response, _next: express.NextFunction) {
+export function pageNotFoundMiddleware(req: any, res: express.Response, _next: express.NextFunction) {
   res.status(404);
   res.send(pageNotFound.render({
     context: {
-      csrf: '',
+      csrf: req.csrfToken(),
       location: platformLocation(
         process.env.AWS_REGION || /* istanbul ignore next */ '',
       ),
