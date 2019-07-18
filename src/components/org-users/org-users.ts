@@ -26,7 +26,7 @@ import editTemplate from './edit.njk';
 import editSuccessTemplate from './edit.success.njk';
 import inviteTemplate from './invite.njk';
 import inviteSuccessTemplate from './invite.success.njk';
-import usersTemplate from './users.njk';
+import orgUsersTemplate from './org-users.njk';
 
 interface IInvalid {
   readonly field: string;
@@ -228,7 +228,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
   const userRolesByGuid = await _getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
 
   return {
-    body: usersTemplate.render({
+    body: orgUsersTemplate.render({
       routePartOf: ctx.routePartOf,
       csrf: ctx.csrf,
       isAdmin,

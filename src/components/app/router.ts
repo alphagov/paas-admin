@@ -2,12 +2,12 @@ import Router, { IParameters } from '../../lib/router';
 
 import * as account from '../account';
 import * as applications from '../applications';
+import * as orgUsers from '../org-users';
 import * as organizations from '../organizations';
 import * as reports from '../reports';
 import * as services from '../services';
 import * as spaces from '../spaces';
 import * as statements from '../statements';
-import * as orgUsers from '../users';
 import { IContext } from './context';
 
 const router = new Router([

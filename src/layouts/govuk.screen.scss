@@ -13,9 +13,8 @@ $govuk-global-styles: true;
 @import '../components/spaces/spaces';
 @import '../components/spaces/applications';
 
-@import '../components/users/users';
-@import '../components/users/permissions';
-@import '../components/users/users';
+@import '../components/org-users/org-users';
+@import '../components/org-users/permissions';
 
 @import '../components/statements/statements';
 
