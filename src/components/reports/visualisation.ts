@@ -62,7 +62,6 @@ export async function viewVisualisation(
       context: ctx.viewContext,
       date: moment(rangeStart).format('MMMM YYYY'),
       data: data.nodes.length > 0 ? data : null,
-      location: ctx.app.location,
     }),
   };
 }

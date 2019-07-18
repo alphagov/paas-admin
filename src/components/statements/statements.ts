@@ -236,7 +236,6 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.location,
     }),
   };
 }

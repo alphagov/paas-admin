@@ -30,7 +30,6 @@ export async function listOrganizations(ctx: IContext, _params: IParameters): Pr
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
       organizations,
-      location: ctx.app.location,
       user,
     }),
   };

@@ -76,7 +76,6 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.location,
     }),
   };
 }

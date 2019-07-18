@@ -24,8 +24,7 @@ export function termsCheckerMiddleware(location: string, config: IAccountsClient
     const document = await accounts.getDocument(req.params.name);
     res.send(termsTemplate.render({
       document,
-      csrf: req.csrfToken(),
-      location,
+      context: { csrf: req.csrfToken(), location },
     }));
   }));
 

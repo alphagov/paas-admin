@@ -62,7 +62,6 @@ export async function viewCostByServiceReport(
       date: moment(rangeStart).format('MMMM YYYY'),
       billablesByService,
       billablesByOrganisationAndService,
-      location: ctx.app.location,
     }),
   };
 }

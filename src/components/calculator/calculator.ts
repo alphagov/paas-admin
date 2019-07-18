@@ -115,7 +115,6 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
       context: ctx.viewContext,
       state,
       quote,
-      location: ctx.app.location,
     }),
   };
 }

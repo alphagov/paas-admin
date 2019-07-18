@@ -26,7 +26,6 @@ export async function getUseGoogleSSO(ctx: IContext, _params: IParameters): Prom
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
-      location: ctx.app.location,
       user,
     }),
   };
@@ -47,7 +46,6 @@ export async function postUseGoogleSSO(ctx: IContext, _params: IParameters): Pro
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
-      location: ctx.app.location,
       providerName: 'Google',
     }),
   };
@@ -64,7 +62,6 @@ export async function getUseMicrosoftSSO(ctx: IContext, _params: IParameters): P
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
         context: ctx.viewContext,
-        location: ctx.app.location,
       }),
     };
   }
@@ -76,7 +73,6 @@ export async function getUseMicrosoftSSO(ctx: IContext, _params: IParameters): P
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
-      location: ctx.app.location,
       user,
     }),
   };
@@ -93,7 +89,6 @@ export async function postUseMicrosoftSSO(ctx: IContext, _params: IParameters): 
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
         context: ctx.viewContext,
-        location: ctx.app.location,
       }),
     };
   }
@@ -130,7 +125,6 @@ export async function getMicrosoftOIDCCallback(ctx: IContext, _params: IParamete
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
         context: ctx.viewContext,
-        location: ctx.app.location,
       }),
     };
   }
@@ -159,7 +153,6 @@ export async function getMicrosoftOIDCCallback(ctx: IContext, _params: IParamete
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
         context: ctx.viewContext,
-        location: ctx.app.location,
         providerName: cfgProvided.providerName,
       }),
     };
@@ -169,7 +162,6 @@ export async function getMicrosoftOIDCCallback(ctx: IContext, _params: IParamete
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
-      location: ctx.app.location,
       providerName: cfgProvided.providerName,
     }),
   };
@@ -196,7 +188,6 @@ async function oidcErrorHandler(ctx: IContext, _params: IParameters, cfg: IOIDCC
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
         context: ctx.viewContext,
-        location: ctx.app.location,
         providerName: cfg.providerName,
       }),
     };
@@ -208,7 +199,6 @@ async function oidcErrorHandler(ctx: IContext, _params: IParameters, cfg: IOIDCC
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
         context: ctx.viewContext,
-        location: ctx.app.location,
         providerName: cfg.providerName,
       }),
     };
@@ -219,7 +209,6 @@ async function oidcErrorHandler(ctx: IContext, _params: IParameters, cfg: IOIDCC
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
-      location: ctx.app.location,
     }),
   };
 }

@@ -37,7 +37,10 @@ export function createTestContext(ctx?: {}): IContext {
         scope: [],
       }, 'secret'), ['secret'],
     ),
-    csrf: '',
+    viewContext: {
+      csrf: '',
+      location: 'eu-west-2',
+    },
     session: new FakeSession(),
     ...ctx,
   });
