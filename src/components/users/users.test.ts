@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
-import * as users from '.';
+import * as orgUsers from '.';
 
 import {AccountsClient} from '../../lib/accounts';
 
@@ -141,7 +141,7 @@ describe('users test suite', () => {
   });
 
   it('should show the users pages', async () => {
-    const response = await users.listUsers(ctx, {
+    const response = await orgUsers.listUsers(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     });
 
@@ -149,7 +149,7 @@ describe('users test suite', () => {
   });
 
   it('should show the invite page', async () => {
-    const response = await users.inviteUserForm(ctx, {
+    const response = await orgUsers.inviteUserForm(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     });
 
@@ -157,7 +157,7 @@ describe('users test suite', () => {
   });
 
   it('should show error message when email is missing', async () => {
-    const response = await users.inviteUser(ctx, {
+    const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {});
 
@@ -166,7 +166,7 @@ describe('users test suite', () => {
   });
 
   it('should show error message when email is invalid according to our regex', async () => {
-    const response = await users.inviteUser(ctx, {
+    const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {email: 'x'});
 
@@ -175,7 +175,7 @@ describe('users test suite', () => {
   });
 
   it('should show error message when invitee is already a member of org', async () => {
-    const response = await users.inviteUser(ctx, {
+    const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {
       email: 'imeCkO@test.org',
@@ -194,7 +194,7 @@ describe('users test suite', () => {
   });
 
   it('should show error when no roles selected', async () => {
-    const response = await users.inviteUser(ctx, {
+    const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {email: 'jeff@jeff.com'});
 
@@ -203,7 +203,7 @@ describe('users test suite', () => {
   });
 
   it('should invite the user, set BillingManager role and show success', async () => {
-    const response = await users.inviteUser(ctx, {
+    const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {
       email: 'jeff@jeff.com',
@@ -224,7 +224,7 @@ describe('users test suite', () => {
   });
 
   it('should invite the user, set OrgManager role and show success', async () => {
-    const response = await users.inviteUser(ctx, {
+    const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {
       email: 'jeff@jeff.com',
@@ -245,7 +245,7 @@ describe('users test suite', () => {
   });
 
   it('should invite the user, set OrgAuditor role and show success', async () => {
-    const response = await users.inviteUser(ctx, {
+    const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {
       email: 'jeff@jeff.com',
@@ -266,7 +266,7 @@ describe('users test suite', () => {
   });
 
   it('should invite the user, set SpaceManager role and show success', async () => {
-    const response = await users.inviteUser(ctx, {
+    const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {
       email: 'jeff@jeff.com',
@@ -287,7 +287,7 @@ describe('users test suite', () => {
   });
 
   it('should invite the user, set SpaceDeveloper role and show success', async () => {
-    const response = await users.inviteUser(ctx, {
+    const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {
       email: 'jeff@jeff.com',
@@ -308,7 +308,7 @@ describe('users test suite', () => {
   });
 
   it('should invite the user, set SpaceAuditor role and show success', async () => {
-    const response = await users.inviteUser(ctx, {
+    const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {
       email: 'jeff@jeff.com',
@@ -329,7 +329,7 @@ describe('users test suite', () => {
   });
 
   it('should invite the user, and add them to accounts', async () => {
-    await users.inviteUser(ctx, {
+    await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {
       email: 'jeff@jeff.com',
@@ -350,14 +350,14 @@ describe('users test suite', () => {
   });
 
   it('should fail if the user does not exist in org', async () => {
-    await expect(users.resendInvitation(ctx, {
+    await expect(orgUsers.resendInvitation(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'not-existing-user',
     }, {})).rejects.toThrow(/user not found/);
   });
 
   it('should resend user invite', async () => {
-    const response = await users.resendInvitation(ctx, {
+    const response = await orgUsers.resendInvitation(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-id-253',
     }, {});
@@ -366,7 +366,7 @@ describe('users test suite', () => {
   });
 
   it('should show the user delete page', async () => {
-    const response = await users.confirmDeletion(ctx, {
+    const response = await orgUsers.confirmDeletion(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     });
@@ -375,7 +375,7 @@ describe('users test suite', () => {
   });
 
   it('should update the user, set BillingManager role and show success - User Edit', async () => {
-    const response = await users.deleteUser(ctx, {
+    const response = await orgUsers.deleteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: '5ff19d4c-8fa0-4d74-94e0-52eac86d55a8',
     }, {});
@@ -384,7 +384,7 @@ describe('users test suite', () => {
   });
 
   it('should show the user edit page', async () => {
-    const response = await users.editUser(ctx, {
+    const response = await orgUsers.editUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     });
@@ -393,14 +393,14 @@ describe('users test suite', () => {
   });
 
   it('should fail to show the user edit page due to not existing user', async () => {
-    await expect(users.editUser(ctx, {
+    await expect(orgUsers.editUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'not-existing-user',
     })).rejects.toThrow(/user not found/);
   });
 
   it('should show error when no roles selected - User Edit', async () => {
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     }, {test: 'qwerty123456'});
@@ -410,7 +410,7 @@ describe('users test suite', () => {
   });
 
   it('should update the user, set BillingManager role and show success - User Edit', async () => {
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     }, {
@@ -436,7 +436,7 @@ describe('users test suite', () => {
         .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
       // tslint:enable:max-line-length
     ;
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-changeperms-123456',
     }, {
@@ -457,7 +457,7 @@ describe('users test suite', () => {
   });
 
   it('should update the user, set OrgManager role and show success - User Edit', async () => {
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     }, {
@@ -483,7 +483,7 @@ describe('users test suite', () => {
         .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
       // tslint:enable:max-line-length
     ;
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-changeperms-123456',
     }, {
@@ -508,7 +508,7 @@ describe('users test suite', () => {
   });
 
   it('should update the user, set OrgAuditor role and show success - User Edit', async () => {
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     }, {
@@ -534,7 +534,7 @@ describe('users test suite', () => {
         .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/uaa-user-changeperms-123456?recursive=true').reply(200, `{}`)
       // tslint:enable:max-line-length
     ;
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-changeperms-123456',
     }, {
@@ -555,7 +555,7 @@ describe('users test suite', () => {
   });
 
   it('should update the user, set SpaceManager role and show success - User Edit', async () => {
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     }, {
@@ -576,7 +576,7 @@ describe('users test suite', () => {
   });
 
   it('should update the user, set SpaceDeveloper role and show success - User Edit', async () => {
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     }, {
@@ -597,7 +597,7 @@ describe('users test suite', () => {
   });
 
   it('should update the user, set SpaceAuditor role and show success - User Edit', async () => {
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     }, {
@@ -637,7 +637,7 @@ describe('permissions calling cc api', () => {
       .reply(200, cfData.spaces)
     ;
 
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     }, {
@@ -673,7 +673,7 @@ describe('permissions calling cc api', () => {
       .reply(200, cfData.spaces)
     ;
 
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     }, {
@@ -709,7 +709,7 @@ describe('permissions calling cc api', () => {
       .reply(200, cfData.spaces)
     ;
 
-    const response = await users.updateUser(ctx, {
+    const response = await orgUsers.updateUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     }, {
@@ -760,7 +760,7 @@ describe('_getUserRolesByGuid', () => {
       logger: ctx.app.logger,
     });
 
-    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
+    const result = await orgUsers._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
     expect(result).toEqual({});
   });
 
@@ -779,7 +779,7 @@ describe('_getUserRolesByGuid', () => {
       logger: ctx.app.logger,
     });
 
-    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
+    const result = await orgUsers._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
     expect(result).toEqual({
       'some-user-guid': {
         orgRoles: ['org_manager'],
@@ -811,7 +811,7 @@ describe('_getUserRolesByGuid', () => {
       logger: ctx.app.logger,
     });
 
-    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
+    const result = await orgUsers._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
     expect(result).toEqual({
       'some-user-guid': {
         orgRoles: ['org_manager'],
@@ -843,7 +843,7 @@ describe('_getUserRolesByGuid', () => {
       logger: ctx.app.logger,
     });
 
-    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
+    const result = await orgUsers._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
     expect(result).toEqual({
       'some-user-guid': {
         orgRoles: ['org_manager'],
@@ -876,7 +876,7 @@ describe('_getUserRolesByGuid', () => {
       logger: ctx.app.logger,
     });
 
-    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
+    const result = await orgUsers._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
     expect(result).toEqual({
       'some-user-guid-0': {
         orgRoles: ['org_manager'],
@@ -917,7 +917,7 @@ describe('_getUserRolesByGuid', () => {
       logger: ctx.app.logger,
     });
 
-    const result = await users._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
+    const result = await orgUsers._getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
     expect(result).toMatchObject({
       'some-user-guid-0': {
         username: 'some-fake-username-from-paas-accounts',
