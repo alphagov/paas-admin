@@ -101,7 +101,6 @@
     "csurf": "^1.10.0",
     "d3": "^5.9.7",
     "d3-sankey": "^0.12.1",
-    "elastic-apm-node": "^2.12.1",
     "express": "4.17.1",
     "express-pino-logger": "4.0.0",
     "express-static-gzip": "1.1.3",
