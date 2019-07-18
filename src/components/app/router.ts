@@ -2,12 +2,12 @@ import Router, { IParameters } from '../../lib/router';
 
 import * as account from '../account';
 import * as applications from '../applications';
+import * as orgUsers from '../org-users';
 import * as organizations from '../organizations';
 import * as reports from '../reports';
 import * as services from '../services';
 import * as spaces from '../spaces';
 import * as statements from '../statements';
-import * as users from '../users';
 import { IContext } from './context';
 
 const router = new Router([
@@ -49,45 +49,45 @@ const router = new Router([
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID',
   },
   {
-    action: users.listUsers,
+    action: orgUsers.listUsers,
     name: 'admin.organizations.users',
     path: '/organisations/:organizationGUID/users',
   },
   {
-    action: users.inviteUserForm,
+    action: orgUsers.inviteUserForm,
     name: 'admin.organizations.users.invite',
     path: '/organisations/:organizationGUID/users/invite',
   },
   {
-    action: users.inviteUser,
+    action: orgUsers.inviteUser,
     method: 'post',
     name: 'admin.organizations.users.invite.process',
     path: '/organisations/:organizationGUID/users/invite',
   },
   {
-    action: users.editUser,
+    action: orgUsers.editUser,
     name: 'admin.organizations.users.edit',
     path: '/organisations/:organizationGUID/users/:userGUID',
   },
   {
-    action: users.updateUser,
+    action: orgUsers.updateUser,
     method: 'post',
     name: 'admin.organizations.users.update',
     path: '/organisations/:organizationGUID/users/:userGUID',
   },
   {
-    action: users.confirmDeletion,
+    action: orgUsers.confirmDeletion,
     name: 'admin.organizations.users.delete',
     path: '/organisations/:organizationGUID/users/:userGUID/delete',
   },
   {
-    action: users.deleteUser,
+    action: orgUsers.deleteUser,
     method: 'post',
     name: 'admin.organizations.users.delete.process',
     path: '/organisations/:organizationGUID/users/:userGUID/delete',
   },
   {
-    action: users.resendInvitation,
+    action: orgUsers.resendInvitation,
     method: 'post',
     name: 'admin.organizations.users.invite.resend',
     path: '/organisations/:organizationGUID/users/:userGUID/invite',
