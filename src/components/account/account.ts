@@ -25,7 +25,7 @@ export async function getUseGoogleSSO(ctx: IContext, _params: IParameters): Prom
     body: useGoogleSSOTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       location: ctx.app.location,
       user,
     }),
@@ -46,7 +46,7 @@ export async function postUseGoogleSSO(ctx: IContext, _params: IParameters): Pro
     body: successfulUpliftTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       location: ctx.app.location,
       providerName: 'Google',
     }),
@@ -63,7 +63,7 @@ export async function getUseMicrosoftSSO(ctx: IContext, _params: IParameters): P
       body: error500.render({
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
-        csrf: ctx.csrf,
+        context: ctx.viewContext,
         location: ctx.app.location,
       }),
     };
@@ -75,7 +75,7 @@ export async function getUseMicrosoftSSO(ctx: IContext, _params: IParameters): P
     body: useMicrosoftSSOTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       location: ctx.app.location,
       user,
     }),
@@ -92,7 +92,7 @@ export async function postUseMicrosoftSSO(ctx: IContext, _params: IParameters): 
       body: error500.render({
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
-        csrf: ctx.csrf,
+        context: ctx.viewContext,
         location: ctx.app.location,
       }),
     };
@@ -129,7 +129,7 @@ export async function getMicrosoftOIDCCallback(ctx: IContext, _params: IParamete
       body: error500.render({
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
-        csrf: ctx.csrf,
+        context: ctx.viewContext,
         location: ctx.app.location,
       }),
     };
@@ -158,7 +158,7 @@ export async function getMicrosoftOIDCCallback(ctx: IContext, _params: IParamete
       body: successfulUpliftTemplate.render({
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
-        csrf: ctx.csrf,
+        context: ctx.viewContext,
         location: ctx.app.location,
         providerName: cfgProvided.providerName,
       }),
@@ -168,7 +168,7 @@ export async function getMicrosoftOIDCCallback(ctx: IContext, _params: IParamete
     body: unsuccessfulUpliftTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       location: ctx.app.location,
       providerName: cfgProvided.providerName,
     }),
@@ -195,7 +195,7 @@ async function oidcErrorHandler(ctx: IContext, _params: IParameters, cfg: IOIDCC
       body: accessDeniedTemplate.render({
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
-        csrf: ctx.csrf,
+        context: ctx.viewContext,
         location: ctx.app.location,
         providerName: cfg.providerName,
       }),
@@ -207,7 +207,7 @@ async function oidcErrorHandler(ctx: IContext, _params: IParameters, cfg: IOIDCC
       body: temporarilyUnavailableTemplate.render({
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
-        csrf: ctx.csrf,
+        context: ctx.viewContext,
         location: ctx.app.location,
         providerName: cfg.providerName,
       }),
@@ -218,7 +218,7 @@ async function oidcErrorHandler(ctx: IContext, _params: IParameters, cfg: IOIDCC
     body: error500.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       location: ctx.app.location,
     }),
   };

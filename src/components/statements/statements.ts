@@ -215,7 +215,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     body: usageTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       organization,
       filter,
       totals,

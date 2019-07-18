@@ -48,7 +48,7 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
     body: serviceOverviewTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       organization,
       service: summarisedService,
       space,

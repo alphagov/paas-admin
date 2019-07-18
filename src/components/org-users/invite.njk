@@ -33,7 +33,7 @@
     {% endif %}
 
     <form method="post" class="govuk-!-mt-r6">
-      <input type="hidden" name="_csrf" value="{{ csrf }}" />
+      <input type="hidden" name="_csrf" value="{{ context.csrf }}" />
       {{ govukInput({
         label: {
           text: "Email address"

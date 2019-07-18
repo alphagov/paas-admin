@@ -9,6 +9,11 @@ export interface IRawToken {
   readonly scope: ReadonlyArray<string>;
 }
 
+export interface IViewContext {
+  readonly csrf: string;
+  readonly location: string;
+}
+
 export interface IContext {
   readonly app: IAppConfig;
   readonly routePartOf: (name: string) => boolean;
@@ -16,8 +21,8 @@ export interface IContext {
   readonly absoluteLinkTo: (name: string, params?: IParameters) => string;
   readonly log: Logger;
   readonly token: Token;
-  readonly csrf: string;
   readonly session: CookieSessionInterfaces.CookieSessionObject;
+  readonly viewContext: IViewContext;
 }
 
 export function initContext(req: any, router: Router, route: Route, config: IAppConfig): IContext {
@@ -32,7 +37,10 @@ export function initContext(req: any, router: Router, route: Route, config: IApp
     },
     log: req.log,
     token: req.token,
-    csrf: req.csrfToken(),
+    viewContext: {
+      location: config.location,
+      csrf: req.csrfToken(),
+    },
     session: req.session,
   };
 }

@@ -57,7 +57,7 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
     body: spaceApplicationsTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       applications: summarisedApplications,
       cflinuxfs2UpgradeNeeded,
       organization,
@@ -111,7 +111,7 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
     body: spaceBackingServicesTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       services: [...summarisedServices, ...userServices],
       organization,
       space,
@@ -201,7 +201,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     body: spacesTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       managers,
       organization: summerisedOrganization,
       spaces: summarisedSpaces,

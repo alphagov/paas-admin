@@ -112,7 +112,7 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
     body: calculatorTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       state,
       quote,
       location: ctx.app.location,
