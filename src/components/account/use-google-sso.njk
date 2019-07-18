@@ -35,7 +35,7 @@
           }) }}
         </form>
       </div>
-    {% else %}
+    {% elif user.origin == "google" %}
       <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">Using Google single sign-on (SSO)</h1>
         <section id="opt-out-process-explanation">
@@ -47,7 +47,24 @@
             </a>.
           </p>
           <p>
-            If you would like cancel Google single sign-on, send an email to
+            If you would like to switch sign-on method, send an email to
+            <a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">support</a>.
+          </p>
+        </section>
+      </div>
+    {% else %}
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">Using single sign-on (SSO)</h1>
+        <section id="opt-out-process-explanation">
+          <p>
+            You are currently set up to use another single sign-on provider.
+            You will also need to
+            <a href="https://docs.cloud.service.gov.uk/get_started.html#use-the-single-sign-on-function">
+              use single sign-on on at the command line
+            </a>.
+          </p>
+          <p>
+            If you would like begin using Microsoft single sign-on, send an email to
             <a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">support</a>.
           </p>
         </section>

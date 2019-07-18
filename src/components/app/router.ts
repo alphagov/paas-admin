@@ -134,6 +134,11 @@ const router = new Router([
     path: '/my-account/use-google-sso',
   },
   {
+    action: account.getGoogleOIDCCallback,
+    name: 'account.use-google-sso-callback.get',
+    path: '/my-account/use-google-sso/callback',
+  },
+  {
     action: account.getUseMicrosoftSSO,
     name: 'account.use-microsoft-sso.view',
     path: '/my-account/use-microsoft-sso',

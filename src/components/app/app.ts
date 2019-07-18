@@ -38,7 +38,7 @@ export interface IAppConfig {
   readonly domainName: string;
 }
 
-export type OIDCProviderName = 'microsoft';
+export type OIDCProviderName = 'microsoft' | 'google';
 
 export interface IOIDCConfig {
   readonly providerName: string;

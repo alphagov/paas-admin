@@ -13,6 +13,12 @@ providers.set('microsoft', {
   clientSecret: 'CLIENTSECRET',
   discoveryURL: 'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration',
 });
+providers.set('google', {
+  providerName: 'google',
+  clientID: 'CLIENTID',
+  clientSecret: 'CLIENTSECRET',
+  discoveryURL: 'https://accounts.google.com/.well-known/openid-configuration',
+});
 export const config: IAppConfig = {
   logger,
   sessionSecret,

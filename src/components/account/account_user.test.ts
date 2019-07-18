@@ -28,22 +28,6 @@ describe('AccountUser', () => {
     });
   });
 
-  describe('isGDSUser', () => {
-    it('returns false if the user\'s username isn\'t a GDS one', () => {
-      const uaaUser: any = {userName: 'foo@bar.org'};
-
-      const acctUser = new AccountUser(uaaUser);
-      expect(acctUser.isGDSUser).toBeFalsy();
-    });
-
-    it('returns true if the user\'s primary email address is a GDS one', () => {
-      const uaaUser: any = {userName: 'fake.address+paas-admin@digital.cabinet-office.gov.uk'};
-
-      const acctUser = new AccountUser(uaaUser);
-      expect(acctUser.isGDSUser).toBeTruthy();
-    });
-  });
-
   describe('authenticationMethod', () => {
     it('returns u&p if the user\'s origin is uaa', () => {
       const uaaUser: any = {origin: 'uaa'};
