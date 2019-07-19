@@ -131,6 +131,17 @@ export class AccountsClient {
     }
   }
 
+  public async getUsers(uuids: ReadonlyArray<string>): Promise<ReadonlyArray<IAccountsUser>> {
+    const response = await this.request({
+      url: `/users?uuids=${uuids.join(',')}`,
+      method: 'get',
+    });
+
+    const parsedResponse: IAccountsUsersResponse = response.data;
+
+    return parsedResponse.users.map(parseUser);
+  }
+
   public async getUserByEmail(email: string): Promise<IAccountsUser | null> {
     const response = await this.request({
       url: `/users?email=${email}`,
