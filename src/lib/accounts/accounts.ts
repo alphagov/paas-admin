@@ -38,6 +38,10 @@ export interface IAccountsUserResponse {
   readonly user_email: string;
 }
 
+export interface IAccountsUsersResponse {
+  readonly users: ReadonlyArray<IAccountsUserResponse>;
+}
+
 export interface IAccountsUser {
   readonly uuid: string;
   readonly username: string;
@@ -125,6 +129,25 @@ export class AccountsClient {
 
       throw err;
     }
+  }
+
+  public async getUserByEmail(email: string): Promise<IAccountsUser | null> {
+    const response = await this.request({
+      url: `/users?email=${email}`,
+      method: 'get',
+    });
+
+    const parsedResponse: IAccountsUsersResponse = response.data;
+
+    if (parsedResponse.users.length === 0) {
+      return null;
+    }
+
+    if (parsedResponse.users.length > 1) {
+      throw new Error('getUserByEmail received more than one result from Accounts API');
+    }
+
+    return parseUser(parsedResponse.users[0]);
   }
 
   public async createUser(uuid: string, username: string, email: string): Promise<boolean> {
