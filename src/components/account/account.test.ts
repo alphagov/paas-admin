@@ -246,6 +246,7 @@ function setUpUAA(userData: string): IContext {
   const token = jwt.sign({
     user_id: uaaData.userId,
     scope: [],
+    origin: 'uaa',
     exp: 2535018460,
   }, 'secret');
 

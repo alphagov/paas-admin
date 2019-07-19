@@ -14,17 +14,26 @@
 {% endblock %}
 
 {% block head %}
+  <meta name="csrf-token" content="{{context.csrf}}" />
+  <meta name="x-user-identity-origin" content="{{context.origin}}" />
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-43115970-5"></script>
+
+  <!-- Pull dimensions vals from meta ; else all script/origin combinations have to be in the CSP -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'UA-43115970-5');
-  </script>
+    var dimensions = {};
 
-  <meta name="csrf-token" content="{{context.csrf.toString()}}" />
+    var originTag = document.querySelector('meta[name="x-user-identity-origin"]')
+    if (originTag && originTag.content) {
+      dimensions['dimension1'] = originTag.content;
+    }
+
+    gtag('config', 'UA-43115970-5', dimensions);
+  </script>
 
   <!--[if !IE 8]><!-->
     <link href="./govuk.screen.scss" media="screen" rel="stylesheet" />

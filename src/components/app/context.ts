@@ -12,6 +12,7 @@ export interface IRawToken {
 export interface IViewContext {
   readonly csrf: string;
   readonly location: string;
+  readonly origin?: string;
 }
 
 export interface IContext {
@@ -26,6 +27,8 @@ export interface IContext {
 }
 
 export function initContext(req: any, router: Router, route: Route, config: IAppConfig): IContext {
+  const origin = req.token && req.token.origin;
+
   return {
     app: config,
     routePartOf: (name: string) => route.definition.name === name || route.definition.name.startsWith(name),
@@ -40,6 +43,7 @@ export function initContext(req: any, router: Router, route: Route, config: IApp
     viewContext: {
       location: config.location,
       csrf: req.csrfToken(),
+      origin,
     },
     session: req.session,
   };

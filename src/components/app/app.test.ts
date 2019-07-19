@@ -115,6 +115,7 @@ describe('app test suite', () => {
       user_id: 'uaa-user-123',
       scope: [],
       exp: (time + (24 * 60 * 60)),
+      origin: 'uaa',
     }, tokenKey);
 
     nock('https://example.com/uaa')
@@ -172,7 +173,7 @@ describe('app test suite', () => {
           `default-src 'none'; style-src 'self' 'unsafe-inline'; ` +
           `script-src 'self' 'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU=' ` +
           `'sha256-G29/qSW/JHHANtFhlrZVDZW1HOkCDRc78ggbqwwIJ2g=' www.google-analytics.com ` +
-          `www.googletagmanager.com 'sha256-3PKQVkjJP08zzrQZEDAfQN6ScCpPnpo3b3VEocvDsdg='; ` +
+          `www.googletagmanager.com 'sha256-H7q7hXqike7Yb27lFO21Pk6233UiAy/pJJ9TDT6RrBM='; ` +
           `img-src 'self' www.google-analytics.com; ` +
           `connect-src 'self' www.google-analytics.com; frame-src 'self'; font-src 'self' data:; ` +
           `object-src 'self'; media-src 'self'`,
@@ -207,6 +208,14 @@ describe('app test suite', () => {
       }, {});
 
       expect(response.redirect).toEqual(orgs.definition.path);
+    });
+
+    it('should add a meta tag for origin', async () => {
+      const orgs = router.findByName('admin.organizations');
+      const response = await agent.get(orgs.definition.path);
+
+      expect(response.status).toEqual(200);
+      expect(response.text).toMatch('<meta name="x-user-identity-origin" content="uaa" />');
     });
   });
 

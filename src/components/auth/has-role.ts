@@ -8,12 +8,14 @@ interface IToken {
   readonly exp: number;
   readonly scope: ReadonlyArray<string>;
   readonly user_id: string;
+  readonly origin: string;
 }
 
 export class Token {
   public readonly expiry: number;
   public readonly scopes: ReadonlyArray<string>;
   public readonly userID: string;
+  public readonly origin: string;
 
   constructor(public readonly accessToken: string, public readonly signingKeys: ReadonlyArray<string>) {
     const rawToken = verify(accessToken, signingKeys);
@@ -21,6 +23,7 @@ export class Token {
     this.expiry = rawToken.exp;
     this.scopes = rawToken.scope;
     this.userID = rawToken.user_id;
+    this.origin = rawToken.origin;
   }
 
   public hasScope(scope: string): boolean {
@@ -62,16 +65,21 @@ function verify(accessToken: string, signingKeys: ReadonlyArray<string>): IToken
   }
 
   if (!rawToken.exp) {
-    throw new Error('jwt: could not verify the token as no exp have been decoded');
+    throw new Error('jwt: could not verify the token as no exp has been decoded');
+  }
+
+  if (!rawToken.origin) {
+    throw new Error('jwt: could not verify the token as no origin has been decoded');
   }
 
   if (!Array.isArray(rawToken.scope)) {
-    throw new Error('jwt: could not verify the token as no scope(s) have been decoded');
+    throw new Error('jwt: could not verify the token as no scope(s) has been decoded');
   }
 
   return {
     exp: rawToken.exp,
     scope: rawToken.scope,
     user_id: rawToken.user_id,
+    origin: rawToken.origin,
   };
 }

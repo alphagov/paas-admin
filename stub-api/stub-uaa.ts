@@ -13,6 +13,7 @@ function mockUAA(app: express.Application, config: IStubServerPorts): express.Ap
     user_id: userId,
     scope: [],
     exp: 2535018460,
+    origin: 'uaa',
   }, tokenKey);
 
   const userPayload: IUaaUser = {

@@ -34,6 +34,7 @@ export function createTestContext(ctx?: {}): IContext {
       jwt.sign({
         user_id: 'uaa-user-123',
         exp: 2535018460,
+        origin: 'uaa',
         scope: [],
       }, 'secret'), ['secret'],
     ),

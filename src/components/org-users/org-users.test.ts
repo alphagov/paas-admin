@@ -14,7 +14,7 @@ import {Token} from '../auth';
 const tokenKey = 'secret';
 
 const time = Math.floor(Date.now() / 1000);
-const rawToken = {user_id: 'uaa-id-253', scope: [], exp: (time + (24 * 60 * 60))};
+const rawToken = {user_id: 'uaa-id-253', scope: [], origin: 'uaa', exp: (time + (24 * 60 * 60))};
 const accessToken = jwt.sign(rawToken, tokenKey);
 
 const ctx: IContext = createTestContext({

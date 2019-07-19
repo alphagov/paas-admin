@@ -43,6 +43,7 @@ const token = jwt.sign({
   user_id: 'uaa-id-253',
   scope: [],
   exp: 2535018460,
+  origin: 'uaa',
 }, tokenKey);
 const ctx: IContext = createTestContext({
   linkTo: (name: any, params: any) => `${name}/${params ? params.rangeStart : ''}`,
