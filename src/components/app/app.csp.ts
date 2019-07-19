@@ -14,7 +14,7 @@ export default {
       'www.google-analytics.com',
       'www.googletagmanager.com',
       // Inline script tag for Google Analytics
-      `'sha256-3PKQVkjJP08zzrQZEDAfQN6ScCpPnpo3b3VEocvDsdg='`,
+      `'sha256-JcBlICm6OEcFiWPFdHSsGDody7xi9jgOetfKR1FhO7Y='`,
     ],
     imgSrc: [
       `'self'`,
