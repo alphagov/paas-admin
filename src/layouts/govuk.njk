@@ -15,7 +15,7 @@
 
 {% block head %}
   <meta name="csrf-token" content="{{context.csrf}}" />
-  <meta name="origin" content="{{context.origin}}" />
+  <meta name="x-user-identity-origin" content="{{context.origin}}" />
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-43115970-5"></script>
 
@@ -27,7 +27,7 @@
 
     var dimensions = {};
 
-    var originTag = document.querySelector('meta[name="origin"]')
+    var originTag = document.querySelector('meta[name="x-user-identity-origin"]')
     if (originTag && originTag.content) {
       dimensions['dimension1'] = originTag.content;
     }
