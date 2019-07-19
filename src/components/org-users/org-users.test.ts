@@ -59,7 +59,7 @@ function composeSpaceRoles(setup: object) {
   };
 }
 
-describe('users test suite', () => {
+describe('org-users test suite', () => {
   // tslint:disable:max-line-length
   const nockCF = nock(ctx.app.cloudFoundryAPI).persist();
   const nockUAA = nock(ctx.app.uaaAPI).persist();
