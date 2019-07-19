@@ -23,7 +23,7 @@
 
     <div class="govuk-grid-column-full">
       <form method="get" action="{{ linkTo('admin.statement.dispatcher', {organizationGUID: organization.metadata.guid}) }}" class="paas-statement-range">
-        <input type="hidden" name="_csrf" value="{{ csrf }}" />
+        <input type="hidden" name="_csrf" value="{{ context.csrf }}" />
         <table class="govuk-table paas-statement-filters">
           <tbody class="govuk-table__body">
             <tr class="govuk-table__row">
@@ -126,7 +126,7 @@
       </p>
     {% endif %}
     <form method="get" action="{{ linkTo('admin.statement.dispatcher', {organizationGUID: organization.metadata.guid}) }}" class="paas-statement-range">
-      <input type="hidden" name="_csrf" value="{{ csrf }}" />
+      <input type="hidden" name="_csrf" value="{{ context.csrf }}" />
       <input type="hidden" name="rangeStart" value="{{ filterMonth }}" />
       <input type="hidden" name="space" value="{{ filterSpace.metadata.guid }}" />
       <input type="hidden" name="service" value="{{ filterService.metadata.guid }}" />

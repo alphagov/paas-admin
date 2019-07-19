@@ -58,11 +58,10 @@ export async function viewCostByServiceReport(
       report: 'cost-by-service',
       linkTo: ctx.linkTo,
       rangeStart: moment(rangeStart).format('YYYY-MM-DD'),
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       date: moment(rangeStart).format('MMMM YYYY'),
       billablesByService,
       billablesByOrganisationAndService,
-      location: ctx.app.location,
     }),
   };
 }

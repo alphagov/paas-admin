@@ -24,7 +24,7 @@
     gtag('config', 'UA-43115970-5');
   </script>
 
-  <meta name="csrf-token" content="{{csrf}}" />
+  <meta name="csrf-token" content="{{context.csrf.toString()}}" />
 
   <!--[if !IE 8]><!-->
     <link href="./govuk.screen.scss" media="screen" rel="stylesheet" />
@@ -68,7 +68,7 @@
       <a href="https://www.cloud.service.gov.uk/" class="govuk-header__link govuk-header__link--service-name">
         Platform as a Service
       </a>
-      <a href="https://www.cloud.service.gov.uk/sign-in" title="Switch region" class="paas-govuk-tag paas-govuk-tag-{{location.toLowerCase()}}">{{location}}</a>
+      <a href="https://www.cloud.service.gov.uk/sign-in" title="Switch region" class="paas-govuk-tag paas-govuk-tag-{{context.location.toLowerCase()}}">{{context.location}}</a>
 
       <button type="button" role="button" class="govuk-header__menu-button js-header-toggle" aria-controls="navigation" aria-label="Show or hide Top Level Navigation">Menu</button>
       <nav>

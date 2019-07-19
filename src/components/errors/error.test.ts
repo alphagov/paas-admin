@@ -23,6 +23,8 @@ app.use((req: any, _res, next) => {
     },
   ]);
 
+  req.csrfToken = () => '';
+
   next();
 });
 

@@ -59,10 +59,9 @@ export async function viewVisualisation(
       report: 'visualisation',
       linkTo: ctx.linkTo,
       rangeStart: moment(rangeStart).format('YYYY-MM-DD'),
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       date: moment(rangeStart).format('MMMM YYYY'),
       data: data.nodes.length > 0 ? data : null,
-      location: ctx.app.location,
     }),
   };
 }

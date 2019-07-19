@@ -30,7 +30,12 @@ export function internalServerErrorMiddleware(err: Error, req: any, res: express
     res.status(500);
     res.send(internalServerError.render({
       errorMessage: err.message,
-      location: platformLocation(process.env.AWS_REGION || /* istanbul ignore next */ ''),
+      context: {
+        csrf: req.csrfToken(),
+        location: platformLocation(
+          process.env.AWS_REGION || /* istanbul ignore next */ '',
+        ),
+      },
     }));
 
     return;
@@ -38,14 +43,24 @@ export function internalServerErrorMiddleware(err: Error, req: any, res: express
 
   res.status(500);
   res.send(internalServerError.render({
-    location: platformLocation(process.env.AWS_REGION || /* istanbul ignore next */ ''),
+    context: {
+      csrf: req.csrfToken(),
+      location: platformLocation(
+        process.env.AWS_REGION || /* istanbul ignore next */ '',
+      ),
+    },
   }));
 }
 
-export function pageNotFoundMiddleware(_req: any, res: express.Response, _next: express.NextFunction) {
+export function pageNotFoundMiddleware(req: any, res: express.Response, _next: express.NextFunction) {
   res.status(404);
   res.send(pageNotFound.render({
-    location: platformLocation(process.env.AWS_REGION || /* istanbul ignore next */ ''),
+    context: {
+      csrf: req.csrfToken(),
+      location: platformLocation(
+        process.env.AWS_REGION || /* istanbul ignore next */ '',
+      ),
+    },
   }));
 }
 

@@ -230,14 +230,13 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
   return {
     body: orgUsersTemplate.render({
       routePartOf: ctx.routePartOf,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       isAdmin,
       isManager,
       isBillingManager,
       linkTo: ctx.linkTo,
       users: userRolesByGuid,
       organization,
-      location: ctx.app.location,
     }),
   };
 }
@@ -293,14 +292,13 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
       errors: [],
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       organization,
       spaces,
       values,
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.location,
     }),
   };
 }
@@ -431,12 +429,11 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
         errors,
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
-        csrf: ctx.csrf,
+        context: ctx.viewContext,
         organization,
         isAdmin,
         isBillingManager,
         isManager,
-        location: ctx.app.location,
       }),
     };
   } catch (err) {
@@ -446,7 +443,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
         body: inviteTemplate.render({
           routePartOf: ctx.routePartOf,
           linkTo: ctx.linkTo,
-          csrf: ctx.csrf,
+          context: ctx.viewContext,
           errors: err.errors,
           organization,
           spaces,
@@ -454,7 +451,6 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
           isAdmin,
           isBillingManager,
           isManager,
-          location: ctx.app.location,
         }),
         status: 400,
       };
@@ -541,10 +537,9 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
     body: inviteSuccessTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       errors: [],
       organization,
-      location: ctx.app.location,
     }),
   };
 }
@@ -628,7 +623,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       errors: [],
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       managers,
       billingManagers,
       organization,
@@ -638,7 +633,6 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.location,
     }),
   };
 }
@@ -700,12 +694,11 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
       body: editSuccessTemplate.render({
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
-        csrf: ctx.csrf,
+        context: ctx.viewContext,
         organization,
         isAdmin,
         isBillingManager,
         isManager,
-        location: ctx.app.location,
       }),
     };
   } catch (err) {
@@ -715,7 +708,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
         body: editTemplate.render({
           routePartOf: ctx.routePartOf,
           linkTo: ctx.linkTo,
-          csrf: ctx.csrf,
+          context: ctx.viewContext,
           errors: err.errors,
           organization,
           spaces,
@@ -724,7 +717,6 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
           isAdmin,
           isBillingManager,
           isManager,
-          location: ctx.app.location,
         }),
         status: 400,
       };
@@ -763,13 +755,12 @@ export async function confirmDeletion(ctx: IContext, params: IParameters): Promi
     body: deleteTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       organization,
       user,
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.location,
     }),
   };
 }
@@ -805,12 +796,11 @@ export async function deleteUser(ctx: IContext, params: IParameters, _: object):
     body: deleteSuccessTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       organization,
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.location,
     }),
   };
 }

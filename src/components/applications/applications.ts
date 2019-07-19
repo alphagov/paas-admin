@@ -69,14 +69,13 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
       actualRuntimeInfo,
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       space,
       stack,
       organization,
       isAdmin,
       isBillingManager,
       isManager,
-      location: ctx.app.location,
     }),
   };
 }

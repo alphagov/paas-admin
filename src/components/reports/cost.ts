@@ -100,13 +100,12 @@ export async function viewCostReport(
       report: 'cost',
       linkTo: ctx.linkTo,
       rangeStart: moment(rangeStart).format('YYYY-MM-DD'),
-      csrf: ctx.csrf,
+      context: ctx.viewContext,
       date: moment(rangeStart).format('MMMM YYYY'),
       orgCostRecords: Object.values(orgCostRecords),
       quotaCostRecords,
       totalBillables,
       billableEventCount,
-      location: ctx.app.location,
     }),
   };
 }
