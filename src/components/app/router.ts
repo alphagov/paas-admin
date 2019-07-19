@@ -8,6 +8,7 @@ import * as reports from '../reports';
 import * as services from '../services';
 import * as spaces from '../spaces';
 import * as statements from '../statements';
+import * as users from '../users';
 import { IContext } from './context';
 
 const router = new Router([
@@ -148,6 +149,11 @@ const router = new Router([
     action: account.getMicrosoftOIDCCallback,
     name: 'account.use-microsoft-sso-callback.get',
     path: '/my-account/use-microsoft-sso/callback',
+  },
+  {
+    action: users.getUser,
+    name: 'users.get',
+    path: '/users/:emailOrUserGUID',
   },
 ]);
 

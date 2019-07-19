@@ -1,0 +1,13 @@
+{% extends "../../layouts/govuk.njk" %}
+{% block pageTitle %}
+  User
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+
+  <p class="govuk-body">GUID: {{ accountsUser.uuid }}</p>
+  <p class="govuk-body">Email: {{ accountsUser.email }}</p>
+  <p class="govuk-body">Username: {{ accountsUser.username }}</p>
+
+{% endblock %}
