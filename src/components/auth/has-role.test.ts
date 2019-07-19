@@ -66,7 +66,13 @@ it('should have scopes', async () => {
 });
 
 it('should have scopes', async () => {
-  const accessToken = jwt.sign({origin: 'uaa', exp: (time + (24 * 60 * 60)), scope: ['read-write', 'write-read']}, tokenKeys[0]);
+  const accessToken = jwt.sign({
+    origin: 'uaa',
+    exp: (time + (24 * 60 * 60)),
+    scope: ['read-write', 'write-read']},
+    tokenKeys[0],
+  );
+
   const token = new Token(accessToken, tokenKeys);
   expect(token.hasAnyScope('write-read')).toBeTruthy();
   expect(token.hasAnyScope('admin')).toBeFalsy();
