@@ -21,6 +21,16 @@ const ctx: IContext = createTestContext({
   token: new Token(accessToken, [tokenKey]),
 });
 
+const rawNonAdminAccessToken = {
+  user_id: 'uaa-id-253',
+  scope: [],
+  exp: (time + (24 * 60 * 60)),
+};
+const nonAdminAccessToken = jwt.sign(rawNonAdminAccessToken, tokenKey);
+const nonAdminCtx: IContext = createTestContext({
+  token: new Token(nonAdminAccessToken, [tokenKey]),
+});
+
 describe('users test suite', () => {
   // tslint:disable:max-line-length
   const nockAccounts = nock(ctx.app.accountsAPI).persist();
@@ -54,6 +64,17 @@ describe('users test suite', () => {
     expect(response.body).toContain('User');
     expect(response.body).toContain('one@user.in.database');
     expect(response.body).toContain('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+  });
+
+  it('should return not found for the users pages when not admin', async () => {
+
+    try {
+      await users.getUser(nonAdminCtx, {
+        emailOrUserGUID: 'one@user.in.database',
+      });
+    } catch (e) {
+      expect(e.message).toContain('not found');
+    }
   });
 
   it('should show return an error for an invalid email', async () => {
