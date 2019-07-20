@@ -5,6 +5,7 @@ import {IStubServerPorts} from './index';
 
 const tokenKey = 'tokensecret';
 const userId = '99022be6-feb8-4f78-96f3-7d11f4d476f1';
+const otherUserId = 'uaa-id-253';
 function mockUAA(app: express.Application, config: IStubServerPorts): express.Application {
   const { adminPort } = config;
   const fakeJwt = jwt.sign({
@@ -63,6 +64,12 @@ function mockUAA(app: express.Application, config: IStubServerPorts): express.Ap
 
   app.get(
     `/Users/${userId}`,
+    (_req, res) => {
+      res.send(JSON.stringify(userPayload));
+    });
+
+  app.get(
+    `/Users/${otherUserId}`,
     (_req, res) => {
       res.send(JSON.stringify(userPayload));
     });
