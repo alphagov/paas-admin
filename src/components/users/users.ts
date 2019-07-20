@@ -2,6 +2,7 @@ import {AccountsClient} from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
 import {IParameters, IResponse} from '../../lib/router';
 import {NotFoundError} from '../../lib/router/errors';
+import UAAClient from '../../lib/uaa';
 import {IContext} from '../app/context';
 import {CLOUD_CONTROLLER_ADMIN} from '../auth';
 
@@ -47,12 +48,27 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
 
   const cfUserSummary = await cf.userSummary(accountsUser.uuid);
 
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
+  const uaaUser = await uaa.getUser(accountsUser.uuid);
+  const origin = uaaUser.origin;
+  const lastLogonTimestamp = new Date(uaaUser.lastLogonTime)
+    .toLocaleString('en-GB', { timeZone: 'UTC' });
+
   return {
     body: userTemplate.render({
       context: ctx.viewContext,
       accountsUser,
       orgs: cfUserSummary.entity.organizations,
       managedOrgs: cfUserSummary.entity.managed_organizations,
+      uaaGroups: uaaUser.groups,
+      origin, lastLogonTimestamp,
       linkTo: ctx.linkTo,
     }),
   };

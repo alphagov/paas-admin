@@ -4,6 +4,7 @@ import nock from 'nock';
 import * as users from './users';
 
 import {userSummary} from '../../lib/cf/cf.test.data';
+import * as uaaData from '../../lib/uaa/uaa.test.data';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 import {CLOUD_CONTROLLER_ADMIN, Token} from '../auth';
@@ -36,6 +37,7 @@ describe('users test suite', () => {
   // tslint:disable:max-line-length
   const nockAccounts = nock(ctx.app.accountsAPI).persist();
   const nockCF = nock(ctx.app.cloudFoundryAPI).persist();
+  const nockUAA = nock(ctx.app.uaaAPI).persist();
 
   nockAccounts
     .get('/users?email=one@user.in.database').reply(200, `{
@@ -55,11 +57,16 @@ describe('users test suite', () => {
 
   nockCF
     .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary').reply(200, userSummary);
+
+  nockUAA
+    .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+    .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee').reply(200, uaaData.user);
   // tslint:enable:max-line-length
 
   afterAll(() => {
     nockAccounts.done();
     nockCF.done();
+    nockUAA.done();
   });
 
   it('should show the users pages for a valid email', async () => {
@@ -70,8 +77,12 @@ describe('users test suite', () => {
     expect(response.body).toContain('User');
     expect(response.body).toContain('one@user.in.database');
     expect(response.body).toContain('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+    expect(response.body).toContain('uaa');
 
     expect(response.body).toContain('the-system_domain-org-name');
+
+    expect(response.body).toContain('5/22/2018');
+    expect(response.body).toContain('cloud_controller.read');
   });
 
   it('should return not found for the users pages when not admin', async () => {
@@ -103,6 +114,12 @@ describe('users test suite', () => {
     expect(response.body).toContain('User');
     expect(response.body).toContain('one@user.in.database');
     expect(response.body).toContain('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+    expect(response.body).toContain('uaa');
+
+    expect(response.body).toContain('the-system_domain-org-name');
+
+    expect(response.body).toContain('5/22/2018');
+    expect(response.body).toContain('cloud_controller.read');
   });
 
   it('should show return an error for an invalid guid', async () => {

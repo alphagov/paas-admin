@@ -29,6 +29,18 @@
         </a>
       </dd>
     </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Origin</dt>
+      <dd class="govuk-summary-list__value">
+        <code>{{ origin }}</code>
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Last logon</dt>
+      <dd class="govuk-summary-list__value">
+        {{ lastLogonTimestamp }}
+      </dd>
+    </div>
   </dl>
 
   <h3 class="govuk-heading-m">Orgs</h3>
@@ -54,6 +66,13 @@
           {{ org.entity.name }}
         </a>
       </li>
+    {% endfor %}
+  </ul>
+
+  <h3 class="govuk-heading-m">UAA Groups</h3>
+  <ul class="govuk-list">
+    {% for group in uaaGroups %}
+      <li><code>{{ group.display }}</code></li>
     {% endfor %}
   </ul>
 
