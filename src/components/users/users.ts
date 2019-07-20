@@ -9,11 +9,7 @@ import userTemplate from './user.njk';
 export async function getUser(ctx: IContext, params: IParameters): Promise<IResponse> {
   const emailOrUserGUID = params.emailOrUserGUID;
 
-  if (typeof emailOrUserGUID === 'undefined') {
-    throw new NotFoundError('not found');
-  }
-
-  if (emailOrUserGUID === '') {
+  if (typeof emailOrUserGUID !== 'string') {
     throw new NotFoundError('not found');
   }
 

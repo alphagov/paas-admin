@@ -102,7 +102,7 @@ describe('users test suite', () => {
         emailOrUserGUID: '',
       });
     } catch (e) {
-      expect(e.message).toContain('not found');
+      expect(e.message).toContain('Could not find user');
     }
   });
 });
