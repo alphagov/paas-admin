@@ -43,8 +43,8 @@ function mockUAA(app: express.Application, config: IStubServerPorts): express.Ap
     phoneNumbers: [],
     approvals: [],
     passwordLastModified: '2019-01-01T00:00:00',
-    previousLogonTime: 1546300800,
-    lastLogonTime: 1546300800,
+    previousLogonTime : 1527032725657,
+    lastLogonTime : 1527032725657,
   };
 
   app.post(
