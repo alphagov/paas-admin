@@ -3,15 +3,13 @@ import jwt from 'jsonwebtoken';
 import {IUaaUser} from '../src/lib/uaa';
 import {IStubServerPorts} from './index';
 
-;
-
 const tokenKey = 'tokensecret';
 const userId = '99022be6-feb8-4f78-96f3-7d11f4d476f1';
 function mockUAA(app: express.Application, config: IStubServerPorts): express.Application {
   const { adminPort } = config;
   const fakeJwt = jwt.sign({
     user_id: userId,
-    scope: [],
+    scope: ['cloud_controller.admin'],
     exp: 2535018460,
   }, tokenKey);
 
