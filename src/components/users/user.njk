@@ -45,7 +45,7 @@
 
   <h3 class="govuk-heading-m">Orgs</h3>
   <p class="govuk-body">This user is a member of {{ orgs.length }} orgs.</p>
-  <ul class="govuk-list">
+  <ul class="govuk-list govuk-list--bullet">
     {% for org in orgs %}
       <li>
         <a href="{{ linkTo('admin.organizations.view', {organizationGUID: org.metadata.guid}) }}"
@@ -58,7 +58,7 @@
 
   <h3 class="govuk-heading-m">Managed Orgs</h3>
   <p class="govuk-body">This user manages {{ managedOrgs.length }} orgs.</p>
-  <ul class="govuk-list">
+  <ul class="govuk-list govuk-list--bullet">
     {% for org in orgs %}
       <li>
         <a href="{{ linkTo('admin.organizations.view', {organizationGUID: org.metadata.guid}) }}"
@@ -70,7 +70,7 @@
   </ul>
 
   <h3 class="govuk-heading-m">UAA Groups</h3>
-  <ul class="govuk-list">
+  <ul class="govuk-list govuk-list--bullet">
     {% for group in uaaGroups %}
       <li><code>{{ group.display }}</code></li>
     {% endfor %}
