@@ -2,7 +2,7 @@ import express from 'express';
 import {IAccountsUserResponse} from '../src/lib/accounts';
 import * as cfStubData from '../src/lib/cf/cf.test.data';
 import * as uaaStubData from '../src/lib/uaa/uaa.test.data';
-import {IStubServerPorts, StubServerFactory} from './index';
+import {IStubServerPorts} from './index';
 
 function mockAccounts(app: express.Application, _config: IStubServerPorts): express.Application {
   // All users have no documents
