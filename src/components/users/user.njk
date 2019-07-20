@@ -44,7 +44,7 @@
   </dl>
 
   <h3 class="govuk-heading-m">Orgs</h3>
-  <p class="govuk-body">This user is a member of {{ orgs.length }} orgs.</p>
+  <p class="govuk-body">This user is a member of {{ orgs.length }} {{ managedOrgs.length | plural('org', 'orgs') }}.</p>
   <ul class="govuk-list govuk-list--bullet">
     {% for org in orgs %}
       <li>
@@ -57,7 +57,7 @@
   </ul>
 
   <h3 class="govuk-heading-m">Managed Orgs</h3>
-  <p class="govuk-body">This user manages {{ managedOrgs.length }} orgs.</p>
+  <p class="govuk-body">This user manages {{ managedOrgs.length }} {{ managedOrgs.length | plural('org', 'orgs') }}.</p>
   <ul class="govuk-list govuk-list--bullet">
     {% for org in orgs %}
       <li>

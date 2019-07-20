@@ -31,6 +31,13 @@ function configure(env) {
     const converter = new showdown.Converter();
     return converter.makeHtml(text);
   });
+
+  env.addFilter('plural', (n, singular, plural) => {
+    if (n === 1) {
+      return singular;
+    }
+    return plural;
+  })
 }
 
 module.exports = configure;
