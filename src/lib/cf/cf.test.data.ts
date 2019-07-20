@@ -1263,6 +1263,56 @@ export const userServices = `{
   ]
 }`;
 
+export const userSummary = `{
+  "metadata": {
+    "guid": "guid-cb24b36d-4656-468e-a50d-b53113ac6177",
+      "created_at": "2016-06-08T16:41:37Z",
+      "updated_at": "2016-06-08T16:41:26Z"
+  },
+  "entity": {
+    "organizations": [{
+      "metadata": {
+        "guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
+        "created_at": "2016-06-08T16:41:33Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "the-system_domain-org-name"
+      }
+    }],
+    "managed_organizations": [{
+      "metadata": {
+        "guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
+        "created_at": "2016-06-08T16:41:33Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "the-system_domain-org-name"
+      }
+    }],
+    "billing_managed_organizations": [{
+      "metadata": {
+        "guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
+        "created_at": "2016-06-08T16:41:33Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "the-system_domain-org-name"
+      }
+    }],
+    "audited_organizations": [{
+      "metadata": {
+        "guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
+        "created_at": "2016-06-08T16:41:33Z",
+        "updated_at": "2016-06-08T16:41:26Z"
+      },
+      "entity": {
+        "name": "the-system_domain-org-name"
+      }
+    }]
+  }
+}`;
+
 export const stacks = `{
   "total_results": 2,
   "total_pages": 1,

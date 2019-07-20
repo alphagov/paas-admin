@@ -209,6 +209,11 @@ export default class CloudFoundryClient {
     await this.request('delete', `/v2/users/${userId}?async=false`);
   }
 
+  public async userSummary(userId: string): Promise<cf.IUserSummary> {
+    const response = await this.request('get', `/v2/users/${userId}/summary`);
+    return response.data;
+  }
+
   public async usersForOrganization(organizationGUID: string): Promise<ReadonlyArray<cf.IOrganizationUserRoles>> {
     const response = await this.request('get', `/v2/organizations/${organizationGUID}/user_roles`);
     return this.allResources(response);
