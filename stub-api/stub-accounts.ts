@@ -10,24 +10,30 @@ function mockAccounts(app: express.Application, _config: IStubServerPorts): expr
     res.send(JSON.stringify([]));
   });
 
-  // All users should have a paas-accounts entry.
-  // We need to gather the IDs from different places
-  // in our stub data, in order for everything to
-  // fit together.
   const cfUsers = JSON.parse(cfStubData.users);
   const userIds = cfUsers.resources.map((x: any) => x.metadata.guid);
   userIds.push(uaaStubData.userId);
-  for (const id of userIds) {
-    app.get(`/users/${id}`, (_req, res) => {
-        const userBody: IAccountsUserResponse = {
-          user_uuid: id,
-          username: `${id}@fake.cabinet-office.gov.uk`,
-          user_email: `${id}@fake.cabinet-office.gov.uk`,
-        };
 
-        res.send(JSON.stringify(userBody));
-    });
-  }
+  app.get('/users/:guid', (req, res) => {
+    // Satisfy TS compiler
+    if (typeof req.params.guid !== 'string') {
+      res.status(400).send('No guid');
+      return;
+    }
+
+    const id: string = req.params.guid;
+    if (userIds.indexOf(id) >= 0) {
+      const userBody: IAccountsUserResponse = {
+        user_uuid: id,
+        username: `${id}@fake.cabinet-office.gov.uk`,
+        user_email: `${id}@fake.cabinet-office.gov.uk`,
+      };
+
+      res.send(JSON.stringify(userBody));
+    } else {
+      res.status(404).send('Not found');
+    }
+  });
 
   return app;
 }
