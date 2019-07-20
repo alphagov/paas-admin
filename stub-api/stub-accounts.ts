@@ -22,6 +22,35 @@ function mockAccounts(app: express.Application, _config: IStubServerPorts): expr
   const userIds = cfUsers.resources.map((x: any) => x.metadata.guid);
   userIds.push(uaaStubData.userId);
 
+  app.get('/users', (req, res) => {
+    const uuids = req.query.uuids;
+    const email = req.query.email;
+    if (typeof email !== 'string' && typeof uuids !== 'string') {
+      res.status(400).send('No uuids or email');
+      return;
+    }
+
+    if (typeof email === 'string') {
+      const uuid = email.split('@')[0];
+
+      if (userIds.indexOf(uuid) >= 0) {
+        res.send(JSON.stringify({
+          users: [makeUser(uuid)],
+        }));
+      } else {
+        res.status(404).send('Not found');
+      }
+      return;
+    }
+
+    const uuidsAsList: ReadonlyArray<string> = uuids.split(',');
+    const uuidsThatExist = uuidsAsList.filter(id => userIds.indexOf(id) >= 0);
+
+    res.send(JSON.stringify({
+      users: uuidsThatExist.map((id: string) => makeUser(id)),
+    }));
+  });
+
   app.get('/users/:guid', (req, res) => {
     // Satisfy TS compiler
     if (typeof req.params.guid !== 'string') {
