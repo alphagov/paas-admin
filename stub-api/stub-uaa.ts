@@ -35,7 +35,11 @@ function mockUAA(app: express.Application, config: IStubServerPorts): express.Ap
       { value: 'stub-user@digital.cabinet-office.gov.uk', primary: true },
     ],
     schemas: [ 'urn:scim:schemas:core:1.0' ],
-    groups: [],
+    groups: [{
+      display: 'cloud_controller.read',
+      type: 'DIRECT',
+      value: '177eb558-5e9a-42a5-9316-438aee2b88a4',
+    }],
     phoneNumbers: [],
     approvals: [],
     passwordLastModified: '2019-01-01T00:00:00',
