@@ -3,6 +3,7 @@ import nock from 'nock';
 
 import * as users from './users';
 
+import {userSummary} from '../../lib/cf/cf.test.data';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 import {CLOUD_CONTROLLER_ADMIN, Token} from '../auth';
@@ -34,6 +35,7 @@ const nonAdminCtx: IContext = createTestContext({
 describe('users test suite', () => {
   // tslint:disable:max-line-length
   const nockAccounts = nock(ctx.app.accountsAPI).persist();
+  const nockCF = nock(ctx.app.cloudFoundryAPI).persist();
 
   nockAccounts
     .get('/users?email=one@user.in.database').reply(200, `{
@@ -50,10 +52,14 @@ describe('users test suite', () => {
       "username": "one@user.in.database"
     }`)
     .get('/user/aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee').reply(404);
+
+  nockCF
+    .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary').reply(200, userSummary);
   // tslint:enable:max-line-length
 
   afterAll(() => {
     nockAccounts.done();
+    nockCF.done();
   });
 
   it('should show the users pages for a valid email', async () => {
@@ -64,6 +70,8 @@ describe('users test suite', () => {
     expect(response.body).toContain('User');
     expect(response.body).toContain('one@user.in.database');
     expect(response.body).toContain('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+
+    expect(response.body).toContain('the-system_domain-org-name');
   });
 
   it('should return not found for the users pages when not admin', async () => {

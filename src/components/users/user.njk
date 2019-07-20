@@ -10,4 +10,30 @@
   <p class="govuk-body">Email: {{ accountsUser.email }}</p>
   <p class="govuk-body">Username: {{ accountsUser.username }}</p>
 
+  <h3 class="govuk-heading-m">Orgs</h3>
+  <p class="govuk-body">This user is a member of {{ orgs.length }} orgs.</p>
+  <ul class="govuk-list">
+    {% for org in orgs %}
+      <li>
+        <a href="{{ linkTo('admin.organizations.view', {organizationGUID: org.metadata.guid}) }}"
+           class="govuk-link">
+          {{ org.entity.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <h3 class="govuk-heading-m">Managed Orgs</h3>
+  <p class="govuk-body">This user manages {{ managedOrgs.length }} orgs.</p>
+  <ul class="govuk-list">
+    {% for org in orgs %}
+      <li>
+        <a href="{{ linkTo('admin.organizations.view', {organizationGUID: org.metadata.guid}) }}"
+           class="govuk-link">
+          {{ org.entity.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
 {% endblock %}
