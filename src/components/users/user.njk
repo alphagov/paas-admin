@@ -6,9 +6,30 @@
 {% block content %}
   {{ super() }}
 
-  <p class="govuk-body">GUID: {{ accountsUser.uuid }}</p>
-  <p class="govuk-body">Email: {{ accountsUser.email }}</p>
-  <p class="govuk-body">Username: {{ accountsUser.username }}</p>
+  <h3 class="govuk-heading-m">User</h3>
+  <dl class="govuk-summary-list govuk-summary-list--no-border">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">GUID</dt>
+      <dd class="govuk-summary-list__value">
+        <code>{{ accountsUser.uuid }}</code>
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Username</dt>
+      <dd class="govuk-summary-list__value">
+        <code>{{ accountsUser.username }}</code>
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Email address</dt>
+      <dd class="govuk-summary-list__value">
+        <a class="govuk-link"
+           href="mailto:{{ accountsUser.email }}">
+          {{ accountsUser.email }}
+        </a>
+      </dd>
+    </div>
+  </dl>
 
   <h3 class="govuk-heading-m">Orgs</h3>
   <p class="govuk-body">This user is a member of {{ orgs.length }} orgs.</p>
