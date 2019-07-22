@@ -7,7 +7,13 @@ import {userSummary} from '../../lib/cf/cf.test.data';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
-import {CLOUD_CONTROLLER_ADMIN, Token} from '../auth';
+
+import {
+  CLOUD_CONTROLLER_ADMIN,
+  CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+  Token,
+} from '../auth';
 
 const tokenKey = 'secret';
 
@@ -85,6 +91,44 @@ describe('users test suite', () => {
 
     expect(response.body).toContain('2018');
     expect(response.body).toContain('cloud_controller.read');
+  });
+
+  it('should show the users pages for a valid email when global auditor', async () => {
+    const rawGlobalAuditorAccessToken = {
+      user_id: 'uaa-id-253',
+      scope: [CLOUD_CONTROLLER_GLOBAL_AUDITOR],
+      exp: (time + (24 * 60 * 60)),
+      origin: 'uaa',
+    };
+    const globalAuditorAccessToken = jwt.sign(rawGlobalAuditorAccessToken, tokenKey);
+    const globalAuditorCtx: IContext = createTestContext({
+      token: new Token(globalAuditorAccessToken, [tokenKey]),
+    });
+
+    const response = await users.getUser(globalAuditorCtx, {
+      emailOrUserGUID: 'one@user.in.database',
+    });
+
+    expect(response.body).toContain('the-system_domain-org-name');
+  });
+
+  it('should show the users pages for a valid email when read only admin', async () => {
+    const rawReadOnlyAdminAccessToken = {
+      user_id: 'uaa-id-253',
+      scope: [CLOUD_CONTROLLER_READ_ONLY_ADMIN],
+      exp: (time + (24 * 60 * 60)),
+      origin: 'uaa',
+    };
+    const readOnlyAdminAccessToken = jwt.sign(rawReadOnlyAdminAccessToken, tokenKey);
+    const readOnlyAdminCtx: IContext = createTestContext({
+      token: new Token(readOnlyAdminAccessToken, [tokenKey]),
+    });
+
+    const response = await users.getUser(readOnlyAdminCtx, {
+      emailOrUserGUID: 'one@user.in.database',
+    });
+
+    expect(response.body).toContain('the-system_domain-org-name');
   });
 
   it('should return not found for the users pages when not admin', async () => {
