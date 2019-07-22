@@ -3,15 +3,14 @@ import jwt from 'jsonwebtoken';
 import {IUaaUser} from '../src/lib/uaa';
 import {IStubServerPorts} from './index';
 
-;
-
 const tokenKey = 'tokensecret';
 const userId = '99022be6-feb8-4f78-96f3-7d11f4d476f1';
+const otherUserId = 'uaa-id-253';
 function mockUAA(app: express.Application, config: IStubServerPorts): express.Application {
   const { adminPort } = config;
   const fakeJwt = jwt.sign({
     user_id: userId,
-    scope: [],
+    scope: ['cloud_controller.admin'],
     exp: 2535018460,
     origin: 'uaa',
   }, tokenKey);
@@ -37,12 +36,16 @@ function mockUAA(app: express.Application, config: IStubServerPorts): express.Ap
       { value: 'stub-user@digital.cabinet-office.gov.uk', primary: true },
     ],
     schemas: [ 'urn:scim:schemas:core:1.0' ],
-    groups: [],
+    groups: [{
+      display: 'cloud_controller.read',
+      type: 'DIRECT',
+      value: '177eb558-5e9a-42a5-9316-438aee2b88a4',
+    }],
     phoneNumbers: [],
     approvals: [],
     passwordLastModified: '2019-01-01T00:00:00',
-    previousLogonTime: 1546300800,
-    lastLogonTime: 1546300800,
+    previousLogonTime : 1527032725657,
+    lastLogonTime : 1527032725657,
   };
 
   app.post(
@@ -66,6 +69,12 @@ function mockUAA(app: express.Application, config: IStubServerPorts): express.Ap
 
   app.get(
     `/Users/${userId}`,
+    (_req, res) => {
+      res.send(JSON.stringify(userPayload));
+    });
+
+  app.get(
+    `/Users/${otherUserId}`,
     (_req, res) => {
       res.send(JSON.stringify(userPayload));
     });

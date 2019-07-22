@@ -1,0 +1,79 @@
+{% extends "../../layouts/govuk.njk" %}
+{% block pageTitle %}
+  User
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+
+  <h3 class="govuk-heading-m">User</h3>
+  <dl class="govuk-summary-list govuk-summary-list--no-border">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">GUID</dt>
+      <dd class="govuk-summary-list__value">
+        <code>{{ accountsUser.uuid }}</code>
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Username</dt>
+      <dd class="govuk-summary-list__value">
+        <code>{{ accountsUser.username }}</code>
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Email address</dt>
+      <dd class="govuk-summary-list__value">
+        <a class="govuk-link"
+           href="mailto:{{ accountsUser.email }}">
+          {{ accountsUser.email }}
+        </a>
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Origin</dt>
+      <dd class="govuk-summary-list__value">
+        <code>{{ origin }}</code>
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Last logon</dt>
+      <dd class="govuk-summary-list__value">
+        {{ lastLogonTimestamp }}
+      </dd>
+    </div>
+  </dl>
+
+  <h3 class="govuk-heading-m">Orgs</h3>
+  <p class="govuk-body">This user is a member of {{ orgs.length }} {{ managedOrgs.length | plural('org', 'orgs') }}.</p>
+  <ul class="govuk-list govuk-list--bullet">
+    {% for org in orgs %}
+      <li>
+        <a href="{{ linkTo('admin.organizations.view', {organizationGUID: org.metadata.guid}) }}"
+           class="govuk-link">
+          {{ org.entity.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <h3 class="govuk-heading-m">Managed Orgs</h3>
+  <p class="govuk-body">This user manages {{ managedOrgs.length }} {{ managedOrgs.length | plural('org', 'orgs') }}.</p>
+  <ul class="govuk-list govuk-list--bullet">
+    {% for org in orgs %}
+      <li>
+        <a href="{{ linkTo('admin.organizations.view', {organizationGUID: org.metadata.guid}) }}"
+           class="govuk-link">
+          {{ org.entity.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <h3 class="govuk-heading-m">UAA Groups</h3>
+  <ul class="govuk-list govuk-list--bullet">
+    {% for group in uaaGroups %}
+      <li><code>{{ group.display }}</code></li>
+    {% endfor %}
+  </ul>
+
+{% endblock %}

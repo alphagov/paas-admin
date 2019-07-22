@@ -56,6 +56,48 @@ nock(cfg.apiEndpoint)
   }]`)
   .post('/agreements').reply(201, ``)
   .post('/users/').reply(201, ``)
+  .get('/users?email=one@user.in.database').reply(200, `{
+    "users": [{
+      "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "user_email": "one@user.in.database",
+      "username": "one@user.in.database"
+    }]
+  }`)
+  .get('/users?email=no@user.in.database').reply(200, `{
+    "users": []
+  }`)
+  .get('/users?email=many@user.in.database').reply(200, `{
+    "users": [{
+      "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "user_email": "many@user.in.database",
+      "username": "many@user.in.database"
+    },{
+      "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "user_email": "many@user.in.database",
+      "username": "many@user.in.database"
+    }]
+  }`)
+  .get('/users?uuids=aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee').reply(200, `{
+    "users": []
+  }`)
+  .get('/users?uuids=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee').reply(200, `{
+    "users": [{
+      "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "user_email": "one@user.in.database",
+      "username": "one@user.in.database"
+    }]
+  }`)
+  .get('/users?uuids=11111111-bbbb-cccc-dddd-eeeeeeeeeeee,22222222-bbbb-cccc-dddd-eeeeeeeeeeee').reply(200, `{
+    "users": [{
+      "user_uuid": "11111111-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "user_email": "one@user.in.database",
+      "username": "one@user.in.database"
+    },{
+      "user_uuid": "22222222-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "user_email": "two@user.in.database",
+      "username": "two@user.in.database"
+    }]
+  }`)
 ;
 
 describe('lib/accounts test suite', () => {
@@ -137,5 +179,57 @@ describe('lib/accounts test suite', () => {
       .toEqual(expect.objectContaining({
         code: 500,
       }));
+  });
+
+  it('should get a user by email', async () => {
+    const ac = new AccountsClient(cfg);
+    const user = await ac.getUserByEmail('one@user.in.database');
+    expect(user).not.toBeNull();
+    expect(user!.email).toEqual('one@user.in.database');
+    expect(user!.username).toEqual('one@user.in.database');
+  });
+
+  it('should return null for a user which does not exist', async () => {
+    const ac = new AccountsClient(cfg);
+    const user = await ac.getUserByEmail('no@user.in.database');
+    expect(user).toBeNull();
+  });
+
+  it('should throw an error when multiple users are returned by the API', async () => {
+    const ac = new AccountsClient(cfg);
+    try {
+      await ac.getUserByEmail('many@user.in.database');
+    } catch (e) {
+      expect(e).toEqual(new Error(
+        'getUserByEmail received more than one result from Accounts API',
+      ));
+    }
+  });
+
+  it('should respond with an empty list when listing non-existing users by guid', async () => {
+    const ac = new AccountsClient(cfg);
+    const users = await ac.getUsers(['aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee']);
+    expect(users.length).toEqual(0);
+  });
+
+  it('should respond with a list of one when listing a single user by guid', async () => {
+    const ac = new AccountsClient(cfg);
+    const users = await ac.getUsers(['aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee']);
+    expect(users.length).toEqual(1);
+    expect(users[0].email).toEqual('one@user.in.database');
+    expect(users[0].username).toEqual('one@user.in.database');
+  });
+
+  it('should respond with a list of two when listing multiple users by guid', async () => {
+    const ac = new AccountsClient(cfg);
+    const users = await ac.getUsers([
+      '11111111-bbbb-cccc-dddd-eeeeeeeeeeee',
+      '22222222-bbbb-cccc-dddd-eeeeeeeeeeee',
+    ]);
+    expect(users.length).toEqual(2);
+    expect(users[0].email).toEqual('one@user.in.database');
+    expect(users[0].username).toEqual('one@user.in.database');
+    expect(users[1].email).toEqual('two@user.in.database');
+    expect(users[1].username).toEqual('two@user.in.database');
   });
 });

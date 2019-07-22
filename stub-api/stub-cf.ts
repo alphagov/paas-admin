@@ -44,6 +44,7 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
   app.get('/v2/user_provided_service_instances'      , (_, res) => res.send(testData.userServices));
   app.get('/v2/user_provided_service_instances/:guid', (_, res) => res.send(testData.userServiceInstance));
   app.get('/v2/users/uaa-id-253/spaces'              , (_, res) => res.send(testData.spaces));
+  app.get('/v2/users/uaa-id-253/summary'              , (_, res) => res.send(testData.userSummary));
   app.get('/v2/organizations/:guid/user_roles'       , (_, res) => res.send(testData.userRolesForOrg));
   app.get('/v2/spaces/:guid/user_roles'              , (_, res) => res.send(testData.userRolesForSpace));
   app.get('/v2/stacks'                               , (_, res) => res.send(testData.stacks));

@@ -37,6 +37,7 @@ nock('https://example.com/api').persist()
   .post('/v2/users').reply(201, data.user)
   .delete('/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177?async=false').reply(204)
   .get('/v2/users/uaa-id-253/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, data.spaces)
+  .get('/v2/users/uaa-id-253/summary').reply(200, data.userSummary)
   .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.userRolesForOrg)
   .get('/v2/spaces/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, data.userRolesForSpace)
   .post('/v2/users').reply(200, data.user)
@@ -266,6 +267,16 @@ describe('lib/cf test suite', () => {
   test('should delete a user', async () => {
     const client = new CloudFoundryClient(config);
     expect(async () => client.deleteUser('guid-cb24b36d-4656-468e-a50d-b53113ac6177')).not.toThrowError();
+  });
+
+  test('should obtain a user summary', async () => {
+    const client = new CloudFoundryClient(config);
+    const summary = await client.userSummary('uaa-id-253');
+
+    expect(summary.entity.organizations.length === 1).toBeTruthy();
+    expect(summary.entity.managed_organizations.length === 1).toBeTruthy();
+    expect(summary.entity.billing_managed_organizations.length === 1).toBeTruthy();
+    expect(summary.entity.audited_organizations.length === 1).toBeTruthy();
   });
 
   test('should obtain list of user roles for organisation', async () => {

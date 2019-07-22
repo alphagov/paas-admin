@@ -321,6 +321,24 @@ export interface IUser {
   readonly metadata: IMetadata;
 }
 
+// Partial definition, there are more fields
+export interface IUserSummaryOrganization {
+  readonly entity: {
+    readonly name: string;
+  };
+  readonly metadata: IMetadata;
+}
+
+export interface IUserSummary {
+  readonly entity: {
+    readonly organizations: ReadonlyArray<IUserSummaryOrganization>,
+    readonly managed_organizations: ReadonlyArray<IUserSummaryOrganization>,
+    readonly billing_managed_organizations: ReadonlyArray<IUserSummaryOrganization>,
+    readonly audited_organizations: ReadonlyArray<IUserSummaryOrganization>,
+  };
+  readonly metadata: IMetadata;
+}
+
 export interface IUserServices {
   readonly entity: {
     readonly credentials: {[i: string]: string};
