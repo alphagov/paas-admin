@@ -81,7 +81,7 @@ describe('users test suite', () => {
 
     expect(response.body).toContain('the-system_domain-org-name');
 
-    expect(response.body).toContain('5/22/2018');
+    expect(response.body).toContain('2018');
     expect(response.body).toContain('cloud_controller.read');
   });
 
@@ -118,7 +118,7 @@ describe('users test suite', () => {
 
     expect(response.body).toContain('the-system_domain-org-name');
 
-    expect(response.body).toContain('5/22/2018');
+    expect(response.body).toContain('2018');
     expect(response.body).toContain('cloud_controller.read');
   });
 
