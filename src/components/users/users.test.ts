@@ -16,6 +16,7 @@ const rawToken = {
   user_id: 'uaa-id-253',
   scope: [CLOUD_CONTROLLER_ADMIN],
   exp: (time + (24 * 60 * 60)),
+  origin: 'uaa',
 };
 const accessToken = jwt.sign(rawToken, tokenKey);
 
@@ -27,6 +28,7 @@ const rawNonAdminAccessToken = {
   user_id: 'uaa-id-253',
   scope: [],
   exp: (time + (24 * 60 * 60)),
+  origin: 'uaa',
 };
 const nonAdminAccessToken = jwt.sign(rawNonAdminAccessToken, tokenKey);
 const nonAdminCtx: IContext = createTestContext({
