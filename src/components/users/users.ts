@@ -4,7 +4,12 @@ import {IParameters, IResponse} from '../../lib/router';
 import {NotFoundError} from '../../lib/router/errors';
 import UAAClient from '../../lib/uaa';
 import {IContext} from '../app/context';
-import {CLOUD_CONTROLLER_ADMIN} from '../auth';
+
+import {
+  CLOUD_CONTROLLER_ADMIN,
+  CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+} from '../auth';
 
 import userTemplate from './user.njk';
 
@@ -15,7 +20,11 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
     throw new NotFoundError('not found');
   }
 
-  const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
+  const isAdmin = ctx.token.hasAnyScope(
+    CLOUD_CONTROLLER_ADMIN,
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+  );
 
   /* istanbul ignore next */
   if (!isAdmin) {
