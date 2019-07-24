@@ -122,26 +122,44 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
 async function getQuote(billing: BillingClient, state: ICalculatorState): Promise<IQuote> {
   const rangeStart = moment(state.rangeStart);
   const rangeStop = moment(state.rangeStop);
-  const usageEvents = state.items.reduce((events: IUsageEvent[], item: IResourceItem) => {
-    return [
-      ...events,
-      {
-        eventGUID: uuid.v1(),
-        resourceGUID: uuid.v4(),
-        resourceName: (state.plans.find(p => p.planGUID === item.planGUID) || {planName: 'unknown'}).planName,
-        resourceType: (state.plans.find(p => p.planGUID === item.planGUID) || {serviceName: 'unknown'}).serviceName,
-        orgGUID: '00000001-0000-0000-0000-000000000000',
-        spaceGUID: '00000001-0001-0000-0000-000000000000',
-        spaceName: 'spaceName',
-        eventStart: rangeStart.toDate(),
-        eventStop: rangeStop.toDate(),
-        planGUID: item.planGUID,
-        numberOfNodes: parseFloat(item.numberOfNodes),
-        memoryInMB: parseFloat(item.memoryInMB),
-        storageInMB: parseFloat(item.storageInMB),
-      },
-    ];
-  }, []);
+  const usageEvents = state.items.map((item: IResourceItem) => {
+    const plan = state.plans.find(p => p.planGUID === item.planGUID);
+    const defaultEvent = {
+      eventGUID: uuid.v1(),
+      resourceGUID: uuid.v4(),
+      resourceName: 'unknown',
+      resourceType: 'unknown',
+      orgGUID: '00000001-0000-0000-0000-000000000000',
+      spaceGUID: '00000001-0001-0000-0000-000000000000',
+      spaceName: 'spaceName',
+      eventStart: rangeStart.toDate(),
+      eventStop: rangeStop.toDate(),
+      planGUID: item.planGUID,
+      numberOfNodes: parseFloat(item.numberOfNodes),
+      memoryInMB: parseFloat(item.memoryInMB),
+      storageInMB: parseFloat(item.storageInMB),
+    };
+    if (!plan) {
+      return defaultEvent;
+    }
+    if (plan.serviceName === 'app') {
+      const appEvent = {
+        ...defaultEvent,
+        resourceName: plan.planName,
+        resourceType: plan.serviceName,
+      };
+      return appEvent;
+    }
+    const serviceEvent = {
+      ...defaultEvent,
+      resourceName: plan.planName,
+      resourceType: plan.serviceName,
+      numberOfNodes: plan.numberOfNodes,
+      memoryInMB: plan.memoryInMB,
+      storageInMB: plan.storageInMB,
+    };
+    return serviceEvent;
+  });
 
   const forecastEvents = await billing.getForecastEvents({
     rangeStart: rangeStart.toDate(),

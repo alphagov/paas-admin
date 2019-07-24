@@ -134,19 +134,21 @@ describe('calculator test suite', () => {
       .reply(200, `[
         {
           "name": "app",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
+          "plan_guid": "00000000-0000-0000-0000-000000000001",
           "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [
-            {
-              "name": "instance",
-              "formula": "ceil($time_in_seconds/3600) * 0.01",
-              "vat_code": "Standard",
-              "currency_code": "USD"
-            }
-          ],
+          "components": [],
           "memory_in_mb": 0,
           "storage_in_mb": 524288,
           "number_of_nodes": 0
+        },
+        {
+          "name": "postgres",
+          "plan_guid": "00000000-0000-0000-0000-000000000002",
+          "valid_from": "2017-01-01T00:00:00+00:00",
+          "components": [],
+          "memory_in_mb": 0,
+          "storage_in_mb": 524288,
+          "number_of_nodes": 2
         }
       ]`)
       .get(`/forecast_events`)
@@ -160,7 +162,7 @@ describe('calculator test suite', () => {
           "resource_type": "_TESTING_APPLICATION_",
           "org_guid": "51ba75ef-edc0-47ad-a633-a8f6e8770944",
           "space_guid": "276f4886-ac40-492d-a8cd-b2646637ba76",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
+          "plan_guid": "00000000-0000-0000-0000-000000000001",
           "number_of_nodes": 1,
           "memory_in_mb": 1024,
           "storage_in_mb": 0,
@@ -181,6 +183,37 @@ describe('calculator test suite', () => {
               }
             ]
           }
+        },
+        {
+          "event_guid": "aa30fa3c-725d-4272-9052-c7186d4968a6",
+          "event_start": "2001-01-01T00:00:00+00:00",
+          "event_stop": "2001-01-01T01:00:00+00:00",
+          "resource_guid": "c85e98f0-6d1b-4f45-9368-ea58263165a0",
+          "resource_name": "SERVICE1",
+          "resource_type": "_TESTING_SERVICE_",
+          "org_guid": "51ba75ef-edc0-47ad-a633-a8f6e8770944",
+          "space_guid": "276f4886-ac40-492d-a8cd-b2646637ba76",
+          "plan_guid": "00000000-0000-0000-0000-000000000002",
+          "number_of_nodes": 1,
+          "memory_in_mb": 1024,
+          "storage_in_mb": 0,
+          "price": {
+            "inc_vat": "0.012",
+            "ex_vat": "0.01",
+            "details": [
+              {
+                "name": "postgres",
+                "plan_name": "PLAN1",
+                "start": "2001-01-01T00:00:00+00:00",
+                "stop": "2001-01-01T01:00:00+00:00",
+                "vat_rate": "0.2",
+                "vat_code": "Standard",
+                "currency_code": "GBP",
+                "inc_vat": "0.012",
+                "ex_vat": "0.01"
+              }
+            ]
+          }
         }
       ]`)
     ;
@@ -188,11 +221,13 @@ describe('calculator test suite', () => {
 
     const response = await getCalculator(ctx, {
       items: [
-        {planGUID: 'f4d4b95a-f55e-4593-8d54-3364c25798c4', numberOfNodes: '1'},
+        {planGUID: '00000000-0000-0000-0000-000000000001', numberOfNodes: '1'},
+        {planGUID: '00000000-0000-0000-0000-000000000002', numberOfNodes: '2'},
       ],
     });
 
     expect(response.body).toContain('_TESTING_APPLICATION_');
+    expect(response.body).toContain('_TESTING_SERVICE_');
   });
 
   it('should sort the quote by order added', async () => {
