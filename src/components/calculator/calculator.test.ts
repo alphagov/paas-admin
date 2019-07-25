@@ -8,6 +8,48 @@ import {getCalculator} from '../calculator';
 
 const ctx: IContext = createTestContext();
 
+const defaultPricingPlan = {
+  name: 'default-plan-name',
+  plan_guid: 'default-plan-guid',
+  valid_from: '2017-01-01T00:00:00+00:00',
+  components: [],
+  memory_in_mb: 0,
+  storage_in_mb: 0,
+  number_of_nodes: 0,
+};
+
+const defaultForecastEvent = {
+  event_guid: 'default-event-guid',
+  event_start: '2001-01-01T00:00:00+00:00',
+  event_stop: '2001-01-01T01:00:00+00:00',
+  resource_guid: 'default-resource-guid',
+  resource_name: 'default-resource-name',
+  resource_type: 'default-resource-type',
+  org_guid: 'default-org-guid',
+  space_guid: 'default-space-guid',
+  plan_guid: 'default-plan-guid',
+  number_of_nodes: 1,
+  memory_in_mb: 1024,
+  storage_in_mb: 0,
+  price: {
+    inc_vat: '0.012',
+    ex_vat: '0.01',
+    details: [
+      {
+        name: 'default-price-detail-name',
+        plan_name: 'default-price-detail-plan-name',
+        start: '2001-01-01T00:00:00+00:00',
+        stop: '2001-01-01T01:00:00+00:00',
+        vat_rate: '0.2',
+        vat_code: 'default-vat-code',
+        currency_code: 'default-currency-code',
+        inc_vat: '0.00',
+        ex_vat: '0.00',
+      },
+    ],
+  },
+};
+
 describe('calculator test suite', () => {
   it('should get calculator', async () => {
     const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
@@ -16,74 +58,43 @@ describe('calculator test suite', () => {
     // tslint:disable:max-line-length
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
-      .reply(200, `[
+      .reply(200, JSON.stringify([
         {
-          "name": "app",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [
-            {
-              "name": "instance",
-              "formula": "ceil($time_in_seconds/3600) * 0.01",
-              "vat_code": "Standard",
-              "currency_code": "USD"
-            }
-          ],
-          "memory_in_mb": 0,
-          "storage_in_mb": 524288,
-          "number_of_nodes": 0
+          ...defaultPricingPlan,
+          name: 'app',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+          storage_in_mb: 524288,
         },
         {
-          "name": "postgres tiny-9.6",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c5",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
+          ...defaultPricingPlan,
+          name: 'postgres tiny-9.6',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c5',
         },
         {
-          "name": "mysql large-ha-5.7",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c6",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
+          ...defaultPricingPlan,
+          name: 'mysql large-ha-5.7',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c6',
         },
         {
-          "name": "redis tiny-clustered-3.2",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c7",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
+          ...defaultPricingPlan,
+          name: 'redis tiny-clustered-3.2',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c7',
         },
         {
-          "name": "elasticsearch small-ha-6.x",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c8",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
+          ...defaultPricingPlan,
+          name: 'elasticsearch small-ha-6.x',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c8',
         },
         {
-          "name": "prometheus",
-          "valid_from": "2002-01-01",
-          "components": []
+          ...defaultPricingPlan,
+          name: 'prometheus',
         },
         {
-          "name": "aws-s3-bucket default",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c9",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
-        }
-      ]`)
+          ...defaultPricingPlan,
+          name: 'aws-s3-bucket default',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c9',
+        },
+      ]))
       .get(`/forecast_events?range_start=${rangeStart}&range_stop=${rangeStop}&org_guid=00000001-0000-0000-0000-000000000000&events=%5B%5D`)
       .reply(200, [])
     ;
@@ -131,68 +142,45 @@ describe('calculator test suite', () => {
         return path;
       })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
-      .reply(200, `[
+      .reply(200, JSON.stringify([
         {
-          "name": "app",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [
-            {
-              "name": "instance",
-              "formula": "ceil($time_in_seconds/3600) * 0.01",
-              "vat_code": "Standard",
-              "currency_code": "USD"
-            }
-          ],
-          "memory_in_mb": 0,
-          "storage_in_mb": 524288,
-          "number_of_nodes": 0
-        }
-      ]`)
+          ...defaultPricingPlan,
+          name: 'app',
+          plan_guid: '00000000-0000-0000-0000-000000000001',
+        },
+        {
+          ...defaultPricingPlan,
+          name: 'postgres',
+          plan_guid: '00000000-0000-0000-0000-000000000002',
+        },
+      ]))
       .get(`/forecast_events`)
-      .reply(200, `[
+      .reply(200, JSON.stringify([
         {
-          "event_guid": "aa30fa3c-725d-4272-9052-c7186d4968a6",
-          "event_start": "2001-01-01T00:00:00+00:00",
-          "event_stop": "2001-01-01T01:00:00+00:00",
-          "resource_guid": "c85e98f0-6d1b-4f45-9368-ea58263165a0",
-          "resource_name": "APP1",
-          "resource_type": "_TESTING_APPLICATION_",
-          "org_guid": "51ba75ef-edc0-47ad-a633-a8f6e8770944",
-          "space_guid": "276f4886-ac40-492d-a8cd-b2646637ba76",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-          "number_of_nodes": 1,
-          "memory_in_mb": 1024,
-          "storage_in_mb": 0,
-          "price": {
-            "inc_vat": "0.012",
-            "ex_vat": "0.01",
-            "details": [
-              {
-                "name": "compute",
-                "plan_name": "PLAN1",
-                "start": "2001-01-01T00:00:00+00:00",
-                "stop": "2001-01-01T01:00:00+00:00",
-                "vat_rate": "0.2",
-                "vat_code": "Standard",
-                "currency_code": "GBP",
-                "inc_vat": "0.012",
-                "ex_vat": "0.01"
-              }
-            ]
-          }
-        }
-      ]`)
+          ...defaultForecastEvent,
+          resource_name: 'APP1',
+          resource_type: '_TESTING_APPLICATION_',
+          plan_guid: '00000000-0000-0000-0000-000000000001',
+        },
+        {
+          ...defaultForecastEvent,
+          resource_name: 'SERVICE1',
+          resource_type: '_TESTING_SERVICE_',
+          plan_guid: '00000000-0000-0000-0000-000000000002',
+        },
+      ]))
     ;
     // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {
       items: [
-        {planGUID: 'f4d4b95a-f55e-4593-8d54-3364c25798c4', numberOfNodes: '1'},
+        {planGUID: '00000000-0000-0000-0000-000000000001', numberOfNodes: '1'},
+        {planGUID: '00000000-0000-0000-0000-000000000002', numberOfNodes: '2'},
       ],
     });
 
     expect(response.body).toContain('_TESTING_APPLICATION_');
+    expect(response.body).toContain('_TESTING_SERVICE_');
   });
 
   it('should sort the quote by order added', async () => {
@@ -209,120 +197,31 @@ describe('calculator test suite', () => {
         return path;
       })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
-      .reply(200, `[
+      .reply(200, JSON.stringify([
         {
-          "name": "app",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [
-            {
-              "name": "instance",
-              "formula": "ceil($time_in_seconds/3600) * 0.01",
-              "vat_code": "Standard",
-              "currency_code": "USD"
-            }
-          ],
-          "memory_in_mb": 0,
-          "storage_in_mb": 524288,
-          "number_of_nodes": 0
-        }
-      ]`)
+          ...defaultPricingPlan,
+          name: 'app',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+        },
+      ]))
       .get(`/forecast_events`)
-      .reply(200, `[
+      .reply(200, JSON.stringify([
         {
-          "event_guid": "aa30fa3c-725d-4272-9052-c7186d4968a3",
-          "event_start": "2001-01-01T00:00:00+00:00",
-          "event_stop": "2001-01-01T01:00:00+00:00",
-          "resource_guid": "c85e98f0-6d1b-4f45-9368-ea58263165a0",
-          "resource_name": "",
-          "resource_type": "_TESTING_APPLICATION_3_",
-          "org_guid": "51ba75ef-edc0-47ad-a633-a8f6e8770944",
-          "space_guid": "276f4886-ac40-492d-a8cd-b2646637ba76",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c0",
-          "number_of_nodes": 1,
-          "memory_in_mb": 1024,
-          "storage_in_mb": 0,
-          "price": {
-            "inc_vat": "0.012",
-            "ex_vat": "0.01",
-            "details": [
-              {
-                "name": "compute",
-                "plan_name": "PLAN1",
-                "start": "2001-01-01T00:00:00+00:00",
-                "stop": "2001-01-01T01:00:00+00:00",
-                "vat_rate": "0.2",
-                "vat_code": "Standard",
-                "currency_code": "GBP",
-                "inc_vat": "0.012",
-                "ex_vat": "0.01"
-              }
-            ]
-          }
+          ...defaultForecastEvent,
+          event_guid: 'aa30fa3c-725d-4272-9052-c7186d4968a3',
+          resource_type: '_TESTING_APPLICATION_3_',
         },
         {
-          "event_guid": "aa30fa3c-725d-4272-9052-c7186d4968a1",
-          "event_start": "2001-01-01T00:00:00+00:00",
-          "event_stop": "2001-01-01T01:00:00+00:00",
-          "resource_guid": "c85e98f0-6d1b-4f45-9368-ea58263165a0",
-          "resource_name": "APP1",
-          "resource_type": "_TESTING_APPLICATION_1_",
-          "org_guid": "51ba75ef-edc0-47ad-a633-a8f6e8770944",
-          "space_guid": "276f4886-ac40-492d-a8cd-b2646637ba76",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-          "number_of_nodes": 1,
-          "memory_in_mb": 1024,
-          "storage_in_mb": 0,
-          "price": {
-            "inc_vat": "0.012",
-            "ex_vat": "0.01",
-            "details": [
-              {
-                "name": "compute",
-                "plan_name": "PLAN1",
-                "start": "2001-01-01T00:00:00+00:00",
-                "stop": "2001-01-01T01:00:00+00:00",
-                "vat_rate": "0.2",
-                "vat_code": "Standard",
-                "currency_code": "GBP",
-                "inc_vat": "0.012",
-                "ex_vat": "0.01"
-              }
-            ]
-          }
+          ...defaultForecastEvent,
+          event_guid: 'aa30fa3c-725d-4272-9052-c7186d4968a1',
+          resource_type: '_TESTING_APPLICATION_1_',
         },
         {
-          "event_guid": "aa30fa3c-725d-4272-9052-c7186d4968a2",
-          "event_start": "2001-01-01T00:00:00+00:00",
-          "event_stop": "2001-01-01T01:00:00+00:00",
-          "resource_guid": "c85e98f0-6d1b-4f45-9368-ea58263165a0",
-          "resource_name": "",
-          "resource_type": "_TESTING_APPLICATION_2_",
-          "org_guid": "51ba75ef-edc0-47ad-a633-a8f6e8770944",
-          "space_guid": "276f4886-ac40-492d-a8cd-b2646637ba76",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-          "number_of_nodes": 1,
-          "memory_in_mb": 1024,
-          "storage_in_mb": 0,
-          "price": {
-            "inc_vat": "0.012",
-            "ex_vat": "0.01",
-            "details": [
-              {
-                "name": "compute",
-                "plan_name": "PLAN1",
-                "start": "2001-01-01T00:00:00+00:00",
-                "stop": "2001-01-01T01:00:00+00:00",
-                "vat_rate": "0.2",
-                "vat_code": "Standard",
-                "currency_code": "GBP",
-                "inc_vat": "0.012",
-                "ex_vat": "0.01"
-              }
-            ]
-          }
-        }
-      ]`)
+          ...defaultForecastEvent,
+          event_guid: 'aa30fa3c-725d-4272-9052-c7186d4968a2',
+          resource_type: '_TESTING_APPLICATION_2_',
+        },
+      ]))
     ;
     // tslint:enable:max-line-length
 
@@ -356,24 +255,13 @@ describe('calculator test suite', () => {
         return path;
       })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
-      .reply(200, `[
+      .reply(200, JSON.stringify([
         {
-          "name": "redis tiny (compose)",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c1",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [
-            {
-              "name": "instance",
-              "formula": "ceil($time_in_seconds/3600) * 0.01",
-              "vat_code": "Standard",
-              "currency_code": "USD"
-            }
-          ],
-          "memory_in_mb": 0,
-          "storage_in_mb": 524288,
-          "number_of_nodes": 0
-        }
-      ]`)
+          ...defaultPricingPlan,
+          name: 'redis tiny (compose)',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c1',
+        },
+      ]))
       .get(`/forecast_events`)
       .reply(200, `[]`)
     ;
@@ -397,62 +285,38 @@ describe('calculator test suite', () => {
         return path;
       })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
-      .reply(200, `[
+      .reply(200, JSON.stringify([
         {
-          "name": "postgres tiny-9.6",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c2",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
+          ...defaultPricingPlan,
+          name: 'postgres tiny-9.6',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c2',
         },
         {
-          "name": "postgres micro-9.6",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c1",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
+          ...defaultPricingPlan,
+          name: 'postgres micro-9.6',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c1',
         },
         {
-          "name": "postgres small-9.6",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c3",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
+          ...defaultPricingPlan,
+          name: 'postgres small-9.6',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c3',
         },
         {
-          "name": "postgres medium-9.6",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
+          ...defaultPricingPlan,
+          name: 'postgres medium-9.6',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
         },
         {
-          "name": "postgres large-9.6",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c5",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
+          ...defaultPricingPlan,
+          name: 'postgres large-9.6',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c5',
         },
         {
-          "name": "postgres xlarge-9.6",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c6",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
-        }
-      ]`)
+          ...defaultPricingPlan,
+          name: 'postgres xlarge-9.6',
+          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c6',
+        },
+      ]))
       .get(`/forecast_events`)
       .reply(200, `[]`)
     ;
@@ -476,30 +340,30 @@ describe('calculator test suite', () => {
         return path;
       })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
-      .reply(200, `[
+      .reply(200, JSON.stringify([
         {
-          "name": "mysql mysql-medium-5.7",
-          "plan_guid": "_SERVICE_PLAN_GUID_",
-          "valid_from": "2002-01-01",
-          "components": [
+          name: 'mysql mysql-medium-5.7',
+          plan_guid: '_SERVICE_PLAN_GUID_',
+          valid_from: '2002-01-01',
+          components: [
             {
-              "name": "cpu-usage",
-              "formula": "$number_of_nodes * 0.001 * $time_in_seconds",
-              "vat_code": "Standard",
-              "currency_code": "GBP"
+              name: 'cpu-usage',
+              formula: '$number_of_nodes * 0.001 * $time_in_seconds',
+              vat_code: 'Standard',
+              currency_code: 'GBP',
             },
             {
-              "name": "storage-usage",
-              "formula": "$storage_in_mb * 0.0001 * $time_in_seconds",
-              "vat_code": "Standard",
-              "currency_code": "GBP"
-            }
+              name: 'storage-usage',
+              formula: '$storage_in_mb * 0.0001 * $time_in_seconds',
+              vat_code: 'Standard',
+              currency_code: 'GBP',
+            },
           ],
-          "memory_in_mb": 345,
-          "storage_in_mb": 543,
-          "number_of_nodes": 1
-        }
-      ]`)
+          memory_in_mb: 345,
+          storage_in_mb: 543,
+          number_of_nodes: 1,
+        },
+      ]))
       .get(`/forecast_events`)
       .reply(200, [])
     ;
@@ -532,17 +396,12 @@ describe('calculator test suite', () => {
         return path;
       })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
-      .reply(200, `[
+      .reply(200, JSON.stringify([
         {
-          "name": "aws-s3-bucket default",
-          "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c2",
-          "valid_from": "2017-01-01T00:00:00+00:00",
-          "components": [],
-          "memory_in_mb": 0,
-          "storage_in_mb": 0,
-          "number_of_nodes": 0
-        }
-      ]`)
+          ...defaultPricingPlan,
+          name: 'aws-s3-bucket default',
+        },
+      ]))
       .get(`/forecast_events`)
       .reply(200, `[]`)
     ;

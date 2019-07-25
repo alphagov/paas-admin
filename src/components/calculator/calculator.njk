@@ -64,8 +64,6 @@
                           value: "planGUID"
                         })
                         }) }}
-                        <input type="hidden" name="items[{{ state.items.length }}][numberOfNodes]" value="{{ plans[0].numberOfNodes }}" />
-                        <input type="hidden" name="items[{{ state.items.length }}][storageInMB]" value="{{ plans[0].storageInMB }}" />
                     {% else %}
                       <input type="hidden" name="items[{{ state.items.length }}][planGUID]" value="{{ plans[0].planGUID }}">
                       {% if serviceName == "app" %}
