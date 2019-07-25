@@ -13,13 +13,21 @@ import useGoogleSSOTemplate from './use-google-sso.njk';
 import useMicrosoftSSOTemplate from './use-microsoft-sso.njk';
 
 export async function getUseGoogleSSO(ctx: IContext, _params: IParameters): Promise<IResponse> {
-  const user = await fetchLoggedInUser(ctx);
+  const cfgProvided = ctx.app.oidcProviders.get('google');
 
-  if (!user.isGDSUser) {
+  if (!cfgProvided) {
+    ctx.app.logger.error('Unable to find Google OIDC config');
+
     return {
-      redirect: ctx.linkTo('admin.home'),
+      body: error500.render({
+        routePartOf: ctx.routePartOf,
+        linkTo: ctx.linkTo,
+        context: ctx.viewContext,
+      }),
     };
   }
+
+  const user = await fetchLoggedInUser(ctx);
 
   return {
     body: useGoogleSSOTemplate.render({
@@ -32,6 +40,34 @@ export async function getUseGoogleSSO(ctx: IContext, _params: IParameters): Prom
 }
 
 export async function postUseGoogleSSO(ctx: IContext, _params: IParameters): Promise<IResponse> {
+  const cfgProvided = ctx.app.oidcProviders.get('google');
+
+  if (!cfgProvided) {
+    ctx.app.logger.error('Unable to find Google OIDC config');
+
+    return {
+      body: error500.render({
+        routePartOf: ctx.routePartOf,
+        linkTo: ctx.linkTo,
+        context: ctx.viewContext,
+      }),
+    };
+  }
+
+  const oidcClient = new OIDC(
+    cfgProvided.clientID,
+    cfgProvided.clientSecret,
+    cfgProvided.discoveryURL,
+    ctx.absoluteLinkTo('account.use-google-sso-callback.get'),
+  );
+  const redirectURL = await oidcClient.getAuthorizationOIDCURL(ctx.session);
+
+  return {
+    redirect: redirectURL,
+  };
+}
+
+export async function getGoogleOIDCCallback(ctx: IContext, _params: IParameters): Promise<IResponse> {
   const uaa = new UAAClient({
     apiEndpoint: ctx.app.uaaAPI,
     clientCredentials: {
@@ -39,14 +75,55 @@ export async function postUseGoogleSSO(ctx: IContext, _params: IParameters): Pro
       clientSecret: ctx.app.oauthClientSecret,
     },
   });
-  await uaa.setUserOrigin(ctx.token.userID, 'google');
 
+  const cfgProvided = ctx.app.oidcProviders.get('google');
+
+  if (!cfgProvided) {
+    ctx.app.logger.error('Unable to find Google OIDC config');
+
+    return {
+      body: error500.render({
+        routePartOf: ctx.routePartOf,
+        linkTo: ctx.linkTo,
+        context: ctx.viewContext,
+      }),
+    };
+  }
+
+  const oidcClient = new OIDC(
+    cfgProvided.clientID,
+    cfgProvided.clientSecret,
+    cfgProvided.discoveryURL,
+    ctx.absoluteLinkTo('account.use-google-sso-callback.get'),
+  );
+
+  if (_params.hasOwnProperty('error')) {
+    return oidcErrorHandler(ctx, _params, cfgProvided);
+  }
+
+  const authResponse: IAuthorizationCodeResponse = {
+    code: _params.code,
+    state: _params.state,
+  };
+
+  const success = await oidcClient.oidcCallback(ctx, authResponse, uaa, cfgProvided.providerName as UaaOrigin);
+
+  if (success) {
+    return {
+      body: successfulUpliftTemplate.render({
+        routePartOf: ctx.routePartOf,
+        linkTo: ctx.linkTo,
+        context: ctx.viewContext,
+        providerName: cfgProvided.providerName,
+      }),
+    };
+  }
   return {
-    body: successfulUpliftTemplate.render({
+    body: unsuccessfulUpliftTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
-      providerName: 'Google',
+      providerName: cfgProvided.providerName,
     }),
   };
 }

@@ -6,6 +6,7 @@ import {IContext} from '../app';
 
 export const KEY_STATE = 'oidc_flow_state';
 const KEY_OID = 'oid';
+const KEY_SUB = 'sub';
 
 export default class OIDC {
   constructor(
@@ -53,9 +54,16 @@ export default class OIDC {
         {state, response_type},
       );
 
-      const oid = tokenSet.claims[KEY_OID] as string;
-
-      await uaa.setUserOrigin(ctx.token.userID, providerName, oid);
+      switch (providerName) {
+        case 'microsoft': {
+          const oid = tokenSet.claims[KEY_OID] as string;
+          await uaa.setUserOrigin(ctx.token.userID, providerName, oid);
+        }
+        case 'google': {
+          const sub = tokenSet.claims[KEY_SUB] as string;
+          await uaa.setUserOrigin(ctx.token.userID, providerName, sub);
+        }
+      }
 
       ctx.session[KEY_STATE] = null;
       ctx.session.save();

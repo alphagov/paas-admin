@@ -25,10 +25,6 @@ export class AccountUser {
     return 'Unknown';
   }
 
-  get isGDSUser(): boolean {
-    return this.username.endsWith('@digital.cabinet-office.gov.uk');
-  }
-
   get origin(): string {
     return this.user.origin;
   }

@@ -71,6 +71,14 @@ async function main() {
     discoveryURL: `https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration`,
   });
 
+  providers.set('google', {
+    providerName: 'google',
+    clientID: expectEnvVariable('GOOGLE_CLIENT_ID'),
+    clientSecret: expectEnvVariable('GOOGLE_CLIENT_SECRET'),
+    // tslint:disable-next-line:max-line-length
+    discoveryURL: `https://accounts.google.com/.well-known/openid-configuration`,
+  });
+
   const config: IAppConfig = {
     logger,
     sessionSecret: process.env.SESSION_SECRET || 'mysecret',
