@@ -113,7 +113,6 @@ describe('org-users test suite', () => {
     .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/99022be6-feb8-4f78-96f3-7d11f4d476f1').reply(200, `{}`)
     .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users').reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
     .get('/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, {resources: []})
-    .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true').reply(200, {})
   ;
 
   nockUAA
@@ -384,6 +383,12 @@ describe('org-users test suite', () => {
   });
 
   it('should update the user, set BillingManager role and show success - User Edit', async () => {
+    // tslint:disable:max-line-length
+    nockCF
+      .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
+      .reply(200, {});
+    // tslint:enable:max-line-length
+
     const response = await orgUsers.deleteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: '5ff19d4c-8fa0-4d74-94e0-52eac86d55a8',
