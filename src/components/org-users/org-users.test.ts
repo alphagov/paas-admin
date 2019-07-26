@@ -385,12 +385,19 @@ describe('org-users test suite', () => {
   });
 
   it('should show the user edit page', async () => {
+    nockAccounts.get('/users/uaa-user-edit-123456').reply(200, `{
+      "user_uuid": "uaa-user-edit-123456",
+      "user_email": "one@user.in.database",
+      "username": "one@user.in.database"
+    }`);
+
     const response = await orgUsers.editUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-user-edit-123456',
     });
 
     expect(response.body).toContain('Update a team member');
+    expect(response.body).toContain('one@user.in.database');
   });
 
   it('should fail to show the user edit page due to not existing user', async () => {
