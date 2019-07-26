@@ -88,10 +88,6 @@ describe('org-users test suite', () => {
     .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true').reply(200, `{}`)
     .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true').reply(200, `{}`)
 
-    .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/uaa-user-edit-123456?recursive=true').reply(200, `{}`)
-    .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-edit-123456?recursive=true').reply(200, `{}`)
-    .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/uaa-user-edit-123456?recursive=true').reply(200, `{}`)
-
     .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8').reply(200, `{}`)
     .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8').reply(200, `{}`)
     .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8').reply(200, `{}`)
@@ -190,9 +186,13 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, set BillingManager role and show success', async () => {
+    // tslint:disable:max-line-length
     nockCF
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
-      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`);
+      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
+      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/uaa-user-edit-123456?recursive=true')
+      .reply(200, `{}`);
+    // tslint:enable:max-line-length
 
     nockAccounts
       .post('/users/').reply(201);
@@ -224,7 +224,9 @@ describe('org-users test suite', () => {
   it('should invite the user, set OrgManager role and show success', async () => {
     nockCF
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
-      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`);
+      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
+      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-edit-123456?recursive=true')
+      .reply(200, `{}`);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -249,7 +251,9 @@ describe('org-users test suite', () => {
   it('should invite the user, set OrgAuditor role and show success', async () => {
     nockCF
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
-      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`);
+      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
+      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/uaa-user-edit-123456?recursive=true')
+      .reply(200, `{}`);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
