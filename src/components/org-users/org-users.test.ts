@@ -121,7 +121,6 @@ describe('org-users test suite', () => {
     .get('/Users?filter=email+eq+%22imeCkO@test.org%22').reply(200, uaaData.usersByEmail)
     .get('/Users?filter=email+eq+%22user@uaa.example.com%22').reply(200, uaaData.usersByEmail)
     .get('/Users?filter=email+eq+%22jeff@jeff.com%22').reply(200, uaaData.noFoundUsersByEmail)
-    .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation').reply(200, uaaData.invite)
     .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
   ;
 
@@ -210,6 +209,10 @@ describe('org-users test suite', () => {
   it('should invite the user, set BillingManager role and show success', async () => {
     nockAccounts
       .post('/users/').reply(201);
+
+    nockUAA
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .reply(200, uaaData.invite);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
