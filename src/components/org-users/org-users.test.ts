@@ -95,11 +95,8 @@ describe('org-users test suite', () => {
     .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8').reply(200, `{}`)
     .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8').reply(200, `{}`)
     .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8').reply(200, `{}`)
-    .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/managers/uaa-user-edit-123456').reply(200, `{}`)
     .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/uaa-user-edit-123456').reply(200, `{}`)
     .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/uaa-user-edit-123456').reply(200, `{}`)
-    .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/99022be6-feb8-4f78-96f3-7d11f4d476f1').reply(200, `{}`)
-    .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/99022be6-feb8-4f78-96f3-7d11f4d476f1').reply(200, `{}`)
     .get('/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, {resources: []})
   ;
 
@@ -302,7 +299,9 @@ describe('org-users test suite', () => {
   it('should invite the user, set SpaceDeveloper role and show success', async () => {
     nockCF
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
-      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`);
+      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
+      .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/managers/uaa-user-edit-123456')
+      .reply(200, `{}`);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
