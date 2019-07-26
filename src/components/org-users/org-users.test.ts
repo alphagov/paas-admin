@@ -116,7 +116,6 @@ describe('org-users test suite', () => {
   ;
 
   nockUAA
-    .get('/Users/uaa-user-edit-123456').reply(200, uaaData.usersByEmail)
     .get('/Users?filter=email+eq+%22imeCkO@test.org%22').reply(200, uaaData.usersByEmail)
     .get('/Users?filter=email+eq+%22user@uaa.example.com%22').reply(200, uaaData.usersByEmail)
     .get('/Users?filter=email+eq+%22jeff@jeff.com%22').reply(200, uaaData.noFoundUsersByEmail)
@@ -398,6 +397,9 @@ describe('org-users test suite', () => {
   });
 
   it('should show the user edit page', async () => {
+    nockUAA
+      .get('/Users/uaa-user-edit-123456').reply(200, uaaData.usersByEmail);
+
     nockAccounts.get('/users/uaa-user-edit-123456').reply(200, `{
       "user_uuid": "uaa-user-edit-123456",
       "user_email": "one@user.in.database",
