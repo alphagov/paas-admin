@@ -26,13 +26,19 @@ describe('_getUserRolesByGuid', () => {
     nockAccounts = nock(ctx.app.accountsAPI).persist();
 
     nockAccounts
-      .get('/users/some-user-guid-0').reply(200, JSON.stringify({
-      user_uuid: 'some-user-guid-0',
-      user_email: 'some-user-guid-0@fake.digital.cabinet-office.gov.uk',
-      username: 'some-fake-username-from-paas-accounts',
-    }))
-      .get('/users/some-user-guid-1').reply(404)
-      .get('/users/some-user-guid-2').reply(404);
+      .get('/users/some-user-guid-0')
+      .reply(200, JSON.stringify({
+        user_uuid: 'some-user-guid-0',
+        user_email: 'some-user-guid-0@fake.digital.cabinet-office.gov.uk',
+        username: 'some-fake-username-from-paas-accounts',
+      }))
+
+      .get('/users/some-user-guid-1')
+      .reply(404)
+
+      .get('/users/some-user-guid-2')
+      .reply(404)
+    ;
   });
 
   it('should return an empty map if there are no users', async () => {

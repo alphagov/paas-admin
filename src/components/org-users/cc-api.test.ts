@@ -76,13 +76,17 @@ describe('permissions calling cc api', () => {
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
       .reply(200, cfData.userRolesForOrg)
+
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
       .reply(200, cfData.organization)
+
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .times(2)
       .reply(200, cfData.spaces)
+
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/uaa-user-edit-123456')
       .reply(200, `{}`)
+
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-edit-123456?recursive=true')
       .reply(200, `{}`)
     ;
@@ -118,8 +122,10 @@ describe('permissions calling cc api', () => {
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
       .reply(200, cfData.userRolesForOrg)
+
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
       .reply(200, cfData.organization)
+
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .times(2)
       .reply(200, cfData.spaces)
@@ -156,9 +162,11 @@ describe('permissions calling cc api', () => {
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
       .reply(200, cfData.userRolesForOrg)
+
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
       .times(1)
       .reply(200, cfData.organization)
+
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .times(2)
       .reply(200, cfData.spaces)
