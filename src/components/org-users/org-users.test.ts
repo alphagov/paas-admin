@@ -75,8 +75,6 @@ describe('org-users test suite', () => {
 
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .reply(200, cfData.userRolesForOrg)
       .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/user_roles')
       .reply(200, cfData.userRolesForSpace)
       .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/user_roles')
@@ -112,6 +110,8 @@ describe('org-users test suite', () => {
 
   it('should show the users pages', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -130,6 +130,8 @@ describe('org-users test suite', () => {
 
   it('should show the invite page', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -148,6 +150,8 @@ describe('org-users test suite', () => {
 
   it('should show error message when email is missing', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -167,6 +171,8 @@ describe('org-users test suite', () => {
 
   it('should show error message when email is invalid according to our regex', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -192,6 +198,8 @@ describe('org-users test suite', () => {
       .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`);
 
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -221,6 +229,8 @@ describe('org-users test suite', () => {
 
   it('should show error when no roles selected', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -229,6 +239,8 @@ describe('org-users test suite', () => {
       .reply(200, cfData.userRolesForOrg);
 
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -249,6 +261,8 @@ describe('org-users test suite', () => {
   it('should invite the user, set BillingManager role and show success', async () => {
     // tslint:disable:max-line-length
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -300,6 +314,8 @@ describe('org-users test suite', () => {
 
   it('should invite the user, set OrgManager role and show success', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -351,6 +367,8 @@ describe('org-users test suite', () => {
   it('should invite the user, set OrgAuditor role and show success', async () => {
     // tslint:disable:max-line-length
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -402,6 +420,8 @@ describe('org-users test suite', () => {
 
   it('should invite the user, set SpaceManager role and show success', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -450,6 +470,8 @@ describe('org-users test suite', () => {
 
   it('should invite the user, set SpaceDeveloper role and show success', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -502,6 +524,8 @@ describe('org-users test suite', () => {
 
   it('should invite the user, set SpaceAuditor role and show success', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -553,6 +577,8 @@ describe('org-users test suite', () => {
   it('should invite the user, and add them to accounts', async () => {
     // tslint:disable:max-line-length
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -602,6 +628,8 @@ describe('org-users test suite', () => {
 
   it('should fail if the user does not exist in org', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -630,6 +658,8 @@ describe('org-users test suite', () => {
       .post('/').reply(200, {notify: 'FAKE_NOTIFY_RESPONSE'});
 
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -649,6 +679,8 @@ describe('org-users test suite', () => {
 
   it('should show the user delete page', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -669,6 +701,8 @@ describe('org-users test suite', () => {
   it('should update the user, set BillingManager role and show success - User Edit', async () => {
     // tslint:disable:max-line-length
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -704,6 +738,8 @@ describe('org-users test suite', () => {
     }`);
 
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -724,6 +760,8 @@ describe('org-users test suite', () => {
 
   it('should fail to show the user edit page due to not existing user', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -741,6 +779,8 @@ describe('org-users test suite', () => {
 
   it('should show error when no roles selected - User Edit', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -761,6 +801,8 @@ describe('org-users test suite', () => {
 
   it('should update the user, set BillingManager role and show success - User Edit', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -794,6 +836,8 @@ describe('org-users test suite', () => {
 
   it('should update the user, remove BillingManager role and show success - User Edit', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -832,6 +876,8 @@ describe('org-users test suite', () => {
 
   it('should update the user, set OrgManager role and show success - User Edit', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -865,6 +911,8 @@ describe('org-users test suite', () => {
 
   it('should update the user, remove OrgManager role and show success - User Edit', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -907,6 +955,8 @@ describe('org-users test suite', () => {
 
   it('should update the user, set OrgAuditor role and show success - User Edit', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -940,6 +990,8 @@ describe('org-users test suite', () => {
 
   it('should update the user, remove OrgAuditor role and show success - User Edit', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -978,6 +1030,8 @@ describe('org-users test suite', () => {
 
   it('should update the user, set SpaceManager role and show success - User Edit', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -1011,6 +1065,8 @@ describe('org-users test suite', () => {
 
   it('should update the user, set SpaceDeveloper role and show success - User Edit', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -1044,6 +1100,8 @@ describe('org-users test suite', () => {
 
   it('should update the user, set SpaceAuditor role and show success - User Edit', async () => {
     nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
