@@ -75,8 +75,6 @@ describe('org-users test suite', () => {
 
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
-      .reply(200, cfData.spaces)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, cfData.spaces)
       .get('/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8/organizations')
