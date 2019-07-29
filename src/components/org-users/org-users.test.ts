@@ -83,13 +83,6 @@ describe('org-users test suite', () => {
     .get('/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, {resources: []})
   ;
 
-  nockUAA
-    .get('/Users?filter=email+eq+%22imeCkO@test.org%22').reply(200, uaaData.usersByEmail)
-    .get('/Users?filter=email+eq+%22user@uaa.example.com%22').reply(200, uaaData.usersByEmail)
-    .get('/Users?filter=email+eq+%22jeff@jeff.com%22').reply(200, uaaData.noFoundUsersByEmail)
-    .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
-  ;
-
   nockNotify
     .filteringPath(() => '/')
     .post('/').reply(200, {notify: 'FAKE_NOTIFY_RESPONSE'})
@@ -98,6 +91,11 @@ describe('org-users test suite', () => {
 
   beforeEach(() => {
     nockAccounts = nock(ctx.app.accountsAPI).persist();
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+      .get('/Users?filter=email+eq+%22user@uaa.example.com%22')
+      .reply(200, uaaData.usersByEmail);
   });
 
   afterAll(() => {
@@ -145,6 +143,10 @@ describe('org-users test suite', () => {
   });
 
   it('should show error message when invitee is already a member of org', async () => {
+    nockUAA
+      .get('/Users?filter=email+eq+%22imeCkO@test.org%22')
+      .reply(200, uaaData.usersByEmail);
+
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {
@@ -164,6 +166,10 @@ describe('org-users test suite', () => {
   });
 
   it('should show error when no roles selected', async () => {
+    nockUAA
+      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
+      .reply(200, uaaData.noFoundUsersByEmail);
+
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {email: 'jeff@jeff.com'});
@@ -188,7 +194,9 @@ describe('org-users test suite', () => {
 
     nockUAA
       .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
-      .reply(200, uaaData.invite);
+      .reply(200, uaaData.invite)
+      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
+      .reply(200, uaaData.noFoundUsersByEmail);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -217,7 +225,9 @@ describe('org-users test suite', () => {
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-edit-123456?recursive=true')
       .reply(200, `{}`)
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
-      .reply(200, `{}`);
+      .reply(200, `{}`)
+      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
+      .reply(200, uaaData.noFoundUsersByEmail);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -249,6 +259,9 @@ describe('org-users test suite', () => {
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
       .reply(200, `{}`);
     // tslint:enable:max-line-length
+    nockUAA
+      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
+      .reply(200, uaaData.noFoundUsersByEmail);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -276,6 +289,10 @@ describe('org-users test suite', () => {
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(200, `{}`);
+
+    nockUAA
+      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
+      .reply(200, uaaData.noFoundUsersByEmail);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -305,6 +322,10 @@ describe('org-users test suite', () => {
       .reply(200, `{}`)
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(200, `{}`);
+
+    nockUAA
+      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
+      .reply(200, uaaData.noFoundUsersByEmail);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -361,6 +382,10 @@ describe('org-users test suite', () => {
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
       .reply(200, `{}`);
     // tslint:enable:max-line-length
+
+    nockUAA
+      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
+      .reply(200, uaaData.noFoundUsersByEmail);
 
     await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
