@@ -60,27 +60,41 @@ function composeSpaceRoles(setup: object) {
 }
 
 describe('org-users test suite', () => {
-  // tslint:disable:max-line-length
   const nockCF = nock(ctx.app.cloudFoundryAPI).persist();
   let nockUAA: nock.Scope;
   let nockNotify: nock.Scope;
   let nockAccounts: nock.Scope;
 
+  // tslint:disable:max-line-length
   nockCF
-    .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, cfData.organization)
-    .get('/v2/users/uaa-id-253/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, cfData.spaces)
-    .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces').reply(200, cfData.spaces)
-    .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces').reply(200, cfData.spaces)
-    .get('/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8/organizations').reply(200, `{"resources": []}`)
-    .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8').reply(200, `{}`)
-    .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles').reply(200, cfData.userRolesForOrg)
-    .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/user_roles').reply(200, cfData.userRolesForSpace)
-    .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/user_roles').reply(200, cfData.userRolesForSpace)
-    .get('/v2/info').reply(200, cfData.info)
-    .post('/v2/users').reply(200, cfData.user)
-    .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/uaa-user-edit-123456').reply(200, `{}`)
-    .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/uaa-user-edit-123456').reply(200, `{}`)
-    .get('/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, {resources: []})
+    .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+    .reply(200, cfData.organization)
+    .get('/v2/users/uaa-id-253/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+    .reply(200, cfData.spaces)
+    .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
+    .reply(200, cfData.spaces)
+    .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+    .reply(200, cfData.spaces)
+    .get('/v2/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8/organizations')
+    .reply(200, `{"resources": []}`)
+    .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
+    .reply(200, `{}`)
+    .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+    .reply(200, cfData.userRolesForOrg)
+    .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/user_roles')
+    .reply(200, cfData.userRolesForSpace)
+    .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/user_roles')
+    .reply(200, cfData.userRolesForSpace)
+    .get('/v2/info')
+    .reply(200, cfData.info)
+    .post('/v2/users')
+    .reply(200, cfData.user)
+    .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/uaa-user-edit-123456')
+    .reply(200, `{}`)
+    .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/uaa-user-edit-123456')
+    .reply(200, `{}`)
+    .get('/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+    .reply(200, {resources: []})
   ;
   // tslint:enable:max-line-length
 
