@@ -51,6 +51,14 @@ const defaultForecastEvent = {
 };
 
 describe('calculator test suite', () => {
+  beforeEach(() => {
+    nock.cleanAll();
+  });
+
+  afterEach(() => {
+    nock.cleanAll();
+  });
+
   it('should get calculator', async () => {
     const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
     const rangeStop = moment().endOf('month').format('YYYY-MM-DD');
