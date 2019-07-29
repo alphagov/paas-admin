@@ -726,6 +726,37 @@ describe('org-users test suite', () => {
     })).rejects.toThrow(/user not found/);
   });
 
+  it('should fail to show the user edit page due to not existing paas-accounts user', async () => {
+    nockUAA
+      .get('/Users/uaa-user-edit-123456')
+      .reply(200, uaaData.usersByEmail)
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+    ;
+
+    nockAccounts.get('/users/uaa-user-edit-123456').reply(404, `{}`);
+
+    nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .reply(200, cfData.spaces)
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .reply(200, cfData.organization)
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .reply(200, cfData.userRolesForOrg)
+    ;
+
+    await expect(orgUsers.editUser(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      userGUID: 'uaa-user-edit-123456',
+    })).rejects.toThrow(/user not found/);
+  });
+
   it('should show error when no roles selected - User Edit', async () => {
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
