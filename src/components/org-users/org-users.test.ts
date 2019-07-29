@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
 import * as orgUsers from '.';
-import {AccountsClient} from '../../lib/accounts';
 
 import * as cfData from '../../lib/cf/cf.test.data';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
