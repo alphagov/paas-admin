@@ -62,7 +62,7 @@ function composeSpaceRoles(setup: object) {
 describe('org-users test suite', () => {
   // tslint:disable:max-line-length
   const nockCF = nock(ctx.app.cloudFoundryAPI).persist();
-  const nockUAA = nock(ctx.app.uaaAPI).persist();
+  let nockUAA: nock.Scope;
   const nockNotify = nock(/api.notifications.service.gov.uk/).persist();
   let nockAccounts: nock.Scope;
 
@@ -90,7 +90,9 @@ describe('org-users test suite', () => {
   // tslint:enable:max-line-length
 
   beforeEach(() => {
-    nockAccounts = nock(ctx.app.accountsAPI).persist();
+    nockAccounts = nock(ctx.app.accountsAPI);
+
+    nockUAA = nock(ctx.app.uaaAPI);
     nockUAA
       .post('/oauth/token?grant_type=client_credentials')
       .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
@@ -225,9 +227,14 @@ describe('org-users test suite', () => {
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-edit-123456?recursive=true')
       .reply(200, `{}`)
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
-      .reply(200, `{}`)
-      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
-      .reply(200, uaaData.noFoundUsersByEmail);
+      .reply(200, `{}`);
+
+    nockUAA
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .reply(200, uaaData.invite);
+
+    nockAccounts
+      .post('/users/').reply(201);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -259,9 +266,15 @@ describe('org-users test suite', () => {
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
       .reply(200, `{}`);
     // tslint:enable:max-line-length
+
     nockUAA
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
-      .reply(200, uaaData.noFoundUsersByEmail);
+      .reply(200, uaaData.noFoundUsersByEmail)
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .reply(200, uaaData.invite);
+
+    nockAccounts
+      .post('/users/').reply(201);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -292,7 +305,14 @@ describe('org-users test suite', () => {
 
     nockUAA
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
-      .reply(200, uaaData.noFoundUsersByEmail);
+      .reply(200, uaaData.noFoundUsersByEmail)
+      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
+      .reply(200, `{}`)
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .reply(200, uaaData.invite);
+
+    nockAccounts
+      .post('/users/').reply(201);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -325,7 +345,12 @@ describe('org-users test suite', () => {
 
     nockUAA
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
-      .reply(200, uaaData.noFoundUsersByEmail);
+      .reply(200, uaaData.noFoundUsersByEmail)
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .reply(200, uaaData.invite);
+
+    nockAccounts
+      .post('/users/').reply(201);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -352,7 +377,16 @@ describe('org-users test suite', () => {
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
-      .reply(200, `{}`);
+      .reply(200, `{}`)
+
+    nockUAA
+      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
+      .reply(200, uaaData.noFoundUsersByEmail)
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .reply(200, uaaData.invite);
+
+    nockAccounts
+      .post('/users/').reply(201);
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -385,7 +419,14 @@ describe('org-users test suite', () => {
 
     nockUAA
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
-      .reply(200, uaaData.noFoundUsersByEmail);
+      .reply(200, uaaData.noFoundUsersByEmail)
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .reply(200, uaaData.invite)
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .reply(200, uaaData.invite);
+
+    nockAccounts
+      .post('/users/').reply(201);
 
     await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -413,6 +454,10 @@ describe('org-users test suite', () => {
   });
 
   it('should resend user invite', async () => {
+    nockUAA
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .reply(200, uaaData.invite);
+
     const response = await orgUsers.resendInvitation(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       userGUID: 'uaa-id-253',
