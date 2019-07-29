@@ -75,8 +75,6 @@ describe('org-users test suite', () => {
 
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/user_roles')
-      .reply(200, cfData.userRolesForSpace)
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/uaa-user-edit-123456')
       .reply(200, `{}`)
     ;
@@ -104,6 +102,8 @@ describe('org-users test suite', () => {
 
   it('should show the users pages', async () => {
     nockCF
+      .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/user_roles')
+      .reply(200, cfData.userRolesForSpace)
       .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/user_roles')
       .reply(200, cfData.userRolesForSpace)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
@@ -734,6 +734,8 @@ describe('org-users test suite', () => {
     }`);
 
     nockCF
+      .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/user_roles')
+      .reply(200, cfData.userRolesForSpace)
       .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/user_roles')
       .reply(200, cfData.userRolesForSpace)
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
