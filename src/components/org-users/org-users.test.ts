@@ -90,9 +90,7 @@ describe('org-users test suite', () => {
     nockUAA = nock(ctx.app.uaaAPI);
     nockUAA
       .post('/oauth/token?grant_type=client_credentials')
-      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
-      .get('/Users?filter=email+eq+%22user@uaa.example.com%22')
-      .reply(200, uaaData.usersByEmail);
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`);
 
     nockNotify = nock(/api.notifications.service.gov.uk/)
       .filteringPath(() => '/');
@@ -454,7 +452,9 @@ describe('org-users test suite', () => {
   it('should resend user invite', async () => {
     nockUAA
       .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
-      .reply(200, uaaData.invite);
+      .reply(200, uaaData.invite)
+      .get('/Users?filter=email+eq+%22user@uaa.example.com%22')
+      .reply(200, uaaData.usersByEmail);
 
     nockNotify
       .post('/').reply(200, {notify: 'FAKE_NOTIFY_RESPONSE'});
