@@ -63,7 +63,7 @@ describe('org-users test suite', () => {
   // tslint:disable:max-line-length
   const nockCF = nock(ctx.app.cloudFoundryAPI).persist();
   let nockUAA: nock.Scope;
-  const nockNotify = nock(/api.notifications.service.gov.uk/).persist();
+  let nockNotify: nock.Scope;
   let nockAccounts: nock.Scope;
 
   nockCF
@@ -82,11 +82,6 @@ describe('org-users test suite', () => {
     .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/uaa-user-edit-123456').reply(200, `{}`)
     .get('/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275').reply(200, {resources: []})
   ;
-
-  nockNotify
-    .filteringPath(() => '/')
-    .post('/').reply(200, {notify: 'FAKE_NOTIFY_RESPONSE'})
-  ;
   // tslint:enable:max-line-length
 
   beforeEach(() => {
@@ -98,16 +93,19 @@ describe('org-users test suite', () => {
       .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
       .get('/Users?filter=email+eq+%22user@uaa.example.com%22')
       .reply(200, uaaData.usersByEmail);
+
+    nockNotify = nock(/api.notifications.service.gov.uk/)
+      .filteringPath(() => '/');
   });
 
   afterAll(() => {
     nockCF.done();
     nockUAA.done();
-    nockNotify.done();
   });
 
   afterEach(() => {
     expect(nockAccounts.isDone()).toBeTruthy();
+    expect(nockNotify.isDone()).toBeTruthy();
   });
 
   it('should show the users pages', async () => {
@@ -457,6 +455,9 @@ describe('org-users test suite', () => {
     nockUAA
       .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
       .reply(200, uaaData.invite);
+
+    nockNotify
+      .post('/').reply(200, {notify: 'FAKE_NOTIFY_RESPONSE'});
 
     const response = await orgUsers.resendInvitation(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
