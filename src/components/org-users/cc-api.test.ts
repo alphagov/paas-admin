@@ -8,6 +8,8 @@ import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 import {Token} from '../auth';
 
+import {composeOrgRoles, composeSpaceRoles} from './test-helpers';
+
 const tokenKey = 'secret';
 
 const time = Math.floor(Date.now() / 1000);
@@ -17,44 +19,6 @@ const accessToken = jwt.sign(rawToken, tokenKey);
 const ctx: IContext = createTestContext({
   token: new Token(accessToken, [tokenKey]),
 });
-
-function composeOrgRoles(setup: object) {
-  const defaultRoles = {
-    billing_managers: {
-      current: '0',
-    },
-    managers: {
-      current: '0',
-    },
-    auditors: {
-      current: '0',
-    },
-  };
-
-  return {
-    ...defaultRoles,
-    ...setup,
-  };
-}
-
-function composeSpaceRoles(setup: object) {
-  const defaultRoles = {
-    developers: {
-      current: '0',
-    },
-    managers: {
-      current: '0',
-    },
-    auditors: {
-      current: '0',
-    },
-  };
-
-  return {
-    ...defaultRoles,
-    ...setup,
-  };
-}
 
 describe('permissions calling cc api', () => {
   let nockCF: nock.Scope;

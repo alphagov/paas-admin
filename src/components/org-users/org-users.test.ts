@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
 import * as orgUsers from '.';
-
 import {AccountsClient} from '../../lib/accounts';
 
 import * as cfData from '../../lib/cf/cf.test.data';
@@ -10,6 +9,8 @@ import * as uaaData from '../../lib/uaa/uaa.test.data';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 import {Token} from '../auth';
+
+import {composeOrgRoles, composeSpaceRoles} from './test-helpers';
 
 const tokenKey = 'secret';
 
@@ -20,44 +21,6 @@ const accessToken = jwt.sign(rawToken, tokenKey);
 const ctx: IContext = createTestContext({
   token: new Token(accessToken, [tokenKey]),
 });
-
-function composeOrgRoles(setup: object) {
-  const defaultRoles = {
-    billing_managers: {
-      current: '0',
-    },
-    managers: {
-      current: '0',
-    },
-    auditors: {
-      current: '0',
-    },
-  };
-
-  return {
-    ...defaultRoles,
-    ...setup,
-  };
-}
-
-function composeSpaceRoles(setup: object) {
-  const defaultRoles = {
-    developers: {
-      current: '0',
-    },
-    managers: {
-      current: '0',
-    },
-    auditors: {
-      current: '0',
-    },
-  };
-
-  return {
-    ...defaultRoles,
-    ...setup,
-  };
-}
 
 describe('org-users test suite', () => {
   let nockCF: nock.Scope;
