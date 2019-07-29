@@ -81,8 +81,6 @@ describe('org-users test suite', () => {
       .reply(200, cfData.userRolesForSpace)
       .get('/v2/info')
       .reply(200, cfData.info)
-      .post('/v2/users')
-      .reply(200, cfData.user)
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/uaa-user-edit-123456')
       .reply(200, `{}`)
     ;
