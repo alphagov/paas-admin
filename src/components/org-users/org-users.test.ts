@@ -101,8 +101,6 @@ describe('org-users test suite', () => {
       .reply(200, `{}`)
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/uaa-user-edit-123456')
       .reply(200, `{}`)
-      .get('/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, {resources: []})
     ;
     // tslint:enable:max-line-length
   });
