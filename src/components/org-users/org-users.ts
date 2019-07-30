@@ -559,6 +559,12 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
     },
   });
 
+  const accountsClient = new AccountsClient({
+    apiEndpoint: ctx.app.accountsAPI,
+    secret: ctx.app.accountsSecret,
+    logger: ctx.app.logger,
+  });
+
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
   const [isManager, isBillingManager] = await Promise.all([
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
@@ -587,10 +593,16 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
   const user = orgUsers.find((u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
 
   if (!user) {
-    throw new NotFoundError('user not found');
+    throw new NotFoundError('user not found in CF');
   }
 
   const uaaUser = await uaa.getUser(user.metadata.guid);
+
+  const accountsUser = await accountsClient.getUser(params.userGUID);
+
+  if (!accountsUser) {
+    throw new NotFoundError('user not found in paas-accounts');
+  }
 
   /* istanbul ignore next */
   const values: IRoleValues = {
@@ -629,6 +641,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       organization,
       spaces,
       user,
+      email: accountsUser.email,
       values,
       isAdmin,
       isBillingManager,

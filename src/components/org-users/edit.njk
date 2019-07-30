@@ -20,7 +20,7 @@
 
     <h1 class="govuk-heading-xl">
       <span class="govuk-caption-xl">Team member</span>
-      {{ user.entity.username }}
+      {{ email }}
     </h1>
 
     {{ govukTable({
@@ -30,7 +30,7 @@
             text: "Email"
           },
           {
-            text: user.entity.username
+            text: email
           }
         ]
       ]
