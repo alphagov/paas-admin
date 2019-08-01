@@ -109,6 +109,11 @@ const router = new Router([
     path: '/organisations/:organizationGUID/statements',
   },
   {
+    action: reports.viewOrganizationsReport,
+    name: 'admin.reports.organizations',
+    path: '/reports/organisations',
+  },
+  {
     action: reports.viewCostReport,
     name: 'admin.reports.view',
     path: '/reports/cost/:rangeStart',
