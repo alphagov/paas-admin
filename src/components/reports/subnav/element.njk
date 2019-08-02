@@ -4,11 +4,11 @@
   </div>
 
   <nav class="govuk-grid-column-two-thirds">
-    <a href="{{ linkTo('admin.reports.view', { rangeStart: rangeStart }) }}" class="govuk-link {% if report === 'cost' %} active {% endif %}" class="govuk-link">
+    <a href="{{ linkTo('admin.reports.cost', { rangeStart: rangeStart }) }}" class="govuk-link {% if report === 'cost' %} active {% endif %}" class="govuk-link">
       Summary
     </a>
 
-    <a href="{{ linkTo('admin.reports.viewbyservice', { rangeStart: rangeStart }) }}" class="govuk-link {% if report === 'cost-by-service' %} active {% endif %}" class="govuk-link">
+    <a href="{{ linkTo('admin.reports.costbyservice', { rangeStart: rangeStart }) }}" class="govuk-link {% if report === 'cost-by-service' %} active {% endif %}" class="govuk-link">
       By service
     </a>
 
