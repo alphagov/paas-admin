@@ -93,23 +93,16 @@ export async function viewOrganizationsReport(ctx: IContext, _params: IParameter
   const trialOrgs = filterTrialOrgs(trialQuotaGUID, organizations);
   const billableOrgs = filterBillableOrgs(trialQuotaGUID, organizations);
 
-  const orgQuotaMapping = orgQuotas.reduce((
-    mapping: {[key: string]: IOrganizationQuota},
-    orgQuota: IOrganizationQuota,
-  ) => {
-    mapping[orgQuota.metadata.guid] = orgQuota;
-    return mapping;
-  }, {});
+  const orgQuotaMapping: {[key: string]: IOrganizationQuota} = lodash
+    .keyBy(orgQuotas, q => q.metadata.guid)
+  ;
 
-  const orgTrialExpirys = trialOrgs.reduce((
-    mapping: {[key: string]: Date}, org: IOrganization,
-  ) => {
-    mapping[org.metadata.guid] = trialExpiryDate(
-      new Date(org.metadata.created_at),
-    );
-
-    return mapping;
-  }, {});
+  const orgTrialExpirys: {[key: string]: Date} = lodash
+    .chain(trialOrgs)
+    .keyBy(org => org.metadata.guid)
+    .mapValues(org => trialExpiryDate(new Date(org.metadata.created_at)))
+    .value()
+  ;
 
   return {
     body: organizationsTemplate.render({
