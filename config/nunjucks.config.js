@@ -54,6 +54,16 @@ function configure(env) {
     }
     return future
   });
+
+  env.addFilter('linkify', (links) => {
+    return links.map(link => {
+      if (link.match(/apps[.]internal/)) {
+        return link
+      }
+
+      return `<a href="${link}" class="govuk-link">${link}</a>`;
+    });
+  });
 }
 
 module.exports = configure;
