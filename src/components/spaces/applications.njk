@@ -77,7 +77,7 @@
               {{ application.entity.state | lower }}
             </td>
             <td class="govuk-table__cell ">
-              {{ application.entity.urls | join(", ") }}
+              {{ application.entity.urls | linkify | join(", ") | safe }}
             </td>
           </tr>
         {% endfor %}

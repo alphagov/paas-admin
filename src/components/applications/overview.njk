@@ -90,7 +90,7 @@
               text: 'URLs'
             },
             {
-              text: application.entity.urls | join(", ")
+              text: application.entity.urls | linkify | join(", ") | safe
             }
           ],
           [
