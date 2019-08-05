@@ -25,3 +25,8 @@ $govuk-global-styles: true;
 a {
  text-decoration: none;
 }
+
+ul.plain {
+  list-style: none;
+  padding-left: inherit;
+}

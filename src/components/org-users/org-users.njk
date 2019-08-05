@@ -63,7 +63,12 @@
 <table class="govuk-table user-list">
   <thead class="govuk-table__head">
     <tr class="govuk-table__row">
-      <th class="govuk-table__header name" scope="col">Name</th>
+      <th class="govuk-table__header name" scope="col">Email address</th>
+      <th class="govuk-table__header authentication" scope="col">
+        {% if isAdmin or isManager %}
+          Authentication
+        {% endif %}
+      </th>
       <th class="govuk-table__header is-org-manager" scope="col">Org manager</th>
       <th class="govuk-table__header is-billing-manager" scope="col">Org billing manager</th>
       <th class="govuk-table__header is-org-auditor" scope="col">Org auditor</th>
@@ -83,6 +88,15 @@
         {% endif%}
       </td>
       <td class="govuk-table__cell">
+        {% if isAdmin or isManager %}
+          {% if userOriginMapping[guid] == 'uaa' %}
+            Password
+          {% else %}
+            {{ userOriginMapping[guid] | capitalize }}
+          {% endif %}
+        {% endif %}
+      </td>
+      <td class="govuk-table__cell">
         {% if 'org_manager' in user.orgRoles %}
           <img class="tick" alt="Yes" src="./tick.png">
         {% endif %}
@@ -98,14 +112,16 @@
         {% endif %}
       </td>
       <td class="govuk-table__cell">
-        {% set comma = joiner(", ") %}
-        {% for space in user.spaces %}
-          {{ comma() }}
-          <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}"
-            class="govuk-link">
-            {{ space.entity.name }}
-          </a>
-        {% endfor %}
+        <ul class="plain">
+          {% for space in user.spaces %}
+            <li>
+              <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}"
+                class="govuk-link">
+                {{ space.entity.name }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
       </td>
     </tr>
     {% endfor %}

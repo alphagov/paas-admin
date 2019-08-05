@@ -65,11 +65,48 @@ describe('org-users test suite', () => {
       .reply(200, cfData.userRolesForOrg)
     ;
 
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .times(4)
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get('/Users/uaa-id-253')
+      .reply(200, JSON.stringify({
+        ...JSON.parse(uaaData.user),
+        id: 'uaa-id-253',
+      }))
+
+      .get('/Users/uaa-user-edit-123456')
+      .reply(200, JSON.stringify({
+        ...JSON.parse(uaaData.user),
+        id: 'uaa-user-edit-123456',
+        origin: 'custom-origin-1',
+      }))
+
+      .get('/Users/uaa-user-changeperms-123456')
+      .reply(200, JSON.stringify({
+        ...JSON.parse(uaaData.user),
+        id: 'uaa-user-changeperms-123456',
+        origin: 'custom-origin-2',
+      }))
+
+      .get('/Users/99022be6-feb8-4f78-96f3-7d11f4d476f1')
+      .reply(200, JSON.stringify({
+        ...JSON.parse(uaaData.user),
+        id: '99022be6-feb8-4f78-96f3-7d11f4d476f1',
+        origin: 'custom-origin-3',
+      }))
+    ;
+
     const response = await orgUsers.listUsers(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     });
 
     expect(response.body).toContain('Team members');
+    expect(response.body).toContain('uaa');
+    expect(response.body).toContain('Custom-origin-1');
+    expect(response.body).toContain('Custom-origin-2');
+    expect(response.body).toContain('Custom-origin-3');
   });
 
   it('should show the invite page', async () => {
