@@ -109,13 +109,18 @@ const router = new Router([
     path: '/organisations/:organizationGUID/statements',
   },
   {
+    action: reports.viewOrganizationsReport,
+    name: 'admin.reports.organizations',
+    path: '/reports/organisations',
+  },
+  {
     action: reports.viewCostReport,
-    name: 'admin.reports.view',
+    name: 'admin.reports.cost',
     path: '/reports/cost/:rangeStart',
   },
   {
     action: reports.viewCostByServiceReport,
-    name: 'admin.reports.viewbyservice',
+    name: 'admin.reports.costbyservice',
     path: '/reports/cost-by-service/:rangeStart',
   },
   {
