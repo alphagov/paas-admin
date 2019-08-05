@@ -60,7 +60,10 @@ function configure(env) {
       if (link.match(/apps[.]internal/)) {
         return link
       }
-      return `<a href="https://${link}" class="govuk-link">${link}</a>`;
+
+      let protocolOrEmpty = link.match(/^https?:/) ? '' : 'https://';
+
+      return `<a href="${protocolOrEmpty}${link}" class="govuk-link">${link}</a>`;
     });
   });
 }
