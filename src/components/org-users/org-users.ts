@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import merge from 'merge-deep';
 
 import {isUndefined} from 'util';
@@ -201,13 +202,27 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     logger: ctx.app.logger,
   });
 
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
   const isAdmin = ctx.token.hasAnyScope(
     CLOUD_CONTROLLER_ADMIN,
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
 
-  const [isManager, isBillingManager, organization, userOrgRoles, spacesVisibleToUser] = await Promise.all([
+  const [
+    isManager,
+    isBillingManager,
+    organization,
+    userOrgRoles,
+    spacesVisibleToUser,
+  ] = await Promise.all([
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
     cf.organization(params.organizationGUID),
@@ -225,7 +240,22 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     logger: ctx.app.logger,
   });
 
-  const userRolesByGuid = await _getUserRolesByGuid(userOrgRoles, spaceUserLists, accountsClient);
+  const userRolesByGuid = await _getUserRolesByGuid(
+    userOrgRoles,
+    spaceUserLists,
+    accountsClient,
+  );
+
+  const uaaUsers = await Promise.all(
+    userOrgRoles.map(u => uaa.getUser(u.metadata.guid)),
+  );
+
+  const userOriginMapping: {[key: string]: string} = lodash
+    .chain(uaaUsers)
+    .keyBy(u => u.id)
+    .mapValues(u => u.origin)
+    .value()
+  ;
 
   return {
     body: orgUsersTemplate.render({
@@ -236,6 +266,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
       isBillingManager,
       linkTo: ctx.linkTo,
       users: userRolesByGuid,
+      userOriginMapping,
       organization,
     }),
   };
