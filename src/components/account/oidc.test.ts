@@ -92,7 +92,11 @@ describe('oidc test suite', () => {
     configureJWKSEndpoint(fixtures.microsoftDiscoveryDoc.jwks_uri, key);
 
     // Create and sign token
-    const token = createAndSignIDToken(key);
+    const token = createAndSignIDToken(key, {
+      sub: 'google-sub',
+      oid: 'ms-oid',
+      iss: 'https://login.microsoftonline.com/tenant_id/v2.0',
+    });
 
     // Serve token from token endpoint
     configureTokenEndpoint(fixtures.microsoftDiscoveryDoc.token_endpoint, token, true);
@@ -109,7 +113,8 @@ describe('oidc test suite', () => {
     const success = await client.oidcCallback(ctx, authResponse, uaa, providerName);
 
     expect(success).toBeTruthy();
-    expect(uaa.setUserOrigin).toHaveBeenCalledWith(ctx.token.userID, providerName, 'ms-oid');
+    expect(uaa.setUserOrigin).toHaveBeenCalledWith(ctx.token.userID, 'microsoft', 'ms-oid');
+    expect(uaa.setUserOrigin).not.toHaveBeenCalledWith(ctx.token.userID, 'google', 'google-sub');
   });
 
   it('updates the UAA user with the Google SUB from the id token', async () => {
@@ -120,7 +125,11 @@ describe('oidc test suite', () => {
     configureJWKSEndpoint(fixtures.googleDiscoveryDoc.jwks_uri, key);
 
     // Create and sign token
-    const token = createAndSignIDTokenGoogle(key);
+    const token = createAndSignIDToken(key, {
+      sub: 'google-sub',
+      oid: 'ms-oid',
+      iss: 'https://accounts.google.com',
+    });
 
     // Serve token from token endpoint
     configureTokenEndpoint(fixtures.googleDiscoveryDoc.token_endpoint, token, true);
@@ -138,7 +147,8 @@ describe('oidc test suite', () => {
     const success = await client.oidcCallback(ctx, authResponse, uaa, providerName);
 
     expect(success).toBeTruthy();
-    expect(uaa.setUserOrigin).toHaveBeenCalledWith(ctx.token.userID, providerName, 'google-sub');
+    expect(uaa.setUserOrigin).toHaveBeenCalledWith(ctx.token.userID, 'google', 'google-sub');
+    expect(uaa.setUserOrigin).not.toHaveBeenCalledWith(ctx.token.userID, 'microsoft', 'ms-oid');
   });
 
   it('returns false and log an error when the authorization code cannot be traded for an access token', async () => {
@@ -191,7 +201,7 @@ async function createJOSEKey(): Promise<jose.JWK.Key> {
   return key;
 }
 
-function createAndSignIDToken(key: jose.JWK.Key) {
+function createAndSignIDToken(key: jose.JWK.Key, claims?: {}) {
   const payload: object = {
     oid: 'ms-oid',
     iss: 'https://login.microsoftonline.com/tenant_id/v2.0',
@@ -199,21 +209,7 @@ function createAndSignIDToken(key: jose.JWK.Key) {
     sub: 'subject',
     iat: (Date.now() / 1000) - 100,
     exp: (Date.now() / 1000) + 100,
-  };
-  return jwt.sign(
-    payload,
-    key.toPEM(true),
-    {keyid: key.kid, algorithm: 'RS256'},
-  );
-}
-
-function createAndSignIDTokenGoogle(key: jose.JWK.Key) {
-  const payload: object = {
-    iss: 'https://accounts.google.com',
-    aud: 'CLIENTID',
-    sub: 'google-sub',
-    iat: (Date.now() / 1000) - 100,
-    exp: (Date.now() / 1000) + 100,
+    ...(claims || {}),
   };
   return jwt.sign(
     payload,

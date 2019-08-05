@@ -54,16 +54,22 @@ export default class OIDC {
         {state, response_type},
       );
 
+      let newUsername;
       switch (providerName) {
         case 'microsoft': {
-          const oid = tokenSet.claims[KEY_OID] as string;
-          await uaa.setUserOrigin(ctx.token.userID, providerName, oid);
+          newUsername = tokenSet.claims[KEY_OID] as string;
+          break;
         }
         case 'google': {
-          const sub = tokenSet.claims[KEY_SUB] as string;
-          await uaa.setUserOrigin(ctx.token.userID, providerName, sub);
+          newUsername = tokenSet.claims[KEY_SUB] as string;
+          break;
+        }
+        /* istanbul ignore next */
+        default: {
+          throw new Error(`Provider name "${providerName}" is not recognised`);
         }
       }
+      await uaa.setUserOrigin(ctx.token.userID, providerName, newUsername);
 
       ctx.session[KEY_STATE] = null;
       ctx.session.save();
