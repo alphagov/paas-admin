@@ -60,8 +60,7 @@ function configure(env) {
       if (link.match(/apps[.]internal/)) {
         return link
       }
-
-      return `<a href="${link}" class="govuk-link">${link}</a>`;
+      return `<a href="https://${link}" class="govuk-link">${link}</a>`;
     });
   });
 }
