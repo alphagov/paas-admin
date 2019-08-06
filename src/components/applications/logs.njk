@@ -1,0 +1,50 @@
+{% extends "../../layouts/govuk.njk" %}
+{% from "govuk-frontend/components/table/macro.njk" import govukTable %}
+{% from "govuk-frontend/components/back-link/macro.njk" import govukBackLink %}
+
+{% block pageTitle %}
+  {{ application.entity.name }} - Application Overview
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+
+  <div class="govuk-grid-row">
+    <div>
+      {{ govukBackLink({
+        text: 'Space: ' + space.entity.name,
+        href: linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})
+      }) }}
+
+      <h1 class="govuk-heading-xl">
+        <span class="govuk-caption-xl">Application</span>
+        {{ application.entity.name }}
+      </h1>
+
+      <ul class="overview-tab">
+        <li >
+          <a href="{{
+            linkTo(
+              'admin.organizations.spaces.applications.view',
+              {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
+            ) }}">Overview</a>
+        </li>
+        <li>
+          <a href="{{
+            linkTo(
+              'admin.organizations.spaces.applications.view.metrics',
+              {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
+            ) }}">Metrics</a>
+        <li class=" active ">
+          <a href="{{
+            linkTo(
+              'admin.organizations.spaces.applications.view.logs',
+              {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
+            ) }}">Logs</a>
+        </li>
+      </ul>
+
+      <img src="./logs.png" style="width: 100%;">
+    </div>
+  </div>
+{% endblock %}

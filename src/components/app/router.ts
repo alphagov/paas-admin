@@ -45,6 +45,16 @@ const router = new Router([
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID',
   },
   {
+    action: applications.viewApplicationMetrics,
+    name: 'admin.organizations.spaces.applications.view.metrics',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/metrics',
+  },
+  {
+    action: applications.viewApplicationLogs,
+    name: 'admin.organizations.spaces.applications.view.logs',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/logs',
+  },
+  {
     action: services.viewService,
     name: 'admin.organizations.spaces.services.view',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID',
