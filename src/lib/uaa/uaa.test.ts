@@ -120,6 +120,23 @@ describe('lib/uaa test suite', () => {
     expect(user.id).toEqual(id);
   });
 
+  it('should retrieve multiple users successfully', async () => {
+    const client = new UAAClient(config);
+
+    nock(config.apiEndpoint)
+      .get(`/Users/user-a`)
+      .reply(200, { id: 'user-a' })
+      .get(`/Users/user-b`)
+      .reply(200, { id: 'user-b' })
+    ;
+
+    const users = await client.getUsers(['user-a', 'user-b']);
+
+    expect(users.length).toEqual(2);
+    expect(users[0].id).toEqual('user-a');
+    expect(users[1].id).toEqual('user-b');
+  });
+
   it('should authenticate a user', async () => {
     nock('https://example.com/uaa').persist()
     .post('/oauth/token').query((x: any) => x.grant_type === 'password')
