@@ -53,7 +53,7 @@
     "@types/uuid": "3.4.5",
     "@types/webpack-env": "1.14.0",
     "compression-webpack-plugin": "3.0.0",
-    "css-loader": "3.1.0",
+    "css-loader": "3.2.0",
     "expect": "^24.8.0",
     "extract-loader": "3.1.0",
     "file-loader": "4.1.0",
