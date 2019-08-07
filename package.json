@@ -77,7 +77,7 @@
     "sass-loader": "7.1.0",
     "schema-utils": "2.0.1",
     "supertest": "4.0.2",
-    "tap": "14.4.3",
+    "tap": "14.6.1",
     "ts-jest": "24.0.2",
     "ts-loader": "6.0.4",
     "ts-mocha": "^6.0.0",
