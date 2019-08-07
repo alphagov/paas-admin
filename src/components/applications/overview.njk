@@ -26,6 +26,23 @@
         </div>
       {% endif %}
 
+      <ul class="overview-tab">
+        <li class="active">
+          <a href="{{
+            linkTo(
+              'admin.organizations.spaces.applications.view',
+              {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
+            ) }}">Overview</a>
+        </li>
+        <li>
+          <a href="{{
+            linkTo(
+              'admin.organizations.spaces.applications.metrics.view',
+              {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
+            ) }}">Metrics</a>
+        </li>
+      </ul>
+
       {{ govukTable({
         caption: 'Application details',
         firstCellIsHeader: false,

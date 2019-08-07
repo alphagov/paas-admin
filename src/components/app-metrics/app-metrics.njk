@@ -1,0 +1,146 @@
+{% extends "../../layouts/govuk.njk" %}
+{% from "govuk-frontend/components/back-link/macro.njk" import govukBackLink %}
+
+{% block pageTitle %}
+  {{ application.entity.name }} - Application Overview
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+
+  {{ govukBackLink({
+    text: 'Space: ' + space.entity.name,
+    href: linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})
+  }) }}
+
+  <h1 class="govuk-heading-xl">
+    <span class="govuk-caption-xl">Application metrics</span>
+    {{ application.entity.name }}
+  </h1>
+
+  <ul class="overview-tab">
+    <li>
+      <a href="{{
+        linkTo(
+          'admin.organizations.spaces.applications.view',
+          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
+        ) }}">Overview</a>
+    </li>
+    <li class="active">
+      <a href="{{
+        linkTo(
+          'admin.organizations.spaces.applications.metrics.view',
+          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
+        ) }}">Metrics</a>
+    </li>
+  </ul>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      <h3 class="govuk-heading-m">
+        Reliability %
+      </h3>
+
+      <h2 class="govuk-heading-l">
+        <span id="http-reliability-value"></span>
+        <span>%</span>
+      </h2>
+
+      <p class="govuk-body-s">
+        Percentage of HTTP 1XX/2XX/3XX responses compared to all HTTP responses
+        over the last 24 hours
+      </p>
+    </div>
+
+    <div class="govuk-grid-column-one-half">
+      <h3 class="govuk-heading-m">
+        Avg Latency
+      </h3>
+
+      <h2 class="govuk-heading-l">
+        <span id="latency-value"></span>
+        <span>ms</span>
+      </h2>
+
+      <p class="govuk-body-s">
+        Mean latency in milliseconds over
+        the last 24 hours
+      </p>
+    </div>
+
+    <div class="govuk-grid-column-full">
+      <h3 class="govuk-heading-m">
+        HTTP responses
+      </h3>
+
+      <div id="http-responses-chart"></div>
+
+      <p class="govuk-body-s">
+        The count of HTTP responses served by
+        <code>{{ application.entity.name }}</code>
+        segmented by HTTP response code
+      </p>
+    </div>
+
+    <div class="govuk-grid-column-full">
+      <h3 class="govuk-heading-m">
+        Latency
+      </h3>
+
+      <div id="latency-chart"></div>
+
+      <p class="govuk-body-s">
+        The mean response latency for
+        <code>{{ application.entity.name }}</code>
+        in milliseconds, segmented by status code
+      </p>
+    </div>
+
+    <div class="govuk-grid-column-full">
+      <h3 class="govuk-heading-m">
+        CPU
+      </h3>
+
+      <div id="cpu-chart"></div>
+
+      <p class="govuk-body-s">
+        The percentage of CPU used by
+        <code>{{ application.entity.name }}</code>
+      </p>
+    </div>
+
+    <div class="govuk-grid-column-full">
+      <h3 class="govuk-heading-m">
+        Memory
+      </h3>
+
+      <div id="memory-chart"></div>
+
+      <p class="govuk-body-s">
+        The percentage of memory quota used by
+        <code>{{ application.entity.name }}</code>,
+        out of a total of
+        <code>{{ application.entity.memory }}MB</code>
+      </p>
+    </div>
+
+    <div class="govuk-grid-column-full">
+      <h3 class="govuk-heading-m">
+        Disk
+      </h3>
+
+      <div id="disk-chart"></div>
+
+      <p class="govuk-body-s">
+        The percentage of disk quota used by
+        <code>{{ application.entity.name }}</code>,
+        out of a total of
+        <code>{{ application.entity.disk_quota }}MB</code>
+      </p>
+    </div>
+  </div>
+
+  <link href="/assets/muze.css" media="screen" rel="stylesheet" />
+  <script src="/assets/muze.js"></script>
+  <script src="/assets/metrics.js"></script>
+{% endblock %}

@@ -77,6 +77,7 @@ export default function(config: IAppConfig) {
   app.use('/assets', staticGzip('node_modules/govuk-frontend/govuk/assets', {immutable: true}));
   app.use('/assets', staticGzip('node_modules/d3/dist', {immutable: true}));
   app.use('/assets', staticGzip('node_modules/d3-sankey/dist', {immutable: true}));
+  app.use('/assets', staticGzip('node_modules/muze/dist', {immutable: true}));
   app.use(compression());
 
   app.use(helmet());
