@@ -68,13 +68,7 @@ function mockUAA(app: express.Application, config: IStubServerPorts): express.Ap
   );
 
   app.get(
-    `/Users/${userId}`,
-    (_req, res) => {
-      res.send(JSON.stringify(userPayload));
-    });
-
-  app.get(
-    `/Users/${otherUserId}`,
+    /\/Users\/[-a-z0-9]+/,
     (_req, res) => {
       res.send(JSON.stringify(userPayload));
     });

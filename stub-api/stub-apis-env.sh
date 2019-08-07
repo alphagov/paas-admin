@@ -24,3 +24,5 @@ export AWS_REGION=eu-west-2
 export MS_CLIENT_ID=clientid
 export MS_CLIENT_SECRET=clientsecret
 export MS_TENANT_ID=tenantid
+export GOOGLE_CLIENT_ID=googleclientid
+export GOOGLE_CLIENT_SECRET=googleclientsecret
