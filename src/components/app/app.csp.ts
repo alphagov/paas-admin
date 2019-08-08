@@ -26,6 +26,7 @@ export default {
     ],
     frameSrc: [
       `'self'`,
+      `https://grafana-1.towers.dev.cloudpipeline.digital`,
     ],
     fontSrc: [
       `'self'`,

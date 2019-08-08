@@ -17,7 +17,7 @@
       }) }}
 
       <h1 class="govuk-heading-xl">
-        <span class="govuk-caption-xl">Application</span>
+        <span class="govuk-caption-xl">Application metrics</span>
         {{ application.entity.name }}
       </h1>
 
@@ -44,7 +44,119 @@
         </li>
       </ul>
 
-      <img src="./metrics.png" style="width: 100%;">
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+          <h3 class="govuk-heading-m">
+            Reliability %
+          </h3>
+
+          <h2 class="govuk-heading-l">
+            <span id="http-reliability-value"></span>
+            <span>%</span>
+          </h2>
+
+          <p class="govuk-body-s">
+            Percentage of HTTP 1XX/2XX/3XX responses compared to all HTTP responses
+            over the last 24 hours
+          </p>
+        </div>
+
+        <div class="govuk-grid-column-one-half">
+          <h3 class="govuk-heading-m">
+            Avg Latency
+          </h3>
+
+          <h2 class="govuk-heading-l">
+            <span id="latency-value"></span>
+            <span>ms</span>
+          </h2>
+
+          <p class="govuk-body-s">
+            Mean latency in milliseconds over
+            the last 24 hours
+          </p>
+        </div>
+
+        <div class="govuk-grid-column-full">
+          <h3 class="govuk-heading-m">
+            HTTP responses
+          </h3>
+
+          <div id="http-responses-chart">
+          </div>
+
+          <iframe src="https://grafana-1.towers.dev.cloudpipeline.digital/d-solo/Ep8I4XDZz/iframes?orgId=1&theme=light&panelId=2&application_guid=55eddb69-f3a6-4eb9-bea7-edc0d5cb9a0d" width="100%" height="275" frameborder="0"></iframe>
+
+          <p class="govuk-body-s">
+            The count of HTTP responses
+            <code>{{ application.entity.name }}</code>
+            has served, segmented by HTTP response code
+          </p>
+        </div>
+
+        <div class="govuk-grid-column-full">
+          <h3 class="govuk-heading-m">
+            Latency
+          </h3>
+
+          <div id="latency-chart"></div>
+
+          <iframe src="https://grafana-1.towers.dev.cloudpipeline.digital/d-solo/Ep8I4XDZz/iframes?orgId=1&theme=light&panelId=4&application_guid=55eddb69-f3a6-4eb9-bea7-edc0d5cb9a0d" width="100%" height="275" frameborder="0"></iframe>
+
+          <p class="govuk-body-s">
+            The mean response latency for
+            <code>{{ application.entity.name }}</code>
+            in milliseconds, segmented by status code
+          </p>
+        </div>
+
+        <div class="govuk-grid-column-full">
+          <h3 class="govuk-heading-m">
+            CPU
+          </h3>
+
+          <div id="cpu-chart"></div>
+
+          <iframe src="https://grafana-1.towers.dev.cloudpipeline.digital/d-solo/Ep8I4XDZz/iframes?orgId=1&theme=light&panelId=6&application_guid=55eddb69-f3a6-4eb9-bea7-edc0d5cb9a0d" width="100%" height="275" frameborder="0"></iframe>
+
+          <p class="govuk-body-s">
+            The percentage of CPU used by
+            <code>{{ application.entity.name }}</code>
+          </p>
+        </div>
+
+        <div class="govuk-grid-column-full">
+          <h3 class="govuk-heading-m">
+            Memory
+          </h3>
+
+
+          <div id="memory-chart"></div>
+
+          <iframe src="https://grafana-1.towers.dev.cloudpipeline.digital/d-solo/Ep8I4XDZz/iframes?orgId=1&theme=light&panelId=8&application_guid=55eddb69-f3a6-4eb9-bea7-edc0d5cb9a0d" width="100%" height="275" frameborder="0"></iframe>
+
+          <p class="govuk-body-s">
+            The percentage of memory quota used by
+            <code>{{ application.entity.name }}</code>
+          </p>
+        </div>
+
+        <div class="govuk-grid-column-full">
+          <h3 class="govuk-heading-m">
+            Disk
+          </h3>
+
+          <div id="disk-chart"></div>
+
+          <iframe src="https://grafana-1.towers.dev.cloudpipeline.digital/d-solo/Ep8I4XDZz/iframes?orgId=1&theme=light&panelId=10&application_guid=55eddb69-f3a6-4eb9-bea7-edc0d5cb9a0d" width="100%" height="275" frameborder="0"></iframe>
+
+          <p class="govuk-body-s">
+            The percentage of disk quota used by
+            <code>{{ application.entity.name }}</code>
+          </p>
+        </div>
+      </div>
+
     </div>
   </div>
 {% endblock %}
