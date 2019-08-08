@@ -1,7 +1,10 @@
 import axios from 'axios';
+import pLimit from 'p-limit';
+
 import * as types from './uaa.types';
 
 const DEFAULT_TIMEOUT = 1000;
+const CONCURRENCY_LIMIT = 5;
 
 interface IClientCredentials {
   readonly clientID: string;
@@ -101,6 +104,20 @@ export default class UAAClient {
   public async getUser(userGUID: string): Promise<types.IUaaUser> {
     const response = await this.request('get', `/Users/${userGUID}`);
     return response.data as types.IUaaUser;
+  }
+
+  public async getUsers(
+    userGUIDs: ReadonlyArray<string>,
+  ): Promise<ReadonlyArray<types.IUaaUser>> {
+    // Limit number of users fetched from UAA concurrently
+    const pool = pLimit(CONCURRENCY_LIMIT);
+    const uaaUsers = Promise.all(
+      userGUIDs.map(
+        guid => pool(() => this.getUser(guid)),
+      ),
+    );
+
+    return uaaUsers;
   }
 
   public async findUser(email: string): Promise<types.IUaaUser> {

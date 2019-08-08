@@ -246,9 +246,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     accountsClient,
   );
 
-  const uaaUsers = await Promise.all(
-    userOrgRoles.map(u => uaa.getUser(u.metadata.guid)),
-  );
+  const uaaUsers = await uaa.getUsers(userOrgRoles.map(u => u.metadata.guid));
 
   const userOriginMapping: {[key: string]: string} = lodash
     .chain(uaaUsers)
