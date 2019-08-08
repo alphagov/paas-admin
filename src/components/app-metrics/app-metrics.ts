@@ -1,9 +1,7 @@
-import axios, { AxiosResponse } from 'axios';
 import moment from 'moment';
-import { BaseLogger } from 'pino';
 
-import {intercept} from '../../lib/axios-logger/axios';
 import CloudFoundryClient from '../../lib/cf';
+import PromClient from '../../lib/prom';
 import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
@@ -42,9 +40,15 @@ export async function dataAppMetrics(
 ): Promise<IResponse> {
 
   const appGUID = params.applicationGUID;
-  const instantTime = moment().toDate().getTime() / 1000;
-  const historicTime = moment().subtract(3, 'hours').toDate().getTime() / 1000;
+  const instantTime = moment().toDate().getTime();
+  const historicTime = moment().subtract(3, 'hours').toDate().getTime();
   const timeStep = 30;
+
+  const prom = new PromClient(
+    'https://metric-store.tlwr.dev.cloudpipelineapps.digital',
+    ctx.token.accessToken,
+    ctx.app.logger,
+  );
 
   // tslint:disable:max-line-length
   const [
@@ -53,19 +57,7 @@ export async function dataAppMetrics(
   ] = await Promise.all([
     `100 * (sum (sum by (source_id) (sum_over_time(http_count{source_id="${appGUID}", status_code=~"[1-3].."}[24h])) or vector(0)) / sum (sum by (source_id) (sum_over_time(http_count{source_id="${appGUID}"}[24h]))) or vector(1))`,
     `sum(avg by (source_id) (avg_over_time(http_mean_ms{source_id="${appGUID}"}[24h])) or vector(0))`,
-  ].map(q => {
-    return request(
-      `/api/v1/query`,
-      {
-        time: instantTime,
-        query: q,
-      },
-      ctx.token.accessToken,
-      ctx.app.logger,
-    ).then(
-      r => r.data.data.result[0].value[1],
-    );
-  }));
+  ].map(q => prom.getValue(q, instantTime)));
   // tslint:enable:max-line-length
 
   const [
@@ -92,19 +84,7 @@ export async function dataAppMetrics(
     `100 * avg by (source_id) (cpu{source_id="${appGUID}"})`,
     `100 * avg by (source_id) (memory{source_id="${appGUID}"} / memory_quota{source_id="${appGUID}"})`,
     `100 * avg by (source_id) (disk{source_id="${appGUID}"} / disk_quota{source_id="${appGUID}"})`,
-  ].map(q => {
-    return request(
-      `/api/v1/query_range`,
-      {
-        start: historicTime, end: instantTime, step: timeStep,
-        query: q,
-      },
-      ctx.token.accessToken,
-      ctx.app.logger,
-    ).then(
-      response => response.data.data.result[0].values,
-    );
-  }));
+  ].map(q => prom.getSeries(q, timeStep, historicTime, instantTime)));
 
   return {
     body: JSON.stringify({
@@ -122,44 +102,4 @@ export async function dataAppMetrics(
       },
     }),
   };
-}
-
-async function request(
-  path: string,
-  params: {readonly [key: string]: string | number},
-  token: string,
-  logger: BaseLogger,
-): Promise<AxiosResponse> {
-
-  const instance = axios.create();
-  intercept(instance, 'cf', logger);
-
-  const method = 'GET';
-  const baseURL = 'https://metric-store.tlwr.dev.cloudpipelineapps.digital';
-  const response = await instance.request({
-    method, params, baseURL,
-    url: path,
-    validateStatus: (status: number) => status > 0 && status < 501,
-    timeout: 2500,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (response.status < 200 || response.status >= 300) {
-    let msg = `cf: ${method} ${baseURL}/${path} failed with status ${response.status}`;
-    if (typeof response.data === 'object') {
-      msg = `${msg} and data ${JSON.stringify(response.data)}`;
-    }
-
-    const err = new Error(msg);
-    /* istanbul ignore next */
-    if (typeof response.data === 'object' && response.data.error_code) {
-      // err.code = response.data.error_code;
-    }
-
-    throw err;
-  }
-
-  return response;
 }
