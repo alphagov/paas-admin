@@ -19,6 +19,11 @@
         .innerText = parseFloat(response.values.latency).toFixed(1);
     }
 
+    if (typeof response.values.freeStorageSpace !== 'undefined') {
+      document
+        .querySelector('#free-storage-space-value')
+        .innerText = parseFloat(response.values.freeStorageSpace/ (1024 * 1024)).toFixed(1);
+    }
 
     var env = muze();
     var DataModel = muze.DataModel;
@@ -146,12 +151,43 @@
       ;
     }
 
+    var percentageValTickFormatter = (val) => {
+      return `${val}%`;
+    };
+
+    var megabytesValTickFormatter = (val) => {
+      var valInMB = val / (1024 * 1024);
+      return `${valInMB.toFixed(1)} MB`;
+    };
+
     if (typeof response.series.cpuSeries !== 'undefined') {
       [
-        { selector: '#cpu-chart', series: response.series.cpuSeries },
-        { selector: '#memory-chart', series: response.series.memorySeries },
-        { selector: '#disk-chart', series: response.series.diskSeries },
-      ].map(function(simpleChart) {
+        {
+          selector: '#cpu-chart',
+          series: response.series.cpuSeries,
+          tickFormat: percentageValTickFormatter,
+        },
+        {
+          selector: '#memory-chart',
+          series: response.series.memorySeries,
+          tickFormat: percentageValTickFormatter,
+        },
+        {
+          selector: '#disk-chart',
+          series: response.series.diskSeries,
+          tickFormat: percentageValTickFormatter,
+        },
+        {
+          selector: '#free-storage-space-chart',
+          series: response.series.freeStorageSpaceSeries,
+          tickFormat: megabytesValTickFormatter,
+        },
+      ].forEach(function(simpleChart) {
+
+        if (!document.querySelector(simpleChart.selector)) {
+          return;
+        }
+
         env
           .canvas()
           .data(new muze.DataModel(
@@ -171,7 +207,7 @@
               },
               y: {
                 showAxisName: false,
-                tickFormat: val => `${val}%`,
+                tickFormat: simpleChart.tickFormat,
               },
             }
           })

@@ -1,0 +1,86 @@
+{% extends "../../layouts/govuk.njk" %}
+{% from "govuk-frontend/components/table/macro.njk" import govukTable %}
+{% from "govuk-frontend/components/back-link/macro.njk" import govukBackLink %}
+
+{% block pageTitle %}
+  {{ service.entity.name }} - Service Overview
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+
+  {{ govukBackLink({
+    text: 'Space: ' + space.entity.name,
+    href: linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})
+  }) }}
+
+  <h1 class="govuk-heading-xl">
+    <span class="govuk-caption-xl">Service</span>
+    {{ service.entity.name }}
+  </h1>
+
+  <ul class="overview-tab">
+    <li>
+      <a href="{{
+        linkTo(
+          'admin.organizations.spaces.services.view',
+          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid }
+        ) }}">Overview</a>
+    </li>
+    <li class="active">
+      <a href="{{
+        linkTo(
+          'admin.organizations.spaces.services.metrics.view',
+          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid }
+        ) }}">Metrics</a>
+    </li>
+  </ul>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      <h3 class="govuk-heading-m">
+        Free storage space
+      </h3>
+
+      <h2 class="govuk-heading-l">
+        <span id="free-storage-space-value"></span>
+        <span>MB</span>
+      </h2>
+
+      <p class="govuk-body-s">
+        The amount of free storage space available to the database in megabytes
+      </p>
+    </div>
+
+    <div class="govuk-grid-column-full">
+      <h3 class="govuk-heading-m">
+        CPU
+      </h3>
+
+      <div id="cpu-chart"></div>
+
+      <p class="govuk-body-s">
+        The percentage of CPU used by
+        <code>{{ service.entity.name }}</code>
+      </p>
+    </div>
+
+    <div class="govuk-grid-column-full">
+      <h3 class="govuk-heading-m">
+        Free storage space
+      </h3>
+
+      <div id="free-storage-space-chart"></div>
+
+      <p class="govuk-body-s">
+        The amount of free storage space for
+        <code>{{ service.entity.name }}</code>
+      </p>
+    </div>
+  </div>
+
+  <link href="/assets/muze.css" media="screen" rel="stylesheet" />
+  <script src="/assets/muze.js"></script>
+  <script src="/assets/metrics.js"></script>
+
+{% endblock %}

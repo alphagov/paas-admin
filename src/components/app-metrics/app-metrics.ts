@@ -40,8 +40,8 @@ export async function dataAppMetrics(
 ): Promise<IResponse> {
 
   const sourceID = params.applicationGUID;
-  const instantTime = moment().toDate().getTime();
-  const historicTime = moment().subtract(3, 'hours').toDate().getTime();
+  const instantTime = moment().toDate();
+  const historicTime = moment().subtract(3, 'hours').toDate();
   const timeStep = 30;
 
   const prom = new PromClient(
