@@ -18,6 +18,9 @@ import csp from './app.csp';
 import { initContext } from './context';
 import router from './router';
 import { routerMiddleware } from './router-middleware';
+import { streamApplicationLogs } from '../app-logs/app-logs';
+import expressPinoLogger from 'express-pino-logger';
+import { confirmDeletion } from '../org-users';
 
 export interface IAppConfig {
   readonly allowInsecureSession?: boolean;
@@ -34,6 +37,7 @@ export interface IAppConfig {
   readonly sessionSecret: string;
   readonly uaaAPI: string;
   readonly metricStoreAPI: string;
+  readonly reverseLogProxyGatewayAPI: string;
   readonly authorizationAPI: string;
   readonly oidcProviders: Map<OIDCProviderName, IOIDCConfig>;
   readonly domainName: string;
@@ -79,7 +83,15 @@ export default function(config: IAppConfig) {
   app.use('/assets', staticGzip('node_modules/d3/dist', {immutable: true}));
   app.use('/assets', staticGzip('node_modules/d3-sankey/dist', {immutable: true}));
   app.use('/assets', staticGzip('node_modules/muze/dist', {immutable: true}));
-  app.use(compression());
+  app.use(compression({
+    filter: (req, res) => {
+      const contentType = res.getHeader('Content-Type')
+      if (contentType === 'text/event-stream') {
+        return false;
+      }
+      return compression.filter(req, res);
+    }
+  }));
 
   app.use(helmet());
   app.use(helmet.contentSecurityPolicy(csp));
@@ -116,6 +128,7 @@ export default function(config: IAppConfig) {
     logger: config.logger,
   }));
 
+  app.get('/stream-logs/:applicationGUID', streamApplicationLogs(config));
   app.use(routerMiddleware(router, config));
 
   app.use(pageNotFoundMiddleware);

@@ -20,6 +20,7 @@ let cfg = {
     "assets/sankey": ['./src/frontend/javascript/sankey.js'],
     "assets/analytics": ['./src/frontend/javascript/analytics.js'],
     "assets/metrics": ['./src/frontend/javascript/metrics.js'],
+    "assets/logs": ['./src/frontend/javascript/logs.js'],
   },
 
   output: {
