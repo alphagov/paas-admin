@@ -92,7 +92,7 @@ async function main() {
     location,
     authorizationAPI,
     uaaAPI,
-    metricStoreAPI: expectEnvVariable('METRIC_STORE_URL'),
+    prometheusAPI: expectEnvVariable('PROMETHEUS_URL'),
     reverseLogProxyGatewayAPI: expectEnvVariable('REVERSE_LOG_PROXY_GATEWAY_URL'),
     notifyAPIKey: expectEnvVariable('NOTIFY_API_KEY'),
     notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null,

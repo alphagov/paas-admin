@@ -36,7 +36,7 @@ export interface IAppConfig {
   readonly oauthClientSecret: string;
   readonly sessionSecret: string;
   readonly uaaAPI: string;
-  readonly metricStoreAPI: string;
+  readonly prometheusAPI: string;
   readonly reverseLogProxyGatewayAPI: string;
   readonly authorizationAPI: string;
   readonly oidcProviders: Map<OIDCProviderName, IOIDCConfig>;

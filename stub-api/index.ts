@@ -1,8 +1,11 @@
 import express from 'express';
-import stubUaa from './stub-uaa';
+
 import stubAccounts from './stub-accounts';
 import stubBilling from './stub-billing';
 import stubCf from './stub-cf';
+import stubPrometheus from './stub-prometheus';
+import stubReverseLogProxyGateway from './stub-reverse-log-proxy-gateway';
+import stubUaa from './stub-uaa';
 
 export interface IStubServerConfig {
   name: string;
@@ -40,6 +43,16 @@ const apis: readonly IStubServerConfig[] = [
     name: 'uaa',
     ports: {adminPort, apiPort: parseInt(process.env['STUB_UAA_PORT'] || '3004', 10)},
     factory: stubUaa,
+  },
+  {
+    name: 'prometheus',
+    ports: {adminPort, apiPort: parseInt(process.env['STUB_PROMETHEUS_PORT'] || '3005', 10)},
+    factory: stubPrometheus,
+  },
+  {
+    name: 'reverse-log-proxy-gateway',
+    ports: {adminPort, apiPort: parseInt(process.env['STUB_REVERSE_LOG_PROXY_GATEWAY_PORT'] || '3006', 10)},
+    factory: stubReverseLogProxyGateway,
   },
 ];
 

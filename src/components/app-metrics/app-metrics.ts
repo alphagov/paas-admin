@@ -45,7 +45,7 @@ export async function dataAppMetrics(
   const timeStep = 30;
 
   const prom = new PromClient(
-    ctx.app.metricStoreAPI,
+    ctx.app.prometheusAPI,
     ctx.token.accessToken,
     ctx.app.logger,
   );
