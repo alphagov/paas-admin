@@ -8,124 +8,127 @@
 {% block content %}
   {{ super() }}
 
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-l">
-        <span class="govuk-caption-l">Application</span>
-        {{ application.entity.name }}
-      </h1>
+  <h1 class="govuk-heading-l">
+    <span class="govuk-caption-l">Application</span>
+    {{ application.entity.name }}
+  </h1>
 
-      {% if stack.entity.name == 'cflinuxfs2' %}
-        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="error-summary">
-          <h2 class="govuk-error-summary__title" id="error-summary-title">
-            This application needs upgrading or it may go offline
-          </h2>
-          <div class="govuk-error-summary__body">
-            <p style="margin-bottom: 0;">This application is using the <code>cflinuxfs2</code> stack, which is now deprecated. For security reasons we will soon be force-upgrading apps to <code>cflinuxfs3</code>. It is possible that this will break your application. You can prevent this happening by <a href="https://docs.cloud.service.gov.uk/guidance.html#upgrading-from-cflinuxfs2">performing the upgrade yourself</a>.</p>
-          </div>
-        </div>
-      {% endif %}
-
-      <ul class="overview-tab">
-        <li class="active">
-          <a href="{{
-            linkTo(
-              'admin.organizations.spaces.applications.view',
-              {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
-            ) }}">Overview</a>
-        </li>
-        <li>
-          <a href="{{
-            linkTo(
-              'admin.organizations.spaces.applications.metrics.view',
-              {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
-            ) }}">Metrics</a>
-        </li>
-      </ul>
-
-      {{ govukTable({
-        caption: 'Application details',
-        firstCellIsHeader: false,
-        rows: [
-          [
-            {
-              text: 'Name'
-            },
-            {
-              text: application.entity.name
-            }
-          ]
-        ].concat(actualRuntimeInfo).concat([
-          [
-            {
-              text: 'Instances'
-            },
-            {
-              text: application.entity.running_instances + '/' + application.entity.instances
-            }
-          ],
-          [
-            {
-              text: 'Memory'
-            },
-            {
-              text: (application.entity.memory / 1024) | round(2) + 'GiB'
-            }
-          ],
-          [
-            {
-              text: 'Disk quota'
-            },
-            {
-              text: (application.entity.disk_quota / 1024) | round(2) + 'GiB'
-            }
-          ],
-          [
-            {
-              text: 'Status'
-            },
-            {
-              text: application.entity.state
-            }
-          ],
-          [
-            {
-              text: 'SSH'
-            },
-            {
-              text: application.entity.enable_ssh
-            }
-          ],
-          [
-            {
-              text: 'URLs'
-            },
-            {
-              text: application.entity.urls | linkify | join(", ") | safe
-            }
-          ],
-          [
-            {
-              text: 'Ports'
-            },
-            {
-              text: application.entity.ports
-            }
-          ]
-        ])
-      }) }}
-
-      <h4 class="govuk-heading-s">On the commandline</h4>
-
-      <p>You can also view the same information on the commandline, to see details for all of your apps use:</p>
-
-      <p>
-        <code>cf apps</code>
-      </p>
-
-      <a href="https://docs.cloud.service.gov.uk/get_started.html#set-up-the-cloud-foundry-command-line" class="govuk-link">
-        Read more about using PaaS on the commandline.
-      </a>
+  {% if stack.entity.name == 'cflinuxfs2' %}
+    <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="error-summary">
+      <h2 class="govuk-error-summary__title" id="error-summary-title">
+        This application needs upgrading or it may go offline
+      </h2>
+      <div class="govuk-error-summary__body">
+        <p style="margin-bottom: 0;">This application is using the <code>cflinuxfs2</code> stack, which is now deprecated. For security reasons we will soon be force-upgrading apps to <code>cflinuxfs3</code>. It is possible that this will break your application. You can prevent this happening by <a href="https://docs.cloud.service.gov.uk/guidance.html#upgrading-from-cflinuxfs2">performing the upgrade yourself</a>.</p>
+      </div>
     </div>
-  </div>
+  {% endif %}
+
+  <ul class="overview-tab">
+    <li class="active">
+      <a href="{{
+        linkTo(
+          'admin.organizations.spaces.applications.view',
+          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
+        ) }}">Overview</a>
+    </li>
+    <li>
+      <a href="{{
+        linkTo(
+          'admin.organizations.spaces.applications.metrics.view',
+          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
+        ) }}">Metrics</a>
+    </li>
+    <li>
+      <a href="{{
+        linkTo(
+          'admin.organizations.spaces.applications.logs.view',
+          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
+        ) }}">Logs</a>
+    </li>
+  </ul>
+
+  {{ govukTable({
+    caption: 'Application details',
+    firstCellIsHeader: false,
+    rows: [
+      [
+        {
+          text: 'Name'
+        },
+        {
+          text: application.entity.name
+        }
+      ]
+    ].concat(actualRuntimeInfo).concat([
+      [
+        {
+          text: 'Instances'
+        },
+        {
+          text: application.entity.running_instances + '/' + application.entity.instances
+        }
+      ],
+      [
+        {
+          text: 'Memory'
+        },
+        {
+          text: (application.entity.memory / 1024) | round(2) + 'GiB'
+        }
+      ],
+      [
+        {
+          text: 'Disk quota'
+        },
+        {
+          text: (application.entity.disk_quota / 1024) | round(2) + 'GiB'
+        }
+      ],
+      [
+        {
+          text: 'Status'
+        },
+        {
+          text: application.entity.state
+        }
+      ],
+      [
+        {
+          text: 'SSH'
+        },
+        {
+          text: application.entity.enable_ssh
+        }
+      ],
+      [
+        {
+          text: 'URLs'
+        },
+        {
+          text: application.entity.urls | linkify | join(", ") | safe
+        }
+      ],
+      [
+        {
+          text: 'Ports'
+        },
+        {
+          text: application.entity.ports
+        }
+      ]
+    ])
+  }) }}
+
+  <h4 class="govuk-heading-s">On the commandline</h4>
+
+  <p>You can also view the same information on the commandline, to see details for all of your apps use:</p>
+
+  <p>
+    <code>cf apps</code>
+  </p>
+
+  <a href="https://docs.cloud.service.gov.uk/get_started.html#set-up-the-cloud-foundry-command-line" class="govuk-link">
+    Read more about using PaaS on the commandline.
+  </a>
 {% endblock %}

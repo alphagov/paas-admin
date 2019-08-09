@@ -2,6 +2,7 @@ import Router, { IParameters } from '../../lib/router';
 
 import * as account from '../account';
 import * as appMetrics from '../app-metrics';
+import * as appLogs from '../app-logs';
 import * as applications from '../applications';
 import * as orgUsers from '../org-users';
 import * as organizations from '../organizations';
@@ -55,6 +56,11 @@ const router = new Router([
     action: appMetrics.viewAppMetrics,
     name: 'admin.organizations.spaces.applications.metrics.view',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/metrics',
+  },
+  {
+    action: appLogs.viewAppLogs,
+    name: 'admin.organizations.spaces.applications.logs.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/logs',
   },
   {
     action: services.viewService,
