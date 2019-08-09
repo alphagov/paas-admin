@@ -47,14 +47,8 @@ export function streamApplicationLogs(config: IAppConfig): (req: Request, res: R
         Connection: 'keep-alive',
     });
     res.write('\n\n');
-    eventSource.onmessage = e => {
-      res.write(`data: ${e.data}\n\n`)
-    };
-    eventSource.onerror = e => {
-      res.end();
-    }
-    req.connection.on('close', () => {
-      eventSource.close();
-    });
+    eventSource.onmessage = e => res.write(`data: ${e.data}\n\n`);
+    eventSource.onerror = () => res.write(`event: error\ndata:\n\n`);
+    req.connection.on('close', () => eventSource.close());
   }
 }

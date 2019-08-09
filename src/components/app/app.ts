@@ -122,13 +122,14 @@ export default function(config: IAppConfig) {
     uaaAPI: config.uaaAPI,
   }));
 
+  app.get('/stream-logs/:applicationGUID', streamApplicationLogs(config));
+
   app.use(termsCheckerMiddleware(config.location, {
     apiEndpoint: config.accountsAPI,
     secret: config.accountsSecret,
     logger: config.logger,
   }));
 
-  app.get('/stream-logs/:applicationGUID', streamApplicationLogs(config));
   app.use(routerMiddleware(router, config));
 
   app.use(pageNotFoundMiddleware);

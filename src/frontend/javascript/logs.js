@@ -17,14 +17,15 @@
     { withCredentials: true }
   );
 
-  es.onmessage = function (e) {
+  es.addEventListener('error', function () { console.log('error'); es.close(); });
+  es.addEventListener('message', function (e) {
     var data = JSON.parse(e.data);
     var logs = data.batch.map(function(item) {
       return atob(item.log.payload)
     });
     logs.forEach(function (log) {
       elem.innerText += log + "\n";
-    })
-  }
+    });
+  });
 
 })();
