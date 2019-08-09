@@ -33,6 +33,7 @@ export interface IAppConfig {
   readonly oauthClientSecret: string;
   readonly sessionSecret: string;
   readonly uaaAPI: string;
+  readonly metricStoreAPI: string;
   readonly authorizationAPI: string;
   readonly oidcProviders: Map<OIDCProviderName, IOIDCConfig>;
   readonly domainName: string;

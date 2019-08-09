@@ -70,7 +70,7 @@ export async function dataServiceMetrics(
   const timeStep = 30;
 
   const prom = new PromClient(
-    'https://metric-store.tlwr.dev.cloudpipelineapps.digital',
+    ctx.app.metricStoreAPI,
     ctx.token.accessToken,
     ctx.app.logger,
   );

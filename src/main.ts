@@ -92,6 +92,7 @@ async function main() {
     location,
     authorizationAPI,
     uaaAPI,
+    metricStoreAPI: expectEnvVariable('METRIC_STORE_URL'),
     notifyAPIKey: expectEnvVariable('NOTIFY_API_KEY'),
     notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null,
     oidcProviders: providers,
