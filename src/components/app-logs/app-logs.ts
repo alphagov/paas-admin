@@ -39,16 +39,24 @@ export function streamApplicationLogs(config: IAppConfig): (req: Request, res: R
     const url = `${reverseLogProxyGatewayAPI}/v2/read?log&source_id=${sourceId}`;
     const eventSource = new EventSource(
       url,
-      { headers: { Authorization: `bearer ${accessToken}` }}
+      { headers: { Authorization: `bearer ${accessToken}` }},
     );
     res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
+        'Connection': 'keep-alive',
     });
     res.write('\n\n');
-    eventSource.onmessage = e => res.write(`data: ${e.data}\n\n`);
-    eventSource.onerror = () => res.write(`event: error\ndata:\n\n`);
+
+    eventSource.onmessage = (e) => {
+      res.write(`data: ${e.data}\n\n`);
+    };
+
+    eventSource.onerror = (e) => {
+      config.logger.error(e);
+      res.write(`event: error\ndata:\n\n`);
+    };
+
     req.connection.on('close', () => eventSource.close());
-  }
+  };
 }
