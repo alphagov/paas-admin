@@ -19,6 +19,8 @@ import { initContext } from './context';
 import router from './router';
 import { routerMiddleware } from './router-middleware';
 
+import { streamApplicationLogs } from '../applications/applicationLogs';
+
 export interface IAppConfig {
   readonly allowInsecureSession?: boolean;
   readonly billingAPI: string;
@@ -34,6 +36,7 @@ export interface IAppConfig {
   readonly sessionSecret: string;
   readonly uaaAPI: string;
   readonly authorizationAPI: string;
+  readonly reverseLogProxyGatewayAPI: string;
   readonly oidcProviders: Map<OIDCProviderName, IOIDCConfig>;
   readonly domainName: string;
 }
@@ -77,6 +80,8 @@ export default function(config: IAppConfig) {
   app.use('/assets', staticGzip('node_modules/govuk-frontend/assets', {immutable: true}));
   app.use('/assets', staticGzip('node_modules/d3/dist', {immutable: true}));
   app.use('/assets', staticGzip('node_modules/d3-sankey/dist', {immutable: true}));
+  app.get('/stream-logs/:applicationGUID', streamApplicationLogs(config));
+
   app.use(compression());
 
   app.use(helmet());
