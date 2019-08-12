@@ -75,8 +75,8 @@ export async function viewServiceMetrics(
       service: summarisedService,
 
       times: {
-        instantTime: moment(instantTime).format(datetimeLocalFmt),
-        historicTime: moment(historicTime).format(datetimeLocalFmt),
+        instantTime: moment.tz(instantTime, 'Europe/London').format(datetimeLocalFmt),
+        historicTime: moment.tz(historicTime, 'Europe/London').format(datetimeLocalFmt),
       },
     }),
   };
