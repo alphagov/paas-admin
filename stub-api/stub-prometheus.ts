@@ -4,32 +4,6 @@ import moment from 'moment';
 
 import {IStubServerPorts} from './index';
 
-const queryResponse = {
-  status: 'success',
-  data: {
-    result: [{
-      value: [moment().toDate().getTime() / 1000, `${Math.random() * 100}`],
-    }],
-  },
-};
-
-const queryRangeResponse = {
-  status: 'success',
-  data: {
-    result : [{
-      values: lodash
-                .range(0, 300, 1)
-                .map(i => [
-                  moment()
-                    .subtract(15 * i, 'seconds')
-                    .toDate().getTime() / 1000,
-                  `${Math.random() * 100}`,
-                ])
-              ,
-    }],
-  },
-};
-
 function mockPrometheus(
   app: express.Application,
   _config: IStubServerPorts,
@@ -37,12 +11,51 @@ function mockPrometheus(
 
   app.get(
     /query_range/,
-    (_req, res) => res.send(JSON.stringify(queryRangeResponse)),
+    (req, res) => {
+      const historicTime = parseInt(req.query.start, 10);
+      const instantTime = parseInt(req.query.end, 10);
+      const step = parseInt(req.query.step, 10);
+
+      const length = Math.ceil(((instantTime - historicTime)) / step);
+
+      const response = {
+        status: 'success',
+        data: {
+          result : [{
+            values: lodash
+              .range(0, length, 1)
+                .map(i => {
+                  return [
+                    moment(historicTime * 1000)
+                      .add(step * i, 'seconds')
+                      .toDate().getTime() / 1000
+                    ,
+                    `${Math.random() * 100}`,
+                  ];
+                })
+            ,
+          }],
+        },
+      };
+
+      res.send(JSON.stringify(response));
+    },
   );
 
   app.get(
     /query/,
-    (_req, res) => res.send(JSON.stringify(queryResponse)),
+    (_req, res) => {
+      res.send(JSON.stringify({
+        status: 'success',
+        data: {
+          result: [{
+            value: [
+              moment().toDate().getTime() / 1000, `${Math.random() * 100}`,
+            ],
+          }],
+        },
+      }));
+    },
   );
 
   return app;
