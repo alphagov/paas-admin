@@ -1,0 +1,36 @@
+<form>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-three-quarters">
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="start-time">Start time</label>
+            <input type="datetime-local"
+               id="start-time"
+               name="start-time"
+               class="govuk-input"
+               value="{{times.historicTime}}">
+          </div>
+        </div>
+        <div class="govuk-grid-column-one-half">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="end-time">End time</label>
+            <input type="datetime-local"
+               id="end-time"
+               name="end-time"
+               class="govuk-input"
+               value="{{times.instantTime}}">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="govuk-grid-column-one-quarter">
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="end-time">&nbsp;</label>
+        </label>
+        <button class="govuk-button">Update</button>
+      </div>
+    </div>
+  </div>
+</form>
