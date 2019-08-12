@@ -90,8 +90,9 @@ export async function dataServiceMetrics(
   const sourceID = params.serviceGUID;
   const numPointsOnChart = 150;
 
-  const historicTime = moment(params['start-time']).toDate();
-  const instantTime = moment(params['end-time']).toDate();
+  const historicTime = moment.tz(parseInt(params['start-time'], 10), 'Europe/London').toDate();
+  const instantTime = moment.tz(parseInt(params['end-time'], 10), 'Europe/London').toDate();
+
   const timeStep = Math.ceil(
     (
       (instantTime.getTime() - historicTime.getTime()
