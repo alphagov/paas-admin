@@ -51,7 +51,7 @@ nock('https://example.com/api').persist()
   .get('/v2/failure/500').reply(500, `FAKE_500`)
   .get('/v2/test').reply(200, `{"next_url":"/v2/test?page=2","resources":["a"]}`)
   .get('/v2/test?page=2').reply(200, `{"next_url":null,"resources":["b"]}`)
-  .put('/v2/organizations/guid-cb24b36d-4656-468e-a50d-b53113ac6177/users').reply(201, {
+  .put('/v2/organizations/guid-cb24b36d-4656-468e-a50d-b53113ac6177/users/uaa-id-236').reply(201, {
     metadata: {guid: 'guid-cb24b36d-4656-468e-a50d-b53113ac6177'},
   })
 ;
@@ -299,9 +299,9 @@ describe('lib/cf test suite', () => {
 
   test('should be able to assign a user to an organisation by username', async () => {
     const client = new CloudFoundryClient(config);
-    const organization = await client.assignUserToOrganizationByUsername(
+    const organization = await client.assignUserToOrganization(
       'guid-cb24b36d-4656-468e-a50d-b53113ac6177',
-      'user@example.com',
+      'uaa-id-236',
     );
 
     expect(organization.metadata.guid).toEqual('guid-cb24b36d-4656-468e-a50d-b53113ac6177');

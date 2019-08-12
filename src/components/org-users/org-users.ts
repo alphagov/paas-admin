@@ -418,7 +418,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
       throw new ValidationError([{field: 'email', message: 'user is already a member of the organisation'}]);
     }
 
-    await cf.assignUserToOrganizationByUsername(params.organizationGUID, values.email);
+    await cf.assignUserToOrganization(params.organizationGUID, userGUID);
 
     await setAllUserRolesForOrg(
       cf,
