@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 import CloudFoundryClient from '../../lib/cf';
 import PromClient from '../../lib/prom';
@@ -41,6 +41,29 @@ export async function viewServiceMetrics(
     },
   };
 
+  let instantTime: Date = moment
+    .tz('Europe/London')
+    .subtract(3, 'minutes') // RDS metrics take time to percolate
+    .toDate()
+  ;
+  let historicTime: Date = moment
+    .tz('Europe/London')
+    .subtract(3, 'minutes') // RDS metrics take time to percolate
+    .subtract(3, 'hours')
+    .toDate()
+  ;
+
+  if (typeof params['start-time'] !== 'undefined' &&
+      typeof params['end-time'] !== 'undefined'
+  ) {
+    historicTime = moment.tz(params['start-time'], 'Europe/London').toDate();
+    instantTime = moment.tz(params['end-time'], 'Europe/London').toDate();
+
+    if (instantTime <= historicTime) {
+      throw new Error('instantTime must come after historicTime');
+    }
+  }
+
   return {
     body: serviceMetricsTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -48,6 +71,11 @@ export async function viewServiceMetrics(
       context: ctx.viewContext,
       space, organization,
       service: summarisedService,
+
+      times: {
+        instantTime: moment(instantTime).format('YYYY-MM-DDThh:mm'),
+        historicTime: moment(historicTime).format('YYYY-MM-DDThh:mm'),
+      },
     }),
   };
 }
@@ -58,16 +86,15 @@ export async function dataServiceMetrics(
 ): Promise<IResponse> {
 
   const sourceID = params.serviceGUID;
-  const instantTime = moment()
-    .subtract(3, 'minutes') // RDS metrics take time to percolate
-    .toDate()
-  ;
-  const historicTime = moment()
-    .subtract(3, 'minutes') // RDS metrics take time to percolate
-    .subtract(3, 'hours')
-    .toDate()
-  ;
-  const timeStep = 30;
+  const numPointsOnChart = 150;
+
+  const historicTime = moment(params['start-time']).toDate();
+  const instantTime = moment(params['end-time']).toDate();
+  const timeStep = Math.ceil(
+    (
+      (instantTime.getTime() - historicTime.getTime()
+    ) / 1000) / numPointsOnChart,
+  );
 
   const prom = new PromClient(
     ctx.app.prometheusAPI,

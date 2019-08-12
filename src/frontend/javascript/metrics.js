@@ -1,6 +1,12 @@
 (function() {
   var dataPath = window.location.pathname + '.json';
 
+  var historicTime = new Date(document.querySelector('#start-time').value);
+  var instantTime = new Date(document.querySelector('#end-time').value);
+
+  dataPath += '?start-time=' + historicTime;
+  dataPath += '&end-time=' + instantTime;
+
   fetch(dataPath).then(function(response) {
     console.info(response);
     return response.json();
