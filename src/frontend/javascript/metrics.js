@@ -4,8 +4,8 @@
   var historicTime = new Date(document.querySelector('#start-time').value);
   var instantTime = new Date(document.querySelector('#end-time').value);
 
-  dataPath += '?start-time=' + historicTime;
-  dataPath += '&end-time=' + instantTime;
+  dataPath += '?start-time=' + historicTime.getTime().toString();
+  dataPath += '&end-time=' + instantTime.getTime().toString();
 
   fetch(dataPath).then(function(response) {
     console.info(response);
@@ -55,31 +55,29 @@
       http4xxColor, http5xxColor,
     ];
 
-    var tzOffsetSeconds = (new Date()).getTimezoneOffset() * 60;
-
     if (typeof response.series.httpTotalCountSeries !== 'undefined') {
       env
         .canvas()
         .data(new muze.DataModel(
           [['Code', 'Timestamp','Value']].concat(
             response.series.http1xxCountSeries.map(
-              (p) => ['1XX', (p[0] + tzOffsetSeconds) * 1000, parseFloat(p[1])],
+              (p) => ['1XX', p[0] * 1000, parseFloat(p[1])],
             ),
           ).concat(
             response.series.http2xxCountSeries.map(
-              (p) => ['2XX', (p[0] + tzOffsetSeconds) * 1000, parseFloat(p[1])],
+              (p) => ['2XX', p[0] * 1000, parseFloat(p[1])],
             ),
           ).concat(
             response.series.http3xxCountSeries.map(
-              (p) => ['3XX', (p[0] + tzOffsetSeconds) * 1000, parseFloat(p[1])],
+              (p) => ['3XX', p[0] * 1000, parseFloat(p[1])],
             ),
           ).concat(
             response.series.http4xxCountSeries.map(
-              (p) => ['4XX', (p[0] + tzOffsetSeconds) * 1000, parseFloat(p[1])],
+              (p) => ['4XX', p[0] * 1000, parseFloat(p[1])],
             ),
           ).concat(
             response.series.http5xxCountSeries.map(
-              (p) => ['5XX', (p[0] + tzOffsetSeconds) * 1000, parseFloat(p[1])],
+              (p) => ['5XX', p[0] * 1000, parseFloat(p[1])],
             ),
           ),
           [
@@ -114,23 +112,23 @@
         .data(new muze.DataModel(
           [['Code', 'Timestamp','Value']].concat(
             response.series.http1xxLatencySeries.map(
-              (p) => ['1XX', (p[0] + tzOffsetSeconds) * 1000, parseFloat(p[1])],
+              (p) => ['1XX', p[0] * 1000, parseFloat(p[1])],
             ),
           ).concat(
             response.series.http2xxLatencySeries.map(
-              (p) => ['2XX', (p[0] + tzOffsetSeconds) * 1000, parseFloat(p[1])],
+              (p) => ['2XX', p[0] * 1000, parseFloat(p[1])],
             ),
           ).concat(
             response.series.http3xxLatencySeries.map(
-              (p) => ['3XX', (p[0] + tzOffsetSeconds) * 1000, parseFloat(p[1])],
+              (p) => ['3XX', p[0] * 1000, parseFloat(p[1])],
             ),
           ).concat(
             response.series.http4xxLatencySeries.map(
-              (p) => ['4XX', (p[0] + tzOffsetSeconds) * 1000, parseFloat(p[1])],
+              (p) => ['4XX', p[0] * 1000, parseFloat(p[1])],
             ),
           ).concat(
             response.series.http5xxLatencySeries.map(
-              (p) => ['5XX', (p[0] + tzOffsetSeconds) * 1000, parseFloat(p[1])],
+              (p) => ['5XX', p[0] * 1000, parseFloat(p[1])],
             ),
           ),
           [
@@ -200,7 +198,7 @@
           .canvas()
           .data(new muze.DataModel(
             [['Timestamp','Value']].concat(
-              simpleChart.series.map((p) => [(p[0] + tzOffsetSeconds) * 1000, parseFloat(p[1])]),
+              simpleChart.series.map((p) => [p[0] * 1000, parseFloat(p[1])]),
             ),
             [
               { name: 'Timestamp', type: 'dimension', subtype: 'temporal'},
