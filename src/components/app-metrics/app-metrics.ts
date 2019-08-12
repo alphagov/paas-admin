@@ -12,6 +12,8 @@ export async function viewAppMetrics(
   ctx: IContext, params: IParameters,
 ): Promise<IResponse> {
 
+  const datetimeLocalFmt = 'YYYY-MM-DDTHH:mm';
+
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
@@ -30,8 +32,8 @@ export async function viewAppMetrics(
   if (typeof params['start-time'] !== 'undefined' &&
       typeof params['end-time'] !== 'undefined'
   ) {
-    historicTime = moment.tz(params['start-time'], 'Europe/London').toDate();
-    instantTime = moment.tz(params['end-time'], 'Europe/London').toDate();
+    historicTime = moment.tz(params['start-time'], datetimeLocalFmt, 'Europe/London').toDate();
+    instantTime = moment.tz(params['end-time'], datetimeLocalFmt, 'Europe/London').toDate();
 
     if (instantTime <= historicTime) {
       throw new Error('instantTime must come after historicTime');
@@ -46,8 +48,8 @@ export async function viewAppMetrics(
       application, space, organization,
 
       times: {
-        instantTime: moment(instantTime).format('YYYY-MM-DDThh:mm'),
-        historicTime: moment(historicTime).format('YYYY-MM-DDThh:mm'),
+        instantTime: moment(instantTime).format(datetimeLocalFmt),
+        historicTime: moment(historicTime).format(datetimeLocalFmt),
       },
     }),
   };
