@@ -245,7 +245,7 @@ describe('org-users test suite', () => {
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
       .reply(200, cfData.organization)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
+      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
@@ -304,7 +304,7 @@ describe('org-users test suite', () => {
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
       .reply(200, cfData.organization)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
+      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
@@ -361,7 +361,7 @@ describe('org-users test suite', () => {
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
       .reply(200, cfData.organization)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
+      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
@@ -416,7 +416,7 @@ describe('org-users test suite', () => {
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
       .reply(200, cfData.organization)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
+      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
 
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
@@ -471,7 +471,7 @@ describe('org-users test suite', () => {
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
       .reply(200, cfData.organization)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
+      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
 
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
@@ -526,7 +526,7 @@ describe('org-users test suite', () => {
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
       .reply(200, cfData.organization)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
+      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
 
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
@@ -582,7 +582,7 @@ describe('org-users test suite', () => {
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
       .reply(200, cfData.organization)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users')
+      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')

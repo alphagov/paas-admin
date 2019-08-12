@@ -268,8 +268,14 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
-  public async assignUserToOrganizationByUsername(organizationGUID: string, username: string): Promise<cf.IResource> {
-    const response = await this.request('put', `/v2/organizations/${organizationGUID}/users`, {username});
+  public async assignUserToOrganization(
+    organizationGUID: string,
+    userGUID: string,
+  ): Promise<cf.IResource> {
+    const response = await this.request(
+      'put',
+      `/v2/organizations/${organizationGUID}/users/${userGUID}`,
+    );
     return response.data;
   }
 
