@@ -1,0 +1,9 @@
+<ul class="govuk-list">
+  {% for offset, _ in timeOffsets %}
+    <li>
+      <a href="?nice-offset={{ offset }}" class="govuk-list">
+        {{ offset | replace("-", " ") | capitalize }}
+      </a>
+    </li>
+  {% endfor %}
+</ul>

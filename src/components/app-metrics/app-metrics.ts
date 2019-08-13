@@ -1,6 +1,7 @@
 import moment from 'moment-timezone';
 
 import CloudFoundryClient from '../../lib/cf';
+import { timeOffsets } from '../../lib/metrics';
 import PromClient from '../../lib/prom';
 import { IParameters, IResponse } from '../../lib/router';
 
@@ -12,7 +13,48 @@ export async function viewAppMetrics(
   ctx: IContext, params: IParameters,
 ): Promise<IResponse> {
 
+  let instantTime: Date = moment
+    .tz('Europe/London')
+    .toDate()
+  ;
+  let historicTime: Date = moment
+    .tz('Europe/London')
+    .subtract(3, 'hours')
+    .toDate()
+  ;
+
   const datetimeLocalFmt = 'YYYY-MM-DDTHH:mm';
+
+  if (typeof params['nice-offset'] !== 'undefined') {
+    const niceOffset = timeOffsets[params['nice-offset']];
+
+    if (typeof niceOffset !== 'undefined') {
+      historicTime = moment
+        .tz('Europe/London')
+        .subtract(niceOffset, 'seconds')
+        .toDate()
+      ;
+    }
+
+    return {
+      redirect: ctx.linkTo(
+        'admin.organizations.spaces.applications.metrics.view',
+        {
+          'organizationGUID': params.organizationGUID,
+          'spaceGUID': params.spaceGUID,
+          'applicationGUID': params.applicationGUID,
+          'start-time': moment
+            .tz(historicTime, 'Europe/London')
+            .format(datetimeLocalFmt)
+          ,
+          'end-time': moment
+            .tz(instantTime, 'Europe/London')
+            .format(datetimeLocalFmt)
+          ,
+        },
+      ),
+    };
+  }
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
@@ -25,9 +67,6 @@ export async function viewAppMetrics(
     cf.space(params.spaceGUID),
     cf.organization(params.organizationGUID),
   ]);
-
-  let instantTime: Date = moment.tz('Europe/London').toDate();
-  let historicTime: Date = moment.tz('Europe/London').subtract(3, 'hours').toDate();
 
   if (typeof params['start-time'] !== 'undefined' &&
       typeof params['end-time'] !== 'undefined'
@@ -46,6 +85,8 @@ export async function viewAppMetrics(
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
       application, space, organization,
+
+      timeOffsets,
 
       times: {
         instantTime: moment.tz(instantTime, 'Europe/London').format(datetimeLocalFmt),

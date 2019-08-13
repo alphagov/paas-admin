@@ -1,6 +1,7 @@
 import moment from 'moment-timezone';
 
 import CloudFoundryClient from '../../lib/cf';
+import { timeOffsets } from '../../lib/metrics';
 import PromClient from '../../lib/prom';
 import { IParameters, IResponse } from '../../lib/router';
 
@@ -12,7 +13,51 @@ export async function viewServiceMetrics(
   ctx: IContext, params: IParameters,
 ): Promise<IResponse> {
 
+  let instantTime: Date = moment
+    .tz('Europe/London')
+    .subtract(3, 'minutes') // RDS metrics take time to percolate
+    .toDate()
+  ;
+  let historicTime: Date = moment
+    .tz('Europe/London')
+    .subtract(3, 'minutes') // RDS metrics take time to percolate
+    .subtract(3, 'hours')
+    .toDate()
+  ;
+
   const datetimeLocalFmt = 'YYYY-MM-DDTHH:mm';
+
+  if (typeof params['nice-offset'] !== 'undefined') {
+    const niceOffset = timeOffsets[params['nice-offset']];
+
+    if (typeof niceOffset !== 'undefined') {
+      historicTime = moment
+        .tz('Europe/London')
+        .subtract(niceOffset, 'seconds')
+        .subtract(3, 'minutes') // RDS metrics take time to percolate
+        .toDate()
+      ;
+    }
+
+    return {
+      redirect: ctx.linkTo(
+        'admin.organizations.spaces.services.metrics.view',
+        {
+          'organizationGUID': params.organizationGUID,
+          'spaceGUID': params.spaceGUID,
+          'serviceGUID': params.serviceGUID,
+          'start-time': moment
+            .tz(historicTime, 'Europe/London')
+            .format(datetimeLocalFmt)
+          ,
+          'end-time': moment
+            .tz(instantTime, 'Europe/London')
+            .format(datetimeLocalFmt)
+          ,
+        },
+      ),
+    };
+  }
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
@@ -43,18 +88,6 @@ export async function viewServiceMetrics(
     },
   };
 
-  let instantTime: Date = moment
-    .tz('Europe/London')
-    .subtract(3, 'minutes') // RDS metrics take time to percolate
-    .toDate()
-  ;
-  let historicTime: Date = moment
-    .tz('Europe/London')
-    .subtract(3, 'minutes') // RDS metrics take time to percolate
-    .subtract(3, 'hours')
-    .toDate()
-  ;
-
   if (typeof params['start-time'] !== 'undefined' &&
       typeof params['end-time'] !== 'undefined'
   ) {
@@ -73,6 +106,8 @@ export async function viewServiceMetrics(
       context: ctx.viewContext,
       space, organization,
       service: summarisedService,
+
+      timeOffsets,
 
       times: {
         instantTime: moment.tz(instantTime, 'Europe/London').format(datetimeLocalFmt),

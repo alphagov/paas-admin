@@ -36,7 +36,19 @@
     </li>
   </ul>
 
-  {% include "../../layouts/metrics/filters.njk" %}
+  <h2 class="govuk-heading-l">Filters</h2>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      <h3 class="govuk-heading-m">Relative time window</h3>
+      {% include "../../layouts/metrics/offsets.njk" %}
+    </div>
+
+    <div class="govuk-grid-column-one-half">
+      <h3 class="govuk-heading-m">Custom time window</h3>
+      {% include "../../layouts/metrics/filters.njk" %}
+    </div>
+  </div>
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-half">
