@@ -67,11 +67,6 @@ function configure(env) {
       return `<a href="${protocolOrEmpty}${link}" class="govuk-link">${link}</a>`;
     });
   });
-
-  env.addFilter("inlinejs", (path) => {
-    const content = fs.readFileSync(path);
-    return `<script>${content}</script>`;
-  });
 }
 
 module.exports = configure;
