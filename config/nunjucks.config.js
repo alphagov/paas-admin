@@ -1,3 +1,4 @@
+const fs = require('fs');
 const jmespath = require('jmespath');
 const showdown = require('showdown');
 const moment = require('moment');
@@ -38,7 +39,7 @@ function configure(env) {
       return singular;
     }
     return plural;
-  })
+  });
 
   env.addFilter('nicedate', (date) => {
     return moment(date).format('MMMM Do YYYY');
@@ -65,6 +66,11 @@ function configure(env) {
 
       return `<a href="${protocolOrEmpty}${link}" class="govuk-link">${link}</a>`;
     });
+  });
+
+  env.addFilter("inlinejs", (path) => {
+    const content = fs.readFileSync(path);
+    return `<script>${content}</script>`;
   });
 }
 

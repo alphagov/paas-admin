@@ -1,3 +1,13 @@
+import crypto from 'crypto';
+import fs from 'fs';
+
+function hashOfFile(path: string): string {
+  const hasher = crypto.createHash('sha256');
+  const content = fs.readFileSync(path, {encoding: 'utf-8'});
+  hasher.update(content);
+  return `'sha256-${hasher.digest('base64')}'`;
+}
+
 export default {
   directives: {
     defaultSrc: [
@@ -9,12 +19,12 @@ export default {
     ],
     scriptSrc: [
       `'self'`,
-      `'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU='`, // Inline script tag in govuk_template
-      `'sha256-G29/qSW/JHHANtFhlrZVDZW1HOkCDRc78ggbqwwIJ2g='`, // Inline script tag in govuk_template
+      // node_modules/govuk-frontend/template.njk, xpath: //html/body/script[1]
+      `'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU='`,
       'www.google-analytics.com',
       'www.googletagmanager.com',
-      // Inline script tag for Google Analytics
-      `'sha256-R72vvzs/ra+fVicBe+lyndYF4e3bdTEHbbV03txBUtc='`, // Inline script tag in page head
+      // this file is inlined by Nunjucks, but we keep it external to make hashing it easier
+      hashOfFile('./src/frontend/javascript/analytics.js'),
     ],
     imgSrc: [
       `'self'`,
