@@ -88,7 +88,7 @@
     "tslint-microsoft-contrib": "6.2.0",
     "typescript": "3.5.3",
     "url-loader": "2.1.0",
-    "webpack": "4.39.1",
+    "webpack": "4.39.2",
     "webpack-cli": "3.3.6",
     "webpack-node-externals": "1.7.2",
     "webpack-shell-plugin": "0.5.0",
