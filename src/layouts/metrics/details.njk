@@ -1,0 +1,29 @@
+<p class="govuk-body">
+  This is showing the
+  X minutes between
+  Start Date / Time
+  and
+  End Date / Time.
+</p>
+
+<details class="govuk-details">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+      Pick time ranges
+    </span>
+  </summary>
+
+  <div class="govuk-details__text">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-half">
+        <h3 class="govuk-heading-m">Quick time ranges</h3>
+        {% include "./offsets.njk" %}
+      </div>
+
+      <div class="govuk-grid-column-one-half">
+        <h3 class="govuk-heading-m">Custom time ranges</h3>
+        {% include "./filters.njk" %}
+      </div>
+    </div>
+  </div>
+</details>
