@@ -9,12 +9,10 @@ export default {
     ],
     scriptSrc: [
       `'self'`,
-      `'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU='`, // Inline script tag in govuk_template
-      `'sha256-G29/qSW/JHHANtFhlrZVDZW1HOkCDRc78ggbqwwIJ2g='`, // Inline script tag in govuk_template
+      // node_modules/govuk-frontend/template.njk, xpath: //html/body/script[1]
+      `'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU='`,
       'www.google-analytics.com',
       'www.googletagmanager.com',
-      // Inline script tag for Google Analytics
-      `'sha256-H7q7hXqike7Yb27lFO21Pk6233UiAy/pJJ9TDT6RrBM='`,
     ],
     imgSrc: [
       `'self'`,

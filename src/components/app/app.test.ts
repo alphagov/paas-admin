@@ -8,6 +8,7 @@ import Router, { IParameters } from '../../lib/router';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 
 import init from './app';
+import csp from './app.csp';
 import { config } from './app.test.config';
 import { IContext, initContext } from './context';
 import router from './router';
@@ -170,13 +171,38 @@ describe('app test suite', () => {
 
       it('should have a Content Security Policy set', () => {
         expect(response.header['content-security-policy']).toContain(
-          `default-src 'none'; style-src 'self' 'unsafe-inline'; ` +
-          `script-src 'self' 'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU=' ` +
-          `'sha256-G29/qSW/JHHANtFhlrZVDZW1HOkCDRc78ggbqwwIJ2g=' www.google-analytics.com ` +
-          `www.googletagmanager.com 'sha256-H7q7hXqike7Yb27lFO21Pk6233UiAy/pJJ9TDT6RrBM='; ` +
-          `img-src 'self' www.google-analytics.com; ` +
-          `connect-src 'self' www.google-analytics.com; frame-src 'self'; font-src 'self' data:; ` +
-          `object-src 'self'; media-src 'self'`,
+          `default-src ${csp.directives.defaultSrc.join(' ')}`,
+        );
+        expect(response.header['content-security-policy']).toContain(
+          `style-src ${csp.directives.styleSrc.join(' ')}`,
+        );
+
+        expect(response.header['content-security-policy']).toContain(
+          `script-src ${csp.directives.scriptSrc.join(' ')}`,
+        );
+
+        expect(response.header['content-security-policy']).toContain(
+          `img-src ${csp.directives.imgSrc.join(' ')}`,
+        );
+
+        expect(response.header['content-security-policy']).toContain(
+          `connect-src ${csp.directives.connectSrc.join(' ')}`,
+        );
+
+        expect(response.header['content-security-policy']).toContain(
+          `frame-src ${csp.directives.frameSrc.join(' ')}`,
+        );
+
+        expect(response.header['content-security-policy']).toContain(
+          `font-src ${csp.directives.fontSrc.join(' ')}`,
+        );
+
+        expect(response.header['content-security-policy']).toContain(
+          `object-src ${csp.directives.objectSrc.join(' ')}`,
+        );
+
+        expect(response.header['content-security-policy']).toContain(
+          `media-src ${csp.directives.mediaSrc.join(' ')}`,
         );
       });
 
