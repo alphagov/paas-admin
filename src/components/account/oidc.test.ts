@@ -9,19 +9,24 @@ import * as fixtures from './oidc.test.fixtures';
 
 jest.mock('../../lib/uaa/uaa');
 
-const nockDiscovery = nock('https://login.microsoftonline.com').persist();
-
-nockDiscovery
-  .get('/tenant_id/v2.0/.well-known/openid-configuration')
-  .reply(200, JSON.stringify(fixtures.microsoftDiscoveryDoc));
-
-const nockGoogleDiscovery = nock('https://accounts.google.com').persist();
-
-nockGoogleDiscovery
-  .get('/.well-known/openid-configuration')
-  .reply(200, JSON.stringify(fixtures.googleDiscoveryDoc));
-
 describe('oidc test suite', () => {
+  let nockGoogleDiscovery: nock.Scope;
+  let nockMicrosoftDiscovery: nock.Scope;
+
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockGoogleDiscovery = nock('https://accounts.google.com');
+    nockMicrosoftDiscovery = nock('https://login.microsoftonline.com');
+  });
+
+  afterEach(() => {
+    nockGoogleDiscovery.done();
+    nockMicrosoftDiscovery.done();
+
+    nock.cleanAll();
+  });
+
   const redirectURL = 'https://admin.cloud.service.gov.uk/oidc/callback';
   const clientID = 'CLIENTID';
   const clientSecret = 'CLIENTSECRET';
@@ -33,6 +38,11 @@ describe('oidc test suite', () => {
   });
 
   it('generates a correct auth url based on openid discovery', async () => {
+    nockMicrosoftDiscovery
+      .get('/tenant_id/v2.0/.well-known/openid-configuration')
+      .reply(200, JSON.stringify(fixtures.microsoftDiscoveryDoc))
+    ;
+
     const oidcClient = new OIDC(clientID, clientSecret, discoveryURL, redirectURL);
     const ctx = createTestContext();
 
@@ -57,6 +67,11 @@ describe('oidc test suite', () => {
   });
 
   it('trades an authorization code for an id token', async () => {
+    nockMicrosoftDiscovery
+      .get('/tenant_id/v2.0/.well-known/openid-configuration')
+      .reply(200, JSON.stringify(fixtures.microsoftDiscoveryDoc))
+    ;
+
     // Create signing key
     const key = await createJOSEKey();
 
@@ -85,6 +100,11 @@ describe('oidc test suite', () => {
   });
 
   it('updates the UAA user with the Microsoft OID from the id token', async () => {
+    nockMicrosoftDiscovery
+      .get('/tenant_id/v2.0/.well-known/openid-configuration')
+      .reply(200, JSON.stringify(fixtures.microsoftDiscoveryDoc))
+    ;
+
     // Create signing key
     const key = await createJOSEKey();
 
@@ -99,7 +119,7 @@ describe('oidc test suite', () => {
     });
 
     // Serve token from token endpoint
-    configureTokenEndpoint(fixtures.microsoftDiscoveryDoc.token_endpoint, token, true);
+    configureTokenEndpoint(fixtures.microsoftDiscoveryDoc.token_endpoint, token);
 
     // Set up OIDC client
     const uaa = new UAAClient({apiEndpoint: ''});
@@ -132,7 +152,7 @@ describe('oidc test suite', () => {
     });
 
     // Serve token from token endpoint
-    configureTokenEndpoint(fixtures.googleDiscoveryDoc.token_endpoint, token, true);
+    configureTokenEndpoint(fixtures.googleDiscoveryDoc.token_endpoint, token);
 
     // Set up OIDC client
     const uaa = new UAAClient({apiEndpoint: ''});
@@ -164,7 +184,7 @@ describe('oidc test suite', () => {
     const token = createAndSignIDToken(signingKey);
 
     // Serve token from token endpoint
-    configureTokenEndpoint(fixtures.microsoftDiscoveryDoc.token_endpoint, token, true);
+    configureTokenEndpoint(fixtures.microsoftDiscoveryDoc.token_endpoint, token);
 
     // Create a mocked UAA client
     const uaa = new UAAClient({apiEndpoint: ''});
@@ -224,13 +244,10 @@ function configureJWKSEndpoint(jwksEndpoint: string, key: jose.JWK.Key) {
     .get(jwksEndpointURL.pathname).reply(200, JSON.stringify({keys: [key]}));
 }
 
-function configureTokenEndpoint(tokenEndpoint: string, token: string, persist: boolean = false): nock.Scope {
+function configureTokenEndpoint(tokenEndpoint: string, token: string): nock.Scope {
   const tokenEndpointURL = new URL(tokenEndpoint);
   const tokenNock = nock(tokenEndpointURL.origin);
 
-  if (persist) {
-    tokenNock.persist();
-  }
   tokenNock.post(tokenEndpointURL.pathname).reply(200, JSON.stringify({
     id_token: token,
     token_type: 'bearer',
