@@ -9,12 +9,14 @@ import {IContext} from '../app/context';
 const ctx: IContext = createTestContext();
 
 describe('spaces test suite', () => {
+  let nockAccounts: nock.Scope;
   let nockCF: nock.Scope;
 
   beforeEach(() => {
     nock.cleanAll();
 
     nockCF = nock('https://example.com/api');
+    nockAccounts = nock('https://example.com/accounts');
 
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
@@ -23,12 +25,21 @@ describe('spaces test suite', () => {
   });
 
   afterEach(() => {
+    nockAccounts.done();
     nockCF.done();
 
     nock.cleanAll();
   });
 
   it('should show the spaces pages', async () => {
+    nockAccounts
+      .get('/users/uaa-id-253').reply(200, JSON.stringify({
+        user_uuid: 'uaa-id-253',
+        username: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
+        user_email: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
+      }))
+    ;
+
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, data.spaces)
