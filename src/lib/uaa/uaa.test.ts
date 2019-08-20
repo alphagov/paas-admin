@@ -11,11 +11,21 @@ const config = {
   },
 };
 
-nock('https://example.com/uaa').persist()
-  .post('/oauth/token').query((x: any) => x.grant_type === 'client_credentials')
-    .times(1).reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`);
-
 describe('lib/uaa test suite', () => {
+  let nockUAA: nock.Scope;
+
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockUAA = nock(config.apiEndpoint);
+  });
+
+  afterEach(() => {
+    nockUAA.done();
+
+    nock.cleanAll();
+  });
+
   // IMPORTANT: The following tests are useless in TypeScript :(
 
   // it('authenticate function requires clientID and clientSecret', async () => {
@@ -34,22 +44,42 @@ describe('lib/uaa test suite', () => {
   // });
 
   it('should throw an error when receiving 404', async () => {
-    nock('https://example.com/uaa').persist()
-      .get('/failure/404').times(1).reply(404, `{"error": "FAKE_404"}`);
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get('/failure/404')
+      .reply(404, `{"error": "FAKE_404"}`)
+    ;
+
     const client = new UAAClient(config);
     await expect(client.request('get', '/failure/404')).rejects.toThrow(/FAKE_404/);
   });
 
   it('should throw an error when unrecognised error', async () => {
-    nock('https://example.com/uaa').persist()
-      .get('/failure/500').times(1).reply(500, `FAKE_500`);
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get('/failure/500')
+      .reply(500, `FAKE_500`)
+    ;
+
     const client = new UAAClient(config);
     await expect(client.request('get', '/failure/500')).rejects.toThrow(/status 500/);
   });
 
   it('should find a user by email', async () => {
-    nock('https://example.com/uaa').persist()
-      .get('/Users?filter=email+eq+%22imeCkO@test.org%22').times(1).reply(200, data.usersByEmail);
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get('/Users?filter=email+eq+%22imeCkO@test.org%22')
+      .reply(200, data.usersByEmail)
+    ;
 
     const client = new UAAClient(config);
     const user = await client.findUser('imeCkO@test.org');
@@ -57,10 +87,14 @@ describe('lib/uaa test suite', () => {
   });
 
   it('should invite a user by email', async () => {
-    nock('https://example.com/uaa').persist()
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
       .post('/invite_users?redirect_uri=https://example.com/&client_id=client-id')
-      .times(1)
-      .reply(200, data.invite);
+      .reply(200, data.invite)
+    ;
 
     const client = new UAAClient(config);
     const invitation = await client.inviteUser('user1@71xl2o.com', 'client-id', 'https://example.com/');
@@ -68,8 +102,14 @@ describe('lib/uaa test suite', () => {
   });
 
   it('should create a user', async () => {
-    nock('https://example.com/uaa').persist()
-      .post('/Users').times(1).reply(201, data.user);
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .post('/Users')
+      .reply(201, data.user)
+    ;
 
     const client = new UAAClient(config);
     const user = await client.createUser('user1@example.com', 'some-password');
@@ -77,8 +117,15 @@ describe('lib/uaa test suite', () => {
   });
 
   it('should delete a user', async () => {
-    nock('https://example.com/uaa').persist()
-      .delete('/Users/47ea627c-45b4-4b2b-ab76-3683068fdc89').times(1).reply(200, data.user);
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .delete('/Users/47ea627c-45b4-4b2b-ab76-3683068fdc89')
+      .reply(200, data.user)
+    ;
+
     const client = new UAAClient(config);
     const user = await client.deleteUser('47ea627c-45b4-4b2b-ab76-3683068fdc89');
     expect(user.id).toEqual('47ea627c-45b4-4b2b-ab76-3683068fdc89');
@@ -87,8 +134,10 @@ describe('lib/uaa test suite', () => {
   it('should retrieve signing keys', async () => {
     const client = new UAAClient(config);
 
-    nock(config.apiEndpoint)
-      .get('/token_keys').times(1).reply(200, {keys: [{value: 'secret'}]});
+    nockUAA
+      .get('/token_keys')
+      .reply(200, {keys: [{value: 'secret'}]})
+    ;
 
     const tokenKeys = await client.getSigningKeys();
     expect(tokenKeys.length).toEqual(1);
@@ -102,8 +151,10 @@ describe('lib/uaa test suite', () => {
   it('should fail retrieve signing keys due to UAA being politely hacked...', async () => {
     const client = new UAAClient(config);
 
-    nock(config.apiEndpoint)
-      .get('/token_keys').times(1).reply(400, {message: 'pwnd'});
+    nockUAA
+      .get('/token_keys')
+      .reply(400, {message: 'pwnd'})
+    ;
 
     return expect(client.getSigningKeys()).rejects.toThrow(/status 400/);
   });
@@ -112,8 +163,14 @@ describe('lib/uaa test suite', () => {
     const client = new UAAClient(config);
     const id = 'uaa-id-123';
 
-    nock(config.apiEndpoint)
-      .get(`/Users/${id}`).times(1).reply(200, {id});
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get(`/Users/${id}`)
+      .reply(200, {id})
+    ;
 
     const user = await client.getUser(id);
 
@@ -123,9 +180,15 @@ describe('lib/uaa test suite', () => {
   it('should retrieve multiple users successfully', async () => {
     const client = new UAAClient(config);
 
-    nock(config.apiEndpoint)
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .times(2)
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
       .get(`/Users/user-a`)
       .reply(200, { id: 'user-a' })
+
       .get(`/Users/user-b`)
       .reply(200, { id: 'user-b' })
     ;
@@ -138,9 +201,11 @@ describe('lib/uaa test suite', () => {
   });
 
   it('should authenticate a user', async () => {
-    nock('https://example.com/uaa').persist()
-    .post('/oauth/token').query((x: any) => x.grant_type === 'password')
-      .times(1).reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`);
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'password')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+    ;
 
     const accessToken = await authenticateUser(
       config.apiEndpoint,
@@ -152,9 +217,14 @@ describe('lib/uaa test suite', () => {
   it('should set the user\'s origin', async () => {
     const isCorrectPatchBody: RequestBodyMatcher = (body) => body.origin === 'google';
 
-    nock(config.apiEndpoint)
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
       .get(`/Users/${data.userId}`).reply(200, data.user)
-      .put(`/Users/${data.userId}`, isCorrectPatchBody).reply(200, data.user);
+      .put(`/Users/${data.userId}`, isCorrectPatchBody).reply(200, data.user)
+    ;
 
     const client = new UAAClient(config);
     const updatedUser = await client.setUserOrigin(data.userId, 'google');

@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import nock from 'nock';
-import request from 'supertest';
+import request, {SuperTest, Test} from 'supertest';
 
-import { info, organizations } from '../../lib/cf/cf.test.data';
+import { organizations } from '../../lib/cf/cf.test.data';
 import Router, { IParameters } from '../../lib/router';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 
@@ -15,17 +15,30 @@ import router from './router';
 
 const tokenKey = 'tokensecret';
 
-nock(config.uaaAPI).persist()
-  .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
-  .get('/token_keys').reply(200, {keys: [{value: tokenKey}]})
-  .get(`/Users/uaa-user-123`).reply(200, uaaData.gdsUser)
-;
-
-nock(config.accountsAPI).persist()
-  .get('/users/uaa-user-123/documents').reply(200, `[]`)
-;
-
 describe('app test suite', () => {
+  let nockAccounts: nock.Scope;
+  let nockBilling: nock.Scope;
+  let nockCF: nock.Scope;
+  let nockUAA: nock.Scope;
+
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockAccounts = nock(config.accountsAPI);
+    nockBilling = nock(config.billingAPI);
+    nockCF = nock(config.cloudFoundryAPI);
+    nockUAA = nock(config.uaaAPI);
+  });
+
+  afterEach(() => {
+    nockAccounts.done();
+    nockBilling.done();
+    nockCF.done();
+    nockUAA.done();
+
+    nock.cleanAll();
+  });
+
   it('should initContext correctly', async () => {
     const r = new Router([
       {
@@ -74,7 +87,7 @@ describe('app test suite', () => {
   });
 
   it('should be able to access pricing calculator without login', async () => {
-    nock(config.billingAPI)
+    nockBilling
       .filteringPath((path: string) => {
         if (path.includes('/forecast_events')) {
           return '/billing/forecast_events';
@@ -84,8 +97,9 @@ describe('app test suite', () => {
         }
         return path;
       })
-      .get(`/pricing_plans`).reply(200, [])
-      .get(`/forecast_events`).reply(200, [])
+
+      .get(`/pricing_plans`)
+      .reply(200, [])
     ;
 
     const app = init(config);
@@ -98,7 +112,7 @@ describe('app test suite', () => {
     const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
     const rangeStop = moment().endOf('month').format('YYYY-MM-DD');
 
-    nock(config.billingAPI)
+    nockBilling
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(500);
 
@@ -109,8 +123,10 @@ describe('app test suite', () => {
   });
 
   describe('when authenticated', () => {
+    let response: request.Response;
+    let agent: SuperTest<Test>;
+
     const app = init(config);
-    const agent = request.agent(app);
     const time = Math.floor(Date.now() / 1000);
     const token = jwt.sign({
       user_id: 'uaa-user-123',
@@ -119,45 +135,73 @@ describe('app test suite', () => {
       origin: 'uaa',
     }, tokenKey);
 
-    nock('https://example.com/uaa')
-      .post('/oauth/token')
-      .times(1)
-      .reply(200, {
-        access_token: token,
-        token_type: 'bearer',
-        refresh_token: '__refresh_token__',
-        expires_in: (24 * 60 * 60),
-        scope: 'openid oauth.approvals',
-        jti: '__jti__',
-      });
+    beforeEach(async () => {
+      nockUAA
+        .post('/oauth/token')
+        .reply(200, {
+          access_token: token,
+          token_type: 'bearer',
+          refresh_token: '__refresh_token__',
+          expires_in: (24 * 60 * 60),
+          scope: 'openid oauth.approvals',
+          jti: '__jti__',
+        })
+      ;
 
-    nock('https://example.com/api').persist()
-      .get('/v2/info').reply(200, info)
-      .get('/v2/organizations').reply(200, organizations);
-
-    it('should authenticate successfully', async () => {
-      const response = await agent.get('/auth/login/callback?code=__fakecode__&state=__fakestate__');
+      agent = request.agent(app);
+      response = await agent.get('/auth/login/callback?code=__fakecode__&state=__fakestate__');
 
       response.header['set-cookie'][0]
         .split(',')
         .map((item: string) => item.split(';')[0])
         .forEach((cookie: string) => agent.jar.setCookie(cookie));
+    });
 
+    it('should authenticate successfully', async () => {
       expect(response.status).toEqual(302);
       expect(response.header['set-cookie'][0]).toContain('pazmin-session');
     });
 
-    it('should return organisations when accessed root', async () => {
-      const response = await agent.get(router.findByName('admin.home').composeURL());
+    it('should redirect to organisations when accessed root', async () => {
+      nockAccounts
+        .get('/users/uaa-user-123/documents')
+        .reply(200, `[]`)
+      ;
+
+      nockUAA
+        .get('/token_keys')
+        .reply(200, {keys: [{value: tokenKey}]})
+      ;
+
+      response = await agent.get(router.findByName('admin.home').composeURL());
 
       expect(response.status).toEqual(302);
       expect(response.header.location).toEqual(router.findByName('admin.organizations').composeURL());
     });
 
     describe('visiting the organisations page', () => {
-      let response: request.Response;
-
       beforeEach(async () => {
+        nockAccounts
+          .get('/users/uaa-user-123/documents')
+          .reply(200, `[]`)
+        ;
+
+        nockCF
+          .get('/v2/organizations')
+          .reply(200, organizations)
+        ;
+
+        nockUAA
+          .get('/token_keys')
+          .reply(200, {keys: [{value: tokenKey}]})
+
+          .get(`/Users/uaa-user-123`)
+          .reply(200, uaaData.gdsUser)
+
+          .post('/oauth/token?grant_type=client_credentials')
+          .reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
+        ;
+
         response = await agent.get(router.findByName('admin.organizations').composeURL());
       });
 
@@ -212,13 +256,23 @@ describe('app test suite', () => {
     });
 
     it('missing pages should come back with a 404', async () => {
-      const response = await agent.get('/this-should-not-exists');
+      nockAccounts
+        .get('/users/uaa-user-123/documents')
+        .reply(200, `[]`)
+      ;
+
+      nockUAA
+        .get('/token_keys')
+        .reply(200, {keys: [{value: tokenKey}]})
+      ;
+
+      response = await agent.get('/this-should-not-exists');
 
       expect(response.status).toEqual(404);
     });
 
     it('should store a session in a signed cookie', async () => {
-      const response = await request(app).get('/test');
+      response = await request(app).get('/test');
 
       expect(response.header['set-cookie'].some(
         (x: string) => x.includes('pazmin-session.sig')))
@@ -228,17 +282,37 @@ describe('app test suite', () => {
     it('should redirect homepage to organisations', async () => {
       const home = router.find('/');
       const orgs = router.findByName('admin.organizations');
-      const response = await home.definition.action({
+      const redirectResponse = await home.definition.action({
         routePartOf: () => false,
         linkTo: (name: string, params: IParameters = {}) => router.findByName(name).composeURL(params),
       }, {});
 
-      expect(response.redirect).toEqual(orgs.definition.path);
+      expect(redirectResponse.redirect).toEqual(orgs.definition.path);
     });
 
     it('should add a meta tag for origin', async () => {
+      nockAccounts
+        .get('/users/uaa-user-123/documents')
+        .reply(200, `[]`)
+      ;
+
+      nockCF
+        .get('/v2/organizations')
+        .reply(200, organizations);
+
+      nockUAA
+        .get('/token_keys')
+        .reply(200, {keys: [{value: tokenKey}]})
+
+        .get(`/Users/uaa-user-123`)
+        .reply(200, uaaData.gdsUser)
+
+        .post('/oauth/token?grant_type=client_credentials')
+        .reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
+      ;
+
       const orgs = router.findByName('admin.organizations');
-      const response = await agent.get(orgs.definition.path);
+      response = await agent.get(orgs.definition.path);
 
       expect(response.status).toEqual(200);
       expect(response.text).toMatch('<meta name="x-user-identity-origin" content="uaa" />');
@@ -255,20 +329,19 @@ describe('app test suite', () => {
       exp: (time - (24 * 60 * 60)),
     }, tokenKey);
 
-    // Capture the request to the given URL and prepare a response.
-    nock('https://example.com/uaa')
-      .post('/oauth/token')
-      .times(1)
-      .reply(200, {
-        access_token: token, // eslint-disable-line camelcase
-        token_type: 'bearer', // eslint-disable-line camelcase
-        refresh_token: '__refresh_token__', // eslint-disable-line camelcase
-        expires_in: (24 * 60 * 60), // eslint-disable-line camelcase
-        scope: 'openid oauth.approvals',
-        jti: '__jti__',
-      });
-
     it('should authenticate successfully', async () => {
+      nockUAA
+        .post('/oauth/token')
+        .reply(200, {
+          access_token: token, // eslint-disable-line camelcase
+          token_type: 'bearer', // eslint-disable-line camelcase
+          refresh_token: '__refresh_token__', // eslint-disable-line camelcase
+          expires_in: (24 * 60 * 60), // eslint-disable-line camelcase
+          scope: 'openid oauth.approvals',
+          jti: '__jti__',
+        })
+      ;
+
       const response = await agent.get('/auth/login/callback?code=__fakecode__&state=__fakestate__');
 
       expect(response.status).toEqual(302);

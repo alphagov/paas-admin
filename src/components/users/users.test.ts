@@ -42,42 +42,51 @@ const nonAdminCtx: IContext = createTestContext({
 });
 
 describe('users test suite', () => {
-  // tslint:disable:max-line-length
-  const nockAccounts = nock(ctx.app.accountsAPI).persist();
-  const nockCF = nock(ctx.app.cloudFoundryAPI).persist();
-  const nockUAA = nock(ctx.app.uaaAPI).persist();
+  let nockAccounts: nock.Scope;
+  let nockCF: nock.Scope;
+  let nockUAA: nock.Scope;
 
-  nockAccounts
-    .get('/users?email=one@user.in.database').reply(200, `{
-      "users": [{
-        "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-        "user_email": "one@user.in.database",
-        "username": "one@user.in.database"
-      }]
-    }`)
-    .get('/users?email=no@user.in.database').reply(200, `{"users": []}`)
-    .get('/user/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee').reply(200, `{
-      "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-      "user_email": "one@user.in.database",
-      "username": "one@user.in.database"
-    }`)
-    .get('/user/aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee').reply(404);
+  beforeEach(() => {
+    nock.cleanAll();
 
-  nockCF
-    .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary').reply(200, userSummary);
+    nockAccounts = nock(ctx.app.accountsAPI);
+    nockCF = nock(ctx.app.cloudFoundryAPI);
+    nockUAA = nock(ctx.app.uaaAPI);
+  });
 
-  nockUAA
-    .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
-    .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee').reply(200, uaaData.user);
-  // tslint:enable:max-line-length
-
-  afterAll(() => {
+  afterEach(() => {
     nockAccounts.done();
     nockCF.done();
     nockUAA.done();
+
+    nock.cleanAll();
   });
 
   it('should show the users pages for a valid email', async () => {
+    nockAccounts
+      .get('/users?email=one@user.in.database')
+      .reply(200, `{
+        "users": [{
+          "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+          "user_email": "one@user.in.database",
+          "username": "one@user.in.database"
+        }]
+      }`)
+    ;
+
+    nockCF
+      .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary')
+      .reply(200, userSummary)
+    ;
+
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+      .reply(200, uaaData.user)
+    ;
+
     const response = await users.getUser(ctx, {
       emailOrUserGUID: 'one@user.in.database',
     });
@@ -94,6 +103,30 @@ describe('users test suite', () => {
   });
 
   it('should show the users pages for a valid email when global auditor', async () => {
+    nockAccounts
+      .get('/users?email=one@user.in.database')
+      .reply(200, `{
+        "users": [{
+          "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+          "user_email": "one@user.in.database",
+          "username": "one@user.in.database"
+        }]
+      }`)
+    ;
+
+    nockCF
+      .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary')
+      .reply(200, userSummary)
+    ;
+
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+      .reply(200, uaaData.user)
+    ;
+
     const rawGlobalAuditorAccessToken = {
       user_id: 'uaa-id-253',
       scope: [CLOUD_CONTROLLER_GLOBAL_AUDITOR],
@@ -113,6 +146,30 @@ describe('users test suite', () => {
   });
 
   it('should show the users pages for a valid email when read only admin', async () => {
+    nockAccounts
+      .get('/users?email=one@user.in.database')
+      .reply(200, `{
+        "users": [{
+          "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+          "user_email": "one@user.in.database",
+          "username": "one@user.in.database"
+        }]
+      }`)
+    ;
+
+    nockCF
+      .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary')
+      .reply(200, userSummary)
+    ;
+
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+      .reply(200, uaaData.user)
+    ;
+
     const rawReadOnlyAdminAccessToken = {
       user_id: 'uaa-id-253',
       scope: [CLOUD_CONTROLLER_READ_ONLY_ADMIN],
@@ -132,7 +189,6 @@ describe('users test suite', () => {
   });
 
   it('should return not found for the users pages when not admin', async () => {
-
     try {
       await users.getUser(nonAdminCtx, {
         emailOrUserGUID: 'one@user.in.database',
@@ -143,6 +199,11 @@ describe('users test suite', () => {
   });
 
   it('should show return an error for an invalid email', async () => {
+    nockAccounts
+      .get('/users?email=no@user.in.database')
+      .reply(200, `{"users": []}`)
+    ;
+
     try {
       await users.getUser(ctx, {
         emailOrUserGUID: 'no@user.in.database',
@@ -153,6 +214,30 @@ describe('users test suite', () => {
   });
 
   it('should show the users pages a valid guid', async () => {
+    nockAccounts
+      .get('/users?email=one@user.in.database')
+      .reply(200, `{
+        "users": [{
+          "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+          "user_email": "one@user.in.database",
+          "username": "one@user.in.database"
+        }]
+      }`)
+    ;
+
+    nockCF
+      .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary')
+      .reply(200, userSummary)
+    ;
+
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+      .reply(200, uaaData.user)
+    ;
+
     const response = await users.getUser(ctx, {
       emailOrUserGUID: 'one@user.in.database',
     });
@@ -169,6 +254,11 @@ describe('users test suite', () => {
   });
 
   it('should show return an error for an invalid guid', async () => {
+    nockAccounts
+      .get('/users/aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee')
+      .reply(404)
+    ;
+
     try {
       await users.getUser(ctx, {
         emailOrUserGUID: 'aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee',
@@ -189,6 +279,11 @@ describe('users test suite', () => {
   });
 
   it('should show return an error for an empty param', async () => {
+    nockAccounts
+      .get(`/users/${''}`)
+      .reply(404)
+    ;
+
     try {
       await users.getUser(ctx, {
         emailOrUserGUID: '',

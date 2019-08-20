@@ -219,6 +219,12 @@ async function hydrateAccountsUsernames(
 
   const users = await Promise.all(userRoles.map(async (user: IOrganizationUserRoles) => {
     const accountsUser = await accountsClient.getUser(user.metadata.guid);
+
+    const username: string = accountsUser && accountsUser.username
+      ? accountsUser.username
+      : user.entity.username
+    ;
+
     return {
       entity: {
         active: user.entity.active,
@@ -232,7 +238,7 @@ async function hydrateAccountsUsernames(
         organization_roles: user.entity.organization_roles,
         organizations_url: user.entity.organizations_url,
         spaces_url: user.entity.spaces_url,
-        username: accountsUser && accountsUser.username ? accountsUser.username : user.entity.username,
+        username,
       },
       metadata: user.metadata,
     };

@@ -23,22 +23,15 @@ describe('_getUserRolesByGuid', () => {
   let nockAccounts: nock.Scope;
 
   beforeEach(() => {
-    nockAccounts = nock(ctx.app.accountsAPI).persist();
+    nock.cleanAll();
 
-    nockAccounts
-      .get('/users/some-user-guid-0')
-      .reply(200, JSON.stringify({
-        user_uuid: 'some-user-guid-0',
-        user_email: 'some-user-guid-0@fake.digital.cabinet-office.gov.uk',
-        username: 'some-fake-username-from-paas-accounts',
-      }))
+    nockAccounts = nock(ctx.app.accountsAPI);
+  });
 
-      .get('/users/some-user-guid-1')
-      .reply(404)
+  afterEach(() => {
+    nockAccounts.done();
 
-      .get('/users/some-user-guid-2')
-      .reply(404)
-    ;
+    nock.cleanAll();
   });
 
   it('should return an empty map if there are no users', async () => {
@@ -56,6 +49,14 @@ describe('_getUserRolesByGuid', () => {
   });
 
   it('should return org roles of a user that has no space access', async () => {
+    nockAccounts
+      .get('/users/some-user-guid')
+      .reply(200, JSON.stringify({
+        user_uuid: 'some-user-guid',
+        user_email: 'some-user-guid@fake.digital.cabinet-office.gov.uk',
+        username: 'some-user-name',
+      }))
+    ;
     const userOrgRoles: any = [
       {
         metadata: {guid: 'some-user-guid'},
@@ -81,6 +82,14 @@ describe('_getUserRolesByGuid', () => {
   });
 
   it('should return roles and space of a user that has access to one space', async () => {
+    nockAccounts
+      .get('/users/some-user-guid')
+      .reply(200, JSON.stringify({
+        user_uuid: 'some-user-guid',
+        user_email: 'some-user-guid@fake.digital.cabinet-office.gov.uk',
+        username: 'some-user-name',
+      }))
+    ;
     const userOrgRoles: any = [
       {
         metadata: {guid: 'some-user-guid'},
@@ -113,6 +122,14 @@ describe('_getUserRolesByGuid', () => {
   });
 
   it('should return roles and spaces of a user that has access to multiple spaces', async () => {
+    nockAccounts
+      .get('/users/some-user-guid')
+      .reply(200, JSON.stringify({
+        user_uuid: 'some-user-guid',
+        user_email: 'some-user-guid@fake.digital.cabinet-office.gov.uk',
+        username: 'some-user-name',
+      }))
+    ;
     const userOrgRoles: any = [
       {
         metadata: {guid: 'some-user-guid'},
@@ -145,6 +162,20 @@ describe('_getUserRolesByGuid', () => {
   });
 
   it('should return users, roles and spaces of multiple users', async () => {
+    nockAccounts
+      .get('/users/some-user-guid-0')
+      .reply(200, JSON.stringify({
+        user_uuid: 'some-user-guid-0',
+        user_email: 'some-user-guid-0@fake.digital.cabinet-office.gov.uk',
+        username: 'some-fake-username-from-paas-accounts',
+      }))
+
+      .get('/users/some-user-guid-1')
+      .reply(404)
+
+      .get('/users/some-user-guid-2')
+      .reply(404)
+    ;
     const userOrgRoles: any = [0, 1, 2].map(i => (
       {
         metadata: {guid: `some-user-guid-${i}`},
@@ -188,6 +219,17 @@ describe('_getUserRolesByGuid', () => {
   });
 
   it('should get the user\'s username from accounts, falling back to UAA', async () => {
+    nockAccounts
+      .get('/users/some-user-guid-0')
+      .reply(200, JSON.stringify({
+        user_uuid: 'some-user-guid-0',
+        user_email: 'some-user-guid-0@fake.digital.cabinet-office.gov.uk',
+        username: 'some-fake-username-from-paas-accounts',
+      }))
+
+      .get('/users/some-user-guid-1')
+      .reply(404)
+    ;
     const userOrgRoles: any = [0, 1].map(i => (
       {
         metadata: {guid: `some-user-guid-${i}`},

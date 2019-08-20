@@ -41,15 +41,40 @@ const organizations = `{
     ${organizationTemplate('a-org-name-4', 'a7aff246-5f5b-4cf8-87d8-f316053e4a23')}
   ]
 }`;
-nock('https://example.com/api').get('/v2/organizations').times(2).reply(200, organizations);
 
 const ctx: IContext = createTestContext();
 
-nock(ctx.app.uaaAPI).persist()
-  .get(`/Users/uaa-user-123`).reply(200, uaaData.gdsUser)
-  .post('/oauth/token?grant_type=client_credentials').reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`);
-
 describe('organizations test suite', () => {
+  let nockCF: nock.Scope;
+  let nockUAA: nock.Scope;
+
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockCF = nock(ctx.app.cloudFoundryAPI);
+    nockUAA = nock(ctx.app.uaaAPI);
+
+    nockCF
+      .get('/v2/organizations')
+      .reply(200, organizations)
+    ;
+
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get(`/Users/uaa-user-123`)
+      .reply(200, uaaData.gdsUser)
+    ;
+  });
+
+  afterEach(() => {
+    nockCF.done();
+    nockUAA.done();
+
+    nock.cleanAll();
+  });
+
   it('should show the organisation pages', async () => {
     const response = await listOrganizations(ctx, {});
 
