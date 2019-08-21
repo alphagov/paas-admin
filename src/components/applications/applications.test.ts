@@ -3,7 +3,7 @@ import nock from 'nock';
 import {viewApplication} from '.';
 
 import * as data from '../../lib/cf/cf.test.data';
-import anApp from '../../lib/cf/test-data/app';
+import {anApp} from '../../lib/cf/test-data/app';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 

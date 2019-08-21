@@ -1,6 +1,6 @@
 import express from 'express';
 import * as testData from '../src/lib/cf/cf.test.data';
-import anApp from '../src/lib/cf/test-data/app';
+import {anApp} from '../src/lib/cf/test-data/app';
 import {IStubServerPorts} from './index';
 
 function mockCF(app: express.Application, config: IStubServerPorts): express.Application {

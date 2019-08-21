@@ -1,5 +1,20 @@
-export default function anApp(): AppBuilder {
+/* istanbul ignore next */
+export function anApp(): AppBuilder {
   return new AppBuilder();
+}
+
+/* istanbul ignore next */
+export function someApps(...apps: ReadonlyArray<string>) {
+  return `
+  {
+    "total_results": ${apps.length},
+    "total_pages": 1,
+    "prev_url": null,
+    "next_url": null,
+    "resources": [
+      ${apps.join(',')}
+    ]
+  }`;
 }
 
 class AppBuilder {

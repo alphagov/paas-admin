@@ -2,7 +2,7 @@ import nock from 'nock';
 import pino from 'pino';
 
 import * as data from './cf.test.data';
-import anApp from './test-data/app';
+import {anApp} from './test-data/app';
 
 import CloudFoundryClient from '.';
 
