@@ -32,7 +32,7 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
   app.get('/v2/quota_definitions'                    , (_, res) => res.send(testData.organizations));
   app.get('/v2/quota_definitions/:guid'              , (_, res) => res.send(testData.organizationQuota));
   app.get('/v2/organizations/:guid/spaces'           , (_, res) => res.send(testData.spaces));
-  app.get('/v2/spaces/:guid/apps'                    , (_, res) => res.send(testData.apps));
+  app.get('/v2/spaces/:guid/apps'                    , (_, res) => res.send(someApps(anApp().build())));
   app.get('/v2/apps/:guid'                           , (_, res) => res.send(anApp().build()));
   app.get('/v2/apps/:guid/summary'                   , (_, res) => res.send(testData.appSummary));
   app.get('/v2/spaces/:guid'                         , (_, res) => res.send(testData.space));

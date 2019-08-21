@@ -2,7 +2,7 @@ import nock from 'nock';
 import pino from 'pino';
 
 import * as data from './cf.test.data';
-import {anApp} from './test-data/app';
+import {anApp, someApps} from './test-data/app';
 
 import CloudFoundryClient from '.';
 
@@ -260,16 +260,20 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of apps', async () => {
+    const spaceGuid = 'be1f9c1d-e629-488e-a560-a35b545f0ad7';
+    const name = 'name-2131';
     nockCF
-      .get('/v2/spaces/be1f9c1d-e629-488e-a560-a35b545f0ad7/apps')
-      .reply(200, data.apps)
+      .get(`/v2/spaces/${spaceGuid}/apps`)
+      .reply(200, someApps(
+        anApp().withName(name).build(),
+      ))
     ;
 
     const client = new CloudFoundryClient(config);
-    const apps = await client.applications('be1f9c1d-e629-488e-a560-a35b545f0ad7');
+    const apps = await client.applications(spaceGuid);
 
     expect(apps.length > 0).toBeTruthy();
-    expect(apps[0].entity.name).toEqual('name-2131');
+    expect(apps[0].entity.name).toEqual(name);
   });
 
   it('should obtain particular app', async () => {

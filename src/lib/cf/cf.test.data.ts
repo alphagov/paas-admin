@@ -310,62 +310,6 @@ export const spaceQuota = `{
   }
 }`;
 
-export const apps = `{
-  "total_results": 1,
-  "total_pages": 1,
-  "prev_url": null,
-  "next_url": null,
-  "resources": [
-    {
-      "metadata": {
-        "guid": "efd23111-72d1-481e-8168-d5395e0ea5f0",
-        "url": "/v2/apps/efd23111-72d1-481e-8168-d5395e0ea5f0",
-        "created_at": "2016-06-08T16:41:41Z",
-        "updated_at": "2016-06-08T16:41:41Z"
-      },
-      "entity": {
-        "name": "name-2131",
-        "production": false,
-        "space_guid": "be1f9c1d-e629-488e-a560-a35b545f0ad7",
-        "stack_guid": "bb9ca94f-b456-4ebd-ab09-eb7987cce728",
-        "buildpack": null,
-        "detected_buildpack": null,
-        "environment_json": null,
-        "memory": 1024,
-        "instances": 1,
-        "disk_quota": 1024,
-        "state": "STOPPED",
-        "version": "43abf29f-1ad1-46d0-bf08-991946e218fa",
-        "command": null,
-        "console": false,
-        "debug": null,
-        "staging_task_id": null,
-        "package_state": "PENDING",
-        "health_check_type": "port",
-        "health_check_timeout": null,
-        "staging_failed_reason": null,
-        "staging_failed_description": null,
-        "diego": false,
-        "docker_image": null,
-        "docker_credentials": {
-          "username": null,
-          "password": null
-        },
-        "package_updated_at": "2016-06-08T16:41:41Z",
-        "detected_start_command": "",
-        "enable_ssh": true,
-        "ports": null,
-        "space_url": "/v2/spaces/be1f9c1d-e629-488e-a560-a35b545f0ad7",
-        "stack_url": "/v2/stacks/bb9ca94f-b456-4ebd-ab09-eb7987cce728",
-        "routes_url": "/v2/apps/efd23111-72d1-481e-8168-d5395e0ea5f0/routes",
-        "events_url": "/v2/apps/efd23111-72d1-481e-8168-d5395e0ea5f0/events",
-        "service_bindings_url": "/v2/apps/efd23111-72d1-481e-8168-d5395e0ea5f0/service_bindings",
-        "route_mappings_url": "/v2/apps/efd23111-72d1-481e-8168-d5395e0ea5f0/route_mappings"
-      }
-    }
-  ]
-}`;
-
 export const appSummary = `{
   "guid": "cd897c8c-3171-456d-b5d7-3c87feeabbd1",
   "name": "name-79",
