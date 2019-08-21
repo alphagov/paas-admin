@@ -19,11 +19,16 @@ export async function viewAppMetrics(
   ;
   let historicTime: Date = moment
     .tz('Europe/London')
-    .subtract(3, 'hours')
+    .subtract(1, 'hours')
     .toDate()
   ;
 
   const datetimeLocalFmt = 'YYYY-MM-DDTHH:mm';
+
+  let open: boolean = false;
+  if (typeof params.open !== 'undefined') {
+    open = params.open === 'false' ? false : true;
+  }
 
   if (typeof params['nice-offset'] !== 'undefined') {
     const niceOffset = timeOffsets[params['nice-offset']];
@@ -51,6 +56,7 @@ export async function viewAppMetrics(
             .tz(instantTime, 'Europe/London')
             .format(datetimeLocalFmt)
           ,
+          'open': open,
         },
       ),
     };
@@ -92,6 +98,8 @@ export async function viewAppMetrics(
         instantTime: moment.tz(instantTime, 'Europe/London').format(datetimeLocalFmt),
         historicTime: moment.tz(historicTime, 'Europe/London').format(datetimeLocalFmt),
       },
+
+      open,
     }),
   };
 }

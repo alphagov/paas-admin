@@ -1,12 +1,16 @@
 <p class="govuk-body">
   This is showing the
-  X minutes between
-  Start Date / Time
+  {{ times.historicTime | nicetimedelta(times.instantTime) }}
+  {{ times.historicTime | timedeltaunits(times.instantTime) }}
+  between
+  {{ times.historicTime | nicetime }}
+  {{ times.historicTime | nicedate }}
   and
-  End Date / Time.
+  {{ times.instantTime | nicetime }}
+  {{ times.instantTime| nicedate }}.
 </p>
 
-<details class="govuk-details">
+<details class="govuk-details" {% if open %}open{% endif %}>
   <summary class="govuk-details__summary">
     <span class="govuk-details__summary-text">
       Pick time ranges

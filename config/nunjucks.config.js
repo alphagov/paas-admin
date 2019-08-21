@@ -1,7 +1,13 @@
-const fs = require('fs');
 const jmespath = require('jmespath');
 const showdown = require('showdown');
-const moment = require('moment');
+const moment = require('moment-timezone');
+
+const differenceInMinutes = require('date-fns/differenceInMinutes')
+const differenceInHours = require('date-fns/differenceInHours')
+const differenceInDays = require('date-fns/differenceInDays')
+
+const datetimeLocalFmt = 'YYYY-MM-DDTHH:mm';
+const timezone = 'Europe/London';
 
 function configure(env) {
   env.addFilter('query', (data, query) => {
@@ -43,6 +49,53 @@ function configure(env) {
 
   env.addFilter('nicedate', (date) => {
     return moment(date).format('MMMM Do YYYY');
+  });
+
+  env.addFilter('nicetime', (date) => {
+    return moment(date).format('HH:mm');
+  });
+
+  env.addFilter('nicetimeseconds', (date) => {
+    return moment(date).format('HH:mm:ss');
+  });
+
+  env.addFilter('nicetimedelta', (historicTime, instantTime) => {
+    const oneHour = 60 * 60 * 1000;
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    const earlier = moment.tz(historicTime, datetimeLocalFmt, timezone).toDate();
+    const later = moment.tz(instantTime, datetimeLocalFmt, timezone).toDate();
+
+    const diffMillis = moment(later).diff(earlier);
+
+    if (diffMillis < oneHour) {
+      return differenceInMinutes(later, earlier);
+    } else if (diffMillis < oneDay) {
+      return differenceInHours(later, earlier);
+    } else {
+      return differenceInDays(later, earlier);
+    }
+  });
+
+  env.addFilter('timedeltaunits', (historicTime, instantTime) => {
+    const oneHour = 60 * 60 * 1000;
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    const earlier = moment.tz(historicTime, datetimeLocalFmt, timezone).toDate();
+    const later = moment.tz(instantTime, datetimeLocalFmt, timezone).toDate();
+
+    const diffMillis = moment(later).diff(earlier);
+
+    if (diffMillis < oneHour) {
+      const minutes = differenceInMinutes(later, earlier);
+      return minutes.toFixed(0) === '1' ? 'minute' : 'minutes';
+    } else if (diffMillis < oneDay) {
+      const hours = differenceInHours(later, earlier);
+      return hours.toFixed(0) === '1' ? 'hour' : 'hours';
+    } else {
+      const days = differenceInDays(later, earlier);
+      return days.toFixed(0) === '1' ? 'day' : 'days';
+    }
   });
 
   env.addFilter('relativetime', (date) => {

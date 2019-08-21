@@ -27,6 +27,11 @@ export async function viewServiceMetrics(
 
   const datetimeLocalFmt = 'YYYY-MM-DDTHH:mm';
 
+  let open: boolean = false;
+  if (typeof params.open !== 'undefined') {
+    open = params.open === 'false' ? false : true;
+  }
+
   if (typeof params['nice-offset'] !== 'undefined') {
     const niceOffset = timeOffsets[params['nice-offset']];
 
@@ -54,6 +59,7 @@ export async function viewServiceMetrics(
             .tz(instantTime, 'Europe/London')
             .format(datetimeLocalFmt)
           ,
+          'open': open,
         },
       ),
     };
@@ -113,6 +119,8 @@ export async function viewServiceMetrics(
         instantTime: moment.tz(instantTime, 'Europe/London').format(datetimeLocalFmt),
         historicTime: moment.tz(historicTime, 'Europe/London').format(datetimeLocalFmt),
       },
+
+      open,
     }),
   };
 }
