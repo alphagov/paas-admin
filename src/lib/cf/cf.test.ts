@@ -162,27 +162,27 @@ describe('lib/cf test suite', () => {
   it('should list all quota definitions', async () => {
     nockCF
       .get('/v2/quota_definitions')
-      .reply(200, data.organizations)
+      .reply(200, data.organizationQuotas)
     ;
 
     const client = new CloudFoundryClient(config);
     const quotas = await client.quotaDefinitions();
 
     expect(quotas.length).toBe(1);
-    expect(quotas[0].entity.name).toEqual('the-system_domain-org-name');
+    expect(quotas[0].entity.name).toEqual('name-1996');
   });
 
   it('should filter quota definitions', async () => {
     nockCF
-      .get('/v2/quota_definitions?q=name:the-system_domain-org-name')
-      .reply(200, data.organizations)
+      .get('/v2/quota_definitions?q=name:name-1996')
+      .reply(200, data.organizationQuotas)
     ;
 
     const client = new CloudFoundryClient(config);
-    const quotas = await client.quotaDefinitions({name: 'the-system_domain-org-name'});
+    const quotas = await client.quotaDefinitions({name: 'name-1996'});
 
     expect(quotas.length).toBe(1);
-    expect(quotas[0].entity.name).toEqual('the-system_domain-org-name');
+    expect(quotas[0].entity.name).toEqual('name-1996');
   });
 
   it('should obtain organisation quota', async () => {
