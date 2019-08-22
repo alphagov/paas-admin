@@ -4,6 +4,7 @@ import nock from 'nock';
 import * as orgUsers from '.';
 
 import * as cfData from '../../lib/cf/cf.test.data';
+import {anOrg} from '../../lib/cf/test-data/org';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
@@ -58,7 +59,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
@@ -119,7 +120,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await orgUsers.inviteUserForm(ctx, {
@@ -139,7 +140,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await orgUsers.inviteUser(ctx, {
@@ -160,7 +161,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await orgUsers.inviteUser(ctx, {
@@ -189,7 +190,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await orgUsers.inviteUser(ctx, {
@@ -220,7 +221,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await orgUsers.inviteUser(ctx, {
@@ -243,7 +244,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
@@ -302,7 +303,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
@@ -359,7 +360,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
@@ -414,7 +415,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
@@ -469,7 +470,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
@@ -524,7 +525,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
@@ -580,7 +581,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
@@ -626,7 +627,7 @@ describe('org-users test suite', () => {
   it('should fail if the user does not exist in org', async () => {
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(2)
@@ -662,7 +663,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
     // tslint:enable:max-line-length
 
@@ -681,7 +682,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await orgUsers.confirmDeletion(ctx, {
@@ -696,7 +697,7 @@ describe('org-users test suite', () => {
     // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
       .reply(200, {})
@@ -742,7 +743,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(4)
@@ -768,7 +769,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     await expect(orgUsers.editUser(ctx, {
@@ -796,7 +797,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(4)
@@ -815,7 +816,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
@@ -835,7 +836,7 @@ describe('org-users test suite', () => {
     // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
@@ -882,7 +883,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/uaa-user-changeperms-123456?recursive=true')
       .reply(200, `{}`)
@@ -918,7 +919,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-edit-123456?recursive=true')
       .reply(200, `{}`)
@@ -956,7 +957,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-changeperms-123456?recursive=true')
       .reply(200, `{}`)
@@ -996,7 +997,7 @@ describe('org-users test suite', () => {
       .reply(200, cfData.spaces)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/uaa-user-edit-123456?recursive=true')
       .reply(200, `{}`)
@@ -1026,7 +1027,7 @@ describe('org-users test suite', () => {
     // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
@@ -1063,7 +1064,7 @@ describe('org-users test suite', () => {
   it('should update the user, set SpaceManager role and show success - User Edit', async () => {
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
@@ -1100,7 +1101,7 @@ describe('org-users test suite', () => {
   it('should update the user, set SpaceDeveloper role and show success - User Edit', async () => {
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
@@ -1137,7 +1138,7 @@ describe('org-users test suite', () => {
   it('should update the user, set SpaceAuditor role and show success - User Edit', async () => {
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, cfData.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)

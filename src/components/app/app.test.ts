@@ -3,7 +3,7 @@ import moment from 'moment';
 import nock from 'nock';
 import request, {SuperTest, Test} from 'supertest';
 
-import { organizations } from '../../lib/cf/cf.test.data';
+import {anOrg, someOrgs} from '../../lib/cf/test-data/org';
 import Router, { IParameters } from '../../lib/router';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 
@@ -188,7 +188,7 @@ describe('app test suite', () => {
 
         nockCF
           .get('/v2/organizations')
-          .reply(200, organizations)
+          .reply(200, someOrgs(anOrg().with({})))
         ;
 
         nockUAA
@@ -298,7 +298,8 @@ describe('app test suite', () => {
 
       nockCF
         .get('/v2/organizations')
-        .reply(200, organizations);
+        .reply(200, someOrgs(anOrg().with({})))
+      ;
 
       nockUAA
         .get('/token_keys')

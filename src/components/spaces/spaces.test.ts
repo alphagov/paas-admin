@@ -4,6 +4,7 @@ import * as spaces from '.';
 
 import * as data from '../../lib/cf/cf.test.data';
 import {anApp, someApps} from '../../lib/cf/test-data/app';
+import {anOrg} from '../../lib/cf/test-data/org';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 
@@ -22,7 +23,7 @@ describe('spaces test suite', () => {
 
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, data.organization)
+      .reply(200, anOrg().with({}))
     ;
   });
 

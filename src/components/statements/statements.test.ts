@@ -6,6 +6,7 @@ import * as statement from '.';
 
 import * as billingData from '../../lib/billing/billing.test.data';
 import * as data from '../../lib/cf/cf.test.data';
+import {anOrg} from '../../lib/cf/test-data/org';
 import {createTestContext} from '../app/app.test-helpers';
 
 import {config} from '../app/app.test.config';
@@ -82,7 +83,7 @@ describe('statements test suite', () => {
       .reply(200, data.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, data.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await statement.viewStatement(ctx, {
@@ -110,7 +111,7 @@ describe('statements test suite', () => {
       .reply(200, data.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, data.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await statement.downloadCSV(ctx, {
@@ -139,7 +140,7 @@ describe('statements test suite', () => {
       .reply(200, data.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, data.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await statement.viewStatement(ctx, {
@@ -170,7 +171,7 @@ describe('statements test suite', () => {
       .reply(200, data.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, data.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await statement.viewStatement(ctx, {
@@ -208,7 +209,7 @@ describe('statements test suite', () => {
       .reply(200, data.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, data.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await statement.viewStatement(ctx, {
@@ -238,7 +239,7 @@ describe('statements test suite', () => {
       .reply(200, data.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, data.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
 
     const response = await statement.viewStatement(ctx, {
@@ -359,7 +360,7 @@ describe('statements test suite', () => {
       .reply(200, data.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, data.organization)
+      .reply(200, JSON.stringify(anOrg().with({})))
     ;
     await expect(statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
