@@ -21,7 +21,7 @@ export async function viewServiceMetrics(
   let historicTime: Date = moment
     .tz('Europe/London')
     .subtract(3, 'minutes') // RDS metrics take time to percolate
-    .subtract(3, 'hours')
+    .subtract(1, 'hours')
     .toDate()
   ;
 
