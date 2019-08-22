@@ -2,6 +2,7 @@ import nock from 'nock';
 import pino from 'pino';
 
 import * as data from './cf.test.data';
+import {anApp, someApps} from './test-data/app';
 
 import CloudFoundryClient from '.';
 
@@ -259,28 +260,34 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of apps', async () => {
+    const spaceGuid = 'be1f9c1d-e629-488e-a560-a35b545f0ad7';
+    const name = 'name-2131';
     nockCF
-      .get('/v2/spaces/be1f9c1d-e629-488e-a560-a35b545f0ad7/apps')
-      .reply(200, data.apps)
+      .get(`/v2/spaces/${spaceGuid}/apps`)
+      .reply(200, someApps(
+        anApp().withName(name).build(),
+      ))
     ;
 
     const client = new CloudFoundryClient(config);
-    const apps = await client.applications('be1f9c1d-e629-488e-a560-a35b545f0ad7');
+    const apps = await client.applications(spaceGuid);
 
     expect(apps.length > 0).toBeTruthy();
-    expect(apps[0].entity.name).toEqual('name-2131');
+    expect(apps[0].entity.name).toEqual(name);
   });
 
   it('should obtain particular app', async () => {
+    const guid = '15b3885d-0351-4b9b-8697-86641668c123';
+    const name = 'particular-app';
     nockCF
-      .get('/v2/apps/15b3885d-0351-4b9b-8697-86641668c123')
-      .reply(200, data.app)
+      .get(`/v2/apps/${guid}`)
+      .reply(200, anApp().withName(name).withGuid(guid).build())
     ;
 
     const client = new CloudFoundryClient(config);
-    const app = await client.application('15b3885d-0351-4b9b-8697-86641668c123');
+    const app = await client.application(guid);
 
-    expect(app.entity.name).toEqual('name-2401');
+    expect(app.entity.name).toEqual(name);
   });
 
   it('should obtain app summary', async () => {
