@@ -1,6 +1,8 @@
 import express from 'express';
+
 import * as testData from '../src/lib/cf/cf.test.data';
-import {anApp} from '../src/lib/cf/test-data/app';
+import {anApp, someApps} from '../src/lib/cf/test-data/app';
+import {anOrg, someOrgs} from '../src/lib/cf/test-data/org';
 import {IStubServerPorts} from './index';
 
 function mockCF(app: express.Application, config: IStubServerPorts): express.Application {
@@ -25,13 +27,16 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
     user: "default-stub-api-user"
   });
 
-  app.get('/v2/info'                                 , (_, res) => res.send(info));
-  app.get('/v2/organizations'                        , (_, res) => res.send(testData.organizations));
-  app.get('/v2/organizations/:guid'                  , (_, res) => res.send(testData.organization));
-  app.get('/v2/quota_definitions'                    , (_, res) => res.send(testData.organizations));
-  app.get('/v2/quota_definitions'                    , (_, res) => res.send(testData.organizations));
+  app.get('/v2/info', (_, res) => res.send(info));
+
+  app.get('/v2/organizations',             (_, res) => res.send(someOrgs(anOrg().with({entity: {name: 'an-org'}}))));
+  app.get('/v2/organizations/:guid',       (_, res) => res.send(JSON.stringify(anOrg().with({}))));
+  app.get('/v2/organizations/:guid/spaces' , (_, res) => res.send(testData.spaces));
+
+  app.get('/v2/quota_definitions'                    , (_, res) => res.send(testData.organizationQuotas));
+  app.get('/v2/quota_definitions'                    , (_, res) => res.send(testData.organizationQuota));
+
   app.get('/v2/quota_definitions/:guid'              , (_, res) => res.send(testData.organizationQuota));
-  app.get('/v2/organizations/:guid/spaces'           , (_, res) => res.send(testData.spaces));
   app.get('/v2/spaces/:guid/apps'                    , (_, res) => res.send(someApps(anApp().build())));
   app.get('/v2/apps/:guid'                           , (_, res) => res.send(anApp().build()));
   app.get('/v2/apps/:guid/summary'                   , (_, res) => res.send(testData.appSummary));
@@ -52,6 +57,6 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
   app.get('/v2/stacks/:guid'                         , (_, res) => res.send(testData.stack));
 
   return app;
-};
+}
 
 export default mockCF;
