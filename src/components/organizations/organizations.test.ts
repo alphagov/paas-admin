@@ -1,17 +1,19 @@
+import lodash from 'lodash';
 import nock from 'nock';
 
 import {listOrganizations} from '.';
-import {anOrg, someOrgs} from '../../lib/cf/test-data/org';
+import {org as defaultOrg} from '../../lib/cf/test-data/org';
+import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 
-const organizations = someOrgs(
-  anOrg().with({entity: {name: 'c-org-name-1'}, metadata: {guid: 'a5aff246-5f5b-4cf8-87d8-f316053e4a20'}}),
-  anOrg().with({entity: {name: 'd-org-name-2'}, metadata: {guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a21'}}),
-  anOrg().with({entity: {name: 'b-org-name-3'}, metadata: {guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a22'}}),
-  anOrg().with({entity: {name: 'a-org-name-4'}, metadata: {guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a23'}}),
-);
+const organizations = JSON.stringify(wrapResources(
+  lodash.merge(defaultOrg(), {entity: {name: 'c-org-name-1'}}),
+  lodash.merge(defaultOrg(), {entity: {name: 'd-org-name-2'}}),
+  lodash.merge(defaultOrg(), {entity: {name: 'b-org-name-3'}}),
+  lodash.merge(defaultOrg(), {entity: {name: 'a-org-name-4'}}),
+));
 
 const ctx: IContext = createTestContext();
 

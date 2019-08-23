@@ -4,7 +4,7 @@ import {viewApplication} from '.';
 
 import * as data from '../../lib/cf/cf.test.data';
 import {anApp} from '../../lib/cf/test-data/app';
-import {anOrg} from '../../lib/cf/test-data/org';
+import {org as defaultOrg} from '../../lib/cf/test-data/org';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 
@@ -23,7 +23,7 @@ describe('applications test suite', () => {
       .reply(200, data.userRolesForOrg)
 
       .get('/v2/organizations/6e1ca5aa-55f1-4110-a97f-1f3473e771b9')
-      .reply(200, anOrg().with({}))
+      .reply(200, defaultOrg())
     ;
   });
 

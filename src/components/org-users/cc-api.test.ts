@@ -4,7 +4,7 @@ import nock from 'nock';
 import * as orgUsers from '.';
 
 import * as cfData from '../../lib/cf/cf.test.data';
-import {anOrg} from '../../lib/cf/test-data/org';
+import {org as defaultOrg} from '../../lib/cf/test-data/org';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 import {Token} from '../auth';
@@ -43,7 +43,7 @@ describe('permissions calling cc api', () => {
       .reply(200, cfData.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, anOrg().with({}))
+      .reply(200, defaultOrg())
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .times(2)
@@ -89,7 +89,7 @@ describe('permissions calling cc api', () => {
       .reply(200, cfData.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, anOrg().with({}))
+      .reply(200, defaultOrg())
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .times(2)
@@ -130,7 +130,7 @@ describe('permissions calling cc api', () => {
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
       .times(1)
-      .reply(200, anOrg().with({}))
+      .reply(200, defaultOrg())
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .times(2)

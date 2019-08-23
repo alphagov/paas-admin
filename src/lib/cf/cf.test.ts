@@ -3,7 +3,8 @@ import pino from 'pino';
 
 import * as data from './cf.test.data';
 import {anApp, someApps} from './test-data/app';
-import {anOrg, someOrgs} from './test-data/org';
+import {org as defaultOrg} from './test-data/org';
+import {wrapResources} from './test-data/wrap-resources';
 
 import CloudFoundryClient from '.';
 
@@ -110,7 +111,7 @@ describe('lib/cf test suite', () => {
   it('should create an organisation', async () => {
     nockCF
       .post('/v2/organizations')
-      .reply(201, JSON.stringify(anOrg().with({})))
+      .reply(201, JSON.stringify(defaultOrg()))
     ;
 
     const client = new CloudFoundryClient(config);
@@ -124,7 +125,7 @@ describe('lib/cf test suite', () => {
   it('should obtain list of organisations', async () => {
     nockCF
       .get('/v2/organizations')
-      .reply(200, someOrgs(anOrg().with({})))
+      .reply(200, JSON.stringify(wrapResources(defaultOrg())))
     ;
 
     const client = new CloudFoundryClient(config);
@@ -137,7 +138,7 @@ describe('lib/cf test suite', () => {
   it('should obtain single organisation', async () => {
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
-      .reply(200, JSON.stringify(anOrg().with({})))
+      .reply(200, JSON.stringify(defaultOrg()))
     ;
 
     const client = new CloudFoundryClient(config);
