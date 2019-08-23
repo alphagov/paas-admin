@@ -1,3 +1,8 @@
+window.disableMetricsFilterButton = function () {
+  document.querySelector('#filter-metrics').disabled = true;
+  return true;
+};
+
 (function() {
   var dataPath = window.location.pathname + '.json';
 

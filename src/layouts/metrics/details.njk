@@ -10,26 +10,21 @@
   {{ times.instantTime| nicedate }}.
 </p>
 
-<details class="govuk-details">
+<details class="govuk-details" {% if open %} open {% endif %}>
   <summary class="govuk-details__summary">
     <span class="govuk-details__summary-text">
-      Quick time ranges
+      Choose a time range
     </span>
   </summary>
 
   <div class="govuk-details__text">
-    {% include "./offsets.njk" %}
-  </div>
-</details>
-
-<details class="govuk-details">
-  <summary class="govuk-details__summary">
-    <span class="govuk-details__summary-text">
-      Custom time range
-    </span>
-  </summary>
-
-  <div class="govuk-details__text">
-    {% include "./filters.njk" %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-half">
+        {% include "./offsets.njk" %}
+      </div>
+      <div class="govuk-grid-column-one-half">
+        {% include "./filters.njk" %}
+      </div>
+    </div>
   </div>
 </details>

@@ -1,7 +1,9 @@
 <ul class="govuk-list">
   {% for offset, _ in timeOffsets %}
     <li>
-      <a href="?nice-offset={{ offset }}&open=true" class="govuk-list">
+      <a href="?nice-offset={{ offset }}&open=true"
+         class="govuk-list"
+         onclick="disableMetricsFilterButton()">
         {{ offset | replace("-", " ") | capitalize }}
       </a>
     </li>
