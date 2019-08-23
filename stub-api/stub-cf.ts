@@ -2,7 +2,7 @@ import express from 'express';
 import lodash from 'lodash';
 
 import * as testData from '../src/lib/cf/cf.test.data';
-import {anApp, someApps} from '../src/lib/cf/test-data/app';
+import {app as defaultApp} from '../src/lib/cf/test-data/app';
 import {org as defaultOrg} from '../src/lib/cf/test-data/org';
 import {wrapResources} from '../src/lib/cf/test-data/wrap-resources';
 import {IStubServerPorts} from './index';
@@ -41,10 +41,11 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
 
   app.get('/v2/quota_definitions'                    , (_, res) => res.send(testData.organizationQuotas));
   app.get('/v2/quota_definitions'                    , (_, res) => res.send(testData.organizationQuota));
-
   app.get('/v2/quota_definitions/:guid'              , (_, res) => res.send(testData.organizationQuota));
-  app.get('/v2/spaces/:guid/apps'                    , (_, res) => res.send(someApps(anApp().build())));
-  app.get('/v2/apps/:guid'                           , (_, res) => res.send(anApp().build()));
+
+  app.get('/v2/spaces/:guid/apps', (_, res) => res.send(JSON.stringify(wrapResources(defaultApp()))));
+  app.get('/v2/apps/:guid',        (_, res) => res.send(JSON.stringify(defaultApp())));
+
   app.get('/v2/apps/:guid/summary'                   , (_, res) => res.send(testData.appSummary));
   app.get('/v2/spaces/:guid'                         , (_, res) => res.send(testData.space));
   app.get('/v2/spaces/:guid/summary'                 , (_, res) => res.send(testData.spaceSummary));
