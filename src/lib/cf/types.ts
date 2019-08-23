@@ -387,7 +387,9 @@ export interface IHasMetadataV3 {
 }
 
 export interface ISingularRelationshipV3 {
-  readonly data: string;
+  readonly data: {
+    readonly guid: string;
+  };
 }
 
 export type IPluralRelationshipV3 = ReadonlyArray<ISingularRelationshipV3>;
