@@ -9,8 +9,10 @@ import {wrapResources} from './test-data/wrap-resources';
 
 import CloudFoundryClient from '.';
 
+const endpoint = 'https://example.com/api';
+
 const config = {
-  apiEndpoint: 'https://example.com/api',
+  apiEndpoint: endpoint,
   accessToken: 'qwerty123456',
   logger: pino({level: 'silent'}),
 };
@@ -582,5 +584,28 @@ describe('lib/cf test suite', () => {
     const cflinuxfs2StackGUID = await client.cflinuxfs2StackGUID();
 
     expect(cflinuxfs2StackGUID).toEqual(undefined);
+  });
+
+  it('should iterate over all pages to gather v3 resources', async () => {
+    nockCF
+      .get('/v3/test')
+
+      .reply(200, JSON.stringify({
+        resources: ['a'], pagination: {next: `${endpoint}/v3/test?page=2`},
+      }))
+
+      .get('/v3/test?page=2')
+      .reply(200, JSON.stringify({
+        resources: ['b'], pagination: {},
+      }))
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const response = await client.request('get', '/v3/test');
+    const collection = await client.allResourcesV3(response);
+
+    expect([...collection].length).toEqual(2);
+    expect(collection[0]).toEqual('a');
+    expect(collection[1]).toEqual('b');
   });
 });

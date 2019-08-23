@@ -96,6 +96,20 @@ export default class CloudFoundryClient {
     return [...data, ...newData];
   }
 
+  public async allResourcesV3(response: AxiosResponse): Promise<any> {
+    const resources = response.data.resources;
+    const next = response.data.pagination.next;
+
+    if (!next) {
+      return resources;
+    }
+
+    const newResponse = await this.request('get', next);
+    const nextResources = await this.allResourcesV3(newResponse);
+
+    return [...resources, ...nextResources];
+  }
+
   public async info(): Promise<cf.IInfo> {
     const response = await request(this.apiEndpoint, 'get', '/v2/info', this.logger);
     return response.data;
