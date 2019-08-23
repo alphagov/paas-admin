@@ -312,6 +312,16 @@ export default class CloudFoundryClient {
 
     return user.entity.organization_roles.includes(role);
   }
+
+  public async routes(): Promise<ReadonlyArray<cf.IRouteV3>> {
+    const response = await this.request('get', `/v3/routes`);
+    return this.allResourcesV3(response);
+  }
+
+  public async route(routeGUID: string): Promise<cf.IRouteV3> {
+    const response = await this.request('get', `/v3/routes/${routeGUID}`);
+    return response.data;
+  }
 }
 
 async function request(

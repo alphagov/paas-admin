@@ -411,3 +411,22 @@ export interface IPaginatedV3 {
     readonly resources: ReadonlyArray<IResourceV3>;
   };
 }
+
+export interface IRouteV3
+extends IResourceV3, IHasMetadataV3, IHasRelationshipsV3 {
+  readonly host: string;
+  readonly path: string;
+  readonly url: string;
+
+  readonly relationships: {
+    readonly space: ISingularRelationshipV3;
+    readonly domain: ISingularRelationshipV3;
+  };
+
+  readonly links: {
+    readonly self: ILinkV3;
+    readonly space: ILinkV3;
+    readonly domains: ILinkV3;
+    readonly destinations: ILinkV3;
+  };
+}

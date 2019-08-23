@@ -5,7 +5,9 @@ import pino from 'pino';
 import * as data from './cf.test.data';
 import {app as defaultApp} from './test-data/app';
 import {org as defaultOrg} from './test-data/org';
+import {route as defaultRoute, routeGUID as defaultRouteGUID, routeURL as defaultRouteURL} from './test-data/route-v3';
 import {wrapResources} from './test-data/wrap-resources';
+import {wrapResourcesV3} from './test-data/wrap-resources-v3';
 
 import CloudFoundryClient from '.';
 
@@ -607,5 +609,36 @@ describe('lib/cf test suite', () => {
     expect([...collection].length).toEqual(2);
     expect(collection[0]).toEqual('a');
     expect(collection[1]).toEqual('b');
+  });
+
+  it('should obtain list of routes from the V3 API', async () => {
+    nockCF
+      .get('/v3/routes')
+      .reply(200, JSON.stringify(
+        wrapResourcesV3(
+          defaultRoute(),
+          lodash.merge(defaultRoute(), {url: 'www.gov.uk'}),
+        ),
+      ))
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const routes = await client.routes();
+
+    expect(routes.length > 0).toBeTruthy();
+    expect(routes[0].url).toEqual(defaultRouteURL);
+    expect(routes[1].url).toEqual('www.gov.uk');
+  });
+
+  it('should obtain a route from the V3 API', async () => {
+    nockCF
+      .get(`/v3/routes/${defaultRouteGUID}`)
+      .reply(200, JSON.stringify(defaultRoute()))
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const route = await client.route(defaultRouteGUID);
+
+    expect(route.url).toEqual(defaultRouteURL);
   });
 });
