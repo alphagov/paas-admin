@@ -362,3 +362,52 @@ export interface IStack {
   };
   readonly metadata: IMetadata;
 }
+
+// V3
+
+export interface ILinkV3 {
+  readonly href: string;
+  readonly method?: string;
+}
+
+export interface IResourceV3 {
+  readonly guid: string;
+
+  readonly created_at: string;
+  readonly updated_at: string;
+
+  readonly links: {readonly [key: string]: ILinkV3};
+}
+
+export interface IHasMetadataV3 {
+  readonly metadata: {
+    readonly labels: { readonly [key: string]: string };
+    readonly annotations: { readonly [key: string]: string };
+  };
+}
+
+export interface ISingularRelationshipV3 {
+  readonly data: string;
+}
+
+export type IPluralRelationshipV3 = ReadonlyArray<ISingularRelationshipV3>;
+
+export type IRelationshipV3 = ISingularRelationshipV3 | IPluralRelationshipV3;
+
+export interface IHasRelationshipsV3 {
+  readonly relationships: {readonly [key: string]: IRelationshipV3};
+}
+
+export interface IPaginatedV3 {
+  readonly pagination: {
+    readonly total_results: number;
+    readonly total_pages: number;
+
+    readonly first: ILinkV3;
+    readonly last: ILinkV3;
+    readonly next?: ILinkV3;
+    readonly previous?: ILinkV3;
+
+    readonly resources: ReadonlyArray<IResourceV3>;
+  };
+}
