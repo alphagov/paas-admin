@@ -38,6 +38,11 @@ const router = new Router([
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications',
   },
   {
+    action: spaces.listRoutes,
+    name: 'admin.organizations.spaces.routes.list',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/routes',
+  },
+  {
     action: spaces.listBackingServices,
     name: 'admin.organizations.spaces.services.list',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services',

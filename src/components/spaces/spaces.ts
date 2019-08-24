@@ -1,3 +1,5 @@
+import lodash from 'lodash';
+
 import {AccountsClient} from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
 import {IApplication, IOrganizationUserRoles, IRoute, IServiceInstance, ISpace} from '../../lib/cf/types';
@@ -9,6 +11,7 @@ import {fromOrg, IBreadcrumb} from '../breadcrumbs';
 
 import spaceApplicationsTemplate from './applications.njk';
 import spaceBackingServicesTemplate from './backing-services.njk';
+import spaceRoutesTemplate from './routes.njk';
 import spacesTemplate from './spaces.njk';
 
 function buildURL(route: IRoute): string {
@@ -106,6 +109,48 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
       organization,
       space,
       breadcrumbs,
+    }),
+  };
+}
+
+export async function listRoutes(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+
+  const [routes, space, organization] = await Promise.all([
+    cf.routes(),
+    cf.space(params.spaceGUID),
+    cf.organization(params.organizationGUID),
+  ]);
+
+  const routesForSpace = routes.filter(
+    r => r.relationships.space.data.guid === params.spaceGUID,
+  );
+
+  // For each route, get all the apps, but maintain a mapping of route -> app
+  const appsByRoute: {readonly [key: string]: ReadonlyArray<IApplication>} = await Promise
+    .all(routesForSpace.map(
+      route => cf.routeDestinations(route.guid).then(async (destinations) => {
+        const apps = await Promise.all(destinations.map(d => cf.application(d.app.guid)));
+        return {apps, route};
+      }),
+    ))
+    .then(routesAndApps => lodash.keyBy(routesAndApps, raa => raa.route.guid))
+    .then(routesAndApps => lodash.mapValues(routesAndApps, raa => raa.apps))
+  ;
+
+  return {
+    body: spaceRoutesTemplate.render({
+      routePartOf: ctx.routePartOf,
+      linkTo: ctx.linkTo,
+      context: ctx.viewContext,
+      organization,
+      space,
+      routes: routesForSpace,
+      appsByRoute,
     }),
   };
 }
