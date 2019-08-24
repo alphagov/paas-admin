@@ -322,6 +322,11 @@ export default class CloudFoundryClient {
     const response = await this.request('get', `/v3/routes/${routeGUID}`);
     return response.data;
   }
+
+  public async routeDestinations(routeGUID: string): Promise<ReadonlyArray<cf.IRouteDestinationV3>> {
+    const response = await this.request('get', `/v3/routes/${routeGUID}/destinations`);
+    return response.data.destinations;
+  }
 }
 
 async function request(

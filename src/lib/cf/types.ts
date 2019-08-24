@@ -432,3 +432,26 @@ extends IResourceV3, IHasMetadataV3, IHasRelationshipsV3 {
     readonly destinations: ILinkV3;
   };
 }
+
+export interface IRouteDestinationV3 {
+  readonly guid: string;
+
+  readonly app: {
+    readonly guid: string;
+    readonly process: {
+      readonly type: string;
+    };
+  };
+
+  readonly weight?: number;
+  readonly port: number;
+}
+
+export interface IRouteDestinationsV3 {
+  readonly destinations: ReadonlyArray<IRouteDestinationV3>;
+
+  readonly links: {
+    readonly self: ILinkV3;
+    readonly route: ILinkV3;
+  };
+}

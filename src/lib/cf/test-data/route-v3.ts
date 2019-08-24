@@ -1,6 +1,6 @@
 import { IRouteV3 } from '../types';
 
-export const spaceGUID = '5489e195-c42b-4e61-bf30-323c331ecc01';
+export const spaceGUID = 'bc8d3381-390d-4bd7-8c71-25309900a2e3';
 export const domainGUID = '0b5f3633-194c-42d2-9408-972366617e0e';
 export const routeGUID = '15b3885d-0351-4b9b-8697-86641668c123';
 export const routeHost = 'a-hostname';

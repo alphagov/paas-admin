@@ -3,9 +3,13 @@ import nock from 'nock';
 import pino from 'pino';
 
 import * as data from './cf.test.data';
-import {app as defaultApp} from './test-data/app';
+
+import {app as defaultApp, appGUID as defaultAppGUID} from './test-data/app';
 import {org as defaultOrg} from './test-data/org';
+
+import {routeDestinations as defaultRouteDestinations} from './test-data/route-destinations-v3';
 import {route as defaultRoute, routeGUID as defaultRouteGUID, routeURL as defaultRouteURL} from './test-data/route-v3';
+
 import {wrapResources} from './test-data/wrap-resources';
 import {wrapResourcesV3} from './test-data/wrap-resources-v3';
 
@@ -625,7 +629,7 @@ describe('lib/cf test suite', () => {
     const client = new CloudFoundryClient(config);
     const routes = await client.routes();
 
-    expect(routes.length > 0).toBeTruthy();
+    expect(routes.length === 2).toBeTruthy();
     expect(routes[0].url).toEqual(defaultRouteURL);
     expect(routes[1].url).toEqual('www.gov.uk');
   });
@@ -640,5 +644,19 @@ describe('lib/cf test suite', () => {
     const route = await client.route(defaultRouteGUID);
 
     expect(route.url).toEqual(defaultRouteURL);
+  });
+
+  it('should obtain route destinations from the V3 API', async () => {
+    nockCF
+      .get(`/v3/routes/${defaultRouteGUID}/destinations`)
+      .reply(200, JSON.stringify(defaultRouteDestinations()))
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const destinations = await client.routeDestinations(defaultRouteGUID);
+
+    expect(destinations.length === 1).toBeTruthy();
+    expect(destinations[0].app.guid).toEqual(defaultAppGUID);
+    expect(destinations[0].app.process.type).toEqual('web');
   });
 });

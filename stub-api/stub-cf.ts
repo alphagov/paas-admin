@@ -2,9 +2,14 @@ import express from 'express';
 import lodash from 'lodash';
 
 import * as testData from '../src/lib/cf/cf.test.data';
+
 import {app as defaultApp} from '../src/lib/cf/test-data/app';
 import {org as defaultOrg} from '../src/lib/cf/test-data/org';
+import {routeDestinations as defaultRouteDestinations} from '../src/lib/cf/test-data/route-destinations-v3';
+import {route as defaultRoute} from '../src/lib/cf/test-data/route-v3';
+
 import {wrapResources} from '../src/lib/cf/test-data/wrap-resources';
+import {wrapResourcesV3} from '../src/lib/cf/test-data/wrap-resources-v3';
 import {IStubServerPorts} from './index';
 
 function mockCF(app: express.Application, config: IStubServerPorts): express.Application {
@@ -62,6 +67,12 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
   app.get('/v2/spaces/:guid/user_roles'              , (_, res) => res.send(testData.userRolesForSpace));
   app.get('/v2/stacks'                               , (_, res) => res.send(testData.stacks));
   app.get('/v2/stacks/:guid'                         , (_, res) => res.send(testData.stack));
+
+  // V3
+
+  app.get('/v3/routes',                   (_, res) => res.send(JSON.stringify(wrapResourcesV3(defaultRoute()))));
+  app.get('/v3/routes/:guid',              (_, res) => res.send(JSON.stringify(defaultRoute())));
+  app.get('/v3/routes/:guid/destinations', (_, res) => res.send(JSON.stringify(defaultRouteDestinations())));
 
   return app;
 }
