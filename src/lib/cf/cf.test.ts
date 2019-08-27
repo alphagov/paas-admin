@@ -1,8 +1,11 @@
+import lodash from 'lodash';
 import nock from 'nock';
 import pino from 'pino';
 
 import * as data from './cf.test.data';
-import {anApp, someApps} from './test-data/app';
+import {app as defaultApp} from './test-data/app';
+import {org as defaultOrg} from './test-data/org';
+import {wrapResources} from './test-data/wrap-resources';
 
 import CloudFoundryClient from '.';
 
@@ -109,7 +112,7 @@ describe('lib/cf test suite', () => {
   it('should create an organisation', async () => {
     nockCF
       .post('/v2/organizations')
-      .reply(201, data.organization)
+      .reply(201, JSON.stringify(defaultOrg()))
     ;
 
     const client = new CloudFoundryClient(config);
@@ -123,7 +126,7 @@ describe('lib/cf test suite', () => {
   it('should obtain list of organisations', async () => {
     nockCF
       .get('/v2/organizations')
-      .reply(200, data.organizations)
+      .reply(200, JSON.stringify(wrapResources(defaultOrg())))
     ;
 
     const client = new CloudFoundryClient(config);
@@ -136,7 +139,7 @@ describe('lib/cf test suite', () => {
   it('should obtain single organisation', async () => {
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
-      .reply(200, data.organization)
+      .reply(200, JSON.stringify(defaultOrg()))
     ;
 
     const client = new CloudFoundryClient(config);
@@ -162,27 +165,27 @@ describe('lib/cf test suite', () => {
   it('should list all quota definitions', async () => {
     nockCF
       .get('/v2/quota_definitions')
-      .reply(200, data.organizations)
+      .reply(200, data.organizationQuotas)
     ;
 
     const client = new CloudFoundryClient(config);
     const quotas = await client.quotaDefinitions();
 
     expect(quotas.length).toBe(1);
-    expect(quotas[0].entity.name).toEqual('the-system_domain-org-name');
+    expect(quotas[0].entity.name).toEqual('name-1996');
   });
 
   it('should filter quota definitions', async () => {
     nockCF
-      .get('/v2/quota_definitions?q=name:the-system_domain-org-name')
-      .reply(200, data.organizations)
+      .get('/v2/quota_definitions?q=name:name-1996')
+      .reply(200, data.organizationQuotas)
     ;
 
     const client = new CloudFoundryClient(config);
-    const quotas = await client.quotaDefinitions({name: 'the-system_domain-org-name'});
+    const quotas = await client.quotaDefinitions({name: 'name-1996'});
 
     expect(quotas.length).toBe(1);
-    expect(quotas[0].entity.name).toEqual('the-system_domain-org-name');
+    expect(quotas[0].entity.name).toEqual('name-1996');
   });
 
   it('should obtain organisation quota', async () => {
@@ -260,17 +263,15 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of apps', async () => {
-    const spaceGuid = 'be1f9c1d-e629-488e-a560-a35b545f0ad7';
+    const spaceGUID = 'be1f9c1d-e629-488e-a560-a35b545f0ad7';
     const name = 'name-2131';
     nockCF
-      .get(`/v2/spaces/${spaceGuid}/apps`)
-      .reply(200, someApps(
-        anApp().withName(name).build(),
-      ))
+      .get(`/v2/spaces/${spaceGUID}/apps`)
+      .reply(200, JSON.stringify(wrapResources(lodash.merge(defaultApp(), {entity: {name}}))))
     ;
 
     const client = new CloudFoundryClient(config);
-    const apps = await client.applications(spaceGuid);
+    const apps = await client.applications(spaceGUID);
 
     expect(apps.length > 0).toBeTruthy();
     expect(apps[0].entity.name).toEqual(name);
@@ -281,7 +282,7 @@ describe('lib/cf test suite', () => {
     const name = 'particular-app';
     nockCF
       .get(`/v2/apps/${guid}`)
-      .reply(200, anApp().withName(name).withGuid(guid).build())
+      .reply(200, JSON.stringify(lodash.merge(defaultApp(), {metadata: {guid}, entity: {name}})))
     ;
 
     const client = new CloudFoundryClient(config);

@@ -2,7 +2,8 @@ import moment from 'moment';
 import nock from 'nock';
 import {createTestContext} from '../app/app.test-helpers';
 
-import * as data from '../../lib/cf/cf.test.data';
+import {org as defaultOrg} from '../../lib/cf/test-data/org';
+import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
 
 import { config } from '../app/app.test.config';
 import { IContext } from '../app/context';
@@ -21,7 +22,8 @@ describe('html visualisation report test suite', () => {
   nock(config.cloudFoundryAPI)
     .get('/v2/organizations')
     .times(5)
-    .reply(200, data.organizations);
+    .reply(200, JSON.stringify(wrapResources(defaultOrg())))
+  ;
 
   const ctx: IContext = createTestContext();
 

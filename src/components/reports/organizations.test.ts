@@ -4,6 +4,8 @@ import moment from 'moment';
 import nock from 'nock';
 
 import * as cf from '../../lib/cf/cf.test.data';
+import {org as defaultOrg} from '../../lib/cf/test-data/org';
+import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
 import {testable as t, viewOrganizationsReport} from './organizations';
 
 import {createTestContext} from '../app/app.test-helpers';
@@ -50,16 +52,14 @@ describe('organisations report helpers', () => {
   });
 
   it('filterRealOrgs should filter out tests and admin', () => {
-    const baseOrg = cf.organization;
-
-    const anOrg = (name: string) => lodash.merge(
-      JSON.parse(baseOrg), { entity: { name } },
-    );
-
     const orgs = [
-        anOrg('govuk-doggos'), anOrg('admin'), anOrg('ACC-123'),
-        anOrg('BACC-123'), anOrg('CATS-123'), anOrg('department-for-coffee'),
-        anOrg('SMOKE-'),
+      lodash.merge(defaultOrg(), {entity: {name: 'govuk-doggos' }}),
+      lodash.merge(defaultOrg(), {entity: {name: 'admin' }}),
+      lodash.merge(defaultOrg(), {entity: {name: 'ACC-123' }}),
+      lodash.merge(defaultOrg(), {entity: {name: 'BACC-123' }}),
+      lodash.merge(defaultOrg(), {entity: {name: 'CATS-123' }}),
+      lodash.merge(defaultOrg(), {entity: {name: 'department-for-coffee' }}),
+      lodash.merge(defaultOrg(), {entity: {name: 'SMOKE-' }}),
     ];
 
     const filteredOrgs = t.filterRealOrgs(orgs);
@@ -70,23 +70,26 @@ describe('organisations report helpers', () => {
   });
 
   it('filterTrialOrgs should filter out billable orgs and sort asc', () => {
-    const baseOrg = cf.organization;
-
-    const anOrg = (name: string, quotaGUID: string, d: Date) => lodash.merge(
-      JSON.parse(baseOrg), {
-        entity: { name , quota_definition_guid: quotaGUID },
-        metadata: { created_at: d },
-      },
-    );
-
     const trialGUID = 'trial-guid';
     const paidGUID = 'expensive-guid';
 
     const orgs = [
-        anOrg('1-trial-org', trialGUID, moment().toDate()),
-        anOrg('1-paid-org', paidGUID, moment().toDate()),
-        anOrg('2-trial-org', trialGUID, moment().subtract(1, 'days').toDate()),
-        anOrg('2-paid-org', paidGUID, moment().subtract(1, 'days').toDate()),
+      lodash.merge(defaultOrg(), {
+        metadata: {created_at: moment().toDate()},
+        entity: {name: '1-trial-org', quota_definition_guid: trialGUID},
+      }),
+      lodash.merge(defaultOrg(), {
+        metadata: {created_at: moment().toDate()},
+        entity: {name: '1-paid-org', quota_definition_guid: paidGUID},
+      }),
+      lodash.merge(defaultOrg(), {
+        metadata: {created_at: moment().subtract(1, 'days').toDate()},
+        entity: {name: '2-trial-org', quota_definition_guid: trialGUID},
+      }),
+      lodash.merge(defaultOrg(), {
+        metadata: {created_at: moment().subtract(1, 'days').toDate()},
+        entity: {name: '2-paid-org', quota_definition_guid: paidGUID},
+      }),
     ];
 
     const trialOrgs = t.filterTrialOrgs(trialGUID, orgs);
@@ -96,24 +99,27 @@ describe('organisations report helpers', () => {
     expect(trialOrgs[1].entity.name).toEqual('1-trial-org');
   });
 
-  it('filterBillabeOrgs should filter out trial orgs and sort desc', () => {
-    const baseOrg = cf.organization;
-
-    const anOrg = (name: string, quotaGUID: string, d: Date) => lodash.merge(
-      JSON.parse(baseOrg), {
-        entity: { name , quota_definition_guid: quotaGUID },
-        metadata: { created_at: d },
-      },
-    );
-
+  it('filterBillableOrgs should filter out trial orgs and sort desc', () => {
     const trialGUID = 'trial-guid';
     const paidGUID = 'expensive-guid';
 
     const orgs = [
-        anOrg('1-trial-org', trialGUID, moment().toDate()),
-        anOrg('1-paid-org', paidGUID, moment().toDate()),
-        anOrg('2-trial-org', trialGUID, moment().subtract(1, 'days').toDate()),
-        anOrg('2-paid-org', paidGUID, moment().subtract(1, 'days').toDate()),
+      lodash.merge(defaultOrg(), {
+        metadata: {created_at: moment().toDate()},
+        entity: {quota_definition_guid: trialGUID, name: '1-trial-org'},
+      }),
+      lodash.merge(defaultOrg(), {
+        metadata: {created_at: moment().toDate()},
+        entity: {quota_definition_guid: paidGUID, name: '1-paid-org'},
+      }),
+      lodash.merge(defaultOrg(), {
+        metadata: {created_at: moment().subtract(1, 'days').toDate()},
+        entity: {quota_definition_guid: trialGUID, name: '2-trial-org'},
+      }),
+      lodash.merge(defaultOrg(), {
+        metadata: {created_at: moment().subtract(1, 'days').toDate()},
+        entity: {quota_definition_guid: paidGUID, name: '2-paid-org'},
+      }),
     ];
 
     const billableOrgs = t.filterBillableOrgs(trialGUID, orgs);
@@ -124,16 +130,7 @@ describe('organisations report helpers', () => {
   });
 
   it('should render the page correctly', async () => {
-    const baseOrg = cf.organization;
     const baseQuota = cf.organizationQuota;
-
-    const anOrg = (name: string, quotaGUID: string, d: Date) => lodash.merge(
-      JSON.parse(baseOrg), {
-        entity: { name , quota_definition_guid: quotaGUID },
-        metadata: { created_at: d, guid: name },
-      },
-    );
-
     const aQuota = (name: string, quotaGUID: string) => lodash.merge(
       JSON.parse(baseQuota), {
         entity: { name },
@@ -145,12 +142,24 @@ describe('organisations report helpers', () => {
     const cheapGUID = 'cheap-guid';
     const expensiveGUID = 'expensive-guid';
 
-    const orgs = lodash.merge(JSON.parse(cf.organizations), { resources: [
-      anOrg('current-trial-org', trialGUID, moment().toDate()),
-      anOrg('expiring-trial-org', trialGUID, moment().subtract(100, 'days').toDate()),
-      anOrg('cheap-org', cheapGUID, moment().subtract(365, 'days').toDate()),
-      anOrg('expensive-org', expensiveGUID, moment().subtract(730, 'days').toDate()),
-    ]});
+    const orgs = [
+      lodash.merge(defaultOrg(), {
+        metadata: {guid: 'current-trial-org', created_at: moment().toDate()},
+        entity: {quota_definition_guid: trialGUID, name: 'current-trial-org'},
+      }),
+      lodash.merge(defaultOrg(), {
+        metadata: {guid: 'expiring-trial-org', created_at: moment().subtract(100, 'days').toDate()},
+        entity: {quota_definition_guid: trialGUID, name: 'expiring-trial-org'},
+      }),
+      lodash.merge(defaultOrg(), {
+        metadata: {guid: 'cheap-org', created_at: moment().subtract(365, 'days').toDate()},
+        entity: {quota_definition_guid: cheapGUID, name: 'cheap-org'},
+      }),
+      lodash.merge(defaultOrg(), {
+        metadata: {guid: 'expensive-org', created_at: moment().subtract(730, 'days').toDate()},
+        entity: {quota_definition_guid: expensiveGUID, name: 'expensive-org'},
+      }),
+    ];
 
     nockCF
       .get(`/v2/quota_definitions?q=name:${trialGUID}`)
@@ -169,7 +178,7 @@ describe('organisations report helpers', () => {
       .reply(200, JSON.stringify(aQuota('Expensive', expensiveGUID)))
 
       .get('/v2/organizations')
-      .reply(200, JSON.stringify(orgs))
+      .reply(200, JSON.stringify(wrapResources(...orgs)))
     ;
 
     const response = await viewOrganizationsReport(ctx, {});

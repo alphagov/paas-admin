@@ -1,9 +1,12 @@
+import lodash from 'lodash';
 import nock from 'nock';
 
 import * as spaces from '.';
 
 import * as data from '../../lib/cf/cf.test.data';
-import {anApp, someApps} from '../../lib/cf/test-data/app';
+import {app as defaultApp} from '../../lib/cf/test-data/app';
+import {org as defaultOrg} from '../../lib/cf/test-data/org';
+import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 
@@ -22,7 +25,7 @@ describe('spaces test suite', () => {
 
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, data.organization)
+      .reply(200, defaultOrg())
     ;
   });
 
@@ -55,10 +58,10 @@ describe('spaces test suite', () => {
       .reply(200, data.spaceQuota)
 
       .get(`/v2/spaces/${spaceGuid}/apps`)
-      .reply(200, someApps(
-        anApp().withName('first-app').build(),
-        anApp().withName('second-app').build(),
-      ))
+      .reply(200, JSON.stringify(wrapResources(
+        lodash.merge(defaultApp(), {entity: {name: 'first-app'}}),
+        lodash.merge(defaultApp(), {entity: {name: 'second-app'}}),
+      )))
 
       .get('/v2/stacks')
       .reply(200, data.spaces)
@@ -67,9 +70,9 @@ describe('spaces test suite', () => {
       .reply(200, data.organizationQuota)
 
       .get(`/v2/spaces/${secondSpace}/apps`)
-      .reply(200, someApps(
-        anApp().withName('second-space-app').build(),
-      ))
+      .reply(200, JSON.stringify(wrapResources(
+        lodash.merge(defaultApp(), {entity: {name: 'second-space-app'}}),
+      )))
     ;
     const response = await spaces.listSpaces(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -93,9 +96,9 @@ describe('spaces test suite', () => {
       .reply(200, data.spaces)
 
       .get(`/v2/spaces/${spaceGuid}/apps`)
-      .reply(200, someApps(
-        anApp().withGuid(appGuid).withName(appName).build(),
-      ))
+      .reply(200, JSON.stringify(wrapResources(
+        lodash.merge(defaultApp(), {metadata: {guid: appGuid}, entity: {name: appName}}),
+      )))
 
       .get(`/v2/apps/${appGuid}/summary`)
       .reply(200, data.appSummary)

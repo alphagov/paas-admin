@@ -2,6 +2,8 @@ import moment from 'moment';
 import nock from 'nock';
 
 import * as data from '../../lib/cf/cf.test.data';
+import {org as defaultOrg} from '../../lib/cf/test-data/org';
+import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
 import {createTestContext} from '../app/app.test-helpers';
 
 import {config} from '../app/app.test.config';
@@ -12,7 +14,7 @@ import * as reports from '../reports';
 nock(config.cloudFoundryAPI)
   .get('/v2/organizations')
   .times(5)
-  .reply(200, data.organizations)
+  .reply(200, JSON.stringify(wrapResources(defaultOrg())))
 
   .get('/v2/quota_definitions/dcb680a9-b190-4838-a3d2-b84aa17517a6')
   .times(5)
