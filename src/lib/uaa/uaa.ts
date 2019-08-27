@@ -133,7 +133,23 @@ export default class UAAClient {
       `/invite_users?redirect_uri=${redirectURI}&client_id=${clientID}`,
       {data},
     );
-    return response.data.new_invites[0];
+
+    // It seems the base URL for UAA is only configurable when using SAML
+    //
+    // We use UAA as an IDP and as an SP; we use UAA on two domains:
+    // uaa.((system_domain)) and login.((system_domain))
+    //
+    // When we invite users we want to redirect them to login.((system_domain))
+    // Otherwise they successfully set a password
+    // Then they log in on the UAA subdomain
+    // Then they are redirected to the login subdomain
+    // But they do not have a valid session in the login subdomain cookie
+    // So they have to log in again, which is bad user experience and confusing
+    const responseWithUpdatedLink = response.data.new_invites[0];
+    responseWithUpdatedLink.inviteLink = responseWithUpdatedLink.inviteLink.replace(
+      'https://uaa.', 'https://login.',
+    );
+    return responseWithUpdatedLink;
   }
 
   public async createUser(email: string, password: string) {

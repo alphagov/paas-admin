@@ -654,7 +654,13 @@ describe('org-users test suite', () => {
     ;
 
     nockNotify
-      .post('/').reply(200, {notify: 'FAKE_NOTIFY_RESPONSE'})
+      .post(
+        '/',
+        (body) => {
+          const {url} = body.personalisation;
+          return url === 'https://login.system_domain/invitations/accept?code=TWQlsE3gU2';
+        },
+      ).reply(200, {notify: 'FAKE_NOTIFY_RESPONSE'})
     ;
 
     nockCF
