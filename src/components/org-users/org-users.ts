@@ -388,13 +388,15 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
       logger: ctx.app.logger,
     });
 
-    const uaaUser = await uaa.findUser(values.email);
+    const emailAddress = values.email.toLowerCase();
+
+    const uaaUser = await uaa.findUser(emailAddress);
     let userGUID = uaaUser && uaaUser.id;
     let invitation: IUaaInvitation | undefined;
 
     if (!userGUID) {
       invitation = await uaa.inviteUser(
-        values.email,
+        emailAddress,
         'user_invitation',
         'https://www.cloud.service.gov.uk/next-steps?success',
       );
@@ -406,7 +408,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
 
       userGUID = invitation.userId;
 
-      await accounts.createUser(userGUID, values.email, values.email);
+      await accounts.createUser(userGUID, emailAddress, emailAddress);
     }
 
     const users = await cf.usersForOrganization(params.organizationGUID);
@@ -442,7 +444,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
           },
         });
 
-        await notify.sendWelcomeEmail(values.email, {
+        await notify.sendWelcomeEmail(emailAddress, {
           organisation: organization.entity.name,
           url: invitation.inviteLink,
           location: ctx.app.location,

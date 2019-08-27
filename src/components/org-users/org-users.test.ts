@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import lodash from 'lodash';
 import nock from 'nock';
 
 import * as orgUsers from '.';
@@ -173,8 +174,10 @@ describe('org-users test suite', () => {
   });
 
   it('should show error message when invitee is already a member of org', async () => {
+    const emailAddressToInvite = 'imeCkO@test.org';
+
     nockUAA
-      .get('/Users?filter=email+eq+%22imeCkO@test.org%22')
+      .get(`/Users?filter=email+eq+%22${emailAddressToInvite.toLowerCase()}%22`)
       .reply(200, uaaData.usersByEmail)
 
       .post('/oauth/token?grant_type=client_credentials')
@@ -196,7 +199,7 @@ describe('org-users test suite', () => {
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {
-      email: 'imeCkO@test.org',
+      email: emailAddressToInvite,
       org_roles: {
         '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
           billing_managers: {
@@ -570,6 +573,8 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, and add them to accounts', async () => {
+    const emailAddressToInvite = 'JEFF@jeff.com';
+
     // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
@@ -595,7 +600,13 @@ describe('org-users test suite', () => {
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
       .reply(200, uaaData.noFoundUsersByEmail)
 
-      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .post(
+        '/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation',
+        // only match this POST body with lowercase email
+        lodash.matches(
+          { emails: [ emailAddressToInvite.toLowerCase() ] },
+        ),
+      )
       .reply(200, uaaData.invite)
 
       .post('/oauth/token?grant_type=client_credentials')
@@ -609,7 +620,7 @@ describe('org-users test suite', () => {
     await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     }, {
-      email: 'jeff@jeff.com',
+      email: emailAddressToInvite,
       org_roles: {
         '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
           billing_managers: {
