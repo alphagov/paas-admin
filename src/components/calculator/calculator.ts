@@ -156,7 +156,12 @@ async function getQuote(state: ICalculatorState): Promise<IQuote> {
         resourceType: plan.serviceName,
         price: {
           ...defaultEvent.price,
-          exVAT: calculateQuote(item, plan),
+          exVAT: calculateQuote(
+            defaultEvent.memoryInMB,
+            defaultEvent.storageInMB,
+            defaultEvent.numberOfNodes,
+            plan,
+          ),
         },
       };
       return appEvent;
@@ -170,7 +175,12 @@ async function getQuote(state: ICalculatorState): Promise<IQuote> {
       storageInMB: plan.storageInMB,
       price: {
         ...defaultEvent.price,
-        exVAT: calculateQuote(item, plan),
+        exVAT: calculateQuote(
+          plan.memoryInMB,
+          plan.storageInMB,
+          plan.numberOfNodes,
+          plan,
+        ),
       },
     };
     return serviceEvent;
@@ -183,13 +193,13 @@ async function getQuote(state: ICalculatorState): Promise<IQuote> {
   };
 }
 
-function calculateQuote(item: IResourceItem, plan: IPricingPlan): number  {
+function calculateQuote(memoryInMB: number, storageInMB: number, numberOfNodes: number, plan: IPricingPlan): number  {
   return sum(plan.components.map(c => {
     const thirtyDaysInSeconds = 30 * 24 * 60 * 60;
     const formula = c.formula
-      .replace('$memory_in_mb', item.memoryInMB || '0')
-      .replace('$storage_in_mb', item.storageInMB || '0')
-      .replace('$number_of_nodes', item.numberOfNodes || '0')
+      .replace('$memory_in_mb', memoryInMB.toString())
+      .replace('$storage_in_mb', storageInMB.toString())
+      .replace('$number_of_nodes', numberOfNodes.toString())
       .replace('$time_in_seconds', thirtyDaysInSeconds.toString());
     return formulaGrammar.parse(formula);
   }));
