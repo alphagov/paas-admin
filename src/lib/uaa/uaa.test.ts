@@ -99,6 +99,7 @@ describe('lib/uaa test suite', () => {
     const client = new UAAClient(config);
     const invitation = await client.inviteUser('user1@71xl2o.com', 'client-id', 'https://example.com/');
     expect(invitation.userId).toEqual('5ff19d4c-8fa0-4d74-94e0-52eac86d55a8');
+    expect(invitation.inviteLink).toEqual('https://login.system_domain/invitations/accept?code=TWQlsE3gU2');
   });
 
   it('should create a user', async () => {

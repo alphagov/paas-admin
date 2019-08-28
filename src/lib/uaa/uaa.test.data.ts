@@ -339,7 +339,7 @@ export const invite = `{
         "success" : true,
         "errorCode" : null,
         "errorMessage" : null,
-        "inviteLink" : "http://localhost/invitations/accept?code=TWQlsE3gU2"
+        "inviteLink" : "https://uaa.system_domain/invitations/accept?code=TWQlsE3gU2"
       }
     ],
     "failed_invites" : [ ]
