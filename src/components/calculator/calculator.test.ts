@@ -302,13 +302,10 @@ describe('calculator test suite', () => {
     // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {
-      app: {},
-      mysql: {
-        plan: '_SERVICE_PLAN_GUID_',
-      },
-      redis: {
-        plan: '_NON_EXISTING_PLAN_',
-      },
+      items: [
+        {planGUID: '_SERVICE_PLAN_GUID_'},
+        {planGUID: '_NON_EXISTING_PLAN_'},
+      ],
     });
 
     expect(response.body).toContain('Pricing calculator');

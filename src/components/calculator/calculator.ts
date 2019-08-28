@@ -79,10 +79,6 @@ function bySize(a: IPricingPlan, b: IPricingPlan): number {
   return nameA > nameB ? 1 : -1;
 }
 
-function byEventGUID(e1: IBillableEvent, e2: IBillableEvent) {
-  return e1.eventGUID > e2.eventGUID ? 1 : -1;
-}
-
 export async function getCalculator(ctx: IContext, params: IParameters): Promise<IResponse> {
   const monthOfEstimate = moment().format('MMMM YYYY');
   const rangeStart = params.rangeStart || moment().startOf('month').format('YYYY-MM-DD');
@@ -187,7 +183,7 @@ async function getQuote(state: ICalculatorState): Promise<IQuote> {
   });
 
   return {
-    events: (forecastEvents as IBillableEvent[]).sort(byEventGUID),
+    events: (forecastEvents as IBillableEvent[]),
     exVAT: forecastEvents.reduce((total: number, instance: IBillableEvent) => total + instance.price.exVAT, 0),
     incVAT: forecastEvents.reduce((total: number, instance: IBillableEvent) => total + instance.price.incVAT, 0),
   };
