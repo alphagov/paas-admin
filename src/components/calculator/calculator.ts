@@ -1,3 +1,4 @@
+import {sum} from 'lodash';
 import moment from 'moment';
 import uuid from 'uuid';
 
@@ -7,6 +8,7 @@ import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app/context';
 
 import calculatorTemplate from './calculator.njk';
+import * as formulaGrammar from './formulaGrammar.pegjs';
 
 interface IQuote {
   readonly events: ReadonlyArray<IBillableEvent>;
@@ -14,7 +16,7 @@ interface IQuote {
   readonly incVAT: number;
 }
 
-interface IResourceItem {
+export interface IResourceItem {
   planGUID: string;
   numberOfNodes: string;
   memoryInMB: string;
@@ -105,7 +107,7 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
   };
   let quote: IQuote = { events: [], exVAT: 0, incVAT: 0 };
   if (params.items && params.items.length) {
-    quote = await getQuote(billing, state);
+    quote = await getQuote(state);
   }
 
   return {
@@ -119,12 +121,12 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
   };
 }
 
-async function getQuote(billing: BillingClient, state: ICalculatorState): Promise<IQuote> {
+async function getQuote(state: ICalculatorState): Promise<IQuote> {
   const rangeStart = moment(state.rangeStart);
   const rangeStop = moment(state.rangeStop);
-  const usageEvents = state.items.map((item: IResourceItem) => {
+  const forecastEvents = state.items.map((item: IResourceItem) => {
     const plan = state.plans.find(p => p.planGUID === item.planGUID);
-    const defaultEvent = {
+    const defaultEvent: IBillableEvent = {
       eventGUID: uuid.v1(),
       resourceGUID: uuid.v4(),
       resourceName: 'unknown',
@@ -138,6 +140,11 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
       numberOfNodes: parseFloat(item.numberOfNodes),
       memoryInMB: parseFloat(item.memoryInMB),
       storageInMB: parseFloat(item.storageInMB),
+      price: {
+        exVAT: 0,
+        incVAT: 0,
+        details: [],
+      },
     };
     if (!plan) {
       return defaultEvent;
@@ -147,6 +154,10 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
         ...defaultEvent,
         resourceName: plan.planName,
         resourceType: plan.serviceName,
+        price: {
+          ...defaultEvent.price,
+          exVAT: calculateQuote(item, plan),
+        },
       };
       return appEvent;
     }
@@ -157,15 +168,12 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
       numberOfNodes: plan.numberOfNodes,
       memoryInMB: plan.memoryInMB,
       storageInMB: plan.storageInMB,
+      price: {
+        ...defaultEvent.price,
+        exVAT: calculateQuote(item, plan),
+      },
     };
     return serviceEvent;
-  });
-
-  const forecastEvents = await billing.getForecastEvents({
-    rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStop.toDate(),
-    orgGUIDs: ['00000001-0000-0000-0000-000000000000'],
-    events: usageEvents,
   });
 
   return {
@@ -173,4 +181,16 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
     exVAT: forecastEvents.reduce((total: number, instance: IBillableEvent) => total + instance.price.exVAT, 0),
     incVAT: forecastEvents.reduce((total: number, instance: IBillableEvent) => total + instance.price.incVAT, 0),
   };
+}
+
+function calculateQuote(item: IResourceItem, plan: IPricingPlan): number  {
+  return sum(plan.components.map(c => {
+    const thirtyDaysInSeconds = 30 * 24 * 60 * 60;
+    const formula = c.formula
+      .replace('$memory_in_mb', item.memoryInMB || '0')
+      .replace('$storage_in_mb', item.storageInMB || '0')
+      .replace('$number_of_nodes', item.numberOfNodes || '0')
+      .replace('$time_in_seconds', thirtyDaysInSeconds.toString());
+    return formulaGrammar.parse(formula);
+  }));
 }
