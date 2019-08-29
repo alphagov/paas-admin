@@ -197,7 +197,13 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
   };
 }
 
-function calculateQuote(memoryInMB: number, storageInMB: number, numberOfNodes: number, plan: IPricingPlan, currencyRate: IRate): number  {
+function calculateQuote(
+  memoryInMB: number,
+  storageInMB: number,
+  numberOfNodes: number,
+  plan: IPricingPlan,
+  currencyRate: IRate,
+): number  {
   return sum(plan.components.map(c => {
     const thirtyDaysInSeconds = 30 * 24 * 60 * 60;
     const formula = c.formula
