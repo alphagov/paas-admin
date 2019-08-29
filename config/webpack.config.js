@@ -125,6 +125,14 @@ let cfg = {
             }
           }
         ]
+      },
+      {
+        test: /\.pegjs$/,
+        use: [
+          {
+            loader: 'pegjs-loader'
+          }
+        ]
       }
     ]
   },

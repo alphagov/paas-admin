@@ -1,3 +1,4 @@
+import {sum} from 'lodash';
 import moment from 'moment';
 import uuid from 'uuid';
 
@@ -7,6 +8,7 @@ import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app/context';
 
 import calculatorTemplate from './calculator.njk';
+import * as formulaGrammar from './formulaGrammar.pegjs';
 
 interface IQuote {
   readonly events: ReadonlyArray<IBillableEvent>;
@@ -14,7 +16,7 @@ interface IQuote {
   readonly incVAT: number;
 }
 
-interface IResourceItem {
+export interface IResourceItem {
   planGUID: string;
   numberOfNodes: string;
   memoryInMB: string;
@@ -77,10 +79,6 @@ function bySize(a: IPricingPlan, b: IPricingPlan): number {
   return nameA > nameB ? 1 : -1;
 }
 
-function byEventGUID(e1: IBillableEvent, e2: IBillableEvent) {
-  return e1.eventGUID > e2.eventGUID ? 1 : -1;
-}
-
 export async function getCalculator(ctx: IContext, params: IParameters): Promise<IResponse> {
   const monthOfEstimate = moment().format('MMMM YYYY');
   const rangeStart = params.rangeStart || moment().startOf('month').format('YYYY-MM-DD');
@@ -122,9 +120,15 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
 async function getQuote(billing: BillingClient, state: ICalculatorState): Promise<IQuote> {
   const rangeStart = moment(state.rangeStart);
   const rangeStop = moment(state.rangeStop);
-  const usageEvents = state.items.map((item: IResourceItem) => {
+  const rates = await billing.getCurrencyRates({rangeStart: rangeStart.toDate(), rangeStop: rangeStop.toDate()});
+  const latestUsdRate = rates.find(currencyRate => currencyRate.code === 'USD');
+  /* istanbul ignore if */
+  if (!latestUsdRate) {
+    throw new Error('could not find an exchange rate for GBP to USD');
+  }
+  const forecastEvents = state.items.map((item: IResourceItem) => {
     const plan = state.plans.find(p => p.planGUID === item.planGUID);
-    const defaultEvent = {
+    const defaultEvent: IBillableEvent = {
       eventGUID: uuid.v1(),
       resourceGUID: uuid.v4(),
       resourceName: 'unknown',
@@ -138,6 +142,11 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
       numberOfNodes: parseFloat(item.numberOfNodes),
       memoryInMB: parseFloat(item.memoryInMB),
       storageInMB: parseFloat(item.storageInMB),
+      price: {
+        exVAT: 0,
+        incVAT: 0,
+        details: [],
+      },
     };
     if (!plan) {
       return defaultEvent;
@@ -147,6 +156,16 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
         ...defaultEvent,
         resourceName: plan.planName,
         resourceType: plan.serviceName,
+        price: {
+          ...defaultEvent.price,
+          exVAT: calculateQuote(
+            defaultEvent.memoryInMB,
+            defaultEvent.storageInMB,
+            defaultEvent.numberOfNodes,
+            plan,
+            latestUsdRate,
+          ),
+        },
       };
       return appEvent;
     }
@@ -157,20 +176,41 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
       numberOfNodes: plan.numberOfNodes,
       memoryInMB: plan.memoryInMB,
       storageInMB: plan.storageInMB,
+      price: {
+        ...defaultEvent.price,
+        exVAT: calculateQuote(
+          plan.memoryInMB,
+          plan.storageInMB,
+          plan.numberOfNodes,
+          plan,
+          latestUsdRate,
+        ),
+      },
     };
     return serviceEvent;
   });
 
-  const forecastEvents = await billing.getForecastEvents({
-    rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStop.toDate(),
-    orgGUIDs: ['00000001-0000-0000-0000-000000000000'],
-    events: usageEvents,
-  });
-
   return {
-    events: (forecastEvents as IBillableEvent[]).sort(byEventGUID),
+    events: (forecastEvents as IBillableEvent[]),
     exVAT: forecastEvents.reduce((total: number, instance: IBillableEvent) => total + instance.price.exVAT, 0),
     incVAT: forecastEvents.reduce((total: number, instance: IBillableEvent) => total + instance.price.incVAT, 0),
   };
+}
+
+function calculateQuote(
+  memoryInMB: number,
+  storageInMB: number,
+  numberOfNodes: number,
+  plan: IPricingPlan,
+  currencyRate: IRate,
+): number  {
+  return sum(plan.components.map(c => {
+    const thirtyDaysInSeconds = 30 * 24 * 60 * 60;
+    const formula = c.formula
+      .replace('$memory_in_mb', memoryInMB.toString())
+      .replace('$storage_in_mb', storageInMB.toString())
+      .replace('$number_of_nodes', numberOfNodes.toString())
+      .replace('$time_in_seconds', thirtyDaysInSeconds.toString());
+    return formulaGrammar.parse(formula);
+  })) * currencyRate.rate;
 }

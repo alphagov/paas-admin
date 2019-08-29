@@ -102,51 +102,45 @@ function mockBilling(app: express.Application, _config: IStubServerPorts): expre
           name: "postgres tiny-9.6",
           plan_guid: "f4d4b95a-f55e-4593-8d54-3364c25798c5",
           valid_from: "2017-01-01T00:00:00+00:00",
-          components: [],
-          memory_in_mb: 0,
-          storage_in_mb: 0,
-          number_of_nodes: 0
+          components: [
+            {
+              "name": "instance",
+              "formula": "ceil($time_in_seconds/3600) * 9",
+              "currency_code": "USD",
+              "vat_code": "Standard"
+            },
+            {
+              "name": "storage",
+              "formula": "(($storage_in_mb/1024) * ceil($time_in_seconds/2678401) * 9) * $number_of_nodes",
+              "currency_code": "USD",
+              "vat_code": "Standard"
+            }
+          ],
+          memory_in_mb: 1024,
+          storage_in_mb: 1024,
+          number_of_nodes: 4
         },
         {
           name: "postgres massive-9.6",
           plan_guid: "f4d4b95a-f55e-4593-8d54-3364c25798a5",
           valid_from: "2017-01-01T00:00:00+00:00",
-          components: [],
-          memory_in_mb: 0,
-          storage_in_mb: 0,
-          number_of_nodes: 0
-        },
-        {
-          name: "mysql large-ha-5.7",
-          plan_guid: "f4d4b95a-f55e-4593-8d54-3364c25798c6",
-          valid_from: "2017-01-01T00:00:00+00:00",
-          components: [],
-          memory_in_mb: 0,
-          storage_in_mb: 0,
-          number_of_nodes: 0
-        },
-        {
-          name: "redis tiny-clustered-3.2",
-          plan_guid: "f4d4b95a-f55e-4593-8d54-3364c25798c7",
-          valid_from: "2017-01-01T00:00:00+00:00",
-          components: [],
-          memory_in_mb: 0,
-          storage_in_mb: 0,
-          number_of_nodes: 0
-        },
-        {
-          name: "elasticsearch small-ha-6.x",
-          plan_guid: "f4d4b95a-f55e-4593-8d54-3364c25798c8",
-          valid_from: "2017-01-01T00:00:00+00:00",
-          components: [],
-          memory_in_mb: 0,
-          storage_in_mb: 0,
-          number_of_nodes: 0
-        },
-        {
-          name: "prometheus",
-          valid_from: "2002-01-01",
-          components: []
+          components: [
+            {
+              "name": "instance",
+              "formula": "ceil($time_in_seconds/3600) * 999999",
+              "currency_code": "USD",
+              "vat_code": "Standard"
+            },
+            {
+              "name": "storage",
+              "formula": "(($storage_in_mb/1024) * ceil($time_in_seconds/2678401) * 99999) * $number_of_nodes",
+              "currency_code": "USD",
+              "vat_code": "Standard"
+            }
+          ],
+          memory_in_mb: 1024,
+          storage_in_mb: 1024,
+          number_of_nodes: 4
         }
     ]))
   });

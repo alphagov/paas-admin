@@ -12,42 +12,17 @@ const defaultPricingPlan = {
   name: 'default-plan-name',
   plan_guid: 'default-plan-guid',
   valid_from: '2017-01-01T00:00:00+00:00',
-  components: [],
+  components: [
+    {
+      name: 'instance',
+      formula: 'ceil($time_in_seconds/3600) * 0.01',
+      vat_code: 'Standard',
+      currency_code: 'USD',
+    },
+  ],
   memory_in_mb: 0,
   storage_in_mb: 0,
   number_of_nodes: 0,
-};
-
-const defaultForecastEvent = {
-  event_guid: 'default-event-guid',
-  event_start: '2001-01-01T00:00:00+00:00',
-  event_stop: '2001-01-01T01:00:00+00:00',
-  resource_guid: 'default-resource-guid',
-  resource_name: 'default-resource-name',
-  resource_type: 'default-resource-type',
-  org_guid: 'default-org-guid',
-  space_guid: 'default-space-guid',
-  plan_guid: 'default-plan-guid',
-  number_of_nodes: 1,
-  memory_in_mb: 1024,
-  storage_in_mb: 0,
-  price: {
-    inc_vat: '0.012',
-    ex_vat: '0.01',
-    details: [
-      {
-        name: 'default-price-detail-name',
-        plan_name: 'default-price-detail-plan-name',
-        start: '2001-01-01T00:00:00+00:00',
-        stop: '2001-01-01T01:00:00+00:00',
-        vat_rate: '0.2',
-        vat_code: 'default-vat-code',
-        currency_code: 'default-currency-code',
-        inc_vat: '0.00',
-        ex_vat: '0.00',
-      },
-    ],
-  },
 };
 
 describe('calculator test suite', () => {
@@ -103,8 +78,6 @@ describe('calculator test suite', () => {
           plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c9',
         },
       ]))
-      .get(`/forecast_events?range_start=${rangeStart}&range_stop=${rangeStop}&org_guid=00000001-0000-0000-0000-000000000000&events=%5B%5D`)
-      .reply(200, [])
     ;
     // tslint:enable:max-line-length
 
@@ -136,47 +109,47 @@ describe('calculator test suite', () => {
 
   });
 
-  it('should use calculator when provided fake services', async () => {
+  it('should calculate prices (including exchange rate) when provided fake services', async () => {
     const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
     const rangeStop = moment().endOf('month').format('YYYY-MM-DD');
 
     // tslint:disable:max-line-length
     nock(config.billingAPI)
-      .filteringPath((path: string) => {
-        if (path.includes('/forecast_events')) {
-          return '/billing/forecast_events';
-        }
-
-        return path;
-      })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(200, JSON.stringify([
         {
           ...defaultPricingPlan,
           name: 'app',
           plan_guid: '00000000-0000-0000-0000-000000000001',
+          components: [
+            {
+              name: 'instance',
+              formula: '9.99',
+              vat_code: 'Standard',
+              currency_code: 'USD',
+            },
+          ],
         },
         {
           ...defaultPricingPlan,
           name: 'postgres',
           plan_guid: '00000000-0000-0000-0000-000000000002',
+          components: [
+            {
+              name: 'instance',
+              formula: '6.66',
+              vat_code: 'Standard',
+              currency_code: 'USD',
+            },
+          ],
         },
       ]))
-      .get(`/forecast_events`)
-      .reply(200, JSON.stringify([
-        {
-          ...defaultForecastEvent,
-          resource_name: 'APP1',
-          resource_type: '_TESTING_APPLICATION_',
-          plan_guid: '00000000-0000-0000-0000-000000000001',
-        },
-        {
-          ...defaultForecastEvent,
-          resource_name: 'SERVICE1',
-          resource_type: '_TESTING_SERVICE_',
-          plan_guid: '00000000-0000-0000-0000-000000000002',
-        },
-      ]))
+      .get(`/currency_rates?range_start=${rangeStart}&range_stop=${rangeStop}`)
+      .reply(200, JSON.stringify([{
+        code: 'USD',
+        valid_from: '1970-01-01T00:00:00.000Z',
+        rate: 2.0,
+      }]))
     ;
     // tslint:enable:max-line-length
 
@@ -187,65 +160,55 @@ describe('calculator test suite', () => {
       ],
     });
 
-    expect(response.body).toContain('_TESTING_APPLICATION_');
-    expect(response.body).toContain('_TESTING_SERVICE_');
+    expect(response.body).toContain('app');
+    expect(response.body).toContain('&pound;19.98');
+    expect(response.body).toContain('postgres');
+    expect(response.body).toContain('&pound;13.32');
   });
 
   it('should sort the quote by order added', async () => {
     const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
     const rangeStop = moment().endOf('month').format('YYYY-MM-DD');
 
+    const postgresGuid = 'f4d4b95a-f55e-4593-8d54-3364c25798c4';
+    const appGuid = 'f4d4b95b-f55e-4593-8d54-3364c25798c0';
     // tslint:disable:max-line-length
     nock(config.billingAPI)
-      .filteringPath((path: string) => {
-        if (path.includes('/forecast_events')) {
-          return '/billing/forecast_events';
-        }
-
-        return path;
-      })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(200, JSON.stringify([
         {
           ...defaultPricingPlan,
+          name: 'postgres',
+          plan_guid: postgresGuid,
+        },
+        {
+          ...defaultPricingPlan,
           name: 'app',
-          plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+          plan_guid: appGuid,
         },
       ]))
-      .get(`/forecast_events`)
-      .reply(200, JSON.stringify([
-        {
-          ...defaultForecastEvent,
-          event_guid: 'aa30fa3c-725d-4272-9052-c7186d4968a3',
-          resource_type: '_TESTING_APPLICATION_3_',
-        },
-        {
-          ...defaultForecastEvent,
-          event_guid: 'aa30fa3c-725d-4272-9052-c7186d4968a1',
-          resource_type: '_TESTING_APPLICATION_1_',
-        },
-        {
-          ...defaultForecastEvent,
-          event_guid: 'aa30fa3c-725d-4272-9052-c7186d4968a2',
-          resource_type: '_TESTING_APPLICATION_2_',
-        },
-      ]))
+      .get(`/currency_rates?range_start=${rangeStart}&range_stop=${rangeStop}`)
+      .reply(200, JSON.stringify([{
+        code: 'USD',
+        valid_from: '1970-01-01T00:00:00.000Z',
+        rate: 2.0,
+      }]))
     ;
     // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {
       items: [
-        {planGUID: 'f4d4b95a-f55e-4593-8d54-3364c25798c4', numberOfNodes: '1'},
-        {planGUID: 'f4d4b95b-f55e-4593-8d54-3364c25798c0'},
+        {planGUID: appGuid, numberOfNodes: '1'},
+        {planGUID: postgresGuid},
       ],
     });
 
-    expect(response.body).toContain('_TESTING_APPLICATION_1_');
-    expect(response.body).toContain('_TESTING_APPLICATION_3_');
+    expect(response.body).toContain('postgres');
+    expect(response.body).toContain('app');
     if (response.body && typeof response.body === 'string') {
-      const idx1 = response.body.indexOf('_TESTING_APPLICATION_1_');
-      const idx3 = response.body.indexOf('_TESTING_APPLICATION_3_');
-      expect(idx3 > idx1).toBeTruthy(); // expected item3 to appear after item1
+      const idxPostgres = response.body.indexOf('postgres');
+      const idxApp = response.body.indexOf('app');
+      expect(idxPostgres > idxApp).toBeTruthy(); // expected postgres to appear after app
     }
   });
 
@@ -255,13 +218,6 @@ describe('calculator test suite', () => {
 
     // tslint:disable:max-line-length
     nock(config.billingAPI)
-      .filteringPath((path: string) => {
-        if (path.includes('/forecast_events')) {
-          return '/billing/forecast_events';
-        }
-
-        return path;
-      })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(200, JSON.stringify([
         {
@@ -270,8 +226,6 @@ describe('calculator test suite', () => {
           plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c1',
         },
       ]))
-      .get(`/forecast_events`)
-      .reply(200, `[]`)
     ;
     // tslint:enable:max-line-length
 
@@ -285,13 +239,6 @@ describe('calculator test suite', () => {
 
     // tslint:disable:max-line-length
     nock(config.billingAPI)
-      .filteringPath((path: string) => {
-        if (path.includes('/forecast_events')) {
-          return '/billing/forecast_events';
-        }
-
-        return path;
-      })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(200, JSON.stringify([
         {
@@ -325,8 +272,6 @@ describe('calculator test suite', () => {
           plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c6',
         },
       ]))
-      .get(`/forecast_events`)
-      .reply(200, `[]`)
     ;
     // tslint:enable:max-line-length
 
@@ -340,13 +285,6 @@ describe('calculator test suite', () => {
 
     // tslint:disable:max-line-length
     nock(config.billingAPI)
-      .filteringPath((path: string) => {
-        if (path.includes('/forecast_events')) {
-          return '/billing/forecast_events';
-        }
-
-        return path;
-      })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(200, JSON.stringify([
         {
@@ -372,19 +310,20 @@ describe('calculator test suite', () => {
           number_of_nodes: 1,
         },
       ]))
-      .get(`/forecast_events`)
-      .reply(200, [])
+      .get(`/currency_rates?range_start=${rangeStart}&range_stop=${rangeStop}`)
+      .reply(200, JSON.stringify([{
+        code: 'USD',
+        valid_from: '1970-01-01T00:00:00.000Z',
+        rate: 2.0,
+      }]))
     ;
     // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {
-      app: {},
-      mysql: {
-        plan: '_SERVICE_PLAN_GUID_',
-      },
-      redis: {
-        plan: '_NON_EXISTING_PLAN_',
-      },
+      items: [
+        {planGUID: '_SERVICE_PLAN_GUID_'},
+        {planGUID: '_NON_EXISTING_PLAN_'},
+      ],
     });
 
     expect(response.body).toContain('Pricing calculator');
@@ -396,13 +335,6 @@ describe('calculator test suite', () => {
 
     // tslint:disable:max-line-length
     nock(config.billingAPI)
-      .filteringPath((path: string) => {
-        if (path.includes('/forecast_events')) {
-          return '/billing/forecast_events';
-        }
-
-        return path;
-      })
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(200, JSON.stringify([
         {
@@ -410,8 +342,6 @@ describe('calculator test suite', () => {
           name: 'aws-s3-bucket default',
         },
       ]))
-      .get(`/forecast_events`)
-      .reply(200, `[]`)
     ;
     // tslint:enable:max-line-length
 

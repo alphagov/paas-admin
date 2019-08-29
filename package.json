@@ -70,6 +70,8 @@
     "node-sass": "^4.12.0",
     "nodemon-webpack-plugin": "^4.0.8",
     "nyc": "14.1.1",
+    "pegjs": "^0.10.0",
+    "pegjs-loader": "^0.5.5",
     "postcss-loader": "3.0.0",
     "postcss-url": "8.0.0",
     "regexp-replace-loader": "1.0.1",
@@ -159,6 +161,7 @@
       "^.+\\.(ts|tsx)$": "ts-jest",
       "^.+\\.(css|scss|sass)$": "identity-obj-proxy",
       "^.+\\.(html|njk)$": "<rootDir>/config/jest/njk.js",
+      "^.+\\.(pegjs)$": "<rootDir>/config/jest/pegjs.js",
       "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/config/jest/file.js"
     },
     "globals": {
