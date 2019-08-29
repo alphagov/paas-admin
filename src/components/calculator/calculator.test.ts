@@ -109,7 +109,7 @@ describe('calculator test suite', () => {
 
   });
 
-  it('should use calculator when provided fake services', async () => {
+  it('should calculate prices (including exchange rate) when provided fake services', async () => {
     const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
     const rangeStop = moment().endOf('month').format('YYYY-MM-DD');
 
@@ -144,6 +144,12 @@ describe('calculator test suite', () => {
           ],
         },
       ]))
+      .get(`/currency_rates?range_start=${rangeStart}&range_stop=${rangeStop}`)
+      .reply(200, JSON.stringify([{
+        code: 'USD',
+        valid_from: '1970-01-01T00:00:00.000Z',
+        rate: 2.0,
+      }]))
     ;
     // tslint:enable:max-line-length
 
@@ -155,9 +161,9 @@ describe('calculator test suite', () => {
     });
 
     expect(response.body).toContain('app');
-    expect(response.body).toContain('&pound;9.99');
+    expect(response.body).toContain('&pound;19.98');
     expect(response.body).toContain('postgres');
-    expect(response.body).toContain('&pound;6.66');
+    expect(response.body).toContain('&pound;13.32');
   });
 
   it('should sort the quote by order added', async () => {
@@ -181,6 +187,12 @@ describe('calculator test suite', () => {
           plan_guid: appGuid,
         },
       ]))
+      .get(`/currency_rates?range_start=${rangeStart}&range_stop=${rangeStop}`)
+      .reply(200, JSON.stringify([{
+        code: 'USD',
+        valid_from: '1970-01-01T00:00:00.000Z',
+        rate: 2.0,
+      }]))
     ;
     // tslint:enable:max-line-length
 
@@ -298,6 +310,12 @@ describe('calculator test suite', () => {
           number_of_nodes: 1,
         },
       ]))
+      .get(`/currency_rates?range_start=${rangeStart}&range_stop=${rangeStop}`)
+      .reply(200, JSON.stringify([{
+        code: 'USD',
+        valid_from: '1970-01-01T00:00:00.000Z',
+        rate: 2.0,
+      }]))
     ;
     // tslint:enable:max-line-length
 

@@ -103,7 +103,7 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
   };
   let quote: IQuote = { events: [], exVAT: 0, incVAT: 0 };
   if (params.items && params.items.length) {
-    quote = await getQuote(state);
+    quote = await getQuote(billing, state);
   }
 
   return {
@@ -117,9 +117,15 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
   };
 }
 
-async function getQuote(state: ICalculatorState): Promise<IQuote> {
+async function getQuote(billing: BillingClient, state: ICalculatorState): Promise<IQuote> {
   const rangeStart = moment(state.rangeStart);
   const rangeStop = moment(state.rangeStop);
+  const rates = await billing.getCurrencyRates({rangeStart: rangeStart.toDate(), rangeStop: rangeStop.toDate()});
+  const latestUsdRate = rates.find(currencyRate => currencyRate.code === 'USD');
+  /* istanbul ignore if */
+  if (!latestUsdRate) {
+    throw new Error('could not find an exchange rate for GBP to USD');
+  }
   const forecastEvents = state.items.map((item: IResourceItem) => {
     const plan = state.plans.find(p => p.planGUID === item.planGUID);
     const defaultEvent: IBillableEvent = {
@@ -157,6 +163,7 @@ async function getQuote(state: ICalculatorState): Promise<IQuote> {
             defaultEvent.storageInMB,
             defaultEvent.numberOfNodes,
             plan,
+            latestUsdRate,
           ),
         },
       };
@@ -176,6 +183,7 @@ async function getQuote(state: ICalculatorState): Promise<IQuote> {
           plan.storageInMB,
           plan.numberOfNodes,
           plan,
+          latestUsdRate,
         ),
       },
     };
@@ -189,7 +197,7 @@ async function getQuote(state: ICalculatorState): Promise<IQuote> {
   };
 }
 
-function calculateQuote(memoryInMB: number, storageInMB: number, numberOfNodes: number, plan: IPricingPlan): number  {
+function calculateQuote(memoryInMB: number, storageInMB: number, numberOfNodes: number, plan: IPricingPlan, currencyRate: IRate): number  {
   return sum(plan.components.map(c => {
     const thirtyDaysInSeconds = 30 * 24 * 60 * 60;
     const formula = c.formula
@@ -198,5 +206,5 @@ function calculateQuote(memoryInMB: number, storageInMB: number, numberOfNodes: 
       .replace('$number_of_nodes', numberOfNodes.toString())
       .replace('$time_in_seconds', thirtyDaysInSeconds.toString());
     return formulaGrammar.parse(formula);
-  }));
+  })) * currencyRate.rate;
 }
