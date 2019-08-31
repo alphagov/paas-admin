@@ -243,9 +243,6 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       orderDirection,
       currentMonth,
       adminFee,
-      isAdmin,
-      isBillingManager,
-      isManager,
       breadcrumbs,
     }),
   };
