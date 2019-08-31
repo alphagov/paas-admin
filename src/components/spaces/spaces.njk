@@ -12,35 +12,94 @@
 {% block content %}
   {{ super() }}
 
-  {% if isAdmin or isManager or isBillingManager %}
-    <a href="{{ linkTo('admin.statement.dispatcher', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link {% if routePartOf('admin.statement') %} active {% endif %}" class="govuk-link">
-      Billing
-    </a>
-  {% endif %}
+  <h1 class="govuk-heading-xl">
+    <span class="govuk-caption-xl">Organisation</span>
+    {{ organization.entity.name }}
+  </h1>
 
-  <div class="govuk-grid-row govuk-!-mb-r8 govuk-!-mt-r5">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-l">
-        This organisation has {{ spaces | length }} spaces
-      </h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third">
+      <div class="paas-metric">
+        <h2 class="paas-metric__heading">
+          Quota usage
+        </h2>
+
+        <span class="paas-metric__figure">
+          {{
+            organization.entity.memory_allocated
+            | percentage(organization.entity.quota.entity.memory_limit)
+          }}
+        </span>
+      </div>
+
+      <p class="paas-metric__context govuk-body">
+        Using
+        {{ organization.entity.memory_allocated | mbtogb }}
+        of
+        {{ organization.entity.quota.entity.memory_limit | mbtogb }}
+      </p>
     </div>
 
     <div class="govuk-grid-column-one-third">
-      <table class="govuk-table">
-        <tbody class="govuk-table__body">
-          <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">
-              Memory:
-            </th>
-            <td class="govuk-table__cell govuk-table__cell--numeric">
-              {{ (organization.entity.memory_allocated / 1024) | round(2) }}gb
-              of {{ (organization.entity.quota.entity.memory_limit / 1024) | round(2) }}gb
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="paas-metric">
+        <h2 class="paas-metric__heading">
+          Team members
+        </h2>
+
+        <span class="paas-metric__figure">
+          {{ users | length }}
+        </span>
+      </div>
+
+      <p class="govuk-body">
+        <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}">
+          View and manage team members
+        </a>
+      </p>
+    </div>
+
+    <div class="govuk-grid-column-one-third">
+      <div class="paas-metric">
+        <h2 class="paas-metric__heading">
+          Billing
+        </h2>
+
+        <span class="paas-metric__figure">
+          {% if organization.entity.quota.entity.name == 'default' %}
+            Trial
+          {% else %}
+            Billable
+          {% endif %}
+        </span>
+      </div>
+
+      <p class="govuk-body">
+        {% if organization.entity.quota.entity.name == 'default' %}
+          Trial organisations have limited access to backing services
+        {% else %}
+          Billable organisations have full access to backing services
+        {% endif %}
+      </p>
+
+      {% if isAdmin or isManager or isBillingManager %}
+        <p class="govuk-body">
+          <a href="{{ linkTo('admin.statement.dispatcher', {organizationGUID: organization.metadata.guid}) }}"
+             class="govuk-link">
+            Explore your costs and usage
+          </a>
+        </p>
+      {% endif %}
     </div>
   </div>
+
+  <h2 class="govuk-heading-l">Spaces</h2>
+
+  <p class="govuk-body">
+    There are
+    {{ spaces | length }}
+    spaces in
+    {{ organization.entity.name }}.
+  </p>
 
   <details class="govuk-details" role="group">
     <summary class="govuk-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
@@ -82,123 +141,49 @@
     </div>
   {% endif %}
 
-  <div class="govuk-grid-row space-wrapper">
-  {% for space in spaces %}
-    <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" id="space-{{ space.metadata.guid }}" class="govuk-link">
-      <section class="govuk-grid-row space {% if space.entity.cflinuxfs2UpgradeNeeded %} space-warning {% endif %}">
-        <div class="govuk-grid-column-one-third">
-          <h3>
-            <span class="paas-caption">Space:</span>
-            {{ space.entity.name }}
-          </h3>
-        </div>
-
-        <div class="space-information">
-          <div class="govuk-grid-column-one-third govuk-grid-row">
-            <h4 class="govuk-grid-column-full">
-              The space has {{ space.entity.apps | length }} apps:
-            </h4>
-            <ul>
-              <li class="running">
-                {{ space.entity.running_apps | length }} running
-              </li>
-              <li class="stopped">
-                {{ space.entity.stopped_apps | length }} stopped
-              </li>
-            </ul>
-          </div>
-
-          <div class="govuk-grid-column-one-third govuk-grid-row">
-            <h4 class="govuk-grid-column-full">
-              Space memory allocated:
-            </h4>
-
-            <p class="govuk-grid-column-full">
-              {{ (space.entity.memory_allocated / 1024) | round(2) }}gb of
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header govuk-!-width-one-half">
+          Name
+        </th>
+        <th scope="col" class="govuk-table__header">
+          Memory usage
+        </th>
+        <th scope="col" class="govuk-table__header govuk-table__header--numeric">
+          Running apps
+        </th>
+        <th scope="col" class="govuk-table__header govuk-table__header--numeric">
+          Stopped apps
+        </th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      {% for space in spaces %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">
+            <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" 
+               class="govuk-link">
+              {{ space.entity.name }}
+            </a>
+          </td>
+          <td class="govuk-table__cell">
+              {{ space.entity.memory_allocated | mbtogb }}
+              of
               {% if space.entity.quota %}
-                {{ (space.entity.quota.entity.memory_limit / 1024) | round(2) }}gb
+                {{ space.entity.quota.entity.memory_limit | mbtogb }}
               {% else %}
                 no limit
               {% endif %}
-            </p>
-          </div>
-        </div>
-
-        {% if space.entity.cflinuxfs2UpgradeNeeded %}
-          <div class="space-warning-wrapper">
-            <div class="govuk-warning-text">
-              <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-              <strong class="govuk-warning-text__text">
-                <span class="govuk-warning-text__assistive">Warning</span>
-                Application(s) in this space need upgrading or they may go offline soon
-              </strong>
-            </div>
-          </div>
-        {% endif %}
-      </section>
-    </a>
-  {% endfor %}
-  </div>
-
-  <div class="govuk-grid-row organisation-overview">
-    <div class="govuk-grid-column-full">
-      <h2 class="govuk-heading-l">
-        This organisation has {{ users | length }} team members
-      </h2>
-    </div>
-
-    <div class="govuk-grid-column-one-half">
-      <table class="govuk-table organisation-managers">
-        <caption class="govuk-table__caption">
-          There are {{ managers | length }} Org managers:
-        </caption>
-
-        <tbody class="govuk-table__body">
-          {% for user in managers %}
-            <tr class="govuk-table__row">
-              <td class="govuk-table__cell">
-                {% if isAdmin or isManager %}
-                  <a href="{{ linkTo('admin.organizations.users.edit', {organizationGUID: organization.metadata.guid, userGUID: user.metadata.guid}) }}" class="govuk-link">
-                    {{ user.entity.username }}
-                  </a>
-                {% else %}
-                  {{ user.entity.username }}
-                {% endif %}
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-      <details class="govuk-details" role="group">
-        <summary class="govuk-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
-          <span class="govuk-details__summary-text">
-            What are org managers?
-          </span>
-        </summary>
-
-        <div class="govuk-details__text" aria-hidden="true">
-          <p>
-            An org manager can create and delete spaces, and administer user roles.
-          </p>
-
-          <a href="https://docs.cloud.service.gov.uk/orgs_spaces_users.html#users-and-user-roles" class="govuk-link">
-            Read more about different roles
-          </a>
-        </div>
-      </details>
-    </div>
-
-    <div class="govuk-grid-column-one-half">
-      <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}">
-        View and manage team members
-      </a>
-
-      <p>
-        As an ‘org manager’ you can manage team members in your organisation.
-      </p>
-    </div>
-  </div>
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">
+            {{ space.entity.running_apps | length }}
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">
+            {{ space.entity.stopped_apps | length }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}
-
-

@@ -11,7 +11,6 @@ $govuk-global-styles: true;
 
 @import '../components/reports/subnav/element';
 
-@import '../components/spaces/spaces';
 @import '../components/spaces/applications';
 
 @import '../components/org-users/org-users';
@@ -26,4 +25,19 @@ $govuk-global-styles: true;
 ul.plain {
   list-style: none;
   padding-left: inherit;
+}
+
+.paas-metric {
+  .paas-metric__heading {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    padding-top: 15px;
+    min-height: 1.25;
+  }
+
+  .paas-metric__figure {
+    font-size: 36px;
+    line-height: 1.1111111111;
+    font-weight: 700;
+  }
 }
