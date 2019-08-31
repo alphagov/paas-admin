@@ -35,8 +35,15 @@
       <p class="paas-metric__context govuk-body">
         Using
         {{ organization.entity.memory_allocated | mbtogb }}
-        of
+        of memory
+        out of a maximum of
         {{ organization.entity.quota.entity.memory_limit | mbtogb }}
+      </p>
+
+      <p class="govuk-body">
+        <a href="https://docs.cloud.service.gov.uk/managing_apps.html#quotas">
+          Learn more about quotas
+        </a>
       </p>
     </div>
 
@@ -52,8 +59,14 @@
       </div>
 
       <p class="govuk-body">
+        Org managers can invite new users and manage permissions
+      </p>
+
+      <p class="govuk-body">
         <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}">
-          View and manage team members
+          View
+          {% if isAdmin or isManager %} and manage {% endif %}
+          team members
         </a>
       </p>
     </div>
