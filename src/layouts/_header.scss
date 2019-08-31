@@ -1,6 +1,5 @@
 a.paas-govuk-tag {
   @extend .govuk-tag;
-  float: right;
 
   &:visited, &:hover, &:link {
     color: #fff;
@@ -16,5 +15,24 @@ a.paas-govuk-tag {
 
   &.paas-govuk-tag-ireland {
     background-color: #006435;
+  }
+}
+
+/* GOV.UK Platform-as-a-Service is too long */
+.govuk-header__logo {
+  width: 50%;
+}
+
+.govuk-header__content {
+  width: 50%;
+  text-align: right;
+}
+
+/* Link to documentation on right edge of phase banner */
+.govuk-phase-banner__text {
+  width: 100%;
+
+  .documentation {
+    float: right;
   }
 }
