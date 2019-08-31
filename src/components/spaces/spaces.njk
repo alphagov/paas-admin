@@ -12,6 +12,12 @@
 {% block content %}
   {{ super() }}
 
+  {% if isAdmin or isManager or isBillingManager %}
+    <a href="{{ linkTo('admin.statement.dispatcher', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link {% if routePartOf('admin.statement') %} active {% endif %}" class="govuk-link">
+      Billing
+    </a>
+  {% endif %}
+
   <div class="govuk-grid-row govuk-!-mb-r8 govuk-!-mt-r5">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">

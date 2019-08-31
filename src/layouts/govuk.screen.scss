@@ -8,7 +8,8 @@ $govuk-global-styles: true;
 @import '../components/calculator/calculator';
 
 @import '../components/organizations/organizations';
-@import '../components/organizations/subnav/element';
+
+@import '../components/reports/subnav/element';
 
 @import '../components/spaces/spaces';
 @import '../components/spaces/applications';
