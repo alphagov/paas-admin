@@ -15,8 +15,8 @@
 }
 
 .paas-exchange-rate {
-  border: 10px solid govuk-colour("grey-3");
-  background-color: govuk-colour("grey-4");
+  border: 10px solid govuk-colour("light-grey");
+  background-color: govuk-colour("light-grey");
   padding: 10px;
   border-collapse: separate;
   margin-bottom: govuk-spacing(4);
@@ -63,7 +63,7 @@
 
 .paas-month-total-information {
    @include govuk-font($size: 16);
-   color: govuk-colour("grey-1");
+   color: govuk-colour("dark-grey");
 }
 
 .paas-month-price {
@@ -93,8 +93,7 @@
 }
 
 .paas-statement-filters {
-  //Check which version we're using as it's not recognising govuk-colour("grey-3")
-  background-color: govuk-colour("grey-3");
+  background-color: govuk-colour("light-grey");
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 15px;

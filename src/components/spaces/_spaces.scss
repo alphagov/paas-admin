@@ -7,7 +7,7 @@
 }
 
 .space {
-  background-color: govuk-colour("grey-4");
+  background-color: govuk-colour("light-grey");
   border: 1px solid $govuk-border-colour;
   padding-top: govuk-spacing(5);
   padding-bottom: govuk-spacing(4);
@@ -91,7 +91,7 @@
   .stopped {
     margin-left: govuk-spacing(3);
     &::before {
-      background-color: govuk-colour("grey-2");
+      background-color: govuk-colour("mid-grey");
     }
   }
 
