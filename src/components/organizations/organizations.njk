@@ -11,85 +11,199 @@
 {% block content %}
   {{ super() }}
 
-  <h1 class="paas-heading-l">You’re a member of {{organizations.length}} organisations</h1>
+  <h1 class="govuk-heading-l">Organisations</h1>
 
-  <h2 class="paas-heading-lede">Choose an organisation</h2>
+  <p class="govuk-body">
+    There
+    {{ organizations.length | plural('is', 'are') }}
+    {{organizations.length}}
+    {{ organizations.length | plural('organisation', 'organisations') }}
+    which you can access.
+  </h1>
 
-  <ul class="paas-sections">
-    {% for organization in organizations %}
-      <li class="paas-section">
-        <a href="{{linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid})}}" class="govuk-link"> {{ organization.entity.name }}</a>
-      </li>
-    {% endfor %}
-  </ul>
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header govuk-!-width-one-half">
+          Name
+        </th>
+        <th scope="col" class="govuk-table__header">
+          Lifecycle
+        </th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      {% for org in organizations %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">
+            <a href="{{ linkTo('admin.organizations.view', {organizationGUID: org.metadata.guid}) }}"
+               class="govuk-link">
+              {{ org.entity.name }}
+            </a>
+          </td>
+          <td class="govuk-table__cell">
+            {% if org.entity.quota.entity.name == 'default' %}
+              Trial
+            {% else %}
+              Billable
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h2 class="paas-heading-lede">Installing the Cloud Foundry command line will let you operate GOV.UK PaaS from your computer terminal.</h2>
-    </div>
-  </div>
+  <h1 class="govuk-heading-l">Get started with the command line</h1>
+
+  <p class="govuk-body">
+    Installing the Cloud Foundry command line will let you operate GOV.UK PaaS
+    from your computer terminal.
+  </p>
 
   <div class="govuk-grid-row paas-download-section">
     <div class="govuk-grid-column-two-thirds">
-      <h3>Download the Cloud Foundry command line tool</h3>
-      <p>You’ll need to do this to operate GOV.UK PaaS from your terminal. You can download the cf command line tool using one of the installation options or by visiting the <a href="https://github.com/cloudfoundry/cli#downloads" class="govuk-link">github page</a>.</p>
+      <h3 class="govuk-heading-s">
+        Download the Cloud Foundry command line tool
+      </h3>
+
+      <p class="govuk-body">
+        You’ll need to do this to operate GOV.UK PaaS from your terminal.  You
+        can download the cf command line tool using one of the installation
+        options or by visiting the
+        <a href="https://github.com/cloudfoundry/cli#downloads"
+           class="govuk-link">
+          github page
+        </a>.
+      </p>
     </div>
+
     <div class="govuk-grid-column-one-third">
-      <h3>Installation options:</h3>
-      <ul>
+      <h3 class="govuk-heading-s">
+        Installation options
+      </h3>
+
+      <ul class="govuk-list">
         <li>
-          <a href="https://packages.cloudfoundry.org/stable?release=macosx64&source=github" class="govuk-link">Mac OS X 64 bit</a>
+          <a href="https://packages.cloudfoundry.org/stable?release=macosx64&source=github"
+             class="govuk-link">
+            Mac OS X 64 bit
+          </a>
         </li>
         <li>
-          <a href="https://packages.cloudfoundry.org/stable?release=windows64&source=github" class="govuk-link">Windows 64 bit</a>
+          <a href="https://packages.cloudfoundry.org/stable?release=windows64&source=github"
+             class="govuk-link">
+            Windows 64 bit
+          </a>
         </li>
         <li>
-          <a href="https://packages.cloudfoundry.org/stable?release=debian64&source=github" class="govuk-link">Debian 64 bit</a>
+          <a href="https://packages.cloudfoundry.org/stable?release=debian64&source=github"
+             class="govuk-link">
+            Debian 64 bit
+          </a>
         </li>
         <li>
-          <a href="https://packages.cloudfoundry.org/stable?release=redhat64&source=github" class="govuk-link">RedHat 64 bit</a>
+          <a href="https://packages.cloudfoundry.org/stable?release=redhat64&source=github"
+             class="govuk-link">
+            RedHat 64 bit
+          </a>
         </li>
       </ul>
     </div>
   </div>
 
+  <h1 class="govuk-heading-l">Once you’ve installed the CF CLI</h1>
+
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-      <h2 class="govuk-heading-m">Once you’ve installed the cf CLI</h2>
+    <div class="govuk-grid-column-one-half">
+      <h2 class="govuk-heading-m">
+        Set up and deploy your first app
+      </h2>
+
+      <p class="govuk-body">
+        <a href="https://docs.cloud.service.gov.uk/get_started.html#set-up-the-cloud-foundry-command-line"
+           class="govuk-link">
+          View our guide
+        </a>
+        on logging in and deploying your first app to GOV.UK PaaS.
+      </p>
+    </div>
+
+    <div class="govuk-grid-column-one-half">
+      <h2 class="govuk-heading-m">
+        Learn more about orgs and spaces
+      </h2>
+
+      <p class="govuk-body">
+        <a href="https://docs.cloud.service.gov.uk/orgs_spaces_users.html"
+           class="govuk-link">
+          Get familiar
+        </a>
+        with the basic concepts of Cloud Foundry-based platforms, and what
+        setting up environments looks like.
+      </p>
     </div>
   </div>
 
+  <h1 class="govuk-heading-l">Stay up to date</h1>
 
-  <div class="paas-info-section">
-    <div class="govuk-grid-row paas-info-section">
-      <div class="govuk-grid-column-one-third">
-        <h3><a href="https://docs.cloud.service.gov.uk/get_started.html#set-up-the-cloud-foundry-command-line" class="govuk-link">Set up and deploy your first app</a></h3>
-        <p>View our guide on logging in and deploying your first app to GOV.UK PaaS.</p>
-      </div>
-      <div class="govuk-grid-column-one-third">
-        <h3><a href="https://docs.cloud.service.gov.uk/orgs_spaces_users.html" class="govuk-link">Learn more about orgs and spaces</a></h3>
-        <p>Get familiar with the basic concepts of Cloud Foundry-based platforms, and what setting up environments looks like.</p>
-      </div>
-      <div class="govuk-grid-column-one-third">
-        <h3><a href="https://docs.cloud.service.gov.uk/orgs_spaces_users.html#users-and-user-roles" class="govuk-link">Manage team members</a></h3>
-        <p>Learn how to manage permission levels for your users using the command line tool (for org managers only).</p>
-      </div>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      <h2 class="govuk-heading-m">
+        Get GOV.UK PaaS status updates
+      </h2>
+
+      <p class="govuk-body">
+        <a href="https://status.cloud.service.gov.uk/"
+           class="govuk-link">
+          Check the status
+        </a>
+        of GOV.UK PaaS, and see the availability of live applications and
+        database connectivity.
+      </p>
+
+      <p class="govuk-body">
+        We recommend you subscribe to this service to get alerts and incident
+        updates.
+      </p>
     </div>
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-one-third">
-        <h3><a href="https://status.cloud.service.gov.uk/" class="govuk-link">Get GOV.UK PaaS status updates</a></h3>
-        <p>Check the status of GOV.UK PaaS, and see the availability of live applications and database connectivity. We recommend you sign up to this service to get alerts and incident updates.</p>
-      </div>
+  </div>
 
-      <div class="govuk-grid-column-one-third">
-        <h3><a href="{{ linkTo("account.use-google-sso.view") }}" class="govuk-link">Set up Google single sign-on</a></h3>
-        <p>GOV.UK PaaS supports Google single sign-on as an authentication method</p>
-      </div>
+  <h1 class="govuk-heading-l">Increase the security of your account</h1>
 
-      <div class="govuk-grid-column-one-third">
-        <h3><a href="{{ linkTo("account.use-microsoft-sso.view") }}" class="govuk-link">Set up Microsoft single sign-on</a></h3>
-        <p>GOV.UK PaaS supports Microsoft single sign-on as an authentication method</p>
-      </div>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      <h2 class="govuk-heading-m">
+        Set up Google single sign-on
+      </h2>
+
+      <p class="govuk-body">
+        GOV.UK PaaS supports Google single sign-on as an authentication method.
+      </p>
+
+      <p class="govuk-body">
+        <a href="{{ linkTo("account.use-google-sso.view") }}"
+           class="govuk-link">
+          Set up Google single sign-on
+        </a>
+      </p>
+    </div>
+
+    <div class="govuk-grid-column-one-half">
+      <h2 class="govuk-heading-m">
+        Set up Microsoft single sign-on
+      </h2>
+
+      <p class="govuk-body">
+        GOV.UK PaaS supports Microsoft single sign-on as an authentication
+        method.
+      </p>
+
+      <p class="govuk-body">
+        <a href="{{ linkTo("account.use-microsoft-sso.view") }}"
+           class="govuk-link">
+          Set up Microsoft single sign-on
+        </a>
+      </p>
     </div>
   </div>
 
