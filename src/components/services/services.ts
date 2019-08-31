@@ -3,6 +3,7 @@ import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
 import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
+import { IBreadcrumb } from '../breadcrumbs';
 
 import serviceOverviewTemplate from './overview.njk';
 
@@ -44,6 +45,23 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
     },
   };
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    {
+      text: organization.entity.name ,
+      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
+    },
+    { text: space.entity.name },
+    {
+      text: 'Services',
+      href: ctx.linkTo('admin.organizations.spaces.services.list', {
+        organizationGUID: organization.metadata.guid,
+        spaceGUID: space.metadata.guid,
+      }),
+    },
+    { text: summarisedService.entity.name },
+  ];
+
   return {
     body: serviceOverviewTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -55,6 +73,7 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
       isAdmin,
       isBillingManager,
       isManager,
+      breadcrumbs
     }),
   };
 }

@@ -4,6 +4,7 @@ import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
 import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
+import { IBreadcrumb } from '../breadcrumbs';
 
 import applicationOverviewTemplate from './overview.njk';
 
@@ -63,6 +64,23 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
   const isDocker = summarisedApplication.entity.docker_image != null;
   const actualRuntimeInfo = isDocker ? dockerRuntimeInfo : appRuntimeInfo;
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    {
+      text: organization.entity.name ,
+      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
+    },
+    { text: space.entity.name },
+    {
+      text: 'Applications',
+      href: ctx.linkTo('admin.organizations.spaces.applications.list', {
+        organizationGUID: organization.metadata.guid,
+        spaceGUID: space.metadata.guid,
+      }),
+    },
+    { text: summarisedApplication.entity.name },
+  ];
+
   return {
     body: applicationOverviewTemplate.render({
       application: summarisedApplication,
@@ -76,6 +94,7 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
       isAdmin,
       isBillingManager,
       isManager,
+      breadcrumbs,
     }),
   };
 }

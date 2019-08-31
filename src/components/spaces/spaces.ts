@@ -5,6 +5,7 @@ import {IParameters, IResponse} from '../../lib/router';
 
 import {IContext} from '../app/context';
 import {CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN} from '../auth';
+import {IBreadcrumb} from '../breadcrumbs';
 
 import spaceApplicationsTemplate from './applications.njk';
 import spaceBackingServicesTemplate from './backing-services.njk';
@@ -50,6 +51,16 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
     };
   }));
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    {
+      text: organization.entity.name ,
+      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
+    },
+    { text: space.entity.name },
+    { text: 'Applications' },
+  ];
+
   /* istanbul ignore next */
   // tslint:disable:max-line-length
   const cflinuxfs2UpgradeNeeded = cflinuxfs2StackGUID && summarisedApplications.filter((app: IApplication) => app.entity.stack_guid === cflinuxfs2StackGUID).length > 0;
@@ -66,6 +77,7 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
       isAdmin,
       isBillingManager,
       isManager,
+      breadcrumbs,
     }),
   };
 }
@@ -106,6 +118,16 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
     };
   }));
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    {
+      text: organization.entity.name ,
+      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
+    },
+    { text: space.entity.name },
+    { text: 'Backing services' },
+  ];
+
   return {
     body: spaceBackingServicesTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -117,6 +139,7 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
       isAdmin,
       isBillingManager,
       isManager,
+      breadcrumbs,
     }),
   };
 }
@@ -195,6 +218,11 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
 
   const cflinuxfs2UpgradeNeeded = summarisedSpaces.some((s: any) => s.entity.cflinuxfs2UpgradeNeeded);
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    { text: summerisedOrganization.entity.name },
+  ];
+
   return {
     body: spacesTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -208,6 +236,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
       isBillingManager,
       isManager,
       cflinuxfs2UpgradeNeeded,
+      breadcrumbs,
     }),
   };
 }

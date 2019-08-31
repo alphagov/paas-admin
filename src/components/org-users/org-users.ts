@@ -21,6 +21,7 @@ import UAAClient, {IUaaInvitation, IUaaUser} from '../../lib/uaa';
 
 import {IContext} from '../app/context';
 import {CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN} from '../auth';
+import {IBreadcrumb} from '../breadcrumbs';
 
 import deleteTemplate from './delete.njk';
 import deleteSuccessTemplate from './delete.success.njk';
@@ -291,7 +292,16 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     .chain(userOrgRoles.map(u => u.metadata.guid))
     .keyBy(id => id)
     .mapValues(id => uaaUsers.findIndex(u => u ? u.id === id : false) >= 0)
-    .value();
+  .value();
+
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    {
+      text: organization.entity.name ,
+      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
+    },
+    { text: 'Team members' },
+  ];
 
   return {
     body: orgUsersTemplate.render({
@@ -305,6 +315,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
       userOriginMapping,
       organization,
       userHasLoginMapping,
+      breadcrumbs,
     }),
   };
 }
@@ -355,6 +366,19 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
     }, Promise.resolve({})),
   };
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    {
+      text: organization.entity.name ,
+      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
+    },
+    {
+      text: 'Team members',
+      href: ctx.linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}),
+    },
+    { text: 'Invite a new team member' },
+  ];
+
   return {
     body: inviteTemplate.render({
       errors: [],
@@ -367,6 +391,7 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
       isAdmin,
       isBillingManager,
       isManager,
+      breadcrumbs,
     }),
   };
 }
@@ -700,6 +725,19 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
     }, Promise.resolve({})),
   };
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    {
+      text: organization.entity.name ,
+      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
+    },
+    {
+      text: 'Team members',
+      href: ctx.linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}),
+    },
+    { text: accountsUser.email },
+  ];
+
   /* istanbul ignore next */
   return {
     body: editTemplate.render({
@@ -718,6 +756,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       isAdmin,
       isBillingManager,
       isManager,
+      breadcrumbs,
     }),
   };
 }

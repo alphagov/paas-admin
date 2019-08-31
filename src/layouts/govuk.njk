@@ -109,9 +109,8 @@
     '
   }) }}
 
-  {% if organization %}
-    {% include "../components/organizations/subnav/element.njk" %}
-  {% endif %}
+  {% include "./breadcrumbs.njk" %}
+
   {% if report %}
     {% include "../components/reports/subnav/element.njk" %}
   {% endif %}
