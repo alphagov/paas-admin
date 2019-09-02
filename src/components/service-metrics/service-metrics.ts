@@ -6,6 +6,7 @@ import PromClient from '../../lib/prom';
 import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
+import { IBreadcrumb } from '../breadcrumbs';
 
 import serviceMetricsTemplate from './service-metrics.njk';
 
@@ -105,6 +106,23 @@ export async function viewServiceMetrics(
     }
   }
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    {
+      text: organization.entity.name ,
+      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
+    },
+    { text: space.entity.name },
+    {
+      text: 'Services',
+      href: ctx.linkTo('admin.organizations.spaces.services.list', {
+        organizationGUID: organization.metadata.guid,
+        spaceGUID: space.metadata.guid,
+      }),
+    },
+    { text: summarisedService.entity.name },
+  ];
+
   return {
     body: serviceMetricsTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -121,6 +139,7 @@ export async function viewServiceMetrics(
       },
 
       open,
+      breadcrumbs,
     }),
   };
 }
