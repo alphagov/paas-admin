@@ -29,7 +29,7 @@
       </a>
     </li>
     <li class="govuk-tabs__list-item {% if routePartOf('admin.organizations.spaces.routes.list') %}govuk-tabs__list-item--selected{% endif %}">
-      <a href="{{ linkTo('admin.organizations.spaces.services.list', {
+      <a href="{{ linkTo('admin.organizations.spaces.routes.list', {
         organizationGUID: organization.metadata.guid,
         spaceGUID: space.metadata.guid
       }) }}">
