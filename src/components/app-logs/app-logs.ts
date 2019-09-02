@@ -1,6 +1,7 @@
 import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
+import { IBreadcrumb } from '../breadcrumbs';
 
 import appLogsTemplate from './app-logs.njk';
 import CloudFoundryClient from '../../lib/cf';
@@ -21,12 +22,31 @@ export async function viewAppLogs(
     cf.space(params.spaceGUID),
     cf.organization(params.organizationGUID),
   ]);
+
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    {
+      text: organization.entity.name ,
+      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
+    },
+    { text: space.entity.name },
+    {
+      text: 'Applications',
+      href: ctx.linkTo('admin.organizations.spaces.applications.list', {
+        organizationGUID: organization.metadata.guid,
+        spaceGUID: space.metadata.guid,
+      }),
+    },
+    { text: application.entity.name },
+  ];
+
   return {
     body: appLogsTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
       application, space, organization,
+      breadcrumbs,
     }),
   };
 }
