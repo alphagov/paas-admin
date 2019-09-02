@@ -24,7 +24,9 @@
 
       <p class="govuk-body-s">
         Percentage of HTTP 1XX/2XX/3XX responses compared to all HTTP responses
-        over the last 24 hours
+        over the last
+        {{ times.historicTime | nicetimedelta(times.instantTime) }}
+        {{ times.historicTime | timedeltaunits(times.instantTime) }}
       </p>
     </div>
 
@@ -40,7 +42,9 @@
 
       <p class="govuk-body-s">
         Mean latency in milliseconds over
-        the last 24 hours
+        the last
+        {{ times.historicTime | nicetimedelta(times.instantTime) }}
+        {{ times.historicTime | timedeltaunits(times.instantTime) }}
       </p>
     </div>
 

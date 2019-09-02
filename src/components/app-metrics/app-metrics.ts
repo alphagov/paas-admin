@@ -1,7 +1,7 @@
 import moment from 'moment-timezone';
 
 import CloudFoundryClient from '../../lib/cf';
-import { timeOffsets } from '../../lib/metrics';
+import { prometheusTimeInterval, timeOffsets } from '../../lib/metrics';
 import PromClient from '../../lib/prom';
 import { IParameters, IResponse } from '../../lib/router';
 
@@ -140,6 +140,8 @@ export async function dataAppMetrics(
     ) / 1000) / numPointsOnChart,
   );
 
+  const promInterval = prometheusTimeInterval(instantTime.getTime() - historicTime.getTime());
+
   const prom = new PromClient(
     ctx.app.prometheusAPI,
     ctx.token.accessToken,
@@ -151,8 +153,8 @@ export async function dataAppMetrics(
     httpReliability,
     latency,
   ] = await Promise.all([
-    `100 * (sum (sum by (source_id) (sum_over_time(http_count{source_id="${sourceID}", status_code=~"[1-3].."}[24h])) or vector(0)) / sum (sum by (source_id) (sum_over_time(http_count{source_id="${sourceID}"}[24h]))) or vector(1))`,
-    `sum(avg by (source_id) (avg_over_time(http_mean_ms{source_id="${sourceID}"}[24h])) or vector(0))`,
+    `100 * (sum (sum by (source_id) (sum_over_time(http_count{source_id="${sourceID}", status_code=~"[1-3].."}[${promInterval}])) or vector(0)) / sum (sum by (source_id) (sum_over_time(http_count{source_id="${sourceID}"}[${promInterval}]))) or vector(1))`,
+    `sum(avg by (source_id) (avg_over_time(http_mean_ms{source_id="${sourceID}"}[${promInterval}])) or vector(0))`,
   ].map(q => prom.getValue(q, instantTime)));
   // tslint:enable:max-line-length
 
