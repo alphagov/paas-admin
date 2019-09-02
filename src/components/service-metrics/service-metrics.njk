@@ -1,34 +1,10 @@
-{% extends "../../layouts/govuk.njk" %}
+{% extends "../services/_tabs.njk" %}
 
 {% block pageTitle %}
   {{ service.entity.name }} - Service Overview
 {% endblock %}
 
-{% block content %}
-  {{ super() }}
-
-  <h1 class="govuk-heading-xl">
-    <span class="govuk-caption-xl">Service</span>
-    {{ service.entity.name }}
-  </h1>
-
-  <ul class="overview-tab">
-    <li>
-      <a href="{{
-        linkTo(
-          'admin.organizations.spaces.services.view',
-          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid }
-        ) }}">Overview</a>
-    </li>
-    <li class="active">
-      <a href="{{
-        linkTo(
-          'admin.organizations.spaces.services.metrics.view',
-          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid }
-        ) }}">Metrics</a>
-    </li>
-  </ul>
-
+{% block insideTabs %}
   {% include "../../layouts/metrics/details.njk" %}
 
   <div class="govuk-grid-row">

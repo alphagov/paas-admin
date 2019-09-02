@@ -1,37 +1,13 @@
-{% extends "../../layouts/govuk.njk" %}
+{% extends "./_tabs.njk" %}
 {% from "govuk-frontend/govuk/components/table/macro.njk" import govukTable %}
 
 {% block pageTitle %}
   {{ service.entity.name }} - Service Overview
 {% endblock %}
 
-{% block content %}
-  {{ super() }}
-
+{% block insideTabs %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-l">
-        <span class="govuk-caption-l">Service</span>
-        {{ service.entity.name }}
-      </h1>
-
-      <ul class="overview-tab">
-        <li class="active">
-          <a href="{{
-            linkTo(
-              'admin.organizations.spaces.services.view',
-              {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid }
-            ) }}">Overview</a>
-        </li>
-        <li>
-          <a href="{{
-            linkTo(
-              'admin.organizations.spaces.services.metrics.view',
-              {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid }
-            ) }}">Metrics</a>
-        </li>
-      </ul>
-
       {{ govukTable({
         caption: 'Service details',
         firstCellIsHeader: false,
