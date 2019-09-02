@@ -38,6 +38,7 @@ describe('spaces test suite', () => {
 
   it('should show the spaces pages', async () => {
     const secondSpace = '5489e195-c42b-4e61-bf30-323c331ecc01';
+
     nockAccounts
       .get('/users/uaa-id-253').reply(200, JSON.stringify({
         user_uuid: 'uaa-id-253',
@@ -79,19 +80,14 @@ describe('spaces test suite', () => {
     });
 
     expect(response.body).toContain('Spaces');
-    expect(response.body).toContain('The space has 2 apps');
-    expect(response.body).toContain('The space has 1 apps');
-    expect(response.body).toContain('2gb');
+    expect(response.body).toMatch(/1[.]00gb\s+of\s+20[.]00gb/m);
+    expect(response.body).toMatch(/2[.]00gb\s+of\s+no limit/m);
   });
 
   it('should show list of applications in space', async () => {
     const appGuid = 'efd23111-72d1-481e-8168-d5395e0ea5f0';
     const appName = 'name-2064';
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.users)
-
       .get('/v2/stacks')
       .reply(200, data.spaces)
 
@@ -116,10 +112,6 @@ describe('spaces test suite', () => {
 
   it('should show list of services in space', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.users)
-
       .get(`/v2/spaces/${spaceGuid}/service_instances`)
       .reply(200, data.services)
 
