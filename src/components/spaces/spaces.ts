@@ -142,6 +142,15 @@ export async function listRoutes(ctx: IContext, params: IParameters): Promise<IR
     .then(routesAndApps => lodash.mapValues(routesAndApps, raa => raa.apps))
   ;
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    {
+      text: organization.entity.name ,
+      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
+    },
+    { text: space.entity.name },
+  ];
+
   return {
     body: spaceRoutesTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -151,6 +160,7 @@ export async function listRoutes(ctx: IContext, params: IParameters): Promise<IR
       space,
       routes: routesForSpace,
       appsByRoute,
+      breadcrumbs,
     }),
   };
 }

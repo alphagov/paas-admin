@@ -1,40 +1,32 @@
-{% extends "../../layouts/govuk.njk" %}
+{% extends "./_tabs.njk" %}
 
 {% block pageTitle %}
   {{ space.entity.name }} - Overview
 {% endblock %}
 
-{% block content %}
-  {{ super() }}
-
-  <h1 class="govuk-heading-l">
-    <span class="govuk-caption-l">Space</span>
-    {{ space.entity.name }}
-  </h1>
-
-  {% include "./_tabs.njk" %}
-
-    <h2 class="govuk-heading-m paas-space-between-heading-and-table">
-      This space contains {{ routes | length }} route{% if routes.length != 1 %}s{% endif %}
-    </h2>
+{% block insideTabs %}
+  <p class="govuk-body">
+    This space contains
+    {{ routes | length }}
+    route{% if routes.length != 1 %}s{% endif %}
+  </p>
 
   {% if routes.length > 0 %}
-
     <table class="govuk-table space-overview">
       <thead class="govuk-table__head">
         <tr class="govuk-table__row">
           <th class="govuk-table__header name" scope="col">Route</th>
-          <th class="govuk-table__header" scope="col">Applications</th>
+          <th class="govuk-table__header" scope="col">Bound applications</th>
         </tr>
       </thead>
       <tbody class="govuk-table__body">
         {% for route in routes %}
           <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">
+            <td class="govuk-table__cell">
               <a href="#" class="govuk-link">
                 {{ route.url }}
               </a>
-            </th>
+            </td>
             <td class="govuk-table__cell ">
               {% for app in appsByRoute[route.guid] %}
                 <a href="{{ linkTo('admin.organizations.spaces.applications.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: app.metadata.guid}) }}" class="govuk-link">{{ app.entity.name }}</a>
