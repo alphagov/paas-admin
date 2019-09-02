@@ -50,7 +50,6 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
       href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
     },
     { text: space.entity.name },
-    { text: 'Applications' },
   ];
 
   /* istanbul ignore next */
@@ -106,7 +105,6 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
       href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
     },
     { text: space.entity.name },
-    { text: 'Backing services' },
   ];
 
   return {

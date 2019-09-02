@@ -1,22 +1,15 @@
-{% extends "../../layouts/govuk.njk" %}
+{% extends "./_tabs.njk" %}
 
 {% block pageTitle %}
   {{ space.entity.name }} - Overview
 {% endblock %}
 
-{% block content %}
-  {{ super() }}
-
-  <h1 class="govuk-heading-l">
-    <span class="govuk-caption-l">Space</span>
-    {{ space.entity.name }}
-  </h1>
-
-  {% include "./_tabs.njk" %}
-
-  <h2 class="govuk-heading-m paas-space-between-heading-and-table">
-    This space contains {{ applications | length }} application{% if applications.length != 1 %}s{% endif %}
-  </h2>
+{% block insideTabs %}
+  <p class="govuk-body">
+    This space contains
+    {{ applications | length }}
+    application{% if applications.length != 1 %}s{% endif %}
+  </p>
 
   {% if applications.length > 0 %}
 
@@ -41,7 +34,7 @@
       </div>
     {% endif %}
 
-    <table class="govuk-table space-overview">
+    <table class="govuk-table">
       <thead class="govuk-table__head">
         <tr class="govuk-table__row">
           <th class="govuk-table__header name" scope="col">Application name</th>
@@ -55,28 +48,28 @@
       <tbody class="govuk-table__body">
         {% for application in applications %}
           <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">
+            <td class="govuk-table__cell">
               <a href="{{ linkTo('admin.organizations.spaces.applications.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid}) }}" class="govuk-link">{{ application.entity.name }}</a>
-            </th>
-            <td class="govuk-table__cell " title="{{ application.entity.running_instances }} running / {{ application.entity.instances }} desired">
+            </td>
+            <td class="govuk-table__cell" title="{{ application.entity.running_instances }} running / {{ application.entity.instances }} desired">
               {{ application.entity.running_instances }}
               /
               {{ application.entity.instances }}
             </td>
-            <td class="govuk-table__cell " title="Total: {{ ((application.entity.memory * application.entity.instances) / 1024) | round(2) }}gb">
+            <td class="govuk-table__cell" title="Total: {{ ((application.entity.memory * application.entity.instances) / 1024) | round(2) }}gb">
               {{ application.entity.instances }}
               &times;
               {{ (application.entity.memory / 1024) | round(2) }}gb
             </td>
-            <td class="govuk-table__cell " title="Total: {{ ((application.entity.disk_quota * application.entity.instances) / 1024) | round(2) }}gb">
+            <td class="govuk-table__cell" title="Total: {{ ((application.entity.disk_quota * application.entity.instances) / 1024) | round(2) }}gb">
               {{ application.entity.instances }}
               &times;
               {{ (application.entity.disk_quota / 1024) | round(2) }}gb
             </td>
-            <td class="govuk-table__cell ">
+            <td class="govuk-table__cell">
               {{ application.entity.state | lower }}
             </td>
-            <td class="govuk-table__cell ">
+            <td class="govuk-table__cell">
               {{ application.entity.urls | linkify | join(", ") | safe }}
             </td>
           </tr>
