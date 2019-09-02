@@ -1,0 +1,23 @@
+.application-logs {
+  font-family: monospace;
+}
+
+.log-line {
+  display: table-row;
+}
+
+.log-gutter {
+  display: table-cell;
+  width: 15rem;
+  background-color: govuk-colour("light-grey");
+  padding: 3px;
+  border-right: 1px solid govuk-colour("mid-grey");
+  border-bottom: 1px solid govuk-colour("mid-grey");
+}
+
+.log-body {
+  display: table-cell;
+  padding: 3px 3px 3px 5px;
+  border-bottom: 1px solid govuk-colour("mid-grey");
+  white-space: pre-wrap;
+}

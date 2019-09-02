@@ -5,6 +5,8 @@ $govuk-global-styles: true;
 @import 'elements';
 @import 'header';
 
+@import '../components/app-logs/app-logs';
+
 @import '../components/calculator/calculator';
 
 @import '../components/reports/subnav/element';
