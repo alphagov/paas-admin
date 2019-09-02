@@ -1,47 +1,10 @@
-{% extends "../../layouts/govuk.njk" %}
-{% from "govuk-frontend/components/back-link/macro.njk" import govukBackLink %}
+{% extends "../applications/_tabs.njk" %}
 
 {% block pageTitle %}
   {{ application.entity.name }} - Application Logs
 {% endblock %}
 
-{% block content %}
-  {{ super() }}
-
-  {{ govukBackLink({
-    text: 'Space: ' + space.entity.name,
-    href: linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})
-  }) }}
-
-  <h1 class="govuk-heading-xl">
-    <span class="govuk-caption-xl">Application logs</span>
-    {{ application.entity.name }}
-  </h1>
-
-  <ul class="overview-tab">
-    <li>
-      <a href="{{
-        linkTo(
-          'admin.organizations.spaces.applications.view',
-          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
-        ) }}">Overview</a>
-    </li>
-    <li>
-      <a href="{{
-        linkTo(
-          'admin.organizations.spaces.applications.metrics.view',
-          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
-        ) }}">Metrics</a>
-    </li>
-    <li class="active">
-      <a href="{{
-        linkTo(
-          'admin.organizations.spaces.applications.logs.view',
-          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid }
-        ) }}">Logs</a>
-    </li>
-  </ul>
-
+{% block insideTabs %}
   <p class="govuk-body">
     The logs displayed below are live streamed from the application to your
     browser, and are not historical.

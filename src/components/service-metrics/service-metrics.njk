@@ -1,6 +1,4 @@
 {% extends "../../layouts/govuk.njk" %}
-{% from "govuk-frontend/components/table/macro.njk" import govukTable %}
-{% from "govuk-frontend/components/back-link/macro.njk" import govukBackLink %}
 
 {% block pageTitle %}
   {{ service.entity.name }} - Service Overview
@@ -8,11 +6,6 @@
 
 {% block content %}
   {{ super() }}
-
-  {{ govukBackLink({
-    text: 'Space: ' + space.entity.name,
-    href: linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid})
-  }) }}
 
   <h1 class="govuk-heading-xl">
     <span class="govuk-caption-xl">Service</span>
