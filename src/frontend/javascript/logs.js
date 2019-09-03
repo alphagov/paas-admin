@@ -22,7 +22,7 @@
     var data = JSON.parse(e.data);
 
     data.batch.forEach(function (item) {
-      console.log(item);
+      console.info(item);
 
       var timestamp = new Date(item.timestamp / 1e6).toISOString();
       var log = atob(item.log.payload);
