@@ -49,7 +49,19 @@
       rowElem.append(logGutterElem);
       rowElem.append(logBodyElem);
 
+      var scrollOffset = document.body.scrollHeight -
+                         window.innerHeight -
+                         window.scrollY;
+
+      var shouldScroll = scrollOffset <= 250; // arbitrarily close to bottom
+
       elem.append(rowElem);
+
+      if (shouldScroll) {
+        window.scrollTo(
+          0, document.body.scrollHeight - window.innerHeight - 200
+        );
+      }
     });
   });
 
