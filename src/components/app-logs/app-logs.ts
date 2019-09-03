@@ -1,13 +1,14 @@
+import EventSource from 'eventsource';
+import { Request, Response } from 'express';
+
+import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
 import { IBreadcrumb } from '../breadcrumbs';
 
-import appLogsTemplate from './app-logs.njk';
-import CloudFoundryClient from '../../lib/cf';
 import { IAppConfig } from '../app';
-import { Request, Response } from 'express';
-import EventSource from 'eventsource';
+import appLogsTemplate from './app-logs.njk';
 
 export async function viewAppLogs(
   ctx: IContext, params: IParameters,
