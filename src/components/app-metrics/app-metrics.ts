@@ -1,13 +1,6 @@
 import moment from 'moment-timezone';
 
 import CloudFoundryClient from '../../lib/cf';
-import { prometheusTimeInterval, timeOffsets } from '../../lib/metrics';
-import PromClient from '../../lib/prom';
-import { IParameters, IResponse } from '../../lib/router';
-
-import { IContext } from '../app/context';
-import { IBreadcrumb } from '../breadcrumbs';
-
 import {
   appCPUUsageAggregatedSeries,
   appDiskUsageAggregatedSeries,
@@ -22,7 +15,15 @@ import {
   appHTTPReliabilitySingleStat,
 
   appMemoryUsageAggregatedSeries,
-} from '../metrics';
+
+  prometheusTimeInterval,
+  timeOffsets,
+} from '../../lib/metrics';
+import PromClient from '../../lib/prom';
+import { IParameters, IResponse } from '../../lib/router';
+
+import { IContext } from '../app/context';
+import { IBreadcrumb } from '../breadcrumbs';
 
 import appMetricsTemplate from './app-metrics.njk';
 
