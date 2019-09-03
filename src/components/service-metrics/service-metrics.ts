@@ -8,6 +8,13 @@ import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app/context';
 import { IBreadcrumb } from '../breadcrumbs';
 
+import {
+  rdsCPUUsageAggregatedSeries,
+
+  rdsFreeStorageSpaceAggregatedSeries,
+  rdsFreeStorageSpaceSingleStat,
+} from '../metrics';
+
 import serviceMetricsTemplate from './service-metrics.njk';
 
 export async function viewServiceMetrics(
@@ -170,14 +177,14 @@ export async function dataServiceMetrics(
   const [
     freeStorageSpace,
   ] = await Promise.all([
-    `avg by (source_id) (free_storage_space{source_id="${sourceID}"})`,
+    rdsFreeStorageSpaceSingleStat(sourceID),
   ].map(q => prom.getValue(q, instantTime)));
   const [
     freeStorageSpaceSeries,
     cpuSeries,
   ] = await Promise.all([
-    `avg by (source_id) (free_storage_space{source_id="${sourceID}"})`,
-    `avg by (source_id) (cpu{source_id="${sourceID}"})`,
+    rdsFreeStorageSpaceAggregatedSeries(sourceID),
+    rdsCPUUsageAggregatedSeries(sourceID),
   ].map(q => prom.getSeries(q, timeStep, historicTime, instantTime)));
 
   return {

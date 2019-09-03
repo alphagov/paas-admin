@@ -108,3 +108,27 @@ export const appDiskUsageAggregatedSeries = (
   disk_quota{source_id="${sourceID}"}
 )
 `.replace(/\s+/m, ' ').trim();
+
+export const rdsFreeStorageSpaceSingleStat = (
+  sourceID: string,
+): PrometheusSingleStatQuery => `
+avg by (source_id) (
+  free_storage_space{source_id="${sourceID}"}
+)
+`.replace(/\s+/m, ' ').trim();
+
+export const rdsFreeStorageSpaceAggregatedSeries = (
+  sourceID: string,
+): PrometheusSingleStatQuery => `
+avg by (source_id) (
+  free_storage_space{source_id="${sourceID}"}
+)
+`.replace(/\s+/m, ' ').trim();
+
+export const rdsCPUUsageAggregatedSeries = (
+  sourceID: string,
+): PrometheusSingleStatQuery => `
+avg by (source_id) (
+  cpu{source_id="${sourceID}"}
+)
+`.replace(/\s+/m, ' ').trim();
