@@ -8,6 +8,22 @@ import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app/context';
 import { IBreadcrumb } from '../breadcrumbs';
 
+import {
+  appCPUUsageAggregatedSeries,
+  appDiskUsageAggregatedSeries,
+
+  appHTTPCountAggregatedSeries,
+  appHTTPCountSegmentedSeries,
+
+  appHTTPLatencyAggregatedSeries,
+  appHTTPLatencySegmentedSeries,
+
+  appHTTPLatencySingleStat,
+  appHTTPReliabilitySingleStat,
+
+  appMemoryUsageAggregatedSeries,
+} from '../metrics';
+
 import appMetricsTemplate from './app-metrics.njk';
 
 export async function viewAppMetrics(
@@ -153,8 +169,8 @@ export async function dataAppMetrics(
     httpReliability,
     latency,
   ] = await Promise.all([
-    `100 * (sum (sum by (source_id) (sum_over_time(http_count{source_id="${sourceID}", status_code=~"[1-3].."}[${promInterval}])) or vector(0)) / sum (sum by (source_id) (sum_over_time(http_count{source_id="${sourceID}"}[${promInterval}]))) or vector(1))`,
-    `sum(avg by (source_id) (avg_over_time(http_mean_ms{source_id="${sourceID}"}[${promInterval}])) or vector(0))`,
+    appHTTPReliabilitySingleStat(sourceID, promInterval),
+    appHTTPLatencySingleStat(sourceID, promInterval),
   ].map(q => prom.getValue(q, instantTime)));
   // tslint:enable:max-line-length
 
@@ -167,21 +183,23 @@ export async function dataAppMetrics(
     httpAverageLatencySeries,
     cpuSeries, memorySeries, diskSeries,
   ] = await Promise.all([
-    `sum (http_count{source_id="${sourceID}", status_code=~"1.."} or vector(0))`,
-    `sum (http_count{source_id="${sourceID}", status_code=~"2.."} or vector(0))`,
-    `sum (http_count{source_id="${sourceID}", status_code=~"3.."} or vector(0))`,
-    `sum (http_count{source_id="${sourceID}", status_code=~"4.."} or vector(0))`,
-    `sum (http_count{source_id="${sourceID}", status_code=~"5.."} or vector(0))`,
-    `sum (http_count{source_id="${sourceID}"} or vector(0))`,
-    `sum (http_mean_ms{source_id="${sourceID}", status_code=~"1.."} or vector(0))`,
-    `sum (http_mean_ms{source_id="${sourceID}", status_code=~"2.."} or vector(0))`,
-    `sum (http_mean_ms{source_id="${sourceID}", status_code=~"3.."} or vector(0))`,
-    `sum (http_mean_ms{source_id="${sourceID}", status_code=~"4.."} or vector(0))`,
-    `sum (http_mean_ms{source_id="${sourceID}", status_code=~"5.."} or vector(0))`,
-    `sum (avg (http_mean_ms{source_id="${sourceID}"}) or vector(0))`,
-    `100 * avg by (source_id) (cpu{source_id="${sourceID}"})`,
-    `100 * avg by (source_id) (memory{source_id="${sourceID}"} / memory_quota{source_id="${sourceID}"})`,
-    `100 * avg by (source_id) (disk{source_id="${sourceID}"} / disk_quota{source_id="${sourceID}"})`,
+    appHTTPCountSegmentedSeries(sourceID, 1),
+    appHTTPCountSegmentedSeries(sourceID, 2),
+    appHTTPCountSegmentedSeries(sourceID, 3),
+    appHTTPCountSegmentedSeries(sourceID, 4),
+    appHTTPCountSegmentedSeries(sourceID, 5),
+    appHTTPCountAggregatedSeries(sourceID),
+
+    appHTTPLatencySegmentedSeries(sourceID, 1),
+    appHTTPLatencySegmentedSeries(sourceID, 2),
+    appHTTPLatencySegmentedSeries(sourceID, 3),
+    appHTTPLatencySegmentedSeries(sourceID, 4),
+    appHTTPLatencySegmentedSeries(sourceID, 5),
+    appHTTPLatencyAggregatedSeries(sourceID),
+
+    appCPUUsageAggregatedSeries(sourceID),
+    appMemoryUsageAggregatedSeries(sourceID),
+    appDiskUsageAggregatedSeries(sourceID),
   ].map(q => prom.getSeries(q, timeStep, historicTime, instantTime)));
 
   return {
