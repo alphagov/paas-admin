@@ -1,5 +1,6 @@
-import lodash from 'lodash';
+import lodash, {CollectionChain} from 'lodash';
 import merge from 'merge-deep';
+import {BaseLogger} from 'pino';
 
 import {isUndefined} from 'util';
 import {AccountsClient} from '../../lib/accounts';
@@ -16,7 +17,7 @@ import {
 import NotificationClient from '../../lib/notify';
 import {IParameters, IResponse} from '../../lib/router';
 import {NotFoundError} from '../../lib/router/errors';
-import UAAClient, {IUaaInvitation} from '../../lib/uaa';
+import UAAClient, {IUaaInvitation, IUaaUser} from '../../lib/uaa';
 
 import {IContext} from '../app/context';
 import {CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN} from '../auth';
@@ -195,6 +196,35 @@ export async function _getUserRolesByGuid(
   return userRolesByGuid;
 }
 
+function _excludeUsersWithoutUaaRecord(
+  userRolesByGuid: IUserRolesByGuid,
+  uaaUsers: ReadonlyArray<IUaaUser | null>,
+  logger: BaseLogger,
+): IUserRolesByGuid {
+
+  const filteredRoles: { [key: string]: IUserRoles } = {};
+
+  for (const guid in userRolesByGuid) {
+    /* istanbul ignore next */
+    if (!userRolesByGuid.hasOwnProperty(guid)) {
+      continue;
+    }
+
+    const role = userRolesByGuid[guid];
+
+    if (uaaUsers.some(u => u && u.id === guid)) {
+      filteredRoles[guid] = role;
+    } else {
+      logger.warn(
+        `User ${guid} was discovered in CloudFoundry, but did not have a record in UAA. ` +
+        `Was the user deleted or created improperly?`,
+      );
+    }
+  }
+
+  return filteredRoles as IUserRolesByGuid;
+}
+
 export async function listUsers(ctx: IContext, params: IParameters): Promise<IResponse> {
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
@@ -247,13 +277,21 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
   );
 
   const uaaUsers = await uaa.getUsers(userOrgRoles.map(u => u.metadata.guid));
+  const users = _excludeUsersWithoutUaaRecord(userRolesByGuid, uaaUsers, ctx.app.logger);
 
-  const userOriginMapping: {[key: string]: string} = lodash
+  const userOriginMapping: { [key: string]: string } = (lodash
     .chain(uaaUsers)
+    .filter(u => u != null) as CollectionChain<IUaaUser>)
     .keyBy(u => u.id)
     .mapValues(u => u.origin)
     .value()
   ;
+
+  const userHasLoginMapping: { [key: string]: boolean } = lodash
+    .chain(userOrgRoles.map(u => u.metadata.guid))
+    .keyBy(id => id)
+    .mapValues(id => uaaUsers.findIndex(u => u ? u.id === id : false) >= 0)
+    .value();
 
   return {
     body: orgUsersTemplate.render({
@@ -263,9 +301,10 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
       isManager,
       isBillingManager,
       linkTo: ctx.linkTo,
-      users: userRolesByGuid,
+      users,
       userOriginMapping,
       organization,
+      userHasLoginMapping,
     }),
   };
 }
@@ -630,6 +669,10 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
   const accountsUser = await accountsClient.getUser(params.userGUID);
 
   if (!accountsUser) {
+    ctx.app.logger.warn(
+      `user ${uaaUser.id} was found in UAA and CF, but not in paas-accounts. ` +
+      `Was the user created incorrectly? They should be invited via paas-admin`,
+    );
     throw new NotFoundError('user not found in paas-accounts');
   }
 

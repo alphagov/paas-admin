@@ -110,6 +110,67 @@ describe('org-users test suite', () => {
     expect(response.body).toContain('Custom-origin-3');
   });
 
+  it('should not show users who don\'t have UAA accounts', async () => {
+    nockCF
+      .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/user_roles')
+      .reply(200, cfData.userRolesForSpace)
+
+      .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/user_roles')
+      .reply(200, cfData.userRolesForSpace)
+
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .reply(200, cfData.spaces)
+
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .reply(200, JSON.stringify(defaultOrg()))
+
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .times(3)
+      .reply(200, cfData.userRolesForOrg)
+    ;
+
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .times(4)
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get('/Users/uaa-id-253')
+      .reply(200, JSON.stringify({
+        ...JSON.parse(uaaData.user),
+        id: 'uaa-id-253',
+      }))
+
+      .get('/Users/uaa-user-edit-123456')
+      .reply(200, JSON.stringify({
+        ...JSON.parse(uaaData.user),
+        id: 'uaa-user-edit-123456',
+        origin: 'custom-origin-1',
+      }))
+
+      .get('/Users/uaa-user-changeperms-123456')
+      .reply(200, JSON.stringify({
+        ...JSON.parse(uaaData.user),
+        id: 'uaa-user-changeperms-123456',
+        origin: 'custom-origin-2',
+      }))
+
+      // User 9902... should not be in UAA
+      .get('/Users/99022be6-feb8-4f78-96f3-7d11f4d476f1')
+      .reply(404, '')
+    ;
+
+    try {
+      const response = await orgUsers.listUsers(ctx, {
+        organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      });
+
+      expect(response.body).not.toBeFalsy();
+      expect(response.body).not.toContain('99022be6-feb8-4f78-96f3-7d11f4d476f1');
+    } catch (error) {
+      fail(error);
+    }
+  });
+
   it('should show the invite page', async () => {
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
