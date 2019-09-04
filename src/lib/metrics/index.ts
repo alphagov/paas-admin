@@ -31,8 +31,16 @@ export const prometheusTimeInterval = (intervalMillis: number): string => {
 };
 
 export type PrometheusInterval = string;
+
 export type PrometheusSingleStatQuery = string;
+export type PrometheusSingleStatQueryBuilder = (
+  sourceID: string, interval: PrometheusInterval,
+) => PrometheusSingleStatQuery;
+
 export type PrometheusSingleSeriesQuery = string;
+export type PrometheusSingleSeriesQueryBuilder = (
+  sourceID: string,
+) => PrometheusSingleSeriesQuery;
 
 export const appHTTPReliabilitySingleStat = (
   sourceID: string,
@@ -163,3 +171,37 @@ avg by (source_id) (
   cpu{source_id="${sourceID}"}
 )
 `.replace(/\s+/m, ' ').trim();
+
+export const appSingleStats: { readonly [key: string]: PrometheusSingleStatQueryBuilder } = {
+  'app-http-reliability-aggregated-singlestat': appHTTPReliabilitySingleStat,
+  'app-http-latency-aggregated-singlestat': appHTTPLatencySingleStat,
+};
+
+export const appSingleSeries: { readonly [key: string]: PrometheusSingleSeriesQueryBuilder } = {
+  'app-http-count-1xx-series': (sourceID: string) => appHTTPCountSegmentedSeries(sourceID, 1),
+  'app-http-count-2xx-series': (sourceID: string) => appHTTPCountSegmentedSeries(sourceID, 2),
+  'app-http-count-3xx-series': (sourceID: string) => appHTTPCountSegmentedSeries(sourceID, 3),
+  'app-http-count-4xx-series': (sourceID: string) => appHTTPCountSegmentedSeries(sourceID, 4),
+  'app-http-count-5xx-series': (sourceID: string) => appHTTPCountSegmentedSeries(sourceID, 5),
+  'app-http-count-aggregated-series': appHTTPCountAggregatedSeries,
+
+  'app-http-latency-1xx-series': (sourceID: string) => appHTTPLatencySegmentedSeries(sourceID, 1),
+  'app-http-latency-2xx-series': (sourceID: string) => appHTTPLatencySegmentedSeries(sourceID, 2),
+  'app-http-latency-3xx-series': (sourceID: string) => appHTTPLatencySegmentedSeries(sourceID, 3),
+  'app-http-latency-4xx-series': (sourceID: string) => appHTTPLatencySegmentedSeries(sourceID, 4),
+  'app-http-latency-5xx-series': (sourceID: string) => appHTTPLatencySegmentedSeries(sourceID, 5),
+  'app-http-latency-aggregated-series': appHTTPLatencyAggregatedSeries,
+
+  'app-cpu-usage-aggregated-series': appCPUUsageAggregatedSeries,
+  'app-memory-usage-aggregated-series': appMemoryUsageAggregatedSeries,
+  'app-disk-usage-aggregated-series': appDiskUsageAggregatedSeries,
+};
+
+export const rdsSingleStats: { readonly [key: string]: PrometheusSingleStatQueryBuilder } = {
+  'rds-free-storage-space-aggregated-singlestat': rdsFreeStorageSpaceSingleStat,
+};
+
+export const rdsSingleSeries: { readonly [key: string]: PrometheusSingleSeriesQueryBuilder } = {
+  'rds-cpu-usage-aggregated-series': rdsCPUUsageAggregatedSeries,
+  'rds-free-storage-space-aggregated-series': rdsFreeStorageSpaceAggregatedSeries,
+};

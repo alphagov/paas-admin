@@ -2,19 +2,8 @@ import moment from 'moment-timezone';
 
 import CloudFoundryClient from '../../lib/cf';
 import {
-  appCPUUsageAggregatedSeries,
-  appDiskUsageAggregatedSeries,
-
-  appHTTPCountAggregatedSeries,
-  appHTTPCountSegmentedSeries,
-
-  appHTTPLatencyAggregatedSeries,
-  appHTTPLatencySegmentedSeries,
-
-  appHTTPLatencySingleStat,
-  appHTTPReliabilitySingleStat,
-
-  appMemoryUsageAggregatedSeries,
+  appSingleSeries,
+  appSingleStats,
 
   prometheusTimeInterval,
   timeOffsets,
@@ -141,6 +130,18 @@ export async function viewAppMetrics(
 }
 
 export async function dataAppMetrics(
+  _ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
+  return {
+    body: JSON.stringify([
+      ...Object.keys(appSingleStats),
+      ...Object.keys(appSingleSeries),
+    ]),
+  };
+}
+
+export async function dataAppMetricValues(
   ctx: IContext,
   params: IParameters,
 ): Promise<IResponse> {
@@ -157,66 +158,32 @@ export async function dataAppMetrics(
     ) / 1000) / numPointsOnChart,
   );
 
-  const promInterval = prometheusTimeInterval(instantTime.getTime() - historicTime.getTime());
-
   const prom = new PromClient(
     ctx.app.prometheusAPI,
     ctx.token.accessToken,
     ctx.app.logger,
   );
 
-  // tslint:disable:max-line-length
-  const [
-    httpReliability,
-    latency,
-  ] = await Promise.all([
-    appHTTPReliabilitySingleStat(sourceID, promInterval),
-    appHTTPLatencySingleStat(sourceID, promInterval),
-  ].map(q => prom.getValue(q, instantTime)));
-  // tslint:enable:max-line-length
+  const metricKey = params.metric;
 
-  const [
-    http1xxCountSeries, http2xxCountSeries, http3xxCountSeries,
-    http4xxCountSeries, http5xxCountSeries,
-    httpTotalCountSeries,
-    http1xxLatencySeries, http2xxLatencySeries, http3xxLatencySeries,
-    http4xxLatencySeries, http5xxLatencySeries,
-    httpAverageLatencySeries,
-    cpuSeries, memorySeries, diskSeries,
-  ] = await Promise.all([
-    appHTTPCountSegmentedSeries(sourceID, 1),
-    appHTTPCountSegmentedSeries(sourceID, 2),
-    appHTTPCountSegmentedSeries(sourceID, 3),
-    appHTTPCountSegmentedSeries(sourceID, 4),
-    appHTTPCountSegmentedSeries(sourceID, 5),
-    appHTTPCountAggregatedSeries(sourceID),
+  if (appSingleStats[metricKey]) {
+    const promInterval = prometheusTimeInterval(instantTime.getTime() - historicTime.getTime());
 
-    appHTTPLatencySegmentedSeries(sourceID, 1),
-    appHTTPLatencySegmentedSeries(sourceID, 2),
-    appHTTPLatencySegmentedSeries(sourceID, 3),
-    appHTTPLatencySegmentedSeries(sourceID, 4),
-    appHTTPLatencySegmentedSeries(sourceID, 5),
-    appHTTPLatencyAggregatedSeries(sourceID),
+    const metricVal = await prom.getValue(
+      appSingleStats[metricKey](sourceID, promInterval),
+      instantTime,
+    );
 
-    appCPUUsageAggregatedSeries(sourceID),
-    appMemoryUsageAggregatedSeries(sourceID),
-    appDiskUsageAggregatedSeries(sourceID),
-  ].map(q => prom.getSeries(q, timeStep, historicTime, instantTime)));
+    return { body: JSON.stringify(metricVal) };
+  }
 
-  return {
-    body: JSON.stringify({
-      values: {
-        httpReliability, latency,
-      },
-      series: {
-        http1xxCountSeries, http2xxCountSeries, http3xxCountSeries,
-        http4xxCountSeries, http5xxCountSeries,
-        httpTotalCountSeries,
-        http1xxLatencySeries, http2xxLatencySeries, http3xxLatencySeries,
-        http4xxLatencySeries, http5xxLatencySeries,
-        httpAverageLatencySeries,
-        cpuSeries, memorySeries, diskSeries,
-      },
-    }),
-  };
+  if (appSingleSeries[metricKey]) {
+    const metricVal = await prom.getSeries(
+      appSingleSeries[metricKey](sourceID),
+      timeStep, historicTime, instantTime,
+    );
+    return { body: JSON.stringify(metricVal) };
+  }
+
+  throw new Error('No metric found');
 }

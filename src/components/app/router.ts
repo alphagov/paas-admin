@@ -1,14 +1,14 @@
 import Router, { IParameters } from '../../lib/router';
 
 import * as account from '../account';
-import * as appMetrics from '../app-metrics';
 import * as appLogs from '../app-logs';
+import * as appMetrics from '../app-metrics';
 import * as applications from '../applications';
 import * as orgUsers from '../org-users';
 import * as organizations from '../organizations';
 import * as reports from '../reports';
-import * as services from '../services';
 import * as serviceMetrics from '../service-metrics';
+import * as services from '../services';
 import * as spaces from '../spaces';
 import * as statements from '../statements';
 import * as users from '../users';
@@ -53,9 +53,9 @@ const router = new Router([
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID',
   },
   {
-    action: appMetrics.dataAppMetrics,
-    name: 'admin.organizations.spaces.applications.metrics.data',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/metrics.json',
+    action: appLogs.viewAppLogs,
+    name: 'admin.organizations.spaces.applications.logs.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/logs',
   },
   {
     action: appMetrics.viewAppMetrics,
@@ -63,9 +63,14 @@ const router = new Router([
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/metrics',
   },
   {
-    action: appLogs.viewAppLogs,
-    name: 'admin.organizations.spaces.applications.logs.view',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/logs',
+    action: appMetrics.dataAppMetrics,
+    name: 'admin.organizations.spaces.applications.metrics.data',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/metrics.json',
+  },
+  {
+    action: appMetrics.dataAppMetricValues,
+    name: 'admin.organizations.spaces.applications.metric.values.data',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/metrics/:metric.json',
   },
   {
     action: services.viewService,
@@ -73,14 +78,19 @@ const router = new Router([
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID',
   },
   {
+    action: serviceMetrics.viewServiceMetrics,
+    name: 'admin.organizations.spaces.services.metrics.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics',
+  },
+  {
     action: serviceMetrics.dataServiceMetrics,
     name: 'admin.organizations.spaces.services.metrics.data',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics.json',
   },
   {
-    action: serviceMetrics.viewServiceMetrics,
-    name: 'admin.organizations.spaces.services.metrics.view',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics',
+    action: serviceMetrics.dataServiceMetricValues,
+    name: 'admin.organizations.spaces.services.metrics.values.data',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics/:metric.json',
   },
   {
     action: orgUsers.listUsers,

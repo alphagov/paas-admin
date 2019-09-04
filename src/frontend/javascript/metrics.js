@@ -4,208 +4,134 @@ window.disableMetricsFilterButton = function () {
 };
 
 (function() {
+  var percentageValTickFormatter = (val) => {
+    return `${val}%`;
+  };
+
+  var megabytesValTickFormatter = (val) => {
+    var valInMB = val / (1024 * 1024);
+    return `${valInMB.toFixed(1)} MB`;
+  };
+
   var dataPath = window.location.pathname + '.json';
 
   var historicTime = new Date(document.querySelector('#start-time').value);
   var instantTime = new Date(document.querySelector('#end-time').value);
 
-  dataPath += '?start-time=' + historicTime.getTime().toString();
-  dataPath += '&end-time=' + instantTime.getTime().toString();
+  var env = muze();
+  var DataModel = muze.DataModel;
+  var html = muze.Operators.html;
+  var DateTimeFormatter = muze.utils.DateTimeFormatter;
+  var height = 275;
+
+  var govukLightBlue = '#5694ca';
+  var govukBlue = '#1d70b8';
+  var govukDarkBlue = '#003078';
+  var govukOrange = '#f47738';
+  var govukRed = '#d4351c';
+
+  var http1xxColor = govukLightBlue;
+  var http2xxColor = govukBlue;
+  var http3xxColor = govukDarkBlue;
+  var http4xxColor = govukOrange;
+  var http5xxColor = govukRed;
+
+  var singleChartColor = govukBlue;
+  var httpColorRange = [
+    http1xxColor, http2xxColor, http3xxColor,
+    http4xxColor, http5xxColor,
+  ];
 
   fetch(dataPath).then(function(response) {
     console.info(response);
     return response.json();
-  }).then(function(response) {
-    console.info(response);
+  }).then(function(metrics) {
+    console.info(metrics);
 
-    if (typeof response.values.httpReliability !== 'undefined') {
-      document
-        .querySelector('#http-reliability-value')
-        .innerText = parseFloat(response.values.httpReliability).toFixed(1);
-    }
+    return Promise.all(
+      metrics.map(function(metricName) {
+        var dataPath = window.location.pathname + '/' + metricName + '.json'
+        dataPath += '?start-time=' + historicTime.getTime().toString();
+        dataPath += '&end-time=' + instantTime.getTime().toString();
 
-    if (typeof response.values.latency !== 'undefined') {
-      document
-        .querySelector('#latency-value')
-        .innerText = parseFloat(response.values.latency).toFixed(1);
-    }
+        return fetch(dataPath).then(function(response) {
+          console.info(response);
+          return response.json();
+        }).then(function(metric) {
+          console.info(metricName, metric);
+          return {key: metricName, val: metric};
+        });
+      })
+    );
+  }).then(function(metrics) {
+    metrics.forEach(function(m) {
+      console.log(m);
+      if (m.key === 'app-http-reliability-aggregated-singlestat') {
+        document
+          .querySelector('#http-reliability-value')
+          .innerText = parseFloat(m.val).toFixed(1);
+      }
 
-    if (typeof response.values.freeStorageSpace !== 'undefined') {
-      document
-        .querySelector('#free-storage-space-value')
-        .innerText = parseFloat(response.values.freeStorageSpace/ (1024 * 1024)).toFixed(1);
-    }
+      if (m.key === 'app-http-latency-aggregated-singlestat') {
+        document
+          .querySelector('#latency-value')
+          .innerText = parseFloat(m.val).toFixed(1);
+      }
 
-    var env = muze();
-    var DataModel = muze.DataModel;
-    var html = muze.Operators.html;
-    var DateTimeFormatter = muze.utils.DateTimeFormatter;
-    var height = 275;
+      if (m.key === 'rds-free-storage-space-aggregated-singlestat') {
+        document
+          .querySelector('#free-storage-space-value')
+          .innerText = parseFloat(m.val/ (1024 * 1024)).toFixed(1);
+      }
 
-    var govukLightBlue = '#5694ca';
-    var govukBlue = '#1d70b8';
-    var govukDarkBlue = '#003078';
-    var govukOrange = '#f47738';
-    var govukRed = '#d4351c';
+      console.info(m);
 
-    var http1xxColor = govukLightBlue;
-    var http2xxColor = govukBlue;
-    var http3xxColor = govukDarkBlue;
-    var http4xxColor = govukOrange;
-    var http5xxColor = govukRed;
-
-    var singleChartColor = govukBlue;
-    var httpColorRange = [
-      http1xxColor, http2xxColor, http3xxColor,
-      http4xxColor, http5xxColor,
-    ];
-
-    if (typeof response.series.httpTotalCountSeries !== 'undefined') {
-      env
-        .canvas()
-        .data(new muze.DataModel(
-          [['Code', 'Timestamp','Value']].concat(
-            response.series.http1xxCountSeries.map(
-              (p) => ['1XX', p[0] * 1000, parseFloat(p[1])],
-            ),
-          ).concat(
-            response.series.http2xxCountSeries.map(
-              (p) => ['2XX', p[0] * 1000, parseFloat(p[1])],
-            ),
-          ).concat(
-            response.series.http3xxCountSeries.map(
-              (p) => ['3XX', p[0] * 1000, parseFloat(p[1])],
-            ),
-          ).concat(
-            response.series.http4xxCountSeries.map(
-              (p) => ['4XX', p[0] * 1000, parseFloat(p[1])],
-            ),
-          ).concat(
-            response.series.http5xxCountSeries.map(
-              (p) => ['5XX', p[0] * 1000, parseFloat(p[1])],
-            ),
-          ),
-          [
-            { name: 'Code', type: 'dimension'},
-            { name: 'Timestamp', type: 'dimension', subtype: 'temporal', format: '%Y-%m-%d %H:%M'},
-            { name: 'Value',     type: 'measure'},
-          ]
-        ))
-        .height(height)
-        .config({
-          axes: {
-            x: {
-              showAxisName: false,
-            },
-            y: {
-              showAxisName: false,
-              tickFormat: val => `${val}`,
-            },
-          }
-        })
-        .rows(['Value'])
-        .columns(['Timestamp'])
-        .color({field: 'Code', range: httpColorRange})
-        .layers([{ mark: 'line' }])
-        .mount('#http-responses-chart')
-      ;
-    }
-
-    if (typeof response.series.httpAverageLatencySeries !== 'undefined') {
-      env
-        .canvas()
-        .data(new muze.DataModel(
-          [['Code', 'Timestamp','Value']].concat(
-            response.series.http1xxLatencySeries.map(
-              (p) => ['1XX', p[0] * 1000, parseFloat(p[1])],
-            ),
-          ).concat(
-            response.series.http2xxLatencySeries.map(
-              (p) => ['2XX', p[0] * 1000, parseFloat(p[1])],
-            ),
-          ).concat(
-            response.series.http3xxLatencySeries.map(
-              (p) => ['3XX', p[0] * 1000, parseFloat(p[1])],
-            ),
-          ).concat(
-            response.series.http4xxLatencySeries.map(
-              (p) => ['4XX', p[0] * 1000, parseFloat(p[1])],
-            ),
-          ).concat(
-            response.series.http5xxLatencySeries.map(
-              (p) => ['5XX', p[0] * 1000, parseFloat(p[1])],
-            ),
-          ),
-          [
-            { name: 'Code', type: 'dimension'},
-            { name: 'Timestamp', type: 'dimension', subtype: 'temporal'},
-            { name: 'Value',     type: 'measure'},
-          ]
-        ))
-        .height(height)
-        .config({
-          axes: {
-            x: {
-              showAxisName: false,
-            },
-            y: {
-              showAxisName: false,
-              tickFormat: val => `${val} ms`,
-            },
-          }
-        })
-        .rows(['Value'])
-        .columns(['Timestamp'])
-        .color({field: 'Code', range: httpColorRange})
-        .layers([{ mark: 'line' }])
-        .mount('#latency-chart')
-      ;
-    }
-
-    var percentageValTickFormatter = (val) => {
-      return `${val}%`;
-    };
-
-    var megabytesValTickFormatter = (val) => {
-      var valInMB = val / (1024 * 1024);
-      return `${valInMB.toFixed(1)} MB`;
-    };
-
-    if (typeof response.series.cpuSeries !== 'undefined') {
-      [
-        {
-          selector: '#cpu-chart',
-          series: response.series.cpuSeries,
-          tickFormat: percentageValTickFormatter,
-        },
-        {
-          selector: '#memory-chart',
-          series: response.series.memorySeries,
-          tickFormat: percentageValTickFormatter,
-        },
-        {
-          selector: '#disk-chart',
-          series: response.series.diskSeries,
-          tickFormat: percentageValTickFormatter,
-        },
-        {
-          selector: '#free-storage-space-chart',
-          series: response.series.freeStorageSpaceSeries,
-          tickFormat: megabytesValTickFormatter,
-        },
-      ].forEach(function(simpleChart) {
-
-        if (!document.querySelector(simpleChart.selector)) {
-          return;
-        }
-
+      if (m.key === 'app-http-count-aggregated-series') {
         env
           .canvas()
           .data(new muze.DataModel(
-            [['Timestamp','Value']].concat(
-              simpleChart.series.map((p) => [p[0] * 1000, parseFloat(p[1])]),
+            [['Code', 'Timestamp','Value']].concat(
+              m.val.map(
+                (p) => ['Total', p[0] * 1000, parseFloat(p[1])],
+              ),
             ),
             [
+              { name: 'Code', type: 'dimension'},
+              { name: 'Timestamp', type: 'dimension', subtype: 'temporal', format: '%Y-%m-%d %H:%M'},
+              { name: 'Value',     type: 'measure'},
+            ]
+          ))
+          .height(height)
+          .config({
+            axes: {
+              x: {
+                showAxisName: false,
+              },
+              y: {
+                showAxisName: false,
+                tickFormat: val => `${val}`,
+              },
+            }
+          })
+          .rows(['Value'])
+          .columns(['Timestamp'])
+          .color({field: 'Code', range: httpColorRange})
+          .layers([{ mark: 'line' }])
+          .mount('#http-responses-chart')
+        ;
+      }
+
+      if (m.key === 'app-http-latency-aggregated-series') {
+        env
+          .canvas()
+          .data(new muze.DataModel(
+            [['Code', 'Timestamp','Value']].concat(
+              m.val.map(
+                (p) => ['Total', p[0] * 1000, parseFloat(p[1])],
+              ),
+            ),
+            [
+              { name: 'Code', type: 'dimension'},
               { name: 'Timestamp', type: 'dimension', subtype: 'temporal'},
               { name: 'Value',     type: 'measure'},
             ]
@@ -218,18 +144,80 @@ window.disableMetricsFilterButton = function () {
               },
               y: {
                 showAxisName: false,
-                tickFormat: simpleChart.tickFormat,
+                tickFormat: val => `${val} ms`,
               },
             }
           })
-          .color({range: [singleChartColor]})
           .rows(['Value'])
           .columns(['Timestamp'])
+          .color({field: 'Code', range: httpColorRange})
           .layers([{ mark: 'line' }])
-          .mount(simpleChart.selector)
+          .mount('#latency-chart')
         ;
-      });
-    }
+      }
+
+      var selector;
+      var tickFormat;
+
+      if (m.key === 'app-cpu-usage-aggregated-series') {
+        selector = '#cpu-chart';
+        tickFormat = percentageValTickFormatter;
+      }
+
+      if (m.key === 'app-memory-usage-aggregated-series') {
+        selector = '#memory-chart';
+        tickFormat = percentageValTickFormatter;
+      }
+
+      if (m.key === 'app-disk-usage-aggregated-series') {
+        selector = '#disk-chart';
+        tickFormat = percentageValTickFormatter;
+      }
+
+      if (m.key === 'rds-free-storage-space-aggregated-series') {
+        selector = '#free-storage-space-chart';
+        tickFormat = megabytesValTickFormatter;
+      }
+
+      if (m.key === 'rds-cpu-usage-aggregated-series') {
+        selector = '#cpu-chart';
+        tickFormat = megabytesValTickFormatter;
+      }
+
+      if (!document.querySelector(selector)) {
+        return;
+      }
+
+      env
+        .canvas()
+        .data(new muze.DataModel(
+          [['Timestamp','Value']].concat(
+            m.val.map((p) => [p[0] * 1000, parseFloat(p[1])]),
+          ),
+          [
+            { name: 'Timestamp', type: 'dimension', subtype: 'temporal'},
+            { name: 'Value',     type: 'measure'},
+          ]
+        ))
+        .height(height)
+        .config({
+          axes: {
+            x: {
+              showAxisName: false,
+            },
+            y: {
+              showAxisName: false,
+              tickFormat: tickFormat,
+            },
+          }
+        })
+        .color({range: [singleChartColor]})
+        .rows(['Value'])
+        .columns(['Timestamp'])
+        .layers([{ mark: 'line' }])
+        .mount(selector)
+      ;
+    });
 
   }).catch(function(err) { console.log(err); });
 })();

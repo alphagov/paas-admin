@@ -2,11 +2,10 @@ import moment from 'moment-timezone';
 
 import CloudFoundryClient from '../../lib/cf';
 import {
-  rdsCPUUsageAggregatedSeries,
+  rdsSingleSeries,
+  rdsSingleStats,
 
-  rdsFreeStorageSpaceAggregatedSeries,
-  rdsFreeStorageSpaceSingleStat,
-
+  prometheusTimeInterval,
   timeOffsets,
 } from '../../lib/metrics';
 import PromClient from '../../lib/prom';
@@ -152,6 +151,18 @@ export async function viewServiceMetrics(
 }
 
 export async function dataServiceMetrics(
+  _ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
+  return {
+    body: JSON.stringify([
+      ...Object.keys(rdsSingleStats),
+      ...Object.keys(rdsSingleSeries),
+    ]),
+  };
+}
+
+export async function dataServiceMetricValues(
   ctx: IContext,
   params: IParameters,
 ): Promise<IResponse> {
@@ -174,28 +185,26 @@ export async function dataServiceMetrics(
     ctx.app.logger,
   );
 
-  const [
-    freeStorageSpace,
-  ] = await Promise.all([
-    rdsFreeStorageSpaceSingleStat(sourceID),
-  ].map(q => prom.getValue(q, instantTime)));
-  const [
-    freeStorageSpaceSeries,
-    cpuSeries,
-  ] = await Promise.all([
-    rdsFreeStorageSpaceAggregatedSeries(sourceID),
-    rdsCPUUsageAggregatedSeries(sourceID),
-  ].map(q => prom.getSeries(q, timeStep, historicTime, instantTime)));
+  const metricKey = params.metric;
 
-  return {
-    body: JSON.stringify({
-      values: {
-        freeStorageSpace,
-      },
-      series: {
-        freeStorageSpaceSeries,
-        cpuSeries,
-      },
-    }),
-  };
+  if (rdsSingleStats[metricKey]) {
+    const promInterval = prometheusTimeInterval(instantTime.getTime() - historicTime.getTime());
+
+    const metricVal = await prom.getValue(
+      rdsSingleStats[metricKey](sourceID, promInterval),
+      instantTime,
+    );
+
+    return { body: JSON.stringify(metricVal) };
+  }
+
+  if (rdsSingleSeries[metricKey]) {
+    const metricVal = await prom.getSeries(
+      rdsSingleSeries[metricKey](sourceID),
+      timeStep, historicTime, instantTime,
+    );
+    return { body: JSON.stringify(metricVal) };
+  }
+
+  throw new Error('No metric found');
 }
