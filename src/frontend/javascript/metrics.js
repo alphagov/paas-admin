@@ -22,7 +22,7 @@ window.disableMetricsFilterButton = function () {
   var DataModel = muze.DataModel;
   var html = muze.Operators.html;
   var DateTimeFormatter = muze.utils.DateTimeFormatter;
-  var height = 275;
+  var height = 200;
 
   var govukLightBlue = '#5694ca';
   var govukBlue = '#1d70b8';

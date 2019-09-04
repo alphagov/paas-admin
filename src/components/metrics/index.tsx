@@ -92,7 +92,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
       </div>
 
       <div className="govuk-grid-row">
-        <div className="govuk-grid-column-full" tabIndex={0}>
+        <div className="govuk-grid-column-one-half" tabIndex={0}>
           <h3 className="govuk-heading-m">
             HTTP responses
           </h3>
@@ -106,7 +106,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           </p>
         </div>
 
-        <div className="govuk-grid-column-full" tabIndex={0}>
+        <div className="govuk-grid-column-one-half" tabIndex={0}>
           <h3 className="govuk-heading-m">
             Latency
           </h3>
@@ -120,7 +120,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           </p>
         </div>
 
-        <div className="govuk-grid-column-full" tabIndex={0}>
+        <div className="govuk-grid-column-one-half" tabIndex={0}>
           <h3 className="govuk-heading-m">
             CPU
           </h3>
@@ -133,7 +133,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           </p>
         </div>
 
-        <div className="govuk-grid-column-full" tabIndex={0}>
+        <div className="govuk-grid-column-one-half" tabIndex={0}>
           <h3 className="govuk-heading-m">
             Memory
           </h3>
@@ -148,7 +148,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           </p>
         </div>
 
-        <div className="govuk-grid-column-full" tabIndex={0}>
+        <div className="govuk-grid-column-one-half" tabIndex={0}>
           <h3 className="govuk-heading-m">
             Disk
           </h3>
@@ -163,7 +163,6 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           </p>
         </div>
       </div>
-
     </div>;
   }
 }
