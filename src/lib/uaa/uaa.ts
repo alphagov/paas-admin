@@ -108,12 +108,19 @@ export default class UAAClient {
 
   public async getUsers(
     userGUIDs: ReadonlyArray<string>,
-  ): Promise<ReadonlyArray<types.IUaaUser>> {
+  ): Promise<ReadonlyArray<types.IUaaUser | null>> {
     // Limit number of users fetched from UAA concurrently
     const pool = pLimit(CONCURRENCY_LIMIT);
     const uaaUsers = Promise.all(
       userGUIDs.map(
-        guid => pool(() => this.getUser(guid)),
+        guid => pool(async () => {
+          try {
+            const user = await this.getUser(guid);
+            return user;
+          } catch {
+            return new Promise((resolve) => resolve(null)) as Promise<types.IUaaUser | null>;
+          }
+        }),
       ),
     );
 

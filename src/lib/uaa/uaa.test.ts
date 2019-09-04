@@ -2,6 +2,7 @@ import nock, {RequestBodyMatcher} from 'nock';
 
 import UAAClient, {authenticateUser} from './uaa';
 import * as data from './uaa.test.data';
+import {IUaaUser} from './uaa.types';
 
 const config = {
   apiEndpoint: 'https://example.com/uaa',
@@ -194,7 +195,7 @@ describe('lib/uaa test suite', () => {
       .reply(200, { id: 'user-b' })
     ;
 
-    const users = await client.getUsers(['user-a', 'user-b']);
+    const users = await client.getUsers(['user-a', 'user-b']) as ReadonlyArray<IUaaUser>;
 
     expect(users.length).toEqual(2);
     expect(users[0].id).toEqual('user-a');
