@@ -52,7 +52,7 @@ let cfg = {
   },
 
   resolve: {
-    extensions: ['.ts', '.js', '.json']
+    extensions: ['.ts', '.js', '.json', '.tsx']
   },
 
   module: {

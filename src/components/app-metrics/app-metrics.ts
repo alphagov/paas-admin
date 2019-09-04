@@ -1,4 +1,6 @@
 import moment from 'moment-timezone';
+import React from 'react';
+import {renderToString} from 'react-dom/server';
 
 import CloudFoundryClient from '../../lib/cf';
 import {
@@ -15,6 +17,8 @@ import { IContext } from '../app/context';
 import { IBreadcrumb } from '../breadcrumbs';
 
 import appMetricsTemplate from './app-metrics.njk';
+
+import { AppMetricsComponent } from '../metrics';
 
 export async function viewAppMetrics(
   ctx: IContext, params: IParameters,
@@ -109,6 +113,20 @@ export async function viewAppMetrics(
     { text: application.entity.name },
   ];
 
+  const appMetrics = renderToString(React.createElement(
+    AppMetricsComponent,
+    {
+      application,
+
+      httpReliabilitySingleStatProps: {
+        val: 5, interval: 5, intervalUnit: 'mins',
+      },
+      httpLatencySingleStatProps: {
+        val: 10, interval: 5, intervalUnit: 'mins',
+      },
+    }
+  ));
+
   return {
     body: appMetricsTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -125,6 +143,8 @@ export async function viewAppMetrics(
 
       open,
       breadcrumbs,
+
+      appMetrics,
     }),
   };
 }
