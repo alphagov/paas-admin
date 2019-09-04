@@ -669,6 +669,10 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
   const accountsUser = await accountsClient.getUser(params.userGUID);
 
   if (!accountsUser) {
+    ctx.app.logger.warn(
+      `user ${uaaUser.id} was found in UAA and CF, but not in paas-accounts. ` +
+      `Was the user created incorrectly? They should be invited via paas-admin`,
+    );
     throw new NotFoundError('user not found in paas-accounts');
   }
 
