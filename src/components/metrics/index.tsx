@@ -1,15 +1,84 @@
 // tslint:disable:max-classes-per-file
+import { Line } from '@nivo/line';
+import moment from 'moment-timezone';
 import React, {Component} from 'react';
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from 'recharts';
 
 import {IApplication} from '../../lib/cf/types';
+import { timeOffsets } from '../../lib/metrics';
+
+const datetimeLocalFmt = 'YYYY-MM-DDTHH:mm';
+
+export interface IDatePickerComponentProps {
+  readonly instantTime: Date;
+  readonly historicTime: Date;
+  readonly isOpen: boolean;
+}
+
+export class DatePickerComponent extends Component<IDatePickerComponentProps, {}> {
+  public render() {
+    return <div>
+      <p className="govuk-body">
+        This is showing the <span>
+          {this.timeDelta(this.props.historicTime, this.props.instantTime)}
+        </span> between <span>
+          {this.props.historicTime.toISOString()}
+        </span> and <span>
+          {this.props.instantTime.toISOString()}</span>.
+      </p>
+
+      <details className="govuk-details" open={this.props.isOpen}>
+        <summary className="govuk-details__summary">
+          <span className="govuk-details__summary-text">
+            Choose a time range
+          </span>
+        </summary>
+
+        <div className="govuk-details__text">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-one-half">
+              <ul className="govuk-list">
+                {Object.keys(timeOffsets).map(offset => {
+                  return <li key={offset}><a href={`?nice-offset=${offset}&open=true`}
+                       className="govuk-list">{offset.replace(/-/g, ' ')}</a></li>;
+                })}
+              </ul>
+            </div>
+            <div className="govuk-grid-column-one-half">
+              <form>
+                <div className="govuk-form-group">
+                  <label className="govuk-label" htmlFor="start-time">Start time</label>
+                  <input type="datetime-local"
+                     id="start-time"
+                     name="start-time"
+                     className="govuk-input"
+                     defaultValue={moment.tz(this.props.historicTime, 'Europe/London').format(datetimeLocalFmt)}/>
+                </div>
+
+                <div className="govuk-form-group">
+                  <label className="govuk-label" htmlFor="end-time">End time</label>
+                  <input type="datetime-local"
+                     id="end-time"
+                     name="end-time"
+                     className="govuk-input"
+                     defaultValue={moment.tz(this.props.instantTime, 'Europe/London').format(datetimeLocalFmt)}/> </div>
+
+                <input type="hidden" name="open" defaultValue="true"/>
+
+                <div className="govuk-form-group">
+                  <button className="govuk-button">Filter</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>;
+  }
+
+  private timeDelta(historicTime: Date, instantTime: Date): number {
+    return instantTime.getTime() - historicTime.getTime();
+  }
+}
 
 export type SingleStatValFormatter = (val: number) => string;
 
@@ -72,9 +141,16 @@ export class HTTPLatencySingleStatComponent extends Component<IHTTPLatencySingle
 type PrometheusSeriesVal = ReadonlyArray<string | number>;
 type PrometheusSeries = ReadonlyArray<PrometheusSeriesVal>;
 
-export interface IRechartsVal {
-  readonly timestamp: number;
-  readonly val: number;
+export interface INivoLinePoint {
+  x: string | Date | number;
+  y: number;
+}
+
+// tslint:disable:readonly-array
+export interface INivoLineSerie {
+  id: string;
+  color: string;
+  data: INivoLinePoint[];
 }
 
 export interface ISingleSeriesComponentProps {
@@ -83,24 +159,57 @@ export interface ISingleSeriesComponentProps {
 
 export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps, {}> {
   public render() {
-    return <LineChart data={this.promToRecharts(this.props.data)}
-                      width={400} height={200}
-                      margin={{ top: 10, right: 5, bottom: 10, left: 5 }}>
-      <Line type="monotone" dataKey="val" stroke="#8884d8" />
-      <XAxis dataKey="name" />
-      <YAxis />
-    </LineChart>;
+    return <Line
+      data={this.promToNivo(this.props.data)}
+      margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
+      xScale={{ type: 'point' }}
+      yScale={{ type: 'linear', stacked: false, min: 'auto', max: 'auto' }}
+      width={440} height={200}
+      axisTop={null}
+      axisRight={null}
+      axisBottom={{
+        orient: 'bottom',
+        tickSize: 5,
+        tickPadding: 5,
+        tickRotation: 0,
+        tickValues: 'every 2 days',
+      }}
+      axisLeft={{
+        orient: 'left',
+        tickSize: 5,
+        tickPadding: 5,
+        tickRotation: 0,
+      }}
+      colors={{ scheme: 'nivo' }}
+      pointSize={5}
+      pointColor={{ theme: 'background' }}
+      pointBorderWidth={2}
+      pointBorderColor={{ from: 'serieColor' }}
+      pointLabel="y"
+      pointLabelYOffset={-12}
+      useMesh={true}
+    />;
   }
 
-  private promToRecharts(promData: PrometheusSeries): ReadonlyArray<IRechartsVal> {
-    return promData.map(val => {
-      return { timestamp: val[0] as number * 1000, val: parseFloat(val[1] as string) };
-    });
+  private promToNivo(promData: PrometheusSeries): INivoLineSerie[] {
+    return [{
+      id: 'serie',
+      color: 'tomato',
+      data: promData.map(val => {
+        return {
+          x: val[0] as number * 1000,
+          y: parseFloat(val[1] as string),
+        };
+      }),
+    }];
   }
 }
+// tslint:enable:readonly-array
 
 export interface IAppMetricsComponentProps {
   readonly application: IApplication;
+
+  readonly datePickerProps: IDatePickerComponentProps;
 
   readonly httpReliabilitySingleStatProps: IHTTPReliabilitySingleStatComponentProps;
   readonly httpLatencySingleStatProps: IHTTPLatencySingleStatComponentProps;
@@ -116,6 +225,8 @@ export interface IAppMetricsComponentProps {
 export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}> {
   public render() {
     return <div>
+      <DatePickerComponent {...this.props.datePickerProps}/>
+
       <h2 className="govuk-heading-m">Metrics</h2>
 
       <div className="govuk-grid-row">

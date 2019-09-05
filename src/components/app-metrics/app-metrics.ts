@@ -117,6 +117,10 @@ export async function viewAppMetrics(
     {
       application,
 
+      datePickerProps: {
+        instantTime, historicTime, isOpen: open,
+      },
+
       httpReliabilitySingleStatProps: {
         interval: 5, intervalUnit: 'mins',
         val: await prom.getValue(

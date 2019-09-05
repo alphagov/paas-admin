@@ -14,12 +14,13 @@ export const prometheusTimeInterval = (intervalMillis: number): string => {
   const oneMinute = 60;
   const oneHour = 60 * oneMinute;
   const twentyFourHours = 24 * oneHour;
+  const sevenDays = 7 * twentyFourHours;
 
   if (intervalSeconds < oneMinute) {
     throw new Error('Out of bounds: interval too short');
   }
 
-  if (intervalSeconds > twentyFourHours) {
+  if (intervalSeconds > sevenDays) {
     throw new Error('Out of bounds: interval too long');
   }
 

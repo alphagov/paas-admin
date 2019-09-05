@@ -13,9 +13,9 @@ describe('prometheusTimeInterval', () => {
     }).toThrow(/Out of bounds: interval too short/);
   });
 
-  it('should fail when given an interval greater than 24 hours', () => {
+  it('should fail when given an interval greater than 7 days', () => {
     expect(() => {
-      prometheusTimeInterval(25 * 60 * 60 * 1000);
+      prometheusTimeInterval(8 * 24 * 60 * 60 * 1000);
     }).toThrow(/Out of bounds: interval too long/);
   });
 
@@ -27,6 +27,7 @@ describe('prometheusTimeInterval', () => {
     ['1h',  60 * 61 * 1000],
     ['5h',  5 * 60 * 61 * 1000],
     ['24h', 24 * 60 * 60 * 1000],
+    ['48h', 2 * 24 * 60 * 60 * 1000],
   ])('should return %s when given %sms', (exp, inp) => {
     expect(() => prometheusTimeInterval(inp as number)).not.toThrow();
 
