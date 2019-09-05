@@ -20,6 +20,8 @@ import appMetricsTemplate from './app-metrics.njk';
 
 import { AppMetricsComponent } from '../metrics';
 
+const numPointsOnChart = 45;
+
 export async function viewAppMetrics(
   ctx: IContext, params: IParameters,
 ): Promise<IResponse> {
@@ -96,6 +98,78 @@ export async function viewAppMetrics(
     }
   }
 
+  const promInterval = prometheusTimeInterval(instantTime.getTime() - historicTime.getTime());
+
+  const timeStep = Math.ceil(
+    (
+      (instantTime.getTime() - historicTime.getTime()
+    ) / 1000) / numPointsOnChart,
+  );
+
+  const prom = new PromClient(
+    ctx.app.prometheusAPI,
+    ctx.token.accessToken,
+    ctx.app.logger,
+  );
+
+  const appMetrics = renderToString(React.createElement(
+    AppMetricsComponent,
+    {
+      application,
+
+      httpReliabilitySingleStatProps: {
+        interval: 5, intervalUnit: 'mins',
+        val: await prom.getValue(
+          appSingleStats['app-http-reliability-aggregated-singlestat'](
+            application.metadata.guid, promInterval,
+          ),
+          instantTime,
+        ),
+      },
+      httpLatencySingleStatProps: {
+        interval: 5, intervalUnit: 'mins',
+        val: await prom.getValue(
+          appSingleStats['app-http-latency-aggregated-singlestat'](
+            application.metadata.guid, promInterval,
+          ),
+          instantTime,
+        ),
+      },
+
+      httpCountAggregatedSeriesProps: {
+        data: await prom.getSeries(
+          appSingleSeries['app-http-count-aggregated-series'](application.metadata.guid),
+          timeStep, historicTime, instantTime,
+        ),
+      },
+      httpLatencyAggregatedSeriesProps: {
+        data: await prom.getSeries(
+          appSingleSeries['app-http-latency-aggregated-series'](application.metadata.guid),
+          timeStep, historicTime, instantTime,
+        ),
+      },
+
+      cpuUsageAggregatedSeriesProps: {
+        data: await prom.getSeries(
+          appSingleSeries['app-cpu-usage-aggregated-series'](application.metadata.guid),
+          timeStep, historicTime, instantTime,
+        ),
+      },
+      memoryUsageAggregatedSeriesProps: {
+        data: await prom.getSeries(
+          appSingleSeries['app-memory-usage-aggregated-series'](application.metadata.guid),
+          timeStep, historicTime, instantTime,
+        ),
+      },
+      diskUsageAggregatedSeriesProps: {
+        data: await prom.getSeries(
+          appSingleSeries['app-disk-usage-aggregated-series'](application.metadata.guid),
+          timeStep, historicTime, instantTime,
+        ),
+      },
+    },
+  ));
+
   const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
     { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
     {
@@ -112,20 +186,6 @@ export async function viewAppMetrics(
     },
     { text: application.entity.name },
   ];
-
-  const appMetrics = renderToString(React.createElement(
-    AppMetricsComponent,
-    {
-      application,
-
-      httpReliabilitySingleStatProps: {
-        val: 5, interval: 5, intervalUnit: 'mins',
-      },
-      httpLatencySingleStatProps: {
-        val: 10, interval: 5, intervalUnit: 'mins',
-      },
-    }
-  ));
 
   return {
     body: appMetricsTemplate.render({
@@ -167,7 +227,6 @@ export async function dataAppMetricValues(
 ): Promise<IResponse> {
 
   const sourceID = params.applicationGUID;
-  const numPointsOnChart = 150;
 
   const historicTime = moment.tz(parseInt(params['start-time'], 10), 'Europe/London').toDate();
   const instantTime = moment.tz(parseInt(params['end-time'], 10), 'Europe/London').toDate();

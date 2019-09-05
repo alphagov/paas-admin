@@ -1,5 +1,13 @@
 // tslint:disable:max-classes-per-file
 import React, {Component} from 'react';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import {IApplication} from '../../lib/cf/types';
 
@@ -21,7 +29,7 @@ export class HTTPReliabilitySingleStatComponent extends Component<IHTTPReliabili
 
       <h2 className="govuk-heading-m">
         <span id="http-reliability-value">
-          {this.valFormatter(this.props.val)}
+          {this.props.val}
         </span>
         <span>%</span>
       </h2>
@@ -32,10 +40,6 @@ export class HTTPReliabilitySingleStatComponent extends Component<IHTTPReliabili
         <span> {this.props.intervalUnit}</span>
       </p>
     </div>;
-  }
-
-  private valFormatter(val: number): string {
-    return val.toFixed(2);
   }
 }
 
@@ -51,7 +55,7 @@ export class HTTPLatencySingleStatComponent extends Component<IHTTPLatencySingle
 
       <h2 className="govuk-heading-m">
         <span id="latency-value">
-          {this.valFormatter(this.props.val)}
+          {this.props.val}
         </span>
         <span>ms</span>
       </h2>
@@ -63,9 +67,35 @@ export class HTTPLatencySingleStatComponent extends Component<IHTTPLatencySingle
       </p>
     </div>;
   }
+}
 
-  private valFormatter(val: number): string {
-    return val.toFixed(2);
+type PrometheusSeriesVal = ReadonlyArray<string | number>;
+type PrometheusSeries = ReadonlyArray<PrometheusSeriesVal>;
+
+export interface IRechartsVal {
+  readonly timestamp: number;
+  readonly val: number;
+}
+
+export interface ISingleSeriesComponentProps {
+  readonly data: PrometheusSeries;
+}
+
+export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps, {}> {
+  public render() {
+    return <LineChart data={this.promToRecharts(this.props.data)}
+                      width={400} height={200}
+                      margin={{ top: 10, right: 5, bottom: 10, left: 5 }}>
+      <Line type="monotone" dataKey="val" stroke="#8884d8" />
+      <XAxis dataKey="name" />
+      <YAxis />
+    </LineChart>;
+  }
+
+  private promToRecharts(promData: PrometheusSeries): ReadonlyArray<IRechartsVal> {
+    return promData.map(val => {
+      return { timestamp: val[0] as number * 1000, val: parseFloat(val[1] as string) };
+    });
   }
 }
 
@@ -74,6 +104,13 @@ export interface IAppMetricsComponentProps {
 
   readonly httpReliabilitySingleStatProps: IHTTPReliabilitySingleStatComponentProps;
   readonly httpLatencySingleStatProps: IHTTPLatencySingleStatComponentProps;
+
+  readonly httpCountAggregatedSeriesProps: ISingleSeriesComponentProps;
+  readonly httpLatencyAggregatedSeriesProps: ISingleSeriesComponentProps;
+
+  readonly cpuUsageAggregatedSeriesProps: ISingleSeriesComponentProps;
+  readonly memoryUsageAggregatedSeriesProps: ISingleSeriesComponentProps;
+  readonly diskUsageAggregatedSeriesProps: ISingleSeriesComponentProps;
 }
 
 export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}> {
@@ -82,11 +119,11 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
       <h2 className="govuk-heading-m">Metrics</h2>
 
       <div className="govuk-grid-row">
-        <div className="govuk-grid-column-one-half">
+        <div className="govuk-grid-column-one-half" tabIndex={0}>
           <HTTPReliabilitySingleStatComponent {...this.props.httpReliabilitySingleStatProps}/>
         </div>
 
-        <div className="govuk-grid-column-one-half">
+        <div className="govuk-grid-column-one-half" tabIndex={0}>
           <HTTPLatencySingleStatComponent {...this.props.httpLatencySingleStatProps}/>
         </div>
       </div>
@@ -97,7 +134,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             HTTP responses
           </h3>
 
-          <div id="http-responses-chart"></div>
+          <SingleSeriesComponent {...this.props.httpCountAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The count of HTTP responses served by
@@ -111,7 +148,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             Latency
           </h3>
 
-          <div id="latency-chart"></div>
+          <SingleSeriesComponent {...this.props.httpLatencyAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The mean response latency for
@@ -125,7 +162,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             CPU
           </h3>
 
-          <div id="cpu-chart"></div>
+          <SingleSeriesComponent {...this.props.cpuUsageAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The percentage of CPU used by
@@ -138,7 +175,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             Memory
           </h3>
 
-          <div id="memory-chart"></div>
+          <SingleSeriesComponent {...this.props.memoryUsageAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The percentage of memory quota used by
@@ -153,7 +190,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             Disk
           </h3>
 
-          <div id="disk-chart"></div>
+          <SingleSeriesComponent {...this.props.diskUsageAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The percentage of disk quota used by
