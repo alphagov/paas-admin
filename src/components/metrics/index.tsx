@@ -193,14 +193,14 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
         tickPadding: 5,
         tickRotation: 0,
         format: '%y-%m-%d %H:%M',
-        tickValues: 5,
+        tickValues: 4,
       }}
       axisLeft={{
         orient: 'left',
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        tickValues: 5,
+        tickValues: 4,
       }}
       colors={singleChartColor}
       enablePoints={false}
