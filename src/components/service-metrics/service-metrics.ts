@@ -118,9 +118,8 @@ export async function viewServiceMetrics(
       text: organization.entity.name ,
       href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
     },
-    { text: space.entity.name },
     {
-      text: 'Services',
+      text: space.entity.name,
       href: ctx.linkTo('admin.organizations.spaces.services.list', {
         organizationGUID: organization.metadata.guid,
         spaceGUID: space.metadata.guid,
