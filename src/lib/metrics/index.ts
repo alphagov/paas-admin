@@ -8,6 +8,8 @@ export const timeOffsets: {readonly [key: string]: number} = {
   'last-7-days': 7 * 24 * 60 * 60,
 };
 
+export const numPointsOnSmallChart = 45;
+
 export const prometheusTimeInterval = (intervalMillis: number): string => {
   const intervalSeconds = parseInt((intervalMillis / 1000).toFixed(0), 10);
 

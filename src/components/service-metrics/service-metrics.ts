@@ -4,6 +4,8 @@ import {renderToString} from 'react-dom/server';
 
 import CloudFoundryClient from '../../lib/cf';
 import {
+  numPointsOnSmallChart,
+
   prometheusTimeInterval,
 
   rdsSingleSeries,
@@ -20,8 +22,6 @@ import { IBreadcrumb } from '../breadcrumbs';
 import serviceMetricsTemplate from './service-metrics.njk';
 
 import { ServiceMetricsComponent } from '../metrics';
-
-const numPointsOnChart = 45;
 
 export async function viewServiceMetrics(
   ctx: IContext, params: IParameters,
@@ -124,7 +124,7 @@ export async function viewServiceMetrics(
   const timeStep = Math.ceil(
     (
       (instantTime.getTime() - historicTime.getTime()
-    ) / 1000) / numPointsOnChart,
+    ) / 1000) / numPointsOnSmallChart,
   );
 
   const prom = new PromClient(
@@ -222,7 +222,6 @@ export async function dataServiceMetricValues(
 ): Promise<IResponse> {
 
   const sourceID = params.serviceGUID;
-  const numPointsOnChart = 150;
 
   const historicTime = moment.tz(parseInt(params['start-time'], 10), 'Europe/London').toDate();
   const instantTime = moment.tz(parseInt(params['end-time'], 10), 'Europe/London').toDate();
@@ -230,7 +229,7 @@ export async function dataServiceMetricValues(
   const timeStep = Math.ceil(
     (
       (instantTime.getTime() - historicTime.getTime()
-    ) / 1000) / numPointsOnChart,
+    ) / 1000) / numPointsOnSmallChart,
   );
 
   const prom = new PromClient(

@@ -7,6 +7,8 @@ import {
   appSingleSeries,
   appSingleStats,
 
+  numPointsOnSmallChart,
+
   prometheusTimeInterval,
   timeOffsets,
 } from '../../lib/metrics';
@@ -19,8 +21,6 @@ import { IBreadcrumb } from '../breadcrumbs';
 import appMetricsTemplate from './app-metrics.njk';
 
 import { AppMetricsComponent } from '../metrics';
-
-const numPointsOnChart = 45;
 
 export async function viewAppMetrics(
   ctx: IContext, params: IParameters,
@@ -103,7 +103,7 @@ export async function viewAppMetrics(
   const timeStep = Math.ceil(
     (
       (instantTime.getTime() - historicTime.getTime()
-    ) / 1000) / numPointsOnChart,
+    ) / 1000) / numPointsOnSmallChart,
   );
 
   const prom = new PromClient(
@@ -235,7 +235,7 @@ export async function dataAppMetricValues(
   const timeStep = Math.ceil(
     (
       (instantTime.getTime() - historicTime.getTime()
-    ) / 1000) / numPointsOnChart,
+    ) / 1000) / numPointsOnSmallChart,
   );
 
   const prom = new PromClient(
