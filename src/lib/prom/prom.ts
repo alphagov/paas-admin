@@ -6,6 +6,11 @@ import {intercept} from '../axios-logger/axios';
 
 const DEFAULT_TIMEOUT = 30000;
 
+export interface IPrometheusVectorDatum {
+  readonly timestamp: number;
+  readonly val: number;
+}
+
 export default class PromClient {
   private accessToken: string;
   private readonly apiEndpoint: string;
@@ -22,13 +27,18 @@ export default class PromClient {
       '/api/v1/query',
       { time: moment(time).toDate().getTime() / 1000, query },
     ).then(
-      r => r.data.data.result[0].value[1],
+      r => parseFloat(r.data.data.result[0].value[1]),
     );
 
     return metricVal;
   }
 
-  public async getSeries(query: string, step: number, start: Date, end: Date): Promise<any> {
+  public async getSeries(
+    query: string,
+    step: number,
+    start: Date,
+    end: Date,
+  ): Promise<ReadonlyArray<IPrometheusVectorDatum>> {
     const metricSeries = this.request(
       '/api/v1/query_range',
       {
@@ -38,7 +48,11 @@ export default class PromClient {
         query,
       },
     ).then(
-      r => r.data.data.result[0].values,
+      r => r.data.data.result[0].values.map((p: Array<number | string>) => {
+        const timestamp = (p[0] as number) * 1000;
+        const val = parseFloat(p[1] as string);
+        return {timestamp, val};
+      }),
     );
 
     return metricSeries;

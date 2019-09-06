@@ -5,6 +5,7 @@ import React, {Component} from 'react';
 
 import {IApplication} from '../../lib/cf/types';
 import { timeOffsets } from '../../lib/metrics';
+import { IPrometheusValDatum } from '../../lib/prom';
 
 const datetimeLocalFmt = 'YYYY-MM-DDTHH:mm';
 const govukLightBlue = '#5694ca';
@@ -117,7 +118,7 @@ export class HTTPReliabilitySingleStatComponent extends Component<IHTTPReliabili
 
       <h2 className="govuk-heading-m">
         <span id="http-reliability-value">
-          {this.props.val}
+          {this.props.val.toFixed(2)}
         </span>
         <span>%</span>
       </h2>
@@ -143,7 +144,7 @@ export class HTTPLatencySingleStatComponent extends Component<IHTTPLatencySingle
 
       <h2 className="govuk-heading-m">
         <span id="latency-value">
-          {this.props.val}
+          {this.props.val.toFixed(2)}
         </span>
         <span>ms</span>
       </h2>
@@ -156,9 +157,6 @@ export class HTTPLatencySingleStatComponent extends Component<IHTTPLatencySingle
     </div>;
   }
 }
-
-type PrometheusSeriesVal = ReadonlyArray<string | number>;
-type PrometheusSeries = ReadonlyArray<PrometheusSeriesVal>;
 
 export interface INivoLinePoint {
   x: string | Date | number;
@@ -173,7 +171,7 @@ export interface INivoLineSerie {
 }
 
 export interface ISingleSeriesComponentProps {
-  readonly data: PrometheusSeries;
+  readonly data: ReadonlyArray<IPrometheusValDatum>;
 }
 
 export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps, {}> {
@@ -210,15 +208,12 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
     />;
   }
 
-  private promToNivo(promData: PrometheusSeries): INivoLineSerie[] {
+  private promToNivo(promData: ReadonlyArray<IPrometheusValDatum>): INivoLineSerie[] {
     return [{
       id: 'serie',
       color: 'tomato',
-      data: promData.map(val => {
-        return {
-          x: (val[0] as number * 1000).toString(),
-          y: parseFloat(val[1] as string),
-        };
+      data: promData.map(datum => {
+        return { x: datum.timestamp, y: datum.val };
       }),
     }];
   }
