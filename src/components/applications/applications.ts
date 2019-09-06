@@ -61,9 +61,8 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
       text: organization.entity.name ,
       href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
     },
-    { text: space.entity.name },
     {
-      text: 'Applications',
+      text: space.entity.name,
       href: ctx.linkTo('admin.organizations.spaces.applications.list', {
         organizationGUID: organization.metadata.guid,
         spaceGUID: space.metadata.guid,
