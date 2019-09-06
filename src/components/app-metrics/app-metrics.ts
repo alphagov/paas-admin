@@ -112,67 +112,66 @@ export async function viewAppMetrics(
     ctx.app.logger,
   );
 
-  const appMetrics = renderToString(React.createElement(
-    AppMetricsComponent,
-    {
-      application,
+  const appMetricsProps = {
+    application,
 
-      datePickerProps: {
-        instantTime, historicTime, isOpen: open,
-      },
-
-      httpReliabilitySingleStatProps: {
-        interval: 5, intervalUnit: 'mins',
-        val: await prom.getValue(
-          appSingleStats['app-http-reliability-aggregated-singlestat'](
-            application.metadata.guid, promInterval,
-          ),
-          instantTime,
-        ),
-      },
-      httpLatencySingleStatProps: {
-        interval: 5, intervalUnit: 'mins',
-        val: await prom.getValue(
-          appSingleStats['app-http-latency-aggregated-singlestat'](
-            application.metadata.guid, promInterval,
-          ),
-          instantTime,
-        ),
-      },
-
-      httpCountAggregatedSeriesProps: {
-        data: await prom.getSeries(
-          appSingleSeries['app-http-count-aggregated-series'](application.metadata.guid),
-          timeStep, historicTime, instantTime,
-        ),
-      },
-      httpLatencyAggregatedSeriesProps: {
-        data: await prom.getSeries(
-          appSingleSeries['app-http-latency-aggregated-series'](application.metadata.guid),
-          timeStep, historicTime, instantTime,
-        ),
-      },
-
-      cpuUsageAggregatedSeriesProps: {
-        data: await prom.getSeries(
-          appSingleSeries['app-cpu-usage-aggregated-series'](application.metadata.guid),
-          timeStep, historicTime, instantTime,
-        ),
-      },
-      memoryUsageAggregatedSeriesProps: {
-        data: await prom.getSeries(
-          appSingleSeries['app-memory-usage-aggregated-series'](application.metadata.guid),
-          timeStep, historicTime, instantTime,
-        ),
-      },
-      diskUsageAggregatedSeriesProps: {
-        data: await prom.getSeries(
-          appSingleSeries['app-disk-usage-aggregated-series'](application.metadata.guid),
-          timeStep, historicTime, instantTime,
-        ),
-      },
+    datePickerProps: {
+      instantTime, historicTime, isOpen: open,
     },
-  ));
+
+    httpReliabilitySingleStatProps: {
+      interval: 5, intervalUnit: 'mins',
+      val: await prom.getValue(
+        appSingleStats['app-http-reliability-aggregated-singlestat'](
+          application.metadata.guid, promInterval,
+        ),
+        instantTime,
+      ),
+    },
+    httpLatencySingleStatProps: {
+      interval: 5, intervalUnit: 'mins',
+      val: await prom.getValue(
+        appSingleStats['app-http-latency-aggregated-singlestat'](
+          application.metadata.guid, promInterval,
+        ),
+        instantTime,
+      ),
+    },
+
+    httpCountAggregatedSeriesProps: {
+      data: await prom.getSeries(
+        appSingleSeries['app-http-count-aggregated-series'](application.metadata.guid),
+        timeStep, historicTime, instantTime,
+      ),
+    },
+    httpLatencyAggregatedSeriesProps: {
+      data: await prom.getSeries(
+        appSingleSeries['app-http-latency-aggregated-series'](application.metadata.guid),
+        timeStep, historicTime, instantTime,
+      ),
+    },
+
+    cpuUsageAggregatedSeriesProps: {
+      data: await prom.getSeries(
+        appSingleSeries['app-cpu-usage-aggregated-series'](application.metadata.guid),
+        timeStep, historicTime, instantTime,
+      ),
+    },
+    memoryUsageAggregatedSeriesProps: {
+      data: await prom.getSeries(
+        appSingleSeries['app-memory-usage-aggregated-series'](application.metadata.guid),
+        timeStep, historicTime, instantTime,
+      ),
+    },
+    diskUsageAggregatedSeriesProps: {
+      data: await prom.getSeries(
+        appSingleSeries['app-disk-usage-aggregated-series'](application.metadata.guid),
+        timeStep, historicTime, instantTime,
+      ),
+    },
+  };
+
+  const appMetrics = renderToString(React.createElement(AppMetricsComponent, appMetricsProps));
 
   const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
     { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
@@ -205,10 +204,9 @@ export async function viewAppMetrics(
         historicTime: moment.tz(historicTime, 'Europe/London').format(datetimeLocalFmt),
       },
 
-      open,
       breadcrumbs,
 
-      appMetrics,
+      appMetrics, appMetricsProps,
     }),
   };
 }

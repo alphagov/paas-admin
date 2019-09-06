@@ -239,6 +239,11 @@ export interface IAppMetricsComponentProps {
 export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}> {
   public render() {
     return <div>
+      <script dangerouslySetInnerHTML={{
+        __html: `window.PazminHydrate.AppMetricsComponentProps = ${
+          JSON.stringify(this.props).replace(/</g, '\\u003c')
+        }`,
+      }}/>
       <DatePickerComponent {...this.props.datePickerProps}/>
 
       <h2 className="govuk-heading-m">Metrics</h2>
