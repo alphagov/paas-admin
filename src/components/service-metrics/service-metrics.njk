@@ -1,57 +1,13 @@
 {% extends "../services/_tabs.njk" %}
 
 {% block pageTitle %}
-  {{ service.entity.name }} - Service Overview
+  {{ service.entity.name }} - Service Metrics
 {% endblock %}
 
 {% block insideTabs %}
-  {% include "../../layouts/metrics/details.njk" %}
-
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-half">
-      <h3 class="govuk-heading-m">
-        Free storage space
-      </h3>
-
-      <h2 class="govuk-heading-l">
-        <span id="free-storage-space-value"></span>
-        <span>MB</span>
-      </h2>
-
-      <p class="govuk-body-s">
-        The amount of free storage space available to the database in megabytes
-      </p>
-    </div>
-
-    <div class="govuk-grid-column-full" tabindex="0">
-      <h3 class="govuk-heading-m">
-        CPU
-      </h3>
-
-      <div id="cpu-chart"></div>
-
-      <p class="govuk-body-s">
-        The percentage of CPU used by
-        <code>{{ service.entity.name }}</code>
-      </p>
-    </div>
-
-    <div class="govuk-grid-column-full" tabindex="0">
-      <h3 class="govuk-heading-m">
-        Free storage space
-      </h3>
-
-      <div id="free-storage-space-chart"></div>
-
-      <p class="govuk-body-s">
-        The amount of free storage space for
-        <code>{{ service.entity.name }}</code>
-      </p>
-    </div>
-  </div>
+  {{ serviceMetrics | safe }}
 
   <link href="/assets/muze.css" media="screen" rel="stylesheet" />
   <script src="/assets/muze.js"></script>
   <script src="/assets/metrics.js"></script>
-
 {% endblock %}

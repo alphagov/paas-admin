@@ -1,11 +1,14 @@
 import moment from 'moment-timezone';
+import React from 'react';
+import {renderToString} from 'react-dom/server';
 
 import CloudFoundryClient from '../../lib/cf';
 import {
+  prometheusTimeInterval,
+
   rdsSingleSeries,
   rdsSingleStats,
 
-  prometheusTimeInterval,
   timeOffsets,
 } from '../../lib/metrics';
 import PromClient from '../../lib/prom';
@@ -15,6 +18,10 @@ import { IContext } from '../app/context';
 import { IBreadcrumb } from '../breadcrumbs';
 
 import serviceMetricsTemplate from './service-metrics.njk';
+
+import { ServiceMetricsComponent } from '../metrics';
+
+const numPointsOnChart = 45;
 
 export async function viewServiceMetrics(
   ctx: IContext, params: IParameters,
@@ -112,6 +119,53 @@ export async function viewServiceMetrics(
     }
   }
 
+  const promInterval = prometheusTimeInterval(instantTime.getTime() - historicTime.getTime());
+
+  const timeStep = Math.ceil(
+    (
+      (instantTime.getTime() - historicTime.getTime()
+    ) / 1000) / numPointsOnChart,
+  );
+
+  const prom = new PromClient(
+    ctx.app.prometheusAPI,
+    ctx.token.accessToken,
+    ctx.app.logger,
+  );
+
+  const serviceMetricsProps = {
+    service: summarisedService,
+
+    datePickerProps: {
+      instantTime, historicTime, isOpen: open,
+    },
+
+    freeStorageSpaceSingleStatProps: {
+      interval: 5, intervalUnit: 'mins',
+      val: await prom.getValue(
+        rdsSingleStats['rds-free-storage-space-aggregated-singlestat'](
+          service.metadata.guid, promInterval,
+        ),
+        instantTime,
+      ),
+    },
+
+    cpuUsageAggregatedSeriesProps: {
+      data: await prom.getSeries(
+        rdsSingleSeries['rds-cpu-usage-aggregated-series'](service.metadata.guid),
+        timeStep, historicTime, instantTime,
+      ),
+    },
+    freeStorageSpaceAggregatedSeriesProps: {
+      data: await prom.getSeries(
+        rdsSingleSeries['rds-free-storage-space-aggregated-series'](service.metadata.guid),
+        timeStep, historicTime, instantTime,
+      ),
+    },
+  };
+
+  const serviceMetrics = renderToString(React.createElement(ServiceMetricsComponent, serviceMetricsProps));
+
   const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
     { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
     {
@@ -143,8 +197,9 @@ export async function viewServiceMetrics(
         historicTime: moment.tz(historicTime, 'Europe/London').format(datetimeLocalFmt),
       },
 
-      open,
       breadcrumbs,
+
+      serviceMetrics, serviceMetricsProps,
     }),
   };
 }

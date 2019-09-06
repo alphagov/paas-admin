@@ -3,7 +3,10 @@ import { Line } from '@nivo/line';
 import moment from 'moment-timezone';
 import React, {Component} from 'react';
 
-import {IApplication} from '../../lib/cf/types';
+import {
+  IApplication,
+  IServiceInstance,
+} from '../../lib/cf/types';
 import { timeOffsets } from '../../lib/metrics';
 import { IPrometheusValDatum } from '../../lib/prom';
 
@@ -327,6 +330,88 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             <code>{this.props.application.entity.name}</code>,
             out of a total of
             <code>{this.props.application.entity.disk_quota}MB</code>
+          </p>
+        </div>
+      </div>
+    </div>;
+  }
+}
+
+export class FreeStorageSpaceSingleStatComponent extends Component<ISingleStatComponentProps, {}> {
+  public render() {
+    return <div>
+      <h3 className="govuk-heading-m">
+        Free storage space
+      </h3>
+
+      <h2 className="govuk-heading-l">
+        <span>
+          {this.props.val.toFixed(0)}
+        </span>
+        <span>MB</span>
+      </h2>
+
+      <p className="govuk-body-s">
+        The amount of free storage space available to the database in megabytes
+      </p>
+    </div>;
+  }
+}
+
+export interface IServiceMetricsComponentProps {
+  readonly service: IServiceInstance;
+
+  readonly datePickerProps: IDatePickerComponentProps;
+
+  readonly freeStorageSpaceSingleStatProps: ISingleStatComponentProps;
+
+  readonly freeStorageSpaceAggregatedSeriesProps: ISingleSeriesComponentProps;
+  readonly cpuUsageAggregatedSeriesProps: ISingleSeriesComponentProps;
+}
+
+export class ServiceMetricsComponent extends Component<IServiceMetricsComponentProps, {}> {
+  public render() {
+    return <div>
+      <script dangerouslySetInnerHTML={{
+        __html: `window.PazminHydrate.AppMetricsComponentProps = ${
+          JSON.stringify(this.props).replace(/</g, '\\u003c')
+        }`,
+      }}/>
+      <DatePickerComponent {...this.props.datePickerProps}/>
+
+      <h2 className="govuk-heading-m">Metrics</h2>
+
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-one-half" tabIndex={0}>
+          <FreeStorageSpaceSingleStatComponent {...this.props.freeStorageSpaceSingleStatProps} />
+        </div>
+      </div>
+
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-one-half" tabIndex={0}>
+          <h3 className="govuk-heading-m">
+            CPU
+          </h3>
+
+          <SingleSeriesComponent {...this.props.cpuUsageAggregatedSeriesProps}/>
+
+          <p className="govuk-body-s">
+            The percentage of CPU
+            used by <code>{this.props.service.entity.name}</code>
+          </p>
+        </div>
+
+        <div className="govuk-grid-column-one-half" tabIndex={0}>
+          <h3 className="govuk-heading-m">
+            Free storage space
+          </h3>
+
+          <SingleSeriesComponent {...this.props.freeStorageSpaceAggregatedSeriesProps}/>
+
+          <p className="govuk-body-s">
+            The amount of free storage space
+            for <code>{this.props.service.entity.name}</code> in
+            megabytes
           </p>
         </div>
       </div>
