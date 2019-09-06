@@ -7,6 +7,25 @@ import {IApplication} from '../../lib/cf/types';
 import { timeOffsets } from '../../lib/metrics';
 
 const datetimeLocalFmt = 'YYYY-MM-DDTHH:mm';
+const govukLightBlue = '#5694ca';
+const govukBlue = '#1d70b8';
+const govukDarkBlue = '#003078';
+const govukOrange = '#f47738';
+const govukRed = '#d4351c';
+
+const http1xxColor = govukLightBlue;
+const http2xxColor = govukBlue;
+const http3xxColor = govukDarkBlue;
+const http4xxColor = govukOrange;
+const http5xxColor = govukRed;
+
+const singleChartColor = govukBlue;
+// tslint:disable:no-unused
+const httpColorRange = [
+http1xxColor, http2xxColor, http3xxColor,
+http4xxColor, http5xxColor,
+];
+// tslint:enable:no-unused
 
 export interface IDatePickerComponentProps {
   readonly instantTime: Date;
@@ -161,10 +180,13 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
   public render() {
     return <Line
       data={this.promToNivo(this.props.data)}
-      margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
-      xScale={{ type: 'point' }}
-      yScale={{ type: 'linear', stacked: false, min: 'auto', max: 'auto' }}
       width={440} height={200}
+      margin={{
+        top: 5, right: 5,
+        bottom: 25, left: 25,
+      }}
+      xScale={{ type: 'time', format: '%Q', precision: 'minute' }}
+      yScale={{ type: 'linear', stacked: false, min: 'auto', max: 'auto' }}
       axisTop={null}
       axisRight={null}
       axisBottom={{
@@ -172,21 +194,18 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        tickValues: 'every 2 days',
+        format: '%y-%m-%d %H:%M',
+        tickValues: 5,
       }}
       axisLeft={{
         orient: 'left',
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
+        tickValues: 5,
       }}
-      colors={{ scheme: 'nivo' }}
-      pointSize={5}
-      pointColor={{ theme: 'background' }}
-      pointBorderWidth={2}
-      pointBorderColor={{ from: 'serieColor' }}
-      pointLabel="y"
-      pointLabelYOffset={-12}
+      colors={singleChartColor}
+      enablePoints={false}
       useMesh={true}
     />;
   }
@@ -197,7 +216,7 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
       color: 'tomato',
       data: promData.map(val => {
         return {
-          x: val[0] as number * 1000,
+          x: (val[0] as number * 1000).toString(),
           y: parseFloat(val[1] as string),
         };
       }),
