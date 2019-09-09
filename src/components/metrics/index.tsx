@@ -237,9 +237,11 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
 
   private tooltip(data: any, unit: string) {
     const date = data.point.data.x;
+    const value = data.point.data.y;
+
     const niceDate = moment(date, 'Europe/London').format('YYYY-MM-DD HH:mm');
     return <span className="tooltip">
-      {niceDate}: <strong>{data.point.y}</strong>
+      {niceDate}: <strong>{value.toFixed(2)}</strong>
       {unit}
     </span>;
   }
