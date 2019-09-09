@@ -78,7 +78,7 @@ export default class PromClient {
     });
 
     if (response.status < 200 || response.status >= 300) {
-      let msg = `prom: ${method} ${this.apiEndpoint}/${path} failed with status ${response.status}`;
+      let msg = `prom: ${method} ${this.apiEndpoint}${path} failed with status ${response.status}`;
       if (typeof response.data === 'object') {
         msg = `${msg} and data ${JSON.stringify(response.data)}`;
       }
