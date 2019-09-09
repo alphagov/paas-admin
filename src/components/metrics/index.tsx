@@ -1,5 +1,5 @@
 // tslint:disable:max-classes-per-file
-import { Line } from '@nivo/line';
+import { Line ResponsiveContainer, } from '@nivo/line';
 import moment from 'moment-timezone';
 import React, {Component} from 'react';
 
@@ -8,7 +8,7 @@ import {
   IServiceInstance,
 } from '../../lib/cf/types';
 import { timeOffsets } from '../../lib/metrics';
-import { IPrometheusValDatum } from '../../lib/prom';
+import { IPrometheusVectorDatum } from '../../lib/prom';
 
 const datetimeLocalFmt = 'YYYY-MM-DDTHH:mm';
 const govukLightBlue = '#5694ca';
@@ -174,10 +174,13 @@ export interface INivoLineSerie {
 }
 
 export interface ISingleSeriesComponentProps {
-  readonly data: ReadonlyArray<IPrometheusValDatum>;
+  readonly data: ReadonlyArray<IPrometheusVectorDatum>;
+  readonly unit: string;
 }
 
 export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps, {}> {
+  private mounted: boolean = false;
+
   public render() {
     return <Line
       data={this.promToNivo(this.props.data)}
@@ -205,13 +208,24 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
         tickRotation: 0,
         tickValues: 4,
       }}
+      isInteractive={this.interactive()}
+      tooltip={(p: any) => this.tooltip(p, this.props.unit)}
       colors={singleChartColor}
       enablePoints={false}
       useMesh={true}
     />;
   }
 
-  private promToNivo(promData: ReadonlyArray<IPrometheusValDatum>): INivoLineSerie[] {
+  public componentDidMount() {
+    this.mounted = true;
+    this.setState({});
+  }
+
+  private interactive(): boolean {
+    return this.mounted;
+  }
+
+  private promToNivo(promData: ReadonlyArray<IPrometheusVectorDatum>): INivoLineSerie[] {
     return [{
       id: 'serie',
       color: 'tomato',
@@ -219,6 +233,15 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
         return { x: datum.timestamp, y: datum.val };
       }),
     }];
+  }
+
+  private tooltip(data: any, unit: string) {
+    const date = data.point.data.x;
+    const niceDate = moment(date, 'Europe/London').format('YYYY-MM-DD HH:mm');
+    return <span className="tooltip">
+      {niceDate}: <strong>{data.point.y}</strong>
+      {unit}
+    </span>;
   }
 }
 // tslint:enable:readonly-array
@@ -242,11 +265,6 @@ export interface IAppMetricsComponentProps {
 export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}> {
   public render() {
     return <div>
-      <script dangerouslySetInnerHTML={{
-        __html: `window.PazminHydrate.AppMetricsComponentProps = ${
-          JSON.stringify(this.props).replace(/</g, '\\u003c')
-        }`,
-      }}/>
       <DatePickerComponent {...this.props.datePickerProps}/>
 
       <h2 className="govuk-heading-m">Metrics</h2>
@@ -267,7 +285,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             HTTP responses
           </h3>
 
-          <SingleSeriesComponent {...this.props.httpCountAggregatedSeriesProps}/>
+          <SingleSeriesComponent {...this.props.httpCountAggregatedSeriesProps} unit=" requests"/>
 
           <p className="govuk-body-s">
             The count of HTTP responses served by
@@ -281,7 +299,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             Latency
           </h3>
 
-          <SingleSeriesComponent {...this.props.httpLatencyAggregatedSeriesProps}/>
+          <SingleSeriesComponent {...this.props.httpLatencyAggregatedSeriesProps} unit=" ms"/>
 
           <p className="govuk-body-s">
             The mean response latency for
@@ -295,7 +313,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             CPU
           </h3>
 
-          <SingleSeriesComponent {...this.props.cpuUsageAggregatedSeriesProps}/>
+          <SingleSeriesComponent {...this.props.cpuUsageAggregatedSeriesProps} unit="%"/>
 
           <p className="govuk-body-s">
             The percentage of CPU used by
@@ -308,7 +326,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             Memory
           </h3>
 
-          <SingleSeriesComponent {...this.props.memoryUsageAggregatedSeriesProps}/>
+          <SingleSeriesComponent {...this.props.memoryUsageAggregatedSeriesProps} unit="%"/>
 
           <p className="govuk-body-s">
             The percentage of memory quota used by
@@ -323,7 +341,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             Disk
           </h3>
 
-          <SingleSeriesComponent {...this.props.diskUsageAggregatedSeriesProps}/>
+          <SingleSeriesComponent {...this.props.diskUsageAggregatedSeriesProps} unit="%"/>
 
           <p className="govuk-body-s">
             The percentage of disk quota used by
@@ -372,11 +390,6 @@ export interface IServiceMetricsComponentProps {
 export class ServiceMetricsComponent extends Component<IServiceMetricsComponentProps, {}> {
   public render() {
     return <div>
-      <script dangerouslySetInnerHTML={{
-        __html: `window.PazminHydrate.AppMetricsComponentProps = ${
-          JSON.stringify(this.props).replace(/</g, '\\u003c')
-        }`,
-      }}/>
       <DatePickerComponent {...this.props.datePickerProps}/>
 
       <h2 className="govuk-heading-m">Metrics</h2>

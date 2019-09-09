@@ -77,7 +77,10 @@ export default function(config: IAppConfig) {
     httpOnly: true,
   }));
 
-  app.use('/assets', staticGzip('dist/assets', {immutable: true}));
+  app.use('/assets', staticGzip('dist/assets', {
+    immutable: /* istanbul ignore next */ process.env.NODE_ENV === 'production',
+  }));
+
   app.use('/assets', staticGzip('node_modules/govuk-frontend/govuk', {immutable: true}));
   app.use('/assets', staticGzip('node_modules/govuk-frontend/govuk/assets', {immutable: true}));
   app.use('/assets', staticGzip('node_modules/d3/dist', {immutable: true}));

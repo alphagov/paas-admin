@@ -112,7 +112,7 @@ export async function viewAppMetrics(
     ctx.app.logger,
   );
 
-  const appMetricsProps = {
+  const appMetricsComponentProps = {
     application,
 
     datePickerProps: {
@@ -171,7 +171,7 @@ export async function viewAppMetrics(
     },
   };
 
-  const appMetrics = renderToString(React.createElement(AppMetricsComponent, appMetricsProps));
+  const appMetricsComponent = renderToString(React.createElement(AppMetricsComponent, appMetricsComponentProps));
 
   const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
     { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
@@ -205,7 +205,8 @@ export async function viewAppMetrics(
 
       breadcrumbs,
 
-      appMetrics, appMetricsProps,
+      appMetricsComponent,
+      appMetricsComponentProps: Buffer.from(JSON.stringify(appMetricsComponentProps)).toString('base64'),
     }),
   };
 }

@@ -5,9 +5,10 @@
 {% endblock %}
 
 {% block insideTabs %}
-  {{ appMetrics | safe }}
+  <div id="app-metrics-component-root">{{ appMetricsComponent | safe }}</div>
 
-  <link href="/assets/muze.css" media="screen" rel="stylesheet" />
-  <script src="/assets/muze.js"></script>
-  <script src="/assets/metrics.js"></script>
+  <template id="app-metrics-component-props">
+    {{ appMetricsComponentProps | safe }}
+  </template>
+  <script src="/assets/app-metrics.js"></script>
 {% endblock %}
