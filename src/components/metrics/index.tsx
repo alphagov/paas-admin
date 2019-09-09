@@ -184,7 +184,7 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
   public render() {
     return <Line
       data={this.promToNivo(this.props.data)}
-      width={440} height={200}
+      width={250} height={200}
       margin={{
         top: 5, right: 5,
         bottom: 25, left: 25,
@@ -199,7 +199,7 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
         tickPadding: 5,
         tickRotation: 0,
         format: '%y-%m-%d %H:%M',
-        tickValues: 4,
+        tickValues: 2,
       }}
       axisLeft={{
         orient: 'left',
@@ -269,8 +269,6 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
     return <div>
       <DatePickerComponent {...this.props.datePickerProps}/>
 
-      <h2 className="govuk-heading-m">Metrics</h2>
-
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-half" tabIndex={0}>
           <HTTPReliabilitySingleStatComponent {...this.props.httpReliabilitySingleStatProps}/>
@@ -282,7 +280,23 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
       </div>
 
       <div className="govuk-grid-row">
-        <div className="govuk-grid-column-one-half" tabIndex={0}>
+        <div className="govuk-grid-column-one-third">
+          <h3 className="govuk-heading-m">
+            Summary
+          </h3>
+
+          <p className="govuk-body-s">
+            Hover over the data points in the charts to see the values
+            at a moment in time.
+          </p>
+
+          <p className="govuk-body-s">
+            Click on a chart to expand the chart to see individual series,
+            instead of aggregated values.
+          </p>
+        </div>
+
+        <div className="govuk-grid-column-one-third" tabIndex={0}>
           <h3 className="govuk-heading-m">
             HTTP responses
           </h3>
@@ -292,11 +306,11 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           <p className="govuk-body-s">
             The count of HTTP responses served by
             <code>{this.props.application.entity.name}</code>
-            segmented by HTTP response code
+            per second
           </p>
         </div>
 
-        <div className="govuk-grid-column-one-half" tabIndex={0}>
+        <div className="govuk-grid-column-one-third" tabIndex={0}>
           <h3 className="govuk-heading-m">
             Latency
           </h3>
@@ -306,11 +320,13 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           <p className="govuk-body-s">
             The mean response latency for
             <code>{this.props.application.entity.name}</code>
-            in milliseconds, segmented by status code
+            in milliseconds
           </p>
         </div>
+      </div>
 
-        <div className="govuk-grid-column-one-half" tabIndex={0}>
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-one-third" tabIndex={0}>
           <h3 className="govuk-heading-m">
             CPU
           </h3>
@@ -323,7 +339,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           </p>
         </div>
 
-        <div className="govuk-grid-column-one-half" tabIndex={0}>
+        <div className="govuk-grid-column-one-third" tabIndex={0}>
           <h3 className="govuk-heading-m">
             Memory
           </h3>
@@ -338,7 +354,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           </p>
         </div>
 
-        <div className="govuk-grid-column-one-half" tabIndex={0}>
+        <div className="govuk-grid-column-one-third" tabIndex={0}>
           <h3 className="govuk-heading-m">
             Disk
           </h3>
@@ -416,7 +432,7 @@ export class ServiceMetricsComponent extends Component<IServiceMetricsComponentP
           </p>
         </div>
 
-        <div className="govuk-grid-column-one-half" tabIndex={0}>
+        <div className="govuk-grid-column-one-third" tabIndex={0}>
           <h3 className="govuk-heading-m">
             Free storage space
           </h3>
