@@ -4,6 +4,12 @@ import moment from 'moment-timezone';
 import React, {Component} from 'react';
 
 import {
+  differenceInDays,
+  differenceInHours,
+  differenceInMinutes,
+} from 'date-fns';
+
+import {
   IApplication,
   IServiceInstance,
 } from '../../lib/cf/types';
@@ -43,10 +49,13 @@ export class DatePickerComponent extends Component<IDatePickerComponentProps, {}
       <p className="govuk-body">
         This is showing the <span>
           {this.timeDelta(this.props.historicTime, this.props.instantTime)}
+        </span> <span>
+          {this.timeDeltaUnits(this.props.historicTime, this.props.instantTime)}
         </span> between <span>
-          {this.props.historicTime.toISOString()}
+          {this.niceDatetime(this.props.historicTime)}
         </span> and <span>
-          {this.props.instantTime.toISOString()}</span>.
+          {this.niceDatetime(this.props.instantTime)}
+        </span>.
       </p>
 
       <details className="govuk-details" open={this.props.isOpen}>
@@ -99,7 +108,44 @@ export class DatePickerComponent extends Component<IDatePickerComponentProps, {}
   }
 
   private timeDelta(historicTime: Date, instantTime: Date): number {
-    return instantTime.getTime() - historicTime.getTime();
+    const oneHour = 60 * 60 * 1000;
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    const diffMillis = moment(instantTime).diff(historicTime);
+
+    if (diffMillis < oneHour) {
+      return differenceInMinutes(instantTime, historicTime);
+    }
+
+    if (diffMillis < oneDay) {
+      return differenceInHours(instantTime, historicTime);
+    }
+
+    return differenceInDays(instantTime, historicTime);
+  }
+
+  private timeDeltaUnits(historicTime: Date, instantTime: Date): string {
+    const oneHour = 60 * 60 * 1000;
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    const diffMillis = moment(instantTime).diff(historicTime);
+
+    if (diffMillis < oneHour) {
+      const minutes = differenceInMinutes(instantTime, historicTime);
+      return minutes.toFixed(0) === '1' ? 'minute' : 'minutes';
+    }
+
+    if (diffMillis < oneDay) {
+      const hours = differenceInHours(instantTime, historicTime);
+      return hours.toFixed(0) === '1' ? 'hour' : 'hours';
+    }
+
+    const days = differenceInDays(instantTime, historicTime);
+    return days.toFixed(0) === '1' ? 'day' : 'days';
+  }
+
+  private niceDatetime(time: Date): string {
+    return moment(time, 'Europe/London').format('MMMM Do YYYY HH:mm');
   }
 }
 
