@@ -472,7 +472,18 @@ export class ServiceMetricsComponent extends Component<IServiceMetricsComponentP
       </div>
 
       <div className="govuk-grid-row">
-        <div className="govuk-grid-column-one-half" tabIndex={0}>
+        <div className="govuk-grid-column-one-third">
+          <h3 className="govuk-heading-m">
+            Summary
+          </h3>
+
+          <p className="govuk-body-s">
+            Hover over the data points in the charts to see the values
+            at a moment in time
+          </p>
+        </div>
+
+        <div className="govuk-grid-column-one-third" tabIndex={0}>
           <h3 className="govuk-heading-m">
             CPU
           </h3>
