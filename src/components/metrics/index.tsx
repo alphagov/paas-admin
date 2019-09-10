@@ -343,11 +343,6 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             Hover over the data points in the charts to see the values
             at a moment in time.
           </p>
-
-          <p className="govuk-body-s">
-            Click on a chart to expand the chart to see individual series,
-            instead of aggregated values.
-          </p>
         </div>
 
         <div className="govuk-grid-column-one-third" tabIndex={0}>
