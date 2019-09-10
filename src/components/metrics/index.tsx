@@ -70,8 +70,12 @@ export class DatePickerComponent extends Component<IDatePickerComponentProps, {}
             <div className="govuk-grid-column-one-half">
               <ul className="govuk-list">
                 {Object.keys(timeOffsets).map(offset => {
-                  return <li key={offset}><a href={`?nice-offset=${offset}&open=true`}
-                       className="govuk-list">{offset.replace(/-/g, ' ')}</a></li>;
+                  return <li key={offset}>
+                    <a href={`?nice-offset=${offset}&open=true`}
+                       className="govuk-list">
+                      {this.capitalise(offset.replace(/-/g, ' '))}
+                    </a>
+                  </li>;
                 })}
               </ul>
             </div>
@@ -146,6 +150,10 @@ export class DatePickerComponent extends Component<IDatePickerComponentProps, {}
 
   private niceDatetime(time: Date): string {
     return moment(time, 'Europe/London').format('MMMM Do YYYY HH:mm');
+  }
+
+  private capitalise(inp: string): string {
+    return inp.charAt(0).toUpperCase() + inp.slice(1);
   }
 }
 
