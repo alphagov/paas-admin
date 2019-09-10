@@ -246,13 +246,13 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
       data={this.promToNivo(this.props.data)}
       width={250} height={200}
       margin={{
-        top: 5, right: 5,
-        bottom: 25, left: 25,
+        top: 5, right: 25,
+        bottom: 25, left: 5,
       }}
       xScale={{ type: 'time', format: '%Q', precision: 'minute' }}
       yScale={{ type: 'linear', stacked: false, min: 'auto', max: 'auto' }}
       axisTop={null}
-      axisRight={null}
+      axisLeft={null}
       axisBottom={{
         orient: 'bottom',
         tickSize: 5,
@@ -261,8 +261,8 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
         format: '%y-%m-%d %H:%M',
         tickValues: 2,
       }}
-      axisLeft={{
-        orient: 'left',
+      axisRight={{
+        orient: 'right',
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
