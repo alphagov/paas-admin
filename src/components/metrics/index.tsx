@@ -431,7 +431,7 @@ export class FreeStorageSpaceSingleStatComponent extends Component<ISingleStatCo
 
       <h2 className="govuk-heading-l">
         <span>
-          {this.props.val.toFixed(0)}
+          {this.valFormat(this.props.val)}
         </span>
         <span>MB</span>
       </h2>
@@ -440,6 +440,10 @@ export class FreeStorageSpaceSingleStatComponent extends Component<ISingleStatCo
         The amount of free storage space available to the database in megabytes
       </p>
     </div>;
+  }
+
+  private valFormat(val: number): string {
+    return (val / (1024 * 1024)).toFixed(0);
   }
 }
 
