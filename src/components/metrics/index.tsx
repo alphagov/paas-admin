@@ -359,9 +359,9 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           <SingleSeriesComponent {...this.props.httpCountAggregatedSeriesProps} unit=" requests"/>
 
           <p className="govuk-body-s">
-            The count of HTTP responses served by
-            <code>{this.props.application.entity.name}</code>
-            per second
+            The count of HTTP responses served by <code>
+              {this.props.application.entity.name}
+            </code> per second
           </p>
         </div>
 
@@ -373,9 +373,9 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           <SingleSeriesComponent {...this.props.httpLatencyAggregatedSeriesProps} unit=" ms"/>
 
           <p className="govuk-body-s">
-            The mean response latency for
-            <code>{this.props.application.entity.name}</code>
-            in milliseconds
+            The mean response latency for <code>
+              {this.props.application.entity.name}
+            </code> in milliseconds
           </p>
         </div>
       </div>
@@ -389,8 +389,9 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           <SingleSeriesComponent {...this.props.cpuUsageAggregatedSeriesProps} unit="%"/>
 
           <p className="govuk-body-s">
-            The percentage of CPU used by
-            <code>{this.props.application.entity.name}</code>
+            The percentage of CPU used by <code>
+              {this.props.application.entity.name}
+            </code>
           </p>
         </div>
 
@@ -402,10 +403,11 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           <SingleSeriesComponent {...this.props.memoryUsageAggregatedSeriesProps} unit="%"/>
 
           <p className="govuk-body-s">
-            The percentage of memory quota used by
-            <code>{this.props.application.entity.name}</code>,
-            out of a total of
-            <code>{this.props.application.entity.memory}MB</code>
+            The percentage of memory quota used by <code>
+              {this.props.application.entity.name}
+            </code>, out of a total of <code>
+              {this.props.application.entity.memory}MB
+            </code>
           </p>
         </div>
 
@@ -417,10 +419,11 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
           <SingleSeriesComponent {...this.props.diskUsageAggregatedSeriesProps} unit="%"/>
 
           <p className="govuk-body-s">
-            The percentage of disk quota used by
-            <code>{this.props.application.entity.name}</code>,
-            out of a total of
-            <code>{this.props.application.entity.disk_quota}MB</code>
+            The percentage of disk quota used by <code>
+              {this.props.application.entity.name}
+            </code>, out of a total of <code>
+              {this.props.application.entity.disk_quota}MB
+            </code>
           </p>
         </div>
       </div>
@@ -497,8 +500,9 @@ export class ServiceMetricsComponent extends Component<IServiceMetricsComponentP
           <SingleSeriesComponent {...this.props.cpuUsageAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
-            The percentage of CPU
-            used by <code>{this.props.service.entity.name}</code>
+            The percentage of CPU used by <code>
+              {this.props.service.entity.name}
+            </code>
           </p>
         </div>
 
@@ -510,9 +514,9 @@ export class ServiceMetricsComponent extends Component<IServiceMetricsComponentP
           <SingleSeriesComponent {...this.props.freeStorageSpaceAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
-            The amount of free storage space
-            for <code>{this.props.service.entity.name}</code> in
-            megabytes
+            The amount of free storage space for <code>
+              {this.props.service.entity.name}
+            </code> in megabytes
           </p>
         </div>
       </div>
