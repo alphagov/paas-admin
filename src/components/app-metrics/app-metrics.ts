@@ -120,7 +120,7 @@ export async function viewAppMetrics(
     },
 
     httpReliabilitySingleStatProps: {
-      interval: 5, intervalUnit: 'mins',
+      historicTime, instantTime,
       val: await prom.getValue(
         appSingleStats['app-http-reliability-aggregated-singlestat'](
           application.metadata.guid, promInterval,
@@ -129,7 +129,7 @@ export async function viewAppMetrics(
       ),
     },
     httpLatencySingleStatProps: {
-      interval: 5, intervalUnit: 'mins',
+      historicTime, instantTime,
       val: await prom.getValue(
         appSingleStats['app-http-latency-aggregated-singlestat'](
           application.metadata.guid, promInterval,
@@ -171,7 +171,9 @@ export async function viewAppMetrics(
     },
   };
 
-  const appMetricsComponent = renderToString(React.createElement(AppMetricsComponent, appMetricsComponentProps));
+  const appMetricsComponent = renderToString(
+    React.createElement(AppMetricsComponent, appMetricsComponentProps),
+  );
 
   const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
     { text: 'Organisations', href: ctx.linkTo('admin.organizations') },

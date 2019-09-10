@@ -37,6 +37,51 @@ http4xxColor, http5xxColor,
 ];
 // tslint:enable:no-unused
 
+const timeDelta = (historicTime: Date, instantTime: Date): number => {
+  const oneHour = 60 * 60 * 1000;
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  const diffMillis = moment(instantTime).diff(historicTime);
+
+  if (diffMillis < oneHour) {
+    return differenceInMinutes(instantTime, historicTime);
+  }
+
+  if (diffMillis < oneDay) {
+    return differenceInHours(instantTime, historicTime);
+  }
+
+  return differenceInDays(instantTime, historicTime);
+};
+
+const timeDeltaUnits = (historicTime: Date, instantTime: Date): string => {
+  const oneHour = 60 * 60 * 1000;
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  const diffMillis = moment(instantTime).diff(historicTime);
+
+  if (diffMillis < oneHour) {
+    const minutes = differenceInMinutes(instantTime, historicTime);
+    return minutes.toFixed(0) === '1' ? 'minute' : 'minutes';
+  }
+
+  if (diffMillis < oneDay) {
+    const hours = differenceInHours(instantTime, historicTime);
+    return hours.toFixed(0) === '1' ? 'hour' : 'hours';
+  }
+
+  const days = differenceInDays(instantTime, historicTime);
+  return days.toFixed(0) === '1' ? 'day' : 'days';
+};
+
+const niceDatetime = (time: Date): string => {
+  return moment(time, 'Europe/London').format('MMMM Do YYYY HH:mm');
+};
+
+const capitalise = (inp: string): string => {
+  return inp.charAt(0).toUpperCase() + inp.slice(1);
+};
+
 export interface IDatePickerComponentProps {
   readonly instantTime: Date;
   readonly historicTime: Date;
@@ -48,13 +93,13 @@ export class DatePickerComponent extends Component<IDatePickerComponentProps, {}
     return <div>
       <p className="govuk-body">
         This is showing the <span>
-          {this.timeDelta(this.props.historicTime, this.props.instantTime)}
+          {timeDelta(this.props.historicTime, this.props.instantTime)}
         </span> <span>
-          {this.timeDeltaUnits(this.props.historicTime, this.props.instantTime)}
+          {timeDeltaUnits(this.props.historicTime, this.props.instantTime)}
         </span> between <span>
-          {this.niceDatetime(this.props.historicTime)}
+          {niceDatetime(this.props.historicTime)}
         </span> and <span>
-          {this.niceDatetime(this.props.instantTime)}
+          {niceDatetime(this.props.instantTime)}
         </span>
       </p>
 
@@ -73,7 +118,7 @@ export class DatePickerComponent extends Component<IDatePickerComponentProps, {}
                   return <li key={offset}>
                     <a href={`?nice-offset=${offset}&open=true`}
                        className="govuk-list">
-                      {this.capitalise(offset.replace(/-/g, ' '))}
+                      {capitalise(offset.replace(/-/g, ' '))}
                     </a>
                   </li>;
                 })}
@@ -110,51 +155,6 @@ export class DatePickerComponent extends Component<IDatePickerComponentProps, {}
       </details>
     </div>;
   }
-
-  private timeDelta(historicTime: Date, instantTime: Date): number {
-    const oneHour = 60 * 60 * 1000;
-    const oneDay = 24 * 60 * 60 * 1000;
-
-    const diffMillis = moment(instantTime).diff(historicTime);
-
-    if (diffMillis < oneHour) {
-      return differenceInMinutes(instantTime, historicTime);
-    }
-
-    if (diffMillis < oneDay) {
-      return differenceInHours(instantTime, historicTime);
-    }
-
-    return differenceInDays(instantTime, historicTime);
-  }
-
-  private timeDeltaUnits(historicTime: Date, instantTime: Date): string {
-    const oneHour = 60 * 60 * 1000;
-    const oneDay = 24 * 60 * 60 * 1000;
-
-    const diffMillis = moment(instantTime).diff(historicTime);
-
-    if (diffMillis < oneHour) {
-      const minutes = differenceInMinutes(instantTime, historicTime);
-      return minutes.toFixed(0) === '1' ? 'minute' : 'minutes';
-    }
-
-    if (diffMillis < oneDay) {
-      const hours = differenceInHours(instantTime, historicTime);
-      return hours.toFixed(0) === '1' ? 'hour' : 'hours';
-    }
-
-    const days = differenceInDays(instantTime, historicTime);
-    return days.toFixed(0) === '1' ? 'day' : 'days';
-  }
-
-  private niceDatetime(time: Date): string {
-    return moment(time, 'Europe/London').format('MMMM Do YYYY HH:mm');
-  }
-
-  private capitalise(inp: string): string {
-    return inp.charAt(0).toUpperCase() + inp.slice(1);
-  }
 }
 
 export type SingleStatValFormatter = (val: number) => string;
@@ -164,8 +164,8 @@ export interface ISingleStatComponentProps {
 }
 
 export interface IHTTPReliabilitySingleStatComponentProps extends ISingleStatComponentProps {
-  readonly interval: number;
-  readonly intervalUnit: string;
+  readonly historicTime: Date;
+  readonly instantTime: Date;
 }
 
 export class HTTPReliabilitySingleStatComponent extends Component<IHTTPReliabilitySingleStatComponentProps, {}> {
@@ -181,17 +181,20 @@ export class HTTPReliabilitySingleStatComponent extends Component<IHTTPReliabili
       </h2>
 
       <p className="govuk-body-s">
-        Percentage of HTTP 1XX/2XX/3XX responses compared to all HTTP responses over the last
-        <span> {this.props.interval}</span>
-        <span> {this.props.intervalUnit}</span>
+        Percentage of HTTP 1XX/2XX/3XX responses compared to all HTTP responses
+        over the last <span>
+          {timeDelta(this.props.historicTime, this.props.instantTime)}
+        </span> <span>
+          {timeDeltaUnits(this.props.historicTime, this.props.instantTime)}
+        </span>
       </p>
     </div>;
   }
 }
 
 export interface IHTTPLatencySingleStatComponentProps extends ISingleStatComponentProps {
-  readonly interval: number;
-  readonly intervalUnit: string;
+  readonly historicTime: Date;
+  readonly instantTime: Date;
 }
 
 export class HTTPLatencySingleStatComponent extends Component<IHTTPLatencySingleStatComponentProps, {}> {
@@ -207,9 +210,12 @@ export class HTTPLatencySingleStatComponent extends Component<IHTTPLatencySingle
       </h2>
 
       <p className="govuk-body-s">
-        Mean latency in milliseconds over the last
-        <span> {this.props.interval}</span>
-        <span> {this.props.intervalUnit}</span>
+        Mean latency in milliseconds
+        over the last <span>
+          {timeDelta(this.props.historicTime, this.props.instantTime)}
+        </span> <span>
+          {timeDeltaUnits(this.props.historicTime, this.props.instantTime)}
+        </span>
       </p>
     </div>;
   }
