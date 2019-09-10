@@ -174,7 +174,7 @@ export class HTTPReliabilitySingleStatComponent extends Component<IHTTPReliabili
       <h3 className="govuk-heading-m">Reliability</h3>
 
       <h2 className="govuk-heading-m">
-        <span id="http-reliability-value">
+        <span>
           {this.props.val.toFixed(2)}
         </span>
         <span>%</span>
@@ -200,7 +200,7 @@ export class HTTPLatencySingleStatComponent extends Component<IHTTPLatencySingle
       <h3 className="govuk-heading-m">Mean latency</h3>
 
       <h2 className="govuk-heading-m">
-        <span id="latency-value">
+        <span>
           {this.props.val.toFixed(2)}
         </span>
         <span>ms</span>
