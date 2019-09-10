@@ -55,7 +55,7 @@ export class DatePickerComponent extends Component<IDatePickerComponentProps, {}
           {this.niceDatetime(this.props.historicTime)}
         </span> and <span>
           {this.niceDatetime(this.props.instantTime)}
-        </span>.
+        </span>
       </p>
 
       <details className="govuk-details" open={this.props.isOpen}>
@@ -341,7 +341,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
 
           <p className="govuk-body-s">
             Hover over the data points in the charts to see the values
-            at a moment in time.
+            at a moment in time
           </p>
         </div>
 
