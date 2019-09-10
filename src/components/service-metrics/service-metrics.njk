@@ -5,9 +5,10 @@
 {% endblock %}
 
 {% block insideTabs %}
-  {{ serviceMetrics | safe }}
+  <div id="service-metrics-component-root">{{ serviceMetricsComponent | safe }}</div>
 
-  <link href="/assets/muze.css" media="screen" rel="stylesheet" />
-  <script src="/assets/muze.js"></script>
-  <script src="/assets/metrics.js"></script>
+  <template id="service-metrics-component-props">
+    {{ serviceMetricsComponentProps | safe }}
+  </template>
+  <script src="/assets/service-metrics.js"></script>
 {% endblock %}

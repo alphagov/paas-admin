@@ -144,6 +144,7 @@ let clientCfg = {
 
   entry: {
     'assets/app-metrics': ['./src/frontend/javascript/app-metrics.tsx'],
+    'assets/service-metrics': ['./src/frontend/javascript/service-metrics.tsx'],
   },
 
   devtool: 'source-map',

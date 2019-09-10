@@ -133,7 +133,7 @@ export async function viewServiceMetrics(
     ctx.app.logger,
   );
 
-  const serviceMetricsProps = {
+  const serviceMetricsComponentProps = {
     service: summarisedService,
 
     datePickerProps: {
@@ -164,7 +164,9 @@ export async function viewServiceMetrics(
     },
   };
 
-  const serviceMetrics = renderToString(React.createElement(ServiceMetricsComponent, serviceMetricsProps));
+  const serviceMetricsComponent = renderToString(
+    React.createElement(ServiceMetricsComponent, serviceMetricsComponentProps),
+  );
 
   const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
     { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
@@ -199,7 +201,8 @@ export async function viewServiceMetrics(
 
       breadcrumbs,
 
-      serviceMetrics, serviceMetricsProps,
+      serviceMetricsComponent,
+      serviceMetricsComponentProps: Buffer.from(JSON.stringify(serviceMetricsComponentProps)).toString('base64'),
     }),
   };
 }
