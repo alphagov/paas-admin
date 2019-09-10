@@ -1,5 +1,5 @@
 // tslint:disable:max-classes-per-file
-import { Line ResponsiveContainer, } from '@nivo/line';
+import { Line } from '@nivo/line';
 import moment from 'moment-timezone';
 import React, {Component} from 'react';
 
