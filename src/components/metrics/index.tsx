@@ -268,7 +268,10 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
         tickPadding: 5,
         tickRotation: 0,
         format: '%y-%m-%d %H:%M',
-        tickValues: 2,
+        tickValues: [
+          this.props.data[Math.floor((1.0 * this.props.data.length) / 5.0)].timestamp,
+          this.props.data[Math.ceil((4.0 * this.props.data.length) / 5.0)].timestamp,
+        ],
       }}
       axisRight={{
         orient: 'right',
