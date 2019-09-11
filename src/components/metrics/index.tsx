@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
 import { Line } from '@nivo/line';
-import { maxBy, mean, minBy } from 'lodash';
+import { maxBy, mean } from 'lodash';
 import moment from 'moment-timezone';
 import React, {Component} from 'react';
 
@@ -309,7 +309,7 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
   }
 
   private rightAxisTickValues(promData: ReadonlyArray<IPrometheusVectorDatum>): number[] {
-    const min = minBy(promData, x => x.val).val;
+    const min = 0; // We hardcoded the min chart value to zero
     const max = maxBy(promData, x => x.val).val;
     const mid = mean([max, min]);
 
