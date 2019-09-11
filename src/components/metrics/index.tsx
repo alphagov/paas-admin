@@ -1,5 +1,6 @@
 // tslint:disable:max-classes-per-file
 import { Line } from '@nivo/line';
+import { maxBy, mean, minBy } from 'lodash';
 import moment from 'moment-timezone';
 import React, {Component} from 'react';
 
@@ -274,11 +275,10 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
         ],
       }}
       axisRight={{
-        orient: 'right',
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        tickValues: 4,
+        tickValues: this.rightAxisTickValues(this.props.data),
       }}
       isInteractive={this.interactive()}
       tooltip={(p: any) => this.tooltip(p, this.props.unit)}
@@ -306,6 +306,14 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
         return { x: datum.timestamp, y: datum.val };
       }),
     }];
+  }
+
+  private rightAxisTickValues(promData: ReadonlyArray<IPrometheusVectorDatum>): number[] {
+    const min = minBy(promData, x => x.val).val;
+    const max = maxBy(promData, x => x.val).val;
+    const mid = mean([max, min]);
+
+    return [min, mid, max];
   }
 
   private tooltip(data: any, unit: string) {
