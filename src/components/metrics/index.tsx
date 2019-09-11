@@ -249,8 +249,17 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
         top: 5, right: 25,
         bottom: 25, left: 5,
       }}
-      xScale={{ type: 'time', format: '%Q', precision: 'minute' }}
-      yScale={{ type: 'linear', stacked: false, min: 'auto', max: 'auto' }}
+      xScale={{
+        type: 'time',
+        format: '%Q',
+        precision: 'minute',
+      }}
+      yScale={{
+        type: 'linear',
+        stacked: false,
+        min: 0,
+        max: 'auto',
+      }}
       axisTop={null}
       axisLeft={null}
       axisBottom={{
