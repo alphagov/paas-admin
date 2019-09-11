@@ -282,6 +282,7 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
       }}
       isInteractive={this.interactive()}
       tooltip={(p: any) => this.tooltip(p, this.props.unit)}
+      crosshairType="cross"
       colors={singleChartColor}
       enablePoints={false}
       useMesh={true}
