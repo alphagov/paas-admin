@@ -245,9 +245,9 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
   public render() {
     return <Line
       data={this.promToNivo(this.props.data)}
-      width={250} height={200}
+      width={275} height={200}
       margin={{
-        top: 5, right: 25,
+        top: 5, right: 50,
         bottom: 25, left: 5,
       }}
       xScale={{
