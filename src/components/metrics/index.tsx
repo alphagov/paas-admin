@@ -1,4 +1,5 @@
 // tslint:disable:max-classes-per-file
+// tslint:disable:readonly-array
 import { Line } from '@nivo/line';
 import { maxBy, mean } from 'lodash';
 import moment from 'moment-timezone';
@@ -231,19 +232,21 @@ export interface INivoLinePoint {
   y: number;
 }
 
-// tslint:disable:readonly-array
 export interface INivoLineSerie {
   id: string;
   color: string;
   data: INivoLinePoint[];
 }
 
+export type ITooltipFormatter = (data: any) => any;
+
 export interface ISingleSeriesComponentProps {
   readonly data: ReadonlyArray<IPrometheusVectorDatum>;
-  readonly unit: string;
 }
 
 export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps, {}> {
+  protected unit: string = 'no unit';
+
   private mounted: boolean = false;
 
   public render() {
@@ -283,9 +286,10 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
         tickPadding: 5,
         tickRotation: 0,
         tickValues: this.rightAxisTickValues(this.props.data),
+        format: (d: any) => this.yAxisValFormatter(d),
       }}
       isInteractive={this.interactive()}
-      tooltip={(p: any) => this.tooltip(p, this.props.unit)}
+      tooltip={(d) => this.tooltipFormatter(d)}
       crosshairType="cross"
       colors={singleChartColor}
       enablePoints={false}
@@ -296,6 +300,22 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
   public componentDidMount() {
     this.mounted = true;
     this.setState({});
+  }
+
+  protected yAxisValFormatter(v: number | string | Date): number | string {
+    const val = v as number;
+    return `${val.toFixed(1)} ${this.unit}`;
+  }
+
+  protected tooltipFormatter(d: any): any {
+    const date = d.point.data.x;
+    const value = d.point.data.y;
+
+    const niceDate = moment(date, 'Europe/London').format('YYYY-MM-DD HH:mm');
+
+    return <span className="tooltip">
+      {niceDate}: <strong>{value.toFixed(1)}</strong> {this.unit}
+    </span>;
   }
 
   private interactive(): boolean {
@@ -319,19 +339,24 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
 
     return [min, mid, max];
   }
+}
 
-  private tooltip(data: any, unit: string) {
-    const date = data.point.data.x;
-    const value = data.point.data.y;
+export class HTTPCountAggregatedSeriesComponent extends SingleSeriesComponent {
+  protected unit: string = 'requests';
 
-    const niceDate = moment(date, 'Europe/London').format('YYYY-MM-DD HH:mm');
-    return <span className="tooltip">
-      {niceDate}: <strong>{value.toFixed(2)}</strong>
-      {unit}
-    </span>;
+  protected yAxisValFormatter(v: number | string | Date): number | string {
+    const val = v as number;
+    return `${val.toFixed(0)}`;
   }
 }
-// tslint:enable:readonly-array
+
+export class HTTPLatencyAggregatedSeriesComponent extends SingleSeriesComponent {
+  protected unit: string = 'ms';
+}
+
+export class PercentageAggregatedSeriesComponent extends SingleSeriesComponent {
+  protected unit: string = '%';
+}
 
 export interface IAppMetricsComponentProps {
   readonly application: IApplication;
@@ -381,7 +406,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             HTTP responses
           </h3>
 
-          <SingleSeriesComponent {...this.props.httpCountAggregatedSeriesProps} unit=" requests"/>
+          <HTTPCountAggregatedSeriesComponent {...this.props.httpCountAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The count of HTTP responses served by <code>
@@ -395,7 +420,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             Latency
           </h3>
 
-          <SingleSeriesComponent {...this.props.httpLatencyAggregatedSeriesProps} unit=" ms"/>
+          <HTTPLatencyAggregatedSeriesComponent {...this.props.httpLatencyAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The mean response latency for <code>
@@ -411,7 +436,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             CPU
           </h3>
 
-          <SingleSeriesComponent {...this.props.cpuUsageAggregatedSeriesProps} unit="%"/>
+          <PercentageAggregatedSeriesComponent {...this.props.cpuUsageAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The percentage of CPU used by <code>
@@ -425,7 +450,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             Memory
           </h3>
 
-          <SingleSeriesComponent {...this.props.memoryUsageAggregatedSeriesProps} unit="%"/>
+          <PercentageAggregatedSeriesComponent {...this.props.memoryUsageAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The percentage of memory quota used by <code>
@@ -441,7 +466,7 @@ export class AppMetricsComponent extends Component<IAppMetricsComponentProps, {}
             Disk
           </h3>
 
-          <SingleSeriesComponent {...this.props.diskUsageAggregatedSeriesProps} unit="%"/>
+          <PercentageAggregatedSeriesComponent {...this.props.diskUsageAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The percentage of disk quota used by <code>
@@ -492,6 +517,32 @@ export interface IServiceMetricsComponentProps {
   readonly cpuUsageAggregatedSeriesProps: ISingleSeriesComponentProps;
 }
 
+export class MegabytesAggregatedSeriesComponent extends SingleSeriesComponent {
+  protected unit: string = 'MB';
+
+  protected yAxisValFormatter(v: number | string | Date): number | string {
+    const val = v as number;
+    return `${this.bytesToMegaBytes(val).toFixed(0)} MB`;
+  }
+
+  protected tooltipFormatter(d: any): any {
+    const date = d.point.data.x;
+    const value = d.point.data.y;
+
+    const niceDate = moment(date, 'Europe/London').format('YYYY-MM-DD HH:mm');
+
+    return <span className="tooltip">
+      {niceDate}: <strong>
+        {this.bytesToMegaBytes(value).toFixed(0)}
+      </strong> {this.unit}
+    </span>;
+  }
+
+  private bytesToMegaBytes(bytes: number) {
+    return bytes / (1024 * 1024);
+  }
+}
+
 export class ServiceMetricsComponent extends Component<IServiceMetricsComponentProps, {}> {
   public render() {
     return <div>
@@ -522,7 +573,7 @@ export class ServiceMetricsComponent extends Component<IServiceMetricsComponentP
             CPU
           </h3>
 
-          <SingleSeriesComponent {...this.props.cpuUsageAggregatedSeriesProps}/>
+          <PercentageAggregatedSeriesComponent {...this.props.cpuUsageAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The percentage of CPU used by <code>
@@ -536,7 +587,7 @@ export class ServiceMetricsComponent extends Component<IServiceMetricsComponentP
             Free storage space
           </h3>
 
-          <SingleSeriesComponent {...this.props.freeStorageSpaceAggregatedSeriesProps}/>
+          <MegabytesAggregatedSeriesComponent {...this.props.freeStorageSpaceAggregatedSeriesProps}/>
 
           <p className="govuk-body-s">
             The amount of free storage space for <code>
