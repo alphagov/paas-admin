@@ -252,9 +252,9 @@ export class SingleSeriesComponent extends Component<ISingleSeriesComponentProps
   public render() {
     return <Line
       data={this.promToNivo(this.props.data)}
-      width={275} height={200}
+      width={280} height={200}
       margin={{
-        top: 5, right: 50,
+        top: 5, right: 55,
         bottom: 25, left: 5,
       }}
       xScale={{
@@ -352,6 +352,11 @@ export class HTTPCountAggregatedSeriesComponent extends SingleSeriesComponent {
 
 export class HTTPLatencyAggregatedSeriesComponent extends SingleSeriesComponent {
   protected unit: string = 'ms';
+
+  protected yAxisValFormatter(v: number | string | Date): number | string {
+    const val = v as number;
+    return `${val.toFixed(0)} ms`;
+  }
 }
 
 export class PercentageAggregatedSeriesComponent extends SingleSeriesComponent {
