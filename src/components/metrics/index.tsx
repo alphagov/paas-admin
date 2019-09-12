@@ -93,7 +93,7 @@ export class DatePickerComponent extends Component<IDatePickerComponentProps, {}
   public render() {
     return <div>
       <p className="govuk-body">
-        This is showing the <span>
+        Showing the <span>
           {timeDelta(this.props.historicTime, this.props.instantTime)}
         </span> <span>
           {timeDeltaUnits(this.props.historicTime, this.props.instantTime)}
@@ -102,6 +102,10 @@ export class DatePickerComponent extends Component<IDatePickerComponentProps, {}
         </span> and <span>
           {niceDatetime(this.props.instantTime)}
         </span>
+      </p>
+      <p className="govuk-body">
+        All dates and times are
+        displayed locally in {moment.tz('Europe/London').format('zz')}
       </p>
 
       <details className="govuk-details" open={this.props.isOpen}>
