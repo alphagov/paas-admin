@@ -76,7 +76,7 @@
     "postcss-url": "8.0.0",
     "regexp-replace-loader": "1.0.1",
     "sass-lint": "1.13.1",
-    "sass-loader": "7.1.0",
+    "sass-loader": "7.3.1",
     "schema-utils": "2.1.0",
     "supertest": "4.0.2",
     "tap": "14.6.1",
