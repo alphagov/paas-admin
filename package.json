@@ -43,7 +43,7 @@
     "@types/nanoid": "^2.0.0",
     "@types/nock": "10.0.3",
     "@types/node-jose": "^1.1.0",
-    "@types/passport": "1.0.0",
+    "@types/passport": "1.0.1",
     "@types/passport-oauth2": "1.4.8",
     "@types/pino": "5.8.10",
     "@types/qs": "6.5.3",
