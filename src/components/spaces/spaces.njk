@@ -33,10 +33,10 @@
 
       <p class="paas-metric__context govuk-body">
         Using
-        {{ organization.entity.memory_allocated | mbtogb }}
+        {{ organization.entity.memory_allocated | mbtogb | safe }}
         of memory
         out of a maximum of
-        {{ organization.entity.quota.entity.memory_limit | mbtogb }}
+        {{ organization.entity.quota.entity.memory_limit | mbtogb | safe}}
       </p>
 
       <p class="govuk-body">
@@ -180,10 +180,10 @@
             </a>
           </td>
           <td class="govuk-table__cell">
-              {{ space.entity.memory_allocated | mbtogb }}
+              {{ space.entity.memory_allocated | mbtogb | safe }}
               of
               {% if space.entity.quota %}
-                {{ space.entity.quota.entity.memory_limit | mbtogb }}
+                {{ space.entity.quota.entity.memory_limit | mbtogb | safe }}
               {% else %}
                 no limit
               {% endif %}

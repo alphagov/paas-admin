@@ -68,7 +68,9 @@ function configure(env) {
     });
   });
 
-  env.addFilter('mbtogb', (mb) => `${(mb / 1024).toFixed(2)}gb`);
+  env.addFilter('mbtogb', (mb) => {
+    return `${(mb / 1024).toFixed(2)}<abbr title="megabytes">mb</abbr>`;
+  });
 
   env.addFilter('percentage', (num, denom) => {
     const percentage = 100 * (num / denom)
