@@ -79,6 +79,8 @@
         <span class="org-summary-stat__figure">
           {% if organization.entity.quota.entity.name == 'default' %}
             Trial
+          {% elif organization.entity.quota.entity.name == 'gds-non-chargeable' %}
+            Free real estate
           {% else %}
             Billable
           {% endif %}
