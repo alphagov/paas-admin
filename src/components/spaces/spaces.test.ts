@@ -80,8 +80,8 @@ describe('spaces test suite', () => {
     });
 
     expect(response.body).toContain('Spaces');
-    expect(response.body).toMatch(/1[.]00gb\s+of\s+20[.]00gb/m);
-    expect(response.body).toMatch(/2[.]00gb\s+of\s+no limit/m);
+    expect(response.body).toMatch(/1[.]00.*gb.*\s+of\s+20[.]00.*gb/m);
+    expect(response.body).toMatch(/2[.]00.*gb.*\s+of\s+no limit/m);
   });
 
   it('should show list of applications in space', async () => {
