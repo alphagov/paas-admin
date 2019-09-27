@@ -41,8 +41,7 @@ export async function viewCostByServiceReport(
   });
 
   const orgs = (await cf.organizations())
-    .filter(org => !org.entity.name.match(/^(CAT|SMOKE|PERF|ACC)/));
-
+    .filter(org => !org.entity.name.match(/^(CAT|SMOKE|PERF|ACC|BACC)/));
   const orgsByGUID = groupBy(orgs, x => x.metadata.guid);
   const orgGUIDs = Object.keys(orgsByGUID);
 
