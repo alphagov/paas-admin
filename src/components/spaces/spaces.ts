@@ -184,9 +184,10 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
 
   const cflinuxfs2UpgradeNeeded = summarisedSpaces.some((s: any) => s.entity.cflinuxfs2UpgradeNeeded);
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
-    { text: summerisedOrganization.entity.name },
-  ]);
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    { text: organization.entity.name },
+  ];
 
   return {
     body: spacesTemplate.render({
