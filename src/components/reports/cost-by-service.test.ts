@@ -29,6 +29,12 @@ describe('html cost report by service test suite', () => {
       .reply(200, '[]')
     ;
 
+    nock(config.cloudFoundryAPI)
+      .get('/v2/spaces')
+      .query(true)
+      .reply(200, '[]')
+    ;
+
     const response = await reports.viewCostByServiceReport(ctx, {rangeStart});
 
     expect(response.body)
@@ -87,6 +93,9 @@ describe('html cost report by service test suite', () => {
         {...defaultBillableEvent, price: {...defaultPrice, inc_vat: '10000', details: []}},
         {...defaultBillableEvent, org_guid: 'some-unknown-org', price: {...defaultPrice, inc_vat: '100000', details: []}},
       ]));
+    nock(config.cloudFoundryAPI)
+      .get('/v2/spaces')
+      .reply(200, `{"total_results": 1, "total_pages": 1, "prev_url": null, "next_url": null, "resources": [{"metadata": {"guid": "default-space-guid"}, "entity": {"name": "default-space-name"}}]}`);
 
     const response = await reports.viewCostByServiceReport(ctx, {rangeStart});
     const reponseBody = (response.body || '').toString();
@@ -222,6 +231,74 @@ describe('cost report grouping functions', () => {
       expect(result[2].orgName).toBe('org-name-two');
       expect(result[2].serviceGroup).toBe('mysql');
       expect(result[2].incVAT).toBe(1 + 1);
+    });
+  });
+
+  describe('getBillableEventsByOrganisationAndSpaceAndService', () => {
+    it('should work with zero events', () => {
+      const result = reports.getBillableEventsByOrganisationAndSpaceAndService([], {}, {});
+      expect(result).toHaveLength(0);
+    });
+
+    it('should look up the organisation and space names by GUID', () => {
+      const orgsByGUID = {'some-org-guid': [{entity: {name: 'some-org-name'}} as any]};
+      const spacesByGUID = {'some-space-guid': [{entity: {name: 'some-space-name'}} as any]};
+      const result = reports.getBillableEventsByOrganisationAndSpaceAndService(
+        [
+          {...defaultBillableEvent, orgGUID: 'some-org-guid', spaceGUID: 'some-space-guid'},
+          {...defaultBillableEvent, orgGUID: 'some-org-guid', spaceGUID: 'some-space-guid-that-doesnt-exist'},
+        ],
+        orgsByGUID,
+        spacesByGUID,
+      );
+      expect(result).toHaveLength(2);
+      expect(result[0].orgName).toBe('some-org-name');
+      expect(result[0].spaceName).toBe('some-space-name');
+      expect(result[1].orgName).toBe('some-org-name');
+      expect(result[1].spaceName).toBe('unknown');
+    });
+
+    it('should group by organisation (sorted alphabetically), then by space (sorted alphabetically), then by service (sorted by cost)', () => {
+      const orgsByGUID = {
+        'org-guid-one': [{entity: {name: 'org-name-one'}} as any],
+        'org-guid-two': [{entity: {name: 'org-name-two'}} as any],
+      };
+      const spacesByGUID = {
+        'space-guid-one': [{entity: {name: 'space-name-one'}} as any],
+        'space-guid-two': [{entity: {name: 'space-name-two'}} as any],
+      };
+      const result = reports.getBillableEventsByOrganisationAndSpaceAndService(
+        [
+          {...defaultBillableEvent, orgGUID: 'org-guid-two', spaceGUID: 'space-guid-one', price: {...defaultPrice, incVAT: 7, details: [{...defaultPriceDetails, planName: 'mysql'}]}},
+          {...defaultBillableEvent, orgGUID: 'org-guid-two', spaceGUID: 'space-guid-one', price: {...defaultPrice, incVAT: 1, details: [{...defaultPriceDetails, planName: 'mysql'}]}},
+          {...defaultBillableEvent, orgGUID: 'org-guid-two', spaceGUID: 'space-guid-two', price: {...defaultPrice, incVAT: 2, details: [{...defaultPriceDetails, planName: 'mysql'}]}},
+          {...defaultBillableEvent, orgGUID: 'org-guid-one', spaceGUID: 'space-guid-one', price: {...defaultPrice, incVAT: 20, details: [{...defaultPriceDetails, planName: 'mysql'}]}},
+          {...defaultBillableEvent, orgGUID: 'org-guid-one', spaceGUID: 'space-guid-two', price: {...defaultPrice, incVAT: 100, details: [{...defaultPriceDetails, planName: 'postgres'}]}},
+        ],
+        orgsByGUID,
+        spacesByGUID,
+      );
+      expect(result).toHaveLength(4);
+
+      expect(result[0].orgName).toBe('org-name-one');
+      expect(result[0].spaceName).toBe('space-name-one');
+      expect(result[0].serviceGroup).toBe('mysql');
+      expect(result[0].incVAT).toBe(20);
+
+      expect(result[1].orgName).toBe('org-name-one');
+      expect(result[1].spaceName).toBe('space-name-two');
+      expect(result[1].serviceGroup).toBe('postgres');
+      expect(result[1].incVAT).toBe(100);
+
+      expect(result[2].orgName).toBe('org-name-two');
+      expect(result[2].spaceName).toBe('space-name-one');
+      expect(result[2].serviceGroup).toBe('mysql');
+      expect(result[2].incVAT).toBe(7 + 1);
+
+      expect(result[3].orgName).toBe('org-name-two');
+      expect(result[3].spaceName).toBe('space-name-two');
+      expect(result[3].serviceGroup).toBe('mysql');
+      expect(result[3].incVAT).toBe(2);
     });
   });
 });
