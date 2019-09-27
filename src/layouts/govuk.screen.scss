@@ -23,15 +23,15 @@ ul.plain {
   padding-left: inherit;
 }
 
-.paas-metric {
-  .paas-metric__heading {
+.org-summary-stat {
+  .org-summary-stat__heading {
     margin-top: 15px;
     margin-bottom: 5px;
     padding-top: 15px;
     min-height: 1.25;
   }
 
-  .paas-metric__figure {
+  .org-summary-stat__figure {
     font-size: 36px;
     line-height: 1.1111111111;
     font-weight: 700;

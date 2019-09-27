@@ -18,12 +18,12 @@
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-third">
-      <div class="paas-metric">
-        <h2 class="paas-metric__heading">
+      <div class="org-summary-stat">
+        <h2 class="org-summary-stat__heading">
           Quota usage
         </h2>
 
-        <span class="paas-metric__figure">
+        <span class="org-summary-stat__figure">
           {{
             organization.entity.memory_allocated
             | percentage(organization.entity.quota.entity.memory_limit)
@@ -31,7 +31,7 @@
         </span>
       </div>
 
-      <p class="paas-metric__context govuk-body">
+      <p class="org-summary-stat__context govuk-body">
         Using
         {{ organization.entity.memory_allocated | mbtogb | safe }}
         of memory
@@ -47,12 +47,12 @@
     </div>
 
     <div class="govuk-grid-column-one-third">
-      <div class="paas-metric">
-        <h2 class="paas-metric__heading">
+      <div class="org-summary-stat">
+        <h2 class="org-summary-stat__heading">
           Team members
         </h2>
 
-        <span class="paas-metric__figure">
+        <span class="org-summary-stat__figure">
           {{ users | length }}
         </span>
       </div>
@@ -71,12 +71,12 @@
     </div>
 
     <div class="govuk-grid-column-one-third">
-      <div class="paas-metric">
-        <h2 class="paas-metric__heading">
+      <div class="org-summary-stat">
+        <h2 class="org-summary-stat__heading">
           Billing
         </h2>
 
-        <span class="paas-metric__figure">
+        <span class="org-summary-stat__figure">
           {% if organization.entity.quota.entity.name == 'default' %}
             Trial
           {% else %}
