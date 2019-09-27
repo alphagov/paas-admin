@@ -68,8 +68,8 @@ function configure(env) {
     });
   });
 
-  env.addFilter('mbtogb', (mb) => {
-    return `${(mb / 1024).toFixed(2)}<abbr title="gigabytes">gb</abbr>`;
+  env.addFilter('mibtogib', (mib) => {
+    return `${(mib / 1024).toFixed(2)}<abbr title="gibibytes">GiB</abbr>`;
   });
 
   env.addFilter('percentage', (num, denom) => {
