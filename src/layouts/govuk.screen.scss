@@ -14,6 +14,10 @@ $govuk-global-styles: true;
 
 @import '../components/statements/statements';
 
+.govuk-template__body {
+  font-family: "GDS Transport", Arial, sans-serif;
+}
+
 .text-right {
   text-align: right;
 }
