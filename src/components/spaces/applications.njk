@@ -56,15 +56,15 @@
               /
               {{ application.entity.instances }}
             </td>
-            <td class="govuk-table__cell" title="Total: {{ ((application.entity.memory * application.entity.instances) / 1024) | round(2) }}gb">
+            <td class="govuk-table__cell" title="Total: {{ (application.entity.memory * application.entity.instances) | mbtogb | safe }}">
               {{ application.entity.instances }}
               &times;
-              {{ (application.entity.memory / 1024) | round(2) }}gb
+              {{ application.entity.memory | mbtogb | safe }}
             </td>
-            <td class="govuk-table__cell" title="Total: {{ ((application.entity.disk_quota * application.entity.instances) / 1024) | round(2) }}gb">
+            <td class="govuk-table__cell" title="Total: {{ (application.entity.disk_quota * application.entity.instances) | mbtogb | safe }}">
               {{ application.entity.instances }}
               &times;
-              {{ (application.entity.disk_quota / 1024) | round(2) }}gb
+              {{ application.entity.disk_quota | mbtogb | safe }}
             </td>
             <td class="govuk-table__cell">
               {{ application.entity.state | lower }}
