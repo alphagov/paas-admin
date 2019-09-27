@@ -5,7 +5,7 @@ import {IParameters, IResponse} from '../../lib/router';
 
 import {IContext} from '../app/context';
 import {CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN} from '../auth';
-import {IBreadcrumb} from '../breadcrumbs';
+import {fromOrg, IBreadcrumb} from '../breadcrumbs';
 
 import spaceApplicationsTemplate from './applications.njk';
 import spaceBackingServicesTemplate from './backing-services.njk';
@@ -43,14 +43,9 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
     };
   }));
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
-    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
-    {
-      text: organization.entity.name ,
-      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
-    },
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
     { text: space.entity.name },
-  ];
+  ]);
 
   /* istanbul ignore next */
   // tslint:disable:max-line-length
@@ -98,14 +93,9 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
     };
   }));
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
-    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
-    {
-      text: organization.entity.name ,
-      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
-    },
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
     { text: space.entity.name },
-  ];
+  ]);
 
   return {
     body: spaceBackingServicesTemplate.render({
@@ -194,10 +184,9 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
 
   const cflinuxfs2UpgradeNeeded = summarisedSpaces.some((s: any) => s.entity.cflinuxfs2UpgradeNeeded);
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
-    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
     { text: summerisedOrganization.entity.name },
-  ];
+  ]);
 
   return {
     body: spacesTemplate.render({

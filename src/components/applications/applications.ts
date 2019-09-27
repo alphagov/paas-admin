@@ -3,7 +3,7 @@ import { IRoute } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
-import { IBreadcrumb } from '../breadcrumbs';
+import { fromOrg, IBreadcrumb } from '../breadcrumbs';
 
 import applicationOverviewTemplate from './overview.njk';
 
@@ -55,12 +55,7 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
   const isDocker = summarisedApplication.entity.docker_image != null;
   const actualRuntimeInfo = isDocker ? dockerRuntimeInfo : appRuntimeInfo;
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
-    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
-    {
-      text: organization.entity.name ,
-      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
-    },
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
     {
       text: space.entity.name,
       href: ctx.linkTo('admin.organizations.spaces.applications.list', {
@@ -69,7 +64,7 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
       }),
     },
     { text: summarisedApplication.entity.name },
-  ];
+  ]);
 
   return {
     body: applicationOverviewTemplate.render({
