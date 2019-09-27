@@ -33,10 +33,10 @@
 
       <p class="org-summary-stat__context govuk-body">
         Using
-        {{ organization.entity.memory_allocated | mbtogb | safe }}
+        {{ organization.entity.memory_allocated | mibtogib | safe }}
         of memory
         out of a maximum of
-        {{ organization.entity.quota.entity.memory_limit | mbtogb | safe}}
+        {{ organization.entity.quota.entity.memory_limit | mibtogib | safe}}
       </p>
 
       <p class="govuk-body">
@@ -180,10 +180,10 @@
             </a>
           </td>
           <td class="govuk-table__cell">
-              {{ space.entity.memory_allocated | mbtogb | safe }}
+              {{ space.entity.memory_allocated | mibtogib | safe }}
               of
               {% if space.entity.quota %}
-                {{ space.entity.quota.entity.memory_limit | mbtogb | safe }}
+                {{ space.entity.quota.entity.memory_limit | mibtogib | safe }}
               {% else %}
                 no limit
               {% endif %}
