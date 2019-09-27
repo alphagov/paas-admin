@@ -104,7 +104,7 @@ describe('paas-admin', function () {
 
     it('should show a count of orgs on the home page', async () => {
       await <any>browser.visit(PAAS_ADMIN_BASE_URL);
-      browser.assert.text('h1', 'There are 0 organisations');
+      browser.assert.text('p', 'There are 0 organisations');
     });
 
     describe('when the user is an organisation manager', () => {
@@ -135,7 +135,7 @@ describe('paas-admin', function () {
 
       it('should show a count of orgs on the home page', async () => {
         await <any>browser.visit(PAAS_ADMIN_BASE_URL);
-        browser.assert.text('h1', 'There is 1 organisation');
+        browser.assert.text('p', 'There is 1 organisation');
       });
 
       it('should invite a user', async () => {
