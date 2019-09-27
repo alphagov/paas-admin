@@ -1,0 +1,39 @@
+{% extends "../../layouts/govuk.njk" %}
+
+{% block content %}
+<h1 class="govuk-heading-l">
+  <span class="govuk-caption-l">Space</span>
+  {{ space.entity.name }}
+</h1>
+
+<div class="govuk-tabs" data-module="govuk-tabs">
+  <h2 class="govuk-tabs__title">
+    Contents
+  </h2>
+
+  <ul class="govuk-tabs__list">
+    <li class="govuk-tabs__list-item {% if routePartOf('admin.organizations.spaces.applications.list') %}govuk-tabs__list-item--selected{% endif %}">
+      <a href="{{ linkTo('admin.organizations.spaces.applications.list', {
+        organizationGUID: organization.metadata.guid,
+        spaceGUID: space.metadata.guid
+      }) }}">
+        Applications
+      </a>
+    </li>
+    <li class="govuk-tabs__list-item {% if routePartOf('admin.organizations.spaces.services.list') %}govuk-tabs__list-item--selected{% endif %}">
+      <a href="{{ linkTo('admin.organizations.spaces.services.list', {
+        organizationGUID: organization.metadata.guid,
+        spaceGUID: space.metadata.guid
+      }) }}">
+        Backing services
+      </a>
+    </li>
+  </ul>
+
+  <section class="govuk-tabs__panel">
+    {% block insideTabs %}
+    {% endblock %}
+  </section>
+</div>
+
+{% endblock %}

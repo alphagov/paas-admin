@@ -51,7 +51,7 @@ describe('organizations test suite', () => {
   it('should show the organisation pages', async () => {
     const response = await listOrganizations(ctx, {});
 
-    expect(response.body).toContain('Choose an organisation');
+    expect(response.body).toContain('Organisations');
   });
 
   it('should sort the organisations by name', async () => {

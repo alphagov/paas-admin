@@ -1,8 +1,8 @@
 {% extends "../../layouts/govuk.njk" %}
-{% from "govuk-frontend/components/button/macro.njk" import govukButton %}
-{% from "govuk-frontend/components/back-link/macro.njk" import govukBackLink %}
-{% from "govuk-frontend/components/error-summary/macro.njk" import govukErrorSummary %}
-{% from "govuk-frontend/components/table/macro.njk" import govukTable %}
+{% from "govuk-frontend/govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk-frontend/govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk-frontend/govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk-frontend/govuk/components/table/macro.njk" import govukTable %}
 
 {% block pageTitle %}
   Update a team member
@@ -18,8 +18,8 @@
       href: linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid})
    }) }}
 
-    <h1 class="govuk-heading-xl">
-      <span class="govuk-caption-xl">Team member</span>
+    <h1 class="govuk-heading-l">
+      <span class="govuk-caption-l">Team member</span>
       {{ email }}
     </h1>
 

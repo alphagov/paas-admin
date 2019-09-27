@@ -1,26 +1,19 @@
-{% extends "../../layouts/govuk.njk" %}
+{% extends "./_tabbed_layout.njk" %}
 
 {% block pageTitle %}
   {{ space.entity.name }} - Overview
 {% endblock %}
 
-{% block content %}
-  {{ super() }}
-
-  <h1 class="govuk-heading-l">
-    <span class="govuk-caption-l">Space</span>
-    {{ space.entity.name }}
-  </h1>
-
-  {% include "./_tabs.njk" %}
-
-    <h2 class="govuk-heading-m paas-space-between-heading-and-table">
-      This space contains {{ services | length }} backing service{% if services.length != 1 %}s{% endif %}
-    </h2>
+{% block insideTabs %}
+    <p class="govuk-body">
+      This space contains
+      {{ services | length }}
+      backing service{% if services.length != 1 %}s{% endif %}
+    </p>
 
   {% if services.length > 0 %}
 
-    <table class="govuk-table space-overview">
+    <table class="govuk-table">
       <thead class="govuk-table__head">
         <tr class="govuk-table__row">
           <th class="govuk-table__header name" scope="col">Service name</th>
@@ -32,16 +25,16 @@
       <tbody class="govuk-table__body">
         {% for service in services %}
           <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="row">
+            <td class="govuk-table__cell">
               <a href="{{ linkTo('admin.organizations.spaces.services.view', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid}) }}" class="govuk-link">{{ service.entity.name }}</a>
-            </th>
-            <td class="govuk-table__cell ">
+            </td>
+            <td class="govuk-table__cell">
               {{ service.definition.entity.label | default('User Provided Service') }}
             </td>
-            <td class="govuk-table__cell ">
+            <td class="govuk-table__cell">
               {{ service.plan.entity.name | default('N/A') }}
             </td>
-            <td class="govuk-table__cell ">
+            <td class="govuk-table__cell">
               {{ service.entity.last_operation.state | default('N/A') }}
             </td>
           </tr>

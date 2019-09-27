@@ -19,10 +19,6 @@ describe('applications test suite', () => {
     nockCF = nock('https://example.com/api');
 
     nockCF
-      .get('/v2/organizations/6e1ca5aa-55f1-4110-a97f-1f3473e771b9/user_roles')
-      .times(2)
-      .reply(200, data.userRolesForOrg)
-
       .get('/v2/organizations/6e1ca5aa-55f1-4110-a97f-1f3473e771b9')
       .reply(200, defaultOrg())
     ;

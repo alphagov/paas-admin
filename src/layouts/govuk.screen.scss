@@ -1,17 +1,13 @@
 $govuk-global-styles: true;
 
-@import '~govuk-frontend/all';
+@import '~govuk-frontend/govuk/all';
 
 @import 'elements';
 @import 'header';
 
 @import '../components/calculator/calculator';
 
-@import '../components/organizations/organizations';
-@import '../components/organizations/subnav/element';
-
-@import '../components/spaces/spaces';
-@import '../components/spaces/applications';
+@import '../components/reports/subnav/element';
 
 @import '../components/org-users/org-users';
 @import '../components/org-users/permissions';
@@ -22,11 +18,26 @@ $govuk-global-styles: true;
   text-align: right;
 }
 
-a {
- text-decoration: none;
-}
-
 ul.plain {
   list-style: none;
   padding-left: inherit;
+}
+
+.org-summary-stat {
+  .org-summary-stat__heading {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    padding-top: 15px;
+    min-height: 1.25;
+  }
+
+  .org-summary-stat__figure {
+    font-size: 36px;
+    line-height: 1.1111111111;
+    font-weight: 700;
+  }
+}
+
+abbr {
+  text-underline-position: under;
 }

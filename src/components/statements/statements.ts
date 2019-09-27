@@ -10,6 +10,7 @@ import {
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
+import {fromOrg, IBreadcrumb} from '../breadcrumbs';
 import { UserFriendlyError } from '../errors';
 
 import usageTemplate from './statements.njk';
@@ -211,6 +212,10 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     incVAT: filteredItems.reduce((sum, event) => sum + event.price.incVAT, 0),
   };
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+    { text: 'Monthly billing statement' },
+  ]);
+
   return {
     body: usageTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -233,9 +238,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       orderDirection,
       currentMonth,
       adminFee,
-      isAdmin,
-      isBillingManager,
-      isManager,
+      breadcrumbs,
     }),
   };
 }

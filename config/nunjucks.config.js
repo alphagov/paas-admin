@@ -67,6 +67,15 @@ function configure(env) {
       return `<a href="${protocolOrEmpty}${link}" class="govuk-link">${link}</a>`;
     });
   });
+
+  env.addFilter('mbtogb', (mb) => {
+    return `${(mb / 1024).toFixed(2)}<abbr title="gigabytes">gb</abbr>`;
+  });
+
+  env.addFilter('percentage', (num, denom) => {
+    const percentage = 100 * (num / denom)
+    return `${percentage.toFixed(1)}%`
+  });
 }
 
 module.exports = configure;

@@ -3,7 +3,7 @@ import { IRoute } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
-import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
+import { fromOrg, IBreadcrumb } from '../breadcrumbs';
 
 import applicationOverviewTemplate from './overview.njk';
 
@@ -18,15 +18,7 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
     logger: ctx.app.logger,
   });
 
-  const isAdmin = ctx.token.hasAnyScope(
-    CLOUD_CONTROLLER_ADMIN,
-    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-  );
-
-  const [isManager, isBillingManager, application, space, organization, applicationSummary] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+  const [application, space, organization, applicationSummary] = await Promise.all([
     cf.application(params.applicationGUID),
     cf.space(params.spaceGUID),
     cf.organization(params.organizationGUID),
@@ -63,6 +55,17 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
   const isDocker = summarisedApplication.entity.docker_image != null;
   const actualRuntimeInfo = isDocker ? dockerRuntimeInfo : appRuntimeInfo;
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+    {
+      text: space.entity.name,
+      href: ctx.linkTo('admin.organizations.spaces.applications.list', {
+        organizationGUID: organization.metadata.guid,
+        spaceGUID: space.metadata.guid,
+      }),
+    },
+    { text: summarisedApplication.entity.name },
+  ]);
+
   return {
     body: applicationOverviewTemplate.render({
       application: summarisedApplication,
@@ -73,9 +76,7 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
       space,
       stack,
       organization,
-      isAdmin,
-      isBillingManager,
-      isManager,
+      breadcrumbs,
     }),
   };
 }

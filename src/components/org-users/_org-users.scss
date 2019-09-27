@@ -9,14 +9,6 @@
 }
 
 table.user-list {
-
-  th {
-    @include govuk-font($size: 16, $weight: bold);;
-  }
-
-  td {
-    @include govuk-font($size: 16, $weight: bold);;
-  }
   .name {
     min-width: 280px;
     width: 20%;

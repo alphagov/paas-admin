@@ -5,6 +5,7 @@ import {IParameters, IResponse} from '../../lib/router';
 
 import {IContext} from '../app/context';
 import {CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN} from '../auth';
+import {fromOrg, IBreadcrumb} from '../breadcrumbs';
 
 import spaceApplicationsTemplate from './applications.njk';
 import spaceBackingServicesTemplate from './backing-services.njk';
@@ -21,15 +22,7 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
     logger: ctx.app.logger,
   });
 
-  const isAdmin = ctx.token.hasAnyScope(
-    CLOUD_CONTROLLER_ADMIN,
-    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-  );
-
-  const [isManager, isBillingManager, space, applications, organization, cflinuxfs2StackGUID] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+  const [space, applications, organization, cflinuxfs2StackGUID] = await Promise.all([
     cf.space(params.spaceGUID),
     cf.applications(params.spaceGUID),
     cf.organization(params.organizationGUID),
@@ -50,6 +43,10 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
     };
   }));
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+    { text: space.entity.name },
+  ]);
+
   /* istanbul ignore next */
   // tslint:disable:max-line-length
   const cflinuxfs2UpgradeNeeded = cflinuxfs2StackGUID && summarisedApplications.filter((app: IApplication) => app.entity.stack_guid === cflinuxfs2StackGUID).length > 0;
@@ -63,9 +60,7 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
       organization,
       space,
       cflinuxfs2StackGUID,
-      isAdmin,
-      isBillingManager,
-      isManager,
+      breadcrumbs,
     }),
   };
 }
@@ -77,15 +72,7 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
     logger: ctx.app.logger,
   });
 
-  const isAdmin = ctx.token.hasAnyScope(
-    CLOUD_CONTROLLER_ADMIN,
-    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-  );
-
-  const [isManager, isBillingManager, space, services, userServices, organization] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+  const [space, services, userServices, organization] = await Promise.all([
     cf.space(params.spaceGUID),
     cf.services(params.spaceGUID),
     cf.userServices(params.spaceGUID),
@@ -106,6 +93,10 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
     };
   }));
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+    { text: space.entity.name },
+  ]);
+
   return {
     body: spaceBackingServicesTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -114,9 +105,7 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
       services: [...summarisedServices, ...userServices],
       organization,
       space,
-      isAdmin,
-      isBillingManager,
-      isManager,
+      breadcrumbs,
     }),
   };
 }
@@ -195,6 +184,10 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
 
   const cflinuxfs2UpgradeNeeded = summarisedSpaces.some((s: any) => s.entity.cflinuxfs2UpgradeNeeded);
 
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+    { text: summerisedOrganization.entity.name },
+  ]);
+
   return {
     body: spacesTemplate.render({
       routePartOf: ctx.routePartOf,
@@ -208,6 +201,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
       isBillingManager,
       isManager,
       cflinuxfs2UpgradeNeeded,
+      breadcrumbs,
     }),
   };
 }

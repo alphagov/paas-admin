@@ -1,54 +1,10 @@
-.header-wrapper {
-  a {
-    color: #fff;
-    text-decoration: none;
-
-    &:hover {
-     text-decoration: underline;
-    }
-  }
-}
-
-.header-title {
-  color: #fff;
-  @include govuk-font($size: 24);;
-  float: left;
-  margin-top: 8px;
-}
-
-#global-header .header-wrapper .header-global .header-logo {
-  @media only screen and (min-width: 769px)  {
-    width: auto;
-  }
-}
-
-.navigation {
-  float:right;
-  display: block;
-  margin-right: govuk-spacing(3);
-  margin-top: 7px;
-  padding-top: 0;
-  @include govuk-font($size: 16, $weight: bold);;
-
-  ul {
-    margin: 0;
-  }
-
-  li {
-    list-style-type: none;
-    display: inline;
-    margin-left: govuk-spacing(3);
-  }
-}
-
 a.paas-govuk-tag {
   @extend .govuk-tag;
-  float: right;
 
   &:visited, &:hover, &:link {
     color: #fff;
   }
-  
+
   &:hover {
     border-bottom: 3px solid #fff;
   }
@@ -59,5 +15,24 @@ a.paas-govuk-tag {
 
   &.paas-govuk-tag-ireland {
     background-color: #006435;
+  }
+}
+
+/* GOV.UK Platform-as-a-Service is too long */
+.govuk-header__logo {
+  width: 50%;
+}
+
+.govuk-header__content {
+  width: 50%;
+  text-align: right;
+}
+
+/* Link to pricing on right edge of phase banner */
+.govuk-phase-banner__text {
+  width: 100%;
+
+  .pricing {
+    float: right;
   }
 }
