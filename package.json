@@ -122,7 +122,7 @@
     "passport": "0.4.0",
     "passport-local": "1.0.0",
     "passport-oauth2": "1.5.0",
-    "pino": "5.13.2",
+    "pino": "5.13.4",
     "qs": "6.8.0",
     "route-parser": "0.0.5",
     "showdown": "1.9.0",
