@@ -100,7 +100,7 @@ async function setAllUserRolesForOrg(
   params: IParameters,
   roles: { readonly [i: string]: IPermissions },
 ): Promise<any> {
-  const spaces = await cf.spaces(params.organizationGUID);
+  const spaces = await cf.orgSpaces(params.organizationGUID);
 
   const orgRoleEndpoints: ReadonlyArray<OrganizationUserRoleEndpoints> = [
     'billing_managers',
@@ -258,7 +258,7 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
     cf.organization(params.organizationGUID),
     cf.usersForOrganization(params.organizationGUID),
-    cf.spaces(params.organizationGUID),
+    cf.orgSpaces(params.organizationGUID),
   ]);
 
   const spaceUserLists = await Promise.all(spacesVisibleToUser.map(async space => {
@@ -336,7 +336,7 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
 
   const [organization, spaces] = await Promise.all([
     cf.organization(params.organizationGUID),
-    cf.spaces(params.organizationGUID),
+    cf.orgSpaces(params.organizationGUID),
   ]);
 
   /* istanbul ignore next */
@@ -406,7 +406,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
 
   const [organization, spaces] = await Promise.all([
     cf.organization(params.organizationGUID),
-    cf.spaces(params.organizationGUID),
+    cf.orgSpaces(params.organizationGUID),
   ]);
   const errors = [];
   const values: IUserPostBody = merge({
@@ -669,7 +669,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
 
   const [organization, spaces, orgUsers] = await Promise.all([
     cf.organization(params.organizationGUID),
-    cf.spaces(params.organizationGUID),
+    cf.orgSpaces(params.organizationGUID),
     cf.usersForOrganization(params.organizationGUID),
   ]);
 
@@ -766,7 +766,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
 
   const [organization, spaces, orgUsers] = await Promise.all([
     cf.organization(params.organizationGUID),
-    cf.spaces(params.organizationGUID),
+    cf.orgSpaces(params.organizationGUID),
     cf.usersForOrganization(params.organizationGUID),
   ]);
   const errors = [];

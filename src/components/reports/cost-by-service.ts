@@ -3,7 +3,7 @@ import moment from 'moment';
 
 import { BillingClient } from '../../lib/billing';
 import CloudFoundryClient from '../../lib/cf';
-import { IOrganization } from '../../lib/cf/types';
+import { IOrganization, ISpace } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
@@ -19,6 +19,11 @@ export interface IBillableByService {
 export interface IBillableByOrganisationAndService extends IBillableByService {
   orgGUID: string;
   orgName: string;
+}
+
+export interface IBillableByOrganisationAndSpaceAndService extends IBillableByOrganisationAndService {
+  spaceGUID: string;
+  spaceName: string;
 }
 
 export async function viewCostByServiceReport(
@@ -41,8 +46,7 @@ export async function viewCostByServiceReport(
   });
 
   const orgs = (await cf.organizations())
-    .filter(org => !org.entity.name.match(/^(CAT|SMOKE|PERF|ACC)/));
-
+    .filter(org => !org.entity.name.match(/^(CAT|SMOKE|PERF|ACC|BACC)/));
   const orgsByGUID = groupBy(orgs, x => x.metadata.guid);
   const orgGUIDs = Object.keys(orgsByGUID);
 
@@ -50,8 +54,13 @@ export async function viewCostByServiceReport(
     rangeStart, rangeStop, orgGUIDs,
   });
 
+  const spaces = await cf.spaces();
+  const spacesByGUID = groupBy(spaces, x => x.metadata.guid);
+
   const billablesByService = getBillableEventsByService(billableEvents);
   const billablesByOrganisationAndService = getBillableEventsByOrganisationAndService(billableEvents, orgsByGUID);
+  const billablesByOrganisationAndSpaceAndService = getBillableEventsByOrganisationAndSpaceAndService(
+    billableEvents, orgsByGUID, spacesByGUID);
 
   return {
     body: costReportTemplate.render({
@@ -62,6 +71,7 @@ export async function viewCostByServiceReport(
       date: moment(rangeStart).format('MMMM YYYY'),
       billablesByService,
       billablesByOrganisationAndService,
+      billablesByOrganisationAndSpaceAndService,
     }),
   };
 }
@@ -95,6 +105,30 @@ export function getBillableEventsByOrganisationAndService(
     .sort((a, b) => compareOrgName(a, b) || comparePriceIncVAT(a, b));
 }
 
+export function getBillableEventsByOrganisationAndSpaceAndService(
+    billableEvents: ReadonlyArray<IBillableEvent>,
+    orgsByGUID: Dictionary<ReadonlyArray<IOrganization>>,
+    spacesByGUID: Dictionary<ReadonlyArray<ISpace>>,
+  ): ReadonlyArray<IBillableByOrganisationAndSpaceAndService> {
+  const billableEventsByOrgGUID = Object.entries(groupBy(billableEvents, x => x.orgGUID));
+  return flatMap(
+    billableEventsByOrgGUID,
+    ([orgGUID, billableEventsForOrg]) => {
+      const org = (orgsByGUID[orgGUID] || [])[0];
+      const orgName = org ? org.entity.name : 'unknown';
+      const orgBillableEventsBySpaceGUID = Object.entries(groupBy(billableEventsForOrg, x => x.spaceGUID));
+      return flatMap(
+        orgBillableEventsBySpaceGUID,
+        ([spaceGUID, billableEventsForSpace]) => {
+          const space = (spacesByGUID[spaceGUID] || [])[0];
+          const spaceName = space ? space.entity.name : 'unknown';
+          return getBillableEventsByService(billableEventsForSpace)
+            .map(x => ({...x, orgGUID, orgName, spaceGUID, spaceName}));
+        });
+    })
+    .sort((a, b) => compareOrgName(a, b) || compareSpaceName(a, b) || comparePriceIncVAT(a, b));
+}
+
 function getServiceGroup(billableEvent: IBillableEvent) {
   const details = billableEvent.price.details;
   if (details.length < 1) {
@@ -114,6 +148,10 @@ function getServiceGroup(billableEvent: IBillableEvent) {
 
 function compareOrgName(a: {readonly orgName: string}, b: {readonly orgName: string}) {
   return a.orgName.localeCompare(b.orgName);
+}
+
+function compareSpaceName(a: {readonly spaceName: string}, b: {readonly spaceName: string}) {
+  return a.spaceName.localeCompare(b.spaceName);
 }
 
 function comparePriceIncVAT(a: {readonly incVAT: number}, b: {readonly incVAT: number}) {

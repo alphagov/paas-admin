@@ -132,7 +132,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
   const [isManager, isBillingManager, spaces, organization, users, cflinuxfs2StackGUID] = await Promise.all([
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
-    cf.spaces(params.organizationGUID),
+    cf.orgSpaces(params.organizationGUID),
     cf.organization(params.organizationGUID),
     cf.usersForOrganization(params.organizationGUID).then(async (orgUsers) => {
       return hydrateAccountsUsernames(orgUsers, accountsClient);

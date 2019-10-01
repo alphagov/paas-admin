@@ -140,7 +140,12 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
-  public async spaces(organizationGUID: string): Promise<ReadonlyArray<cf.ISpace>> {
+  public async spaces(): Promise<ReadonlyArray<cf.ISpace>> {
+    const response = await this.request('get', `/v2/spaces`);
+    return this.allResources(response);
+  }
+
+  public async orgSpaces(organizationGUID: string): Promise<ReadonlyArray<cf.ISpace>> {
     const response = await this.request('get', `/v2/organizations/${organizationGUID}/spaces`);
     return this.allResources(response);
   }

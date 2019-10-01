@@ -200,14 +200,27 @@ describe('lib/cf test suite', () => {
     expect(quota.entity.name).toEqual('name-1996');
   });
 
-  it('should obtain list of spaces', async () => {
+  it('should obtain list of an organization\'s spaces', async () => {
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, data.spaces)
     ;
 
     const client = new CloudFoundryClient(config);
-    const spaces = await client.spaces('3deb9f04-b449-4f94-b3dd-c73cefe5b275');
+    const spaces = await client.orgSpaces('3deb9f04-b449-4f94-b3dd-c73cefe5b275');
+
+    expect(spaces.length > 0).toBeTruthy();
+    expect(spaces[0].entity.name).toEqual('name-1774');
+  });
+
+  it('should obtain list of spaces', async () => {
+    nockCF
+      .get('/v2/spaces')
+      .reply(200, data.spaces)
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const spaces = await client.spaces();
 
     expect(spaces.length > 0).toBeTruthy();
     expect(spaces[0].entity.name).toEqual('name-1774');
