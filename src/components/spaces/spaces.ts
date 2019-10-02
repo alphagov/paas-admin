@@ -151,6 +151,16 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
         cf.spaceQuota(space.entity.space_quota_definition_guid) : Promise.resolve(null),
     ]);
 
+    const runningApps = applications.filter((app: IApplication) => app.entity.state.toLowerCase() !== 'stopped');
+    const stoppedApps = applications.filter((app: IApplication) => app.entity.state.toLowerCase() === 'stopped');
+
+    const spaceMemoryAllocated = runningApps.reduce(
+      (allocated: number, app: IApplication) => {
+        return allocated + (app.entity.memory * app.entity.instances);
+      },
+      0,
+    );
+
     /* istanbul ignore next */
     // tslint:disable:max-line-length
     const cflinuxfs2UpgradeNeededInSpace = cflinuxfs2StackGUID && applications.some((app: IApplication) => app.entity.stack_guid === cflinuxfs2StackGUID);
@@ -158,26 +168,31 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
       entity: {
         ...space.entity,
         apps: applications,
-        running_apps: applications.filter((app: IApplication) => app.entity.state.toLowerCase() !== 'stopped'),
-        stopped_apps: applications.filter((app: IApplication) => app.entity.state.toLowerCase() === 'stopped'),
+
+        running_apps: runningApps,
+        stopped_apps: stoppedApps,
+        memory_allocated: spaceMemoryAllocated,
+
         cflinuxfs2UpgradeNeeded: cflinuxfs2UpgradeNeededInSpace,
-        memory_allocated: applications.reduce((allocated: number, app: IApplication) =>
-          allocated + (app.entity.memory * app.entity.instances), 0),
         quota,
       },
       metadata: space.metadata,
     };
   }));
 
-  const summerisedOrganization = {
+  const memoryAllocated = summarisedSpaces.reduce(
+    (allocated: number, space: { entity: { memory_allocated: number } }) => {
+      return allocated + space.entity.memory_allocated;
+    },
+    0,
+  );
+
+  const summarisedOrganization = {
     entity: {
       ...organization.entity,
 
+      memory_allocated: memoryAllocated,
       quota: await cf.organizationQuota(organization.entity.quota_definition_guid),
-      memory_allocated: summarisedSpaces
-        .reduce((allocated: number, space: { entity: { memory_allocated: number } }) => {
-          return allocated + space.entity.memory_allocated;
-        }, 0),
     },
     metadata: organization.metadata,
   };
@@ -195,7 +210,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
       managers,
-      organization: summerisedOrganization,
+      organization: summarisedOrganization,
       spaces: summarisedSpaces,
       users,
       isAdmin,

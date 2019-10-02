@@ -61,7 +61,7 @@ describe('spaces test suite', () => {
       .get(`/v2/spaces/${spaceGuid}/apps`)
       .reply(200, JSON.stringify(wrapResources(
         lodash.merge(defaultApp(), {entity: {name: 'first-app'}}),
-        lodash.merge(defaultApp(), {entity: {name: 'second-app'}}),
+        lodash.merge(defaultApp(), {entity: {name: 'second-app', state: 'RUNNING'}}),
       )))
 
       .get('/v2/stacks')
@@ -79,9 +79,15 @@ describe('spaces test suite', () => {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     });
 
+    expect(response.body).toContain('Quota usage');
+    expect(response.body).toContain('5.0%');
+    expect(response.body).toMatch(
+      /Using\s+1[.]00<abbr title="gibibytes">GiB<\/abbr>\s+of memory/m,
+    );
+
     expect(response.body).toContain('Spaces');
-    expect(response.body).toMatch(/1[.]00.*GiB.*\s+of\s+20[.]00.*GiB/m);
-    expect(response.body).toMatch(/2[.]00.*GiB.*\s+of\s+no limit/m);
+    expect(response.body).toMatch(/0[.]00.*GiB.*\s+of\s+20[.]00.*GiB/m);
+    expect(response.body).toMatch(/1[.]00.*GiB.*\s+of\s+no limit/m);
   });
 
   it('should show list of applications in space', async () => {
