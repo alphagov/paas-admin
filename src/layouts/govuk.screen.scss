@@ -18,6 +18,10 @@ $govuk-global-styles: true;
   font-family: "GDS Transport", Arial, sans-serif;
 }
 
+.govuk-width-container {
+  max-width: 1200px;
+}
+
 .text-right {
   text-align: right;
 }
