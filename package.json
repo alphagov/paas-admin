@@ -40,7 +40,7 @@
     "@types/jsonwebtoken": "8.3.3",
     "@types/lodash": "^4.14.138",
     "@types/moment": "2.13.0",
-    "@types/nanoid": "^2.0.0",
+    "@types/nanoid": "^2.1.0",
     "@types/nock": "10.0.3",
     "@types/node-jose": "^1.1.0",
     "@types/passport": "1.0.1",
