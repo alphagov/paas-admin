@@ -19,18 +19,7 @@
       Organisation level users can manage and/or view information regarding user accounts, billing,
       resource quota for the organisation and spaces. To edit a member's role go to their profile page.
     </p>
-  </div>
 
-  <div class="govuk-grid-column-one-third text-right">
-    {% if isAdmin or isManager %}
-      {{ govukButton({
-        text: "Invite a new member",
-        href: linkTo('admin.organizations.users.invite', {organizationGUID: organization.metadata.guid})
-      }) }}
-    {% endif %}
-  </div>
-
-  <div class="govuk-grid-column-full">
     <details class="govuk-details" role="group">
       <summary class="govuk-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
         <span class="govuk-details__summary-text">
@@ -68,6 +57,15 @@
         </p>
       </div>
     </details>
+  </div>
+
+  <div class="govuk-grid-column-one-third text-right">
+    {% if isAdmin or isManager %}
+      {{ govukButton({
+        text: "Invite a new member",
+        href: linkTo('admin.organizations.users.invite', {organizationGUID: organization.metadata.guid})
+      }) }}
+    {% endif %}
   </div>
 </div>
 
