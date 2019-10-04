@@ -41,7 +41,7 @@
             </a>
           </td>
           <td class="govuk-table__cell">
-            {% if org.entity.quota.entity.name == 'default' %}
+            {% if orgQuotasByGUID[org.entity.quota_definition_guid].entity.name == 'default' %}
               Trial
             {% else %}
               Billable

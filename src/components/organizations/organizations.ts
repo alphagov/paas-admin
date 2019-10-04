@@ -1,3 +1,5 @@
+import lodash from 'lodash';
+
 import CloudFoundryClient from '../../lib/cf';
 import { IOrganization } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
@@ -24,12 +26,17 @@ export async function listOrganizations(ctx: IContext, _params: IParameters): Pr
     account.fetchLoggedInUser(ctx),
   ]);
 
+  const orgQuotaGUIDs = lodash.uniq(organizations.map(o => o.entity.quota_definition_guid));
+  const orgQuotas = await Promise.all(orgQuotaGUIDs.map(q => cf.organizationQuota(q)));
+  const orgQuotasByGUID = lodash.keyBy(orgQuotas, q => q.metadata.guid);
+
   return {
     body: organizationsTemplate.render({
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
       organizations,
+      orgQuotasByGUID,
       user,
     }),
   };

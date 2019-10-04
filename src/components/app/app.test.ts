@@ -4,6 +4,7 @@ import nock from 'nock';
 import request, {SuperTest, Test} from 'supertest';
 
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
+import { billableOrgQuota, billableOrgQuotaGUID } from '../../lib/cf/test-data/org-quota';
 import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
 import Router, { IParameters } from '../../lib/router';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
@@ -190,6 +191,9 @@ describe('app test suite', () => {
         nockCF
           .get('/v2/organizations')
           .reply(200, JSON.stringify(wrapResources(defaultOrg())))
+
+          .get(`/v2/quota_definitions/${billableOrgQuotaGUID}`)
+          .reply(200, JSON.stringify(billableOrgQuota()))
         ;
 
         nockUAA
@@ -300,6 +304,9 @@ describe('app test suite', () => {
       nockCF
         .get('/v2/organizations')
         .reply(200, JSON.stringify(wrapResources(defaultOrg())))
+
+        .get(`/v2/quota_definitions/${billableOrgQuotaGUID}`)
+        .reply(200, JSON.stringify(billableOrgQuota()))
       ;
 
       nockUAA
