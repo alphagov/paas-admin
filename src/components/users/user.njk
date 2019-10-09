@@ -59,7 +59,7 @@
   <h3 class="govuk-heading-m">Managed Orgs</h3>
   <p class="govuk-body">This user manages {{ managedOrgs.length }} {{ managedOrgs.length | plural('org', 'orgs') }}.</p>
   <ul class="govuk-list govuk-list--bullet">
-    {% for org in orgs %}
+    {% for org in managedOrgs %}
       <li>
         <a href="{{ linkTo('admin.organizations.view', {organizationGUID: org.metadata.guid}) }}"
            class="govuk-link">
