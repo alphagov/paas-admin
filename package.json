@@ -107,7 +107,7 @@
     "express-pino-logger": "4.0.0",
     "express-static-gzip": "2.0.5",
     "govuk-frontend": "^3.2.0",
-    "helmet": "3.20.0",
+    "helmet": "3.21.1",
     "jmespath": "0.15.0",
     "jsonwebtoken": "8.5.1",
     "lodash": "^4.17.15",
