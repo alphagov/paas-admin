@@ -4,8 +4,8 @@ import moment from 'moment';
 import nock from 'nock';
 
 import * as cf from '../../lib/cf/cf.test.data';
-import {org as defaultOrg} from '../../lib/cf/test-data/org';
-import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
+import {v3Org as defaultOrg} from '../../lib/cf/test-data/org';
+import {wrapV3Resources} from '../../lib/cf/test-data/wrap-resources';
 import {testable as t, viewOrganizationsReport} from './organizations';
 
 import {createTestContext} from '../app/app.test-helpers';
@@ -53,20 +53,20 @@ describe('organisations report helpers', () => {
 
   it('filterRealOrgs should filter out tests and admin', () => {
     const orgs = [
-      lodash.merge(defaultOrg(), {entity: {name: 'govuk-doggos' }}),
-      lodash.merge(defaultOrg(), {entity: {name: 'admin' }}),
-      lodash.merge(defaultOrg(), {entity: {name: 'ACC-123' }}),
-      lodash.merge(defaultOrg(), {entity: {name: 'BACC-123' }}),
-      lodash.merge(defaultOrg(), {entity: {name: 'CATS-123' }}),
-      lodash.merge(defaultOrg(), {entity: {name: 'department-for-coffee' }}),
-      lodash.merge(defaultOrg(), {entity: {name: 'SMOKE-' }}),
+      lodash.merge(defaultOrg(), {name: 'govuk-doggos' }),
+      lodash.merge(defaultOrg(), {name: 'admin' }),
+      lodash.merge(defaultOrg(), {name: 'ACC-123' }),
+      lodash.merge(defaultOrg(), {name: 'BACC-123' }),
+      lodash.merge(defaultOrg(), {name: 'CATS-123' }),
+      lodash.merge(defaultOrg(), {name: 'department-for-coffee' }),
+      lodash.merge(defaultOrg(), {name: 'SMOKE-' }),
     ];
 
     const filteredOrgs = t.filterRealOrgs(orgs);
 
     expect(filteredOrgs.length).toEqual(2);
-    expect(filteredOrgs[0].entity.name).toEqual('govuk-doggos');
-    expect(filteredOrgs[1].entity.name).toEqual('department-for-coffee');
+    expect(filteredOrgs[0].name).toEqual('govuk-doggos');
+    expect(filteredOrgs[1].name).toEqual('department-for-coffee');
   });
 
   it('filterTrialOrgs should filter out billable orgs and sort asc', () => {
@@ -75,28 +75,32 @@ describe('organisations report helpers', () => {
 
     const orgs = [
       lodash.merge(defaultOrg(), {
-        metadata: {created_at: moment().toDate()},
-        entity: {name: '1-trial-org', quota_definition_guid: trialGUID},
+        created_at: moment().toDate(),
+        name: '1-trial-org',
+        relationships: {quota: {data: { guid: trialGUID }}},
       }),
       lodash.merge(defaultOrg(), {
-        metadata: {created_at: moment().toDate()},
-        entity: {name: '1-paid-org', quota_definition_guid: paidGUID},
+        created_at: moment().toDate(),
+        name: '1-paid-org',
+        relationships: {quota: {data: { guid: paidGUID }}},
       }),
       lodash.merge(defaultOrg(), {
-        metadata: {created_at: moment().subtract(1, 'days').toDate()},
-        entity: {name: '2-trial-org', quota_definition_guid: trialGUID},
+        created_at: moment().subtract(1, 'days').toDate(),
+        name: '2-trial-org',
+        relationships: {quota: {data: { guid: trialGUID }}},
       }),
       lodash.merge(defaultOrg(), {
-        metadata: {created_at: moment().subtract(1, 'days').toDate()},
-        entity: {name: '2-paid-org', quota_definition_guid: paidGUID},
+        created_at: moment().subtract(1, 'days').toDate(),
+        name: '2-paid-org',
+        relationships: {quota: {data: { guid: paidGUID }}},
       }),
     ];
 
     const trialOrgs = t.filterTrialOrgs(trialGUID, orgs);
 
     expect(trialOrgs.length).toEqual(2);
-    expect(trialOrgs[0].entity.name).toEqual('2-trial-org');
-    expect(trialOrgs[1].entity.name).toEqual('1-trial-org');
+    expect(trialOrgs[0].name).toEqual('2-trial-org');
+    expect(trialOrgs[1].name).toEqual('1-trial-org');
   });
 
   it('filterBillableOrgs should filter out trial orgs and sort desc', () => {
@@ -105,28 +109,32 @@ describe('organisations report helpers', () => {
 
     const orgs = [
       lodash.merge(defaultOrg(), {
-        metadata: {created_at: moment().toDate()},
-        entity: {quota_definition_guid: trialGUID, name: '1-trial-org'},
+        created_at: moment().toDate(),
+        relationships: {quota: {data: { guid: trialGUID }}},
+        name: '1-trial-org',
       }),
       lodash.merge(defaultOrg(), {
-        metadata: {created_at: moment().toDate()},
-        entity: {quota_definition_guid: paidGUID, name: '1-paid-org'},
+        created_at: moment().toDate(),
+        relationships: {quota: {data: { guid: paidGUID }}},
+        name: '1-paid-org',
       }),
       lodash.merge(defaultOrg(), {
-        metadata: {created_at: moment().subtract(1, 'days').toDate()},
-        entity: {quota_definition_guid: trialGUID, name: '2-trial-org'},
+        created_at: moment().subtract(1, 'days').toDate(),
+        relationships: {quota: {data: { guid: trialGUID }}},
+        name: '2-trial-org',
       }),
       lodash.merge(defaultOrg(), {
-        metadata: {created_at: moment().subtract(1, 'days').toDate()},
-        entity: {quota_definition_guid: paidGUID, name: '2-paid-org'},
+        created_at: moment().subtract(1, 'days').toDate(),
+        relationships: {quota: {data: { guid: paidGUID }}},
+        name: '2-paid-org',
       }),
     ];
 
     const billableOrgs = t.filterBillableOrgs(trialGUID, orgs);
 
     expect(billableOrgs.length).toEqual(2);
-    expect(billableOrgs[0].entity.name).toEqual('1-paid-org');
-    expect(billableOrgs[1].entity.name).toEqual('2-paid-org');
+    expect(billableOrgs[0].name).toEqual('1-paid-org');
+    expect(billableOrgs[1].name).toEqual('2-paid-org');
   });
 
   it('should render the page correctly', async () => {
@@ -144,20 +152,27 @@ describe('organisations report helpers', () => {
 
     const orgs = [
       lodash.merge(defaultOrg(), {
-        metadata: {guid: 'current-trial-org', created_at: moment().toDate()},
-        entity: {quota_definition_guid: trialGUID, name: 'current-trial-org'},
+        guid: 'current-trial-org', created_at: moment().toDate(),
+        relationships: {quota: {data: { guid: trialGUID }}},
+        name: 'current-trial-org',
       }),
       lodash.merge(defaultOrg(), {
-        metadata: {guid: 'expiring-trial-org', created_at: moment().subtract(100, 'days').toDate()},
-        entity: {quota_definition_guid: trialGUID, name: 'expiring-trial-org'},
+        guid: 'expiring-trial-org',
+        created_at: moment().subtract(100, 'days').toDate(),
+        relationships: {quota: {data: { guid: trialGUID }}},
+        name: 'expiring-trial-org',
       }),
       lodash.merge(defaultOrg(), {
-        metadata: {guid: 'cheap-org', created_at: moment().subtract(365, 'days').toDate()},
-        entity: {quota_definition_guid: cheapGUID, name: 'cheap-org'},
+        guid: 'cheap-org',
+        created_at: moment().subtract(365, 'days').toDate(),
+        relationships: {quota: {data: { guid: cheapGUID }}},
+        name: 'cheap-org',
       }),
       lodash.merge(defaultOrg(), {
-        metadata: {guid: 'expensive-org', created_at: moment().subtract(730, 'days').toDate()},
-        entity: {quota_definition_guid: expensiveGUID, name: 'expensive-org'},
+        guid: 'expensive-org',
+        created_at: moment().subtract(730, 'days').toDate(),
+        relationships: {quota: {data: { guid: expensiveGUID }}},
+        name: 'expensive-org',
       }),
     ];
 
@@ -177,8 +192,8 @@ describe('organisations report helpers', () => {
       .get(`/v2/quota_definitions/${expensiveGUID}`)
       .reply(200, JSON.stringify(aQuota('Expensive', expensiveGUID)))
 
-      .get('/v2/organizations')
-      .reply(200, JSON.stringify(wrapResources(...orgs)))
+      .get('/v3/organizations')
+      .reply(200, JSON.stringify(wrapV3Resources(...orgs)))
     ;
 
     const response = await viewOrganizationsReport(ctx, {});

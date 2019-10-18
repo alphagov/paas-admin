@@ -115,6 +115,50 @@ export interface IOrganization {
   readonly metadata: IMetadata;
 }
 
+interface IV3Link {
+  href: string;
+}
+
+interface IV3Pagination {
+  total_results: number;
+  total_pages: number;
+  first: IV3Link;
+  last: IV3Link;
+  next?: IV3Link;
+  previous?: IV3Link;
+}
+
+export interface IV3OrganizationResource {
+  guid: string;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  suspended: boolean;
+  relationships: {
+    quota: {
+      data: {
+        guid: string;
+      },
+    },
+  };
+  links: {
+    self: IV3Link;
+    domains: IV3Link;
+    default_domain: IV3Link;
+  };
+  metadata: {
+    labels: {};
+    annotations: {
+      owner?: string;
+    };
+  };
+}
+
+export interface IV3Response<T> {
+  readonly pagination: IV3Pagination;
+  readonly resources: ReadonlyArray<T>;
+}
+
 export interface IOrganizationQuota {
   readonly entity: {
     readonly app_instance_limit: number;

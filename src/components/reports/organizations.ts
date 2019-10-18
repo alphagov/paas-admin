@@ -2,7 +2,7 @@ import lodash from 'lodash';
 import moment from 'moment';
 
 import CloudFoundryClient from '../../lib/cf';
-import { IOrganization, IOrganizationQuota } from '../../lib/cf/types';
+import { IOrganizationQuota, IV3OrganizationResource } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app/context';
 
@@ -13,17 +13,15 @@ function trialExpiryDate(creation: Date): Date {
 }
 
 function filterRealOrgs(
-  orgs: ReadonlyArray<IOrganization>,
-): ReadonlyArray<IOrganization> {
+  orgs: ReadonlyArray<IV3OrganizationResource>,
+): ReadonlyArray<IV3OrganizationResource> {
   return orgs
   .filter(org => {
-    const name = org.entity.name;
-
-    if (name.match(/^(CATS|ACC|BACC|SMOKE)-/)) {
+    if (org.name.match(/^(CATS|ACC|BACC|SMOKE)-/)) {
       return false;
     }
 
-    if (name === 'admin') {
+    if (org.name === 'admin') {
       return false;
     }
 
@@ -34,29 +32,29 @@ function filterRealOrgs(
 
 function filterTrialOrgs(
   trialQuotaGUID: string,
-  orgs: ReadonlyArray<IOrganization>,
-): ReadonlyArray<IOrganization> {
+  orgs: ReadonlyArray<IV3OrganizationResource>,
+): ReadonlyArray<IV3OrganizationResource> {
   const trialOrgs = orgs.filter(
-    o => o.entity.quota_definition_guid === trialQuotaGUID,
+    o => o.relationships.quota.data.guid === trialQuotaGUID,
   );
 
   // return the oldest orgs first
   return lodash
-    .sortBy(trialOrgs, o => new Date(o.metadata.created_at))
+    .sortBy(trialOrgs, o => new Date(o.created_at))
   ;
 }
 
 function filterBillableOrgs(
   trialQuotaGUID: string,
-  orgs: ReadonlyArray<IOrganization>,
-): ReadonlyArray<IOrganization> {
+  orgs: ReadonlyArray<IV3OrganizationResource>,
+): ReadonlyArray<IV3OrganizationResource> {
   const billableOrgs = orgs .filter(
-    o => o.entity.quota_definition_guid !== trialQuotaGUID,
+    o => o.relationships.quota.data.guid !== trialQuotaGUID,
   );
 
   // return the newest orgs first (reverse)
   return lodash
-    .sortBy(billableOrgs, o => new Date(o.metadata.created_at))
+    .sortBy(billableOrgs, o => new Date(o.created_at))
     .reverse()
   ;
 }
@@ -79,10 +77,10 @@ export async function viewOrganizationsReport(ctx: IContext, _params: IParameter
     throw new Error('Could not find default quota');
   }
 
-  const organizations = filterRealOrgs(await cf.organizations());
+  const organizations = filterRealOrgs(await cf.v3Organizations());
 
   const orgQuotaGUIDs = lodash.uniq(
-    organizations.map(o => o.entity.quota_definition_guid),
+    organizations.map(o => o.relationships.quota.data.guid),
   );
 
   const orgQuotas = await Promise.all(
@@ -99,8 +97,8 @@ export async function viewOrganizationsReport(ctx: IContext, _params: IParameter
 
   const orgTrialExpirys: {[key: string]: Date} = lodash
     .chain(trialOrgs)
-    .keyBy(org => org.metadata.guid)
-    .mapValues(org => trialExpiryDate(new Date(org.metadata.created_at)))
+    .keyBy(org => org.guid)
+    .mapValues(org => trialExpiryDate(new Date(org.created_at)))
     .value()
   ;
 
