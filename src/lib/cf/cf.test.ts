@@ -89,6 +89,22 @@ describe('lib/cf test suite', () => {
     expect(collection[1]).toEqual('b');
   });
 
+  it('should iterate over all v3 pages to gather resources', async () => {
+    nockCF
+      .get('/v3/test')
+      .reply(200, `{"pagination": {"next":{"href": "/v3/test?page=2"}},"resources":["a"]}`)
+      .get('/v3/test?page=2')
+      .reply(200, `{"pagination": {"next":null},"resources":["b"]}`)
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const response = await client.request('get', '/v3/test');
+    const collection = await client.allV3Resources(response);
+
+    expect([...collection].length).toEqual(2);
+    expect(collection[1]).toEqual('b');
+  });
+
   it('should throw an error when receiving 404', async () => {
     nockCF
       .get('/v2/failure/404')

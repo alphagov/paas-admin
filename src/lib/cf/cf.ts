@@ -96,6 +96,19 @@ export default class CloudFoundryClient {
     return [...data, ...newData];
   }
 
+  public async allV3Resources<T>(response: AxiosResponse<cf.IV3Response<T>>): Promise<ReadonlyArray<T>> {
+    const data = response.data.resources;
+
+    if (!response.data.pagination.next) {
+      return data;
+    }
+
+    const newResponse = await this.request('get', response.data.pagination.next.href);
+    const newData = await this.allResources(newResponse);
+
+    return [...data, ...newData];
+  }
+
   public async info(): Promise<cf.IInfo> {
     const response = await request(this.apiEndpoint, 'get', '/v2/info', this.logger);
     return response.data;
@@ -109,6 +122,11 @@ export default class CloudFoundryClient {
   public async organizations(): Promise<ReadonlyArray<cf.IOrganization>> {
     const response = await this.request('get', `/v2/organizations`);
     return this.allResources(response);
+  }
+
+  public async v3Organizations(): Promise<ReadonlyArray<cf.IV3OrganizationResource>> {
+    const response = await this.request('get', `/v3/organizations`);
+    return this.allV3Resources(response);
   }
 
   public async organization(organizationGUID: string): Promise<cf.IOrganization> {
