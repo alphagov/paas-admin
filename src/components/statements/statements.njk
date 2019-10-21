@@ -100,9 +100,18 @@
           <td td class="paas-month-price"><small>&pound;{{ (totals.incVAT * adminFee) | currency(2) }}</small></td>
         </tr>
         <tr class="paas-month-total-information">
-          {% if usdCurrencyRate %}
+          {% if usdCurrencyRates.length == 1 %}
             <td class="govuk-table__cell">
-              Exchange rate: &pound;1 to &dollar;{{1.0 / usdCurrencyRate.rate | currency(2)}}
+              Exchange rate: &pound;1 to &dollar;{{1.0 / usdCurrencyRates[0].rate | currency(2)}}
+            </td>
+          {% elif usdCurrencyRates.length > 1 %}
+            <td class="govuk-table__cell">
+              Exchange rate:
+              {% set comma = joiner() %}
+              {% for usdCurrencyRate in usdCurrencyRates %}
+                {{ comma() }}
+                &pound;1 to &dollar;{{1.0 / usdCurrencyRate.rate | currency(2)}} from {{usdCurrencyRate.validFrom | nicedate }}
+              {% endfor %}
             </td>
           {% endif %}
           <td class="paas-month-price">ex VAT</td>
