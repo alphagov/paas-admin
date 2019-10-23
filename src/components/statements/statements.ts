@@ -135,7 +135,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   }));
 
   const currencyRates = await billingClient.getCurrencyRates(filter);
-  const usdCurrencyRate = currencyRates.filter(currencyRate => currencyRate.code === 'USD')[0];
+  const usdCurrencyRates = currencyRates.filter(currencyRate => currencyRate.code === 'USD');
 
   /* istanbul ignore next */
   const itemsObject: IResourceGroup = cleanEvents.reduce((resources: IResourceGroup, event: IBillableEvent) => {
@@ -227,7 +227,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       items: filteredItems,
       spaces: listSpaces,
       plans: listPlans,
-      usdCurrencyRate,
+      usdCurrencyRates,
       isCurrentMonth:
         Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
       listOfPastYearMonths,

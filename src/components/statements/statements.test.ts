@@ -222,7 +222,7 @@ describe('statements test suite', () => {
     expect(response.body).not.toContain('Exchange rate');
   });
 
-  it('outputs USD rate if set', async () => {
+  it('outputs a single USD rate if there is only one', async () => {
     nockBilling
       .get(
         '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
@@ -250,6 +250,42 @@ describe('statements test suite', () => {
     });
 
     expect(response.body).toContain('&pound;1 to &dollar;1.25');
+    expect(response.body).not.toContain('&pound;1 to &dollar;1.25 after');
+  });
+
+  it('outputs multiple USD rates if there are multiple this month', async () => {
+    nockBilling
+      .get(
+        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      )
+      .reply(200, billingData.billableEvents)
+
+      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .reply(200, [
+        {code: 'USD', rate: 0.8, valid_from: '2017-01-01'},
+        {code: 'USD', rate: 0.5, valid_from: '2017-01-15'},
+      ])
+    ;
+
+    nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .times(2)
+      .reply(200, data.userRolesForOrg)
+
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .reply(200, JSON.stringify(defaultOrg()))
+    ;
+
+    const response = await statement.viewStatement(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: '2018-01-01',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
+      service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+    });
+
+    expect(response.body).toContain('Exchange rate:');
+    expect(response.body).toContain('&pound;1 to &dollar;1.25 from January 1st 2017');
+    expect(response.body).toContain('&pound;1 to &dollar;2 from January 15th 2017');
   });
 
   it('should throw an error due to selecting middle of the month', async () => {
