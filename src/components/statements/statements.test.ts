@@ -285,7 +285,7 @@ describe('statements test suite', () => {
 
     expect(response.body).toContain('Exchange rate:');
     expect(response.body).toContain('&pound;1 to &dollar;1.25 from January 1st 2017');
-    expect(response.body).toContain('&pound;1 to &dollar;2 from January 15th 2017');
+    expect(response.body).toContain('&pound;1 to &dollar;2.00 from January 15th 2017');
   });
 
   it('should throw an error due to selecting middle of the month', async () => {
