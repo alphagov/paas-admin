@@ -108,10 +108,9 @@
             <td class="govuk-table__cell">
               Exchange rate:
               {% set comma = joiner() %}
-              {% for usdCurrencyRate in usdCurrencyRates %}
-                {{ comma() }}
-                &pound;1 to &dollar;{{1.0 / usdCurrencyRate.rate | currency(2)}} from {{usdCurrencyRate.validFrom | nicedate }}
-              {% endfor %}
+              {% for usdCurrencyRate in usdCurrencyRates -%}
+                {{ comma() }} &pound;1 to &dollar;{{ (1.0 / usdCurrencyRate.rate) | currency(2) }} from {{usdCurrencyRate.validFrom | nicedate }}
+              {%- endfor %}
             </td>
           {% endif %}
           <td class="paas-month-price">ex VAT</td>
