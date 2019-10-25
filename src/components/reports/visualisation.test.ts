@@ -89,7 +89,7 @@ describe('building D3 sankey input', () => {
     expect(result.links).toHaveLength(0);
   });
 
-  it('should produce nodes and links from billables', () => {
+  it('should produce nodes and links from billables, ignoring orgs without billables', () => {
     const result = reports.buildD3SankeyInput([
       {...defaultBillable, orgName: 'org-1', serviceGroup: 'service-1', exVAT: 1},
       {...defaultBillable, orgName: 'org-2', serviceGroup: 'service-1', exVAT: 2},
@@ -97,6 +97,7 @@ describe('building D3 sankey input', () => {
     ], [
       {org: 'org-1', owner: 'owner-1'},
       {org: 'org-2', owner: 'owner-1'},
+      {org: 'org-without-billables', owner: 'owner-2'},
     ]);
     expect(result.nodes).toEqual([
       {name: 'service-1'},
