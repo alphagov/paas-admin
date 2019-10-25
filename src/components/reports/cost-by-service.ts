@@ -3,7 +3,7 @@ import moment from 'moment';
 
 import { BillingClient } from '../../lib/billing';
 import CloudFoundryClient from '../../lib/cf';
-import { IOrganization, ISpace } from '../../lib/cf/types';
+import { ISpace, IV3OrganizationResource } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
@@ -45,9 +45,9 @@ export async function viewCostByServiceReport(
     logger: ctx.app.logger,
   });
 
-  const orgs = (await cf.organizations())
-    .filter(org => !org.entity.name.match(/^(CAT|SMOKE|PERF|ACC|BACC)/));
-  const orgsByGUID = groupBy(orgs, x => x.metadata.guid);
+  const orgs = (await cf.v3Organizations())
+    .filter(org => !org.name.match(/^(CAT|SMOKE|PERF|ACC|BACC)/));
+  const orgsByGUID = groupBy(orgs, x => x.guid);
   const orgGUIDs = Object.keys(orgsByGUID);
 
   const billableEvents = await billingClient.getBillableEvents({
@@ -91,14 +91,14 @@ export function getBillableEventsByService(
 
 export function getBillableEventsByOrganisationAndService(
     billableEvents: ReadonlyArray<IBillableEvent>,
-    orgsByGUID: Dictionary<ReadonlyArray<IOrganization>>,
+    orgsByGUID: Dictionary<ReadonlyArray<IV3OrganizationResource>>,
   ): ReadonlyArray<IBillableByOrganisationAndService> {
   const billableEventsByOrgGUID = Object.entries(groupBy(billableEvents, x => x.orgGUID));
   return flatMap(
     billableEventsByOrgGUID,
     ([orgGUID, billableEventsForOrg]) => {
       const org = (orgsByGUID[orgGUID] || [])[0];
-      const orgName = org ? org.entity.name : 'unknown';
+      const orgName = org ? org.name : 'unknown';
       return getBillableEventsByService(billableEventsForOrg)
         .map(x => ({...x, orgGUID, orgName}));
     })
@@ -107,7 +107,7 @@ export function getBillableEventsByOrganisationAndService(
 
 export function getBillableEventsByOrganisationAndSpaceAndService(
     billableEvents: ReadonlyArray<IBillableEvent>,
-    orgsByGUID: Dictionary<ReadonlyArray<IOrganization>>,
+    orgsByGUID: Dictionary<ReadonlyArray<IV3OrganizationResource>>,
     spacesByGUID: Dictionary<ReadonlyArray<ISpace>>,
   ): ReadonlyArray<IBillableByOrganisationAndSpaceAndService> {
   const billableEventsByOrgGUID = Object.entries(groupBy(billableEvents, x => x.orgGUID));
@@ -115,7 +115,7 @@ export function getBillableEventsByOrganisationAndSpaceAndService(
     billableEventsByOrgGUID,
     ([orgGUID, billableEventsForOrg]) => {
       const org = (orgsByGUID[orgGUID] || [])[0];
-      const orgName = org ? org.entity.name : 'unknown';
+      const orgName = org ? org.name : 'unknown';
       const orgBillableEventsBySpaceGUID = Object.entries(groupBy(billableEventsForOrg, x => x.spaceGUID));
       return flatMap(
         orgBillableEventsBySpaceGUID,

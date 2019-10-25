@@ -3,8 +3,8 @@ import lodash from 'lodash';
 
 import * as testData from '../src/lib/cf/cf.test.data';
 import {app as defaultApp} from '../src/lib/cf/test-data/app';
-import {org as defaultOrg} from '../src/lib/cf/test-data/org';
-import {wrapResources} from '../src/lib/cf/test-data/wrap-resources';
+import {org as defaultOrg, v3Org as defaultV3Org} from '../src/lib/cf/test-data/org';
+import {wrapResources, wrapV3Resources} from '../src/lib/cf/test-data/wrap-resources';
 import {IStubServerPorts} from './index';
 
 function mockCF(app: express.Application, config: IStubServerPorts): express.Application {
@@ -33,9 +33,16 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
 
   app.get('/v2/organizations/:guid',        (_, res) => res.send(JSON.stringify(defaultOrg())));
   app.get('/v2/organizations/:guid/spaces', (_, res) => res.send(testData.spaces));
-  app.get('/v2/organizations',              (_, res) => res.send(JSON.stringify(
+
+  app.get('/v2/organizations', (_, res) => res.send(JSON.stringify(
     wrapResources(
       lodash.merge(defaultOrg(), {entity: {name: 'an-org'}}),
+    ),
+  )));
+  app.get('/v3/organizations', (_, res) => res.send(JSON.stringify(
+    wrapV3Resources(
+      lodash.merge(defaultV3Org(), {name: 'an-org'}),
+      lodash.merge(defaultV3Org(), {name: 'a-different-org', guid: 'a-different-org'}),
     ),
   )));
 
@@ -57,7 +64,7 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
   app.get('/v2/user_provided_service_instances'      , (_, res) => res.send(testData.userServices));
   app.get('/v2/user_provided_service_instances/:guid', (_, res) => res.send(testData.userServiceInstance));
   app.get('/v2/users/uaa-id-253/spaces'              , (_, res) => res.send(testData.spaces));
-  app.get('/v2/users/uaa-id-253/summary'              , (_, res) => res.send(testData.userSummary));
+  app.get('/v2/users/uaa-id-253/summary'             , (_, res) => res.send(testData.userSummary));
   app.get('/v2/organizations/:guid/user_roles'       , (_, res) => res.send(testData.userRolesForOrg));
   app.get('/v2/spaces/:guid/user_roles'              , (_, res) => res.send(testData.userRolesForSpace));
   app.get('/v2/stacks'                               , (_, res) => res.send(testData.stacks));

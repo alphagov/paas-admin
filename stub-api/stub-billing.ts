@@ -58,6 +58,7 @@ function mockBilling(app: express.Application, _config: IStubServerPorts): expre
       {
         ...defaultBillingEvent,
         resource_name: 'charm',
+        org_guid: 'a-different-org',
         price: {inc_vat: "532.00", ex_vat: "512.00", details: [{...defaultPriceDetails, plan_name: "witching-plan"}]}
       },
       {

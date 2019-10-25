@@ -2,8 +2,8 @@ import moment from 'moment';
 import nock from 'nock';
 import {createTestContext} from '../app/app.test-helpers';
 
-import {org as defaultOrg} from '../../lib/cf/test-data/org';
-import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
+import {v3Org as defaultOrg} from '../../lib/cf/test-data/org';
+import {wrapV3Resources} from '../../lib/cf/test-data/wrap-resources';
 
 import { config } from '../app/app.test.config';
 import { IContext } from '../app/context';
@@ -20,9 +20,9 @@ const defaultBillable = {
 describe('html visualisation report test suite', () => {
 
   nock(config.cloudFoundryAPI)
-    .get('/v2/organizations')
+    .get('/v3/organizations')
     .times(5)
-    .reply(200, JSON.stringify(wrapResources(defaultOrg())))
+    .reply(200, JSON.stringify(wrapV3Resources(defaultOrg())))
   ;
 
   const ctx: IContext = createTestContext();
@@ -84,27 +84,33 @@ describe('html visualisation report test suite', () => {
 
 describe('building D3 sankey input', () => {
   it('should produce empty output with empty input', () => {
-    const result = reports.buildD3SankeyInput([]);
+    const result = reports.buildD3SankeyInput([], []);
     expect(result.nodes).toHaveLength(0);
     expect(result.links).toHaveLength(0);
   });
 
   it('should produce nodes and links from billables', () => {
     const result = reports.buildD3SankeyInput([
-      {...defaultBillable, orgName: 'org-1', serviceGroup: 'service-1', incVAT: 1},
-      {...defaultBillable, orgName: 'org-2', serviceGroup: 'service-1', incVAT: 2},
-      {...defaultBillable, orgName: 'org-2', serviceGroup: 'service-2', incVAT: 3},
+      {...defaultBillable, orgName: 'org-1', serviceGroup: 'service-1', exVAT: 1},
+      {...defaultBillable, orgName: 'org-2', serviceGroup: 'service-1', exVAT: 2},
+      {...defaultBillable, orgName: 'org-2', serviceGroup: 'service-2', exVAT: 3},
+    ], [
+      {org: 'org-1', owner: 'owner-1'},
+      {org: 'org-2', owner: 'owner-1'},
     ]);
     expect(result.nodes).toEqual([
       {name: 'service-1'},
       {name: 'service-2'},
       {name: 'org-1'},
       {name: 'org-2'},
+      {name: 'owner-1'},
     ]);
     expect(result.links).toEqual([
       {source: 0, target: 2, value: 1},
       {source: 0, target: 3, value: 2},
       {source: 1, target: 3, value: 3},
+      {source: 2, target: 4, value: 1},
+      {source: 3, target: 4, value: 5},
     ]);
   });
 });
