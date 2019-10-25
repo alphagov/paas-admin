@@ -2,8 +2,8 @@ import moment from 'moment';
 import nock from 'nock';
 import {createTestContext} from '../app/app.test-helpers';
 
-import {org as defaultOrg} from '../../lib/cf/test-data/org';
-import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
+import {v3Org as defaultOrg} from '../../lib/cf/test-data/org';
+import {wrapV3Resources} from '../../lib/cf/test-data/wrap-resources';
 
 import { config } from '../app/app.test.config';
 import { IContext } from '../app/context';
@@ -13,9 +13,9 @@ describe('html cost report by service test suite', () => {
 
   // tslint:disable:max-line-length
   nock(config.cloudFoundryAPI)
-    .get('/v2/organizations')
+    .get('/v3/organizations')
     .times(5)
-    .reply(200, JSON.stringify(wrapResources(defaultOrg())));
+    .reply(200, JSON.stringify(wrapV3Resources(defaultOrg())));
 
   const ctx: IContext = createTestContext();
 
@@ -196,7 +196,7 @@ describe('cost report grouping functions', () => {
     });
 
     it('should look up the organisation name by GUID', () => {
-      const orgsByGUID = {'some-org-guid': [{entity: {name: 'some-org-name'}} as any]};
+      const orgsByGUID = {'some-org-guid': [{name: 'some-org-name'} as any]};
       const result = reports.getBillableEventsByOrganisationAndService(
         [{...defaultBillableEvent, orgGUID: 'some-org-guid'}],
         orgsByGUID,
@@ -207,8 +207,8 @@ describe('cost report grouping functions', () => {
 
     it('should group by organisation (sorted alphabetically), then by service (sorted by cost)', () => {
       const orgsByGUID = {
-        'org-guid-one': [{entity: {name: 'org-name-one'}} as any],
-        'org-guid-two': [{entity: {name: 'org-name-two'}} as any],
+        'org-guid-one': [{name: 'org-name-one'} as any],
+        'org-guid-two': [{name: 'org-name-two'} as any],
       };
       const result = reports.getBillableEventsByOrganisationAndService(
         [
@@ -241,7 +241,7 @@ describe('cost report grouping functions', () => {
     });
 
     it('should look up the organisation and space names by GUID', () => {
-      const orgsByGUID = {'some-org-guid': [{entity: {name: 'some-org-name'}} as any]};
+      const orgsByGUID = {'some-org-guid': [{name: 'some-org-name'} as any]};
       const spacesByGUID = {'some-space-guid': [{entity: {name: 'some-space-name'}} as any]};
       const result = reports.getBillableEventsByOrganisationAndSpaceAndService(
         [
@@ -260,8 +260,8 @@ describe('cost report grouping functions', () => {
 
     it('should group by organisation (sorted alphabetically), then by space (sorted alphabetically), then by service (sorted by cost)', () => {
       const orgsByGUID = {
-        'org-guid-one': [{entity: {name: 'org-name-one'}} as any],
-        'org-guid-two': [{entity: {name: 'org-name-two'}} as any],
+        'org-guid-one': [{name: 'org-name-one'} as any],
+        'org-guid-two': [{name: 'org-name-two'} as any],
       };
       const spacesByGUID = {
         'space-guid-one': [{entity: {name: 'space-name-one'}} as any],
