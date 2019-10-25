@@ -94,15 +94,18 @@ describe('lib/cf test suite', () => {
       .get('/v3/test')
       .reply(200, `{"pagination": {"next":{"href": "/v3/test?page=2"}},"resources":["a"]}`)
       .get('/v3/test?page=2')
-      .reply(200, `{"pagination": {"next":null},"resources":["b"]}`)
+      .reply(200, `{"pagination": {"next":{"href": "/v3/test?page=3"}},"resources":["b"]}`)
+      .get('/v3/test?page=3')
+      .reply(200, `{"pagination": {"next":null},"resources":["c"]}`)
     ;
 
     const client = new CloudFoundryClient(config);
     const response = await client.request('get', '/v3/test');
     const collection = await client.allV3Resources(response);
 
-    expect([...collection].length).toEqual(2);
+    expect([...collection].length).toEqual(3);
     expect(collection[1]).toEqual('b');
+    expect(collection[2]).toEqual('c');
   });
 
   it('should throw an error when receiving 404', async () => {
