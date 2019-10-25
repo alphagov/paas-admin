@@ -97,14 +97,14 @@ export default class CloudFoundryClient {
   }
 
   public async allV3Resources<T>(response: AxiosResponse<cf.IV3Response<T>>): Promise<ReadonlyArray<T>> {
-    const data = response.data.resources;
+    const data: ReadonlyArray<T> = response.data.resources;
 
     if (!response.data.pagination.next) {
       return data;
     }
 
     const newResponse = await this.request('get', response.data.pagination.next.href);
-    const newData = await this.allResources(newResponse);
+    const newData: ReadonlyArray<T> = await this.allV3Resources(newResponse);
 
     return [...data, ...newData];
   }
