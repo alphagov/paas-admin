@@ -77,7 +77,8 @@ export function buildD3SankeyInput(
   organisationsByOwner: ReadonlyArray<IOrgAndOwner>): ID3SankeyInput {
   const services = uniq(billables.map(x => x.serviceGroup));
   const orgNames = uniq(billables.map(x => x.orgName));
-  const owners = uniq(organisationsByOwner.map(x => x.owner));
+  const organisationsByOwnerWithBills = organisationsByOwner.filter(x => orgNames.includes(x.org));
+  const owners = uniq(organisationsByOwnerWithBills.map(x => x.owner));
   const nodes = [...services, ...orgNames, ...owners];
 
   if (nodes.length - owners.length === 0) {
@@ -93,7 +94,7 @@ export function buildD3SankeyInput(
     value: x.exVAT,
   }));
 
-  const ownerLinks = organisationsByOwner.map(orgOwner => ({
+  const ownerLinks = organisationsByOwnerWithBills.map(orgOwner => ({
     source: nodeIndexByName[orgOwner.org],
     target: nodeIndexByName[orgOwner.owner],
     value: sum(billables.filter(billable => billable.orgName === orgOwner.org).map(billable => billable.exVAT)),
