@@ -600,7 +600,7 @@ export const servicePlan = `{
     "updated_at": "2016-06-08T16:41:26Z"
   },
   "entity": {
-    "name": "name-1573",
+    "name": "postgres-1573",
     "free": false,
     "description": "desc-107",
     "service_guid": "a00cacc0-0ca6-422e-91d3-6b22bcd33450",
@@ -631,7 +631,7 @@ export const service = `{
     "updated_at": "2016-06-08T16:41:26Z"
   },
   "entity": {
-    "label": "label-58",
+    "label": "postgres-58",
     "provider": null,
     "url": null,
     "description": "desc-135",
