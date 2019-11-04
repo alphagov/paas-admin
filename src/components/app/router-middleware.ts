@@ -16,10 +16,6 @@ function handleResponse(res: express.Response) {
       return res.send(r.download.data);
     }
 
-    if (r.mimeType) {
-      res.contentType(r.mimeType);
-    }
-
     res.status(r.status || 200).send(r.body);
   };
 }
