@@ -11,6 +11,15 @@ import serviceMetricsTemplate from './service-metrics.njk';
 // to be replaced with properly rendered SVG graphs at a later date.
 /* istanbul ignore next */
 export async function viewServiceMetricImage(ctx: IContext, params: IParameters): Promise<IResponse> {
+    const cf = new CloudFoundryClient({
+      accessToken: ctx.token.accessToken,
+      apiEndpoint: ctx.app.cloudFoundryAPI,
+      logger: ctx.app.logger,
+    });
+
+    // Check that the current user has access to this service instance before getting the metrics
+    await cf.serviceInstance(params.serviceGUID);
+
     const cloudWatch = new cw.CloudWatchClient({ region: ctx.app.awsRegion });
     const cmd = new cw.GetMetricWidgetImageCommand({
       MetricWidget: JSON.stringify({
