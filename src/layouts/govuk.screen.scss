@@ -13,6 +13,7 @@ $govuk-global-styles: true;
 @import '../components/org-users/permissions';
 
 @import '../components/statements/statements';
+@import '../components/service-metrics/service-metrics';
 
 .govuk-template__body {
   font-family: "GDS Transport", Arial, sans-serif;
