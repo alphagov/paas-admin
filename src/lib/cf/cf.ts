@@ -316,6 +316,31 @@ export default class CloudFoundryClient {
 
     return user.entity.organization_roles.includes(role);
   }
+
+  public async auditEvent(auditEventGUID: string): Promise<cf.IAuditEvent> {
+    const resp = await this.request('get', `/v3/audit_events/${auditEventGUID}`);
+
+    return resp.data;
+  }
+
+  public async auditEvents(
+    targetGUIDs?: ReadonlyArray<string>,
+    spaceGUIDs?: ReadonlyArray<string>,
+    orgGUIDs?: ReadonlyArray<string>,
+  ): Promise<ReadonlyArray<cf.IAuditEvent>> {
+    const resp = await this.request(
+      'get', `/v3/audit_events`,
+      /* data */ undefined,
+      /* params */ {
+        target_guids: targetGUIDs ? targetGUIDs.join(',') : undefined,
+        space_guids: spaceGUIDs ? spaceGUIDs.join(',') : undefined,
+        organization_guids: orgGUIDs ? orgGUIDs.join(',') : undefined,
+        order_by: '-updated_at',
+      },
+    );
+
+    return this.allV3Resources(resp);
+  }
 }
 
 async function request(
