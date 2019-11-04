@@ -11,7 +11,7 @@ import serviceMetricsTemplate from './service-metrics.njk';
 // to be replaced with properly rendered SVG graphs at a later date.
 /* istanbul ignore next */
 export async function viewServiceMetricImage(ctx: IContext, params: IParameters): Promise<IResponse> {
-    const cloudWatch = new cw.CloudWatchClient({ region: 'eu-west-1' });
+    const cloudWatch = new cw.CloudWatchClient({ region: ctx.app.awsRegion });
     const cmd = new cw.GetMetricWidgetImageCommand({
       MetricWidget: JSON.stringify({
         metrics: [
