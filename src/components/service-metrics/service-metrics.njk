@@ -1,5 +1,5 @@
 {% extends "../services/_tabs.njk" %}
-{% from "govuk-frontend/govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+{% from "govuk-frontend/govuk/components/tag/macro.njk" import govukTag %}
 
 {% block pageTitle %}
   {{ service.entity.name }} - Service Metrics
@@ -7,7 +7,10 @@
 
 {% block insideTabs %}
 
+
 <div class="border-bottom-box">
+<p>{{ govukTag({text: "experimental"}) }}</p>
+
 <p>Backing service metrics is a new feature under active development. Expect frequent changes.</p>
 
 <p>Please email us at <a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">gov-uk-paas-support@digital.cabinet-office.gov.uk</a>
