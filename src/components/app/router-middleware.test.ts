@@ -42,11 +42,6 @@ describe('app test suite - router-middleware', () => {
         action: async (_c, _p, _b) => ({download: {data: `text`, name: 'download.txt'}}),
         path: '/download',
       },
-      {
-        name: 'mimetype',
-        action: async (_c, _p, _b) => ({mimeType: 'image/png'}),
-        path: '/image',
-      },
     ]);
 
     function linkTo(name: string, params: IParameters = {}) {
@@ -77,7 +72,6 @@ describe('app test suite - router-middleware', () => {
     const notFoundResponse = await agent.get('/404');
     const serverErrorResponse = await agent.get('/500');
     const downloadResponse = await agent.get('/download');
-    const imgResponse = await agent.get('/image');
 
     expect(linkTo('hello', {name: 'World'})).toEqual('/hello/World');
     expect(linkTo('home')).toEqual('/');
@@ -89,6 +83,5 @@ describe('app test suite - router-middleware', () => {
     expect(notFoundResponse.status).toEqual(404);
     expect(serverErrorResponse.status).toEqual(500);
     expect(downloadResponse.header['content-disposition']).toEqual(`attachment; filename="download.txt"`);
-    expect(imgResponse.header['content-type']).toEqual(`image/png`);
   });
 });

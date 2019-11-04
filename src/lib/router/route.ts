@@ -11,11 +11,10 @@ export interface IDownload {
 }
 
 export interface IResponse {
-  readonly body?: object | string | Buffer;
+  readonly body?: object | string;
   readonly download?: IDownload;
   readonly redirect?: string;
   readonly status?: number;
-  readonly mimeType?: 'image/png';
 }
 
 export type ActionFunction = (ctx: any, params: IParameters, body?: any) => Promise<IResponse>;

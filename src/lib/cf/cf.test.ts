@@ -369,7 +369,7 @@ describe('lib/cf test suite', () => {
     const client = new CloudFoundryClient(config);
     const servicePlan = await client.servicePlan('775d0046-7505-40a4-bfad-ca472485e332');
 
-    expect(servicePlan.entity.name).toEqual('postgres-1573');
+    expect(servicePlan.entity.name).toEqual('name-1573');
   });
 
   it('should obtain particular service', async () => {
@@ -381,7 +381,7 @@ describe('lib/cf test suite', () => {
     const client = new CloudFoundryClient(config);
     const service = await client.service('53f52780-e93c-4af7-a96c-6958311c40e5');
 
-    expect(service.entity.label).toEqual('postgres-58');
+    expect(service.entity.label).toEqual('label-58');
   });
 
   it('should create a user', async () => {
