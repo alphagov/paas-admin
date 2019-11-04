@@ -36,4 +36,5 @@ export const config: IAppConfig = {
   notifyWelcomeTemplateID: 'qwerty-123456',
   oidcProviders: providers,
   domainName: 'https://admin.example.com/',
+  awsRegion: 'eu-west-1',
 };

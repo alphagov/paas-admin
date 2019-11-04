@@ -47,7 +47,8 @@ function platformLocation(region: string): string {
 
 async function main() {
   const cloudFoundryAPI = expectEnvVariable('API_URL');
-  const location = platformLocation(expectEnvVariable('AWS_REGION'));
+  const awsRegion = expectEnvVariable('AWS_REGION');
+  const location = platformLocation(awsRegion);
   let authorizationAPI = process.env.AUTHORIZATION_URL;
   let uaaAPI = process.env.UAA_URL;
 
@@ -89,6 +90,7 @@ async function main() {
     oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
     oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
     cloudFoundryAPI,
+    awsRegion,
     location,
     authorizationAPI,
     uaaAPI,

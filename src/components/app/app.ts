@@ -36,6 +36,7 @@ export interface IAppConfig {
   readonly authorizationAPI: string;
   readonly oidcProviders: Map<OIDCProviderName, IOIDCConfig>;
   readonly domainName: string;
+  readonly awsRegion: string;
 }
 
 export type OIDCProviderName = 'microsoft' | 'google';
