@@ -1,11 +1,11 @@
-{% extends "../../layouts/govuk.njk" %}
+{% extends "./_tabs.njk" %}
 {% from "govuk-frontend/govuk/components/table/macro.njk" import govukTable %}
 
 {% block pageTitle %}
   {{ application.entity.name }} - Application Overview
 {% endblock %}
 
-{% block content %}
+{% block insideTabs %}
   {{ super() }}
 
   <div class="govuk-grid-row">

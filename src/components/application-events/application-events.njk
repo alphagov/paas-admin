@@ -1,0 +1,48 @@
+{% extends "../applications/_tabs.njk" %}
+
+{% block pageTitle %}
+  {{ application.entity.name }} - Application Events
+{% endblock %}
+
+{% block insideTabs %}
+  {% if events.length > 0 %}
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header">Date</th>
+          <th class="govuk-table__header">Actor</th>
+          <th class="govuk-table__header">Event</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+      {% for event in events %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">
+            {{ event.updated_at | nicedate }}
+            {{ event.updated_at | nicetime }}
+          </td>
+          <td class="govuk-table__cell">
+            {% if event.actor.name %}
+              {{ event.actor.name }}
+            {% else %}
+              <code>{{ event.actor.guid }}</code>
+            {% endif %}
+          </td>
+          <td class="govuk-table__cell">
+            {% if eventTypeDescriptions[event.type] %}
+              {{ eventTypeDescriptions[event.type] }}
+            {% else %}
+              <code>{{ event.type }}</code>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="govuk-body">
+      There are no events for this application.
+    </p>
+  {% endif %}
+
+{% endblock %}

@@ -4,7 +4,7 @@ import pino from 'pino';
 
 import * as data from './cf.test.data';
 import {app as defaultApp} from './test-data/app';
-import {auditEvent as defaultAuditEvent} from './test-data/audit-events';
+import {auditEvent as defaultAuditEvent} from './test-data/audit-event';
 import {org as defaultOrg} from './test-data/org';
 import {wrapResources, wrapV3Resources} from './test-data/wrap-resources';
 

@@ -3,6 +3,7 @@ import lodash from 'lodash';
 
 import * as testData from '../src/lib/cf/cf.test.data';
 import {app as defaultApp} from '../src/lib/cf/test-data/app';
+import {auditEvent as defaultAuditEvent} from '../src/lib/cf/test-data/audit-event';
 import {org as defaultOrg, v3Org as defaultV3Org} from '../src/lib/cf/test-data/org';
 import {wrapResources, wrapV3Resources} from '../src/lib/cf/test-data/wrap-resources';
 import {IStubServerPorts} from './index';
@@ -69,6 +70,15 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
   app.get('/v2/spaces/:guid/user_roles'              , (_, res) => res.send(testData.userRolesForSpace));
   app.get('/v2/stacks'                               , (_, res) => res.send(testData.stacks));
   app.get('/v2/stacks/:guid'                         , (_, res) => res.send(testData.stack));
+
+  app.get('/v3/audit_events/:guid' , (_, res) => res.send(JSON.stringify(defaultAuditEvent())));
+  app.get('/v3/audit_events'       , (_, res) => res.send(JSON.stringify(
+    wrapV3Resources(
+      defaultAuditEvent(),
+      defaultAuditEvent(),
+      defaultAuditEvent(),
+    ),
+  )));
 
   return app;
 }

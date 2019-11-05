@@ -1,6 +1,7 @@
 import Router, { IParameters } from '../../lib/router';
 
 import * as account from '../account';
+import * as applicationEvents from '../application-events';
 import * as applications from '../applications';
 import * as orgUsers from '../org-users';
 import * as organizations from '../organizations';
@@ -44,6 +45,11 @@ const router = new Router([
     action: applications.viewApplication,
     name: 'admin.organizations.spaces.applications.view',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID',
+  },
+  {
+    action: applicationEvents.viewApplicationEvents,
+    name: 'admin.organizations.spaces.applications.events.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/events',
   },
   {
     action: services.viewService,
