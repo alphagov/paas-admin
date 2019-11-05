@@ -324,10 +324,11 @@ export default class CloudFoundryClient {
   }
 
   public async auditEvents(
+    page: number = 1,
     targetGUIDs?: ReadonlyArray<string>,
     spaceGUIDs?: ReadonlyArray<string>,
     orgGUIDs?: ReadonlyArray<string>,
-  ): Promise<ReadonlyArray<cf.IAuditEvent>> {
+  ): Promise<cf.IV3Response<cf.IAuditEvent>> {
     const resp = await this.request(
       'get', `/v3/audit_events`,
       /* data */ undefined,
@@ -336,10 +337,12 @@ export default class CloudFoundryClient {
         space_guids: spaceGUIDs ? spaceGUIDs.join(',') : undefined,
         organization_guids: orgGUIDs ? orgGUIDs.join(',') : undefined,
         order_by: '-updated_at',
+        per_page: 25,
+        page,
       },
     );
 
-    return this.allV3Resources(resp);
+    return resp.data;
   }
 }
 

@@ -121,39 +121,45 @@ describe('lib/cf test suite', () => {
     expect(event).toEqual(defaultAuditEvent());
   });
 
-  it('should list audit events', async () => {
+  it('should retrieve an empty page of audit events', async () => {
     nockCF
-      .get('/v3/audit_events').query({order_by: '-updated_at'})
+      .get('/v3/audit_events').query({order_by: '-updated_at', page: 1, per_page: 25})
       .reply(200, JSON.stringify(wrapV3Resources()))
     ;
 
     const client = new CloudFoundryClient(config);
     const events = await client.auditEvents();
 
-    expect(events.length).toEqual(0);
+    expect(events.resources.length).toEqual(0);
   });
 
   it('should list audit events for a target (ie an app or service)', async () => {
     nockCF
       .get('/v3/audit_events').query(
-        { order_by: '-updated_at', target_guids: defaultAuditEvent().guid },
+        {
+          page: 1, per_page: 25,
+          order_by: '-updated_at',
+          target_guids: defaultAuditEvent().guid,
+        },
       )
       .reply(200, JSON.stringify(wrapV3Resources(defaultAuditEvent())))
     ;
 
     const client = new CloudFoundryClient(config);
     const events = await client.auditEvents(
+      1,
       /* targetGUIDs */ [defaultAuditEvent().guid],
     );
 
-    expect(events.length).toEqual(1);
-    expect(events[0].guid).toEqual(defaultAuditEvent().guid);
+    expect(events.resources.length).toEqual(1);
+    expect(events.resources[0].guid).toEqual(defaultAuditEvent().guid);
   });
 
   it('should list audit events for a space', async () => {
     nockCF
       .get('/v3/audit_events').query(
         {
+          page: 1, per_page: 25,
           order_by: '-updated_at',
           space_guids: defaultAuditEvent().space.guid,
         },
@@ -163,18 +169,20 @@ describe('lib/cf test suite', () => {
 
     const client = new CloudFoundryClient(config);
     const events = await client.auditEvents(
+      1,
       undefined,
       /* spaceGUIDs */ [defaultAuditEvent().space.guid],
     );
 
-    expect(events.length).toEqual(1);
-    expect(events[0].guid).toEqual(defaultAuditEvent().guid);
+    expect(events.resources.length).toEqual(1);
+    expect(events.resources[0].guid).toEqual(defaultAuditEvent().guid);
   });
 
   it('should list audit events for an org', async () => {
     nockCF
       .get('/v3/audit_events').query(
         {
+          page: 1, per_page: 25,
           order_by: '-updated_at',
           organization_guids: defaultAuditEvent().organization.guid,
         },
@@ -184,51 +192,36 @@ describe('lib/cf test suite', () => {
 
     const client = new CloudFoundryClient(config);
     const events = await client.auditEvents(
-      undefined,
-      undefined,
+      1,
+      /* targetGUIDs */ undefined,
+      /* spaceGUIDs */ undefined,
       /* orgGUIDs */ [defaultAuditEvent().organization.guid],
     );
 
-    expect(events.length).toEqual(1);
-    expect(events[0].guid).toEqual(defaultAuditEvent().guid);
+    expect(events.resources.length).toEqual(1);
+    expect(events.resources[0].guid).toEqual(defaultAuditEvent().guid);
   });
 
   it('should paginate audit events', async () => {
     nockCF
       .get('/v3/audit_events')
-      .query({order_by: '-updated_at'})
+      .query({order_by: '-updated_at', page: 2, per_page: 25})
       .reply(200, JSON.stringify(
         lodash.merge(
           wrapV3Resources(
             lodash.merge(defaultAuditEvent(), {guid: 'abc'}),
-          ), {pagination: {next: {href: '/v3/audit_events/page=2&order_by=-updated_at'}}},
-        ),
-      ))
-      .get('/v3/audit_events/page=2&order_by=-updated_at')
-      .reply(200, JSON.stringify(
-        lodash.merge(
-          wrapV3Resources(
             lodash.merge(defaultAuditEvent(), {guid: 'def'}),
-          ), {pagination: {next: {href: '/v3/audit_events/page=3&order_by=-updated_at'}}},
-        ),
-      ))
-      .get('/v3/audit_events/page=3&order_by=-updated_at')
-      .reply(200, JSON.stringify(
-        lodash.merge(
-          wrapV3Resources(
-            lodash.merge(defaultAuditEvent(), {guid: 'xyz'}),
-          ), {pagination: {}},
+          ), {pagination: {next: {href: '/v3/audit_events/page=2&order_by=-updated_at'}}},
         ),
       ))
     ;
 
     const client = new CloudFoundryClient(config);
-    const events = await client.auditEvents();
+    const events = await client.auditEvents(2);
 
-    expect(events.length).toEqual(3);
-    expect(events[0].guid).toEqual('abc');
-    expect(events[1].guid).toEqual('def');
-    expect(events[2].guid).toEqual('xyz');
+    expect(events.resources.length).toEqual(2);
+    expect(events.resources[0].guid).toEqual('abc');
+    expect(events.resources[1].guid).toEqual('def');
   });
 
   it('should throw an error when receiving 404', async () => {
