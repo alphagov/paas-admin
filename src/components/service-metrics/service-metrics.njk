@@ -19,74 +19,72 @@ if you have any feedback.</p>
 
 {% set rdsPattern = r/^postgres|^mysql/ %}
 {% if rdsPattern.test(serviceLabel) %}
-    <div className="govuk-grid-row">
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        Free disk space
-        </h3>
+  <div>
+      <h3 className="govuk-heading-m">
+      Free disk space
+      </h3>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'FreeStorageSpace' }
-        ) }}" alt="Graph showing free disk space over the last 24 hours">
-    </div>
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        CPU Utilisation
-        </h3>
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'FreeStorageSpace' }
+      ) }}" alt="Graph showing free disk space over the last 24 hours">
+  </div>
+  <div>
+      <h3 className="govuk-heading-m">
+      CPU Utilisation
+      </h3>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'CPUUtilization' }
-        ) }}" alt="Graph showing CPU utilisation over the last 24 hours">
-    </div>
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        Database Connections
-        </h3>
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'CPUUtilization' }
+      ) }}" alt="Graph showing CPU utilisation over the last 24 hours">
+  </div>
+  <div>
+      <h3 className="govuk-heading-m">
+      Database Connections
+      </h3>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'DatabaseConnections' }
-        ) }}" alt="Graph showing database connections over the last 24 hours">
-    </div>
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        Freeable Memory
-        </h3>
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'DatabaseConnections' }
+      ) }}" alt="Graph showing database connections over the last 24 hours">
+  </div>
+  <div>
+      <h3 className="govuk-heading-m">
+      Freeable Memory
+      </h3>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'FreeableMemory' }
-        ) }}" alt="Graph showing freeable memory over the last 24 hours">
-    </div>
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        Read IOPS
-        </h3>
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'FreeableMemory' }
+      ) }}" alt="Graph showing freeable memory over the last 24 hours">
+  </div>
+  <div>
+      <h3 className="govuk-heading-m">
+      Read IOPS
+      </h3>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'ReadIOPS' }
-        ) }}" alt="Graph showing read IOPS over the last 24 hours">
-    </div>
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        Write IOPS
-        </h3>
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'ReadIOPS' }
+      ) }}" alt="Graph showing read IOPS over the last 24 hours">
+  </div>
+  <div>
+      <h3 className="govuk-heading-m">
+      Write IOPS
+      </h3>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'WriteIOPS' }
-        ) }}" alt="Graph showing write IOPS over the last 24 hours">
-    </div>
-    </div>
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'WriteIOPS' }
+      ) }}" alt="Graph showing write IOPS over the last 24 hours">
+  </div>
 {% else %}
   <p>Metrics are not available for this service yet.</p>
 {% endif %}
