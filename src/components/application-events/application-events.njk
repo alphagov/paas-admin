@@ -52,10 +52,14 @@
             {{ event.updated_at | nicetime }}
           </td>
           <td class="govuk-table__cell">
-            {% if event.actor.name %}
-              {{ event.actor.name }}
+            {% if eventActorEmails[event.actor.guid] %}
+              {{ eventActorEmails[event.actor.guid] }}
             {% else %}
-              <code>{{ event.actor.guid }}</code>
+              {% if event.actor.name %}
+                {{ event.actor.name }}
+              {% else %}
+                <code>{{ event.actor.guid }}</code>
+              {% endif %}
             {% endif %}
           </td>
           <td class="govuk-table__cell">

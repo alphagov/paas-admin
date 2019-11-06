@@ -14,11 +14,14 @@ import {IContext} from '../app/context';
 const ctx: IContext = createTestContext();
 
 describe('application events', () => {
+  let nockAccounts: nock.Scope;
   let nockCF: nock.Scope;
 
   beforeEach(() => {
     nock.cleanAll();
-    nockCF = nock('https://example.com/api');
+
+    nockAccounts = nock(ctx.app.accountsAPI);
+    nockCF = nock(ctx.app.cloudFoundryAPI);
 
     nockCF
       .get(`/v2/apps/${defaultApp().metadata.guid}`)
@@ -33,7 +36,9 @@ describe('application events', () => {
   });
 
   afterEach(() => {
+    nockAccounts.done();
     nockCF.done();
+
     nock.cleanAll();
   });
 
@@ -77,12 +82,27 @@ describe('application events', () => {
           lodash.merge(defaultAuditEvent(), {type: 'audit.app.restage'}),
           lodash.merge(defaultAuditEvent(), {type: 'audit.app.update'}),
           lodash.merge(defaultAuditEvent(), {type: 'audit.app.create'}),
-          lodash.merge(defaultAuditEvent(), {type: 'some unknown event type'}),
+          lodash.merge(defaultAuditEvent(), {
+            type: 'some unknown event type',
+            actor: { guid: 'unknown', name: 'some unknown actor', type: 'unknown' },
+          }),
         ), {pagination: {
           total_pages: 2702,
           total_results: 1337,
           next: { href: '/link-to-next-page' },
         }})))
+      ;
+
+      nockAccounts
+        .get('/users')
+        .query({uuids: defaultAuditEvent().actor.guid})
+        .reply(200, `{
+          "users": [{
+            "user_uuid": "${defaultAuditEvent().actor.guid}",
+            "user_email": "one@user.in.database",
+            "username": "one@user.in.database"
+          }]
+        }`)
       ;
     });
 
@@ -101,6 +121,9 @@ describe('application events', () => {
       expect(response.body).toContain('<a class="govuk-link" disabled>Previous page</a>');
       expect(response.body).not.toContain('<a class="govuk-link" disabled>Next page</a>');
       expect(response.body).toContain('Next page');
+
+      expect(response.body).toContain('one@user.in.database');
+      expect(response.body).toContain('some unknown actor');
 
       expect(response.body).toContain('Requested deletion of the application');
       expect(response.body).toContain('Restaged the application');
