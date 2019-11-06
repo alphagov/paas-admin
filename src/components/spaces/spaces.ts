@@ -43,10 +43,9 @@ export async function viewSpaceEvents(ctx: IContext, params: IParameters): Promi
 
   const {resources: events, pagination} = pageOfEvents;
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
-    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
-    { text: organization.entity.name },
-  ];
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+    { text: space.entity.name },
+  ]);
 
   let eventActorEmails: {[key: string]: string} = {};
   const userActorGUIDs = lodash
