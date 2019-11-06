@@ -6,6 +6,7 @@ import * as applications from '../applications';
 import * as orgUsers from '../org-users';
 import * as organizations from '../organizations';
 import * as reports from '../reports';
+import * as serviceEvents from '../service-events';
 import * as serviceMetrics from '../service-metrics';
 import * as services from '../services';
 import * as spaces from '../spaces';
@@ -70,6 +71,11 @@ const router = new Router([
     action: serviceMetrics.viewServiceMetrics,
     name: 'admin.organizations.spaces.services.metrics.view',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics',
+  },
+  {
+    action: serviceEvents.viewServiceEvents,
+    name: 'admin.organizations.spaces.services.events.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/events',
   },
   {
     action: orgUsers.listUsers,
