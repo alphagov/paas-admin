@@ -5,13 +5,11 @@
 {% endblock %}
 
 {% block insideTabs %}
-  <p class="govuk-body">
-    Displaying page {{ page }} of {{ pagination.total_pages }},
-    there are {{ pagination.total_results }} total events.
-  </p>
+  {% include "../events/totals.njk" %}
+
+  {% include "../events/details.njk" %}
 
   <p class="govuk-body">
-
     {% if pagination.total_pages > 1 %}
       {% if page <= 1 %}
         <a class="govuk-link" disabled>Previous page</a>
