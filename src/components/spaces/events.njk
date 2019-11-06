@@ -1,7 +1,7 @@
-{% extends "../applications/_tabs.njk" %}
+{% extends "./_tabbed_layout.njk" %}
 
 {% block pageTitle %}
-  {{ application.entity.name }} - Application Events
+  {{ space.entity.name }} - Space Events
 {% endblock %}
 
 {% block insideTabs %}
@@ -18,16 +18,16 @@
       {% else %}
         <a class="govuk-link" href="{{
           linkTo(
-            'admin.organizations.spaces.applications.events.view',
-            {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid, page: page-1}
+            'admin.organizations.spaces.events.view',
+            {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, page: page-1}
           ) }}">Previous page</a>
       {% endif %}
 
       {% if pagination.next %}
         <a class="govuk-link" href="{{
           linkTo(
-            'admin.organizations.spaces.applications.events.view',
-            {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid, page: page+1}
+            'admin.organizations.spaces.events.view',
+            {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, page: page+1}
           ) }}">Next page</a>
       {% else %}
         <a class="govuk-link" disabled>Next page</a>
@@ -40,6 +40,7 @@
       <thead class="govuk-table__head">
         <tr class="govuk-table__row">
           <th class="govuk-table__header">Date</th>
+          <th class="govuk-table__header">Target</th>
           <th class="govuk-table__header">Actor</th>
           <th class="govuk-table__header">Event</th>
         </tr>
@@ -51,6 +52,17 @@
             {{ event.updated_at | nicedate }}
             <br>
             {{ event.updated_at | nicetime }}
+          </td>
+          <td class="govuk-table__cell">
+            {% if eventActorEmails[event.target.guid] %}
+              {{ eventActorEmails[event.target.guid] }}
+            {% else %}
+              {% if event.target.name %}
+                {{ event.target.name }}
+              {% else %}
+                <code>{{ event.target.guid }}</code>
+              {% endif %}
+            {% endif %}
           </td>
           <td class="govuk-table__cell">
             {% if eventActorEmails[event.actor.guid] %}

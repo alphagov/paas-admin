@@ -1,5 +1,7 @@
-import {AccountsClient} from '../../lib/accounts';
-import CloudFoundryClient from '../../lib/cf';
+import lodash from 'lodash';
+
+import {AccountsClient, IAccountsUser} from '../../lib/accounts';
+import CloudFoundryClient, {eventTypeDescriptions} from '../../lib/cf';
 import {IApplication, IOrganizationUserRoles, IRoute, IServiceInstance, ISpace} from '../../lib/cf/types';
 import {IParameters, IResponse} from '../../lib/router';
 
@@ -9,10 +11,79 @@ import {fromOrg, IBreadcrumb} from '../breadcrumbs';
 
 import spaceApplicationsTemplate from './applications.njk';
 import spaceBackingServicesTemplate from './backing-services.njk';
+import spaceEventsTemplate from './events.njk';
 import spacesTemplate from './spaces.njk';
 
 function buildURL(route: IRoute): string {
   return [route.host, route.domain.name].filter(x => x).join('.') + route.path;
+}
+
+export async function viewSpaceEvents(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+
+  const accountsClient = new AccountsClient({
+    apiEndpoint: ctx.app.accountsAPI,
+    secret: ctx.app.accountsSecret,
+    logger: ctx.app.logger,
+  });
+
+  const page: number = params.page === undefined ? 1 : parseInt(params.page, 10);
+
+  const [organization, space, pageOfEvents] = await Promise.all([
+    cf.organization(params.organizationGUID),
+    cf.space(params.spaceGUID),
+    cf.auditEvents(
+      page, /* targetGUIDs */ undefined, /* spaceGUIDs */ [params.spaceGUID],
+    ),
+  ]);
+
+  const {resources: events, pagination} = pageOfEvents;
+
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+    { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
+    { text: organization.entity.name },
+  ];
+
+  let eventActorEmails: {[key: string]: string} = {};
+  const userActorGUIDs = lodash
+    .chain(events)
+    .filter(e => e.actor.type === 'user')
+    .map(e => e.actor.guid)
+    .value()
+  ;
+  const userTargetGUIDs = lodash
+    .chain(events)
+    .filter(e => e.target.type === 'user')
+    .map(e => e.target.guid)
+    .value()
+  ;
+  const userGUIDs = lodash.uniq(userActorGUIDs.concat(userTargetGUIDs));
+
+  if (userGUIDs.length > 0) {
+    const actorAccounts: ReadonlyArray<IAccountsUser> = await accountsClient.getUsers(userGUIDs);
+
+    eventActorEmails = lodash
+      .chain(actorAccounts)
+      .keyBy(account => account.uuid)
+      .mapValues(account => account.email)
+      .value()
+    ;
+  }
+
+  return {
+    body: spaceEventsTemplate.render({
+      routePartOf: ctx.routePartOf,
+      linkTo: ctx.linkTo,
+      context: ctx.viewContext,
+      organization, space, breadcrumbs,
+      events, eventTypeDescriptions, eventActorEmails,
+      pagination, page,
+    }),
+  };
 }
 
 export async function listApplications(ctx: IContext, params: IParameters): Promise<IResponse> {
