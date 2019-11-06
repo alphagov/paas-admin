@@ -125,10 +125,10 @@ describe('application events', () => {
       expect(response.body).toContain('one@user.in.database');
       expect(response.body).toContain('some unknown actor');
 
-      expect(response.body).toContain('Requested deletion of the application');
-      expect(response.body).toContain('Restaged the application');
-      expect(response.body).toContain('Updated the application');
-      expect(response.body).toContain('Created the application');
+      expect(response.body).toContain('Requested deletion of application');
+      expect(response.body).toContain('Restaged application');
+      expect(response.body).toContain('Updated application');
+      expect(response.body).toContain('Created application');
       expect(response.body).toContain('<code>some unknown event type</code>');
     });
   });
