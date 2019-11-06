@@ -41,7 +41,11 @@ describe('application events', () => {
     beforeEach(() => {
       nockCF
         .get('/v3/audit_events')
-        .query({order_by: '-updated_at', target_guids: defaultApp().metadata.guid})
+        .query({
+          page: 1, per_page: 25,
+          order_by: '-updated_at',
+          target_guids: defaultApp().metadata.guid,
+        })
         .reply(200, JSON.stringify(wrapV3Resources()))
       ;
     });
@@ -54,7 +58,8 @@ describe('application events', () => {
       });
 
       expect(response.body).toContain(`${defaultApp().entity.name} - Application Events`);
-      expect(response.body).toContain('There are no events for this application.');
+      expect(response.body).toContain('Displaying page 1 of 1');
+      expect(response.body).toContain('0 total events');
     });
   });
 
@@ -62,14 +67,22 @@ describe('application events', () => {
     beforeEach(() => {
       nockCF
         .get('/v3/audit_events')
-        .query({order_by: '-updated_at', target_guids: defaultApp().metadata.guid})
-        .reply(200, JSON.stringify(wrapV3Resources(
+        .query({
+          page: 1, per_page: 25,
+          order_by: '-updated_at',
+          target_guids: defaultApp().metadata.guid,
+        })
+        .reply(200, JSON.stringify(lodash.merge(wrapV3Resources(
           lodash.merge(defaultAuditEvent(), {type: 'audit.app.delete-request'}),
           lodash.merge(defaultAuditEvent(), {type: 'audit.app.restage'}),
           lodash.merge(defaultAuditEvent(), {type: 'audit.app.update'}),
           lodash.merge(defaultAuditEvent(), {type: 'audit.app.create'}),
           lodash.merge(defaultAuditEvent(), {type: 'some unknown event type'}),
-        )))
+        ), {pagination: {
+          total_pages: 2702,
+          total_results: 1337,
+          next: { href: '/link-to-next-page' },
+        }})))
       ;
     });
 
@@ -78,10 +91,17 @@ describe('application events', () => {
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         applicationGUID: defaultApp().metadata.guid,
+        page: 1,
       });
 
       expect(response.body).toContain(`${defaultApp().entity.name} - Application Events`);
-      expect(response.body).not.toContain('There are no events for this application.');
+
+      expect(response.body).toContain('Displaying page 1 of 2702');
+      expect(response.body).toContain('1337 total events');
+      expect(response.body).toContain('<a class="govuk-link" disabled>Previous page</a>');
+      expect(response.body).not.toContain('<a class="govuk-link" disabled>Next page</a>');
+      expect(response.body).toContain('Next page');
+
       expect(response.body).toContain('Requested deletion of the application');
       expect(response.body).toContain('Restaged the application');
       expect(response.body).toContain('Updated the application');

@@ -11,11 +11,13 @@ export async function viewApplicationEvents(ctx: IContext, params: IParameters):
     logger: ctx.app.logger,
   });
 
-  const [organization, space, application, events] = await Promise.all([
+  const page: number = params.page === undefined ? 1 : parseInt(params.page, 10);
+
+  const [organization, space, application, pageOfEvents] = await Promise.all([
     cf.organization(params.organizationGUID),
     cf.space(params.spaceGUID),
     cf.application(params.applicationGUID),
-    cf.auditEvents(/* targetGUIDs */ [params.applicationGUID]),
+    cf.auditEvents(page, /* targetGUIDs */ [params.applicationGUID]),
   ]);
 
   const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
@@ -34,7 +36,9 @@ export async function viewApplicationEvents(ctx: IContext, params: IParameters):
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
-      organization, space, application, events, breadcrumbs,
+      organization, space, application, breadcrumbs,
+      events: pageOfEvents.resources,
+      pagination: pageOfEvents.pagination, page,
       eventTypeDescriptions,
     }),
   };

@@ -72,13 +72,24 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
   app.get('/v2/stacks/:guid'                         , (_, res) => res.send(testData.stack));
 
   app.get('/v3/audit_events/:guid' , (_, res) => res.send(JSON.stringify(defaultAuditEvent())));
-  app.get('/v3/audit_events'       , (_, res) => res.send(JSON.stringify(
-    wrapV3Resources(
-      defaultAuditEvent(),
-      defaultAuditEvent(),
-      defaultAuditEvent(),
-    ),
-  )));
+  app.get('/v3/audit_events'       , (req, res) => {
+    const page = parseInt(req.param('page', '1'), 10);
+
+    const predefinedResources = [
+      [lodash.merge(defaultAuditEvent(), {type: 'first-page'}), defaultAuditEvent()],
+      [lodash.merge(defaultAuditEvent(), {type: 'middle-page'}), defaultAuditEvent()],
+      [lodash.merge(defaultAuditEvent(), {type: 'last-page'}), defaultAuditEvent()],
+    ];
+
+    res.send(JSON.stringify({
+      pagination: {
+        total_pages: predefinedResources.length,
+        total_results: lodash.flatten(predefinedResources).length,
+        next: page === 3 ? undefined : { href: `/v3/audit_events?page=${page + 1}` },
+      },
+      resources: (1 <= page && page <= 3) ? predefinedResources[page - 1] : [],
+    }));
+  });
 
   return app;
 }
