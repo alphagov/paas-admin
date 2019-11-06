@@ -19,74 +19,124 @@ if you have any feedback.</p>
 
 {% set rdsPattern = r/^postgres|^mysql/ %}
 {% if rdsPattern.test(serviceLabel) %}
-    <div className="govuk-grid-row">
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        Free disk space
-        </h3>
+  <p>
+  The graphs below show metrics for the
+  <a href="{{ linkTo(
+    'admin.organizations.spaces.services.view',
+    {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid}
+    )}}" class="govuk-link">{{ service.entity.name }}</a>
+  service over the last 24 hours.
+  </p>
+  <p>Currently the available metrics for {{serviceLabel}} are:
+  <ul>
+    <li><a href="#free-disk-space" class="govuk-link">Free disk space</a></li>
+    <li><a href="#cpu-utilisation" class="govuk-link">CPU Utilisation</a></li>
+    <li><a href="#database-connections" class="govuk-link">Database Connections</a></li>
+    <li><a href="#freeable-memory" class="govuk-link">Freeable Memory</a></li>
+    <li><a href="#read-iops" class="govuk-link">Read IOPS</a></li>
+    <li><a href="#write-iops" class="govuk-link">Write IOPS</a></li>
+  </ul>
+  </p>
+  <div>
+      <h3 className="govuk-heading-m" id="free-disk-space">
+      Free disk space
+      </h3>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'FreeStorageSpace' }
-        ) }}" alt="Graph showing free disk space over the last 24 hours">
-    </div>
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        CPU Utilisation
-        </h3>
+      <p>How much hard disk space your database has remaining. If your database runs out of disk space it will stop working.</p>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'CPUUtilization' }
-        ) }}" alt="Graph showing CPU utilisation over the last 24 hours">
-    </div>
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        Database Connections
-        </h3>
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'FreeStorageSpace' }
+      ) }}" alt="Graph showing free disk space over the last 24 hours">
+  </div>
+  <div>
+      <h3 className="govuk-heading-m" id="cpu-utilisation">
+      CPU Utilisation
+      </h3>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'DatabaseConnections' }
-        ) }}" alt="Graph showing database connections over the last 24 hours">
-    </div>
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        Freeable Memory
-        </h3>
+      <p>
+      How much computational work your database is doing. High
+      CPU Utilisation may indicate you need to optimise your database queries
+      or <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
+      </p>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'FreeableMemory' }
-        ) }}" alt="Graph showing freeable memory over the last 24 hours">
-    </div>
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        Read IOPS
-        </h3>
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'CPUUtilization' }
+      ) }}" alt="Graph showing CPU utilisation over the last 24 hours">
+  </div>
+  <div>
+      <h3 className="govuk-heading-m" id="database-connections">
+      Database Connections
+      </h3>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'ReadIOPS' }
-        ) }}" alt="Graph showing read IOPS over the last 24 hours">
-    </div>
-    <div className="govuk-grid-column-one-third">
-        <h3 className="govuk-heading-m">
-        Write IOPS
-        </h3>
+      <p>
+      How many open connections there are to your database. High values may indicate problems with your applications' connection management, or that you need to
+      <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
+      Zero values may indicate the database is unavailable, or that your applications cannot connect to the database.
+      </p>
 
-        <img src="{{
-        linkTo(
-        'admin.organizations.spaces.services.metrics.view.image',
-        {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'WriteIOPS' }
-        ) }}" alt="Graph showing write IOPS over the last 24 hours">
-    </div>
-    </div>
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'DatabaseConnections' }
+      ) }}" alt="Graph showing database connections over the last 24 hours">
+  </div>
+  <div>
+      <h3 className="govuk-heading-m" id="freeable-memory">
+      Freeable Memory
+      </h3>
+
+      <p>
+      How much <abbr title="Random Access Memory">RAM</abbr> the <abbr title="Virtual Machine">VM</abbr> your database is running on has remaining. Values near zero may indicate you need to optimise your database queries or
+      <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
+      </p>
+
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'FreeableMemory' }
+      ) }}" alt="Graph showing freeable memory over the last 24 hours">
+  </div>
+  <div>
+      <h3 className="govuk-heading-m" id="read-iops">
+      Read <abbr title="Input / Output Operations per Second">IOPS</abbr>
+      </h3>
+
+      <p>
+      How many read operations your database is performing per second. Databases are limited to a number of <abbr title="Input / Output Operations per Second">IOPS</abbr>
+      (read + write) based on how big their hard disk is. You get 3 <abbr title="Input / Output Operations per Second">IOPS</abbr> per <abbr title="GibiByte">GiB</abbr>, so a 100 GiB
+      database would be limited to 300 IOPS. If it looks like your database is hitting its IOPS limit you may need to
+      <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
+      </p>
+
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'ReadIOPS' }
+      ) }}" alt="Graph showing read IOPS over the last 24 hours">
+  </div>
+  <div>
+      <h3 className="govuk-heading-m" id="write-iops">
+      Write <abbr title="Input / Output Operations per Second">IOPS</abbr>
+      </h3>
+
+      <p>
+      How many write operations your database is performing per second. Databases are limited to a number of <abbr title="Input / Output Operations per Second">IOPS</abbr>
+      (read + write) based on how big their hard disk is. You get 3 <abbr title="Input / Output Operations per Second">IOPS</abbr> per <abbr title="GibiByte">GiB</abbr>, so a 100 GiB
+      database would be limited to 300 IOPS. If it looks like your database is hitting its IOPS limit you may need to
+      <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
+      </p>
+
+
+      <img src="{{
+      linkTo(
+      'admin.organizations.spaces.services.metrics.view.image',
+      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'WriteIOPS' }
+      ) }}" alt="Graph showing write IOPS over the last 24 hours">
+  </div>
 {% else %}
   <p>Metrics are not available for this service yet.</p>
 {% endif %}
