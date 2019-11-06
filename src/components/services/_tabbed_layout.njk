@@ -26,6 +26,13 @@
           {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid }
         ) }}">Metrics</a>
     </li>
+    <li class="govuk-tabs__list-item {% if routePartOf('admin.organizations.spaces.services.events.view') %}govuk-tabs__list-item--selected{% endif %}">
+      <a href="{{
+        linkTo(
+          'admin.organizations.spaces.services.events.view',
+          {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid }
+        ) }}">Events</a>
+    </li>
   </ul>
 
   <section class="govuk-tabs__panel">

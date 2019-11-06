@@ -115,6 +115,15 @@ export interface IOrganization {
   readonly metadata: IMetadata;
 }
 
+interface IV3Addressable {
+  readonly guid: string;
+}
+
+interface IV3Metadata extends IV3Addressable {
+  readonly created_at: string;
+  readonly updated_at: string;
+}
+
 interface IV3Link {
   href: string;
 }
@@ -128,10 +137,7 @@ interface IV3Pagination {
   previous?: IV3Link;
 }
 
-export interface IV3OrganizationResource {
-  guid: string;
-  created_at: string;
-  updated_at: string;
+export interface IV3OrganizationResource extends IV3Metadata {
   name: string;
   suspended: boolean;
   relationships: {
@@ -405,4 +411,22 @@ export interface IStack {
     readonly description: string;
   };
   readonly metadata: IMetadata;
+}
+
+export interface IAuditEventActorTarget extends IV3Addressable {
+  readonly guid: string;
+  readonly type: string;
+  readonly name: string;
+}
+
+export interface IAuditEvent extends IV3Metadata {
+  readonly type: string;
+
+  readonly actor: IAuditEventActorTarget;
+  readonly target: IAuditEventActorTarget;
+
+  readonly space: IV3Addressable;
+  readonly organization: IV3Addressable;
+
+  readonly data: any;
 }

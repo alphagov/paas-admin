@@ -3,6 +3,7 @@ import lodash from 'lodash';
 
 import * as testData from '../src/lib/cf/cf.test.data';
 import {app as defaultApp} from '../src/lib/cf/test-data/app';
+import {auditEvent as defaultAuditEvent} from '../src/lib/cf/test-data/audit-event';
 import {org as defaultOrg, v3Org as defaultV3Org} from '../src/lib/cf/test-data/org';
 import {wrapResources, wrapV3Resources} from '../src/lib/cf/test-data/wrap-resources';
 import {IStubServerPorts} from './index';
@@ -69,6 +70,26 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
   app.get('/v2/spaces/:guid/user_roles'              , (_, res) => res.send(testData.userRolesForSpace));
   app.get('/v2/stacks'                               , (_, res) => res.send(testData.stacks));
   app.get('/v2/stacks/:guid'                         , (_, res) => res.send(testData.stack));
+
+  app.get('/v3/audit_events/:guid' , (_, res) => res.send(JSON.stringify(defaultAuditEvent())));
+  app.get('/v3/audit_events'       , (req, res) => {
+    const page = parseInt(req.param('page', '1'), 10);
+
+    const predefinedResources = [
+      [lodash.merge(defaultAuditEvent(), {type: 'first-page'}), defaultAuditEvent()],
+      [lodash.merge(defaultAuditEvent(), {type: 'middle-page'}), defaultAuditEvent()],
+      [lodash.merge(defaultAuditEvent(), {type: 'last-page'}), defaultAuditEvent()],
+    ];
+
+    res.send(JSON.stringify({
+      pagination: {
+        total_pages: predefinedResources.length,
+        total_results: lodash.flatten(predefinedResources).length,
+        next: page === 3 ? undefined : { href: `/v3/audit_events?page=${page + 1}` },
+      },
+      resources: (1 <= page && page <= 3) ? predefinedResources[page - 1] : [],
+    }));
+  });
 
   return app;
 }

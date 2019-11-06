@@ -1,0 +1,40 @@
+{% extends "../applications/_tabbed_layout.njk" %}
+
+{% block pageTitle %}
+  {{ application.entity.name }} - Application Events
+{% endblock %}
+
+{% block insideTabs %}
+  {% include "../events/totals.njk" %}
+
+  {% include "../events/details.njk" %}
+
+  <p class="govuk-body">
+    {% if pagination.total_pages > 1 %}
+      {% if page <= 1 %}
+        <a class="govuk-link" disabled>Previous page</a>
+      {% else %}
+        <a class="govuk-link" href="{{
+          linkTo(
+            'admin.organizations.spaces.applications.events.view',
+            {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid, page: page-1}
+          ) }}">Previous page</a>
+      {% endif %}
+
+      {% if pagination.next %}
+        <a class="govuk-link" href="{{
+          linkTo(
+            'admin.organizations.spaces.applications.events.view',
+            {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, applicationGUID: application.metadata.guid, page: page+1}
+          ) }}">Next page</a>
+      {% else %}
+        <a class="govuk-link" disabled>Next page</a>
+      {% endif %}
+    {% endif %}
+  </p>
+
+  {% if events.length > 0 %}
+    {% include "../events/target-events.njk" %}
+  {% endif %}
+
+{% endblock %}

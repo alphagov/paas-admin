@@ -1,10 +1,12 @@
 import Router, { IParameters } from '../../lib/router';
 
 import * as account from '../account';
+import * as applicationEvents from '../application-events';
 import * as applications from '../applications';
 import * as orgUsers from '../org-users';
 import * as organizations from '../organizations';
 import * as reports from '../reports';
+import * as serviceEvents from '../service-events';
 import * as serviceMetrics from '../service-metrics';
 import * as services from '../services';
 import * as spaces from '../spaces';
@@ -41,9 +43,19 @@ const router = new Router([
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services',
   },
   {
+    action: spaces.viewSpaceEvents,
+    name: 'admin.organizations.spaces.events.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/events',
+  },
+  {
     action: applications.viewApplication,
     name: 'admin.organizations.spaces.applications.view',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID',
+  },
+  {
+    action: applicationEvents.viewApplicationEvents,
+    name: 'admin.organizations.spaces.applications.events.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/events',
   },
   {
     action: services.viewService,
@@ -59,6 +71,11 @@ const router = new Router([
     action: serviceMetrics.viewServiceMetrics,
     name: 'admin.organizations.spaces.services.metrics.view',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics',
+  },
+  {
+    action: serviceEvents.viewServiceEvents,
+    name: 'admin.organizations.spaces.services.events.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/events',
   },
   {
     action: orgUsers.listUsers,

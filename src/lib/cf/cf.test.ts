@@ -4,8 +4,9 @@ import pino from 'pino';
 
 import * as data from './cf.test.data';
 import {app as defaultApp} from './test-data/app';
+import {auditEvent as defaultAuditEvent} from './test-data/audit-event';
 import {org as defaultOrg} from './test-data/org';
-import {wrapResources} from './test-data/wrap-resources';
+import {wrapResources, wrapV3Resources} from './test-data/wrap-resources';
 
 import CloudFoundryClient from '.';
 
@@ -106,6 +107,121 @@ describe('lib/cf test suite', () => {
     expect([...collection].length).toEqual(3);
     expect(collection[1]).toEqual('b');
     expect(collection[2]).toEqual('c');
+  });
+
+  it('should retrieve an audit event', async () => {
+    nockCF
+      .get(`/v3/audit_events/${defaultAuditEvent().guid}`)
+      .reply(200, JSON.stringify(defaultAuditEvent()))
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const event = await client.auditEvent(defaultAuditEvent().guid);
+
+    expect(event).toEqual(defaultAuditEvent());
+  });
+
+  it('should retrieve an empty page of audit events', async () => {
+    nockCF
+      .get('/v3/audit_events').query({order_by: '-updated_at', page: 1, per_page: 25})
+      .reply(200, JSON.stringify(wrapV3Resources()))
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const events = await client.auditEvents();
+
+    expect(events.resources.length).toEqual(0);
+  });
+
+  it('should list audit events for a target (ie an app or service)', async () => {
+    nockCF
+      .get('/v3/audit_events').query(
+        {
+          page: 1, per_page: 25,
+          order_by: '-updated_at',
+          target_guids: defaultAuditEvent().guid,
+        },
+      )
+      .reply(200, JSON.stringify(wrapV3Resources(defaultAuditEvent())))
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const events = await client.auditEvents(
+      1,
+      /* targetGUIDs */ [defaultAuditEvent().guid],
+    );
+
+    expect(events.resources.length).toEqual(1);
+    expect(events.resources[0].guid).toEqual(defaultAuditEvent().guid);
+  });
+
+  it('should list audit events for a space', async () => {
+    nockCF
+      .get('/v3/audit_events').query(
+        {
+          page: 1, per_page: 25,
+          order_by: '-updated_at',
+          space_guids: defaultAuditEvent().space.guid,
+        },
+      )
+      .reply(200, JSON.stringify(wrapV3Resources(defaultAuditEvent())))
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const events = await client.auditEvents(
+      1,
+      undefined,
+      /* spaceGUIDs */ [defaultAuditEvent().space.guid],
+    );
+
+    expect(events.resources.length).toEqual(1);
+    expect(events.resources[0].guid).toEqual(defaultAuditEvent().guid);
+  });
+
+  it('should list audit events for an org', async () => {
+    nockCF
+      .get('/v3/audit_events').query(
+        {
+          page: 1, per_page: 25,
+          order_by: '-updated_at',
+          organization_guids: defaultAuditEvent().organization.guid,
+        },
+      )
+      .reply(200, JSON.stringify(wrapV3Resources(defaultAuditEvent())))
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const events = await client.auditEvents(
+      1,
+      /* targetGUIDs */ undefined,
+      /* spaceGUIDs */ undefined,
+      /* orgGUIDs */ [defaultAuditEvent().organization.guid],
+    );
+
+    expect(events.resources.length).toEqual(1);
+    expect(events.resources[0].guid).toEqual(defaultAuditEvent().guid);
+  });
+
+  it('should paginate audit events', async () => {
+    nockCF
+      .get('/v3/audit_events')
+      .query({order_by: '-updated_at', page: 2, per_page: 25})
+      .reply(200, JSON.stringify(
+        lodash.merge(
+          wrapV3Resources(
+            lodash.merge(defaultAuditEvent(), {guid: 'abc'}),
+            lodash.merge(defaultAuditEvent(), {guid: 'def'}),
+          ), {pagination: {next: {href: '/v3/audit_events/page=2&order_by=-updated_at'}}},
+        ),
+      ))
+    ;
+
+    const client = new CloudFoundryClient(config);
+    const events = await client.auditEvents(2);
+
+    expect(events.resources.length).toEqual(2);
+    expect(events.resources[0].guid).toEqual('abc');
+    expect(events.resources[1].guid).toEqual('def');
   });
 
   it('should throw an error when receiving 404', async () => {
