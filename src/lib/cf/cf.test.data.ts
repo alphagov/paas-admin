@@ -631,7 +631,7 @@ export const service = `{
     "updated_at": "2016-06-08T16:41:26Z"
   },
   "entity": {
-    "label": "postgres-58",
+    "label": "postgres",
     "provider": null,
     "url": null,
     "description": "desc-135",

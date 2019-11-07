@@ -5,8 +5,15 @@
   {{ service.entity.name }} - Service Metrics
 {% endblock %}
 
-{% block insideTabs %}
+{% macro metricImage(params) %}
+  <img src="{{
+  linkTo(
+  'admin.organizations.spaces.services.metrics.view.image',
+  {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: params.metricDimension }
+  ) }}" alt="{{params.altText}}">
+{% endmacro %}
 
+{% block insideTabs %}
 
 <div class="border-bottom-box">
 <p>{{ govukTag({text: "experimental"}) }}</p>
@@ -17,8 +24,109 @@
 if you have any feedback.</p>
 </div>
 
-{% set rdsPattern = r/^postgres|^mysql/ %}
-{% if rdsPattern.test(serviceLabel) %}
+{% if serviceLabel === 'redis' %}
+  <p>
+  The graphs below show metrics for the
+  <a href="{{ linkTo(
+    'admin.organizations.spaces.services.view',
+    {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid}
+    )}}" class="govuk-link">{{ service.entity.name }}</a>
+  service over the last 24 hours.
+  </p>
+
+  <p>Currently the available metrics for {{serviceLabel}} are:
+  <ul>
+    <li><a href="#cpu-utilisation" class="govuk-link">CPU utilisation</a></li>
+    <li><a href="#memory-used" class="govuk-link">Memory used</a></li>
+    <li><a href="#swap-memory-used" class="govuk-link">Swap memory used</a></li>
+    <li><a href="#evictions">Evictions</a></li>
+    <li><a href="#connection-count">Connection count</a></li>
+    <li><a href="#cache-hits">Cache hits</a></li>
+    <li><a href="#cache-misses">Cache misses</a></li>
+    <li><a href="#item-count">Item count</a></li>
+    <li><a href="#network-bytes-in">Network bytes in</a></li>
+    <li><a href="#network-bytes-out">Network bytes out</a></li>
+  </ul>
+  </p>
+
+  <div>
+    <h3 class="govuk-heading-m" id="cpu-utilisation">CPU Utilisation</h3>
+    <p>
+      How much computational work redis is doing. High CPU Utilisation may indicate you need to reduce your usage
+      or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.
+    </p>
+    {{metricImage({metricDimension: 'CPUUtilization', altText: 'Graph showing CPU Utilisation over the last 24 hours' })}}
+  </div>
+
+  <div>
+    <h3 class="govuk-heading-m" id="memory-used">Memory used</h3>
+    <p>
+    The total amount of memory redis is using to store your data and redis'
+    internal buffers. If redis reaches its memory limit and cannot evict any
+    keys it will return errors when executing commands that increase memory
+    use.
+    </p>
+    {{metricImage({ metricDimension: 'BytesUsedForCache', altText: 'Graph showing memory used over the last 24 hours' })}}
+  </div>
+
+  <div>
+    <h3 class="govuk-heading-m" id="swap-memory-used">Swap memory used</h3>
+    <p>
+    If redis is running low on memory it will start to swap memory onto the hard disk. If redis is using more than 50 <abbr title="MegaBytes">MB</abbr>
+    of swap memory you may need to reduce your usage or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.
+    </p>
+    {{metricImage({ metricDimension: 'SwapUsage', altText: 'Graph showing swap memory used over the last 24 hours' })}}
+  </div>
+
+  <div>
+    <h3 class="govuk-heading-m" id="evictions">Evictions</h3>
+    <p>
+    Redis will evict keys when it reaches its configured memory limit. It will try to remove less recently used keys first, but only among keys
+    that have an EXPIRE set. If there are no keys left to evict redis will return errors when executing commands that increase memory use.
+    </p>
+    {{metricImage({metricDimension: 'Evictions', altText: 'Graph showing evictions over the last 24 hours' })}}
+  </div>
+
+  <div>
+    <h3 class="govuk-heading-m" id="connection-count">Connection count</h3>
+    <p>
+    How many open connections there are to redis. High values may indicate problems with your applications' connection management.
+    Zero values may indicate that redis is unavailable, or that your applications cannot connect to the database.
+    </p>
+    {{metricImage({metricDimension: 'CurrConnections', altText: 'Graph showing connection count over the last 24 hours' })}}
+  </div>
+
+  <div>
+    <h3 class="govuk-heading-m" id="cache-hits">Cache hits</h3>
+    <p>The number of successful key lookups.</p>
+    {{metricImage({metricDimension: 'CacheHits', altText: 'Graph showing cache hits over the last 24 hours' })}}
+  </div>
+
+  <div>
+    <h3 class="govuk-heading-m" id="cache-misses">Cache misses</h3>
+    <p>The number of unsuccessful key lookups.</p>
+    {{metricImage({metricDimension: 'CacheMisses', altText: 'Graph showing cache misses over the last 24 hours' })}}
+  </div>
+
+  <div>
+    <h3 class="govuk-heading-m" id="item-count">Item count</h3>
+    <p>The number of items in redis.</p>
+    {{metricImage({metricDimension: 'CurrItems', altText: 'Graph showing item count over the last 24 hours' })}}
+  </div>
+
+  <div>
+    <h3 class="govuk-heading-m" id="network-bytes-in">Network bytes in</h3>
+    <p>The number of bytes redis has read from the network.</p>
+    {{metricImage({metricDimension: 'NetworkBytesIn', altText: 'Graph showing network bytes in over the last 24 hours' })}}
+  </div>
+
+  <div>
+    <h3 class="govuk-heading-m" id="network-bytes-out">Network bytes out</h3>
+    <p>The number of bytes sent by the redis.</p>
+    {{metricImage({metricDimension: 'NetworkBytesOut', altText: 'Graph showing network bytes out over the last 24 hours' })}}
+  </div>
+
+{% elif serviceLabel === 'postgres' or serviceLabel === 'mysql' %}
   <p>
   The graphs below show metrics for the
   <a href="{{ linkTo(
@@ -44,11 +152,7 @@ if you have any feedback.</p>
 
       <p>How much hard disk space your database has remaining. If your database runs out of disk space it will stop working.</p>
 
-      <img src="{{
-      linkTo(
-      'admin.organizations.spaces.services.metrics.view.image',
-      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'FreeStorageSpace' }
-      ) }}" alt="Graph showing free disk space over the last 24 hours">
+      {{metricImage({metricDimension: 'FreeStorageSpace', altText: 'Graph showing free disk space over the last 24 hours' })}}
   </div>
   <div>
       <h3 class="govuk-heading-m" id="cpu-utilisation">
@@ -61,11 +165,7 @@ if you have any feedback.</p>
       or <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
       </p>
 
-      <img src="{{
-      linkTo(
-      'admin.organizations.spaces.services.metrics.view.image',
-      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'CPUUtilization' }
-      ) }}" alt="Graph showing CPU utilisation over the last 24 hours">
+      {{metricImage({metricDimension: 'CPUUtilization', altText: 'Graph showing CPU utilisation over the last 24 hours' })}}
   </div>
   <div>
       <h3 class="govuk-heading-m" id="database-connections">
@@ -78,11 +178,7 @@ if you have any feedback.</p>
       Zero values may indicate the database is unavailable, or that your applications cannot connect to the database.
       </p>
 
-      <img src="{{
-      linkTo(
-      'admin.organizations.spaces.services.metrics.view.image',
-      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'DatabaseConnections' }
-      ) }}" alt="Graph showing database connections over the last 24 hours">
+      {{metricImage({metricDimension: 'DatabaseConnections', altText: 'Graph showing database connections over the last 24 hours' })}}
   </div>
   <div>
       <h3 class="govuk-heading-m" id="freeable-memory">
@@ -94,11 +190,7 @@ if you have any feedback.</p>
       <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
       </p>
 
-      <img src="{{
-      linkTo(
-      'admin.organizations.spaces.services.metrics.view.image',
-      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'FreeableMemory' }
-      ) }}" alt="Graph showing freeable memory over the last 24 hours">
+      {{metricImage({metricDimension: 'FreeableMemory', altText: 'Graph showing freeable memory over the last 24 hours' })}}
   </div>
   <div>
       <h3 class="govuk-heading-m" id="read-iops">
@@ -112,11 +204,7 @@ if you have any feedback.</p>
       <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
       </p>
 
-      <img src="{{
-      linkTo(
-      'admin.organizations.spaces.services.metrics.view.image',
-      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'ReadIOPS' }
-      ) }}" alt="Graph showing read IOPS over the last 24 hours">
+      {{metricImage({metricDimension: 'ReadIOPS', altText: 'Graph showing read IOPS over the last 24 hours' })}}
   </div>
   <div>
       <h3 class="govuk-heading-m" id="write-iops">
@@ -131,11 +219,7 @@ if you have any feedback.</p>
       </p>
 
 
-      <img src="{{
-      linkTo(
-      'admin.organizations.spaces.services.metrics.view.image',
-      {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, metricDimension: 'WriteIOPS' }
-      ) }}" alt="Graph showing write IOPS over the last 24 hours">
+      {{metricImage({metricDimension: 'WriteIOPS', altText: 'Graph showing write IOPS over the last 24 hours' })}}
   </div>
 {% else %}
   <p>Metrics are not available for this service yet.</p>

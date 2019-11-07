@@ -381,7 +381,7 @@ describe('lib/cf test suite', () => {
     const client = new CloudFoundryClient(config);
     const service = await client.service('53f52780-e93c-4af7-a96c-6958311c40e5');
 
-    expect(service.entity.label).toEqual('postgres-58');
+    expect(service.entity.label).toEqual('postgres');
   });
 
   it('should create a user', async () => {
