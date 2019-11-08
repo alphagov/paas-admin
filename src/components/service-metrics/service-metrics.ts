@@ -1,5 +1,6 @@
 import * as cw from '@aws-sdk/client-cloudwatch-node';
 
+import { getMetricWidget } from '../../lib/aws/cloudwatch-metric-widgets';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
@@ -18,22 +19,14 @@ export async function viewServiceMetricImage(ctx: IContext, params: IParameters)
     });
 
     // Check that the current user has access to this service instance before getting the metrics
-    await cf.serviceInstance(params.serviceGUID);
+    const serviceInstance = await cf.serviceInstance(params.serviceGUID);
+    const service = await cf.service(serviceInstance.entity.service_guid);
 
     const cloudWatch = new cw.CloudWatchClient({ region: ctx.app.awsRegion });
-    const cmd = new cw.GetMetricWidgetImageCommand({
-      MetricWidget: JSON.stringify({
-        metrics: [
-          [ 'AWS/RDS', params.metricDimension, 'DBInstanceIdentifier', `rdsbroker-${params.serviceGUID}` ],
-        ],
-        yAxis: {left: { min: 0} },
-        start: '-PT24H',
-        title: ' ',
-        legend: {position: 'hidden'},
-      }),
-    });
-
     try {
+      const cmd = new cw.GetMetricWidgetImageCommand({
+        MetricWidget: JSON.stringify(getMetricWidget(service.entity.label, params.metricDimension, params.serviceGUID)),
+      });
       const data = await cloudWatch.send(cmd);
       if (!data.MetricWidgetImage) {
         throw new Error('Expected MetricWidgetImage to be set');
