@@ -206,9 +206,18 @@ describe('org-users test suite', () => {
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-    }, {});
+    }, {
+      org_roles: {
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': {
+          billing_managers: {
+            current: 0,
+          },
+        },
+      },
+    });
 
     expect(response.body).toContain('a valid email address is required');
+    expect(response.body).not.toContain('checked');
     expect(response.status).toEqual(400);
   });
 
