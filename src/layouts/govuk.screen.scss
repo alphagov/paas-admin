@@ -50,3 +50,16 @@ ul.plain {
 abbr {
   text-underline-position: under;
 }
+
+.govuk-summary-list__key {
+  vertical-align: top;
+}
+
+.code-block {
+  display: inline-block;
+  width: 100%;
+
+  font-family: monospace;
+  word-break: break-word;
+  white-space: pre-wrap;
+}

@@ -41,6 +41,7 @@
           <th class="govuk-table__header">Actor</th>
           <th class="govuk-table__header">Target</th>
           <th class="govuk-table__header">Event</th>
+          <th class="govuk-table__header">Details</th>
         </tr>
       </thead>
       <tbody class="govuk-table__body">
@@ -79,6 +80,13 @@
             {% else %}
               <code>{{ event.type }}</code>
             {% endif %}
+          </td>
+          <td class="govuk-table__cell">
+        <a class="govuk-link" href="{{
+          linkTo(
+            'admin.organizations.spaces.event.view',
+            {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, eventGUID: event.guid}
+          ) }}">Details</a>
           </td>
         </tr>
       {% endfor %}

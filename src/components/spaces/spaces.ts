@@ -11,11 +11,67 @@ import {fromOrg, IBreadcrumb} from '../breadcrumbs';
 
 import spaceApplicationsTemplate from './applications.njk';
 import spaceBackingServicesTemplate from './backing-services.njk';
+import spaceEventTemplate from './event.njk';
 import spaceEventsTemplate from './events.njk';
 import spacesTemplate from './spaces.njk';
 
 function buildURL(route: IRoute): string {
   return [route.host, route.domain.name].filter(x => x).join('.') + route.path;
+}
+
+export async function viewSpaceEvent(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const accountsClient = new AccountsClient({
+    apiEndpoint: ctx.app.accountsAPI,
+    secret: ctx.app.accountsSecret,
+    logger: ctx.app.logger,
+  });
+
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+
+  const eventGUID = params.eventGUID;
+
+  const [organization, space, event] = await Promise.all([
+    cf.organization(params.organizationGUID),
+    cf.space(params.spaceGUID),
+    cf.auditEvent(eventGUID),
+  ]);
+
+  const eventActorGUID: string | undefined = event.actor.type === 'user'
+    ? event.actor.guid
+    : undefined
+  ;
+
+  const eventActor: IAccountsUser | null | undefined = eventActorGUID
+    ? await accountsClient.getUser(eventActorGUID)
+    : undefined
+  ;
+
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+    {
+      text: space.entity.name,
+      href: ctx.linkTo('admin.organizations.spaces.events.view', {
+        organizationGUID: organization.metadata.guid,
+        spaceGUID: space.metadata.guid,
+      }),
+    },
+    {
+      text: 'Event',
+    },
+  ]);
+
+  return {
+    body: spaceEventTemplate.render({
+      routePartOf: ctx.routePartOf,
+      linkTo: ctx.linkTo,
+      context: ctx.viewContext,
+      organization, space, breadcrumbs,
+      event, eventTypeDescriptions, eventActor,
+    }),
+  };
 }
 
 export async function viewSpaceEvents(ctx: IContext, params: IParameters): Promise<IResponse> {
