@@ -15,6 +15,102 @@ const ctx: IContext = createTestContext();
 const spaceGUID = 'bc8d3381-390d-4bd7-8c71-25309900a2e3';
 const organizationGUID = '3deb9f04-b449-4f94-b3dd-c73cefe5b275';
 
+describe('space event', () => {
+  let nockAccounts: nock.Scope;
+  let nockCF: nock.Scope;
+
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockAccounts = nock(ctx.app.accountsAPI);
+    nockCF = nock(ctx.app.cloudFoundryAPI);
+
+    nockCF
+      .get(`/v2/spaces/${spaceGUID}`)
+      .reply(200, data.space)
+
+      .get(`/v2/organizations/${organizationGUID}`)
+      .reply(200, defaultOrg())
+    ;
+  });
+
+  afterEach(() => {
+    nockAccounts.done();
+    nockCF.done();
+
+    nock.cleanAll();
+  });
+
+  it('should show an event', async () => {
+    nockCF
+      .get(`/v3/audit_events/${defaultAuditEvent().guid}`)
+      .reply(200, JSON.stringify(defaultAuditEvent()))
+    ;
+
+    const response = await spaces.viewSpaceEvent(ctx, {
+      organizationGUID, spaceGUID, eventGUID: defaultAuditEvent().guid,
+    });
+
+    expect(response.body).toContain(`name-2064 - Space Event`);
+
+    expect(response.body).toContain(/* Date        */ 'June 8th 2016');
+    expect(response.body).toMatch(/*   Time        */ /1[67]:41/);
+    expect(response.body).toContain(/* Actor       */ 'admin');
+    expect(response.body).toContain(/* Description */ 'Updated application');
+    expect(response.body).toContain(/* Metadata    */ 'CRASHED');
+  });
+
+  it('should show the email of the event actor if it is a user with an email', async () => {
+    nockCF
+      .get(`/v3/audit_events/${defaultAuditEvent().guid}`)
+      .reply(200, JSON.stringify(defaultAuditEvent()))
+    ;
+
+    nockAccounts
+      .get(`/users/${defaultAuditEvent().actor.guid}`)
+      .reply(200, `{
+        "user_uuid": "${defaultAuditEvent().actor.guid}",
+        "user_email": "one@user.in.database",
+        "username": "one@user.in.database"
+      }`)
+    ;
+
+    const response = await spaces.viewSpaceEvent(ctx, {
+      organizationGUID, spaceGUID, eventGUID: defaultAuditEvent().guid,
+    });
+
+    expect(response.body).toContain(`name-2064 - Space Event`);
+
+    expect(response.body).toContain(/* Date        */ 'June 8th 2016');
+    expect(response.body).toMatch(/*   Time        */ /1[67]:41/);
+    expect(response.body).toContain(/* Actor       */ 'one@user.in.database');
+    expect(response.body).toContain(/* Description */ 'Updated application');
+    expect(response.body).toContain(/* Metadata    */ 'CRASHED');
+  });
+
+  it('should show the name event actor if it is not a user', async () => {
+    nockCF
+      .get(`/v3/audit_events/${defaultAuditEvent().guid}`)
+      .reply(200, JSON.stringify(lodash.merge(
+        defaultAuditEvent(),
+        { actor: { type: 'unknown', name: 'unknown-actor'}},
+      )))
+    ;
+
+    const response = await spaces.viewSpaceEvent(ctx, {
+      organizationGUID, spaceGUID, eventGUID: defaultAuditEvent().guid,
+    });
+
+    expect(response.body).toContain(`name-2064 - Space Event`);
+
+    expect(response.body).toContain(/* Date        */ 'June 8th 2016');
+    expect(response.body).toMatch(/*   Time        */ /1[67]:41/);
+    expect(response.body).toContain(/* Actor       */ 'unknown-actor');
+    expect(response.body).toContain(/* Description */ 'Updated application');
+    expect(response.body).toContain(/* Metadata    */ 'CRASHED');
+  });
+});
+
 describe('spaces test suite', () => {
   let nockAccounts: nock.Scope;
   let nockCF: nock.Scope;

@@ -48,6 +48,11 @@ const router = new Router([
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/events',
   },
   {
+    action: spaces.viewSpaceEvent,
+    name: 'admin.organizations.spaces.event.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/events/:eventGUID',
+  },
+  {
     action: applications.viewApplication,
     name: 'admin.organizations.spaces.applications.view',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID',
@@ -56,6 +61,11 @@ const router = new Router([
     action: applicationEvents.viewApplicationEvents,
     name: 'admin.organizations.spaces.applications.events.view',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/events',
+  },
+  {
+    action: applicationEvents.viewApplicationEvent,
+    name: 'admin.organizations.spaces.applications.event.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/events/:eventGUID',
   },
   {
     action: services.viewService,
@@ -76,6 +86,11 @@ const router = new Router([
     action: serviceEvents.viewServiceEvents,
     name: 'admin.organizations.spaces.services.events.view',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/events',
+  },
+  {
+    action: serviceEvents.viewServiceEvent,
+    name: 'admin.organizations.spaces.services.event.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/events/:eventGUID',
   },
   {
     action: orgUsers.listUsers,

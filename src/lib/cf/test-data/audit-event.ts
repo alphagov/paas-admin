@@ -27,9 +27,14 @@ export const auditEvent = (): IAuditEvent => JSON.parse(`{
     "name": "${targetName}"
   },
   "data": {
-    "request": {
-      "recursive": true
-    }
+    "instance": "00000000-53d2-456f-52cd-09d5",
+    "index": 1,
+    "cell_id": "00000000-58e7-4f94-9aec-5510e94a17da",
+    "reason": "CRASHED",
+    "exit_description": "Instance became unhealthy: Failed to make HTTP request to '/healthcheck' on port 8080: timed out after 1.00 seconds",
+    "crash_count": 1,
+    "crash_timestamp": 1573175414847697400,
+    "version": "00000000-a914-4b2d-b678-b486d18be9b6"
   },
   "space": {
     "guid": "${spaceGUID}"

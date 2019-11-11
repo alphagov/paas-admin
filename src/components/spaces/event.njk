@@ -1,0 +1,73 @@
+{% extends "../../layouts/govuk.njk" %}
+
+{% block pageTitle %}
+  {{ space.entity.name }} - Space Event
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-l">
+    <span class="govuk-caption-l">Space Event</span>
+    {{ space.entity.name }}
+  </h1>
+
+  <dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Date
+      </dt>
+      <dd class="govuk-summary-list__value">
+        {{ event.updated_at | nicedate }}
+        {{ event.updated_at | nicetime }}
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Actor
+      </dt>
+      <dd class="govuk-summary-list__value">
+        {% if eventActor and eventActor.email %}
+          {{ eventActor.email }}
+        {% else %}
+          {% if event.actor.name %}
+            {{ event.actor.name }}
+          {% else %}
+            <code>{{ event.actor.guid }}</code>
+          {% endif %}
+        {% endif %}
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Target
+      </dt>
+      <dd class="govuk-summary-list__value">
+        {% if event.target.name %}
+          {{ event.target.name }}
+        {% else %}
+          <code>{{ event.target.guid }}</code>
+        {% endif %}
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Description
+      </dt>
+      <dd class="govuk-summary-list__value">
+        {% if eventTypeDescriptions[event.type] %}
+          {{ eventTypeDescriptions[event.type] }}
+        {% else %}
+          <code>{{ event.type }}</code>
+        {% endif %}
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Metadata
+      </dt>
+      <dd class="govuk-summary-list__value">
+        <code class="code-block">{{ event.data | dump(2) }}</code>
+      </dd>
+    </div>
+  </dl>
+
+{% endblock %}
