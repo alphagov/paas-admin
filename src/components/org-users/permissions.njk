@@ -53,7 +53,7 @@
       <th class="govuk-table__header" scope="row">{{ organization.entity.name }}</th>
       <td class="govuk-table__cell ">
         <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].managers }}" name="org_roles[{{ organization.metadata.guid }}][managers][current]">
-        {% if  (managers | length < 2) and (values.org_roles[organization.metadata.guid].managers) %}
+        {% if (managers | length < 2) and (values.org_roles[organization.metadata.guid].managers) %}
           {% set isCheckboxDisabled = true %}
           <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].managers }}" name="org_roles[{{ organization.metadata.guid }}][managers][desired]">
         {% else %}
@@ -66,7 +66,7 @@
             {
               value: "1",
               html: "<span>Org manager</span>",
-              checked: values.org_roles[organization.metadata.guid].managers,
+              checked: values.org_roles[organization.metadata.guid].managers === '1',
               disabled: isCheckboxDisabled
             }
           ]
@@ -74,7 +74,7 @@
       </td>
       <td class="govuk-table__cell ">
         <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].billing_managers }}" name="org_roles[{{ organization.metadata.guid }}][billing_managers][current]">
-        {% if  (billingManagers | length < 2) and (values.org_roles[organization.metadata.guid].billing_managers) %}
+        {% if (billingManagers | length < 2) and (values.org_roles[organization.metadata.guid].billing_managers) %}
           {% set isCheckboxDisabled = true %}
           <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].billing_managers }}" name="org_roles[{{ organization.metadata.guid }}][billing_managers][desired]">
         {% else %}
@@ -87,7 +87,7 @@
             {
               value: "1",
               html: "<span>Billing manager</span>",
-              checked: values.org_roles[organization.metadata.guid].billing_managers,
+              checked: values.org_roles[organization.metadata.guid].billing_managers === '1',
               disabled: isCheckboxDisabled
             }
           ]
@@ -102,7 +102,7 @@
             {
               value: "1",
               html: "<span>Org auditor</span>",
-              checked: values.org_roles[organization.metadata.guid].auditors
+              checked: values.org_roles[organization.metadata.guid].auditors === '1'
             }
           ]
         }) }}
@@ -171,7 +171,7 @@
               {
                 value: "1",
                 html: "<span>Space manager</span>",
-                checked: values.space_roles[space.metadata.guid].managers
+                checked: values.space_roles[space.metadata.guid].managers === '1'
               }
             ]
           }) }}
@@ -185,7 +185,7 @@
               {
                 value: "1",
                 html: "<span>Space developer</span>",
-                checked: values.space_roles[space.metadata.guid].developers
+                checked: values.space_roles[space.metadata.guid].developers === '1'
               }
             ]
           }) }}
@@ -199,7 +199,7 @@
               {
                 value: "1",
                 html: "<span>Space auditor</span>",
-                checked: values.space_roles[space.metadata.guid].auditors
+                checked: values.space_roles[space.metadata.guid].auditors === '1'
               }
             ]
           }) }}
