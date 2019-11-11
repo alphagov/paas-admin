@@ -54,7 +54,7 @@ describe('space event', () => {
     expect(response.body).toContain(`name-2064 - Space Event`);
 
     expect(response.body).toContain(/* Date        */ 'June 8th 2016');
-    expect(response.body).toContain(/* Time        */ '17:41');
+    expect(response.body).toMatch(/*   Time        */ /1[67]:41/);
     expect(response.body).toContain(/* Actor       */ 'admin');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
@@ -82,7 +82,7 @@ describe('space event', () => {
     expect(response.body).toContain(`name-2064 - Space Event`);
 
     expect(response.body).toContain(/* Date        */ 'June 8th 2016');
-    expect(response.body).toContain(/* Time        */ '17:41');
+    expect(response.body).toMatch(/*   Time        */ /1[67]:41/);
     expect(response.body).toContain(/* Actor       */ 'one@user.in.database');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
@@ -104,7 +104,7 @@ describe('space event', () => {
     expect(response.body).toContain(`name-2064 - Space Event`);
 
     expect(response.body).toContain(/* Date        */ 'June 8th 2016');
-    expect(response.body).toContain(/* Time        */ '17:41');
+    expect(response.body).toMatch(/*   Time        */ /1[67]:41/);
     expect(response.body).toContain(/* Actor       */ 'unknown-actor');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
