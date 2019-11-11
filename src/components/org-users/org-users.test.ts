@@ -822,7 +822,7 @@ describe('org-users test suite', () => {
       .reply(200, JSON.stringify(defaultOrg()))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(4)
+      .times(3)
       .reply(200, cfData.userRolesForOrg)
     ;
 
@@ -838,7 +838,7 @@ describe('org-users test suite', () => {
   it('should fail to show the user edit page due to not existing user', async () => {
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(4)
+      .times(3)
       .reply(200, cfData.userRolesForOrg)
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
@@ -876,7 +876,7 @@ describe('org-users test suite', () => {
       .reply(200, JSON.stringify(defaultOrg()))
 
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(4)
+      .times(3)
       .reply(200, cfData.userRolesForOrg)
     ;
 

@@ -654,14 +654,6 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
   ]);
 
-  const users = await cf.usersForOrganization(params.organizationGUID);
-  const managers = users.filter((manager: IOrganizationUserRoles) =>
-    manager.entity.organization_roles.some(role => role === 'org_manager'),
-  );
-  const billingManagers = users.filter((manager: IOrganizationUserRoles) =>
-    manager.entity.organization_roles.some(role => role === 'billing_manager'),
-  );
-
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
     throw new NotFoundError('not found');
@@ -731,8 +723,6 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       routePartOf: ctx.routePartOf,
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
-      managers,
-      billingManagers,
       organization,
       spaces,
       user,

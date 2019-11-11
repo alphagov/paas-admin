@@ -53,12 +53,6 @@
       <th class="govuk-table__header" scope="row">{{ organization.entity.name }}</th>
       <td class="govuk-table__cell ">
         <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].managers }}" name="org_roles[{{ organization.metadata.guid }}][managers][current]">
-        {% if (managers | length < 2) and (values.org_roles[organization.metadata.guid].managers) %}
-          {% set isCheckboxDisabled = true %}
-          <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].managers }}" name="org_roles[{{ organization.metadata.guid }}][managers][desired]">
-        {% else %}
-          {% set isCheckboxDisabled = false %}
-        {% endif %}
         {{ govukCheckboxes({
           id: "org_roles[" + organization.metadata.guid + "][managers]",
           name: "org_roles[" + organization.metadata.guid + "][managers][desired]",
@@ -66,20 +60,13 @@
             {
               value: "1",
               html: "<span>Org manager</span>",
-              checked: values.org_roles[organization.metadata.guid].managers === '1',
-              disabled: isCheckboxDisabled
+              checked: values.org_roles[organization.metadata.guid].managers === '1'
             }
           ]
         }) }}
       </td>
       <td class="govuk-table__cell ">
         <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].billing_managers }}" name="org_roles[{{ organization.metadata.guid }}][billing_managers][current]">
-        {% if (billingManagers | length < 2) and (values.org_roles[organization.metadata.guid].billing_managers) %}
-          {% set isCheckboxDisabled = true %}
-          <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].billing_managers }}" name="org_roles[{{ organization.metadata.guid }}][billing_managers][desired]">
-        {% else %}
-          {% set isCheckboxDisabled = false %}
-        {% endif %}
         {{ govukCheckboxes({
           id: "org_roles[" + organization.metadata.guid + "][billing_managers]",
           name: "org_roles[" + organization.metadata.guid + "][billing_managers][desired]",
@@ -87,8 +74,7 @@
             {
               value: "1",
               html: "<span>Billing manager</span>",
-              checked: values.org_roles[organization.metadata.guid].billing_managers === '1',
-              disabled: isCheckboxDisabled
+              checked: values.org_roles[organization.metadata.guid].billing_managers === '1'
             }
           ]
         }) }}
