@@ -66,7 +66,7 @@
             {
               value: "1",
               html: "<span>Org manager</span>",
-              checked: values.org_roles[organization.metadata.guid].managers === '1',
+              checked: values.org_roles[organization.metadata.guid].managers == '1',
               disabled: isCheckboxDisabled
             }
           ]
@@ -87,7 +87,7 @@
             {
               value: "1",
               html: "<span>Billing manager</span>",
-              checked: values.org_roles[organization.metadata.guid].billing_managers === '1',
+              checked: values.org_roles[organization.metadata.guid].billing_managers == '1',
               disabled: isCheckboxDisabled
             }
           ]
@@ -102,7 +102,7 @@
             {
               value: "1",
               html: "<span>Org auditor</span>",
-              checked: values.org_roles[organization.metadata.guid].auditors === '1'
+              checked: values.org_roles[organization.metadata.guid].auditors == '1'
             }
           ]
         }) }}
@@ -171,7 +171,7 @@
               {
                 value: "1",
                 html: "<span>Space manager</span>",
-                checked: values.space_roles[space.metadata.guid].managers === '1'
+                checked: values.space_roles[space.metadata.guid].managers == '1'
               }
             ]
           }) }}
@@ -185,7 +185,7 @@
               {
                 value: "1",
                 html: "<span>Space developer</span>",
-                checked: values.space_roles[space.metadata.guid].developers === '1'
+                checked: values.space_roles[space.metadata.guid].developers == '1'
               }
             ]
           }) }}
@@ -199,7 +199,7 @@
               {
                 value: "1",
                 html: "<span>Space auditor</span>",
-                checked: values.space_roles[space.metadata.guid].auditors === '1'
+                checked: values.space_roles[space.metadata.guid].auditors == '1'
               }
             ]
           }) }}
