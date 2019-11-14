@@ -15,7 +15,7 @@ export interface IResponse {
   readonly download?: IDownload;
   readonly redirect?: string;
   readonly status?: number;
-  readonly mimeType?: 'image/png';
+  readonly mimeType?: 'image/png' | 'text/csv';
 }
 
 export type ActionFunction = (ctx: any, params: IParameters, body?: any) => Promise<IResponse>;

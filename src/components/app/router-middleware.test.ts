@@ -43,9 +43,14 @@ describe('app test suite - router-middleware', () => {
         path: '/download',
       },
       {
-        name: 'mimetype',
+        name: 'png-mimetype',
         action: async (_c, _p, _b) => ({mimeType: 'image/png'}),
         path: '/image',
+      },
+      {
+        name: 'csv-mimetype',
+        action: async (_c, _p, _b) => ({mimeType: 'text/csv'}),
+        path: '/csv',
       },
     ]);
 
@@ -78,6 +83,7 @@ describe('app test suite - router-middleware', () => {
     const serverErrorResponse = await agent.get('/500');
     const downloadResponse = await agent.get('/download');
     const imgResponse = await agent.get('/image');
+    const csvResponse = await agent.get('/csv');
 
     expect(linkTo('hello', {name: 'World'})).toEqual('/hello/World');
     expect(linkTo('home')).toEqual('/');
@@ -90,5 +96,6 @@ describe('app test suite - router-middleware', () => {
     expect(serverErrorResponse.status).toEqual(500);
     expect(downloadResponse.header['content-disposition']).toEqual(`attachment; filename="download.txt"`);
     expect(imgResponse.header['content-type']).toEqual(`image/png`);
+    expect(csvResponse.header['content-type']).toEqual(`text/csv; charset=utf-8`);
   });
 });
