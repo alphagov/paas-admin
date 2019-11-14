@@ -29,7 +29,7 @@ export const config: IAppConfig = {
   oauthClientID: 'key',
   oauthClientSecret: 'secret',
   cloudFoundryAPI: 'https://example.com/api',
-  location: 'eu-west-1',
+  location: 'Ireland',
   uaaAPI: 'https://example.com/uaa',
   authorizationAPI: 'https://example.com/login',
   notifyAPIKey: 'test-123456-qwerty',
