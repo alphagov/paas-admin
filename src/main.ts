@@ -99,6 +99,7 @@ async function main() {
     oidcProviders: providers,
     domainName: expectEnvVariable('DOMAIN_NAME'),
     awsCloudwatchEndpoint: process.env.AWS_CLOUDWATCH_ENDPOINT,
+    adminFee: .1,
   };
 
   const server = new Server(app(config), {

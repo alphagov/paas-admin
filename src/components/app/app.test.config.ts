@@ -38,4 +38,5 @@ export const config: IAppConfig = {
   domainName: 'https://admin.example.com/',
   awsRegion: 'eu-west-1',
   awsCloudwatchEndpoint: 'https://aws.example.com/',
+  adminFee: 0.1,
 };
