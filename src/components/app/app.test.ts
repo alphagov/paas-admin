@@ -1,3 +1,9 @@
+// JSDOM requires request-promise-native, which doesn't load in the presence of Jest
+// This results in errors like the following:
+//   Unable to expose method "then" at Object.plumbing.exposePromiseMethod ...
+// Mocking request-promise-native is a workaround. See https://github.com/request/request-promise/issues/247.
+jest.mock('request-promise-native');
+
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import nock from 'nock';

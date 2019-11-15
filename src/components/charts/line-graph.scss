@@ -1,0 +1,47 @@
+svg.govuk-paas-line-graph {
+  max-width: 960px;
+
+  line,path {
+    vector-effect: non-scaling-stroke;
+  }
+  path {
+    &.gaps,&.series {
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+    &.gaps {
+      stroke: govuk-colour("mid-grey");
+      stroke-width: 1px;
+    }
+    &.series {
+      stroke: govuk-colour("blue");
+      stroke-width: 2.5px;
+    }
+    &.series-1 {
+      stroke: govuk-colour("orange");
+    }
+    &.series-2 {
+      stroke: govuk-colour("pink");
+    }
+  }
+
+  .legend rect {
+    fill: govuk-colour("blue");
+  }
+  .legend-1 rect {
+    fill: govuk-colour("orange");
+  }
+  .legend-2 rect {
+    fill: govuk-colour("pink");
+  }
+
+  .axis {
+    &.left .domain {
+      display: none;
+    }
+    text {
+      font-size: 16px;
+    }
+  }
+}
