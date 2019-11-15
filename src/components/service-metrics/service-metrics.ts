@@ -1,6 +1,4 @@
 import * as cw from '@aws-sdk/client-cloudwatch-node';
-
-import { getMetricWidget } from '../../lib/aws/cloudwatch-metric-widgets';
 import moment from 'moment';
 import { CloudwatchMetricDataClient } from '../../lib/aws/cloudwatch-metric-data';
 import CloudFoundryClient from '../../lib/cf';
@@ -13,42 +11,6 @@ import { drawMultipleLineGraphs } from '../charts/line-graph';
 import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk';
 import rdsServiceMetricsTemplate from './rds-service-metrics.njk';
 import unsupportedServiceMetricsTemplate from './unsupported-service-metrics.njk';
-
-// Ignoring test coverage of viewServiceMetricImage because this is temporary code,
-// to be replaced with properly rendered SVG graphs at a later date.
-/* istanbul ignore next */
-export async function viewServiceMetricImage(ctx: IContext, params: IParameters): Promise<IResponse> {
-    const cf = new CloudFoundryClient({
-      accessToken: ctx.token.accessToken,
-      apiEndpoint: ctx.app.cloudFoundryAPI,
-      logger: ctx.app.logger,
-    });
-
-    // Check that the current user has access to this service instance before getting the metrics
-    const serviceInstance = await cf.serviceInstance(params.serviceGUID);
-    const service = await cf.service(serviceInstance.entity.service_guid);
-
-    const cloudWatch = new cw.CloudWatchClient({ region: ctx.app.awsRegion });
-    try {
-      const cmd = new cw.GetMetricWidgetImageCommand({
-        MetricWidget: JSON.stringify(getMetricWidget(service.entity.label, params.metricDimension, params.serviceGUID)),
-      });
-      const data = await cloudWatch.send(cmd);
-      if (!data.MetricWidgetImage) {
-        throw new Error('Expected MetricWidgetImage to be set');
-      }
-      return {
-          body: Buffer.from(data.MetricWidgetImage),
-          mimeType: 'image/png',
-      };
-    } catch (err) {
-      ctx.app.logger.error('failed to get metric widget image', err);
-      return {
-          body: Buffer.from(''),
-          mimeType: 'image/png',
-      };
-    }
-}
 
 export async function viewServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
     const cf = new CloudFoundryClient({
