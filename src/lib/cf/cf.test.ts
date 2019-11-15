@@ -491,7 +491,7 @@ describe('lib/cf test suite', () => {
   it('should obtain particular service', async () => {
     nockCF
       .get('/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5')
-      .reply(200, data.service)
+      .reply(200, data.serviceString)
     ;
 
     const client = new CloudFoundryClient(config);

@@ -623,37 +623,34 @@ export const servicePlan = `{
   }
 }`;
 
-export const service = `{
-  "metadata": {
-    "guid": "53f52780-e93c-4af7-a96c-6958311c40e5",
-    "url": "/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5",
-    "created_at": "2016-06-08T16:41:32Z",
-    "updated_at": "2016-06-08T16:41:26Z"
+export const serviceObj = {
+  metadata: {
+    guid: '53f52780-e93c-4af7-a96c-6958311c40e5',
+    url: '/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5',
+    created_at: '2016-06-08T16:41:32Z',
+    updated_at: '2016-06-08T16:41:26Z',
   },
-  "entity": {
-    "label": "postgres",
-    "provider": null,
-    "url": null,
-    "description": "desc-135",
-    "long_description": null,
-    "version": null,
-    "info_url": null,
-    "active": true,
-    "bindable": true,
-    "unique_id": "c181996b-f233-43d1-8901-3a43eafcaacf",
-    "extra": null,
-    "tags": [
-
-    ],
-    "requires": [
-
-    ],
-    "documentation_url": null,
-    "service_broker_guid": "0e7250aa-364f-42c2-8fd2-808b0224376f",
-    "plan_updateable": false,
-    "service_plans_url": "/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5/service_plans"
-  }
-}`;
+  entity: {
+    label: 'postgres',
+    provider: null,
+    url: null,
+    description: 'desc-135',
+    long_description: null,
+    version: null,
+    info_url: null,
+    active: true,
+    bindable: true,
+    unique_id: 'c181996b-f233-43d1-8901-3a43eafcaacf',
+    extra: null,
+    tags: [],
+    requires: [],
+    documentation_url: null,
+    service_broker_guid: '0e7250aa-364f-42c2-8fd2-808b0224376f',
+    plan_updateable: false,
+    service_plans_url: '/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5/service_plans',
+  },
+};
+export const serviceString = JSON.stringify(serviceObj);
 
 export const users = `{
   "total_results": 1,

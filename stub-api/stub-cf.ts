@@ -61,7 +61,7 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
   app.get('/v2/spaces/:guid/service_instances'       , (_, res) => res.send(testData.services));
   app.get('/v2/service_instances/:guid'              , (_, res) => res.send(testData.serviceInstance));
   app.get('/v2/service_plans/:guid'                  , (_, res) => res.send(testData.servicePlan));
-  app.get('/v2/services/:guid'                       , (_, res) => res.send(testData.service));
+  app.get('/v2/services/:guid'                       , (_, res) => res.send(testData.serviceString));
   app.get('/v2/user_provided_service_instances'      , (_, res) => res.send(testData.userServices));
   app.get('/v2/user_provided_service_instances/:guid', (_, res) => res.send(testData.userServiceInstance));
   app.get('/v2/users/uaa-id-253/spaces'              , (_, res) => res.send(testData.spaces));
