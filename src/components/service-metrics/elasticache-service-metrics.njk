@@ -1,0 +1,120 @@
+{% extends "../services/_tabbed_layout.njk" %}
+{% from "govuk-frontend/govuk/components/tag/macro.njk" import govukTag %}
+
+{% block pageTitle %}
+  {{ service.entity.name }} - Service Metrics
+{% endblock %}
+
+{% block insideTabs %}
+
+<div class="border-bottom-box">
+<p>{{ govukTag({text: "experimental"}) }}</p>
+
+<p>Backing service metrics is a new feature under active development. Expect frequent changes.</p>
+
+<p>Please email us at <a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">gov-uk-paas-support@digital.cabinet-office.gov.uk</a>
+if you have any feedback.</p>
+</div>
+
+<p>
+The graphs below show metrics for the
+<a href="{{ linkTo(
+  'admin.organizations.spaces.services.view',
+  {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid}
+  )}}" class="govuk-link">{{ service.entity.name }}</a>
+service over the last 24 hours.
+</p>
+
+<p>Currently the available metrics for {{serviceLabel}} are:
+<ul>
+  <li><a href="#cpu-utilisation" class="govuk-link">CPU utilisation</a></li>
+  <li><a href="#memory-used" class="govuk-link">Memory used</a></li>
+  <li><a href="#swap-memory-used" class="govuk-link">Swap memory used</a></li>
+  <li><a href="#evictions">Evictions</a></li>
+  <li><a href="#connection-count">Connection count</a></li>
+  <li><a href="#cache-hits">Cache hits</a></li>
+  <li><a href="#cache-misses">Cache misses</a></li>
+  <li><a href="#item-count">Item count</a></li>
+  <li><a href="#network-bytes-in">Network bytes in</a></li>
+  <li><a href="#network-bytes-out">Network bytes out</a></li>
+</ul>
+</p>
+
+<div>
+  <h3 class="govuk-heading-m" id="cpu-utilisation">CPU Utilisation</h3>
+  <p>
+    How much computational work redis is doing. High CPU Utilisation may indicate you need to reduce your usage
+    or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.
+  </p>
+  <div>{{metricGraphsById['mCPUUtilization'].graph | safe}}</div>
+</div>
+
+<div>
+  <h3 class="govuk-heading-m" id="memory-used">Memory used</h3>
+  <p>
+  The total amount of memory redis is using to store your data and redis'
+  internal buffers. If redis reaches its memory limit and cannot evict any
+  keys it will return errors when executing commands that increase memory
+  use.
+  </p>
+  <div>{{metricGraphsById['mBytesUsedForCache'].graph | safe}}</div>
+</div>
+
+<div>
+  <h3 class="govuk-heading-m" id="swap-memory-used">Swap memory used</h3>
+  <p>
+  If redis is running low on memory it will start to swap memory onto the hard disk. If redis is using more than 50 <abbr title="MegaBytes">MB</abbr>
+  of swap memory you may need to reduce your usage or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.
+  </p>
+  <div>{{metricGraphsById['mSwapUsage'].graph | safe}}</div>
+</div>
+
+<div>
+  <h3 class="govuk-heading-m" id="evictions">Evictions</h3>
+  <p>
+  Redis will evict keys when it reaches its configured memory limit. It will try to remove less recently used keys first, but only among keys
+  that have an EXPIRE set. If there are no keys left to evict redis will return errors when executing commands that increase memory use.
+  </p>
+  <div>{{metricGraphsById['mEvictions'].graph | safe}}</div>
+</div>
+
+<div>
+  <h3 class="govuk-heading-m" id="connection-count">Connection count</h3>
+  <p>
+  How many open connections there are to redis. High values may indicate problems with your applications' connection management.
+  Zero values may indicate that redis is unavailable, or that your applications cannot connect to the database.
+  </p>
+  <div>{{metricGraphsById['mCurrConnections'].graph | safe}}</div>
+</div>
+
+<div>
+  <h3 class="govuk-heading-m" id="cache-hits">Cache hits</h3>
+  <p>The number of successful key lookups.</p>
+  <div>{{metricGraphsById['mCacheHits'].graph | safe}}</div>
+</div>
+
+<div>
+  <h3 class="govuk-heading-m" id="cache-misses">Cache misses</h3>
+  <p>The number of unsuccessful key lookups.</p>
+  <div>{{metricGraphsById['mCacheMisses'].graph | safe}}</div>
+</div>
+
+<div>
+  <h3 class="govuk-heading-m" id="item-count">Item count</h3>
+  <p>The number of items in redis.</p>
+  <div>{{metricGraphsById['mCurrItems'].graph | safe}}</div>
+</div>
+
+<div>
+  <h3 class="govuk-heading-m" id="network-bytes-in">Network bytes in</h3>
+  <p>The number of bytes redis has read from the network.</p>
+  <div>{{metricGraphsById['mNetworkBytesIn'].graph | safe}}</div>
+</div>
+
+<div>
+  <h3 class="govuk-heading-m" id="network-bytes-out">Network bytes out</h3>
+  <p>The number of bytes sent by redis.</p>
+  <div>{{metricGraphsById['mNetworkBytesOut'].graph | safe}}</div>
+</div>
+
+{% endblock %}

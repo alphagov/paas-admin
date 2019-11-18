@@ -98,6 +98,7 @@ async function main() {
     notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null,
     oidcProviders: providers,
     domainName: expectEnvVariable('DOMAIN_NAME'),
+    awsCloudwatchEndpoint: process.env.AWS_CLOUDWATCH_ENDPOINT,
   };
 
   const server = new Server(app(config), {

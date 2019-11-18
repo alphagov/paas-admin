@@ -1,4 +1,5 @@
 import express from 'express';
+import stubAws from './stub-aws';
 import stubUaa from './stub-uaa';
 import stubAccounts from './stub-accounts';
 import stubBilling from './stub-billing';
@@ -40,6 +41,11 @@ const apis: readonly IStubServerConfig[] = [
     name: 'uaa',
     ports: {adminPort, apiPort: parseInt(process.env['STUB_UAA_PORT'] || '3004', 10)},
     factory: stubUaa,
+  },
+  {
+    name: 'aws',
+    ports: {adminPort, apiPort: parseInt(process.env['STUB_AWS_PORT'] || '3005', 10)},
+    factory: stubAws,
   },
 ];
 

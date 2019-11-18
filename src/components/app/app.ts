@@ -37,6 +37,7 @@ export interface IAppConfig {
   readonly oidcProviders: Map<OIDCProviderName, IOIDCConfig>;
   readonly domainName: string;
   readonly awsRegion: string;
+  readonly awsCloudwatchEndpoint?: string;
 }
 
 export type OIDCProviderName = 'microsoft' | 'google';

@@ -73,11 +73,6 @@ const router = new Router([
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID',
   },
   {
-    action: serviceMetrics.viewServiceMetricImage,
-    name: 'admin.organizations.spaces.services.metrics.view.image',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics/:metricDimension.png',
-  },
-  {
     action: serviceMetrics.viewServiceMetrics,
     name: 'admin.organizations.spaces.services.metrics.view',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics',

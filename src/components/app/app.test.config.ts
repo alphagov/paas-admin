@@ -37,4 +37,5 @@ export const config: IAppConfig = {
   oidcProviders: providers,
   domainName: 'https://admin.example.com/',
   awsRegion: 'eu-west-1',
+  awsCloudwatchEndpoint: 'https://aws.example.com/',
 };

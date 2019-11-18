@@ -221,7 +221,7 @@ describe('spaces test suite', () => {
       .reply(200, data.servicePlan)
 
       .get('/v2/services/775d0046-7505-40a4-bfad-ca472485e332')
-      .reply(200, data.service)
+      .reply(200, data.serviceString)
 
       .get(`/v2/spaces/${spaceGUID}`)
       .reply(200, data.space)
