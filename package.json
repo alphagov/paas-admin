@@ -125,7 +125,7 @@
     "express-static-gzip": "2.0.5",
     "fnv-plus": "^1.2.12",
     "govuk-frontend": "^3.2.0",
-    "helmet": "3.21.1",
+    "helmet": "3.21.2",
     "jmespath": "0.15.0",
     "jsdom": "^15.2.1",
     "jsonwebtoken": "8.5.1",
