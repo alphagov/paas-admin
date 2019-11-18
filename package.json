@@ -124,7 +124,7 @@
     "express-pino-logger": "4.0.0",
     "express-static-gzip": "2.0.5",
     "fnv-plus": "^1.2.12",
-    "govuk-frontend": "^3.2.0",
+    "govuk-frontend": "^3.3.0",
     "helmet": "3.21.1",
     "jmespath": "0.15.0",
     "jsdom": "^15.2.1",
