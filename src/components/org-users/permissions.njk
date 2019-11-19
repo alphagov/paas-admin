@@ -1,16 +1,31 @@
-{% from "govuk-frontend/govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
-
+{% macro roleCheckbox(params) %}
+  <input type="hidden" value="{{ params.values[params.roleCategory][params.guid][params.roleName].current }}" name="{{ params.roleCategory }}[{{ params.guid }}][{{ params.roleName }}][current]">
+  <div class="govuk-form-group">
+    <div class="govuk-checkboxes">
+      <div class="govuk-checkboxes__item">
+        <input
+          class="govuk-checkboxes__input"
+          id="{{ params.roleCategory }}[{{ params.guid }}][{{ params.roleName }}]"
+          name="{{ params.roleCategory }}[{{ params.guid }}][{{ params.roleName }}][desired]"
+          type="checkbox"
+          {{ "disabled" if params.disabled }}
+          {{ "checked" if params.values[params.roleCategory][params.guid][params.roleName].desired == '1' }}
+          value="1">
+        <label class="govuk-label govuk-checkboxes__label" for="{{ params.roleCategory }}[{{ params.guid }}][{{ params.roleName }}]">
+          <span>{{ params.name }}</span>
+        </label>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
 <h2 class="govuk-heading-l">Set org and space roles</h2>
-
 <h4 class="govuk-heading-s">Organisation level roles</h4>
-
 <details class="govuk-details" role="group">
   <summary class="govuk-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
     <span class="govuk-details__summary-text">
       What can these roles do?
     </span>
   </summary>
-
   <div class="govuk-details__text" aria-hidden="true">
     <p class="govuk-body">
       <span class="govuk-!-font-weight-bold">
@@ -20,14 +35,12 @@
       typically be senior staff: for example, you might choose to grant the
       role to your technical architect and a lead developer.
     </p>
-
     <p class="govuk-body">
       <span class="govuk-!-font-weight-bold">
         Org billing managers
       </span>
       are the points of contact for billing
     </p>
-
     <p class="govuk-body">
       <span class="govuk-!-font-weight-bold">
         Org auditors
@@ -38,7 +51,6 @@
     </p>
   </div>
 </details>
-
 <table id="roles" class="govuk-table permissions">
   <thead class="govuk-table__head">
     <tr class="govuk-table__row">
@@ -52,74 +64,45 @@
     <tr class="govuk-table__row">
       <th class="govuk-table__header" scope="row">{{ organization.entity.name }}</th>
       <td class="govuk-table__cell ">
-        <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].managers }}" name="org_roles[{{ organization.metadata.guid }}][managers][current]">
-        {% if  (managers | length < 2) and (values.org_roles[organization.metadata.guid].managers) %}
-          {% set isCheckboxDisabled = true %}
-          <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].managers }}" name="org_roles[{{ organization.metadata.guid }}][managers][desired]">
-        {% else %}
-          {% set isCheckboxDisabled = false %}
-        {% endif %}
-        {{ govukCheckboxes({
-          id: "org_roles[" + organization.metadata.guid + "][managers]",
-          name: "org_roles[" + organization.metadata.guid + "][managers][desired]",
-          items: [
-            {
-              value: "1",
-              html: "<span>Org manager</span>",
-              checked: values.org_roles[organization.metadata.guid].managers,
-              disabled: isCheckboxDisabled
-            }
-          ]
+        {{ roleCheckbox({
+          name: 'Org manager',
+          roleCategory: 'org_roles',
+          roleName: 'managers',
+          guid: organization.metadata.guid,
+          values: values,
+          disabled: (managers | length < 2) and (values.org_roles[organization.metadata.guid].managers.current == '1')
         }) }}
       </td>
       <td class="govuk-table__cell ">
-        <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].billing_managers }}" name="org_roles[{{ organization.metadata.guid }}][billing_managers][current]">
-        {% if  (billingManagers | length < 2) and (values.org_roles[organization.metadata.guid].billing_managers) %}
-          {% set isCheckboxDisabled = true %}
-          <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].billing_managers }}" name="org_roles[{{ organization.metadata.guid }}][billing_managers][desired]">
-        {% else %}
-          {% set isCheckboxDisabled = false %}
-        {% endif %}
-        {{ govukCheckboxes({
-          id: "org_roles[" + organization.metadata.guid + "][billing_managers]",
-          name: "org_roles[" + organization.metadata.guid + "][billing_managers][desired]",
-          items: [
-            {
-              value: "1",
-              html: "<span>Billing manager</span>",
-              checked: values.org_roles[organization.metadata.guid].billing_managers,
-              disabled: isCheckboxDisabled
-            }
-          ]
+        {{ roleCheckbox({
+          name: 'Billing manager',
+          roleCategory: 'org_roles',
+          roleName: 'billing_managers',
+          guid: organization.metadata.guid,
+          values: values,
+          disabled: (billingManagers | length < 2) and (values.org_roles[organization.metadata.guid].billing_managers.current == '1')
         }) }}
       </td>
       <td class="govuk-table__cell ">
-        <input type="hidden" value="{{ values.org_roles[organization.metadata.guid].auditors }}" name="org_roles[{{ organization.metadata.guid }}][auditors][current]">
-        {{ govukCheckboxes({
-          id: "org_roles[" + organization.metadata.guid + "][auditors]",
-          name: "org_roles[" + organization.metadata.guid + "][auditors][desired]",
-          items: [
-            {
-              value: "1",
-              html: "<span>Org auditor</span>",
-              checked: values.org_roles[organization.metadata.guid].auditors
-            }
-          ]
+        {{ roleCheckbox({
+          name: 'Org auditor',
+          roleCategory: 'org_roles',
+          roleName: 'auditors',
+          guid: organization.metadata.guid,
+          values: values,
+          disabled: false
         }) }}
       </td>
     </tr>
   </tbody>
 </table>
-
 <h4 class="govuk-heading-s">Space level roles</h4>
-
 <details class="govuk-details" role="group">
   <summary class="govuk-details__summary" role="button" aria-controls="details-content-0" aria-expanded="false">
     <span class="govuk-details__summary-text">
       What can these roles do?
     </span>
   </summary>
-
   <div class="govuk-details__text" aria-hidden="true">
     <p class="govuk-body">
       <span class="govuk-!-font-weight-bold">
@@ -130,14 +113,12 @@
       to change apps or services, so you need the Space Developer role as well
       if you want to be able to do both things.
     </p>
-
     <p class="govuk-body">
       <span class="govuk-!-font-weight-bold">
         Space developers
       </span>
       can push, start and stop apps, and create and bind services.
     </p>
-
     <p class="govuk-body">
       <span class="govuk-!-font-weight-bold">
         Space auditors
@@ -148,7 +129,6 @@
     </p>
   </div>
 </details>
-
 <table class="govuk-table permissions">
   <thead class="govuk-table__head">
     <tr class="govuk-table__row">
@@ -163,45 +143,33 @@
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="row">{{ space.entity.name }}</th>
         <td class="govuk-table__cell ">
-          <input type="hidden" value="{{ values.space_roles[space.metadata.guid].managers }}" name="space_roles[{{ space.metadata.guid }}][managers][current]">
-          {{ govukCheckboxes({
-            id: "space_roles[" + space.metadata.guid + "][managers]",
-            name: "space_roles[" + space.metadata.guid + "][managers][desired]",
-            items: [
-              {
-                value: "1",
-                html: "<span>Space manager</span>",
-                checked: values.space_roles[space.metadata.guid].managers
-              }
-            ]
+          {{ roleCheckbox({
+            name: 'Space manager',
+            roleCategory: 'space_roles',
+            roleName: 'managers',
+            guid: space.metadata.guid,
+            values: values,
+            disabled: false
           }) }}
         </td>
         <td class="govuk-table__cell ">
-          <input type="hidden" value="{{ values.space_roles[space.metadata.guid].developers }}" name="space_roles[{{ space.metadata.guid }}][developers][current]">
-          {{ govukCheckboxes({
-            id: "space_roles[" + space.metadata.guid + "][developers]",
-            name: "space_roles[" + space.metadata.guid + "][developers][desired]",
-            items: [
-              {
-                value: "1",
-                html: "<span>Space developer</span>",
-                checked: values.space_roles[space.metadata.guid].developers
-              }
-            ]
+          {{ roleCheckbox({
+            name: 'Space developer',
+            roleCategory: 'space_roles',
+            roleName: 'developers',
+            guid: space.metadata.guid,
+            values: values,
+            disabled: false
           }) }}
         </td>
         <td class="govuk-table__cell ">
-          <input type="hidden" value="{{ values.space_roles[space.metadata.guid].auditors }}" name="space_roles[{{ space.metadata.guid }}][auditors][current]">
-          {{ govukCheckboxes({
-            id: "space_roles[" + space.metadata.guid + "][auditors]",
-            name: "space_roles[" + space.metadata.guid + "][auditors][desired]",
-            items: [
-              {
-                value: "1",
-                html: "<span>Space auditor</span>",
-                checked: values.space_roles[space.metadata.guid].auditors
-              }
-            ]
+          {{ roleCheckbox({
+            name: 'Space auditor',
+            roleCategory: 'space_roles',
+            roleName: 'auditors',
+            guid: space.metadata.guid,
+            values: values,
+            disabled: false
           }) }}
         </td>
       </tr>

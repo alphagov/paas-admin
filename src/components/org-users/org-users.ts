@@ -36,13 +36,24 @@ interface IInvalid {
   readonly message: string;
 }
 
+interface IPermissionState {
+  readonly current: string;
+  readonly desired?: string;
+}
+
 interface IPermissions {
   readonly [guid: string]: {
-    readonly [permission: string]: {
-      readonly current: string;
-      readonly desired?: string;
-    };
+    readonly [permission: string]: IPermissionState;
   };
+}
+
+interface IRoleValues {
+  org_roles: IPermissions;
+  space_roles: IPermissions;
+}
+
+interface IUserPostBody extends IRoleValues {
+  email: string;
 }
 
 interface IUserRoles {
@@ -70,35 +81,12 @@ class ValidationError extends Error {
   }
 }
 
-interface IRoleValues {
-  org_roles: {
-    [key: string]: {
-      billing_managers: 0 | 1;
-      managers: 0 | 1;
-      auditors: 0 | 1;
-    };
-  };
-  space_roles: {
-    [key: string]: {
-      managers: 0 | 1;
-      developers: 0 | 1;
-      auditors: 0 | 1;
-    };
-  };
-}
-
-interface IUserPostBody {
-  email: string;
-  org_roles: IPermissions;
-  space_roles: IPermissions;
-}
-
 const VALID_EMAIL = /[^.]@[^.]/;
 
 async function setAllUserRolesForOrg(
   cf: CloudFoundryClient,
   params: IParameters,
-  roles: { readonly [i: string]: IPermissions },
+  roles: { readonly org: IPermissions, readonly space: IPermissions },
 ): Promise<any> {
   const spaces = await cf.orgSpaces(params.organizationGUID);
 
@@ -343,18 +331,36 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
   const values: IRoleValues = {
     org_roles: {
       [params.organizationGUID]: {
-        billing_managers: 0,
-        managers: 0,
-        auditors: 0,
+        billing_managers: {
+          current: '0',
+          desired: '0',
+        },
+        managers: {
+          current: '0',
+          desired: '0',
+        },
+        auditors: {
+          current: '0',
+          desired: '0',
+        },
       },
     },
     space_roles: await spaces.reduce(async (next: Promise<any>, space: ISpace) => {
       const spaceRoles = await next;
 
       spaceRoles[space.metadata.guid] = {
-        managers: 0,
-        developers: 0,
-        auditors: 0,
+        managers: {
+          current: '0',
+          desired: '0',
+        },
+        developers: {
+          current: '0',
+          desired: '0',
+        },
+        auditors: {
+          current: '0',
+          desired: '0',
+        },
       };
 
       return spaceRoles;
@@ -534,6 +540,8 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
           isAdmin,
           isBillingManager,
           isManager,
+          managers: [undefined, undefined],
+          billing_managers: [undefined, undefined],
         }),
         status: 400,
       };
@@ -695,9 +703,18 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
   const values: IRoleValues = {
     org_roles: {
       [params.organizationGUID]: {
-        billing_managers: user.entity.organization_roles.includes('billing_manager') ? 1 : 0,
-        managers: user.entity.organization_roles.includes('org_manager') ? 1 : 0,
-        auditors: user.entity.organization_roles.includes('org_auditor') ? 1 : 0,
+        billing_managers: {
+          current: user.entity.organization_roles.includes('billing_manager') ? '1' : '0',
+          desired: user.entity.organization_roles.includes('billing_manager') ? '1' : '0',
+        },
+        managers: {
+          current: user.entity.organization_roles.includes('org_manager') ? '1' : '0',
+          desired: user.entity.organization_roles.includes('org_manager') ? '1' : '0',
+        },
+        auditors: {
+          current: user.entity.organization_roles.includes('org_auditor') ? '1' : '0',
+          desired: user.entity.organization_roles.includes('org_auditor') ? '1' : '0',
+        },
       },
     },
     space_roles: await spaces.reduce(async (next: Promise<any>, space: ISpace) => {
@@ -706,9 +723,18 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
       const usr = spaceUsers.find((u: ISpaceUserRoles) => u.metadata.guid === params.userGUID);
 
       spaceRoles[space.metadata.guid] = {
-        managers: usr && usr.entity.space_roles.includes('space_manager') ? 1 : 0,
-        developers: usr && usr.entity.space_roles.includes('space_developer') ? 1 : 0,
-        auditors: usr && usr.entity.space_roles.includes('space_auditor') ? 1 : 0,
+        managers: {
+          current: usr && usr.entity.space_roles.includes('space_manager') ? '1' : '0',
+          desired: usr && usr.entity.space_roles.includes('space_manager') ? '1' : '0',
+        },
+        developers: {
+          current: usr && usr.entity.space_roles.includes('space_developer') ? '1' : '0',
+          desired: usr && usr.entity.space_roles.includes('space_developer') ? '1' : '0',
+        },
+        auditors: {
+          current: usr && usr.entity.space_roles.includes('space_auditor') ? '1' : '0',
+          desired: usr && usr.entity.space_roles.includes('space_auditor') ? '1' : '0',
+        },
       };
 
       return spaceRoles;

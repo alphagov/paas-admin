@@ -1,3 +1,4 @@
+import cheerio from 'cheerio';
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
@@ -189,27 +190,51 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Invite a new team member');
+    expect(response.body).not.toContain('[object Object]');
   });
 
   it('should show error message when email is missing', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
     ;
 
     const response = await orgUsers.inviteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-    }, {});
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+    }, {
+      org_roles: {
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': {
+          managers: {
+            current: 1,
+          },
+          billing_managers: {
+            current: 0,
+          },
+          auditors: {
+            current: 0,
+            desired: 1,
+          },
+        },
+      },
+    });
 
+    const $ = cheerio.load(response.body as string);
+
+    // tslint:disable:max-line-length
     expect(response.body).toContain('a valid email address is required');
+    expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers]"]:disabled').length).toEqual(0);
+    expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][billing_managers]"]:checked').length).toEqual(0);
+    expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][auditors]"]:checked').length).toEqual(1);
+    expect(response.body).not.toContain('[object Object]');
     expect(response.status).toEqual(400);
+    // tslint:enable:max-line-length
   });
 
   it('should show error message when email is invalid according to our regex', async () => {
@@ -269,6 +294,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('is already a member of the organisation');
+    expect(response.body).not.toContain('[object Object]');
     expect(response.status).toEqual(400);
   });
 
@@ -806,24 +832,82 @@ describe('org-users test suite', () => {
       .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/user_roles')
       .reply(200, cfData.userRolesForSpace)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(4)
       .reply(200, cfData.userRolesForOrg)
     ;
 
     const response = await orgUsers.editUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
     });
 
+    const $ = cheerio.load(response.body as string);
+
+    // tslint:disable:max-line-length
     expect(response.body).toContain('Update a team member');
     expect(response.body).toContain('one@user.in.database');
+    expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers]"]:disabled').length).toEqual(0);
+    expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20]"]:checked').length).toEqual(3);
+    expect(response.body).not.toContain('[object Object]');
+    // tslint:enable:max-line-length
+  });
+
+  it('should show the user edit page with disabled manager checkboxes due to single manager being set', async () => {
+    nockUAA
+      .get('/Users/uaa-id-253')
+      .reply(200, uaaData.usersByEmail)
+
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+    ;
+
+    nockAccounts.get('/users/uaa-id-253').reply(200, `{
+      "user_uuid": "uaa-id-253",
+      "user_email": "one@user.in.database",
+      "username": "one@user.in.database"
+    }`)
+    ;
+
+    nockCF
+      .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/user_roles')
+      .reply(200, cfData.userRolesForSpace)
+
+      .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/user_roles')
+      .reply(200, cfData.userRolesForSpace)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
+      .reply(200, cfData.spaces)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
+      .reply(200, JSON.stringify(defaultOrg()))
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(4)
+      .reply(200, cfData.userRolesForOrgWithOneManager)
+    ;
+
+    const response = await orgUsers.editUser(ctx, {
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      userGUID: 'uaa-id-253',
+    });
+
+    const $ = cheerio.load(response.body as string);
+
+    // tslint:disable:max-line-length
+    expect(response.body).toContain('Update a team member');
+    expect(response.body).toContain('one@user.in.database');
+    expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers]"]:disabled').length).toEqual(1);
+    expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][billing_managers]"]:disabled').length).toEqual(1);
+    expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20]"]:checked').length).toEqual(3);
+    expect(response.body).not.toContain('[object Object]');
+    // tslint:enable:max-line-length
   });
 
   it('should fail to show the user edit page due to not existing user', async () => {
