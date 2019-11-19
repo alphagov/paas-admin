@@ -162,6 +162,11 @@ const router = new Router([
     path: '/reports/cost-by-service/:rangeStart',
   },
   {
+    action: reports.viewPmoOrgSpendReportCSV,
+    name: 'admin.reports.pmo-org-spend-csv',
+    path: '/reports/pmo-org-spend/:rangeStart',
+  },
+  {
     action: reports.viewVisualisation,
     name: 'admin.reports.visualisation',
     path: '/reports/visualisation/:rangeStart',

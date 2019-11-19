@@ -40,7 +40,7 @@ export function createTestContext(ctx?: {}): IContext {
     ),
     viewContext: {
       csrf: '',
-      location: 'eu-west-2',
+      location: config.location,
     },
     session: new FakeSession(),
     ...ctx,

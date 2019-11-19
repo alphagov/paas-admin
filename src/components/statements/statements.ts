@@ -15,8 +15,6 @@ import { UserFriendlyError } from '../errors';
 
 import usageTemplate from './statements.njk';
 
-export const adminFee = .1;
-
 interface IResourceUsage {
   readonly resourceGUID: string;
   readonly resourceName: string;
@@ -200,7 +198,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   if (params.download) {
     return {
       download: {
-        data: composeCSV(filteredItems),
+        data: composeCSV(filteredItems, ctx.app.adminFee),
         name: `statement-${rangeStart.format(YYYMMDD)}.csv`,
       },
     };
@@ -237,7 +235,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
       orderBy,
       orderDirection,
       currentMonth,
-      adminFee,
+      adminFee: ctx.app.adminFee,
       breadcrumbs,
     }),
   };
@@ -307,7 +305,7 @@ export function sortBySpace(a: IResourceUsage, b: IResourceUsage) {
   return 0;
 }
 
-export function composeCSV(items: ReadonlyArray<IResourceUsage>): string {
+export function composeCSV(items: ReadonlyArray<IResourceUsage>, adminFee: number): string {
   const lines = ['Name,Space,Plan,Ex VAT,Inc VAT'];
 
   for (const item of items) {

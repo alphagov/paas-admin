@@ -38,6 +38,7 @@ export interface IAppConfig {
   readonly domainName: string;
   readonly awsRegion: string;
   readonly awsCloudwatchEndpoint?: string;
+  readonly adminFee: number;
 }
 
 export type OIDCProviderName = 'microsoft' | 'google';

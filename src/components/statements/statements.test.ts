@@ -381,7 +381,8 @@ describe('statements test suite', () => {
   });
 
   it('should compose csv content correctly', async () => {
-    const content = composeCSV([resourceTemplate]);
+    const adminFee = 0.1;
+    const content = composeCSV([resourceTemplate], adminFee);
 
     expect(content).toContain('Name,Space,Plan,Ex VAT,Inc VAT');
     expect(content).toContain('api,prod,app,1.00,1.20');
