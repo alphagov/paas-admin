@@ -1,5 +1,8 @@
 {% macro roleCheckbox(params) %}
   <input type="hidden" value="{{ params.values[params.roleCategory][params.guid][params.roleName].current }}" name="{{ params.roleCategory }}[{{ params.guid }}][{{ params.roleName }}][current]">
+  {% if params.disabled %}
+    <input type="hidden" value="{{ params.values[params.roleCategory][params.guid][params.roleName].desired }}" name="{{ params.roleCategory }}[{{ params.guid }}][{{ params.roleName }}][desired]">
+  {% endif %}
   <div class="govuk-form-group">
     <div class="govuk-checkboxes">
       <div class="govuk-checkboxes__item">

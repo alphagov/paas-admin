@@ -904,6 +904,7 @@ describe('org-users test suite', () => {
     expect(response.body).toContain('Update a team member');
     expect(response.body).toContain('one@user.in.database');
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers]"]:disabled').length).toEqual(1);
+    expect($('input[type="hidden"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers][desired]"]').length).toEqual(1);
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][billing_managers]"]:disabled').length).toEqual(1);
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20]"]:checked').length).toEqual(3);
     expect(response.body).not.toContain('[object Object]');
