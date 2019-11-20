@@ -47,8 +47,8 @@ function toVersionedPricingPlans(plan: IPricingPlan): IVersionedPricingPlan {
   };
 }
 
-function whitelistServices(p: IPricingPlan): boolean {
-  const whitelist = [
+function safelistServices(p: IPricingPlan): boolean {
+  const safelist = [
     'app',
     'postgres',
     'mysql',
@@ -56,7 +56,7 @@ function whitelistServices(p: IPricingPlan): boolean {
     'elasticsearch',
     'aws-s3-bucket',
   ];
-  return whitelist.some(name => name === p.serviceName);
+  return safelist.some(name => name === p.serviceName);
 }
 
 function blacklistCompose(p: IPricingPlan): boolean {
@@ -90,7 +90,7 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
   const plans = (await billing.getPricingPlans({
     rangeStart: moment(rangeStart).toDate(),
     rangeStop: moment(rangeStop).toDate(),
-  })).filter(whitelistServices)
+  })).filter(safelistServices)
      .filter(blacklistCompose)
      .map(toVersionedPricingPlans)
      .sort(bySize);
