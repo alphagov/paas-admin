@@ -55,6 +55,7 @@ function safelistServices(p: IPricingPlan): boolean {
     'redis',
     'elasticsearch',
     'aws-s3-bucket',
+    'influxdb',
   ];
   return safelist.some(name => name === p.serviceName);
 }
