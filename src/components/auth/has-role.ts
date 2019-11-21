@@ -39,6 +39,14 @@ export class Token {
 
     return false;
   }
+
+  public hasAdminScopes(): boolean {
+    return this.hasAnyScope(
+      CLOUD_CONTROLLER_ADMIN,
+      CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+      CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    );
+  }
 }
 
 function verify(accessToken: string, signingKeys: ReadonlyArray<string>): IToken {

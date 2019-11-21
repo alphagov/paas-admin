@@ -130,7 +130,7 @@ describe('app test suite', () => {
     expect(response.status).toEqual(500);
   });
 
-  describe('when authenticated', () => {
+  describe('when authenticated as a normal user', () => {
     let response: request.Response;
     let agent: SuperTest<Test>;
 
@@ -264,6 +264,11 @@ describe('app test suite', () => {
       it('should gzip responses', () => {
         expect(response.header['content-encoding']).toContain('gzip');
       });
+
+      it('should not show a link to the platform admin page', () => {
+        expect(response.status).toEqual(200);
+        expect(response.text).not.toMatch(/Platform admin/);
+      });
     });
 
     it('missing pages should come back with a 404', async () => {
@@ -331,6 +336,83 @@ describe('app test suite', () => {
 
       expect(response.status).toEqual(200);
       expect(response.text).toMatch('<meta name="x-user-identity-origin" content="uaa" />');
+    });
+  });
+
+  describe('when authenticated as a platform admin', () => {
+    let response: request.Response;
+    let agent: SuperTest<Test>;
+
+    const app = init(config);
+    const time = Math.floor(Date.now() / 1000);
+    const token = jwt.sign({
+      user_id: 'uaa-user-123',
+      scope: ['cloud_controller.admin'],
+      exp: (time + (24 * 60 * 60)),
+      origin: 'uaa',
+    }, tokenKey);
+
+    beforeEach(async () => {
+      nockUAA
+        .post('/oauth/token')
+        .reply(200, {
+          access_token: token,
+          token_type: 'bearer',
+          refresh_token: '__refresh_token__',
+          expires_in: (24 * 60 * 60),
+          scope: 'openid oauth.approvals cloud_controller.admin',
+          jti: '__jti__',
+        })
+      ;
+
+      agent = request.agent(app);
+      response = await agent.get('/auth/login/callback?code=__fakecode__&state=__fakestate__');
+
+      response.header['set-cookie'][0]
+        .split(',')
+        .map((item: string) => item.split(';')[0])
+        .forEach((cookie: string) => agent.jar.setCookie(cookie));
+    });
+
+    it('should authenticate successfully', async () => {
+      expect(response.status).toEqual(302);
+      expect(response.header['set-cookie'][0]).toContain('pazmin-session');
+    });
+
+    describe('visiting the organisations page', () => {
+      beforeEach(async () => {
+        nockAccounts
+          .get('/users/uaa-user-123/documents')
+          .reply(200, `[]`)
+        ;
+
+        nockCF
+          .get('/v2/organizations')
+          .reply(200, JSON.stringify(wrapResources(defaultOrg())))
+
+          .get(`/v2/quota_definitions/${billableOrgQuotaGUID}`)
+          .reply(200, JSON.stringify(billableOrgQuota()))
+        ;
+
+        nockUAA
+          .get('/token_keys')
+          .reply(200, {keys: [{value: tokenKey}]})
+
+          .get(`/Users/uaa-user-123`)
+          .reply(200, uaaData.gdsUser)
+
+          .post('/oauth/token?grant_type=client_credentials')
+          .reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
+        ;
+
+        response = await agent.get(router.findByName('admin.organizations').composeURL());
+      });
+
+      it('should show a link to the platform admin page', () => {
+
+        expect(response.status).toEqual(200);
+        expect(response.text).toMatch(/Platform admin/);
+      });
     });
   });
 
