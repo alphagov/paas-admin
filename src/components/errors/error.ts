@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { NotFoundError } from '../../lib/router';
+import { NotAuthorisedError, NotFoundError } from '../../lib/router';
 
 import pageNotFound from './error.404.njk';
 import internalServerError from './error.500.njk';
@@ -19,11 +19,24 @@ function platformLocation(region: string): string {
   }
 }
 
+function userHostileError(req: any) {
+  return {
+    context: {
+      csrf: req.csrfToken(),
+      location: platformLocation(process.env.AWS_REGION || /* istanbul ignore next */ ''),
+    },
+  };
+}
+
 export function internalServerErrorMiddleware(err: Error, req: any, res: express.Response, next: express.NextFunction) {
   req.log.error(err);
 
   if (err instanceof NotFoundError) {
     return pageNotFoundMiddleware(req, res, next);
+  }
+
+  if (err instanceof NotAuthorisedError) {
+    return pageNotAuthorisedMiddleware(req, res, next);
   }
 
   if (err instanceof UserFriendlyError) {
@@ -42,26 +55,17 @@ export function internalServerErrorMiddleware(err: Error, req: any, res: express
   }
 
   res.status(500);
-  res.send(internalServerError.render({
-    context: {
-      csrf: req.csrfToken(),
-      location: platformLocation(
-        process.env.AWS_REGION || /* istanbul ignore next */ '',
-      ),
-    },
-  }));
+  res.send(internalServerError.render(userHostileError(req)));
 }
 
 export function pageNotFoundMiddleware(req: any, res: express.Response, _next: express.NextFunction) {
   res.status(404);
-  res.send(pageNotFound.render({
-    context: {
-      csrf: req.csrfToken(),
-      location: platformLocation(
-        process.env.AWS_REGION || /* istanbul ignore next */ '',
-      ),
-    },
-  }));
+  res.send(pageNotFound.render(userHostileError(req)));
+}
+
+export function pageNotAuthorisedMiddleware(req: any, res: express.Response, _next: express.NextFunction) {
+  res.status(403);
+  res.send(pageNotFound.render(userHostileError(req)));
 }
 
 export default {
