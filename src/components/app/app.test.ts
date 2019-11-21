@@ -15,6 +15,8 @@ import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
 import Router, { IParameters } from '../../lib/router';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 
+import {CLOUD_CONTROLLER_ADMIN} from '../auth';
+
 import init from './app';
 import csp from './app.csp';
 import { config } from './app.test.config';
@@ -347,7 +349,7 @@ describe('app test suite', () => {
     const time = Math.floor(Date.now() / 1000);
     const token = jwt.sign({
       user_id: 'uaa-user-123',
-      scope: ['cloud_controller.admin'],
+      scope: [CLOUD_CONTROLLER_ADMIN],
       exp: (time + (24 * 60 * 60)),
       origin: 'uaa',
     }, tokenKey);
@@ -360,7 +362,7 @@ describe('app test suite', () => {
           token_type: 'bearer',
           refresh_token: '__refresh_token__',
           expires_in: (24 * 60 * 60),
-          scope: 'openid oauth.approvals cloud_controller.admin',
+          scope: `openid oauth.approvals ${CLOUD_CONTROLLER_ADMIN}`,
           jti: '__jti__',
         })
       ;
