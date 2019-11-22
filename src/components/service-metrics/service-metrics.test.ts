@@ -1,6 +1,9 @@
 import nock from 'nock';
 
-import {viewServiceMetrics} from '.';
+import {resolveServiceMetrics, viewServiceMetrics} from '.';
+
+import moment from 'moment';
+import querystring from 'querystring';
 
 import { getStubCloudwatchMetricsData } from '../../lib/aws/aws-cloudwatch.test.data';
 import * as data from '../../lib/cf/cf.test.data';
@@ -53,8 +56,116 @@ describe('service metrics test suite', () => {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(1, 'hour').unix(),
+      rangeStop: moment().unix(),
     });
 
+    expect(response.status).not.toEqual(302);
+    expect(response.body).toContain('name-1508 - Service Metrics');
+  });
+
+  it('should show the service metrics page for past 10 days', async () => {
+    nock('https://aws.example.com/')
+      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
+        {id: 'mFreeStorageSpace', label: ''},
+        {id: 'mCPUUtilization', label: ''},
+      ]));
+
+    mockService(data.serviceObj);
+
+    const response = await viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(10, 'days').unix(),
+      rangeStop: moment().unix(),
+    });
+
+    expect(response.status).not.toEqual(302);
+    expect(response.body).toContain('name-1508 - Service Metrics');
+  });
+
+  it('should show the service metrics page for past 24 hours', async () => {
+    nock('https://aws.example.com/')
+      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
+        {id: 'mFreeStorageSpace', label: ''},
+        {id: 'mCPUUtilization', label: ''},
+      ]));
+
+    mockService(data.serviceObj);
+
+    const response = await viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(24, 'hours').unix(),
+      rangeStop: moment().unix(),
+    });
+
+    expect(response.status).not.toEqual(302);
+    expect(response.body).toContain('name-1508 - Service Metrics');
+  });
+
+  it('should show the service metrics page for past 1 hours 30 minutes', async () => {
+    nock('https://aws.example.com/')
+      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
+        {id: 'mFreeStorageSpace', label: ''},
+        {id: 'mCPUUtilization', label: ''},
+      ]));
+
+    mockService(data.serviceObj);
+
+    const response = await viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(90, 'minutes').unix(),
+      rangeStop: moment().unix(),
+    });
+
+    expect(response.status).not.toEqual(302);
+    expect(response.body).toContain('name-1508 - Service Metrics');
+  });
+
+  it('should show the service metrics page for past half hour', async () => {
+    nock('https://aws.example.com/')
+      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
+        {id: 'mFreeStorageSpace', label: ''},
+        {id: 'mCPUUtilization', label: ''},
+      ]));
+
+    mockService(data.serviceObj);
+
+    const response = await viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(30, 'minutes').unix(),
+      rangeStop: moment().unix(),
+    });
+
+    expect(response.status).not.toEqual(302);
+    expect(response.body).toContain('name-1508 - Service Metrics');
+  });
+
+  it('should show the service metrics page for past 10 minutes', async () => {
+    nock('https://aws.example.com/')
+      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
+        {id: 'mFreeStorageSpace', label: ''},
+        {id: 'mCPUUtilization', label: ''},
+      ]));
+
+    mockService(data.serviceObj);
+
+    const response = await viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(10, 'minutes').unix(),
+      rangeStop: moment().unix(),
+    });
+
+    expect(response.status).not.toEqual(302);
     expect(response.body).toContain('name-1508 - Service Metrics');
   });
 
@@ -76,8 +187,11 @@ describe('service metrics test suite', () => {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(1, 'hour').unix(),
+      rangeStop: moment().unix(),
     });
 
+    expect(response.status).not.toEqual(302);
     expect(response.body).toContain('Database Connections');
   });
 
@@ -100,8 +214,11 @@ describe('service metrics test suite', () => {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(1, 'hour').unix(),
+      rangeStop: moment().unix(),
     });
 
+    expect(response.status).not.toEqual(302);
     expect(response.body).toContain('Cache hits');
   });
 
@@ -111,12 +228,32 @@ describe('service metrics test suite', () => {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
       serviceGUID: userProvidedServiceGUID,
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(1, 'hour').unix(),
+      rangeStop: moment().unix(),
     });
 
+    expect(response.status).not.toEqual(302);
     expect(response.body).not.toContain('Database Connections');
     expect(response.body).not.toContain('Cache hits');
     expect(response.body).toContain('Metrics are not available for this service yet.');
   });
+
+  it('should redirect if no range provided', async () => {
+    const response = await viewServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+    });
+
+    expect(response.body).not.toBeDefined();
+    expect(response.status).toEqual(302);
+    expect(response.redirect).toContain('rangeStart');
+    expect(response.redirect).toContain('rangeStop');
+  });
+
   it('should redirect if resolver has been accessed', async () => {
     const response = await resolveServiceMetrics({
       ...ctx,
@@ -151,4 +288,23 @@ describe('service metrics test suite', () => {
     expect(response.redirect).toContain('rangeStop');
   });
 
+  it('should thow an error if rangeStop is sooner than rangeStart', async () => {
+    await expect(viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().unix(),
+      rangeStop: moment().subtract(1, 'hour').unix(),
+    })).rejects.toThrow(/Invalid time range provided/);
+  });
+
+  it('should thow an error if asking for more than a year of metrics', async () => {
+    await expect(viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(1, 'year').subtract(5, 'minutes').unix(),
+      rangeStop: moment().unix(),
+    })).rejects.toThrow('Cannot handle more than a year of metrics');
+  });
 });

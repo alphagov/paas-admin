@@ -8,3 +8,14 @@ code {
   -ms-word-break: break-all;
   word-break: break-all;
 }
+
+
+ul, ol {
+  &.single-line li {
+    display: inline;
+  }
+}
+
+.non-breaking {
+  white-space: nowrap;
+}
