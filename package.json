@@ -144,8 +144,8 @@
     "uuid": "^3.3.3"
   },
   "engines": {
-    "node": "10.x.x",
-    "npm": ">=5.x.x"
+    "node": "12.x.x",
+    "npm": ">=6.x.x"
   },
   "jest": {
     "testEnvironment": "node",
