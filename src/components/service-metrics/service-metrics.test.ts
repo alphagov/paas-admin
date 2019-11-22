@@ -117,4 +117,38 @@ describe('service metrics test suite', () => {
     expect(response.body).not.toContain('Cache hits');
     expect(response.body).toContain('Metrics are not available for this service yet.');
   });
+  it('should redirect if resolver has been accessed', async () => {
+    const response = await resolveServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      offset: '3h',
+    });
+
+    expect(response.body).not.toBeDefined();
+    expect(response.status).toEqual(302);
+    expect(response.redirect).toContain('rangeStart');
+    expect(response.redirect).toContain('rangeStop');
+  });
+
+  it('should redirect if resolver has been accessed with an invalid offset', async () => {
+    const response = await resolveServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      offset: '9999999h',
+    });
+
+    expect(response.body).not.toBeDefined();
+    expect(response.status).toEqual(302);
+    expect(response.redirect).toContain('rangeStart');
+    expect(response.redirect).toContain('rangeStop');
+  });
+
 });

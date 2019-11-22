@@ -12,6 +12,30 @@ import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk
 import rdsServiceMetricsTemplate from './rds-service-metrics.njk';
 import unsupportedServiceMetricsTemplate from './unsupported-service-metrics.njk';
 
+export async function resolveServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const rangeStop = moment();
+  const timeRanges: {[key: string]: moment.Moment} = {
+    '1h': rangeStop.clone().subtract(1, 'hour'),
+    '3h': rangeStop.clone().subtract(3, 'hours'),
+    '12h': rangeStop.clone().subtract(12, 'hours'),
+    '24h': rangeStop.clone().subtract(24, 'hours'),
+    '7d': rangeStop.clone().subtract(7, 'days'),
+    '30d': rangeStop.clone().subtract(30, 'days'),
+  };
+  const rangeStart = timeRanges[params.offset] || timeRanges['24h'];
+
+  return {
+    status: 302,
+    redirect: ctx.linkTo('admin.organizations.spaces.services.metrics.view', {
+      organizationGUID: params.organizationGUID,
+      spaceGUID: params.spaceGUID,
+      serviceGUID: params.serviceGUID,
+      rangeStart: rangeStart.unix(),
+      rangeStop: rangeStop.unix(),
+    }),
+  };
+}
+
 export async function viewServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
     const cf = new CloudFoundryClient({
         accessToken: ctx.token.accessToken,
