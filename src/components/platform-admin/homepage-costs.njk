@@ -1,0 +1,80 @@
+<h2 class="govuk-heading-m">Costs</h2>
+
+<h3 class="govuk-heading-s">View costs for a month</h3>
+
+<form action="{{ linkTo('platform-admin.redirect') }}" method="POST">
+  <input type="hidden" name="_csrf" value="{{ context.csrf }}" />
+
+  <input type="hidden" name="action" value="view-costs" />
+
+  <div class="govuk-form-group">
+    <div class="govuk-date-input" id="passport-issued">
+      <div class="govuk-date-input__item">
+        <div class="govuk-form-group">
+          <label class="govuk-label govuk-date-input__label"
+                 for="view-costs-month">
+            Month
+          </label>
+         <select class="govuk-select"
+                 id="view-costs-month"
+                 name="month">
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+      </div>
+      <div class="govuk-date-input__item">
+        <div class="govuk-form-group">
+          <label class="govuk-label govuk-date-input__label"
+                 for="view-costs-year">
+            Year
+          </label>
+          <input class="govuk-input govuk-date-input__input govuk-input--width-4"
+                 id="view-costs-year"
+                 name="year"
+                 type="number"
+                 pattern="20[123][0-9]">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label govuk-date-input__label">Format</label>
+    <div class="govuk-radios govuk-radios--small">
+      {% for label, val in [
+        [ "Overall costs",                    "cost" ],
+        [ "Costs by service",                 "costbyservice" ],
+        [ "Spend for PMO team in CSV format", "pmo-org-spend-csv" ],
+        [ "Sankey diagram",                   "visualisation" ]
+      ] %}
+        <div class="govuk-radios__item">
+
+          <input class="govuk-radios__input"
+                 id="view-costs-format-{{val}}"
+                 name="format" type="radio"
+                 {% if loop.first %}checked{% endif %}
+                 value="{{ val }}">
+
+          <label class="govuk-label govuk-radios__label"
+                 for="view-costs-format-{{val}}">
+            {{ label }}
+          </label>
+
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <button class="govuk-button">View costs</button>
+</form>
