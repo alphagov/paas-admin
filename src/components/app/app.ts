@@ -8,7 +8,7 @@ import helmet from 'helmet';
 import { IncomingMessage, ServerResponse } from 'http';
 import { BaseLogger } from 'pino';
 
-import { IResponse } from '../../lib/router';
+import { IResponse, NotAuthorisedError } from '../../lib/router';
 import auth from '../auth';
 import { internalServerErrorMiddleware } from '../errors';
 import { termsCheckerMiddleware } from '../terms';
@@ -89,6 +89,10 @@ export default function(config: IAppConfig) {
   app.use(csrf());
 
   app.get('/healthcheck', (_req: express.Request, res: express.Response) => res.send({message: 'OK'}));
+
+  app.get('/forbidden', () => {
+    throw new NotAuthorisedError('Forbidden');
+  });
 
   app.get('/calculator', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('admin.home');

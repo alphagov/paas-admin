@@ -2,6 +2,7 @@ import express from 'express';
 
 import { NotAuthorisedError, NotFoundError } from '../../lib/router';
 
+import pageNotAuthorised from './error.403.njk';
 import pageNotFound from './error.404.njk';
 import internalServerError from './error.500.njk';
 
@@ -65,10 +66,11 @@ export function pageNotFoundMiddleware(req: any, res: express.Response, _next: e
 
 export function pageNotAuthorisedMiddleware(req: any, res: express.Response, _next: express.NextFunction) {
   res.status(403);
-  res.send(pageNotFound.render(userHostileError(req)));
+  res.send(pageNotAuthorised.render(userHostileError(req)));
 }
 
 export default {
   internalServerErrorMiddleware,
   pageNotFoundMiddleware,
+  pageNotAuthorisedMiddleware,
 };

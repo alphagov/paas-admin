@@ -132,6 +132,15 @@ describe('app test suite', () => {
     expect(response.status).toEqual(500);
   });
 
+  it('should return a 403 when accessing /forbidden', async () => {
+    // In practice this endpoint is only used for testing the 403 middleware
+
+    const app = init(config);
+    const response = await request(app).get('/forbidden');
+
+    expect(response.status).toEqual(403);
+  });
+
   describe('when authenticated as a normal user', () => {
     let response: request.Response;
     let agent: SuperTest<Test>;
