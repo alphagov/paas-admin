@@ -53,7 +53,7 @@
     "@types/nock": "^10.0.3",
     "@types/node-jose": "^1.1.1",
     "@types/passport-oauth2": "^1.4.8",
-    "@types/passport": "^1.0.1",
+    "@types/passport": "^1.0.2",
     "@types/pino": "^5.8.13",
     "@types/qs": "^6.9.0",
     "@types/route-parser": "^0.1.3",
