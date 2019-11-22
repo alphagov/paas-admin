@@ -1,4 +1,5 @@
 $govuk-global-styles: true;
+$govuk-page-width: 1200px;
 
 @import '~govuk-frontend/govuk/all';
 
@@ -18,10 +19,6 @@ $govuk-global-styles: true;
 
 .govuk-template__body {
   font-family: "GDS Transport", Arial, sans-serif;
-}
-
-.govuk-width-container {
-  max-width: 1200px;
 }
 
 .text-right {
