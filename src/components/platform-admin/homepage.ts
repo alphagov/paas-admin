@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import {
   IParameters,
   IResponse,
@@ -18,10 +20,13 @@ export async function viewHomepage(
     throw new NotAuthorisedError('Not a platform admin');
   }
 
+  const thisYear = moment().format('YYYY');
+
   return {
     body: homepageTemplate.render({
       linkTo: ctx.linkTo,
       context: ctx.viewContext,
+      thisYear,
     }),
   };
 }

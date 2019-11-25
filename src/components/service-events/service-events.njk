@@ -5,35 +5,40 @@
 {% endblock %}
 
 {% block insideTabs %}
+
+  {% set pagination_controls %}
+    {% if pagination.total_pages > 1 %}
+      <p class="govuk-body">
+        {% if page <= 1 %}
+          <a class="govuk-link" disabled>Previous page</a>
+        {% else %}
+          <a class="govuk-link" href="{{
+            linkTo(
+              'admin.organizations.spaces.services.events.view',
+              {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, page: page-1}
+            ) }}">Previous page</a>
+        {% endif %}
+
+        {% if pagination.next %}
+          <a class="govuk-link" href="{{
+            linkTo(
+              'admin.organizations.spaces.services.events.view',
+              {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, page: page+1}
+            ) }}">Next page</a>
+        {% else %}
+          <a class="govuk-link" disabled>Next page</a>
+        {% endif %}
+      </p>
+    {% endif %}
+  {% endset %}
+
   {% include "../events/totals.njk" %}
 
   {% include "../events/details.njk" %}
 
-  <p class="govuk-body">
-    {% if pagination.total_pages > 1 %}
-      {% if page <= 1 %}
-        <a class="govuk-link" disabled>Previous page</a>
-      {% else %}
-        <a class="govuk-link" href="{{
-          linkTo(
-            'admin.organizations.spaces.services.events.view',
-            {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, page: page-1}
-          ) }}">Previous page</a>
-      {% endif %}
-
-      {% if pagination.next %}
-        <a class="govuk-link" href="{{
-          linkTo(
-            'admin.organizations.spaces.services.events.view',
-            {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid, page: page+1}
-          ) }}">Next page</a>
-      {% else %}
-        <a class="govuk-link" disabled>Next page</a>
-      {% endif %}
-    {% endif %}
-  </p>
-
   {% if events.length > 0 %}
+    {{ pagination_controls | safe }}
+
     <table class="govuk-table">
       <thead class="govuk-table__head">
         <tr class="govuk-table__row">
@@ -80,6 +85,8 @@
       {% endfor %}
       </tbody>
     </table>
+
+    {{ pagination_controls | safe }}
   {% endif %}
 
 {% endblock %}
