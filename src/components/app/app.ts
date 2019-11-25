@@ -8,9 +8,9 @@ import helmet from 'helmet';
 import { IncomingMessage, ServerResponse } from 'http';
 import { BaseLogger } from 'pino';
 
-import { IResponse } from '../../lib/router';
+import { IResponse, NotAuthorisedError } from '../../lib/router';
 import auth from '../auth';
-import { internalServerErrorMiddleware, pageNotFoundMiddleware } from '../errors';
+import { internalServerErrorMiddleware } from '../errors';
 import { termsCheckerMiddleware } from '../terms';
 
 import { getCalculator } from '../calculator';
@@ -90,6 +90,10 @@ export default function(config: IAppConfig) {
 
   app.get('/healthcheck', (_req: express.Request, res: express.Response) => res.send({message: 'OK'}));
 
+  app.get('/forbidden', () => {
+    throw new NotAuthorisedError('Forbidden');
+  });
+
   app.get('/calculator', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('admin.home');
     const ctx = initContext(req, router, route, config);
@@ -119,7 +123,6 @@ export default function(config: IAppConfig) {
 
   app.use(routerMiddleware(router, config));
 
-  app.use(pageNotFoundMiddleware);
   app.use(internalServerErrorMiddleware);
 
   return app;

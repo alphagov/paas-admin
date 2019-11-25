@@ -1,0 +1,13 @@
+{% extends "../../layouts/govuk.njk" %}
+
+{% block pageTitle %}
+  Page not authorised
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+
+  <h1 class="govuk-heading-xl">Page not authorised</h1>
+  <p class="govuk-body">If you entered a web address please check it was correct.</p>
+  <p>You can browse from the <a href="/">homepage</a> to find the information you need.</p>
+{% endblock %}

@@ -27,7 +27,7 @@ export function createTestContext(ctx?: {}): IContext {
   return _.cloneDeep({
     app: config,
     routePartOf: () => false,
-    linkTo: () => '__LINKED_TO__',
+    linkTo: (route) => `__LINKED_TO__${route}`,
     absoluteLinkTo: () => '__ABSOLUTE_LINKED_TO__',
     log: pino({level: 'silent'}),
     token: new Token(
@@ -41,6 +41,7 @@ export function createTestContext(ctx?: {}): IContext {
     viewContext: {
       csrf: '',
       location: config.location,
+      isPlatformAdmin: false,
     },
     session: new FakeSession(),
     ...ctx,

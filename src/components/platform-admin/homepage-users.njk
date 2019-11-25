@@ -1,0 +1,24 @@
+<h2 class="govuk-heading-m">User management</h2>
+
+<h3 class="govuk-heading-s">Find a user</h3>
+
+<form action="{{ linkTo('platform-admin.redirect') }}" method="POST">
+  <input type="hidden" name="_csrf" value="{{ context.csrf }}" />
+
+  <input type="hidden" name="action" value="find-user" />
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="find-user-email-or-user-guid">
+      Email address or GUID
+    </label>
+
+    <input class="govuk-input"
+           id="find-user-email-or-user-guid"
+           name="email-or-user-guid"
+           type="text"/>
+  </div>
+
+  <button class="govuk-button">
+    Find user
+  </button>
+</form>

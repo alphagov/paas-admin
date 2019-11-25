@@ -5,6 +5,7 @@ import * as applicationEvents from '../application-events';
 import * as applications from '../applications';
 import * as orgUsers from '../org-users';
 import * as organizations from '../organizations';
+import * as platformAdmin from '../platform-admin';
 import * as reports from '../reports';
 import * as serviceEvents from '../service-events';
 import * as serviceMetrics from '../service-metrics';
@@ -207,6 +208,17 @@ const router = new Router([
     action: users.getUser,
     name: 'users.get',
     path: '/users/:emailOrUserGUID',
+  },
+  {
+    action: platformAdmin.viewHomepage,
+    name: 'platform-admin.homepage',
+    path: '/platform-admin',
+  },
+  {
+    action: platformAdmin.redirectToPage,
+    method: 'post',
+    name: 'platform-admin.redirect',
+    path: '/platform-admin',
   },
 ]);
 

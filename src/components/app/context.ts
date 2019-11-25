@@ -13,6 +13,7 @@ export interface IViewContext {
   readonly csrf: string;
   readonly location: string;
   readonly origin?: string;
+  readonly isPlatformAdmin: boolean;
 }
 
 export interface IContext {
@@ -28,6 +29,7 @@ export interface IContext {
 
 export function initContext(req: any, router: Router, route: Route, config: IAppConfig): IContext {
   const origin = req.token && req.token.origin;
+  const isPlatformAdmin = req.token && req.token.hasAdminScopes && req.token.hasAdminScopes();
 
   return {
     app: config,
@@ -43,7 +45,7 @@ export function initContext(req: any, router: Router, route: Route, config: IApp
     viewContext: {
       location: config.location,
       csrf: req.csrfToken(),
-      origin,
+      origin, isPlatformAdmin,
     },
     session: req.session,
   };

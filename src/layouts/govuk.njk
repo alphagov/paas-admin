@@ -74,6 +74,13 @@
               Documentation
             </a>
           </li>
+          {% if context.isPlatformAdmin %}
+          <li class="govuk-header__navigation-item">
+            <a class="govuk-header__link" href="/platform-admin">
+              Platform admin
+            </a>
+          </li>
+          {% endif %}
           <li class="govuk-header__navigation-item">
             <a class="govuk-header__link" href="/auth/logout">
               Sign out

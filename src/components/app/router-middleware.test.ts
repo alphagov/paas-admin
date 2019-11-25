@@ -1,7 +1,11 @@
 import express from 'express';
 import request from 'supertest';
 
-import Router, { IParameters, NotFoundError } from '../../lib/router';
+import Router, {
+  IParameters,
+  NotAuthorisedError,
+  NotFoundError,
+} from '../../lib/router';
 
 import { config } from './app.test.config';
 import { routerMiddleware } from './router-middleware';
@@ -31,6 +35,13 @@ describe('app test suite - router-middleware', () => {
           throw new Error('TESTING 500');
         },
         path: '/500',
+      },
+      {
+        name: 'notAuthorisedError',
+        action: async () => {
+          throw new NotAuthorisedError('DENIED 403');
+        },
+        path: '/403',
       },
       {
         name: 'hello',
@@ -69,6 +80,9 @@ describe('app test suite - router-middleware', () => {
       if (err instanceof NotFoundError) {
         return res.status(404).send({message: err.message});
       }
+      if (err instanceof NotAuthorisedError) {
+        return res.status(403).send({message: err.message});
+      }
 
       res.status(500).send({message: err.message});
     });
@@ -79,6 +93,7 @@ describe('app test suite - router-middleware', () => {
     const helloResponse = await agent.get('/hello/World');
     const notModifiedResponse = await agent.get('/304');
     const redirectResponse = await agent.get('/redirect');
+    const notAuthorisedResponse = await agent.get('/403');
     const notFoundResponse = await agent.get('/404');
     const serverErrorResponse = await agent.get('/500');
     const downloadResponse = await agent.get('/download');
@@ -92,6 +107,7 @@ describe('app test suite - router-middleware', () => {
     expect(helloResponse.text).toContain('Hello, World!');
     expect(notModifiedResponse.status).toEqual(304);
     expect(redirectResponse.header.location).toEqual('/');
+    expect(notAuthorisedResponse.status).toEqual(403);
     expect(notFoundResponse.status).toEqual(404);
     expect(serverErrorResponse.status).toEqual(500);
     expect(downloadResponse.header['content-disposition']).toEqual(`attachment; filename="download.txt"`);
