@@ -37,8 +37,8 @@ export async function resolveServiceMetrics(ctx: IContext, params: IParameters):
       organizationGUID: params.organizationGUID,
       spaceGUID: params.spaceGUID,
       serviceGUID: params.serviceGUID,
-      rangeStart: rangeStart.unix(),
-      rangeStop: rangeStop.unix(),
+      rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
     }),
   };
 }
@@ -64,8 +64,8 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
             organizationGUID: params.organizationGUID,
             spaceGUID: params.spaceGUID,
             serviceGUID: params.serviceGUID,
-            rangeStart: moment().subtract(24, 'hours').unix(),
-            rangeStop: moment().unix(),
+            rangeStart: moment().subtract(24, 'hours').format('YYYY-MM-DD[T]HH:mm'),
+            rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
           }),
       };
     }
@@ -160,31 +160,33 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
 }
 
 function parseRange(start: string, stop: string): IRange {
-  const rangeStart = moment.unix(parseInt(start, 10));
-  const rangeStop = moment.unix(parseInt(stop, 10));
+  const rangeStart = moment(start);
+  const rangeStop = moment(stop);
   const secondsDifference = rangeStop.diff(rangeStart) / 1000;
   let period;
+
+  if (rangeStart.isBefore(rangeStop.clone().subtract(1, 'year'))) {
+    throw new UserFriendlyError('Invalid time range provided. Cannot handle more than a year of metrics');
+  }
+
+  if (rangeStop.isBefore(moment().subtract(1, 'years')) || rangeStart.isBefore(moment().subtract(1, 'years'))) {
+    throw new UserFriendlyError('Invalid time range provided. Cannot handle over a year old metrics');
+  }
 
   if (rangeStop.isBefore(rangeStart)) {
     throw new UserFriendlyError('Invalid time range provided');
   }
 
   if (secondsDifference <= 900) { // If less than 15 minutes
-    period = moment.duration(3, 'seconds');
+    period = moment.duration(5, 'seconds');
   } else if (secondsDifference <= 3600) { // If less than an hour
     period = moment.duration(10, 'seconds');
   } else if (secondsDifference <= 7200) { // If less than 2 hours
     period = moment.duration(30, 'seconds');
   } else if (secondsDifference <= 90000) { // If less than 25 hours
     period = moment.duration(5, 'minutes');
-  } else if (secondsDifference <= 1080000) { // If less than 300 hours
-    period = moment.duration(1, 'hour');
   } else {
-    period = moment.duration(1, 'day');
-  }
-
-  if (rangeStart.isBefore(rangeStop.clone().subtract(1, 'year'))) {
-    throw new UserFriendlyError('Invalid time range provided. Cannot handle more than a year of metrics');
+    period = moment.duration(1, 'hour');
   }
 
   return { period, rangeStart: roundDown(rangeStart, period), rangeStop: roundDown(rangeStop, period) };
