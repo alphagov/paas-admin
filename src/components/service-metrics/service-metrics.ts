@@ -8,9 +8,40 @@ import { IContext } from '../app';
 import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
 import { fromOrg, IBreadcrumb } from '../breadcrumbs';
 import { drawMultipleLineGraphs } from '../charts/line-graph';
+import { UserFriendlyError } from '../errors';
 import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk';
 import rdsServiceMetricsTemplate from './rds-service-metrics.njk';
 import unsupportedServiceMetricsTemplate from './unsupported-service-metrics.njk';
+
+interface IRange {
+  readonly period: moment.Duration;
+  readonly rangeStart: moment.Moment;
+  readonly rangeStop: moment.Moment;
+}
+
+export async function resolveServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const rangeStop = moment();
+  const timeRanges: {[key: string]: moment.Moment} = {
+    '1h': rangeStop.clone().subtract(1, 'hour'),
+    '3h': rangeStop.clone().subtract(3, 'hours'),
+    '12h': rangeStop.clone().subtract(12, 'hours'),
+    '24h': rangeStop.clone().subtract(24, 'hours'),
+    '7d': rangeStop.clone().subtract(7, 'days'),
+    '30d': rangeStop.clone().subtract(30, 'days'),
+  };
+  const rangeStart = timeRanges[params.offset] || timeRanges['24h'];
+
+  return {
+    status: 302,
+    redirect: ctx.linkTo('admin.organizations.spaces.services.metrics.view', {
+      organizationGUID: params.organizationGUID,
+      spaceGUID: params.spaceGUID,
+      serviceGUID: params.serviceGUID,
+      rangeStart: rangeStart.unix(),
+      rangeStop: rangeStop.unix(),
+    }),
+  };
+}
 
 export async function viewServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
     const cf = new CloudFoundryClient({
@@ -24,6 +55,22 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         CLOUD_CONTROLLER_READ_ONLY_ADMIN,
         CLOUD_CONTROLLER_GLOBAL_AUDITOR,
     );
+
+    if (!params.rangeStart || !params.rangeStop) {
+      return {
+        status: 302,
+        redirect: ctx.linkTo(
+          'admin.organizations.spaces.services.metrics.view', {
+            organizationGUID: params.organizationGUID,
+            spaceGUID: params.spaceGUID,
+            serviceGUID: params.serviceGUID,
+            rangeStart: moment().subtract(24, 'hours').unix(),
+            rangeStop: moment().unix(),
+          }),
+      };
+    }
+
+    const {rangeStart, rangeStop, period} = parseRange(params.rangeStart, params.rangeStop);
 
     const [isManager, isBillingManager, userProvidedServices, space, organization] = await Promise.all([
         cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
@@ -60,16 +107,12 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
       }),
     );
 
-    const period = moment.duration(5, 'minutes');
-    const endTime = roundDown(moment(), period);
-    const startTime = endTime.clone().subtract(1, 'day');
-
     const metricGraphData = await cloudWatchMetricDataClient.getMetricGraphData(
       service.metadata.guid,
       serviceLabel,
       period,
-      startTime,
-      endTime,
+      rangeStart,
+      rangeStop,
     );
 
     const defaultTemplateParams = {
@@ -84,6 +127,9 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         isBillingManager,
         isManager,
         breadcrumbs,
+        period,
+        rangeStart,
+        rangeStop,
     };
     if (!metricGraphData) {
       return {
@@ -111,4 +157,35 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
       default:
         throw new Error(`Unrecognised service type ${metricGraphData.serviceType}`);
     }
+}
+
+function parseRange(start: string, stop: string): IRange {
+  const rangeStart = moment.unix(parseInt(start, 10));
+  const rangeStop = moment.unix(parseInt(stop, 10));
+  const secondsDifference = rangeStop.diff(rangeStart) / 1000;
+  let period;
+
+  if (rangeStop.isBefore(rangeStart)) {
+    throw new UserFriendlyError('Invalid time range provided');
+  }
+
+  if (secondsDifference <= 900) { // If less than 15 minutes
+    period = moment.duration(3, 'seconds');
+  } else if (secondsDifference <= 3600) { // If less than an hour
+    period = moment.duration(10, 'seconds');
+  } else if (secondsDifference <= 7200) { // If less than 2 hours
+    period = moment.duration(30, 'seconds');
+  } else if (secondsDifference <= 90000) { // If less than 25 hours
+    period = moment.duration(5, 'minutes');
+  } else if (secondsDifference <= 1080000) { // If less than 300 hours
+    period = moment.duration(1, 'hour');
+  } else {
+    period = moment.duration(1, 'day');
+  }
+
+  if (rangeStart.isBefore(rangeStop.clone().subtract(1, 'year'))) {
+    throw new UserFriendlyError('Invalid time range provided. Cannot handle more than a year of metrics');
+  }
+
+  return { period, rangeStart: roundDown(rangeStart, period), rangeStop: roundDown(rangeStop, period) };
 }

@@ -4,7 +4,6 @@ import {format as d3Format} from 'd3-format';
 import {scaleLinear, scaleTime} from 'd3-scale';
 import {select} from 'd3-selection';
 import {line} from 'd3-shape';
-import {timeFormat} from 'd3-time-format';
 import {JSDOM} from 'jsdom';
 import {flatMap} from 'lodash';
 import moment from 'moment';
@@ -43,7 +42,7 @@ const viewBox = {
 const padding = {
   top: 25,
   right: 30,
-  bottom: 80,
+  bottom: 132,
   left: 50,
 };
 
@@ -121,7 +120,13 @@ export function drawLineGraph(metricGraphData: IMetricGraphData): SVGElement {
     .attr('class', 'axis bottom')
     .attr('transform', `translate(0, ${viewBox.height - padding.bottom})`)
     .attr('aria-hidden', 'true')
-    .call(axisBottom<Date>(xScale).tickFormat(timeFormat('%H:%M')));
+    .call(axisBottom<Date>(xScale))
+    .selectAll('text')
+      .attr('y', 8)
+      .attr('x', -8)
+      .attr('dy', '.35em')
+      .attr('transform', 'rotate(-45)')
+      .style('text-anchor', 'end');
 
   svg.append('text')
     .attr('class', 'label left')

@@ -49,6 +49,14 @@ function configure(env) {
     return moment(date).format('HH:mm');
   });
 
+  env.addFilter('nicedatetime', (date) => {
+    return moment(date).format('h:mma, D MMMM YYYY');
+  });
+
+  env.addFilter('dateTime', (date) => {
+    return moment(date).format('YYYY-MM-DD[T]HH:mm');
+  });
+
   env.addFilter('relativetime', (date) => {
     return moment(date).fromNow();
   });

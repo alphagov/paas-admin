@@ -79,6 +79,11 @@ const router = new Router([
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics',
   },
   {
+    action: serviceMetrics.resolveServiceMetrics,
+    name: 'admin.organizations.spaces.services.metrics.redirect',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics/:offset',
+  },
+  {
     action: serviceEvents.viewServiceEvents,
     name: 'admin.organizations.spaces.services.events.view',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/events',
