@@ -1,0 +1,15 @@
+{% macro metric(params) %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h3 class="govuk-heading-m" id="{{ params.id }}">
+        {{ params.titleHTML | safe }}
+      </h3>
+    </div>
+
+    <div class="govuk-grid-column-two-thirds">
+        <p>{{ params.descriptionHTML | safe }}</p>
+
+        <div>{{ params.metric.graph | safe }}</div>
+    </div>
+  </div>
+{% endmacro %}
