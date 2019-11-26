@@ -44,6 +44,7 @@
 <div class="govuk-width-container">
   {{ metric({
     id: 'cpu-utilisation',
+    format: 'percentile',
     titleHTML: 'CPU Utilisation',
     descriptionHTML: 'How much computational work redis is doing. High CPU Utilisation may indicate you need to reduce your usage
         or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.',
@@ -52,6 +53,7 @@
 
   {{ metric({
     id: 'memory-used',
+    format: 'bytes',
     titleHTML: 'Memory used',
     descriptionHTML: 'The total amount of memory redis is using to store your data and redis&apos;
       internal buffers. If redis reaches its memory limit and cannot evict any
@@ -62,6 +64,7 @@
 
   {{ metric({
     id: 'swap-memory-used',
+    format: 'bytes',
     titleHTML: 'Swap memory used',
     descriptionHTML: 'If redis is running low on memory it will start to swap memory onto the hard disk. If redis is using more than 50 <abbr title="MegaBytes">MB</abbr>
       of swap memory you may need to reduce your usage or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.',
@@ -107,6 +110,7 @@
 
   {{ metric({
     id: 'network-bytes-in',
+    format: 'bytes',
     titleHTML: 'Network bytes in',
     descriptionHTML: 'The number of bytes redis has read from the network.',
     metric: metricGraphsById['mNetworkBytesIn']
@@ -114,6 +118,7 @@
 
   {{ metric({
     id: 'network-bytes-out',
+    format: 'bytes',
     titleHTML: 'Network bytes out',
     descriptionHTML: 'The number of bytes sent by redis.',
     metric: metricGraphsById['mNetworkBytesOut']

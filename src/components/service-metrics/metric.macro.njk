@@ -11,5 +11,87 @@
 
         <div>{{ params.metric.graph | safe }}</div>
     </div>
+    <div class="govuk-grid-column-one-third">
+      <table class="govuk-table">
+        <caption class="govuk-table__caption govuk-visually-hidden">Summary</caption>
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header {{ 'govuk-visually-hidden' if params.metric.data.seriesArray.length == 1 }}"><small>Instance</small></th>
+            {% for series in params.metric.data.seriesArray %}
+              <th scope="col" class="govuk-table__header govuk-table__header--numeric {{ 'govuk-visually-hidden' if params.metric.data.seriesArray.length == 1 }}"><small>{{ series.summary.label }}</small></th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header"><small>Latest</small></th>
+            {% for series in params.metric.data.seriesArray %}
+              <td class="govuk-table__cell govuk-table__cell--numeric">
+                <small>
+                  {% if params.format === 'bytes' %}
+                    {{ series.summary.latest | bytestohuman | safe }}
+                  {% elseif params.format === 'percentile' %}
+                    {{ series.summary.latest | round(2) }}%
+                  {% else %}
+                    {{ series.summary.latest | round(2) }}
+                  {% endif %}
+                </small>
+              </td>
+            {% endfor %}
+          </tr>
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header"><small>Average</small></th>
+            
+            {% for series in params.metric.data.seriesArray %}
+              <td class="govuk-table__cell govuk-table__cell--numeric">
+                <small>
+                  {% if params.format === 'bytes' %}
+                    {{ series.summary.average | bytestohuman | safe }}
+                  {% elseif params.format === 'percentile' %}
+                    {{ series.summary.average | round(2) }}%
+                  {% else %}
+                    {{ series.summary.average | round(2) }}
+                  {% endif %}
+                </small>
+              </td>
+            {% endfor %}
+          </tr>
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header"><small>Min</small></th>
+            
+            {% for series in params.metric.data.seriesArray %}
+              <td class="govuk-table__cell govuk-table__cell--numeric">
+                <small>
+                  {% if params.format === 'bytes' %}
+                    {{ series.summary.min | bytestohuman | safe }}
+                  {% elseif params.format === 'percentile' %}
+                    {{ series.summary.min | round(2) }}%
+                  {% else %}
+                    {{ series.summary.min | round(2) }}
+                  {% endif %}
+                </small>
+              </td>
+            {% endfor %}
+          </tr>
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header"><small>Max</small></th>
+            
+            {% for series in params.metric.data.seriesArray %}
+              <td class="govuk-table__cell govuk-table__cell--numeric">
+                <small>
+                  {% if params.format === 'bytes' %}
+                    {{ series.summary.max | bytestohuman | safe }}
+                  {% elseif params.format === 'percentile' %}
+                    {{ series.summary.max | round(2) }}%
+                  {% else %}
+                    {{ series.summary.max | round(2) }}
+                  {% endif %}
+                </small>
+              </td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 {% endmacro %}

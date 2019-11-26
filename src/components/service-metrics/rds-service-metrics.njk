@@ -40,6 +40,7 @@
 <div class="govuk-width-container">
   {{ metric({
     id: 'free-disk-space',
+    format: 'bytes',
     titleHTML: 'Free disk space',
     descriptionHTML: 'How much hard disk space your database has remaining. If your database runs out of disk space it will stop working.',
     metric: metricGraphsById['mFreeStorageSpace']
@@ -47,6 +48,7 @@
 
   {{ metric({
     id: 'cpu-utilisation',
+    format: 'percentile',
     titleHTML: 'CPU Utilisation',
     descriptionHTML: 'How much computational work your database is doing. High CPU Utilisation may indicate you need to optimise your database queries
       or <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.',
@@ -64,6 +66,7 @@
 
   {{ metric({
     id: 'freeable-memory',
+    format: 'bytes',
     titleHTML: 'Freeable Memory',
     descriptionHTML: 'How much <abbr title="Random Access Memory">RAM</abbr> the <abbr title="Virtual Machine">VM</abbr> your database is running on has remaining. Values near zero may indicate you need to optimise your database queries or
         <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.',

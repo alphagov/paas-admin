@@ -11,6 +11,13 @@ import moment from 'moment';
 export interface IMetricSeries {
   metrics: ReadonlyArray<IMetric>;
   label: string;
+  summary?: {
+    readonly label: string;
+    readonly latest: number;
+    readonly average: number;
+    readonly min: number;
+    readonly max: number;
+  };
 }
 
 export interface IMetricGraphData {
@@ -29,6 +36,7 @@ export interface IMetric {
 export interface IGraphByID {
   readonly [id: string]: {
     graph: string;
+    data: IMetricGraphData,
   };
 }
 
@@ -49,7 +57,33 @@ const padding = {
 export function drawMultipleLineGraphs(metricGraphData: ReadonlyArray<IMetricGraphData>): IGraphByID {
   return metricGraphData.reduce((acc, data) => ({
     ...acc,
-    [data.id]: { graph: drawLineGraph(data).outerHTML },
+    [data.id]: {
+      graph: drawLineGraph(data).outerHTML,
+      data: {
+        ...data,
+        seriesArray: data.seriesArray.reduce((all: ReadonlyArray<IMetricSeries>, series) => {
+          const maxMetric = series.metrics.reduce((value, m) => m.value > value ? m.value : value, 0);
+          const matches = series.label.match(/-(\d+$)/);
+          // istanbul ignore next
+          const label = matches && matches.length > 1 ? matches[1] : '001';
+
+          return [
+            ...all,
+            {
+              ...series,
+              summary: {
+                label,
+                latest: series.metrics.reduce((value, m) => !isNaN(m.value) ? m.value : value, 0),
+                average: series.metrics.reduce((total, m) => total + (m.value || 0), 0)
+                  / series.metrics.filter(m => !isNaN(m.value)).length,
+                min: series.metrics.reduce((value, m) => m.value < value ? m.value : value, maxMetric),
+                max: maxMetric,
+              },
+            },
+          ];
+        }, []),
+      },
+    },
   }), {});
 }
 

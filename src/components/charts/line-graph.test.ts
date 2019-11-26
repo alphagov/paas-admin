@@ -16,8 +16,9 @@ describe('line graphs', () => {
 
   it('should render a single series as a path and not show a legend', () => {
     const series = [
-      {date: new Date(2019, 1, 1), value: 42},
-      {date: new Date(2019, 2, 1), value: 58},
+      {date: new Date(2019, 1, 1), value: 58},
+      {date: new Date(2019, 2, 1), value: 42},
+      {date: new Date(2019, 3, 1), value: 53},
     ];
     const result = drawLineGraph({
       ...defaultGraphData,
