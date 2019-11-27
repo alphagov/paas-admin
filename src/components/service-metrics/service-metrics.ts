@@ -12,6 +12,7 @@ import { UserFriendlyError } from '../errors';
 import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk';
 import rdsServiceMetricsTemplate from './rds-service-metrics.njk';
 import unsupportedServiceMetricsTemplate from './unsupported-service-metrics.njk';
+import { getPeriod } from './utils';
 
 interface IRange {
   readonly period: moment.Duration;
@@ -162,9 +163,6 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
 function parseRange(start: string, stop: string): IRange {
   const rangeStart = moment(start);
   const rangeStop = moment(stop);
-  const secondsDifference = rangeStop.diff(rangeStart) / 1000;
-  let period;
-
   if (rangeStart.isBefore(rangeStop.clone().subtract(1, 'year'))) {
     throw new UserFriendlyError('Invalid time range provided. Cannot handle more than a year of metrics');
   }
@@ -177,17 +175,8 @@ function parseRange(start: string, stop: string): IRange {
     throw new UserFriendlyError('Invalid time range provided');
   }
 
-  if (secondsDifference <= 900) { // If less than 15 minutes
-    period = moment.duration(5, 'seconds');
-  } else if (secondsDifference <= 3600) { // If less than an hour
-    period = moment.duration(10, 'seconds');
-  } else if (secondsDifference <= 7200) { // If less than 2 hours
-    period = moment.duration(30, 'seconds');
-  } else if (secondsDifference <= 90000) { // If less than 25 hours
-    period = moment.duration(5, 'minutes');
-  } else {
-    period = moment.duration(1, 'hour');
-  }
+  const secondsDifference = rangeStop.diff(rangeStart) / 1000;
+  const period = moment.duration(getPeriod(secondsDifference), 'seconds');
 
   return { period, rangeStart: roundDown(rangeStart, period), rangeStop: roundDown(rangeStop, period) };
 }
