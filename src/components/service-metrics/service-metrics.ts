@@ -175,8 +175,7 @@ function parseRange(start: string, stop: string): IRange {
     throw new UserFriendlyError('Invalid time range provided');
   }
 
-  const secondsDifference = rangeStop.diff(rangeStart) / 1000;
-  const period = moment.duration(getPeriod(secondsDifference), 'seconds');
+  const period = moment.duration(getPeriod(rangeStart, rangeStop), 'seconds');
 
   return { period, rangeStart: roundDown(rangeStart, period), rangeStop: roundDown(rangeStop, period) };
 }
