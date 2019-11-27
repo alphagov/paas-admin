@@ -5,19 +5,12 @@ import {scaleLinear, scaleTime} from 'd3-scale';
 import {select} from 'd3-selection';
 import {line} from 'd3-shape';
 import {JSDOM} from 'jsdom';
-import {flatMap} from 'lodash';
+import {flatMap, keyBy} from 'lodash';
 import moment from 'moment';
 
 export interface IMetricSeries {
   metrics: ReadonlyArray<IMetric>;
   label: string;
-  summary?: {
-    readonly label: string;
-    readonly latest: number;
-    readonly average: number;
-    readonly min: number;
-    readonly max: number;
-  };
 }
 
 export interface IMetricGraphData {
@@ -33,10 +26,19 @@ export interface IMetric {
   value: number;
 }
 
+export interface IGraphSummary {
+  average: number;
+  label: string;
+  latest: number;
+  min: number;
+  max: number;
+}
+
 export interface IGraphByID {
   readonly [id: string]: {
+    id: string,
     graph: string;
-    data: IMetricGraphData,
+    seriesSummaries: ReadonlyArray<IGraphSummary>;
   };
 }
 
@@ -55,36 +57,35 @@ const padding = {
 };
 
 export function drawMultipleLineGraphs(metricGraphData: ReadonlyArray<IMetricGraphData>): IGraphByID {
-  return metricGraphData.reduce((acc, data) => ({
-    ...acc,
-    [data.id]: {
-      graph: drawLineGraph(data).outerHTML,
-      data: {
-        ...data,
-        seriesArray: data.seriesArray.reduce((all: ReadonlyArray<IMetricSeries>, series) => {
-          const maxMetric = series.metrics.reduce((value, m) => m.value > value ? m.value : value, 0);
-          const matches = series.label.match(/-(\d+$)/);
-          // istanbul ignore next
-          const label = matches && matches.length > 1 ? matches[1] : '001';
+  const metricDataWithSummaries = metricGraphData.map(data => {
+    const graph = drawLineGraph(data).outerHTML;
 
-          return [
-            ...all,
-            {
-              ...series,
-              summary: {
-                label,
-                latest: series.metrics.reduce((value, m) => !isNaN(m.value) ? m.value : value, 0),
-                average: series.metrics.reduce((total, m) => total + (m.value || 0), 0)
-                  / series.metrics.filter(m => !isNaN(m.value)).length,
-                min: series.metrics.reduce((value, m) => m.value < value ? m.value : value, maxMetric),
-                max: maxMetric,
-              },
-            },
-          ];
-        }, []),
-      },
-    },
-  }), {});
+    const seriesSummaries = data.seriesArray.map(series => {
+
+      const matches = series.label.match(/-(\d+$)/);
+
+      // istanbul ignore next
+      const label   = matches && matches.length > 1 ? matches[1] : '001';
+
+      const latestMetric = series.metrics.reduce((value, m) => !isNaN(m.value) ? m.value : value, 0);
+      const maxMetric = series.metrics.reduce((value, m) => m.value > value ? m.value : value, 0);
+      const minMetric = series.metrics.reduce((value, m) => m.value < value ? m.value : value, maxMetric);
+      const averageMetric = series.metrics.reduce((total, m) => total + (m.value || 0), 0)
+        / series.metrics.filter(m => !isNaN(m.value)).length;
+
+      const summary = {
+        label,
+        latest: latestMetric, average: averageMetric,
+        min: minMetric, max: maxMetric,
+      };
+
+      return summary;
+    });
+
+    return { id: data.id, graph, seriesSummaries };
+  });
+
+  return keyBy(metricDataWithSummaries, d => d.id);
 }
 
 export function drawLineGraph(metricGraphData: IMetricGraphData): SVGElement {
