@@ -1,0 +1,97 @@
+{% macro metric(params) %}
+  <div class="govuk-grid-row govuk-!-padding-bottom-9">
+    <div class="govuk-grid-column-full">
+      <h3 class="govuk-heading-m" id="{{ params.id }}">
+        {{ params.titleHTML | safe }}
+      </h3>
+    </div>
+
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+        <p>{{ params.descriptionHTML | safe }}</p>
+
+        <div>{{ params.metric.graph | safe }}</div>
+    </div>
+    <div class="govuk-grid-column-one-third-from-desktop">
+      <table class="govuk-table">
+        <caption class="govuk-table__caption govuk-visually-hidden">Summary</caption>
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header {{ 'govuk-visually-hidden' if params.metric.seriesSummaries.length == 1 }}"><small>Instance</small></th>
+            {% for series in params.metric.seriesSummaries %}
+              <th scope="col" class="govuk-table__header govuk-table__header--numeric {{ 'govuk-visually-hidden' if params.metric.seriesSummaries.length == 1 }}"><small>{{ series.label }}</small></th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header"><small>Latest</small></th>
+            {% for series in params.metric.seriesSummaries %}
+              <td class="govuk-table__cell govuk-table__cell--numeric">
+                <small>
+                  {% if params.format === 'bytes' %}
+                    {{ series.latest | bytestohuman | safe }}
+                  {% elseif params.format === 'percentile' %}
+                    {{ series.latest | round(2) }}%
+                  {% else %}
+                    {{ series.latest | round(2) }}
+                  {% endif %}
+                </small>
+              </td>
+            {% endfor %}
+          </tr>
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header"><small>Average</small></th>
+
+            {% for series in params.metric.seriesSummaries %}
+              <td class="govuk-table__cell govuk-table__cell--numeric">
+                <small>
+                  {% if params.format === 'bytes' %}
+                    {{ series.average | bytestohuman | safe }}
+                  {% elseif params.format === 'percentile' %}
+                    {{ series.average | round(2) }}%
+                  {% else %}
+                    {{ series.average | round(2) }}
+                  {% endif %}
+                </small>
+              </td>
+            {% endfor %}
+          </tr>
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header"><small>Min</small></th>
+
+            {% for series in params.metric.seriesSummaries %}
+              <td class="govuk-table__cell govuk-table__cell--numeric">
+                <small>
+                  {% if params.format === 'bytes' %}
+                    {{ series.min | bytestohuman | safe }}
+                  {% elseif params.format === 'percentile' %}
+                    {{ series.min | round(2) }}%
+                  {% else %}
+                    {{ series.min | round(2) }}
+                  {% endif %}
+                </small>
+              </td>
+            {% endfor %}
+          </tr>
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header"><small>Max</small></th>
+
+            {% for series in params.metric.seriesSummaries %}
+              <td class="govuk-table__cell govuk-table__cell--numeric">
+                <small>
+                  {% if params.format === 'bytes' %}
+                    {{ series.max | bytestohuman | safe }}
+                  {% elseif params.format === 'percentile' %}
+                    {{ series.max | round(2) }}%
+                  {% else %}
+                    {{ series.max | round(2) }}
+                  {% endif %}
+                </small>
+              </td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endmacro %}

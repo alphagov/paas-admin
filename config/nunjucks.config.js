@@ -3,6 +3,13 @@ const jmespath = require('jmespath');
 const showdown = require('showdown');
 const moment = require('moment');
 
+const longUnits = {
+  KiB : 'kibibytes',
+  MiB : 'mibibytes',
+  GiB : 'gibibytes',
+  TiB : 'tebibytes',
+};
+
 function configure(env) {
   env.addFilter('query', (data, query) => {
     return jmespath.search(data, query);
@@ -82,6 +89,23 @@ function configure(env) {
 
   env.addFilter('mibtogib', (mib) => {
     return `${(mib / 1024).toFixed(2)}<abbr title="gibibytes">GiB</abbr>`;
+  });
+
+  env.addFilter('bytestohuman', (bytes) => {
+    const units = ['KiB', 'MiB', 'GiB', 'TiB'];
+    const thresh = 1024;
+
+    if(Math.abs(bytes) < thresh) {
+      return `${bytes.toFixed(0)}<abbr title="bytes">B</abbr>`;
+    }
+
+    let u = -1;
+    while(Math.abs(bytes) >= thresh && u < units.length - 1) {
+        bytes /= thresh;
+        ++u;
+    }
+
+    return `${bytes.toFixed(2)}<abbr title="${longUnits[units[u]]}">${units[u]}</abbr>`;
   });
 
   env.addFilter('percentage', (num, denom) => {

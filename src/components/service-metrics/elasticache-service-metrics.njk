@@ -1,5 +1,6 @@
 {% extends "../services/_tabbed_layout.njk" %}
 {% from "govuk-frontend/govuk/components/tag/macro.njk" import govukTag %}
+{% from "./metric.macro.njk" import metric %}
 
 {% block pageTitle %}
   {{ service.entity.name }} - Service Metrics
@@ -41,84 +42,87 @@
 </div>
 
 <div class="govuk-width-container">
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h3 class="govuk-heading-m" id="cpu-utilisation">CPU Utilisation</h3>
-      <p>
-        How much computational work redis is doing. High CPU Utilisation may indicate you need to reduce your usage
-        or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.
-      </p>
-      <div>{{metricGraphsById['mCPUUtilization'].graph | safe}}</div>
-    </div>
+  {{ metric({
+    id: 'cpu-utilisation',
+    format: 'percentile',
+    titleHTML: 'CPU Utilisation',
+    descriptionHTML: 'How much computational work redis is doing. High CPU Utilisation may indicate you need to reduce your usage
+        or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.',
+    metric: metricGraphsById['mCPUUtilization']
+  }) }}
 
-    <div class="govuk-grid-column-two-thirds">
-      <h3 class="govuk-heading-m" id="memory-used">Memory used</h3>
-      <p>
-      The total amount of memory redis is using to store your data and redis'
+  {{ metric({
+    id: 'memory-used',
+    format: 'bytes',
+    titleHTML: 'Memory used',
+    descriptionHTML: 'The total amount of memory redis is using to store your data and redis&apos;
       internal buffers. If redis reaches its memory limit and cannot evict any
       keys it will return errors when executing commands that increase memory
-      use.
-      </p>
-      <div>{{metricGraphsById['mBytesUsedForCache'].graph | safe}}</div>
-    </div>
+      use.',
+    metric: metricGraphsById['mBytesUsedForCache']
+  }) }}
 
-    <div class="govuk-grid-column-two-thirds">
-      <h3 class="govuk-heading-m" id="swap-memory-used">Swap memory used</h3>
-      <p>
-      If redis is running low on memory it will start to swap memory onto the hard disk. If redis is using more than 50 <abbr title="MegaBytes">MB</abbr>
-      of swap memory you may need to reduce your usage or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.
-      </p>
-      <div>{{metricGraphsById['mSwapUsage'].graph | safe}}</div>
-    </div>
+  {{ metric({
+    id: 'swap-memory-used',
+    format: 'bytes',
+    titleHTML: 'Swap memory used',
+    descriptionHTML: 'If redis is running low on memory it will start to swap memory onto the hard disk. If redis is using more than 50 <abbr title="MegaBytes">MB</abbr>
+      of swap memory you may need to reduce your usage or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.',
+    metric: metricGraphsById['mSwapUsage']
+  }) }}
 
-    <div class="govuk-grid-column-two-thirds">
-      <h3 class="govuk-heading-m" id="evictions">Evictions</h3>
-      <p>
-      Redis will evict keys when it reaches its configured memory limit. It will try to remove less recently used keys first, but only among keys
-      that have an EXPIRE set. If there are no keys left to evict redis will return errors when executing commands that increase memory use.
-      </p>
-      <div>{{metricGraphsById['mEvictions'].graph | safe}}</div>
-    </div>
+  {{ metric({
+    id: 'evictions',
+    titleHTML: 'Evictions',
+    descriptionHTML: 'Redis will evict keys when it reaches its configured memory limit. It will try to remove less recently used keys first, but only among keys
+      that have an EXPIRE set. If there are no keys left to evict redis will return errors when executing commands that increase memory use.',
+    metric: metricGraphsById['mEvictions']
+  }) }}
 
-    <div class="govuk-grid-column-two-thirds">
-      <h3 class="govuk-heading-m" id="connection-count">Connection count</h3>
-      <p>
-      How many open connections there are to redis. High values may indicate problems with your applications' connection management.
-      Zero values may indicate that redis is unavailable, or that your applications cannot connect to the database.
-      </p>
-      <div>{{metricGraphsById['mCurrConnections'].graph | safe}}</div>
-    </div>
+  {{ metric({
+    id: 'connection-count',
+    titleHTML: 'Connection count',
+    descriptionHTML: 'How many open connections there are to redis. High values may indicate problems with your applications&apos; connection management.
+      Zero values may indicate that redis is unavailable, or that your applications cannot connect to the database.',
+    metric: metricGraphsById['mCurrConnections']
+  }) }}
 
-    <div class="govuk-grid-column-two-thirds">
-      <h3 class="govuk-heading-m" id="cache-hits">Cache hits</h3>
-      <p>The number of successful key lookups.</p>
-      <div>{{metricGraphsById['mCacheHits'].graph | safe}}</div>
-    </div>
+  {{ metric({
+    id: 'cache-hits',
+    titleHTML: 'Cache hits',
+    descriptionHTML: 'The number of successful key lookups.',
+    metric: metricGraphsById['mCacheHits']
+  }) }}
 
-    <div class="govuk-grid-column-two-thirds">
-      <h3 class="govuk-heading-m" id="cache-misses">Cache misses</h3>
-      <p>The number of unsuccessful key lookups.</p>
-      <div>{{metricGraphsById['mCacheMisses'].graph | safe}}</div>
-    </div>
+  {{ metric({
+    id: 'cache-misses',
+    titleHTML: 'Cache misses',
+    descriptionHTML: 'The number of unsuccessful key lookups.',
+    metric: metricGraphsById['mCacheMisses']
+  }) }}
 
-    <div class="govuk-grid-column-two-thirds">
-      <h3 class="govuk-heading-m" id="item-count">Item count</h3>
-      <p>The number of items in redis.</p>
-      <div>{{metricGraphsById['mCurrItems'].graph | safe}}</div>
-    </div>
+  {{ metric({
+    id: 'item-count',
+    titleHTML: 'Item count',
+    descriptionHTML: 'The number of items in redis.',
+    metric: metricGraphsById['mCurrItems']
+  }) }}
 
-    <div class="govuk-grid-column-two-thirds">
-      <h3 class="govuk-heading-m" id="network-bytes-in">Network bytes in</h3>
-      <p>The number of bytes redis has read from the network.</p>
-      <div>{{metricGraphsById['mNetworkBytesIn'].graph | safe}}</div>
-    </div>
+  {{ metric({
+    id: 'network-bytes-in',
+    format: 'bytes',
+    titleHTML: 'Network bytes in',
+    descriptionHTML: 'The number of bytes redis has read from the network.',
+    metric: metricGraphsById['mNetworkBytesIn']
+  }) }}
 
-    <div class="govuk-grid-column-two-thirds">
-      <h3 class="govuk-heading-m" id="network-bytes-out">Network bytes out</h3>
-      <p>The number of bytes sent by redis.</p>
-      <div>{{metricGraphsById['mNetworkBytesOut'].graph | safe}}</div>
-    </div>
-  </div>
+  {{ metric({
+    id: 'network-bytes-out',
+    format: 'bytes',
+    titleHTML: 'Network bytes out',
+    descriptionHTML: 'The number of bytes sent by redis.',
+    metric: metricGraphsById['mNetworkBytesOut']
+  }) }}
 </div>
 
 {% endblock %}

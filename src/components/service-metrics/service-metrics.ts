@@ -137,6 +137,7 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         body: unsupportedServiceMetricsTemplate.render(defaultTemplateParams),
       };
     }
+
     const metricGraphsById = drawMultipleLineGraphs(metricGraphData.graphs);
 
     switch (metricGraphData.serviceType) {

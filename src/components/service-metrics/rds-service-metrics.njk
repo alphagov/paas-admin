@@ -1,5 +1,6 @@
 {% extends "../services/_tabbed_layout.njk" %}
 {% from "govuk-frontend/govuk/components/tag/macro.njk" import govukTag %}
+{% from "./metric.macro.njk" import metric %}
 
 {% block pageTitle %}
   {{ service.entity.name }} - Service Metrics
@@ -18,7 +19,7 @@
 
 <div class="govuk-width-container">
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
       <p>Currently the available metrics for {{serviceLabel}} are:</p>
       <ul class="govuk-list">
         <li><a href="#free-disk-space" class="govuk-link">Free disk space</a></li>
@@ -30,91 +31,67 @@
       </ul>
     </div>
 
-    <div class="govuk-grid-column-one-third">
+    <div class="govuk-grid-column-one-third-from-desktop">
       {% include "./range-picker.njk" %}
     </div>
   </div>
 </div>
 
 <div class="govuk-width-container">
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h3 class="govuk-heading-m" id="free-disk-space">
-        Free disk space
-        </h3>
+  {{ metric({
+    id: 'free-disk-space',
+    format: 'bytes',
+    titleHTML: 'Free disk space',
+    descriptionHTML: 'How much hard disk space your database has remaining. If your database runs out of disk space it will stop working.',
+    metric: metricGraphsById['mFreeStorageSpace']
+  }) }}
 
-        <p>How much hard disk space your database has remaining. If your database runs out of disk space it will stop working.</p>
+  {{ metric({
+    id: 'cpu-utilisation',
+    format: 'percentile',
+    titleHTML: 'CPU Utilisation',
+    descriptionHTML: 'How much computational work your database is doing. High CPU Utilisation may indicate you need to optimise your database queries
+      or <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.',
+    metric: metricGraphsById['mCPUUtilization']
+  }) }}
 
-        <div>{{metricGraphsById['mFreeStorageSpace'].graph | safe}}</div>
-    </div>
-    <div class="govuk-grid-column-two-thirds">
-        <h3 class="govuk-heading-m" id="cpu-utilisation">
-        CPU Utilisation
-        </h3>
-
-        <p>
-        How much computational work your database is doing. High
-        CPU Utilisation may indicate you need to optimise your database queries
-        or <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
-        </p>
-
-        <div>{{metricGraphsById['mCPUUtilization'].graph | safe}}</div>
-    </div>
-    <div class="govuk-grid-column-two-thirds">
-        <h3 class="govuk-heading-m" id="database-connections">
-        Database Connections
-        </h3>
-
-        <p>
-        How many open connections there are to your database. High values may indicate problems with your applications' connection management, or that you need to
+  {{ metric({
+    id: 'database-connections',
+    titleHTML: 'Database Connections',
+    descriptionHTML: 'How many open connections there are to your database. High values may indicate problems with your applications&apos; connection management, or that you need to
         <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
-        Zero values may indicate the database is unavailable, or that your applications cannot connect to the database.
-        </p>
+        Zero values may indicate the database is unavailable, or that your applications cannot connect to the database.',
+    metric: metricGraphsById['mDatabaseConnections']
+  }) }}
 
-        <div>{{metricGraphsById['mDatabaseConnections'].graph | safe}}</div>
-    </div>
-    <div class="govuk-grid-column-two-thirds">
-        <h3 class="govuk-heading-m" id="freeable-memory">
-        Freeable Memory
-        </h3>
+  {{ metric({
+    id: 'freeable-memory',
+    format: 'bytes',
+    titleHTML: 'Freeable Memory',
+    descriptionHTML: 'How much <abbr title="Random Access Memory">RAM</abbr> the <abbr title="Virtual Machine">VM</abbr> your database is running on has remaining. Values near zero may indicate you need to optimise your database queries or
+        <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.',
+    metric: metricGraphsById['mFreeableMemory']
+  }) }}
 
-        <p>
-        How much <abbr title="Random Access Memory">RAM</abbr> the <abbr title="Virtual Machine">VM</abbr> your database is running on has remaining. Values near zero may indicate you need to optimise your database queries or
-        <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
-        </p>
-
-        <div>{{metricGraphsById['mFreeableMemory'].graph | safe}}</div>
-    </div>
-    <div class="govuk-grid-column-two-thirds">
-        <h3 class="govuk-heading-m" id="read-iops">
-        Read <abbr title="Input / Output Operations per Second">IOPS</abbr>
-        </h3>
-
-        <p>
-        How many read operations your database is performing per second. Databases are limited to a number of <abbr title="Input / Output Operations per Second">IOPS</abbr>
+  {{ metric({
+    id: 'read-iops',
+    titleHTML: 'Read <abbr title="Input / Output Operations per Second">IOPS</abbr>',
+    descriptionHTML: 'How many read operations your database is performing per second. Databases are limited to a number of <abbr title="Input / Output Operations per Second">IOPS</abbr>
         (read + write) based on how big their hard disk is. You get 3 <abbr title="Input / Output Operations per Second">IOPS</abbr> per <abbr title="GibiByte">GiB</abbr>, so a 100 GiB
         database would be limited to 300 IOPS. If it looks like your database is hitting its IOPS limit you may need to
-        <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
-        </p>
+        <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.',
+    metric: metricGraphsById['mReadIOPS']
+  }) }}
 
-        <div>{{metricGraphsById['mReadIOPS'].graph | safe}}</div>
-    </div>
-    <div class="govuk-grid-column-two-thirds">
-        <h3 class="govuk-heading-m" id="write-iops">
-        Write <abbr title="Input / Output Operations per Second">IOPS</abbr>
-        </h3>
-
-        <p>
-        How many write operations your database is performing per second. Databases are limited to a number of <abbr title="Input / Output Operations per Second">IOPS</abbr>
+  {{ metric({
+    id: 'write-iops',
+    titleHTML: 'Write <abbr title="Input / Output Operations per Second">IOPS</abbr>',
+    descriptionHTML: 'How many write operations your database is performing per second. Databases are limited to a number of <abbr title="Input / Output Operations per Second">IOPS</abbr>
         (read + write) based on how big their hard disk is. You get 3 <abbr title="Input / Output Operations per Second">IOPS</abbr> per <abbr title="GibiByte">GiB</abbr>, so a 100 GiB
         database would be limited to 300 IOPS. If it looks like your database is hitting its IOPS limit you may need to
-        <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.
-        </p>
-
-
-        <div>{{metricGraphsById['mWriteIOPS'].graph | safe}}</div>
-    </div>
-  </div>
+        <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan">update your service to use a bigger plan</a>.',
+    metric: metricGraphsById['mWriteIOPS']
+  }) }}
 </div>
 
 {% endblock %}

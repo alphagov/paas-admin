@@ -93,11 +93,8 @@
 }
 
 .paas-statement-filters {
+  @include govuk-responsive-padding(6);
   background-color: govuk-colour("light-grey");
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-top: 15px;
-  padding-bottom: 30px;
   border-collapse: separate;
 
   .govuk-table__header,
