@@ -3,11 +3,17 @@
 
 <div class="paas-statement-filters">
   <p class="govuk-body">
-    Showing metrics between <strong class="non-breaking">{{ rangeStart | nicedatetime }}</strong>
-    and <strong class="non-breaking">{{ rangeStop | nicedatetime }}</strong> for <a href="{{ linkTo(
+    Showing metrics for <a href="{{ linkTo(
       'admin.organizations.spaces.services.view',
       {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid, serviceGUID: service.metadata.guid}
-      )}}" class="govuk-link non-breaking">{{ service.entity.name }}</a>.
+    )}}" class="govuk-link non-breaking">{{ service.entity.name }}</a>
+    between
+    <br />
+    <strong>{{ rangeStart | nicedatetime }}</strong>
+    <br />
+    and
+    <br />
+    <strong>{{ rangeStop | nicedatetime }}</strong>
   </p>
 
   <p class="govuk-body">  
