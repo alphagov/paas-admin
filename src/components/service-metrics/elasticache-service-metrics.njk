@@ -13,7 +13,7 @@
 
   <p class="govuk-body">
     Backing service metrics is a new feature under active development.
-    Please email us at <a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">gov-uk-paas-support@digital.cabinet-office.gov.uk</a> if you have any feedback.
+    Please email us at <a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk" class="govuk-link">gov-uk-paas-support@digital.cabinet-office.gov.uk</a> if you have any feedback.
   </p>
 </div>
 
@@ -25,13 +25,13 @@
         <li><a href="#cpu-utilisation" class="govuk-link">CPU utilisation</a></li>
         <li><a href="#memory-used" class="govuk-link">Memory used</a></li>
         <li><a href="#swap-memory-used" class="govuk-link">Swap memory used</a></li>
-        <li><a href="#evictions">Evictions</a></li>
-        <li><a href="#connection-count">Connection count</a></li>
-        <li><a href="#cache-hits">Cache hits</a></li>
-        <li><a href="#cache-misses">Cache misses</a></li>
-        <li><a href="#item-count">Item count</a></li>
-        <li><a href="#network-bytes-in">Network bytes in</a></li>
-        <li><a href="#network-bytes-out">Network bytes out</a></li>
+        <li><a href="#evictions" class="govuk-link">Evictions</a></li>
+        <li><a href="#connection-count" class="govuk-link">Connection count</a></li>
+        <li><a href="#cache-hits" class="govuk-link">Cache hits</a></li>
+        <li><a href="#cache-misses" class="govuk-link">Cache misses</a></li>
+        <li><a href="#item-count" class="govuk-link">Item count</a></li>
+        <li><a href="#network-bytes-in" class="govuk-link">Network bytes in</a></li>
+        <li><a href="#network-bytes-out" class="govuk-link">Network bytes out</a></li>
       </ul>
     </div>
 
@@ -47,7 +47,7 @@
     format: 'percentile',
     titleHTML: 'CPU Utilisation',
     descriptionHTML: 'How much computational work redis is doing. High CPU Utilisation may indicate you need to reduce your usage
-        or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.',
+        or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans" class="govuk-link">update your service to use a bigger plan</a>.',
     metric: metricGraphsById['mCPUUtilization']
   }) }}
 
@@ -67,7 +67,7 @@
     format: 'bytes',
     titleHTML: 'Swap memory used',
     descriptionHTML: 'If redis is running low on memory it will start to swap memory onto the hard disk. If redis is using more than 50 <abbr title="MegaBytes">MB</abbr>
-      of swap memory you may need to reduce your usage or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans">update your service to use a bigger plan</a>.',
+      of swap memory you may need to reduce your usage or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans" class="govuk-link">update your service to use a bigger plan</a>.',
     metric: metricGraphsById['mSwapUsage']
   }) }}
 

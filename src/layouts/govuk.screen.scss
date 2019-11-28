@@ -67,3 +67,8 @@ abbr {
     border-left: 1px solid $govuk-border-colour;
   }
 }
+
+
+a.govuk-link:not([href*="//"]):visited {
+  color: $govuk-link-colour;
+}
