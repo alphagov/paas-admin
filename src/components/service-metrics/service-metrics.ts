@@ -164,11 +164,11 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
 function parseRange(start: string, stop: string): IRange {
   const rangeStart = moment(start);
   const rangeStop = moment(stop);
-  if (rangeStart.isBefore(rangeStop.clone().subtract(1, 'year'))) {
+  if (rangeStart.isBefore(rangeStop.clone().subtract(1, 'year').subtract(1, 'week'))) {
     throw new UserFriendlyError('Invalid time range provided. Cannot handle more than a year of metrics');
   }
 
-  if (rangeStop.isBefore(moment().subtract(1, 'years')) || rangeStart.isBefore(moment().subtract(1, 'years'))) {
+  if (rangeStop.isBefore(moment().subtract(1, 'years').subtract(1, 'week')) || rangeStart.isBefore(moment().subtract(1, 'years').subtract(1, 'week'))) {
     throw new UserFriendlyError('Invalid time range provided. Cannot handle over a year old metrics');
   }
 

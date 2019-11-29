@@ -64,6 +64,27 @@ describe('service metrics test suite', () => {
     expect(response.body).toContain('name-1508 - Service Metrics');
   });
 
+  it('should show the service metrics page when asking JUST for over one year of metrics', async () => {
+    nock('https://aws.example.com/')
+      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
+        {id: 'mFreeStorageSpace', label: ''},
+        {id: 'mCPUUtilization', label: ''},
+      ]));
+
+    mockService(data.serviceObj);
+
+    const response = await viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(1, 'year').subtract(2, 'days').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+    });
+
+    expect(response.status).not.toEqual(302);
+    expect(response.body).toContain('name-1508 - Service Metrics');
+  });
+
   it('should return cloudwatch metrics for a postgres backing service', async () => {
     nock('https://aws.example.com/')
       .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
@@ -198,7 +219,7 @@ describe('service metrics test suite', () => {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
       serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
-      rangeStart: moment().subtract(1, 'year').subtract(5, 'minutes').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStart: moment().subtract(1, 'year').subtract(2, 'weeks').format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
     })).rejects.toThrow('Cannot handle more than a year of metrics');
   });
@@ -208,7 +229,7 @@ describe('service metrics test suite', () => {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
       serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
-      rangeStart: moment().subtract(1, 'year').subtract(5, 'minutes').unix(),
+      rangeStart: moment().subtract(1, 'week').unix(),
       rangeStop: moment().unix(),
     })).rejects.toThrow('Cannot handle over a year old metrics');
   });
