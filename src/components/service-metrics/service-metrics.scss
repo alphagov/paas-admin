@@ -2,3 +2,18 @@
   border-bottom: 1px solid $govuk-border-colour;
   margin-bottom: 10px;
 }
+
+.metric.data {
+  span {
+    display: block;
+    @include govuk-typography-responsive(27, $important: false);
+  }
+
+  span:first-of-type {
+    @include govuk-typography-responsive(48, $important: false);
+
+    abbr {
+      @include govuk-typography-responsive(27, $important: false);
+    }
+  }
+}

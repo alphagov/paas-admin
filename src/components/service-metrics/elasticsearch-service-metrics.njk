@@ -1,0 +1,114 @@
+{% extends "../services/_tabbed_layout.njk" %}
+{% from "govuk-frontend/govuk/components/tag/macro.njk" import govukTag %}
+{% from "./metric.macro.njk" import metric %}
+
+{% block pageTitle %}
+  {{ service.entity.name }} - Service Metrics
+{% endblock %}
+
+{% block insideTabs %}
+
+<div class="border-bottom-box">
+  <p>{{ govukTag({text: "experimental"}) }}</p>
+
+  <p class="govuk-body">
+    Backing service metrics is a new feature under active development.
+    Please email us at <a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk" class="govuk-link">gov-uk-paas-support@digital.cabinet-office.gov.uk</a> if you have any feedback.
+  </p>
+</div>
+
+<div class="govuk-width-container">
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <p>Currently the available metrics for {{serviceLabel}} are:</p>
+      <ul class="govuk-list">
+        <li><a href="#cpu-load" class="govuk-link">CPU Load</a></li>
+        <li><a href="#disk-used-bytes" class="govuk-link">Disk Usage</a></li>
+        <li><a href="#disk-reads" class="govuk-link">Disk Reads</a></li>
+        <li><a href="#disk-writes" class="govuk-link">Disk Writes</a></li>
+        <li><a href="#memory-used" class="govuk-link">Memory Used</a></li>
+        <li><a href="#network-in" class="govuk-link">Network In</a></li>
+        <li><a href="#network-out" class="govuk-link">Network Out</a></li>
+      </ul>
+    </div>
+
+    <div class="govuk-grid-column-one-third-from-desktop">
+      {% include "./range-picker.njk" %}
+    </div>
+  </div>
+</div>
+
+<div class="govuk-width-container">
+  <div class="govuk-grid-row govuk-!-padding-bottom-9">
+    <div class="govuk-grid-column-full">
+      <h3 class="govuk-heading-m">Instance details</h3>
+      <p>Some basic information about your instance.</p>
+    </div>
+
+    <div class="govuk-grid-column-one-third-from-desktop">
+      <div class="metric data">
+        <span>{{ metricGraphsById['mDiskTotal'].seriesSummaries[0].latest | bytestohuman | safe }}</span>
+        <span>Allocated disk space</span>
+      </div>
+    </div>
+  </div>
+
+  {{ metric({
+    id: 'cpu-load',
+    format: 'percentile',
+    titleHTML: 'CPU Load',
+    descriptionHTML: 'How much computational work your instance is doing. High CPU Utilisation may indicate you need to optimise your queries
+      or <a href="https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#amend-the-service" class="govuk-link">update your service to use a bigger plan</a>.',
+    metric: metricGraphsById['mCPULoad']
+  }) }}
+
+  {{ metric({
+    id: 'disk-used-bytes',
+    format: 'bytes',
+    titleHTML: 'Disk Usage',
+    descriptionHTML: 'The current disk usage.',
+    metric: metricGraphsById['mDiskUsedBytes']
+  }) }}
+
+  {{ metric({
+    id: 'disk-reads',
+    format: 'number',
+    titleHTML: 'Disk Reads',
+    descriptionHTML: 'The amount of read actions from the disk.',
+    metric: metricGraphsById['mDiskReads']
+  }) }}
+
+  {{ metric({
+    id: 'disk-writes',
+    format: 'number',
+    titleHTML: 'Disk Writes',
+    descriptionHTML: 'The amount of write actions from the disk.',
+    metric: metricGraphsById['mDiskWrites']
+  }) }}
+
+  {{ metric({
+    id: 'memory-used',
+    format: 'percentile',
+    titleHTML: 'Memory Used',
+    descriptionHTML: 'Percentage of memory usage.',
+    metric: metricGraphsById['mMemoryUsed']
+  }) }}
+
+  {{ metric({
+    id: 'network-in',
+    format: 'bytes',
+    titleHTML: 'Network In',
+    descriptionHTML: 'Bytes coming into the system via network.',
+    metric: metricGraphsById['mNetworkIn']
+  }) }}
+
+  {{ metric({
+    id: 'network-out',
+    format: 'bytes',
+    titleHTML: 'Network Out',
+    descriptionHTML: 'Bytes going out of the system via network.',
+    metric: metricGraphsById['mNetworkOut']
+  }) }}
+</div>
+
+{% endblock %}

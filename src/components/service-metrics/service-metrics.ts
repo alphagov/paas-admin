@@ -1,8 +1,9 @@
 import * as cw from '@aws-sdk/client-cloudwatch-node';
 import moment from 'moment';
-import { CloudwatchMetricDataClient } from '../../lib/aws/cloudwatch-metric-data';
+import { CloudwatchMetricDataClient, IMetricGraphDataResponse } from '../../lib/aws/cloudwatch-metric-data';
 import CloudFoundryClient from '../../lib/cf';
 import roundDown from '../../lib/moment/round';
+import PromClient from '../../lib/prom';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
 import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
@@ -10,6 +11,8 @@ import { fromOrg, IBreadcrumb } from '../breadcrumbs';
 import { drawMultipleLineGraphs } from '../charts/line-graph';
 import { UserFriendlyError } from '../errors';
 import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk';
+import elasticsearchServiceMetricsTemplate from './elasticsearch-service-metrics.njk';
+import { getPrometheusMetricGraphData, IMetricGraphDataResponse as PrometheusGraphData } from './prometheus';
 import rdsServiceMetricsTemplate from './rds-service-metrics.njk';
 import unsupportedServiceMetricsTemplate from './unsupported-service-metrics.njk';
 import { getPeriod } from './utils';
@@ -101,21 +104,7 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         { text: service.entity.name },
     ]);
 
-    const cloudWatchMetricDataClient = new CloudwatchMetricDataClient(
-      new cw.CloudWatchClient({
-        region: ctx.app.awsRegion,
-        endpoint: ctx.app.awsCloudwatchEndpoint,
-      }),
-    );
-
-    const metricGraphData = await cloudWatchMetricDataClient.getMetricGraphData(
-      service.metadata.guid,
-      serviceLabel,
-      period,
-      rangeStart,
-      rangeStop,
-    );
-
+    const metricGraphData = await gatherData(ctx, serviceLabel, service.metadata.guid, period, rangeStart, rangeStop);
     const defaultTemplateParams = {
         routePartOf: ctx.routePartOf,
         linkTo: ctx.linkTo,
@@ -155,9 +144,16 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
             metricGraphsById,
           }),
         };
+      case 'elasticsearch':
+        return {
+          body: elasticsearchServiceMetricsTemplate.render({
+            ...defaultTemplateParams,
+            metricGraphsById,
+          }),
+        };
       /* istanbul ignore next */
       default:
-        throw new Error(`Unrecognised service type ${metricGraphData.serviceType}`);
+        throw new Error(`Unrecognised service type ${metricGraphData!.serviceType}`);
     }
 }
 
@@ -179,4 +175,47 @@ function parseRange(start: string, stop: string): IRange {
   const period = moment.duration(getPeriod(rangeStart, rangeStop), 'seconds');
 
   return { period, rangeStart: roundDown(rangeStart, period), rangeStop: roundDown(rangeStop, period) };
+}
+
+async function gatherData(
+  ctx: IContext, serviceLabel: string, guid: string,
+  period: moment.Duration, rangeStart: moment.Moment, rangeStop: moment.Moment,
+): Promise<IMetricGraphDataResponse | PrometheusGraphData | null> {
+  switch (serviceLabel) {
+    case 'postgres':
+    case 'mysql':
+    case 'redis':
+      const cloudWatchMetricDataClient = new CloudwatchMetricDataClient(
+        new cw.CloudWatchClient({
+          region: ctx.app.awsRegion,
+          endpoint: ctx.app.awsCloudwatchEndpoint,
+        }),
+      );
+
+      return cloudWatchMetricDataClient.getMetricGraphData(
+        guid,
+        serviceLabel,
+        period,
+        rangeStart,
+        rangeStop,
+      );
+    case 'elasticsearch':
+      const prometheusClient = new PromClient(
+        ctx.app.prometheusEndpoint,
+        ctx.app.prometheusUsername,
+        ctx.app.prometheusPassword,
+        ctx.app.logger,
+      );
+
+      return getPrometheusMetricGraphData(
+        prometheusClient,
+        serviceLabel,
+        guid,
+        period,
+        rangeStart,
+        rangeStop,
+      );
+    default:
+      return null;
+  }
 }
