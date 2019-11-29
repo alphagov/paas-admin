@@ -39,4 +39,7 @@ export const config: IAppConfig = {
   awsRegion: 'eu-west-1',
   awsCloudwatchEndpoint: 'https://aws.example.com/',
   adminFee: 0.1,
+  prometheusEndpoint: 'https://example.com/prom',
+  prometheusUsername: 'prometheusUsername',
+  prometheusPassword: 'prometheusPassword',
 };

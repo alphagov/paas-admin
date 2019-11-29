@@ -39,6 +39,9 @@ export interface IAppConfig {
   readonly awsRegion: string;
   readonly awsCloudwatchEndpoint?: string;
   readonly adminFee: number;
+  readonly prometheusEndpoint: string;
+  readonly prometheusUsername: string;
+  readonly prometheusPassword: string;
 }
 
 export type OIDCProviderName = 'microsoft' | 'google';

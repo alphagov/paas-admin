@@ -100,6 +100,9 @@ async function main() {
     domainName: expectEnvVariable('DOMAIN_NAME'),
     awsCloudwatchEndpoint: process.env.AWS_CLOUDWATCH_ENDPOINT,
     adminFee: .1,
+    prometheusEndpoint: expectEnvVariable('PROMETHEUS_ENDPOINT'),
+    prometheusUsername: expectEnvVariable('PROMETHEUS_USERNAME'),
+    prometheusPassword: expectEnvVariable('PROMETHEUS_PASSWORD'),
   };
 
   const server = new Server(app(config), {
