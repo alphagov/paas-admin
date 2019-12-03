@@ -112,6 +112,8 @@ function configure(env) {
     const percentage = 100 * (num / denom)
     return `${percentage.toFixed(1)}%`
   });
+
+  env.addFilter('leadZeros', (value, digits) => `0000000000${value}`.slice(-digits));
 }
 
 module.exports = configure;

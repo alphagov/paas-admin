@@ -18,7 +18,9 @@
           <tr class="govuk-table__row">
             <th scope="col" class="govuk-table__header {{ 'govuk-visually-hidden' if params.metric.seriesSummaries.length == 1 }}"><small>Instance</small></th>
             {% for series in params.metric.seriesSummaries %}
-              <th scope="col" class="govuk-table__header govuk-table__header--numeric {{ 'govuk-visually-hidden' if params.metric.seriesSummaries.length == 1 }}"><small>{{ series.label }}</small></th>
+              <th scope="col" class="govuk-table__header govuk-table__header--numeric {{ 'govuk-visually-hidden' if params.metric.seriesSummaries.length == 1 }}">
+                <small><abbr title="{{ series.label }}">{{ loop.index | leadZeros(3) }}</abbr></small>
+              </th>
             {% endfor %}
           </tr>
         </thead>

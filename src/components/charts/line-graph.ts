@@ -62,11 +62,6 @@ export function drawMultipleLineGraphs(metricGraphData: ReadonlyArray<IMetricGra
 
     const seriesSummaries = data.seriesArray.map(series => {
 
-      const matches = series.label.match(/-(\d+$)/);
-
-      // istanbul ignore next
-      const label   = matches && matches.length > 1 ? matches[1] : '001';
-
       const latestMetric = series.metrics.reduce((value, m) => !isNaN(m.value) ? m.value : value, 0);
       const maxMetric = series.metrics.reduce((value, m) => m.value > value ? m.value : value, 0);
       const minMetric = series.metrics.reduce((value, m) => m.value < value ? m.value : value, maxMetric);
@@ -74,7 +69,7 @@ export function drawMultipleLineGraphs(metricGraphData: ReadonlyArray<IMetricGra
         / series.metrics.filter(m => !isNaN(m.value)).length;
 
       const summary = {
-        label,
+        label: series.label,
         latest: latestMetric, average: averageMetric,
         min: minMetric, max: maxMetric,
       };
