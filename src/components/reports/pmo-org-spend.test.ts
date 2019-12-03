@@ -43,7 +43,7 @@ describe('csv organisation monthly spend report for the pmo team', () => {
     const response = await reports.viewPmoOrgSpendReportCSV(ctx, {rangeStart});
     expect(response.download).not.toBeUndefined();
     expect(response.download!.data)
-      .toEqual(`Billing month,Org,Region,Unique ID,Spend without VAT\n`);
+      .toEqual(`Billing month,Org,Region,Unique ID,Spend in GBP without VAT\n`);
   });
 
   it('should name the CSV appropriately', async () => {
@@ -116,7 +116,7 @@ describe('csv organisation monthly spend report for the pmo team', () => {
       'Org': 'Org One',
       'Region': 'Ireland',
       'Unique ID': 'org-one',
-      'Spend without VAT': '£1.10',
+      'Spend in GBP without VAT': '1.10',
     });
   });
 
@@ -180,14 +180,14 @@ describe('csv organisation monthly spend report for the pmo team', () => {
       'Org': 'Org One',
       'Region': 'Ireland',
       'Unique ID': 'org-one',
-      'Spend without VAT': '£1211.10',
+      'Spend in GBP without VAT': '1211.10',
     });
     expect(records).toContainEqual({
       'Billing month': rangeStart.format('MMMM YYYY'),
       'Org': 'Org Two',
       'Region': 'Ireland',
       'Unique ID': 'org-two',
-      'Spend without VAT': '£11011.00',
+      'Spend in GBP without VAT': '11011.00',
     });
   });
 
@@ -215,7 +215,7 @@ describe('csv organisation monthly spend report for the pmo team', () => {
       'Org': 'Org With Nothing Billed',
       'Region': 'Ireland',
       'Unique ID': 'org-with-nothing-billed',
-      'Spend without VAT': '£0.00',
+      'Spend in GBP without VAT': '0.00',
     });
   });
 });
