@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import * as jose from 'node-jose';
+import { CallbackParamsType } from 'openid-client';
 import {URL} from 'url';
+
 import UAAClient from '../../lib/uaa/uaa';
 import {createTestContext} from '../app/app.test-helpers';
 import OIDC, * as oidc from './oidc';
@@ -87,7 +89,7 @@ describe('oidc test suite', () => {
     // Set up OIDC client
     const uaa = new UAAClient({apiEndpoint: ''});
     const ctx = createTestContext();
-    const authResponse: oidc.IAuthorizationCodeResponse = {code: 'testcode', state: 'teststate'};
+    const authResponse: CallbackParamsType = {code: 'testcode', state: 'teststate'};
     ctx.session[oidc.KEY_STATE] = {state: authResponse.state, response_type: 'code'};
     const providerName = 'microsoft';
 
@@ -124,7 +126,7 @@ describe('oidc test suite', () => {
     // Set up OIDC client
     const uaa = new UAAClient({apiEndpoint: ''});
     const ctx = createTestContext();
-    const authResponse: oidc.IAuthorizationCodeResponse = {code: 'testcode', state: 'teststate'};
+    const authResponse: CallbackParamsType = {code: 'testcode', state: 'teststate'};
     ctx.session[oidc.KEY_STATE] = {state: authResponse.state, response_type: 'code'};
     const providerName = 'microsoft';
 
@@ -157,7 +159,7 @@ describe('oidc test suite', () => {
     // Set up OIDC client
     const uaa = new UAAClient({apiEndpoint: ''});
     const ctx = createTestContext();
-    const authResponse: oidc.IAuthorizationCodeResponse = {code: 'testcode', state: 'teststate'};
+    const authResponse: CallbackParamsType = {code: 'testcode', state: 'teststate'};
     ctx.session[oidc.KEY_STATE] = {state: authResponse.state, response_type: 'code'};
     const providerName = 'google';
     const googleDiscoveryURL = 'https://accounts.google.com/.well-known/openid-configuration';
@@ -191,7 +193,7 @@ describe('oidc test suite', () => {
 
     // Set up session state
     const ctx = createTestContext();
-    const authResponse: oidc.IAuthorizationCodeResponse = {code: 'testcode', state: 'teststate'};
+    const authResponse: CallbackParamsType = {code: 'testcode', state: 'teststate'};
     ctx.session[oidc.KEY_STATE] = {state: authResponse.state, response_type: 'code'};
 
     // Set up logger mock
@@ -227,8 +229,8 @@ function createAndSignIDToken(key: jose.JWK.Key, claims?: {}) {
     iss: 'https://login.microsoftonline.com/tenant_id/v2.0',
     aud: 'CLIENTID',
     sub: 'subject',
-    iat: (Date.now() / 1000) - 100,
-    exp: (Date.now() / 1000) + 100,
+    iat: Math.round((Date.now() / 1000) - 100),
+    exp: Math.round((Date.now() / 1000) + 100),
     ...(claims || {}),
   };
   return jwt.sign(
