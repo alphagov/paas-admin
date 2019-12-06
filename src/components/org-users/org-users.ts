@@ -456,7 +456,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
       invitation = await uaa.inviteUser(
         values.email,
         'user_invitation',
-        'https://www.cloud.service.gov.uk/next-steps?success',
+        encodeURIComponent('https://www.cloud.service.gov.uk/next-steps?success'),
       );
 
       /* istanbul ignore next */
@@ -601,7 +601,7 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
   const invitation = await uaa.inviteUser(
     user.entity.username,
     'user_invitation',
-    'https://www.cloud.service.gov.uk/next-steps?success',
+    encodeURIComponent('https://www.cloud.service.gov.uk/next-steps?success'),
   );
 
   /* istanbul ignore next */
