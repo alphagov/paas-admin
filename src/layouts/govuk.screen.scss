@@ -69,6 +69,16 @@ abbr {
 }
 
 
-a.govuk-link:not([href*="//"]):visited {
-  color: $govuk-link-colour;
+a.govuk-link:not([href*="//"]) {
+  &:visited, &:link {
+    color: $govuk-link-colour;
+  }
+
+  &:active {
+    color: $govuk-link-active-colour;
+  }
+
+  &:hover {
+    color: $govuk-link-hover-colour;
+  }
 }
