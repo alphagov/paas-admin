@@ -39,7 +39,7 @@ export default class OIDC {
 
   public async oidcCallback(
     ctx: IContext,
-    authResponse: AuthorizationResponse,
+    authResponse: oidc.CallbackParamsType,
     uaa: UAAClient,
     providerName: UaaOrigin,
   ): Promise<boolean> {
@@ -48,20 +48,21 @@ export default class OIDC {
 
       const {state, response_type} = ctx.session[KEY_STATE];
 
-      const tokenSet = await client.authorizationCallback(
+      const tokenSet = await client.callback(
         this.redirectURL,
         authResponse,
-        {state, response_type},
+        { state, response_type },
       );
 
       let newUsername;
+      const claims = tokenSet.claims();
       switch (providerName) {
         case 'microsoft': {
-          newUsername = tokenSet.claims[KEY_OID] as string;
+          newUsername = claims[KEY_OID] as string;
           break;
         }
         case 'google': {
-          newUsername = tokenSet.claims[KEY_SUB] as string;
+          newUsername = claims[KEY_SUB] as string;
           break;
         }
         /* istanbul ignore next */
@@ -79,7 +80,6 @@ export default class OIDC {
       ctx.app.logger.error(e);
       return false;
     }
-
   }
 
   private async createOIDCClient(): Promise<oidc.Client> {
@@ -98,17 +98,3 @@ export default class OIDC {
   }
 
 }
-
-export interface IAuthorizationCodeResponse {
-  code: string;
-  state: string;
-}
-
-export interface IAuthorizationErrorResponse {
-  error: string;
-  error_description?: string;
-  error_uri?: string;
-  state: string;
-}
-
-export type AuthorizationResponse = IAuthorizationCodeResponse | IAuthorizationErrorResponse;

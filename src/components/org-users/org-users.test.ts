@@ -347,7 +347,7 @@ describe('org-users test suite', () => {
 
     // tslint:disable:max-line-length
     nockUAA
-      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation')
       .reply(200, uaaData.invite)
 
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
@@ -400,7 +400,7 @@ describe('org-users test suite', () => {
     ;
 
     nockUAA
-      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation')
       .reply(200, uaaData.invite)
 
       .post('/oauth/token?grant_type=client_credentials')
@@ -460,7 +460,7 @@ describe('org-users test suite', () => {
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
       .reply(200, uaaData.noFoundUsersByEmail)
 
-      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation')
       .reply(200, uaaData.invite)
 
       .post('/oauth/token?grant_type=client_credentials')
@@ -492,6 +492,7 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, set SpaceManager role and show success', async () => {
+    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
@@ -515,7 +516,7 @@ describe('org-users test suite', () => {
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
       .reply(200, uaaData.noFoundUsersByEmail)
 
-      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation')
       .reply(200, uaaData.invite)
 
       .post('/oauth/token?grant_type=client_credentials')
@@ -525,6 +526,7 @@ describe('org-users test suite', () => {
     nockAccounts
       .post('/users/').reply(201)
     ;
+    // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -547,6 +549,7 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, set SpaceDeveloper role and show success', async () => {
+    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
@@ -570,7 +573,7 @@ describe('org-users test suite', () => {
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
       .reply(200, uaaData.noFoundUsersByEmail)
 
-      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation')
       .reply(200, uaaData.invite)
 
       .post('/oauth/token?grant_type=client_credentials')
@@ -580,6 +583,7 @@ describe('org-users test suite', () => {
     nockAccounts
       .post('/users/').reply(201)
     ;
+    // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -602,6 +606,7 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, set SpaceAuditor role and show success', async () => {
+    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
       .times(3)
@@ -625,7 +630,7 @@ describe('org-users test suite', () => {
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
       .reply(200, uaaData.noFoundUsersByEmail)
 
-      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation')
       .reply(200, uaaData.invite)
 
       .post('/oauth/token?grant_type=client_credentials')
@@ -635,6 +640,7 @@ describe('org-users test suite', () => {
     nockAccounts
       .post('/users/').reply(201)
     ;
+    // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -676,13 +682,12 @@ describe('org-users test suite', () => {
       .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
       .reply(200, `{}`)
     ;
-    // tslint:enable:max-line-length
 
     nockUAA
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
       .reply(200, uaaData.noFoundUsersByEmail)
 
-      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation')
       .reply(200, uaaData.invite)
 
       .post('/oauth/token?grant_type=client_credentials')
@@ -692,6 +697,7 @@ describe('org-users test suite', () => {
     nockAccounts
       .post('/users/').reply(201)
     ;
+    // tslint:enable:max-line-length
 
     await orgUsers.inviteUser(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -730,7 +736,7 @@ describe('org-users test suite', () => {
   it('should resend user invite', async () => {
     // tslint:disable:max-line-length
     nockUAA
-      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps?success&client_id=user_invitation')
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation')
       .reply(200, uaaData.invite)
 
       .get('/Users?filter=email+eq+%22user@uaa.example.com%22')

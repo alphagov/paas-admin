@@ -60,7 +60,8 @@ let cfg = {
           {
             loader: 'file-loader',
             options: {
-              name: assetName()
+              name: assetName(),
+              esModule: false,
             }
           }
         ]
@@ -71,7 +72,8 @@ let cfg = {
           {
             loader: 'file-loader',
             options: {
-              name: assetName('css')
+              name: assetName('css'),
+              esModule: false,
             }
           },
           {
