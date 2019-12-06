@@ -40,7 +40,7 @@
       </p>
 
       <p class="govuk-body">
-        <a href="https://docs.cloud.service.gov.uk/managing_apps.html#quotas">
+        <a href="https://docs.cloud.service.gov.uk/managing_apps.html#quotas" class="govuk-link">
           Learn more about quotas
         </a>
       </p>
@@ -62,7 +62,7 @@
       </p>
 
       <p class="govuk-body">
-        <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}">
+        <a href="{{ linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}) }}" class="govuk-link">
           View
           {% if isAdmin or isManager %} and manage {% endif %}
           team members
@@ -138,13 +138,13 @@
         Application(s) need upgrading or they may go offline
       </h2>
       <div class="govuk-error-summary__body">
-        <p>Some spaces below in this space are using the <code>cflinuxfs2</code> stack, which is now deprecated. For security reasons we will soon be force-upgrading apps to <code>cflinuxfs3</code>. It is possible that this will break your application. You can prevent this happening by <a href="https://docs.cloud.service.gov.uk/guidance.html#upgrading-from-cflinuxfs2">performing the upgrade yourself</a>.</p>
+        <p>Some spaces below in this space are using the <code>cflinuxfs2</code> stack, which is now deprecated. For security reasons we will soon be force-upgrading apps to <code>cflinuxfs3</code>. It is possible that this will break your application. You can prevent this happening by <a href="https://docs.cloud.service.gov.uk/guidance.html#upgrading-from-cflinuxfs2" class="govuk-link">performing the upgrade yourself</a>.</p>
         <p>Applications in the following spaces are affected:</p>
         <ul class="govuk-list govuk-error-summary__list">
           {% for space in spaces %}
             {% if space.entity.cflinuxfs2UpgradeNeeded %}
               <li>
-                <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" color="#b10e1e">{{ space.entity.name }}</a>
+                <a href="{{ linkTo('admin.organizations.spaces.applications.list', {organizationGUID: organization.metadata.guid, spaceGUID: space.metadata.guid}) }}" color="#b10e1e" class="govuk-link">{{ space.entity.name }}</a>
               </li>
             {% endif %}
           {% endfor %}
