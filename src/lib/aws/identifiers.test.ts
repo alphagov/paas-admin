@@ -59,7 +59,7 @@ describe('AWS identifiers', () => {
 
       send.mockReturnValue(Promise.resolve({}));
 
-      expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
+      await expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
         .rejects
         .toThrow(/Could not get tags for CloudFront distribution/)
       ;
@@ -75,7 +75,7 @@ describe('AWS identifiers', () => {
 
       send.mockReturnValue(Promise.resolve({ ResourceTagMappingList: [] }));
 
-      expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
+      await expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
         .rejects
         .toThrow(/Could not get tags for CloudFront distribution/)
       ;
@@ -91,7 +91,7 @@ describe('AWS identifiers', () => {
 
       send.mockReturnValue(Promise.resolve({ ResourceTagMappingList: [{}] }));
 
-      expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
+      await expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
         .rejects
         .toThrow(/Could not get ARN for CloudFront distribution/)
       ;
@@ -109,7 +109,7 @@ describe('AWS identifiers', () => {
         ResourceARN: 'arn:aws:cloudfront::123456789012:distribution',
       }] }));
 
-      expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
+      await expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
         .rejects
         .toThrow(/Malformed ARN/)
       ;
