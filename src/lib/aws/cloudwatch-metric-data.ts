@@ -14,7 +14,7 @@ import {
 interface IMetricPropertiesById {
   readonly [key: string]: {
     name: string;
-    stat?: 'Average' | 'Sum',
+    stat: 'Average' | 'Sum',
     format: string;
     units: 'Bytes' | 'Percent' | 'Number' | 'Milliseconds';
     title: string;
@@ -91,36 +91,42 @@ export class CloudwatchMetricDataClient {
 const rdsMetricPropertiesById: IMetricPropertiesById = {
   mFreeStorageSpace: {
     name: 'FreeStorageSpace',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'bytes of free disk space',
   },
   mCPUUtilization: {
     name: 'CPUUtilization',
+    stat: 'Average',
     format: '.1r',
     units: 'Percent',
     title: 'percentage CPU Utilisation',
   },
   mDatabaseConnections: {
     name: 'DatabaseConnections',
+    stat: 'Average',
     format: '.1r',
     units: 'Number',
     title: 'number of database connections',
   },
   mFreeableMemory: {
     name: 'FreeableMemory',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'bytes of freeable memory (RAM)',
   },
   mReadIOPS: {
     name: 'ReadIOPS',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of read IOPS',
   },
   mWriteIOPS: {
     name: 'WriteIOPS',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of write IOPS',
@@ -130,60 +136,70 @@ const rdsMetricPropertiesById: IMetricPropertiesById = {
 const elasticacheMetricPropertiesById: IMetricPropertiesById = {
   mCPUUtilization: {
     name: 'CPUUtilization',
+    stat: 'Average',
     format: '.2r',
     units: 'Percent',
     title: 'percentage CPU Utilisation',
   },
   mBytesUsedForCache: {
     name: 'BytesUsedForCache',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'bytes used for the cache',
   },
   mSwapUsage: {
     name: 'SwapUsage',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'bytes used in swap memory',
   },
   mEvictions: {
     name: 'Evictions',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of keys evicted by Redis',
   },
   mCurrConnections: {
     name: 'CurrConnections',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of connections to Redis',
   },
   mCacheHits: {
     name: 'CacheHits',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of cache hits',
   },
   mCacheMisses: {
     name: 'CacheMisses',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of cache misses',
   },
   mCurrItems: {
     name: 'CurrItems',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of items in Redis',
   },
   mNetworkBytesIn: {
     name: 'NetworkBytesIn',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'number of bytes redis has read from the network',
   },
   mNetworkBytesOut: {
     name: 'NetworkBytesOut',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'number of bytes sent by redis',
@@ -277,7 +293,7 @@ export function getRdsMetricDataInput(
           Dimensions: [{Name: 'DBInstanceIdentifier', Value: getRdsDbInstanceIdentifier(serviceGUID)}],
         },
         Period: period.asSeconds(),
-        Stat: rdsMetricPropertiesById[metricId].stat || 'Average',
+        Stat: rdsMetricPropertiesById[metricId].stat,
       },
     })),
     StartTime: startTime.toDate(),
@@ -304,7 +320,7 @@ export function getCloudFrontMetricDataInput(
           ],
         },
         Period: period.asSeconds(),
-        Stat: cloudfrontMetricPropertiesById[metricId].stat || 'Average',
+        Stat: cloudfrontMetricPropertiesById[metricId].stat,
       },
     })),
     StartTime: startTime.toDate(),
