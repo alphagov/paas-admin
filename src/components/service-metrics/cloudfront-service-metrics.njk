@@ -1,0 +1,90 @@
+{% extends "../services/_tabbed_layout.njk" %}
+{% from "govuk-frontend/govuk/components/tag/macro.njk" import govukTag %}
+{% from "./metric.macro.njk" import metric %}
+
+{% block pageTitle %}
+  {{ service.entity.name }} - Service Metrics
+{% endblock %}
+
+{% block insideTabs %}
+
+<div class="border-bottom-box">
+  <p>{{ govukTag({text: "experimental"}) }}</p>
+
+  <p class="govuk-body">
+    Backing service metrics is a new feature under active development.
+    Please email us at <a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk" class="govuk-link">gov-uk-paas-support@digital.cabinet-office.gov.uk</a> if you have any feedback.
+  </p>
+</div>
+
+<div class="govuk-width-container">
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds-from-desktop">
+      <p>Currently the available metrics for {{serviceLabel}} are:</p>
+      <ul class="govuk-list">
+        <li><a href="#requests" class="govuk-link">Requests</a></li>
+        <li><a href="#total-error-rate" class="govuk-link">Total error rate</a></li>
+        <li><a href="#4xx-error-rate" class="govuk-link">4xx error rate</a></li>
+        <li><a href="#5xx-error-rate" class="govuk-link">5xx error rate</a></li>
+        <li><a href="#bytes-uploaded" class="govuk-link">Bytes uploaded</a></li>
+        <li><a href="#bytes-downloaded" class="govuk-link">Bytes downloaded</a></li>
+      </ul>
+    </div>
+
+    <div class="govuk-grid-column-one-third-from-desktop">
+      {% include "./range-picker.njk" %}
+    </div>
+  </div>
+</div>
+
+<div class="govuk-width-container">
+  {{ metric({
+    id: 'requests',
+    format: 'number',
+    titleHTML: 'Requests',
+    descriptionHTML: 'How many HTTP requests your CDN route service has served.',
+    metric: metricGraphsById['mRequests']
+  }) }}
+
+  {{ metric({
+    id: 'total-error-rate',
+    format: 'percentile',
+    titleHTML: 'Total error rate',
+    descriptionHTML: 'The percentages of HTTP responses with either a 4XX or 5XX HTTP status code, which can represent a client or a server error.',
+    metric: metricGraphsById['mTotalErrorRate']
+  }) }}
+
+  {{ metric({
+    id: '4xx-error-rate',
+    format: 'percentile',
+    titleHTML: '4xx error rate',
+    descriptionHTML: 'The percentages of HTTP responses with a 4XX HTTP status code, which represents a client error.',
+    metric: metricGraphsById['m4xxErrorRate']
+  }) }}
+
+  {{ metric({
+    id: '5xx-error-rate',
+    format: 'percentile',
+    titleHTML: '5xx error rate',
+    descriptionHTML: 'The percentages of HTTP responses with a 5XX HTTP status code, which represents a server error.',
+    metric: metricGraphsById['m5xxErrorRate']
+  }) }}
+
+  {{ metric({
+    id: 'bytes-uploaded',
+    format: 'bytes',
+    titleHTML: 'Bytes uploaded',
+    descriptionHTML: 'The number of bytes sent to your applications by the CDN route service.',
+    metric: metricGraphsById['mBytesUploaded']
+  }) }}
+
+  {{ metric({
+    id: 'bytes-downloaded',
+    format: 'bytes',
+    titleHTML: 'Bytes downloaded',
+    descriptionHTML: 'The number of bytes received from your applications by the CDN route service.',
+    metric: metricGraphsById['mBytesDownloaded']
+  }) }}
+</div>
+
+{% endblock %}

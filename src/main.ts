@@ -99,6 +99,7 @@ async function main() {
     oidcProviders: providers,
     domainName: expectEnvVariable('DOMAIN_NAME'),
     awsCloudwatchEndpoint: process.env.AWS_CLOUDWATCH_ENDPOINT,
+    awsResourceTaggingAPIEndpoint: process.env.AWS_RESOURCE_TAGGING_API_ENDPOINT,
     adminFee: .1,
   };
 
