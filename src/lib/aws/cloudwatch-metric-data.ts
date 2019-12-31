@@ -52,7 +52,12 @@ export class CloudwatchMetricDataClient {
     switch (serviceLabel) {
       case 'cdn-route':
         serviceType = 'cloudfront';
-        const distributionId = await getCloudFrontDistributionId(serviceGUID);
+
+        const distributionId = await getCloudFrontDistributionId(
+          this.resourceGroupsTaggingAPIClient,
+          serviceGUID,
+        );
+
         getMetricDataInputs = getCloudFrontMetricDataInput(distributionId, period, startTime, endTime);
         cloudWatchClient = this.cloudFrontCloudWatchClient;
         break;

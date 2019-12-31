@@ -1,4 +1,12 @@
-import {getElasticacheReplicationGroupId, getRdsDbInstanceIdentifier} from './identifiers';
+import {
+  GetResourcesCommand,
+} from '@aws-sdk/client-resource-groups-tagging-api-node';
+
+import {
+  getCloudFrontDistributionId,
+  getElasticacheReplicationGroupId,
+  getRdsDbInstanceIdentifier,
+} from './identifiers';
 
 describe('AWS identifiers', () => {
 
@@ -26,4 +34,90 @@ describe('AWS identifiers', () => {
     expect(getElasticacheReplicationGroupId('guid-15')).toBe('cf-duofquhlyviws');
   });
 
+  describe('identifiers from tags', () => {
+    it('should fetch and transform the identifier correctly', async () => {
+      const send = jest.fn();
+
+      send.mockReturnValue(Promise.resolve({
+        ResourceTagMappingList: [{
+          ResourceARN: 'arn:aws:cloudfront::123456789012:distribution/EDFDVBD632BHDS5',
+        }],
+      }));
+
+      const distributionId = await getCloudFrontDistributionId({ send } as any, 'a-service-guid');
+
+      expect(send).toBeCalledWith(new GetResourcesCommand({TagFilters: [{
+        Key: 'ServiceInstance',
+        Values: ['a-service-guid'],
+      }]}));
+
+      expect(distributionId).toEqual('EDFDVBD632BHDS5');
+    });
+
+    it('should error when no useful response is returned', async () => {
+      const send = jest.fn();
+
+      send.mockReturnValue(Promise.resolve({}));
+
+      expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
+        .rejects
+        .toThrow(/Could not get tags for CloudFront distribution/)
+      ;
+
+      expect(send).toBeCalledWith(new GetResourcesCommand({TagFilters: [{
+        Key: 'ServiceInstance',
+        Values: ['a-service-guid'],
+      }]}));
+    });
+
+    it('should error when no distributions are returned', async () => {
+      const send = jest.fn();
+
+      send.mockReturnValue(Promise.resolve({ ResourceTagMappingList: [] }));
+
+      expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
+        .rejects
+        .toThrow(/Could not get tags for CloudFront distribution/)
+      ;
+
+      expect(send).toBeCalledWith(new GetResourcesCommand({TagFilters: [{
+        Key: 'ServiceInstance',
+        Values: ['a-service-guid'],
+      }]}));
+    });
+
+    it('should error when no arn is returned', async () => {
+      const send = jest.fn();
+
+      send.mockReturnValue(Promise.resolve({ ResourceTagMappingList: [{}] }));
+
+      expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
+        .rejects
+        .toThrow(/Could not get ARN for CloudFront distribution/)
+      ;
+
+      expect(send).toBeCalledWith(new GetResourcesCommand({TagFilters: [{
+        Key: 'ServiceInstance',
+        Values: ['a-service-guid'],
+      }]}));
+    });
+
+    it('should error when a malformed arn is returned', async () => {
+      const send = jest.fn();
+
+      send.mockReturnValue(Promise.resolve({ ResourceTagMappingList: [{
+        ResourceARN: 'arn:aws:cloudfront::123456789012:distribution',
+      }] }));
+
+      expect(getCloudFrontDistributionId({ send } as any, 'a-service-guid'))
+        .rejects
+        .toThrow(/Malformed ARN/)
+      ;
+
+      expect(send).toBeCalledWith(new GetResourcesCommand({TagFilters: [{
+        Key: 'ServiceInstance',
+        Values: ['a-service-guid'],
+      }]}));
+    });
+  });
 });

@@ -18,9 +18,10 @@ export function getElasticacheReplicationGroupId(serviceInstanceGUID: string): s
   return `cf-${hashBase32String.toLowerCase()}`;
 }
 
-export async function getCloudFrontDistributionId(serviceGUID: string): Promise<string> {
-  const rg = new ResourceGroupsTaggingAPIClient({region: 'us-east-1'});
-
+export async function getCloudFrontDistributionId(
+  rg: ResourceGroupsTaggingAPIClient,
+  serviceGUID: string,
+): Promise<string> {
   const arn = await (
     rg
       .send(
@@ -30,7 +31,7 @@ export async function getCloudFrontDistributionId(serviceGUID: string): Promise<
         }]}),
       )
       .then((d: GetResourcesOutput) => {
-        if (typeof d.ResourceTagMappingList === 'undefined') {
+        if (typeof d.ResourceTagMappingList === 'undefined' || d.ResourceTagMappingList.length === 0) {
           throw new Error(`Could not get tags for CloudFront distribution ${serviceGUID}`);
         }
         return d.ResourceTagMappingList[0].ResourceARN;
