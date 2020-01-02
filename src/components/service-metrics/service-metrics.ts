@@ -1,4 +1,6 @@
 import * as cw from '@aws-sdk/client-cloudwatch-node';
+import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
+
 import moment from 'moment';
 import { CloudwatchMetricDataClient } from '../../lib/aws/cloudwatch-metric-data';
 import CloudFoundryClient from '../../lib/cf';
@@ -9,6 +11,7 @@ import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLL
 import { fromOrg, IBreadcrumb } from '../breadcrumbs';
 import { drawMultipleLineGraphs } from '../charts/line-graph';
 import { UserFriendlyError } from '../errors';
+import cloudfrontServiceMetrics from './cloudfront-service-metrics.njk';
 import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk';
 import rdsServiceMetricsTemplate from './rds-service-metrics.njk';
 import unsupportedServiceMetricsTemplate from './unsupported-service-metrics.njk';
@@ -106,6 +109,14 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         region: ctx.app.awsRegion,
         endpoint: ctx.app.awsCloudwatchEndpoint,
       }),
+      new cw.CloudWatchClient({
+        region: 'us-east-1',
+        endpoint: ctx.app.awsCloudwatchEndpoint,
+      }),
+      new rg.ResourceGroupsTaggingAPIClient({
+        region: 'us-east-1',
+        endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
+      }),
     );
 
     const metricGraphData = await cloudWatchMetricDataClient.getMetricGraphData(
@@ -151,6 +162,13 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
       case 'elasticache':
         return {
           body: elasticacheServiceMetricsTemplate.render({
+            ...defaultTemplateParams,
+            metricGraphsById,
+          }),
+        };
+      case 'cloudfront':
+        return {
+          body: cloudfrontServiceMetrics.render({
             ...defaultTemplateParams,
             metricGraphsById,
           }),

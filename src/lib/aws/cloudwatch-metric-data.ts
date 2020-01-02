@@ -1,20 +1,28 @@
 import * as cw from '@aws-sdk/client-cloudwatch-node';
+import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
+
 import _ from 'lodash';
 import { Duration, Moment } from 'moment';
 import { IMetricGraphData, IMetricSeries } from '../../components/charts/line-graph';
-import {getElasticacheReplicationGroupId, getRdsDbInstanceIdentifier} from '../../lib/aws/identifiers';
+
+import {
+  getCloudFrontDistributionId,
+  getElasticacheReplicationGroupId,
+  getRdsDbInstanceIdentifier,
+} from '../../lib/aws/identifiers';
 
 interface IMetricPropertiesById {
   readonly [key: string]: {
     name: string;
+    stat: 'Average' | 'Sum',
     format: string;
-    units: 'Bytes' | 'Percent' | 'Number';
+    units: 'Bytes' | 'Percent' | 'Number' | 'Milliseconds';
     title: string;
   };
 }
 
 type ServiceLabel = 'postgres' | 'mysql' | 'redis' | string;
-type ServiceType = 'rds' | 'elasticache';
+type ServiceType = 'rds' | 'elasticache' | 'cloudfront';
 
 export interface IMetricGraphDataResponse {
   readonly graphs: ReadonlyArray<IMetricGraphData>;
@@ -23,7 +31,11 @@ export interface IMetricGraphDataResponse {
 
 export class CloudwatchMetricDataClient {
 
-  constructor(private cloudWatchClient: cw.CloudWatchClient) {}
+  constructor(
+    private cloudWatchClient: cw.CloudWatchClient,
+    private cloudFrontCloudWatchClient: cw.CloudWatchClient,
+    private resourceGroupsTaggingAPIClient: rg.ResourceGroupsTaggingAPIClient,
+  ) {}
 
   public async getMetricGraphData(
       serviceGUID: string,
@@ -34,7 +46,21 @@ export class CloudwatchMetricDataClient {
       ): Promise<IMetricGraphDataResponse | null> {
     let getMetricDataInputs: ReadonlyArray<cw.GetMetricDataInput> | null = null;
     let serviceType: ServiceType | null = null;
+
+    let cloudWatchClient: cw.CloudWatchClient = this.cloudWatchClient;
+
     switch (serviceLabel) {
+      case 'cdn-route':
+        serviceType = 'cloudfront';
+
+        const distributionId = await getCloudFrontDistributionId(
+          this.resourceGroupsTaggingAPIClient,
+          serviceGUID,
+        );
+
+        getMetricDataInputs = getCloudFrontMetricDataInput(distributionId, period, startTime, endTime);
+        cloudWatchClient = this.cloudFrontCloudWatchClient;
+        break;
       case 'postgres':
       case 'mysql':
         serviceType = 'rds';
@@ -49,14 +75,14 @@ export class CloudwatchMetricDataClient {
     }
 
     const responses = await Promise.all(
-      getMetricDataInputs.map(input =>
-        this.cloudWatchClient.send(new cw.GetMetricDataCommand(input)),
-      ),
+      getMetricDataInputs
+      .map(input => cloudWatchClient.send(new cw.GetMetricDataCommand(input))),
     );
+
     const result = _.flatMap(responses, response => response.MetricDataResults!);
-    const preparedData = prepareMetricData(serviceType, result, period, startTime, endTime);
+
     return {
-      graphs: preparedData,
+      graphs: prepareMetricData(serviceType, result, period, startTime, endTime),
       serviceType,
     };
   }
@@ -65,36 +91,42 @@ export class CloudwatchMetricDataClient {
 const rdsMetricPropertiesById: IMetricPropertiesById = {
   mFreeStorageSpace: {
     name: 'FreeStorageSpace',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'bytes of free disk space',
   },
   mCPUUtilization: {
     name: 'CPUUtilization',
+    stat: 'Average',
     format: '.1r',
     units: 'Percent',
     title: 'percentage CPU Utilisation',
   },
   mDatabaseConnections: {
     name: 'DatabaseConnections',
+    stat: 'Average',
     format: '.1r',
     units: 'Number',
     title: 'number of database connections',
   },
   mFreeableMemory: {
     name: 'FreeableMemory',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'bytes of freeable memory (RAM)',
   },
   mReadIOPS: {
     name: 'ReadIOPS',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of read IOPS',
   },
   mWriteIOPS: {
     name: 'WriteIOPS',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of write IOPS',
@@ -104,63 +136,119 @@ const rdsMetricPropertiesById: IMetricPropertiesById = {
 const elasticacheMetricPropertiesById: IMetricPropertiesById = {
   mCPUUtilization: {
     name: 'CPUUtilization',
+    stat: 'Average',
     format: '.2r',
     units: 'Percent',
     title: 'percentage CPU Utilisation',
   },
   mBytesUsedForCache: {
     name: 'BytesUsedForCache',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'bytes used for the cache',
   },
   mSwapUsage: {
     name: 'SwapUsage',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'bytes used in swap memory',
   },
   mEvictions: {
     name: 'Evictions',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of keys evicted by Redis',
   },
   mCurrConnections: {
     name: 'CurrConnections',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of connections to Redis',
   },
   mCacheHits: {
     name: 'CacheHits',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of cache hits',
   },
   mCacheMisses: {
     name: 'CacheMisses',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of cache misses',
   },
   mCurrItems: {
     name: 'CurrItems',
+    stat: 'Average',
     format: '.2r',
     units: 'Number',
     title: 'number of items in Redis',
   },
   mNetworkBytesIn: {
     name: 'NetworkBytesIn',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'number of bytes redis has read from the network',
   },
   mNetworkBytesOut: {
     name: 'NetworkBytesOut',
+    stat: 'Average',
     format: '.2s',
     units: 'Bytes',
     title: 'number of bytes sent by redis',
+  },
+};
+
+const cloudfrontMetricPropertiesById: IMetricPropertiesById = {
+  mRequests: {
+    name: 'Requests',
+    stat: 'Sum',
+    format: '.2r',
+    units: 'Number',
+    title: 'HTTP requests',
+  },
+  mBytesUploaded: {
+    name: 'BytesUploaded',
+    stat: 'Sum',
+    format: '.2s',
+    units: 'Bytes',
+    title: 'number of bytes sent to the origin',
+  },
+  mBytesDownloaded: {
+    name: 'BytesDownloaded',
+    stat: 'Sum',
+    format: '.2s',
+    units: 'Bytes',
+    title: 'number of bytes received from the origin',
+  },
+
+  m4xxErrorRate: {
+    name: '4xxErrorRate',
+    stat: 'Average',
+    format: '.1r',
+    units: 'Percent',
+    title: 'percentage of HTTP requests with a 4XX status code',
+  },
+  m5xxErrorRate: {
+    name: '5xxErrorRate',
+    stat: 'Average',
+    format: '.1r',
+    units: 'Percent',
+    title: 'percentage of HTTP requests with a 5XX status code',
+  },
+  mTotalErrorRate: {
+    name: 'TotalErrorRate',
+    stat: 'Average',
+    format: '.1r',
+    units: 'Percent',
+    title: 'percentage of HTTP requests with either a 4XX or 5XX status code',
   },
 };
 
@@ -205,7 +293,34 @@ export function getRdsMetricDataInput(
           Dimensions: [{Name: 'DBInstanceIdentifier', Value: getRdsDbInstanceIdentifier(serviceGUID)}],
         },
         Period: period.asSeconds(),
-        Stat: 'Average',
+        Stat: rdsMetricPropertiesById[metricId].stat,
+      },
+    })),
+    StartTime: startTime.toDate(),
+    EndTime: endTime.toDate(),
+  }];
+}
+
+export function getCloudFrontMetricDataInput(
+    distributionId: string,
+    period: Duration,
+    startTime: Moment,
+    endTime: Moment): readonly cw.GetMetricDataInput[] {
+
+  return [{
+    MetricDataQueries: Object.keys(cloudfrontMetricPropertiesById).map(metricId => ({
+      Id: metricId,
+      MetricStat: {
+        Metric: {
+          Namespace: 'AWS/CloudFront',
+          MetricName: cloudfrontMetricPropertiesById[metricId].name,
+          Dimensions: [
+            { Name: 'DistributionId', Value: distributionId },
+            { Name: 'Region',         Value: 'Global' },
+          ],
+        },
+        Period: period.asSeconds(),
+        Stat: cloudfrontMetricPropertiesById[metricId].stat,
       },
     })),
     StartTime: startTime.toDate(),
@@ -222,7 +337,7 @@ interface IDataKeyedByEpoch {
 }
 
 export function prepareMetricData(
-      serviceType: 'rds' | 'elasticache',
+      serviceType: 'rds' | 'elasticache' | 'cloudfront',
       metricDataResults: ReadonlyArray<cw._UnmarshalledMetricDataResult>,
       period: Duration,
       startTime: Moment,
@@ -237,9 +352,12 @@ export function prepareMetricData(
   for (const time = startTime.clone(); time.isSameOrBefore(endTime); time.add(period)) {
     placeholderData[+time] = {date: time.toDate(), value: NaN};
   }
-  const serviceMetricPropertiesById = serviceType === 'rds'
-    ? rdsMetricPropertiesById
-    : elasticacheMetricPropertiesById;
+
+  const serviceMetricPropertiesById = {
+    cloudfront: cloudfrontMetricPropertiesById,
+    elasticache: elasticacheMetricPropertiesById,
+    rds: rdsMetricPropertiesById,
+  }[serviceType];
 
   return _.chain(metricDataResults)
     .groupBy(x => x.Id!)

@@ -6,6 +6,7 @@ import moment from 'moment';
 import querystring from 'querystring';
 
 import { getStubCloudwatchMetricsData } from '../../lib/aws/aws-cloudwatch.test.data';
+import { getStubResourcesByTag } from '../../lib/aws/aws-tags.test.data';
 import * as data from '../../lib/cf/cf.test.data';
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
 import {createTestContext} from '../app/app.test-helpers';
@@ -44,7 +45,7 @@ describe('service metrics test suite', () => {
   });
 
   it('should show the service metrics page', async () => {
-    nock('https://aws.example.com/')
+    nock('https://aws-cloudwatch.example.com/')
       .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
         {id: 'mFreeStorageSpace', label: ''},
         {id: 'mCPUUtilization', label: ''},
@@ -65,7 +66,7 @@ describe('service metrics test suite', () => {
   });
 
   it('should show the service metrics page when asking JUST for over one year of metrics', async () => {
-    nock('https://aws.example.com/')
+    nock('https://aws-cloudwatch.example.com/')
       .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
         {id: 'mFreeStorageSpace', label: ''},
         {id: 'mCPUUtilization', label: ''},
@@ -86,7 +87,7 @@ describe('service metrics test suite', () => {
   });
 
   it('should return cloudwatch metrics for a postgres backing service', async () => {
-    nock('https://aws.example.com/')
+    nock('https://aws-cloudwatch.example.com/')
       .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
         {id: 'mFreeStorageSpace', label: 'some-label'},
         {id: 'mCPUUtilization', label: ''},
@@ -112,7 +113,7 @@ describe('service metrics test suite', () => {
   });
 
   it('should return cloudwatch metrics for a redis backing service', async () => {
-    nock('https://aws.example.com/')
+    nock('https://aws-cloudwatch.example.com/')
       .post('/').times(2).reply(200, getStubCloudwatchMetricsData([
         {id: 'mCacheHits', label: ''},
         {id: 'mCacheMisses', label: ''},
@@ -136,6 +137,39 @@ describe('service metrics test suite', () => {
 
     expect(response.status).not.toEqual(302);
     expect(response.body).toContain('Cache hits');
+  });
+
+  it('should return cloudwatch metrics for a cloudfront backing service', async () => {
+    nock('https://aws-tags.example.com/')
+      .post('/').reply(200, getStubResourcesByTag())
+    ;
+
+    nock('https://aws-cloudwatch.example.com/')
+      .post('/').times(2).reply(200, getStubCloudwatchMetricsData([
+        {id: 'mRequests', label: ''},
+        {id: 'mTotalErrorRate', label: ''},
+      ]))
+    ;
+
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'cdn-route',
+      },
+    });
+
+    const response = await viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+    });
+
+    expect(response.status).not.toEqual(302);
+    expect(response.body).toContain('Requests');
+    expect(response.body).toContain('Total error rate');
   });
 
   it('should not return metrics for a user provided service', async () => {
