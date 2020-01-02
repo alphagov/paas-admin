@@ -10,6 +10,9 @@
         <p>{{ params.descriptionHTML | safe }}</p>
 
         <div>{{ params.metric.graph | safe }}</div>
+
+        {% set csvlink =  [params.downloadLink, '&metric=', params.metric.id] %}
+        <a href="{{ csvlink | join }}" class="govuk-link" title="Download as a CSV">Download as a CSV</a>
     </div>
     <div class="govuk-grid-column-one-third-from-desktop">
       <table class="govuk-table">

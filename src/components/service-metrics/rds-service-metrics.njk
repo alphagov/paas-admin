@@ -43,7 +43,8 @@
     format: 'bytes',
     titleHTML: 'Free disk space',
     descriptionHTML: 'How much hard disk space your database has remaining. If your database runs out of disk space it will stop working.',
-    metric: metricGraphsById['mFreeStorageSpace']
+    metric: metricGraphsById['mFreeStorageSpace'],
+    downloadLink: downloadLink
   }) }}
 
   {{ metric({
@@ -52,7 +53,8 @@
     titleHTML: 'CPU Utilisation',
     descriptionHTML: 'How much computational work your database is doing. High CPU Utilisation may indicate you need to optimise your database queries
       or <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan" class="govuk-link">update your service to use a bigger plan</a>.',
-    metric: metricGraphsById['mCPUUtilization']
+    metric: metricGraphsById['mCPUUtilization'],
+    downloadLink: downloadLink
   }) }}
 
   {{ metric({
@@ -61,7 +63,8 @@
     descriptionHTML: 'How many open connections there are to your database. High values may indicate problems with your applications&apos; connection management, or that you need to
         <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan" class="govuk-link">update your service to use a bigger plan</a>.
         Zero values may indicate the database is unavailable, or that your applications cannot connect to the database.',
-    metric: metricGraphsById['mDatabaseConnections']
+    metric: metricGraphsById['mDatabaseConnections'],
+    downloadLink: downloadLink
   }) }}
 
   {{ metric({
@@ -70,7 +73,8 @@
     titleHTML: 'Freeable Memory',
     descriptionHTML: 'How much <abbr title="Random Access Memory">RAM</abbr> the <abbr title="Virtual Machine">VM</abbr> your database is running on has remaining. Values near zero may indicate you need to optimise your database queries or
         <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan" class="govuk-link">update your service to use a bigger plan</a>.',
-    metric: metricGraphsById['mFreeableMemory']
+    metric: metricGraphsById['mFreeableMemory'],
+    downloadLink: downloadLink
   }) }}
 
   {{ metric({
@@ -80,7 +84,8 @@
         (read + write) based on how big their hard disk is. You get 3 <abbr title="Input / Output Operations per Second">IOPS</abbr> per <abbr title="GibiByte">GiB</abbr>, so a 100 GiB
         database would be limited to 300 IOPS. If it looks like your database is hitting its IOPS limit you may need to
         <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan" class="govuk-link">update your service to use a bigger plan</a>.',
-    metric: metricGraphsById['mReadIOPS']
+    metric: metricGraphsById['mReadIOPS'],
+    downloadLink: downloadLink
   }) }}
 
   {{ metric({
@@ -90,7 +95,8 @@
         (read + write) based on how big their hard disk is. You get 3 <abbr title="Input / Output Operations per Second">IOPS</abbr> per <abbr title="GibiByte">GiB</abbr>, so a 100 GiB
         database would be limited to 300 IOPS. If it looks like your database is hitting its IOPS limit you may need to
         <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan" class="govuk-link">update your service to use a bigger plan</a>.',
-    metric: metricGraphsById['mWriteIOPS']
+    metric: metricGraphsById['mWriteIOPS'],
+    downloadLink: downloadLink
   }) }}
 </div>
 

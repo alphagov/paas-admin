@@ -12,7 +12,9 @@ import { fromOrg, IBreadcrumb } from '../breadcrumbs';
 import { drawMultipleLineGraphs } from '../charts/line-graph';
 import { UserFriendlyError } from '../errors';
 import cloudfrontServiceMetrics from './cloudfront-service-metrics.njk';
+import elasticacheMetricsTemplate from './elasticache-service-metrics-csv.njk';
 import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk';
+import rdsMetricsTemplate from './rds-service-metrics-csv.njk';
 import rdsServiceMetricsTemplate from './rds-service-metrics.njk';
 import unsupportedServiceMetricsTemplate from './unsupported-service-metrics.njk';
 import { getPeriod } from './utils';
@@ -142,6 +144,13 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         period,
         rangeStart,
         rangeStop,
+        downloadLink: ctx.linkTo('admin.organizations.spaces.services.metrics.download', {
+          organizationGUID: organization.metadata.guid,
+          spaceGUID: space.metadata.guid,
+          serviceGUID: service.metadata.guid,
+          rangeStart,
+          rangeStop,
+        }),
     };
     if (!metricGraphData) {
       return {
@@ -177,6 +186,118 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
       default:
         throw new Error(`Unrecognised service type ${metricGraphData.serviceType}`);
     }
+}
+
+export async function downloadServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+
+  const isAdmin = ctx.token.hasAnyScope(
+      CLOUD_CONTROLLER_ADMIN,
+      CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+      CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  );
+
+  if (!params.rangeStart || !params.rangeStop || !params.metric) {
+    return {
+      status: 302,
+      redirect: ctx.linkTo(
+        'admin.organizations.spaces.services.metrics.view', {
+          organizationGUID: params.organizationGUID,
+          spaceGUID: params.spaceGUID,
+          serviceGUID: params.serviceGUID,
+          rangeStart: moment().subtract(24, 'hours').format('YYYY-MM-DD[T]HH:mm'),
+          rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+        }),
+    };
+  }
+
+  const {rangeStart, rangeStop, period} = parseRange(params.rangeStart, params.rangeStop);
+
+  const [isManager, isBillingManager, userProvidedServices, space, organization] = await Promise.all([
+      cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+      cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+      cf.userServices(params.spaceGUID),
+      cf.space(params.spaceGUID),
+      cf.organization(params.organizationGUID),
+  ]);
+
+  const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
+
+  const service = isUserProvidedService ?
+    await cf.userServiceInstance(params.serviceGUID) :
+    await cf.serviceInstance(params.serviceGUID);
+
+  const serviceLabel = isUserProvidedService ? 'User Provided Service'
+      : (await cf.service(service.entity.service_guid)).entity.label;
+
+  const cloudWatchMetricDataClient = new CloudwatchMetricDataClient(
+    new cw.CloudWatchClient({
+      region: ctx.app.awsRegion,
+      endpoint: ctx.app.awsCloudwatchEndpoint,
+    }),
+  );
+
+  const metricGraphData = await cloudWatchMetricDataClient.getMetricGraphData(
+    service.metadata.guid,
+    serviceLabel,
+    period,
+    rangeStart,
+    rangeStop,
+  );
+
+  if (!metricGraphData) {
+    throw new Error('No response from Cloudwatch');
+  }
+
+  const metricData = metricGraphData.graphs.find(data => data.id === params.metric);
+
+  const defaultTemplateParams = {
+      routePartOf: ctx.routePartOf,
+      linkTo: ctx.linkTo,
+      context: ctx.viewContext,
+      organization,
+      service,
+      serviceLabel,
+      space,
+      isAdmin,
+      isBillingManager,
+      isManager,
+      period,
+      rangeStart,
+      rangeStop,
+  };
+
+  switch (metricGraphData.serviceType) {
+    case 'rds':
+      return {
+        mimeType: 'text/csv',
+        download: {
+          name: `rds-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`,
+          data: rdsMetricsTemplate.render({
+            metricData,
+            ...defaultTemplateParams,
+          }),
+        },
+      };
+    case 'elasticache':
+      return {
+        mimeType: 'text/csv',
+        download: {
+          name: `elasticache-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`,
+          data: elasticacheMetricsTemplate.render({
+            metricData,
+            ...defaultTemplateParams,
+          }),
+        },
+      };
+    /* istanbul ignore next */
+    default:
+      throw new Error(`Unrecognised service type ${metricGraphData.serviceType}`);
+  }
 }
 
 function parseRange(start: string, stop: string): IRange {

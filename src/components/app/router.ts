@@ -79,6 +79,11 @@ const router = new Router([
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics',
   },
   {
+    action: serviceMetrics.downloadServiceMetrics,
+    name: 'admin.organizations.spaces.services.metrics.download',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics/download',
+  },
+  {
     action: serviceMetrics.resolveServiceMetrics,
     name: 'admin.organizations.spaces.services.metrics.redirect',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics/:offset',
