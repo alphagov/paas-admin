@@ -1,0 +1,16 @@
+{%- macro fmt(val, units) -%}
+  {%- if units === 'Bytes' -%}
+    {%- if val | nan %}{{ 0 | bytestohumancsv }}{% else %}{{ val | bytestohumancsv }}{% endif %}
+  {%- elseif units === 'Percent' -%}
+    {%- if val | nan %}{{ 0 | round(2) }}%{% else %}{{ val | round(2) }}%{% endif %}
+  {%- else -%}
+    {%- if val | nan %}{{ 0 | round(2) }}{% else %}{{ val | round(2) }}{% endif %}
+  {%- endif -%}
+{%- endmacro -%}
+Service,Instance,Time,Value{{ "\n" -}}
+{% for metric in metricData.seriesArray -%}
+  {%- for series in metric.metrics -%}
+  {%- set row = [serviceLabel, metric.label, series.date | dateTime, fmt(series.value, metricData.units)] -%}
+  {{- row | join(",") }}{{ "\n" -}}
+  {%- endfor -%}
+{% endfor -%}

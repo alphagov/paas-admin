@@ -1,6 +1,6 @@
 import nock from 'nock';
 
-import {resolveServiceMetrics, viewServiceMetrics} from '.';
+import {downloadServiceMetrics, resolveServiceMetrics, viewServiceMetrics} from '.';
 
 import moment from 'moment';
 import querystring from 'querystring';
@@ -266,5 +266,172 @@ describe('service metrics test suite', () => {
       rangeStart: moment().subtract(1, 'week').unix(),
       rangeStop: moment().unix(),
     })).rejects.toThrow('Cannot handle over a year old metrics');
+  });
+
+  it('should download a postgres csv', async () => {
+    nock('https://aws-cloudwatch.example.com/')
+      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
+        {id: 'mFreeStorageSpace', label: ''},
+        {id: 'mCPUUtilization', label: ''},
+      ]));
+
+    mockService(data.serviceObj);
+
+    const rangeStop = moment();
+    const rangeStart = rangeStop.subtract(1, 'hour');
+
+    const response = await downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'mFreeStorageSpace',
+      rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+    });
+
+    expect(response.mimeType).toEqual('text/csv');
+    expect(response.download.name).toMatch(/postgres-metrics.*\.csv/);
+    expect(response.download.data).toMatch(/Service,Time,Value/);
+    expect(response.download.data).toMatch(new RegExp(`postgres,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+B`));
+
+    const lines = response.download.data
+      .split('\n')
+      .filter(line => line.length > 0)
+    ;
+
+    expect(lines.length).toBeGreaterThan(2);
+    expect(lines.length).toBeLessThan(400);
+
+    const [{}, first, ...{}] = lines;
+    const [{}, firstDate, {}] = first.split(',');
+    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
+  });
+
+  it('should download a redis csv', async () => {
+    nock('https://aws-cloudwatch.example.com/')
+    .post('/').times(2).reply(200, getStubCloudwatchMetricsData([
+      {id: 'mCacheHits', label: ''},
+      {id: 'mCacheMisses', label: ''},
+    ]));
+
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'redis',
+      },
+    });
+
+    const rangeStop = moment();
+    const rangeStart = rangeStop.subtract(1, 'hour');
+
+    const response = await downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'mCacheHits',
+      rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+    });
+
+    expect(response.mimeType).toEqual('text/csv');
+    expect(response.download.name).toMatch(/redis-metrics.*\.csv/);
+    expect(response.download.data).toMatch(/Service,Instance,Time,Value/);
+    expect(response.download.data).toMatch(new RegExp(`redis,,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`));
+
+    const lines = response.download.data.split('\n');
+
+    expect(lines.length).toBeGreaterThan(2);
+    expect(lines.length).toBeLessThan(450);
+
+    const [{}, first, ...{}] = lines;
+    const [{}, {}, firstDate, {}] = first.split(',');
+    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
+  });
+
+  it('should download a cloudfront csv', async () => {
+    nock('https://aws-tags.example.com/')
+      .post('/').reply(200, getStubResourcesByTag())
+    ;
+
+    nock('https://aws-cloudwatch.example.com/')
+      .post('/').times(2).reply(200, getStubCloudwatchMetricsData([
+        {id: 'mRequests', label: ''},
+        {id: 'mTotalErrorRate', label: ''},
+      ]))
+    ;
+
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'cdn-route',
+      },
+    });
+
+    const rangeStop = moment();
+    const rangeStart = rangeStop.subtract(1, 'hour');
+
+    const response = await downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'mRequests',
+      rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+    });
+
+    expect(response.mimeType).toEqual('text/csv');
+    expect(response.download.name).toMatch(/cdn-route-metrics.*\.csv/);
+    expect(response.download.data).toMatch(/Service,Time,Value/);
+    expect(response.download.data).toMatch(new RegExp(`cdn-route,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`));
+
+    const lines = response.download.data.split('\n');
+
+    expect(lines.length).toBeGreaterThan(2);
+    expect(lines.length).toBeLessThan(450);
+
+    const [{}, first, ...{}] = lines;
+    const [{}, firstDate, ...{}] = first.split(',');
+    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
+  });
+
+  it('should fail to download csv if no data returned from cloudwatch', async () => {
+    await expect(downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'mFreeStorageSpace',
+      rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      })).rejects.toThrow(/No response from Cloudwatch/);
+  });
+
+  it('should redirect if no range or metric provided for csv download', async () => {
+    const response = await downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+    });
+
+    expect(response.body).not.toBeDefined();
+    expect(response.status).toEqual(302);
+    expect(response.redirect).toContain('rangeStart');
+    expect(response.redirect).toContain('rangeStop');
   });
 });

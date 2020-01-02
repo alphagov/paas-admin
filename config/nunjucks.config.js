@@ -108,6 +108,27 @@ function configure(env) {
     return `${bytes.toFixed(2)}<abbr title="${longUnits[units[u]]}">${units[u]}</abbr>`;
   });
 
+  env.addFilter('bytestohumancsv', (bytes) => {
+    const units = ['KiB', 'MiB', 'GiB', 'TiB'];
+    const thresh = 1024;
+
+    if(Math.abs(bytes) < thresh) {
+      return `${bytes.toFixed(0)}B`;
+    }
+
+    let u = -1;
+    while(Math.abs(bytes) >= thresh && u < units.length - 1) {
+        bytes /= thresh;
+        ++u;
+    }
+
+    return `${bytes.toFixed(2)}${units[u]}`;
+  });
+
+  env.addFilter('nan', (num) => {
+    return isNaN(num);
+  });
+
   env.addFilter('percentage', (num, denom) => {
     const percentage = 100 * (num / denom)
     return `${percentage.toFixed(1)}%`
