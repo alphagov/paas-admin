@@ -269,7 +269,7 @@ describe('service metrics test suite', () => {
   });
 
   it('should download a postgres csv', async () => {
-    nock('https://aws.example.com/')
+    nock('https://aws-cloudwatch.example.com/')
       .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
         {id: 'mFreeStorageSpace', label: ''},
         {id: 'mCPUUtilization', label: ''},
@@ -312,7 +312,7 @@ describe('service metrics test suite', () => {
   });
 
   it('should download a redis csv', async () => {
-    nock('https://aws.example.com/')
+    nock('https://aws-cloudwatch.example.com/')
     .post('/').times(2).reply(200, getStubCloudwatchMetricsData([
       {id: 'mCacheHits', label: ''},
       {id: 'mCacheMisses', label: ''},
