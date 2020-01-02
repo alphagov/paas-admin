@@ -11,6 +11,7 @@ import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLL
 import { fromOrg, IBreadcrumb } from '../breadcrumbs';
 import { drawMultipleLineGraphs } from '../charts/line-graph';
 import { UserFriendlyError } from '../errors';
+import cloudfrontMetricsTemplate from './cloudfront-service-metrics-csv.njk';
 import cloudfrontServiceMetrics from './cloudfront-service-metrics.njk';
 import elasticacheMetricsTemplate from './elasticache-service-metrics-csv.njk';
 import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk';
@@ -239,6 +240,14 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
       region: ctx.app.awsRegion,
       endpoint: ctx.app.awsCloudwatchEndpoint,
     }),
+    new cw.CloudWatchClient({
+      region: 'us-east-1',
+      endpoint: ctx.app.awsCloudwatchEndpoint,
+    }),
+    new rg.ResourceGroupsTaggingAPIClient({
+      region: 'us-east-1',
+      endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
+    }),
   );
 
   const metricGraphData = await cloudWatchMetricDataClient.getMetricGraphData(
@@ -289,6 +298,17 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
         download: {
           name: `elasticache-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`,
           data: elasticacheMetricsTemplate.render({
+            metricData,
+            ...defaultTemplateParams,
+          }),
+        },
+      };
+    case 'cloudfront':
+      return {
+        mimeType: 'text/csv',
+        download: {
+          name: `cloudfront-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`,
+          data: cloudfrontMetricsTemplate.render({
             metricData,
             ...defaultTemplateParams,
           }),

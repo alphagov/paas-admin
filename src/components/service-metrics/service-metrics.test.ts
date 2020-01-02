@@ -306,7 +306,6 @@ describe('service metrics test suite', () => {
     expect(lines.length).toBeLessThan(400);
 
     const [{}, first, ...{}] = lines;
-
     const [{}, firstDate, {}] = first.split(',');
     expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
   });
@@ -352,8 +351,57 @@ describe('service metrics test suite', () => {
     expect(lines.length).toBeLessThan(450);
 
     const [{}, first, ...{}] = lines;
-
     const [{}, {}, firstDate, {}] = first.split(',');
+    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
+  });
+
+  it('should download a cloudfront csv', async () => {
+    nock('https://aws-tags.example.com/')
+      .post('/').reply(200, getStubResourcesByTag())
+    ;
+
+    nock('https://aws-cloudwatch.example.com/')
+      .post('/').times(2).reply(200, getStubCloudwatchMetricsData([
+        {id: 'mRequests', label: ''},
+        {id: 'mTotalErrorRate', label: ''},
+      ]))
+    ;
+
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'cdn-route',
+      },
+    });
+
+    const rangeStop = moment();
+    const rangeStart = rangeStop.subtract(1, 'hour');
+
+    const response = await downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'mRequests',
+      rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+    });
+
+    expect(response.mimeType).toEqual('text/csv');
+    expect(response.download.name).toMatch(/cloudfront-metrics.*\.csv/);
+    expect(response.download.data).toMatch(/Service,Time,Value/);
+    expect(response.download.data).toMatch(new RegExp(`cdn-route,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`));
+
+    const lines = response.download.data.split('\n');
+
+    expect(lines.length).toBeGreaterThan(2);
+    expect(lines.length).toBeLessThan(450);
+
+    const [{}, first, ...{}] = lines;
+    const [{}, firstDate, ...{}] = first.split(',');
     expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
   });
 
