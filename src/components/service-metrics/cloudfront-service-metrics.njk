@@ -43,7 +43,8 @@
     format: 'number',
     titleHTML: 'Requests',
     descriptionHTML: 'How many HTTP requests your CDN route service has served.',
-    metric: metricGraphsById['mRequests']
+    metric: metricGraphsById['mRequests'],
+    downloadLink: downloadLink
   }) }}
 
   {{ metric({
@@ -51,7 +52,8 @@
     format: 'percentile',
     titleHTML: 'Total error rate',
     descriptionHTML: 'The percentages of HTTP responses with either a 4XX or 5XX HTTP status code, which can represent a client or a server error.',
-    metric: metricGraphsById['mTotalErrorRate']
+    metric: metricGraphsById['mTotalErrorRate'],
+    downloadLink: downloadLink
   }) }}
 
   {{ metric({
@@ -59,7 +61,8 @@
     format: 'percentile',
     titleHTML: '4xx error rate',
     descriptionHTML: 'The percentages of HTTP responses with a 4XX HTTP status code, which represents a client error.',
-    metric: metricGraphsById['m4xxErrorRate']
+    metric: metricGraphsById['m4xxErrorRate'],
+    downloadLink: downloadLink
   }) }}
 
   {{ metric({
@@ -67,7 +70,8 @@
     format: 'percentile',
     titleHTML: '5xx error rate',
     descriptionHTML: 'The percentages of HTTP responses with a 5XX HTTP status code, which represents a server error.',
-    metric: metricGraphsById['m5xxErrorRate']
+    metric: metricGraphsById['m5xxErrorRate'],
+    downloadLink: downloadLink
   }) }}
 
   {{ metric({
@@ -75,7 +79,8 @@
     format: 'bytes',
     titleHTML: 'Bytes uploaded',
     descriptionHTML: 'The number of bytes sent to your applications by the CDN route service.',
-    metric: metricGraphsById['mBytesUploaded']
+    metric: metricGraphsById['mBytesUploaded'],
+    downloadLink: downloadLink
   }) }}
 
   {{ metric({
@@ -83,7 +88,8 @@
     format: 'bytes',
     titleHTML: 'Bytes downloaded',
     descriptionHTML: 'The number of bytes received from your applications by the CDN route service.',
-    metric: metricGraphsById['mBytesDownloaded']
+    metric: metricGraphsById['mBytesDownloaded'],
+    downloadLink: downloadLink
   }) }}
 </div>
 
