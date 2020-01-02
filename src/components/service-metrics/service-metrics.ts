@@ -280,12 +280,14 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
       rangeStop,
   };
 
+  const name = `${serviceLabel}-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`;
+
   switch (metricGraphData.serviceType) {
     case 'rds':
       return {
         mimeType: 'text/csv',
         download: {
-          name: `rds-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`,
+          name,
           data: rdsMetricsTemplate.render({
             metricData,
             ...defaultTemplateParams,
@@ -296,7 +298,7 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
       return {
         mimeType: 'text/csv',
         download: {
-          name: `elasticache-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`,
+          name,
           data: elasticacheMetricsTemplate.render({
             metricData,
             ...defaultTemplateParams,
@@ -307,7 +309,7 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
       return {
         mimeType: 'text/csv',
         download: {
-          name: `cloudfront-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`,
+          name,
           data: cloudfrontMetricsTemplate.render({
             metricData,
             ...defaultTemplateParams,

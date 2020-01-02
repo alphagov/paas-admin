@@ -293,7 +293,7 @@ describe('service metrics test suite', () => {
     });
 
     expect(response.mimeType).toEqual('text/csv');
-    expect(response.download.name).toMatch(/rds-metrics.*\.csv/);
+    expect(response.download.name).toMatch(/postgres-metrics.*\.csv/);
     expect(response.download.data).toMatch(/Service,Time,Value/);
     expect(response.download.data).toMatch(new RegExp(`postgres,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+B`));
 
@@ -341,7 +341,7 @@ describe('service metrics test suite', () => {
     });
 
     expect(response.mimeType).toEqual('text/csv');
-    expect(response.download.name).toMatch(/elasticache-metrics.*\.csv/);
+    expect(response.download.name).toMatch(/redis-metrics.*\.csv/);
     expect(response.download.data).toMatch(/Service,Instance,Time,Value/);
     expect(response.download.data).toMatch(new RegExp(`redis,,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`));
 
@@ -391,7 +391,7 @@ describe('service metrics test suite', () => {
     });
 
     expect(response.mimeType).toEqual('text/csv');
-    expect(response.download.name).toMatch(/cloudfront-metrics.*\.csv/);
+    expect(response.download.name).toMatch(/cdn-route-metrics.*\.csv/);
     expect(response.download.data).toMatch(/Service,Time,Value/);
     expect(response.download.data).toMatch(new RegExp(`cdn-route,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`));
 
