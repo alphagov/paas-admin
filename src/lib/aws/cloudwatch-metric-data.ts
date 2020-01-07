@@ -3,31 +3,20 @@ import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
 
 import _ from 'lodash';
 import { Duration, Moment } from 'moment';
-import { IMetricGraphData, IMetricSeries } from '../../components/charts/line-graph';
+import {
+  IMetricGraphData,
+  IMetricGraphDataResponse,
+  IMetricPropertiesById,
+  IMetricSeries,
+
+  ServiceLabel, ServiceType,
+} from '../charts';
 
 import {
   getCloudFrontDistributionId,
   getElasticacheReplicationGroupId,
   getRdsDbInstanceIdentifier,
 } from '../../lib/aws/identifiers';
-
-interface IMetricPropertiesById {
-  readonly [key: string]: {
-    name: string;
-    stat: 'Average' | 'Sum',
-    format: string;
-    units: 'Bytes' | 'Percent' | 'Number' | 'Milliseconds';
-    title: string;
-  };
-}
-
-type ServiceLabel = 'postgres' | 'mysql' | 'redis' | string;
-type ServiceType = 'rds' | 'elasticache' | 'cloudfront';
-
-export interface IMetricGraphDataResponse {
-  readonly graphs: ReadonlyArray<IMetricGraphData>;
-  readonly serviceType: ServiceType;
-}
 
 export class CloudwatchMetricDataClient {
 

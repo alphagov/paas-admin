@@ -8,39 +8,11 @@ import {JSDOM} from 'jsdom';
 import {flatMap, keyBy} from 'lodash';
 import moment from 'moment';
 
-export interface IMetricSeries {
-  metrics: ReadonlyArray<IMetric>;
-  label: string;
-}
-
-export interface IMetricGraphData {
-  seriesArray: ReadonlyArray<IMetricSeries>;
-  id: string;
-  format: string;
-  units: string;
-  title: string;
-}
-
-export interface IMetric {
-  date: Date;
-  value: number;
-}
-
-export interface IGraphSummary {
-  average: number;
-  label: string;
-  latest: number;
-  min: number;
-  max: number;
-}
-
-export interface IGraphByID {
-  readonly [id: string]: {
-    id: string,
-    graph: string;
-    seriesSummaries: ReadonlyArray<IGraphSummary>;
-  };
-}
+import {
+  IGraphByID,
+  IMetric,
+  IMetricGraphData,
+} from '../../lib/charts';
 
 const viewBox = {
   x: 0,
