@@ -4,6 +4,7 @@ import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
 import moment from 'moment';
 import { CloudwatchMetricDataClient } from '../../lib/aws/cloudwatch-metric-data';
 import CloudFoundryClient from '../../lib/cf';
+import { IMetricGraphDataResponse } from '../../lib/charts';
 import roundDown from '../../lib/moment/round';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
@@ -122,13 +123,31 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
     }),
   );
 
-  const metricGraphData = await cloudWatchMetricDataClient.getMetricGraphData(
-    service.metadata.guid,
-    serviceLabel,
-    period,
-    rangeStart,
-    rangeStop,
-  );
+  const metricGraphData: IMetricGraphDataResponse | null = await (async () => {
+    switch (serviceLabel) {
+      case 'cdn-route':
+      case 'mysql':
+      case 'postgres':
+      case 'redis':
+        return cloudWatchMetricDataClient.getMetricGraphData(
+          service.metadata.guid,
+          serviceLabel,
+          period,
+          rangeStart,
+          rangeStop,
+        );
+      case 'elasticsearch':
+        return cloudWatchMetricDataClient.getMetricGraphData(
+          service.metadata.guid,
+          serviceLabel,
+          period,
+          rangeStart,
+          rangeStop,
+        );
+      default:
+        return null;
+    }
+  })();
 
   const defaultTemplateParams = {
     routePartOf: ctx.routePartOf,
