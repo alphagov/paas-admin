@@ -51,142 +51,142 @@ export async function resolveServiceMetrics(ctx: IContext, params: IParameters):
 }
 
 export async function viewServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
-    const cf = new CloudFoundryClient({
-        accessToken: ctx.token.accessToken,
-        apiEndpoint: ctx.app.cloudFoundryAPI,
-        logger: ctx.app.logger,
-      });
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
 
-    const isAdmin = ctx.token.hasAnyScope(
-        CLOUD_CONTROLLER_ADMIN,
-        CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-        CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-    );
+  const isAdmin = ctx.token.hasAnyScope(
+    CLOUD_CONTROLLER_ADMIN,
+    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  );
 
-    if (!params.rangeStart || !params.rangeStop) {
-      return {
-        status: 302,
-        redirect: ctx.linkTo(
-          'admin.organizations.spaces.services.metrics.view', {
-            organizationGUID: params.organizationGUID,
-            spaceGUID: params.spaceGUID,
-            serviceGUID: params.serviceGUID,
-            rangeStart: moment().subtract(24, 'hours').format('YYYY-MM-DD[T]HH:mm'),
-            rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
-          }),
-      };
-    }
-
-    const {rangeStart, rangeStop, period} = parseRange(params.rangeStart, params.rangeStop);
-
-    const [isManager, isBillingManager, userProvidedServices, space, organization] = await Promise.all([
-        cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-        cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
-        cf.userServices(params.spaceGUID),
-        cf.space(params.spaceGUID),
-        cf.organization(params.organizationGUID),
-    ]);
-
-    const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
-
-    const service = isUserProvidedService ?
-      await cf.userServiceInstance(params.serviceGUID) :
-      await cf.serviceInstance(params.serviceGUID);
-
-    const serviceLabel = isUserProvidedService ? 'User Provided Service'
-        : (await cf.service(service.entity.service_guid)).entity.label;
-
-    const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
-        {
-            text: space.entity.name,
-            href: ctx.linkTo('admin.organizations.spaces.services.list', {
-            organizationGUID: organization.metadata.guid,
-            spaceGUID: space.metadata.guid,
-            }),
-        },
-        { text: service.entity.name },
-    ]);
-
-    const cloudWatchMetricDataClient = new CloudwatchMetricDataClient(
-      new cw.CloudWatchClient({
-        region: ctx.app.awsRegion,
-        endpoint: ctx.app.awsCloudwatchEndpoint,
-      }),
-      new cw.CloudWatchClient({
-        region: 'us-east-1',
-        endpoint: ctx.app.awsCloudwatchEndpoint,
-      }),
-      new rg.ResourceGroupsTaggingAPIClient({
-        region: 'us-east-1',
-        endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
-      }),
-    );
-
-    const metricGraphData = await cloudWatchMetricDataClient.getMetricGraphData(
-      service.metadata.guid,
-      serviceLabel,
-      period,
-      rangeStart,
-      rangeStop,
-    );
-
-    const defaultTemplateParams = {
-        routePartOf: ctx.routePartOf,
-        linkTo: ctx.linkTo,
-        context: ctx.viewContext,
-        organization,
-        service,
-        serviceLabel,
-        space,
-        isAdmin,
-        isBillingManager,
-        isManager,
-        breadcrumbs,
-        period,
-        rangeStart,
-        rangeStop,
-        downloadLink: ctx.linkTo('admin.organizations.spaces.services.metrics.download', {
-          organizationGUID: organization.metadata.guid,
-          spaceGUID: space.metadata.guid,
-          serviceGUID: service.metadata.guid,
-          rangeStart,
-          rangeStop,
+  if (!params.rangeStart || !params.rangeStop) {
+    return {
+      status: 302,
+      redirect: ctx.linkTo(
+        'admin.organizations.spaces.services.metrics.view', {
+          organizationGUID: params.organizationGUID,
+          spaceGUID: params.spaceGUID,
+          serviceGUID: params.serviceGUID,
+          rangeStart: moment().subtract(24, 'hours').format('YYYY-MM-DD[T]HH:mm'),
+          rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
         }),
     };
-    if (!metricGraphData) {
+  }
+
+  const {rangeStart, rangeStop, period} = parseRange(params.rangeStart, params.rangeStop);
+
+  const [isManager, isBillingManager, userProvidedServices, space, organization] = await Promise.all([
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+    cf.userServices(params.spaceGUID),
+    cf.space(params.spaceGUID),
+    cf.organization(params.organizationGUID),
+  ]);
+
+  const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
+
+  const service = isUserProvidedService ?
+  await cf.userServiceInstance(params.serviceGUID) :
+  await cf.serviceInstance(params.serviceGUID);
+
+  const serviceLabel = isUserProvidedService ? 'User Provided Service'
+  : (await cf.service(service.entity.service_guid)).entity.label;
+
+  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+    {
+      text: space.entity.name,
+      href: ctx.linkTo('admin.organizations.spaces.services.list', {
+        organizationGUID: organization.metadata.guid,
+        spaceGUID: space.metadata.guid,
+      }),
+    },
+    { text: service.entity.name },
+  ]);
+
+  const cloudWatchMetricDataClient = new CloudwatchMetricDataClient(
+    new cw.CloudWatchClient({
+      region: ctx.app.awsRegion,
+      endpoint: ctx.app.awsCloudwatchEndpoint,
+    }),
+    new cw.CloudWatchClient({
+      region: 'us-east-1',
+      endpoint: ctx.app.awsCloudwatchEndpoint,
+    }),
+    new rg.ResourceGroupsTaggingAPIClient({
+      region: 'us-east-1',
+      endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
+    }),
+  );
+
+  const metricGraphData = await cloudWatchMetricDataClient.getMetricGraphData(
+    service.metadata.guid,
+    serviceLabel,
+    period,
+    rangeStart,
+    rangeStop,
+  );
+
+  const defaultTemplateParams = {
+    routePartOf: ctx.routePartOf,
+    linkTo: ctx.linkTo,
+    context: ctx.viewContext,
+    organization,
+    service,
+    serviceLabel,
+    space,
+    isAdmin,
+    isBillingManager,
+    isManager,
+    breadcrumbs,
+    period,
+    rangeStart,
+    rangeStop,
+    downloadLink: ctx.linkTo('admin.organizations.spaces.services.metrics.download', {
+      organizationGUID: organization.metadata.guid,
+      spaceGUID: space.metadata.guid,
+      serviceGUID: service.metadata.guid,
+      rangeStart,
+      rangeStop,
+    }),
+  };
+  if (!metricGraphData) {
+    return {
+      body: unsupportedServiceMetricsTemplate.render(defaultTemplateParams),
+    };
+  }
+
+  const metricGraphsById = drawMultipleLineGraphs(metricGraphData.graphs);
+
+  switch (metricGraphData.serviceType) {
+    case 'rds':
       return {
-        body: unsupportedServiceMetricsTemplate.render(defaultTemplateParams),
+        body: rdsServiceMetricsTemplate.render({
+          ...defaultTemplateParams,
+          metricGraphsById,
+        }),
       };
-    }
-
-    const metricGraphsById = drawMultipleLineGraphs(metricGraphData.graphs);
-
-    switch (metricGraphData.serviceType) {
-      case 'rds':
-        return {
-          body: rdsServiceMetricsTemplate.render({
-            ...defaultTemplateParams,
-            metricGraphsById,
-          }),
-        };
-      case 'elasticache':
-        return {
-          body: elasticacheServiceMetricsTemplate.render({
-            ...defaultTemplateParams,
-            metricGraphsById,
-          }),
-        };
-      case 'cloudfront':
-        return {
-          body: cloudfrontServiceMetrics.render({
-            ...defaultTemplateParams,
-            metricGraphsById,
-          }),
-        };
+    case 'elasticache':
+      return {
+        body: elasticacheServiceMetricsTemplate.render({
+          ...defaultTemplateParams,
+          metricGraphsById,
+        }),
+      };
+    case 'cloudfront':
+      return {
+        body: cloudfrontServiceMetrics.render({
+          ...defaultTemplateParams,
+          metricGraphsById,
+        }),
+      };
       /* istanbul ignore next */
-      default:
-        throw new Error(`Unrecognised service type ${metricGraphData.serviceType}`);
-    }
+    default:
+      throw new Error(`Unrecognised service type ${metricGraphData.serviceType}`);
+  }
 }
 
 export async function downloadServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
@@ -197,9 +197,9 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
   });
 
   const isAdmin = ctx.token.hasAnyScope(
-      CLOUD_CONTROLLER_ADMIN,
-      CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-      CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+    CLOUD_CONTROLLER_ADMIN,
+    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
 
   if (!params.rangeStart || !params.rangeStop || !params.metric) {
@@ -219,21 +219,21 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
   const {rangeStart, rangeStop, period} = parseRange(params.rangeStart, params.rangeStop);
 
   const [isManager, isBillingManager, userProvidedServices, space, organization] = await Promise.all([
-      cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-      cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
-      cf.userServices(params.spaceGUID),
-      cf.space(params.spaceGUID),
-      cf.organization(params.organizationGUID),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
+    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+    cf.userServices(params.spaceGUID),
+    cf.space(params.spaceGUID),
+    cf.organization(params.organizationGUID),
   ]);
 
   const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
 
   const service = isUserProvidedService ?
-    await cf.userServiceInstance(params.serviceGUID) :
-    await cf.serviceInstance(params.serviceGUID);
+  await cf.userServiceInstance(params.serviceGUID) :
+  await cf.serviceInstance(params.serviceGUID);
 
   const serviceLabel = isUserProvidedService ? 'User Provided Service'
-      : (await cf.service(service.entity.service_guid)).entity.label;
+  : (await cf.service(service.entity.service_guid)).entity.label;
 
   const cloudWatchMetricDataClient = new CloudwatchMetricDataClient(
     new cw.CloudWatchClient({
@@ -265,19 +265,19 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
   const metricData = metricGraphData.graphs.find(data => data.id === params.metric);
 
   const defaultTemplateParams = {
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      organization,
-      service,
-      serviceLabel,
-      space,
-      isAdmin,
-      isBillingManager,
-      isManager,
-      period,
-      rangeStart,
-      rangeStop,
+    routePartOf: ctx.routePartOf,
+    linkTo: ctx.linkTo,
+    context: ctx.viewContext,
+    organization,
+    service,
+    serviceLabel,
+    space,
+    isAdmin,
+    isBillingManager,
+    isManager,
+    period,
+    rangeStart,
+    rangeStop,
   };
 
   const name = `${serviceLabel}-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`;
@@ -316,7 +316,7 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
           }),
         },
       };
-    /* istanbul ignore next */
+      /* istanbul ignore next */
     default:
       throw new Error(`Unrecognised service type ${metricGraphData.serviceType}`);
   }
