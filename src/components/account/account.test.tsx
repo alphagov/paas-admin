@@ -24,13 +24,12 @@ describe('account test suite', () => {
       expect(response.body).toContain('id="opt-out-process-explanation"');
     });
 
-    it('returns an error view when Google SSO is not configured', async () => {
+    it('throws an error view when Google SSO is not configured', async () => {
       ctx = createTestContext();
 
       (ctx as any).app.oidcProviders.clear();
 
-      const response = await account.getUseGoogleSSO(ctx, {});
-      expect(response.body).toContain('error');
+      await expect(account.getUseGoogleSSO(ctx, {})).rejects.toThrowError();
     });
 
     it('returns a confirmation page', async () => {
@@ -41,13 +40,12 @@ describe('account test suite', () => {
   });
 
   describe('account.use-google-sso.post', () => {
-    it('returns an error view when Google SSO is not configured', async () => {
+    it('throws an error view when Google SSO is not configured', async () => {
       ctx = createTestContext();
 
       (ctx as any).app.oidcProviders.clear();
 
-      const response = await account.postUseGoogleSSO(ctx, {});
-      expect(response.body).toContain('error');
+      await expect(account.postUseGoogleSSO(ctx, {})).rejects.toThrowError();
     });
 
     it('redirects to the OIDC authority\'s authorization endpoint', async () => {
@@ -70,13 +68,12 @@ describe('account test suite', () => {
   });
 
   describe('account.use-google-sso-callback.get', () => {
-    it('returns an error view when Google SSO is not configured', async () => {
+    it('throws an error view when Google SSO is not configured', async () => {
       ctx = createTestContext();
 
       (ctx as any).app.oidcProviders.clear();
 
-      const response = await account.getGoogleOIDCCallback(ctx, {});
-      expect(response.body).toContain('error');
+      await expect(account.getGoogleOIDCCallback(ctx, {})).rejects.toThrowError();
     });
 
     describe('when the OIDC provider returns an error', () => {
@@ -121,8 +118,7 @@ describe('account test suite', () => {
           state,
         };
 
-        const response = await account.getGoogleOIDCCallback(ctx, params);
-        expect(response.body).toContain('error');
+        await expect(account.getGoogleOIDCCallback(ctx, params)).rejects.toThrowError();
       });
 
       it('logs any error received', async () => {
@@ -137,7 +133,7 @@ describe('account test suite', () => {
           state,
         };
 
-        await account.getGoogleOIDCCallback(ctx, params);
+        await expect(account.getGoogleOIDCCallback(ctx, params)).rejects.toThrowError();
         expect(ctx.app.logger.error).toHaveBeenCalled();
       });
     });
@@ -176,13 +172,12 @@ describe('account test suite', () => {
   });
 
   describe('account.use-microsoft-sso-view', () => {
-    it('returns an error view when MS SSO is not configured', async () => {
+    it('throws an error view when MS SSO is not configured', async () => {
       ctx = createTestContext();
 
       (ctx as any).app.oidcProviders.clear();
 
-      const response = await account.getUseMicrosoftSSO(ctx, {});
-      expect(response.body).toContain('error');
+      await expect(account.getUseMicrosoftSSO(ctx, {})).rejects.toThrowError();
     });
 
     it('returns a confirmation page', async () => {
@@ -193,13 +188,12 @@ describe('account test suite', () => {
   });
 
   describe('account.use-microsoft-sso.post', () => {
-    it('returns an error view when MS SSO is not configured', async () => {
+    it('throws an error view when MS SSO is not configured', async () => {
       ctx = createTestContext();
 
       (ctx as any).app.oidcProviders.clear();
 
-      const response = await account.postUseMicrosoftSSO(ctx, {});
-      expect(response.body).toContain('error');
+      await expect(account.postUseMicrosoftSSO(ctx, {})).rejects.toThrowError();
     });
 
     it('redirects to the OIDC authority\'s authorization endpoint', async () => {
@@ -222,13 +216,12 @@ describe('account test suite', () => {
   });
 
   describe('account.use-microsoft-sso-callback.get', () => {
-    it('returns an error view when MS SSO is not configured', async () => {
+    it('throws an error view when MS SSO is not configured', async () => {
       ctx = createTestContext();
 
       (ctx as any).app.oidcProviders.clear();
 
-      const response = await account.getMicrosoftOIDCCallback(ctx, {});
-      expect(response.body).toContain('error');
+      await expect(account.getMicrosoftOIDCCallback(ctx, {})).rejects.toThrowError();
     });
 
     describe('when the OIDC provider returns an error', () => {
@@ -273,8 +266,7 @@ describe('account test suite', () => {
           state,
         };
 
-        const response = await account.getMicrosoftOIDCCallback(ctx, params);
-        expect(response.body).toContain('error');
+        await expect(account.getMicrosoftOIDCCallback(ctx, params)).rejects.toThrowError();
       });
 
       it('logs any error received', async () => {
@@ -289,7 +281,7 @@ describe('account test suite', () => {
           state,
         };
 
-        await account.getMicrosoftOIDCCallback(ctx, params);
+        await expect(account.getMicrosoftOIDCCallback(ctx, params)).rejects.toThrowError();
         expect(ctx.app.logger.error).toHaveBeenCalled();
       });
     });

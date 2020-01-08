@@ -2,7 +2,6 @@ import {IParameters, IResponse} from '../../lib/router';
 import UAAClient from '../../lib/uaa';
 import {UaaOrigin} from '../../lib/uaa/uaa';
 import {IContext, IOIDCConfig} from '../app';
-import error500 from '../errors/error.500.njk';
 import accessDeniedTemplate from './access-denied.njk';
 import {AccountUser} from './account_user';
 import OIDC, {IAuthorizationCodeResponse} from './oidc';
@@ -16,15 +15,7 @@ export async function getUseGoogleSSO(ctx: IContext, _params: IParameters): Prom
   const cfgProvided = ctx.app.oidcProviders.get('google');
 
   if (!cfgProvided) {
-    ctx.app.logger.error('Unable to find Google OIDC config');
-
-    return {
-      body: error500.render({
-        routePartOf: ctx.routePartOf,
-        linkTo: ctx.linkTo,
-        context: ctx.viewContext,
-      }),
-    };
+    throw new Error('Unable to find Google OIDC config');
   }
 
   const user = await fetchLoggedInUser(ctx);
@@ -43,15 +34,7 @@ export async function postUseGoogleSSO(ctx: IContext, _params: IParameters): Pro
   const cfgProvided = ctx.app.oidcProviders.get('google');
 
   if (!cfgProvided) {
-    ctx.app.logger.error('Unable to find Google OIDC config');
-
-    return {
-      body: error500.render({
-        routePartOf: ctx.routePartOf,
-        linkTo: ctx.linkTo,
-        context: ctx.viewContext,
-      }),
-    };
+    throw new Error('Unable to find Google OIDC config');
   }
 
   const oidcClient = new OIDC(
@@ -79,15 +62,7 @@ export async function getGoogleOIDCCallback(ctx: IContext, _params: IParameters)
   const cfgProvided = ctx.app.oidcProviders.get('google');
 
   if (!cfgProvided) {
-    ctx.app.logger.error('Unable to find Google OIDC config');
-
-    return {
-      body: error500.render({
-        routePartOf: ctx.routePartOf,
-        linkTo: ctx.linkTo,
-        context: ctx.viewContext,
-      }),
-    };
+    throw new Error('Unable to find Google OIDC config');
   }
 
   const oidcClient = new OIDC(
@@ -132,15 +107,7 @@ export async function getUseMicrosoftSSO(ctx: IContext, _params: IParameters): P
   const cfgProvided = ctx.app.oidcProviders.get('microsoft');
 
   if (!cfgProvided) {
-    ctx.app.logger.error('Unable to find Microsoft OIDC config');
-
-    return {
-      body: error500.render({
-        routePartOf: ctx.routePartOf,
-        linkTo: ctx.linkTo,
-        context: ctx.viewContext,
-      }),
-    };
+    throw new Error('Unable to find Microsoft OIDC config');
   }
 
   const user = await fetchLoggedInUser(ctx);
@@ -159,15 +126,7 @@ export async function postUseMicrosoftSSO(ctx: IContext, _params: IParameters): 
   const cfgProvided = ctx.app.oidcProviders.get('microsoft');
 
   if (!cfgProvided) {
-    ctx.app.logger.error('Unable to find Microsoft OIDC config');
-
-    return {
-      body: error500.render({
-        routePartOf: ctx.routePartOf,
-        linkTo: ctx.linkTo,
-        context: ctx.viewContext,
-      }),
-    };
+    throw new Error('Unable to find Microsoft OIDC config');
   }
 
   const oidcClient = new OIDC(
@@ -195,15 +154,7 @@ export async function getMicrosoftOIDCCallback(ctx: IContext, _params: IParamete
   const cfgProvided = ctx.app.oidcProviders.get('microsoft');
 
   if (!cfgProvided) {
-    ctx.app.logger.error('Unable to find Microsoft OIDC config');
-
-    return {
-      body: error500.render({
-        routePartOf: ctx.routePartOf,
-        linkTo: ctx.linkTo,
-        context: ctx.viewContext,
-      }),
-    };
+    throw new Error('Unable to find Microsoft OIDC config');
   }
 
   const oidcClient = new OIDC(
@@ -281,11 +232,5 @@ async function oidcErrorHandler(ctx: IContext, _params: IParameters, cfg: IOIDCC
     };
   }
 
-  return {
-    body: error500.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-    }),
-  };
+  throw new Error('Unknown OIDC error');
 }
