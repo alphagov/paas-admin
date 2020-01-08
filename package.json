@@ -63,7 +63,7 @@
     "cheerio": "^1.0.0-rc.3",
     "compression-webpack-plugin": "^3.0.1",
     "css-loader": "^3.4.1",
-    "csv-parse": "^4.8.2",
+    "csv-parse": "^4.8.3",
     "expect": "^24.9.0",
     "extract-loader": "^3.1.0",
     "file-loader": "^5.0.2",
