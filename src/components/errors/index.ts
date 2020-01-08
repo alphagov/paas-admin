@@ -1,2 +1,1 @@
-export * from './error';
-export { default } from './error';
+export * from './middleware';
