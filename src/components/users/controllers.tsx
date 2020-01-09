@@ -45,7 +45,7 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
     : await accountsClient.getUser(emailOrUserGUID)
   );
 
-  if (accountsUser === null) {
+  if (!accountsUser) {
     throw new NotFoundError(
       `Could not find user for ${emailOrUserGUID} in paas-accounts`,
     );
