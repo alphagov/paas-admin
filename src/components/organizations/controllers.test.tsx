@@ -1,18 +1,17 @@
 import lodash from 'lodash';
 import nock from 'nock';
 
-import {listOrganizations} from '.';
-import {org as defaultOrg} from '../../lib/cf/test-data/org';
+import { listOrganizations } from '.';
+import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import {
   billableOrgQuota,
   billableOrgQuotaGUID,
   trialOrgQuota,
   trialOrgQuotaGUID,
 } from '../../lib/cf/test-data/org-quota';
-import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
-import * as uaaData from '../../lib/uaa/uaa.test.data';
-import {createTestContext} from '../app/app.test-helpers';
-import {IContext} from '../app/context';
+import { wrapResources } from '../../lib/cf/test-data/wrap-resources';
+import { createTestContext } from '../app/app.test-helpers';
+import { IContext } from '../app/context';
 
 const organizations = JSON.stringify(wrapResources(
   lodash.merge(defaultOrg(), {entity: {name: 'c-org-name-1'}}),
@@ -33,13 +32,11 @@ const ctx: IContext = createTestContext();
 
 describe('organizations test suite', () => {
   let nockCF: nock.Scope;
-  let nockUAA: nock.Scope;
 
   beforeEach(() => {
     nock.cleanAll();
 
     nockCF = nock(ctx.app.cloudFoundryAPI);
-    nockUAA = nock(ctx.app.uaaAPI);
 
     nockCF
       .get('/v2/organizations')
@@ -51,19 +48,10 @@ describe('organizations test suite', () => {
       .get(`/v2/quota_definitions/${trialOrgQuotaGUID}`)
       .reply(200, JSON.stringify(trialOrgQuota()))
     ;
-
-    nockUAA
-      .post('/oauth/token?grant_type=client_credentials')
-      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
-
-      .get(`/Users/uaa-user-123`)
-      .reply(200, uaaData.gdsUser)
-    ;
   });
 
   afterEach(() => {
     nockCF.done();
-    nockUAA.done();
 
     nock.cleanAll();
   });

@@ -13,7 +13,6 @@ import {org as defaultOrg} from '../../lib/cf/test-data/org';
 import { billableOrgQuota, billableOrgQuotaGUID } from '../../lib/cf/test-data/org-quota';
 import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
 import Router, { IParameters } from '../../lib/router';
-import * as uaaData from '../../lib/uaa/uaa.test.data';
 
 import {CLOUD_CONTROLLER_ADMIN} from '../auth';
 
@@ -216,12 +215,6 @@ describe('app test suite', () => {
         nockUAA
           .get('/token_keys')
           .reply(200, {keys: [{value: tokenKey}]})
-
-          .get(`/Users/uaa-user-123`)
-          .reply(200, uaaData.gdsUser)
-
-          .post('/oauth/token?grant_type=client_credentials')
-          .reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
         ;
 
         response = await agent.get(router.findByName('admin.organizations').composeURL());
@@ -334,12 +327,6 @@ describe('app test suite', () => {
       nockUAA
         .get('/token_keys')
         .reply(200, {keys: [{value: tokenKey}]})
-
-        .get(`/Users/uaa-user-123`)
-        .reply(200, uaaData.gdsUser)
-
-        .post('/oauth/token?grant_type=client_credentials')
-        .reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
       ;
 
       const orgs = router.findByName('admin.organizations');
@@ -408,12 +395,6 @@ describe('app test suite', () => {
         nockUAA
           .get('/token_keys')
           .reply(200, {keys: [{value: tokenKey}]})
-
-          .get(`/Users/uaa-user-123`)
-          .reply(200, uaaData.gdsUser)
-
-          .post('/oauth/token?grant_type=client_credentials')
-          .reply(200, `{"access_token": "TOKEN_FROM_ENDPOINT"}`)
         ;
 
         response = await agent.get(router.findByName('admin.organizations').composeURL());

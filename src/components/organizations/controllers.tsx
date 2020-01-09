@@ -1,12 +1,13 @@
 import lodash from 'lodash';
+import React from 'react';
 
 import CloudFoundryClient from '../../lib/cf';
 import { IOrganization } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
-import * as account from '../account';
 import { IContext } from '../app/context';
 
-import organizationsTemplate from './organizations.njk';
+import { Template } from '../../layouts';
+import { OrganizationsPage } from './views';
 
 function sortOrganizationsByName(organizations: ReadonlyArray<IOrganization>): ReadonlyArray<IOrganization> {
   const organizationsCopy = Array.from(organizations);
@@ -21,23 +22,20 @@ export async function listOrganizations(ctx: IContext, _params: IParameters): Pr
     logger: ctx.app.logger,
   });
 
-  const [organizations, user] = await Promise.all([
+  const [organizations] = await Promise.all([
     cf.organizations().then(sortOrganizationsByName),
-    account.fetchLoggedInUser(ctx),
   ]);
 
   const orgQuotaGUIDs = lodash.uniq(organizations.map(o => o.entity.quota_definition_guid));
   const orgQuotas = await Promise.all(orgQuotaGUIDs.map(q => cf.organizationQuota(q)));
   const orgQuotasByGUID = lodash.keyBy(orgQuotas, q => q.metadata.guid);
+  const template = new Template(ctx.viewContext, 'Organisations');
 
   return {
-    body: organizationsTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      organizations,
-      orgQuotasByGUID,
-      user,
-    }),
+    body: template.render(<OrganizationsPage
+        linkTo={ctx.linkTo}
+        organizations={organizations}
+        quotas={orgQuotasByGUID}
+      />),
   };
 }
