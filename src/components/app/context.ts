@@ -5,6 +5,7 @@ import { Token } from '../auth';
 import { IAppConfig } from './app';
 
 export type RouteLinker = (name: string, params?: IParameters) => string;
+export type RouteActiveChecker = (name: string) => boolean;
 
 export interface IRawToken {
   readonly user_id: string;
@@ -20,7 +21,7 @@ export interface IViewContext {
 
 export interface IContext {
   readonly app: IAppConfig;
-  readonly routePartOf: (name: string) => boolean;
+  readonly routePartOf: RouteActiveChecker;
   readonly linkTo: RouteLinker;
   readonly absoluteLinkTo: RouteLinker;
   readonly log: Logger;
