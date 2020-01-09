@@ -16,7 +16,7 @@ nock(config.cloudFoundryAPI)
   .times(5)
   .reply(200, JSON.stringify(wrapResources(defaultOrg())))
 
-  .get('/v2/quota_definitions/dcb680a9-b190-4838-a3d2-b84aa17517a6')
+  .get('/v2/quota_definitions/ORG-QUOTA-GUID')
   .times(5)
   .reply(200, data.organizationQuota)
 ;
@@ -148,7 +148,7 @@ describe('cost report test suite', () => {
         "org_guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
         "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-        "quota_definition_guid": "dcb680a9-b190-4838-a3d2-b84aa17517a6",
+        "quota_definition_guid": "ORG-QUOTA-GUID",
         "number_of_nodes": 1,
         "memory_in_mb": 64,
         "storage_in_mb": 0,
@@ -199,7 +199,7 @@ describe('cost report test suite', () => {
         "org_guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
         "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-        "quota_definition_guid": "dcb680a9-b190-4838-a3d2-b84aa17517a6",
+        "quota_definition_guid": "ORG-QUOTA-GUID",
         "number_of_nodes": 1,
         "memory_in_mb": 64,
         "storage_in_mb": 0,

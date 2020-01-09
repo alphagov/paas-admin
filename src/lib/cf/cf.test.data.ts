@@ -19,8 +19,8 @@ export const info = `{
 
 export const organizationQuota = `{
   "metadata": {
-    "guid": "80f3e539-a8c0-4c43-9c72-649df53da8cb",
-    "url": "/v2/quota_definitions/80f3e539-a8c0-4c43-9c72-649df53da8cb",
+    "guid": "ORG-QUOTA-GUID",
+    "url": "/v2/quota_definitions/ORG-QUOTA-GUID",
     "created_at": "2016-06-08T16:41:39Z",
     "updated_at": "2016-06-08T16:41:26Z"
   },

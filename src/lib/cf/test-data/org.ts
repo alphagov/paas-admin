@@ -2,7 +2,7 @@ import { IOrganization, IV3OrganizationResource } from '../types';
 
 export const orgName      = 'the-system_domain-org-name';
 export const orgGUID      = 'a7aff246-5f5b-4cf8-87d8-f316053e4a20';
-export const orgQuotaGUID = 'dcb680a9-b190-4838-a3d2-b84aa17517a6';
+export const orgQuotaGUID = 'ORG-QUOTA-GUID';
 
 export const org = (): IOrganization => JSON.parse(`{
   "metadata": {

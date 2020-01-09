@@ -165,7 +165,7 @@ describe('spaces test suite', () => {
       .get('/v2/stacks')
       .reply(200, data.spaces)
 
-      .get('/v2/quota_definitions/dcb680a9-b190-4838-a3d2-b84aa17517a6')
+      .get('/v2/quota_definitions/ORG-QUOTA-GUID')
       .reply(200, data.organizationQuota)
 
       .get(`/v2/spaces/${secondSpace}/apps`)
