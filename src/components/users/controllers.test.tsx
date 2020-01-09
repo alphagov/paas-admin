@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
-import * as users from './users';
-
+import { testSpacing } from '../../layouts/react-spacing.test';
 import {userSummary} from '../../lib/cf/cf.test.data';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
+import * as users from './controllers';
 
 import {
   CLOUD_CONTROLLER_ADMIN,
@@ -143,6 +143,7 @@ describe('users test suite', () => {
     });
 
     expect(response.body).toContain('the-system_domain-org-name');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should show the users pages for a valid email when read only admin', async () => {

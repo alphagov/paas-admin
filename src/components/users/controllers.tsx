@@ -1,17 +1,19 @@
-import {AccountsClient} from '../../lib/accounts';
+import React from 'react';
+
+import { Template } from '../../layouts';
+import { AccountsClient } from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
-import {IParameters, IResponse} from '../../lib/router';
-import {NotFoundError} from '../../lib/router/errors';
+import { IParameters, IResponse } from '../../lib/router';
+import { NotFoundError } from '../../lib/router/errors';
 import UAAClient from '../../lib/uaa';
-import {IContext} from '../app/context';
+import { IContext } from '../app/context';
+import { UserPage } from './views';
 
 import {
   CLOUD_CONTROLLER_ADMIN,
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
-
-import userTemplate from './user.njk';
 
 export async function getUser(ctx: IContext, params: IParameters): Promise<IResponse> {
   const emailOrUserGUID = params.emailOrUserGUID;
@@ -67,18 +69,18 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
 
   const uaaUser = await uaa.getUser(accountsUser.uuid);
   const origin = uaaUser.origin;
-  const lastLogonTimestamp = new Date(uaaUser.lastLogonTime)
-    .toLocaleString('en-GB', { timeZone: 'UTC' });
+
+  const template = new Template(ctx.viewContext, 'User');
 
   return {
-    body: userTemplate.render({
-      context: ctx.viewContext,
-      accountsUser,
-      orgs: cfUserSummary.entity.organizations,
-      managedOrgs: cfUserSummary.entity.managed_organizations,
-      uaaGroups: uaaUser.groups,
-      origin, lastLogonTimestamp,
-      linkTo: ctx.linkTo,
-    }),
+    body: template.render(<UserPage
+      groups={uaaUser.groups}
+      lastLogon={new Date(uaaUser.lastLogonTime)}
+      linkTo={ctx.linkTo}
+      managedOrganizations={cfUserSummary.entity.managed_organizations}
+      organizations={cfUserSummary.entity.organizations}
+      origin={origin}
+      user={accountsUser}
+    />),
   };
 }
