@@ -1,8 +1,9 @@
 import cheerio from 'cheerio';
 import { shallow } from 'enzyme';
+import moment from 'moment';
 import React from 'react';
 
-import { IAccountsUser } from '../../lib/accounts';
+import { DATE_TIME } from '../../layouts';
 import { IUserSummaryOrganization } from '../../lib/cf/types';
 import { IUaaGroup } from '../../lib/uaa';
 import { UserPage } from './views';
@@ -30,7 +31,7 @@ describe(UserPage, () => {
       origin="google"
     />);
     const $ = cheerio.load(markup.html());
-    expect($('dd').text()).toContain(logon.toLocaleString('en-GB', { timeZone: 'UTC' }));
+    expect($('dd').text()).toContain(moment(logon).format(DATE_TIME));
     expect($('p').text()).toContain('This user is a member of 3 orgs.');
     expect($('p').text()).toContain('This user manages 1 org.');
     expect($('ul:last-of-type li')).toHaveLength(1);
