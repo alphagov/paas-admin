@@ -1,6 +1,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
+import { testSpacing } from '../../layouts/react-spacing.test';
 import { ErrorPage } from './views';
 
 describe(ErrorPage, () => {
@@ -9,6 +10,7 @@ describe(ErrorPage, () => {
     expect(markup.find('h1.govuk-heading-xl').text()).toMatch(/TEST CASE/);
     expect(markup.find('p.govuk-body').text()).toMatch(/Something went wrong while processing the request./);
     expect(markup.find('p.govuk-body + p').text()).toContain('You can browse from the');
+    expect(testSpacing(markup.html())).toHaveLength(0);
   });
 
   it('should print custom error message', () => {
@@ -16,5 +18,6 @@ describe(ErrorPage, () => {
     expect(markup.find('h1.govuk-heading-xl').text()).toMatch(/TEST CASE/);
     expect(markup.find('p.govuk-body').text()).toMatch(/Expected Test/);
     expect(markup.find('p.govuk-body + p').text()).toContain('You can browse from the');
+    expect(testSpacing(markup.html())).toHaveLength(0);
   });
 });
