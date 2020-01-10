@@ -145,6 +145,7 @@
     "qs": "^6.9.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-markdown": "^4.3.1",
     "route-parser": "^0.0.5",
     "showdown": "^1.9.1",
     "source-map-support": "^0.5.16",

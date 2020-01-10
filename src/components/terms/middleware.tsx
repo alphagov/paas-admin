@@ -1,11 +1,12 @@
 import express from 'express';
+import React from 'react';
 
 import { AccountsClient, IAccountsClientConfig } from '../../lib/accounts';
 
+import { Template } from '../../layouts';
 import { Token } from '../auth';
 import { internalServerErrorMiddleware } from '../errors';
-
-import termsTemplate from './terms.njk';
+import { TermsPage } from './views';
 
 type MiddlewareFunction = (req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void>;
 
@@ -22,10 +23,10 @@ export function termsCheckerMiddleware(location: string, config: IAccountsClient
 
   app.get('/agreements/:name', sync(async (req, res) => {
     const document = await accounts.getDocument(req.params.name);
-    res.send(termsTemplate.render({
-      document,
-      context: { csrf: req.csrfToken(), location },
-    }));
+    const template = new Template({
+      isPlatformAdmin: false, csrf: req.csrfToken(), location,
+    }, 'Terms');
+    res.send(template.render(<TermsPage csrf={req.csrfToken()} name={document.name} content={document.content} />));
   }));
 
   app.post('/agreements', sync(async (req, res) => {
