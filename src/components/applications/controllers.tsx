@@ -1,11 +1,14 @@
+import React from 'react';
+
 import CloudFoundryClient from '../../lib/cf';
 import { IRoute } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
-import { fromOrg, IBreadcrumb } from '../breadcrumbs';
+import { fromOrg } from '../breadcrumbs';
 
-import applicationOverviewTemplate from './overview.njk';
+import { Template } from '../../layouts';
+import { ApplicationPage } from './views';
 
 function buildURL(route: IRoute): string {
   return [route.host, route.domain.name].filter(x => x).join('.') + route.path;
@@ -55,7 +58,8 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
   const isDocker = summarisedApplication.entity.docker_image != null;
   const actualRuntimeInfo = isDocker ? dockerRuntimeInfo : appRuntimeInfo;
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+  const template = new Template(ctx.viewContext, `${application.entity.name} - Application Overview`);
+  template.breadcrumbs = fromOrg(ctx, organization, [
     {
       text: space.entity.name,
       href: ctx.linkTo('admin.organizations.spaces.applications.list', {
@@ -67,16 +71,13 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
   ]);
 
   return {
-    body: applicationOverviewTemplate.render({
-      application: summarisedApplication,
-      actualRuntimeInfo,
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      space,
-      stack,
-      organization,
-      breadcrumbs,
-    }),
+    body: template.render(<ApplicationPage
+      application={summarisedApplication}
+      routePartOf={ctx.routePartOf}
+      linkTo={ctx.linkTo}
+      organizationGUID={organization.metadata.guid}
+      spaceGUID={space.metadata.guid}
+      additionalRuntimeInfo={actualRuntimeInfo}
+    />),
   };
 }

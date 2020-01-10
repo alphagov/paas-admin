@@ -3,6 +3,7 @@ import nock from 'nock';
 
 import {viewApplication} from '.';
 
+import { testSpacing } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
 import {app as defaultApp} from '../../lib/cf/test-data/app';
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
@@ -89,7 +90,7 @@ describe('applications test suite', () => {
     expect(response.body).toMatch(/cflinuxfs3/);
     expect(response.body).toMatch(/Detected Buildpack/);
     expect(response.body).not.toMatch(/Docker Image/);
-    expect(response.body).not.toMatch(/This application needs upgrading or it may go offline/);
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should say the name of the docker image being used', async () => {
@@ -129,43 +130,5 @@ describe('applications test suite', () => {
     expect(response.body).not.toMatch(/Detected Buildpack/);
     expect(response.body).toMatch(/Docker Image/);
     expect(response.body).toMatch(/governmentpaas\/is-cool/);
-  });
-
-  it('should say a warning if the cflinuxfs2 stack is being used', async () => {
-    const cflinuxfs2GUID = 'ebbcb962-8e5d-444d-a8fb-6f3b31fe99c7';
-    const cflinuxfs2StackGUID = 'dd63d39a-85f8-48ef-bb73-89097192cfcb';
-    nockCF
-      .get(`/v2/apps/${cflinuxfs2GUID}`)
-      .reply(200, lodash.merge(
-        defaultApp(),
-        {
-          metadata: {guid: cflinuxfs2GUID},
-          entity: {
-            name,
-            docker_image: 'governmentpaas/is-cool', buildpack: null,
-            space_guid: spaceGUID, stack_guid: cflinuxfs2StackGUID,
-          },
-        },
-      ))
-
-      .get(`/v2/apps/${cflinuxfs2GUID}/summary`)
-      .reply(200, data.appSummaryUsingCflinuxfs2)
-
-      .get(`/v2/spaces/${spaceGUID}`)
-      .reply(200, data.space)
-
-      .get(`/v2/stacks/${cflinuxfs2StackGUID}`)
-      .reply(200, data.stackCflinuxfs2)
-    ;
-
-    const response = await viewApplication(ctx, {
-      applicationGUID: cflinuxfs2GUID,
-      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      spaceGUID,
-    });
-
-    expect(response.body).toMatch(/Stack/);
-    expect(response.body).toMatch(/cflinuxfs2/);
-    expect(response.body).toMatch(/This application needs upgrading or it may go offline/);
   });
 });
