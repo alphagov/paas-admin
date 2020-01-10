@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { DATE_TIME } from '../../layouts';
 import { IAccountsUser } from '../../lib/accounts';
 import { eventTypeDescriptions } from '../../lib/cf';
@@ -14,6 +14,14 @@ interface ITotalsProperties {
   readonly page: number;
   readonly pages: number;
   readonly results: number;
+}
+
+interface IEventListItemProperties {
+  readonly actor: ReactNode;
+  readonly date: string;
+  readonly href: string;
+  readonly target?: ReactNode;
+  readonly type: ReactNode;
 }
 
 export function Details(): ReactElement {
@@ -64,7 +72,7 @@ export function Event(props: IEventProperties): ReactElement {
         <dt className="govuk-summary-list__key">
           Date
         </dt>
-        <dd className="govuk-summary-list__value">
+        <dd className="govuk-summary-list__value datetime">
           {moment(props.event.updated_at).format(DATE_TIME)}
         </dd>
       </div>
@@ -72,7 +80,7 @@ export function Event(props: IEventProperties): ReactElement {
         <dt className="govuk-summary-list__key">
           Actor
         </dt>
-        <dd className="govuk-summary-list__value">
+        <dd className="govuk-summary-list__value actor">
           {props.actor?.email || props.event.actor.name || <code>{props.event.actor.guid}</code>}
         </dd>
       </div>
@@ -80,7 +88,7 @@ export function Event(props: IEventProperties): ReactElement {
         <dt className="govuk-summary-list__key">
           Description
         </dt>
-        <dd className="govuk-summary-list__value">
+        <dd className="govuk-summary-list__value description">
           {eventTypeDescriptions[props.event.type] || <code>{props.event.type}</code>}
         </dd>
       </div>
@@ -88,12 +96,29 @@ export function Event(props: IEventProperties): ReactElement {
         <dt className="govuk-summary-list__key">
           Metadata
         </dt>
-        <dd className="govuk-summary-list__value">
+        <dd className="govuk-summary-list__value metadata">
           <code className="code-block">{JSON.stringify(props.event.data, null, 2)}</code>
         </dd>
       </div>
     </dl>
   );
+}
+
+export function EventListItem(props: IEventListItemProperties): ReactElement {
+  return(<tr className="govuk-table__row">
+    <td className="govuk-table__cell datetime">
+      {moment(props.date).format(DATE_TIME)}
+    </td>
+    <td className="govuk-table__cell actor">
+      {props.actor}
+    </td>
+    <td className="govuk-table__cell description">
+      {props.type}
+    </td>
+    <td className="govuk-table__cell details">
+      <a className="govuk-link" href={props.href}>Details</a>
+    </td>
+  </tr>);
 }
 
 export function Totals(props: ITotalsProperties): ReactElement {

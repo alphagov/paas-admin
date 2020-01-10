@@ -1,12 +1,13 @@
 import lodash from 'lodash';
+import React from 'react';
 
-import {AccountsClient, IAccountsUser} from '../../lib/accounts';
-import CloudFoundryClient, {eventTypeDescriptions} from '../../lib/cf';
+import { Template } from '../../layouts';
+import { AccountsClient, IAccountsUser } from '../../lib/accounts';
+import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
-import { fromOrg, IBreadcrumb } from '../breadcrumbs';
-import applicationEventTemplate from './application-event.njk';
-import applicationEventsTemplate from './application-events.njk';
+import { fromOrg } from '../breadcrumbs';
+import { ApplicationEventDetailPage, ApplicationEventsPage } from './views';
 
 export async function viewApplicationEvent(ctx: IContext, params: IParameters): Promise<IResponse> {
   const accountsClient = new AccountsClient({
@@ -35,12 +36,13 @@ export async function viewApplicationEvent(ctx: IContext, params: IParameters): 
     : undefined
   ;
 
-  const eventActor: IAccountsUser | null | undefined = eventActorGUID
+  const eventActor: IAccountsUser | undefined = eventActorGUID
     ? await accountsClient.getUser(eventActorGUID)
     : undefined
   ;
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+  const template = new Template(ctx.viewContext, `${application.entity.name} - Application Event`);
+  template.breadcrumbs = fromOrg(ctx, organization, [
     {
       text: space.entity.name,
       href: ctx.linkTo('admin.organizations.spaces.applications.list', {
@@ -62,13 +64,11 @@ export async function viewApplicationEvent(ctx: IContext, params: IParameters): 
   ]);
 
   return {
-    body: applicationEventTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      organization, space, application, breadcrumbs,
-      event, eventTypeDescriptions, eventActor,
-    }),
+    body: template.render(<ApplicationEventDetailPage
+      actor={eventActor || undefined}
+      application={application}
+      event={event}
+    />),
   };
 }
 
@@ -116,7 +116,8 @@ export async function viewApplicationEvents(ctx: IContext, params: IParameters):
     ;
   }
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+  const template = new Template(ctx.viewContext, `${application.entity.name} - Application Events`);
+  template.breadcrumbs = fromOrg(ctx, organization, [
     {
       text: space.entity.name,
       href: ctx.linkTo('admin.organizations.spaces.applications.list', {
@@ -128,13 +129,15 @@ export async function viewApplicationEvents(ctx: IContext, params: IParameters):
   ]);
 
   return {
-    body: applicationEventsTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      organization, space, application, breadcrumbs,
-      events, eventTypeDescriptions, eventActorEmails,
-      pagination, page,
-    }),
+    body: template.render(<ApplicationEventsPage
+      actorEmails={eventActorEmails}
+      application={application}
+      events={events}
+      linkTo={ctx.linkTo}
+      organizationGUID={organization.metadata.guid}
+      pagination={{...pagination, page}}
+      routePartOf={ctx.routePartOf}
+      spaceGUID={space.metadata.guid}
+    />),
   };
 }
