@@ -190,13 +190,9 @@ describe('users test suite', () => {
   });
 
   it('should return not found for the users pages when not admin', async () => {
-    try {
-      await users.getUser(nonAdminCtx, {
-        emailOrUserGUID: 'one@user.in.database',
-      });
-    } catch (e) {
-      expect(e.message).toContain('not found');
-    }
+    await expect(users.getUser(nonAdminCtx, {
+      emailOrUserGUID: 'one@user.in.database',
+    })).rejects.toThrowError('not found');
   });
 
   it('should show return an error for an invalid email', async () => {
@@ -205,13 +201,9 @@ describe('users test suite', () => {
       .reply(200, `{"users": []}`)
     ;
 
-    try {
-      await users.getUser(ctx, {
-        emailOrUserGUID: 'no@user.in.database',
-      });
-    } catch (e) {
-      expect(e.message).toContain('Could not find user');
-    }
+    await expect(users.getUser(ctx, {
+      emailOrUserGUID: 'no@user.in.database',
+    })).rejects.toThrowError('Could not find user');
   });
 
   it('should show the users pages a valid guid', async () => {
@@ -260,23 +252,15 @@ describe('users test suite', () => {
       .reply(404)
     ;
 
-    try {
-      await users.getUser(ctx, {
-        emailOrUserGUID: 'aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee',
-      });
-    } catch (e) {
-      expect(e.message).toContain('Could not find user');
-    }
+    await expect(users.getUser(ctx, {
+      emailOrUserGUID: 'aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee',
+    })).rejects.toThrowError('Could not find user');
   });
 
   it('should show return an error for an undefined param', async () => {
-    try {
-      await users.getUser(ctx, {
-        emailOrUserGUID: undefined,
-      });
-    } catch (e) {
-      expect(e.message).toContain('not found');
-    }
+    await expect(users.getUser(ctx, {
+      emailOrUserGUID: undefined,
+    })).rejects.toThrowError('not found');
   });
 
   it('should show return an error for an empty param', async () => {
@@ -285,12 +269,8 @@ describe('users test suite', () => {
       .reply(404)
     ;
 
-    try {
-      await users.getUser(ctx, {
-        emailOrUserGUID: '',
-      });
-    } catch (e) {
-      expect(e.message).toContain('Could not find user');
-    }
+    await expect(users.getUser(ctx, {
+      emailOrUserGUID: '',
+    })).rejects.toThrowError('Could not find user');
   });
 });
