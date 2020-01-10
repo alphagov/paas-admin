@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server'; // tslint:disable-line:no-submodule-imports
 
 import { IViewContext } from '../components/app';
+import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs';
 import { Footer, Header, Main, PhaseBanner } from './partials';
 
 import govukPrintStyles from './govuk.print.scss';
@@ -10,8 +11,13 @@ import govukStyles from './govuk.screen.scss';
 
 export class Template {
   private _language: string = 'en';
+  private _breadcrumbs?: ReadonlyArray<IBreadcrumbsItem>;
 
   constructor(private ctx: IViewContext, private _title: string) {
+  }
+
+  public set breadcrumbs(items: ReadonlyArray<IBreadcrumbsItem>) {
+    this._breadcrumbs = items;
   }
 
   public render(page: ReactElement): string {
@@ -74,6 +80,7 @@ export class Template {
                 view our pricing
               </a>
             </PhaseBanner>
+            {this._breadcrumbs ? <Breadcrumbs items={this._breadcrumbs} /> : undefined}
             <Main>
               {page}
             </Main>
