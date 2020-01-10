@@ -1,51 +1,50 @@
+import moment from 'moment';
+
+export type ElasticsearchMetricName = string;
+
+export type CloudFrontMetricName = string;
+export type ElasticacheMetricName = string;
+export type RDSMetricName = string;
+
+export type MetricName =
+  ElasticsearchMetricName
+  | CloudFrontMetricName | ElasticacheMetricName | RDSMetricName
+;
+
 export type ServiceLabel = 'postgres' | 'mysql' | 'redis' | string;
 export type ServiceType = 'rds' | 'elasticache' | 'cloudfront';
-
-export interface IMetricPropertiesById {
-  readonly [key: string]: {
-    name: string;
-    stat: 'Average' | 'Sum',
-    format: string;
-    units: 'Bytes' | 'Percent' | 'Number' | 'Milliseconds';
-    title: string;
-  };
-}
-
-export interface IMetricGraphDataResponse {
-  readonly graphs: ReadonlyArray<IMetricGraphData>;
-  readonly serviceType: ServiceType;
-}
-
-export interface IMetricSeries {
-  metrics: ReadonlyArray<IMetric>;
-  label: string;
-}
-
-export interface IMetricGraphData {
-  seriesArray: ReadonlyArray<IMetricSeries>;
-  id: string;
-  format: string;
-  units: string;
-  title: string;
-}
 
 export interface IMetric {
   date: Date;
   value: number;
 }
 
-export interface IGraphSummary {
-  average: number;
+export interface IMetricSerieSummary {
   label: string;
+
+  average: number;
   latest: number;
   min: number;
   max: number;
 }
 
-export interface IGraphByID {
-  readonly [id: string]: {
-    id: string,
-    graph: string;
-    seriesSummaries: ReadonlyArray<IGraphSummary>;
-  };
+export interface IMetricSerie {
+  label: string;
+
+  metrics: ReadonlyArray<IMetric>;
+}
+
+export interface IMetricDataGetter {
+  readonly getData: (
+    metricNames: ReadonlyArray<MetricName>,
+    guid: string,
+    period: moment.Duration,
+    rangeStart: moment.Moment,
+    rangeStop: moment.Moment,
+  ) => Promise<{[key in MetricName]: ReadonlyArray<IMetricSerie>}>;
+}
+
+export interface IMetricGraphDisplayable {
+  readonly summaries: ReadonlyArray<IMetricSerieSummary>;
+  readonly series: ReadonlyArray<IMetricSerie>;
 }

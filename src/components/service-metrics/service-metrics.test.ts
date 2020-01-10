@@ -9,6 +9,11 @@ import { getStubCloudwatchMetricsData } from '../../lib/aws/aws-cloudwatch.test.
 import { getStubResourcesByTag } from '../../lib/aws/aws-tags.test.data';
 import * as data from '../../lib/cf/cf.test.data';
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
+import {
+  cloudfrontMetricNames,
+  elasticacheMetricNames,
+  rdsMetricNames,
+} from '../../lib/metric-data-getters';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 
@@ -46,10 +51,10 @@ describe('service metrics test suite', () => {
 
   it('should show the service metrics page', async () => {
     nock('https://aws-cloudwatch.example.com/')
-      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
-        {id: 'mFreeStorageSpace', label: ''},
-        {id: 'mCPUUtilization', label: ''},
-      ]));
+      .post('/')
+      .times(1)
+      .reply(200, getStubCloudwatchMetricsData(rdsMetricNames.map(m => ({ id: m, label: m }))))
+    ;
 
     mockService(data.serviceObj);
 
@@ -67,10 +72,10 @@ describe('service metrics test suite', () => {
 
   it('should show the service metrics page when asking JUST for over one year of metrics', async () => {
     nock('https://aws-cloudwatch.example.com/')
-      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
-        {id: 'mFreeStorageSpace', label: ''},
-        {id: 'mCPUUtilization', label: ''},
-      ]));
+      .post('/')
+      .times(1)
+      .reply(200, getStubCloudwatchMetricsData(rdsMetricNames.map(m => ({ id: m, label: m }))))
+    ;
 
     mockService(data.serviceObj);
 
@@ -88,10 +93,10 @@ describe('service metrics test suite', () => {
 
   it('should return cloudwatch metrics for a postgres backing service', async () => {
     nock('https://aws-cloudwatch.example.com/')
-      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
-        {id: 'mFreeStorageSpace', label: 'some-label'},
-        {id: 'mCPUUtilization', label: ''},
-      ]));
+      .post('/')
+      .times(1)
+      .reply(200, getStubCloudwatchMetricsData(rdsMetricNames.map(m => ({ id: m, label: m }))))
+    ;
 
     mockService({
       ...data.serviceObj,
@@ -114,10 +119,10 @@ describe('service metrics test suite', () => {
 
   it('should return cloudwatch metrics for a redis backing service', async () => {
     nock('https://aws-cloudwatch.example.com/')
-      .post('/').times(2).reply(200, getStubCloudwatchMetricsData([
-        {id: 'mCacheHits', label: ''},
-        {id: 'mCacheMisses', label: ''},
-      ]));
+      .post('/')
+      .times(2)
+      .reply(200, getStubCloudwatchMetricsData(elasticacheMetricNames.map(m => ({ id: m, label: m }))))
+    ;
 
     mockService({
       ...data.serviceObj,
@@ -139,16 +144,15 @@ describe('service metrics test suite', () => {
     expect(response.body).toContain('Cache hits');
   });
 
-  it('should return cloudwatch metrics for a cloudfront backing service', async () => {
+  it('should return cloudwatch metrics for a cdn-route backing service', async () => {
     nock('https://aws-tags.example.com/')
       .post('/').reply(200, getStubResourcesByTag())
     ;
 
     nock('https://aws-cloudwatch.example.com/')
-      .post('/').times(2).reply(200, getStubCloudwatchMetricsData([
-        {id: 'mRequests', label: ''},
-        {id: 'mTotalErrorRate', label: ''},
-      ]))
+      .post('/')
+      .times(2)
+      .reply(200, getStubCloudwatchMetricsData(cloudfrontMetricNames.map(m => ({ id: m, label: m }))))
     ;
 
     mockService({
@@ -288,6 +292,7 @@ describe('service metrics test suite', () => {
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       metric: 'mFreeStorageSpace',
+      units: 'Bytes',
       rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
     });
@@ -336,6 +341,7 @@ describe('service metrics test suite', () => {
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       metric: 'mCacheHits',
+      units: 'Number',
       rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
     });
@@ -355,7 +361,7 @@ describe('service metrics test suite', () => {
     expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
   });
 
-  it('should download a cloudfront csv', async () => {
+  it('should download a cdn-route csv', async () => {
     nock('https://aws-tags.example.com/')
       .post('/').reply(200, getStubResourcesByTag())
     ;
@@ -386,6 +392,7 @@ describe('service metrics test suite', () => {
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       metric: 'mRequests',
+      units: 'Number',
       rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
     });

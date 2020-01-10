@@ -1,16 +1,25 @@
 import * as cw from '@aws-sdk/client-cloudwatch-node';
 import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
 
+import { mapValues } from 'lodash';
 import moment from 'moment';
-import { CloudwatchMetricDataClient } from '../../lib/aws/cloudwatch-metric-data';
 import CloudFoundryClient from '../../lib/cf';
-import { IMetricGraphDataResponse } from '../../lib/charts';
+import {
+  CloudFrontMetricDataGetter,
+  cloudfrontMetricNames,
+
+  ElastiCacheMetricDataGetter,
+  elasticacheMetricNames,
+
+  RDSMetricDataGetter,
+  rdsMetricNames,
+} from '../../lib/metric-data-getters';
 import roundDown from '../../lib/moment/round';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
 import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
 import { fromOrg, IBreadcrumb } from '../breadcrumbs';
-import { drawMultipleLineGraphs } from '../charts/line-graph';
+import { drawLineGraph, summariseSerie } from '../charts/line-graph';
 import { UserFriendlyError } from '../errors';
 import cloudfrontMetricsTemplate from './cloudfront-service-metrics-csv.njk';
 import cloudfrontServiceMetrics from './cloudfront-service-metrics.njk';
@@ -108,47 +117,6 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
     { text: service.entity.name },
   ]);
 
-  const cloudWatchMetricDataClient = new CloudwatchMetricDataClient(
-    new cw.CloudWatchClient({
-      region: ctx.app.awsRegion,
-      endpoint: ctx.app.awsCloudwatchEndpoint,
-    }),
-    new cw.CloudWatchClient({
-      region: 'us-east-1',
-      endpoint: ctx.app.awsCloudwatchEndpoint,
-    }),
-    new rg.ResourceGroupsTaggingAPIClient({
-      region: 'us-east-1',
-      endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
-    }),
-  );
-
-  const metricGraphData: IMetricGraphDataResponse | null = await (async () => {
-    switch (serviceLabel) {
-      case 'cdn-route':
-      case 'mysql':
-      case 'postgres':
-      case 'redis':
-        return cloudWatchMetricDataClient.getMetricGraphData(
-          service.metadata.guid,
-          serviceLabel,
-          period,
-          rangeStart,
-          rangeStop,
-        );
-      case 'elasticsearch':
-        return cloudWatchMetricDataClient.getMetricGraphData(
-          service.metadata.guid,
-          serviceLabel,
-          period,
-          rangeStart,
-          rangeStop,
-        );
-      default:
-        return null;
-    }
-  })();
-
   const defaultTemplateParams = {
     routePartOf: ctx.routePartOf,
     linkTo: ctx.linkTo,
@@ -172,39 +140,75 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
       rangeStop,
     }),
   };
-  if (!metricGraphData) {
-    return {
-      body: unsupportedServiceMetricsTemplate.render(defaultTemplateParams),
-    };
-  }
 
-  const metricGraphsById = drawMultipleLineGraphs(metricGraphData.graphs);
+  switch (serviceLabel) {
+    case 'User Provided Service':
+      return {
+        body: unsupportedServiceMetricsTemplate.render(defaultTemplateParams),
+      };
+    case 'cdn-route':
+      const cloudfrontMetricSeries = await new CloudFrontMetricDataGetter(
+        new cw.CloudWatchClient({
+          region: 'us-east-1',
+          endpoint: ctx.app.awsCloudwatchEndpoint,
+        }),
+        new rg.ResourceGroupsTaggingAPIClient({
+          region: 'us-east-1',
+          endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
+        }),
+      ).getData(cloudfrontMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
 
-  switch (metricGraphData.serviceType) {
-    case 'rds':
-      return {
-        body: rdsServiceMetricsTemplate.render({
-          ...defaultTemplateParams,
-          metricGraphsById,
-        }),
-      };
-    case 'elasticache':
-      return {
-        body: elasticacheServiceMetricsTemplate.render({
-          ...defaultTemplateParams,
-          metricGraphsById,
-        }),
-      };
-    case 'cloudfront':
+      const cloudfrontMetricSummaries = mapValues(cloudfrontMetricSeries, s => s.map(summariseSerie));
+
       return {
         body: cloudfrontServiceMetrics.render({
           ...defaultTemplateParams,
-          metricGraphsById,
+          drawLineGraph,
+          metricSeries: cloudfrontMetricSeries,
+          metricSummaries: cloudfrontMetricSummaries,
         }),
       };
-      /* istanbul ignore next */
+    case 'mysql':
+    case 'postgres':
+      const rdsMetricSeries = await new RDSMetricDataGetter(
+        new cw.CloudWatchClient({
+          region: ctx.app.awsRegion,
+          endpoint: ctx.app.awsCloudwatchEndpoint,
+        }),
+      ).getData(rdsMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
+
+      const rdsMetricSummaries = mapValues(rdsMetricSeries, s => s.map(summariseSerie));
+
+      return {
+        body: rdsServiceMetricsTemplate.render({
+          ...defaultTemplateParams,
+          drawLineGraph,
+          metricSeries: rdsMetricSeries,
+          metricSummaries: rdsMetricSummaries,
+        }),
+      };
+    case 'redis':
+      const elasticacheMetricSeries = await new ElastiCacheMetricDataGetter(
+        new cw.CloudWatchClient({
+          region: ctx.app.awsRegion,
+          endpoint: ctx.app.awsCloudwatchEndpoint,
+        }),
+      ).getData(elasticacheMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
+
+      const elasticacheMetricSummaries = mapValues(elasticacheMetricSeries, s => s.map(summariseSerie));
+
+      return {
+        body: elasticacheServiceMetricsTemplate.render({
+          ...defaultTemplateParams,
+          drawLineGraph,
+          metricSeries: elasticacheMetricSeries,
+          metricSummaries: elasticacheMetricSummaries,
+        }),
+      };
+    case 'elasticsearch':
+      throw new Error('Not implemented');
     default:
-      throw new Error(`Unrecognised service type ${metricGraphData.serviceType}`);
+      throw new Error(`Unrecognised service label ${serviceLabel}`);
   }
 }
 
@@ -254,35 +258,6 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
   const serviceLabel = isUserProvidedService ? 'User Provided Service'
   : (await cf.service(service.entity.service_guid)).entity.label;
 
-  const cloudWatchMetricDataClient = new CloudwatchMetricDataClient(
-    new cw.CloudWatchClient({
-      region: ctx.app.awsRegion,
-      endpoint: ctx.app.awsCloudwatchEndpoint,
-    }),
-    new cw.CloudWatchClient({
-      region: 'us-east-1',
-      endpoint: ctx.app.awsCloudwatchEndpoint,
-    }),
-    new rg.ResourceGroupsTaggingAPIClient({
-      region: 'us-east-1',
-      endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
-    }),
-  );
-
-  const metricGraphData = await cloudWatchMetricDataClient.getMetricGraphData(
-    service.metadata.guid,
-    serviceLabel,
-    period,
-    rangeStart,
-    rangeStop,
-  );
-
-  if (!metricGraphData) {
-    throw new Error('No response from Cloudwatch');
-  }
-
-  const metricData = metricGraphData.graphs.find(data => data.id === params.metric);
-
   const defaultTemplateParams = {
     routePartOf: ctx.routePartOf,
     linkTo: ctx.linkTo,
@@ -301,43 +276,77 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
 
   const name = `${serviceLabel}-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`;
 
-  switch (metricGraphData.serviceType) {
-    case 'rds':
+  switch (serviceLabel) {
+    case 'User Provided Service':
       return {
-        mimeType: 'text/csv',
-        download: {
-          name,
-          data: rdsMetricsTemplate.render({
-            metricData,
-            ...defaultTemplateParams,
-          }),
-        },
+        body: unsupportedServiceMetricsTemplate.render(defaultTemplateParams),
       };
-    case 'elasticache':
-      return {
-        mimeType: 'text/csv',
-        download: {
-          name,
-          data: elasticacheMetricsTemplate.render({
-            metricData,
-            ...defaultTemplateParams,
-          }),
-        },
-      };
-    case 'cloudfront':
+    case 'cdn-route':
+      const cloudfrontMetricSeries = await new CloudFrontMetricDataGetter(
+        new cw.CloudWatchClient({
+          region: 'us-east-1',
+          endpoint: ctx.app.awsCloudwatchEndpoint,
+        }),
+        new rg.ResourceGroupsTaggingAPIClient({
+          region: 'us-east-1',
+          endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
+        }),
+      ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
+
       return {
         mimeType: 'text/csv',
         download: {
           name,
           data: cloudfrontMetricsTemplate.render({
-            metricData,
             ...defaultTemplateParams,
+            metricData: cloudfrontMetricSeries[params.metric],
+            units: params.units,
           }),
         },
       };
-      /* istanbul ignore next */
+    case 'mysql':
+    case 'postgres':
+      const rdsMetricSeries = await new RDSMetricDataGetter(
+        new cw.CloudWatchClient({
+          region: ctx.app.awsRegion,
+          endpoint: ctx.app.awsCloudwatchEndpoint,
+        }),
+      ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
+
+      return {
+        mimeType: 'text/csv',
+        download: {
+          name,
+          data: rdsMetricsTemplate.render({
+            ...defaultTemplateParams,
+            metricData: rdsMetricSeries[params.metric],
+            units: params.units,
+          }),
+        },
+      };
+    case 'redis':
+      const elasticacheMetricSeries = await new ElastiCacheMetricDataGetter(
+        new cw.CloudWatchClient({
+          region: ctx.app.awsRegion,
+          endpoint: ctx.app.awsCloudwatchEndpoint,
+        }),
+      ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
+
+      return {
+        mimeType: 'text/csv',
+        download: {
+          name,
+          data: elasticacheMetricsTemplate.render({
+            ...defaultTemplateParams,
+            metricData: elasticacheMetricSeries[params.metric],
+            units: params.units,
+          }),
+        },
+      };
+    case 'elasticsearch':
+      throw new Error('Not implemented');
     default:
-      throw new Error(`Unrecognised service type ${metricGraphData.serviceType}`);
+      throw new Error(`Unrecognised service label ${serviceLabel}`);
   }
 }
 

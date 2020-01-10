@@ -43,7 +43,15 @@
     format: 'bytes',
     titleHTML: 'Free disk space',
     descriptionHTML: 'How much hard disk space your database has remaining. If your database runs out of disk space it will stop working.',
-    metric: metricGraphsById['mFreeStorageSpace'],
+    chart: drawLineGraph(
+      'bytes of free disk space',
+      'Bytes',
+      '.2s',
+      metricSeries['mFreeStorageSpace']
+    ),
+    units: 'Bytes',
+    metric: 'mFreeStorageSpace',
+    summaries: metricSummaries['mFreeStorageSpace'],
     downloadLink: downloadLink
   }) }}
 
@@ -53,7 +61,15 @@
     titleHTML: 'CPU Utilisation',
     descriptionHTML: 'How much computational work your database is doing. High CPU Utilisation may indicate you need to optimise your database queries
       or <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan" class="govuk-link">update your service to use a bigger plan</a>.',
-    metric: metricGraphsById['mCPUUtilization'],
+    chart: drawLineGraph(
+      'percentage CPU Utilisation',
+      'Percent',
+      '.1r',
+      metricSeries['mCPUUtilization']
+    ),
+    units: 'Percent',
+    metric: 'mCPUUtilization',
+    summaries: metricSummaries['mCPUUtilization'],
     downloadLink: downloadLink
   }) }}
 
@@ -63,7 +79,15 @@
     descriptionHTML: 'How many open connections there are to your database. High values may indicate problems with your applications&apos; connection management, or that you need to
         <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan" class="govuk-link">update your service to use a bigger plan</a>.
         Zero values may indicate the database is unavailable, or that your applications cannot connect to the database.',
-    metric: metricGraphsById['mDatabaseConnections'],
+    chart: drawLineGraph(
+      'number of database connections',
+      'Number',
+      '.1r',
+      metricSeries['mDatabaseConnections']
+    ),
+    units: 'Number',
+    metric: 'mDatabaseConnections',
+    summaries: metricSummaries['mDatabaseConnections'],
     downloadLink: downloadLink
   }) }}
 
@@ -73,7 +97,15 @@
     titleHTML: 'Freeable Memory',
     descriptionHTML: 'How much <abbr title="Random Access Memory">RAM</abbr> the <abbr title="Virtual Machine">VM</abbr> your database is running on has remaining. Values near zero may indicate you need to optimise your database queries or
         <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan" class="govuk-link">update your service to use a bigger plan</a>.',
-    metric: metricGraphsById['mFreeableMemory'],
+    chart: drawLineGraph(
+      'bytes of freeable memory (RAM)',
+      'Bytes',
+      '.2s',
+      metricSeries['mFreeableMemory']
+    ),
+    units: 'Bytes',
+    metric: 'mFreeableMemory',
+    summaries: metricSummaries['mFreeableMemory'],
     downloadLink: downloadLink
   }) }}
 
@@ -84,7 +116,15 @@
         (read + write) based on how big their hard disk is. You get 3 <abbr title="Input / Output Operations per Second">IOPS</abbr> per <abbr title="GibiByte">GiB</abbr>, so a 100 GiB
         database would be limited to 300 IOPS. If it looks like your database is hitting its IOPS limit you may need to
         <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan" class="govuk-link">update your service to use a bigger plan</a>.',
-    metric: metricGraphsById['mReadIOPS'],
+    chart: drawLineGraph(
+      'number of read IOPS',
+      'Number',
+      '.2r',
+      metricSeries['mReadIOPS']
+    ),
+    units: 'Number',
+    metric: 'mReadIOPS',
+    summaries: metricSummaries['mReadIOPS'],
     downloadLink: downloadLink
   }) }}
 
@@ -95,7 +135,15 @@
         (read + write) based on how big their hard disk is. You get 3 <abbr title="Input / Output Operations per Second">IOPS</abbr> per <abbr title="GibiByte">GiB</abbr>, so a 100 GiB
         database would be limited to 300 IOPS. If it looks like your database is hitting its IOPS limit you may need to
         <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan" class="govuk-link">update your service to use a bigger plan</a>.',
-    metric: metricGraphsById['mWriteIOPS'],
+    chart: drawLineGraph(
+      'number of write IOPS',
+      'Number',
+      '.2r',
+      metricSeries['mWriteIOPS']
+    ),
+    units: 'Number',
+    metric: 'mWriteIOPS',
+    summaries: metricSummaries['mWriteIOPS'],
     downloadLink: downloadLink
   }) }}
 </div>

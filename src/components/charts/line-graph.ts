@@ -5,13 +5,13 @@ import {scaleLinear, scaleTime} from 'd3-scale';
 import {select} from 'd3-selection';
 import {line} from 'd3-shape';
 import {JSDOM} from 'jsdom';
-import {flatMap, keyBy} from 'lodash';
+import {flatMap} from 'lodash';
 import moment from 'moment';
 
 import {
-  IGraphByID,
   IMetric,
-  IMetricGraphData,
+  IMetricSerie,
+  IMetricSerieSummary,
 } from '../../lib/charts';
 
 const viewBox = {
@@ -28,39 +28,12 @@ const padding = {
   left: 50,
 };
 
-export function drawMultipleLineGraphs(metricGraphData: ReadonlyArray<IMetricGraphData>): IGraphByID {
-  const metricDataWithSummaries = metricGraphData.map(data => {
-    const graph = drawLineGraph(data).outerHTML;
-
-    const seriesSummaries = data.seriesArray.map(series => {
-
-      const matches = series.label.match(/-(\d+$)/);
-
-      // istanbul ignore next
-      const label   = matches && matches.length > 1 ? matches[1] : '001';
-
-      const latestMetric = series.metrics.reduce((value, m) => !isNaN(m.value) ? m.value : value, 0);
-      const maxMetric = series.metrics.reduce((value, m) => m.value > value ? m.value : value, 0);
-      const minMetric = series.metrics.reduce((value, m) => m.value < value ? m.value : value, maxMetric);
-      const averageMetric = series.metrics.reduce((total, m) => total + (m.value || 0), 0)
-        / series.metrics.filter(m => !isNaN(m.value)).length;
-
-      const summary = {
-        label,
-        latest: latestMetric, average: averageMetric,
-        min: minMetric, max: maxMetric,
-      };
-
-      return summary;
-    });
-
-    return { id: data.id, graph, seriesSummaries };
-  });
-
-  return keyBy(metricDataWithSummaries, d => d.id);
-}
-
-export function drawLineGraph(metricGraphData: IMetricGraphData): SVGElement {
+export function drawLineGraph(
+  title: string,
+  units: string,
+  format: string,
+  series: ReadonlyArray<IMetricSerie>,
+): SVGElement {
   const jsdom = new JSDOM();
   const {window} = jsdom;
   const {document} = window;
@@ -74,16 +47,16 @@ export function drawLineGraph(metricGraphData: IMetricGraphData): SVGElement {
       .attr('role', 'figure')
       .attr('aria-labelledby', 'title');
 
-  const xAxisExtent = extent(flatMap(metricGraphData.seriesArray, s => s.metrics), d => d.date) as [Date, Date];
+  const xAxisExtent = extent(flatMap(series, s => s.metrics), d => d.date) as [Date, Date];
 
   const start = moment(xAxisExtent[0]);
   const end = moment(xAxisExtent[1]);
   const dateFormat = 'h:mma on D MMMM YYYY';
 
   svg.append('title')
-    .text(`Line graph showing ${metricGraphData.title} from ${start.format(dateFormat)} to ${end.format(dateFormat)}`);
+    .text(`Line graph showing ${title} from ${start.format(dateFormat)} to ${end.format(dateFormat)}`);
 
-  const yAxisMax = max(flatMap(metricGraphData.seriesArray, s => s.metrics), d => d.value) as number;
+  const yAxisMax = max(flatMap(series, s => s.metrics), d => d.value) as number;
 
   const xScale = scaleTime().domain(xAxisExtent).range([viewBox.x + padding.left, viewBox.width - padding.right]);
   const yScale = scaleLinear().domain([0, yAxisMax]).range([viewBox.height - padding.bottom, viewBox.y + padding.top]);
@@ -93,16 +66,16 @@ export function drawLineGraph(metricGraphData: IMetricGraphData): SVGElement {
     .x(d => xScale(d.date))
     .y(d => yScale(d.value));
 
-  metricGraphData.seriesArray
-    .forEach((series, i) => {
+  series
+    .forEach((serie, i) => {
       svg.append('path')
-        .datum(series.metrics as IMetric[])
+        .datum(serie.metrics as IMetric[])
         .attr('d', drawLine)
         .attr('class', `series series-${i}`)
         .attr('aria-hidden', 'true');
 
-      if (metricGraphData.seriesArray.length > 1) {
-        const matches = series.label.match(/-(\d+$)/);
+      if (series.length > 1) {
+        const matches = serie.label.match(/-(\d+$)/);
         if (matches && matches.length > 1) {
           const legendGroup = svg.append('g')
             .attr('class', `legend legend-${i}`)
@@ -147,13 +120,13 @@ export function drawLineGraph(metricGraphData: IMetricGraphData): SVGElement {
     .attr('y', 15)
     .attr('x', 0)
     .attr('aria-hidden', 'true')
-    .text(metricGraphData.units);
+    .text(units);
 
   svg.append('g')
     .attr('class', 'axis left')
     .attr('transform', `translate(${viewBox.x + padding.left})`)
     .attr('aria-hidden', 'true')
-    .call(axisLeft(yScale).ticks(5).tickFormat(d3Format(metricGraphData.format)));
+    .call(axisLeft(yScale).ticks(5).tickFormat(d3Format(format)));
 
   const svgNode = svg.node();
   /* istanbul ignore if */
@@ -161,4 +134,25 @@ export function drawLineGraph(metricGraphData: IMetricGraphData): SVGElement {
     throw new Error('failed to build SVG - this should never happen');
   }
   return svgNode;
+}
+
+export function summariseSerie(serie: IMetricSerie): IMetricSerieSummary {
+  const matches = serie.label.match(/-(\d+$)/);
+
+  // istanbul ignore next
+  const label = matches && matches.length > 1 ? matches[1] : '001';
+
+  const latestMetric = serie.metrics.reduce((value, m) => !isNaN(m.value) ? m.value : value, 0);
+  const maxMetric = serie.metrics.reduce((value, m) => m.value > value ? m.value : value, 0);
+  const minMetric = serie.metrics.reduce((value, m) => m.value < value ? m.value : value, maxMetric);
+  const averageMetric = serie.metrics.reduce((total, m) => total + (m.value || 0), 0)
+    / serie.metrics.filter(m => !isNaN(m.value)).length;
+
+  const summary = {
+    label,
+    latest: latestMetric, average: averageMetric,
+    min: minMetric, max: maxMetric,
+  };
+
+  return summary;
 }
