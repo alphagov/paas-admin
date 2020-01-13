@@ -11,6 +11,9 @@ import {
   ElastiCacheMetricDataGetter,
   elasticacheMetricNames,
 
+  ElasticsearchMetricDataGetter,
+  elasticsearchMetricNames,
+
   RDSMetricDataGetter,
   rdsMetricNames,
 } from '../../lib/metric-data-getters';
@@ -21,12 +24,19 @@ import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLL
 import { fromOrg, IBreadcrumb } from '../breadcrumbs';
 import { drawLineGraph, summariseSerie } from '../charts/line-graph';
 import { UserFriendlyError } from '../errors';
+
 import cloudfrontMetricsTemplate from './cloudfront-service-metrics-csv.njk';
 import cloudfrontServiceMetrics from './cloudfront-service-metrics.njk';
+
 import elasticacheMetricsTemplate from './elasticache-service-metrics-csv.njk';
 import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk';
+
+// import elasticsearchMetricsTemplate from './elasticsearch-service-metrics-csv.njk';
+import elasticsearchServiceMetricsTemplate from './elasticsearch-service-metrics.njk';
+
 import rdsMetricsTemplate from './rds-service-metrics-csv.njk';
 import rdsServiceMetricsTemplate from './rds-service-metrics.njk';
+
 import unsupportedServiceMetricsTemplate from './unsupported-service-metrics.njk';
 import { getPeriod } from './utils';
 
@@ -206,7 +216,19 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         }),
       };
     case 'elasticsearch':
-      throw new Error('Not implemented');
+      const elasticsearchMetricSeries = await new ElasticsearchMetricDataGetter(
+      ).getData(elasticsearchMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
+
+      const elasticsearchMetricSummaries = mapValues(elasticsearchMetricSeries, s => s.map(summariseSerie));
+
+      return {
+        body: elasticsearchServiceMetricsTemplate.render({
+          ...defaultTemplateParams,
+          drawLineGraph,
+          metricSeries: elasticsearchMetricSeries,
+          metricSummaries: elasticsearchMetricSummaries,
+        }),
+      };
     default:
       throw new Error(`Unrecognised service label ${serviceLabel}`);
   }
