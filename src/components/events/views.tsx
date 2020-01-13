@@ -20,8 +20,16 @@ interface IEventListItemProperties {
   readonly actor: ReactNode;
   readonly date: string;
   readonly href: string;
-  readonly target?: ReactNode;
   readonly type: ReactNode;
+}
+
+interface IEventSummaryItemProperties {
+  readonly children: ReactNode;
+  readonly title: string;
+}
+
+interface ITargetedEventListItemProperties extends IEventListItemProperties {
+  readonly target: ReactNode;
 }
 
 export function Details(): ReactElement {
@@ -65,41 +73,52 @@ export function Details(): ReactElement {
   );
 }
 
+function EventSummaryItem(props: IEventSummaryItemProperties) {
+  return (
+    <div className={`govuk-summary-list__row ${props.title.toLowerCase()}`}>
+      <dt className="govuk-summary-list__key">
+        {props.title}
+      </dt>
+      <dd className="govuk-summary-list__value">
+        {props.children}
+      </dd>
+    </div>
+  );
+}
+
 export function Event(props: IEventProperties): ReactElement {
   return (
     <dl className="govuk-summary-list">
-      <div className="govuk-summary-list__row">
-        <dt className="govuk-summary-list__key">
-          Date
-        </dt>
-        <dd className="govuk-summary-list__value datetime">
-          {moment(props.event.updated_at).format(DATE_TIME)}
-        </dd>
-      </div>
-      <div className="govuk-summary-list__row">
-        <dt className="govuk-summary-list__key">
-          Actor
-        </dt>
-        <dd className="govuk-summary-list__value actor">
-          {props.actor?.email || props.event.actor.name || <code>{props.event.actor.guid}</code>}
-        </dd>
-      </div>
-      <div className="govuk-summary-list__row">
-        <dt className="govuk-summary-list__key">
-          Description
-        </dt>
-        <dd className="govuk-summary-list__value description">
-          {eventTypeDescriptions[props.event.type] || <code>{props.event.type}</code>}
-        </dd>
-      </div>
-      <div className="govuk-summary-list__row">
-        <dt className="govuk-summary-list__key">
-          Metadata
-        </dt>
-        <dd className="govuk-summary-list__value metadata">
-          <code className="code-block">{JSON.stringify(props.event.data, null, 2)}</code>
-        </dd>
-      </div>
+      <EventSummaryItem title="Date">{moment(props.event.updated_at).format(DATE_TIME)}</EventSummaryItem>
+      <EventSummaryItem title="Actor">
+        {props.actor?.email || props.event.actor.name || <code>{props.event.actor.guid}</code>}
+      </EventSummaryItem>
+      <EventSummaryItem title="Description">
+        {eventTypeDescriptions[props.event.type] || <code>{props.event.type}</code>}
+      </EventSummaryItem>
+      <EventSummaryItem title="Metadata">
+        <code className="code-block">{JSON.stringify(props.event.data, null, 2)}</code>
+      </EventSummaryItem>
+    </dl>
+  );
+}
+
+export function TargetedEvent(props: IEventProperties): ReactElement {
+  return (
+    <dl className="govuk-summary-list">
+      <EventSummaryItem title="Date">{moment(props.event.updated_at).format(DATE_TIME)}</EventSummaryItem>
+      <EventSummaryItem title="Actor">
+        {props.actor?.email || props.event.actor.name || <code>{props.event.actor.guid}</code>}
+      </EventSummaryItem>
+      <EventSummaryItem title="Target">
+        {props.event.target.name || <code>{props.event.target.guid}</code>}
+      </EventSummaryItem>
+      <EventSummaryItem title="Description">
+        {eventTypeDescriptions[props.event.type] || <code>{props.event.type}</code>}
+      </EventSummaryItem>
+      <EventSummaryItem title="Metadata">
+        <code className="code-block">{JSON.stringify(props.event.data, null, 2)}</code>
+      </EventSummaryItem>
     </dl>
   );
 }
@@ -111,6 +130,26 @@ export function EventListItem(props: IEventListItemProperties): ReactElement {
     </td>
     <td className="govuk-table__cell actor">
       {props.actor}
+    </td>
+    <td className="govuk-table__cell description">
+      {props.type}
+    </td>
+    <td className="govuk-table__cell details">
+      <a className="govuk-link" href={props.href}>Details</a>
+    </td>
+  </tr>);
+}
+
+export function TargetedEventListItem(props: ITargetedEventListItemProperties): ReactElement {
+  return(<tr className="govuk-table__row">
+    <td className="govuk-table__cell datetime">
+      {moment(props.date).format(DATE_TIME)}
+    </td>
+    <td className="govuk-table__cell actor">
+      {props.actor}
+    </td>
+    <td className="govuk-table__cell target">
+      {props.target}
     </td>
     <td className="govuk-table__cell description">
       {props.type}
