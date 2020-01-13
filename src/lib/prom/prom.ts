@@ -4,17 +4,9 @@ import { BaseLogger } from 'pino';
 
 import { intercept } from '../axios-logger/axios';
 
+import { IMetricSerie } from '../metrics';
+
 const DEFAULT_TIMEOUT = 30000;
-
-export interface IPrometheusVectorDatum {
-  readonly date: Date;
-  readonly value: number;
-}
-
-interface IPrometheusVectorDatumForInstance {
-  readonly label: string;
-  readonly metrics: ReadonlyArray<IPrometheusVectorDatum>;
-}
 
 type PrometheusValue = readonly [number, string];
 
@@ -75,7 +67,7 @@ export default class PromClient {
     step: number,
     start: Date,
     end: Date,
-  ): Promise<ReadonlyArray<IPrometheusVectorDatumForInstance> | undefined> {
+  ): Promise<ReadonlyArray<IMetricSerie> | undefined> {
     const promResponse: AxiosResponse<IPrometheusResponse<IPrometheusQueryRangeResponseResult>> = await this.request('/api/v1/query_range', {
       start: moment(start).unix(),
       end: moment(end).unix(),
