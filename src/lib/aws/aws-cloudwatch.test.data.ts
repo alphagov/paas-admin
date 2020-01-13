@@ -1,7 +1,4 @@
-/* tslint:disable:insecure-random */
-
-import moment from 'moment';
-import roundDown from '../../lib/moment/round';
+import { getGappyRandomData } from '../metrics';
 
 interface IServiceIdAndLabel {
   readonly id: string;
@@ -63,29 +60,4 @@ export function getStubCloudwatchMetricsData(
       <RequestId>ff5e1b9b-675d-44e3-9909-13d0d9d83648</RequestId>
     </ResponseMetadata>
   </GetMetricDataResponse>`;
-}
-
-/* istanbul ignore next */
-function getGappyRandomData(): {readonly timestamps: ReadonlyArray<string>, readonly values: ReadonlyArray<number>} {
-  const minutesInADay = 24 * 60;
-  const timestamps: string[] = [];
-  const values: number[] = [];
-
-  const startTime = roundDown(moment().subtract(1, 'day'), moment.duration(5, 'minutes'));
-  for (let i = 0; i < minutesInADay; i += 5) {
-    if (i < minutesInADay * 0.2 || i > minutesInADay * 0.8 && i < minutesInADay * 0.9) {
-      // do nothing - empty piece of the graph
-    } else {
-      timestamps.push(startTime.clone().add(i, 'minutes').toISOString());
-      let value = 0;
-      if (values.length === 0) {
-        value = Math.random() * 105;
-      } else {
-        value = values[values.length - 1] + 10 * (Math.random() - 0.5);
-        value = value > 0 ? value : 0;
-      }
-      values.push(value);
-    }
-  }
-  return { timestamps, values };
 }
