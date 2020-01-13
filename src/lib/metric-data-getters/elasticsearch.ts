@@ -2,13 +2,14 @@ import _ from 'lodash';
 import moment from 'moment';
 
 import {
-  IMetric,
   IMetricDataGetter,
   IMetricSerie,
   MetricName,
 } from '../metrics';
 
 import PromClient from '../prom';
+
+import { PrometheusMetricDataGetter } from './prometheus';
 
 export interface IPrometheusMetric {
   promQL: (guid: string) => string;
@@ -22,11 +23,11 @@ const elasticsearchMetricPropertiesById: {[key in MetricName]: IPrometheusMetric
 
 export const elasticsearchMetricNames = Object.keys(elasticsearchMetricPropertiesById);
 
-export class ElasticsearchMetricDataGetter implements IMetricDataGetter {
+export class ElasticsearchMetricDataGetter extends PrometheusMetricDataGetter implements IMetricDataGetter {
 
-  constructor(
-    private promClient: PromClient,
-  ) {}
+  constructor(private promClient: PromClient) {
+    super();
+  }
 
   public async getData(
     metricNames: ReadonlyArray<MetricName>,
@@ -54,28 +55,6 @@ export class ElasticsearchMetricDataGetter implements IMetricDataGetter {
       }
     });
 
-    const placeholderData: {[key: number]: IMetric} = {};
-    for (const time = rangeStart.clone(); time.isSameOrBefore(rangeStop); time.add(period)) {
-      placeholderData[+time] = {date: time.toDate(), value: NaN};
-    }
-
-    const metricDataWithPlaceholders = _.mapValues(metricData, series => {
-      return series.map(serie => {
-        const metricDataByTimestamp: {[key: number]: IMetric} = {};
-        serie.metrics.forEach(metric => metricDataByTimestamp[+metric.date] = metric);
-
-        const serieWithPlaceholders = {
-          ...placeholderData,
-          ...metricDataByTimestamp,
-        };
-
-        return {
-          label: serie.label,
-          metrics: _.map(serieWithPlaceholders, metric => ({date: metric.date, value: metric.value})),
-        };
-      });
-    });
-
-    return Promise.resolve(metricDataWithPlaceholders);
+    return _.mapValues(metricData, series => this.addPlaceholderData(series, period, rangeStart, rangeStop));
   }
 }
