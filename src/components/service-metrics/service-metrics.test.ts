@@ -413,14 +413,22 @@ describe('service metrics test suite', () => {
   });
 
   it('should fail to download csv if no data returned from cloudwatch', async () => {
+    nock('https://aws-cloudwatch.example.com/')
+      .post('/')
+      .reply(200, getStubCloudwatchMetricsData([]))
+    ;
+
+    mockService(data.serviceObj);
+
     await expect(downloadServiceMetrics({
       ...ctx,
       linkTo: (_name, params) => querystring.stringify(params),
     }, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       metric: 'mFreeStorageSpace',
+      units: 'Bytes',
       rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
       })).rejects.toThrow(/No response from Cloudwatch/);

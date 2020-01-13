@@ -225,7 +225,7 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
 
-  if (!params.rangeStart || !params.rangeStop || !params.metric) {
+  if (!params.rangeStart || !params.rangeStop || !params.metric || !params.units) {
     return {
       status: 302,
       redirect: ctx.linkTo(
@@ -277,10 +277,6 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
   const name = `${serviceLabel}-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`;
 
   switch (serviceLabel) {
-    case 'User Provided Service':
-      return {
-        body: unsupportedServiceMetricsTemplate.render(defaultTemplateParams),
-      };
     case 'cdn-route':
       const cloudfrontMetricSeries = await new CloudFrontMetricDataGetter(
         new cw.CloudWatchClient({
@@ -292,6 +288,10 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
           endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
         }),
       ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
+
+      if (typeof cloudfrontMetricSeries[params.metric] === 'undefined') {
+        throw new Error('No response from Cloudwatch');
+      }
 
       return {
         mimeType: 'text/csv',
@@ -313,6 +313,10 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
         }),
       ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
 
+      if (typeof rdsMetricSeries[params.metric] === 'undefined') {
+        throw new Error('No response from Cloudwatch');
+      }
+
       return {
         mimeType: 'text/csv',
         download: {
@@ -331,6 +335,10 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
           endpoint: ctx.app.awsCloudwatchEndpoint,
         }),
       ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
+
+      if (typeof elasticacheMetricSeries[params.metric] === 'undefined') {
+        throw new Error('No response from Cloudwatch');
+      }
 
       return {
         mimeType: 'text/csv',
