@@ -176,6 +176,32 @@ describe('service metrics test suite', () => {
     expect(response.body).toContain('Total error rate');
   });
 
+  it('should return prometheus metrics for an elasticsearch backing service', async () => {
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'elasticsearch',
+      },
+    });
+
+    const response = await viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+    });
+
+    expect(response.status).not.toEqual(302);
+    expect(response.body).toContain('Load avg');
+    expect(response.body).toContain('Memory');
+    expect(response.body).toContain('Disk usage');
+    expect(response.body).toContain('Disk quota');
+    expect(response.body).toContain('Disk RW');
+    expect(response.body).toContain('Network IO');
+  });
+
   it('should not return metrics for a user provided service', async () => {
     const userProvidedServiceGUID = '54e4c645-7d20-4271-8c27-8cc904e1e7ee';
     const response = await viewServiceMetrics(ctx, {
