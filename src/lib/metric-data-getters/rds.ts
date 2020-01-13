@@ -7,7 +7,7 @@ import {
   IMetricDataGetter,
   IMetricSerie,
   MetricName,
-} from '../charts';
+} from '../metrics';
 
 import { CloudWatchMetricDataGetter, ICloudWatchMetric } from './cloudwatch';
 

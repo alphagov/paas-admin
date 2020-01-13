@@ -8,7 +8,7 @@ import moment from 'moment';
 import {
   IMetric,
   MetricName,
-} from '../charts';
+} from '../metrics';
 
 export interface ICloudWatchMetric {
   name: string;

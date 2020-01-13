@@ -12,7 +12,7 @@ import {
   IMetric,
   IMetricSerie,
   IMetricSerieSummary,
-} from '../../lib/charts';
+} from '../../lib/metrics';
 
 const viewBox = {
   x: 0,
