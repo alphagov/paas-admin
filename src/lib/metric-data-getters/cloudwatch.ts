@@ -16,7 +16,7 @@ export interface ICloudWatchMetric {
 }
 
 export class CloudWatchMetricDataGetter {
-  public transformCloudWatchMetrics(
+  public addPlaceholderData(
     /* tslint:disable readonly-array */
     results: CloudWatchResult[], /* tslint:enable readonly-array */
 

@@ -106,7 +106,7 @@ export class ElastiCacheMetricDataGetter extends CloudWatchMetricDataGetter impl
 
     const results = _.flatMap(responses, response => response.MetricDataResults!);
 
-    return Promise.resolve(this.transformCloudWatchMetrics(
+    return Promise.resolve(this.addPlaceholderData(
       results,
       period, rangeStart, rangeStop,
     ));
