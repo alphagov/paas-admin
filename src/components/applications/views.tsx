@@ -2,6 +2,7 @@ import React, { ReactElement, ReactNode } from 'react';
 
 import { IApplication } from '../../lib/cf/types';
 import { RouteActiveChecker, RouteLinker } from '../app';
+import { IEnchancedApplication } from '../spaces/views';
 
 interface IApplicationTabProperties {
   readonly application: IApplication;
@@ -14,7 +15,7 @@ interface IApplicationTabProperties {
 
 interface IApplicationPageProperties {
   readonly additionalRuntimeInfo: ReadonlyArray<ReadonlyArray<{ readonly text: string | null; }>>;
-  readonly application: IApplication;
+  readonly application: IEnchancedApplication;
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
   readonly routePartOf: RouteActiveChecker;
@@ -31,7 +32,7 @@ interface ITabProperties {
   readonly children: string;
 }
 
-function Tab(props: ITabProperties) {
+export function Tab(props: ITabProperties) {
   const classess = ['govuk-tabs__list-item'];
   if (props.active) {
     classess.push('govuk-tabs__list-item--selected');
@@ -124,34 +125,36 @@ export function ApplicationPage(props: IApplicationPageProperties): ReactElement
               <tr className="govuk-table__row">
                 <th scope="row" className="govuk-table__header">Instances</th>
                 <td className="govuk-table__cell">
-                  {`${props.application.entity.running_instances}/${props.application.entity.instances}`}
+                  {`${props.application.summary.running_instances}/${props.application.summary.instances}`}
                 </td>
               </tr>
               <tr className="govuk-table__row">
                 <th scope="row" className="govuk-table__header">Memory</th>
-                <td className="govuk-table__cell">{`${(props.application.entity.memory / 1024).toFixed(2)}GiB`}</td>
+                <td className="govuk-table__cell">{`${(props.application.summary.memory / 1024).toFixed(2)}GiB`}</td>
               </tr>
               <tr className="govuk-table__row">
                 <th scope="row" className="govuk-table__header">Disk quota</th>
-                <td className="govuk-table__cell">{`${(props.application.entity.disk_quota / 1024).toFixed(2)}GiB`}</td>
+                <td className="govuk-table__cell">
+                  {`${(props.application.summary.disk_quota / 1024).toFixed(2)}GiB`}
+                </td>
               </tr>
               <tr className="govuk-table__row">
                 <th scope="row" className="govuk-table__header">Status</th>
-                <td className="govuk-table__cell">{props.application.entity.state}</td>
+                <td className="govuk-table__cell">{props.application.summary.state}</td>
               </tr>
               <tr className="govuk-table__row">
                 <th scope="row" className="govuk-table__header">SSH</th>
-                <td className="govuk-table__cell">{props.application.entity.enable_ssh}</td>
+                <td className="govuk-table__cell">{props.application.summary.enable_ssh}</td>
               </tr>
               <tr className="govuk-table__row">
                 <th scope="row" className="govuk-table__header">URLs</th>
                 <td className="govuk-table__cell">
-                  {props.application.entity.urls.map((url, index) => (<AppLink key={index} href={url} />))}
+                  {props.application.urls.map((url, index) => (<AppLink key={index} href={url} />))}
                 </td>
               </tr>
               <tr className="govuk-table__row">
                 <th scope="row" className="govuk-table__header">Ports</th>
-                <td className="govuk-table__cell">{props.application.entity.ports}</td>
+                <td className="govuk-table__cell">{props.application.summary.ports}</td>
               </tr>
             </tbody>
           </table>

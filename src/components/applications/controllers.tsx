@@ -29,12 +29,10 @@ export async function viewApplication(ctx: IContext, params: IParameters): Promi
   ]);
 
   const summarisedApplication = {
-    entity: {
-      ...application.entity,
-      ...applicationSummary,
-      urls: applicationSummary.routes.map(buildURL),
-    },
+    entity: application.entity,
     metadata: application.metadata,
+    summary: applicationSummary,
+    urls: applicationSummary.routes.map(buildURL),
   };
 
   const stack = await cf.stack(application.entity.stack_guid);
