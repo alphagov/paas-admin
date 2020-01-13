@@ -9,7 +9,7 @@
     <div class="govuk-grid-column-two-thirds-from-desktop">
         <p>{{ params.descriptionHTML | safe }}</p>
 
-        <div>{{ params.chart | safe }}</div>
+        <div>{{ params.chart.outerHTML | safe }}</div>
 
         {% set csvlink =  [params.downloadLink, '&metric=', params.metric, '&units=', params.units] %}
         <a href="{{ csvlink | join }}" class="govuk-link" title="Download as a CSV">Download as a CSV</a>
