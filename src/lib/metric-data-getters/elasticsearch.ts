@@ -7,16 +7,25 @@ import {
   MetricName,
 } from '../metrics';
 
-const elasticsearchMetricPropertiesById: {[key in MetricName]: any} = {
-  'diskIO': {},
+import PromClient from '../prom';
+
+export interface IPrometheusMetric {
+  promQL: (guid: string) => string;
+}
+
+const elasticsearchMetricPropertiesById: {[key in MetricName]: IPrometheusMetric} = {
+  loadAvg: {
+    promQL: (guid: string) => `system_load1{service=~".*-${guid}"}`,
+  },
 };
 
 export const elasticsearchMetricNames = Object.keys(elasticsearchMetricPropertiesById);
 
 export class ElasticsearchMetricDataGetter implements IMetricDataGetter {
-  constructor() {
-    // no-empty-block;
-  }
+
+  constructor(
+    private promClient: PromClient,
+  ) {}
 
   public async getData(
     metricNames: ReadonlyArray<MetricName>,
@@ -24,6 +33,26 @@ export class ElasticsearchMetricDataGetter implements IMetricDataGetter {
     period: moment.Duration,
     rangeStart: moment.Moment, rangeStop: moment.Moment,
   ): Promise<{[key in MetricName]: ReadonlyArray<IMetricSerie>}> {
-    return Promise.resolve({});
+
+    const queryResults: ReadonlyArray<ReadonlyArray<IMetricSerie> | undefined> = await Promise.all(
+      metricNames.map(metricName => this.promClient.getSeries(
+        elasticsearchMetricPropertiesById[metricName].promQL(guid),
+        period.asSeconds(), rangeStart.toDate(), rangeStop.toDate(),
+      )),
+    );
+
+    const queriesAndResults: { [key in MetricName]: ReadonlyArray<IMetricSerie> | undefined } = _.zipObject(
+      metricNames,
+      queryResults,
+    );
+
+    const metricData: { [key in MetricName]: ReadonlyArray<IMetricSerie> } = {};
+    _.forEach(queriesAndResults, (maybeSerie: ReadonlyArray<IMetricSerie> | undefined, metricName: MetricName) => {
+      if (typeof maybeSerie !== 'undefined') {
+        metricData[metricName] = maybeSerie!;
+      }
+    });
+
+    return Promise.resolve(metricData);
   }
 }

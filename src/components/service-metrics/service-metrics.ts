@@ -18,6 +18,7 @@ import {
   rdsMetricNames,
 } from '../../lib/metric-data-getters';
 import roundDown from '../../lib/moment/round';
+import PromClient from '../../lib/prom';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
 import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
@@ -217,6 +218,12 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
       };
     case 'elasticsearch':
       const elasticsearchMetricSeries = await new ElasticsearchMetricDataGetter(
+        new PromClient(
+          ctx.app.prometheusEndpoint,
+          ctx.app.prometheusUsername,
+          ctx.app.prometheusPassword,
+          ctx.app.logger,
+        ),
       ).getData(elasticsearchMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
 
       const elasticsearchMetricSummaries = mapValues(elasticsearchMetricSeries, s => s.map(summariseSerie));

@@ -12,8 +12,10 @@ import {org as defaultOrg} from '../../lib/cf/test-data/org';
 import {
   cloudfrontMetricNames,
   elasticacheMetricNames,
+  elasticsearchMetricNames,
   rdsMetricNames,
 } from '../../lib/metric-data-getters';
+import { getStubPrometheusMetricsSeriesData } from '../../lib/prom/prom.test.data';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 
@@ -177,6 +179,13 @@ describe('service metrics test suite', () => {
   });
 
   it('should return prometheus metrics for an elasticsearch backing service', async () => {
+    nock('https://example.com/prom')
+      .get('/api/v1/query_range')
+      .query(true)
+      .times(elasticsearchMetricNames.length)
+      .reply(200, getStubPrometheusMetricsSeriesData(['001', '002']))
+    ;
+
     mockService({
       ...data.serviceObj,
       entity: {
