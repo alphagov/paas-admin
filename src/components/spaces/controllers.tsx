@@ -1,19 +1,16 @@
 import lodash from 'lodash';
+import React from 'react';
 
 import {AccountsClient, IAccountsUser} from '../../lib/accounts';
-import CloudFoundryClient, {eventTypeDescriptions} from '../../lib/cf';
+import CloudFoundryClient from '../../lib/cf';
 import {IApplication, IOrganizationUserRoles, IRoute, IServiceInstance, ISpace} from '../../lib/cf/types';
 import {IParameters, IResponse} from '../../lib/router';
 
-import {IContext} from '../app/context';
-import {CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN} from '../auth';
-import {fromOrg, IBreadcrumb} from '../breadcrumbs';
-
-import spaceApplicationsTemplate from './applications.njk';
-import spaceBackingServicesTemplate from './backing-services.njk';
-import spaceEventTemplate from './event.njk';
-import spaceEventsTemplate from './events.njk';
-import spacesTemplate from './spaces.njk';
+import { Template } from '../../layouts';
+import { IContext } from '../app/context';
+import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
+import { fromOrg } from '../breadcrumbs';
+import { ApplicationsPage, BackingServicePage, EventPage, EventsPage, IStripedUserServices, SpacesPage } from './views';
 
 function buildURL(route: IRoute): string {
   return [route.host, route.domain.name].filter(x => x).join('.') + route.path;
@@ -50,7 +47,8 @@ export async function viewSpaceEvent(ctx: IContext, params: IParameters): Promis
     : undefined
   ;
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+  const template = new Template(ctx.viewContext, `${space.entity.name} - Space Event`);
+  template.breadcrumbs = fromOrg(ctx, organization, [
     {
       text: space.entity.name,
       href: ctx.linkTo('admin.organizations.spaces.events.view', {
@@ -64,13 +62,11 @@ export async function viewSpaceEvent(ctx: IContext, params: IParameters): Promis
   ]);
 
   return {
-    body: spaceEventTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      organization, space, breadcrumbs,
-      event, eventTypeDescriptions, eventActor,
-    }),
+    body: template.render(<EventPage
+      actor={eventActor}
+      event={event}
+      space={space}
+    />),
   };
 }
 
@@ -99,10 +95,6 @@ export async function viewSpaceEvents(ctx: IContext, params: IParameters): Promi
 
   const {resources: events, pagination} = pageOfEvents;
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
-    { text: space.entity.name },
-  ]);
-
   let eventActorEmails: {[key: string]: string} = {};
   const userActorGUIDs = lodash
     .chain(events)
@@ -129,15 +121,21 @@ export async function viewSpaceEvents(ctx: IContext, params: IParameters): Promi
     ;
   }
 
+  const template = new Template(ctx.viewContext, `${space.entity.name} - Space Events`);
+  template.breadcrumbs = fromOrg(ctx, organization, [
+    { text: space.entity.name },
+  ]);
+
   return {
-    body: spaceEventsTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      organization, space, breadcrumbs,
-      events, eventTypeDescriptions, eventActorEmails,
-      pagination, page,
-    }),
+    body: template.render(<EventsPage
+      linkTo={ctx.linkTo}
+      actorEmails={eventActorEmails}
+      events={events}
+      organizationGUID={organization.metadata.guid}
+      space={space}
+      routePartOf={ctx.routePartOf}
+      pagination={{...pagination, page}}
+    />),
   };
 }
 
@@ -148,11 +146,10 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
     logger: ctx.app.logger,
   });
 
-  const [space, applications, organization, cflinuxfs2StackGUID] = await Promise.all([
+  const [space, applications, organization] = await Promise.all([
     cf.space(params.spaceGUID),
     cf.applications(params.spaceGUID),
     cf.organization(params.organizationGUID),
-    cf.cflinuxfs2StackGUID(),
   ]);
 
   const summarisedApplications = await Promise.all(applications.map(async (application: IApplication) => {
@@ -160,34 +157,25 @@ export async function listApplications(ctx: IContext, params: IParameters): Prom
 
     return {
       metadata: application.metadata,
-      entity: {
-        ...application.entity,
-        ...summary,
-
-        urls: summary.routes.map(buildURL),
-      },
+      entity: application.entity,
+      summary,
+      urls: summary.routes.map(buildURL),
     };
   }));
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+  const template = new Template(ctx.viewContext, `${space.entity.name} - Overview`);
+  template.breadcrumbs = fromOrg(ctx, organization, [
     { text: space.entity.name },
   ]);
 
-  /* istanbul ignore next */
-  // tslint:disable:max-line-length
-  const cflinuxfs2UpgradeNeeded = cflinuxfs2StackGUID && summarisedApplications.filter((app: IApplication) => app.entity.stack_guid === cflinuxfs2StackGUID).length > 0;
   return {
-    body: spaceApplicationsTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      applications: summarisedApplications,
-      cflinuxfs2UpgradeNeeded,
-      organization,
-      space,
-      cflinuxfs2StackGUID,
-      breadcrumbs,
-    }),
+    body: template.render(<ApplicationsPage
+      applications={summarisedApplications}
+      linkTo={ctx.linkTo}
+      organizationGUID={organization.metadata.guid}
+      routePartOf={ctx.routePartOf}
+      space={space}
+    />),
   };
 }
 
@@ -219,20 +207,19 @@ export async function listBackingServices(ctx: IContext, params: IParameters): P
     };
   }));
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+  const template = new Template(ctx.viewContext, `${space.entity.name} - Overview`);
+  template.breadcrumbs = fromOrg(ctx, organization, [
     { text: space.entity.name },
   ]);
 
   return {
-    body: spaceBackingServicesTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      services: [...summarisedServices, ...userServices],
-      organization,
-      space,
-      breadcrumbs,
-    }),
+    body: template.render(<BackingServicePage
+      linkTo={ctx.linkTo}
+      organizationGUID={organization.metadata.guid}
+      routePartOf={ctx.routePartOf}
+      services={[...summarisedServices, ...(userServices as unknown as ReadonlyArray<IStripedUserServices>)]}
+      space={space}
+    />),
   };
 }
 
@@ -255,7 +242,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
 
-  const [isManager, isBillingManager, spaces, organization, users, cflinuxfs2StackGUID] = await Promise.all([
+  const [isManager, isBillingManager, spaces, organization, users] = await Promise.all([
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
     cf.orgSpaces(params.organizationGUID),
@@ -263,12 +250,7 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     cf.usersForOrganization(params.organizationGUID).then(async (orgUsers) => {
       return hydrateAccountsUsernames(orgUsers, accountsClient);
     }),
-    cf.cflinuxfs2StackGUID(),
   ]);
-
-  const managers = users.filter((user: IOrganizationUserRoles) =>
-    user.entity.organization_roles.some(role => role === 'org_manager'),
-  );
 
   const summarisedSpaces = await Promise.all(spaces.map(async (space: ISpace) => {
     const [applications, quota] = await Promise.all([
@@ -280,71 +262,45 @@ export async function listSpaces(ctx: IContext, params: IParameters): Promise<IR
     const runningApps = applications.filter((app: IApplication) => app.entity.state.toLowerCase() !== 'stopped');
     const stoppedApps = applications.filter((app: IApplication) => app.entity.state.toLowerCase() === 'stopped');
 
-    const spaceMemoryAllocated = runningApps.reduce(
-      (allocated: number, app: IApplication) => {
-        return allocated + (app.entity.memory * app.entity.instances);
-      },
-      0,
-    );
+    const spaceMemoryAllocated = runningApps.reduce((allocated: number, app: IApplication) =>
+      allocated + (app.entity.memory * app.entity.instances), 0);
 
-    /* istanbul ignore next */
-    // tslint:disable:max-line-length
-    const cflinuxfs2UpgradeNeededInSpace = cflinuxfs2StackGUID && applications.some((app: IApplication) => app.entity.stack_guid === cflinuxfs2StackGUID);
     return {
-      entity: {
-        ...space.entity,
-        apps: applications,
-
-        running_apps: runningApps,
-        stopped_apps: stoppedApps,
-        memory_allocated: spaceMemoryAllocated,
-
-        cflinuxfs2UpgradeNeeded: cflinuxfs2UpgradeNeededInSpace,
-        quota,
-      },
+      apps: applications,
+      entity: space.entity,
+      memory_allocated: spaceMemoryAllocated,
       metadata: space.metadata,
+      quota: quota || undefined,
+      running_apps: runningApps,
+      stopped_apps: stoppedApps,
     };
   }));
 
-  const memoryAllocated = summarisedSpaces.reduce(
-    (allocated: number, space: { entity: { memory_allocated: number } }) => {
-      return allocated + space.entity.memory_allocated;
-    },
-    0,
-  );
-
+  const memoryAllocated = summarisedSpaces.reduce((allocated: number, space: { memory_allocated: number }) =>
+    allocated + space.memory_allocated, 0);
   const summarisedOrganization = {
-    entity: {
-      ...organization.entity,
-
-      memory_allocated: memoryAllocated,
-      quota: await cf.organizationQuota(organization.entity.quota_definition_guid),
-    },
+    entity: organization.entity,
+    memory_allocated: memoryAllocated,
+    quota: await cf.organizationQuota(organization.entity.quota_definition_guid),
     metadata: organization.metadata,
   };
 
-  const cflinuxfs2UpgradeNeeded = summarisedSpaces.some((s: any) => s.entity.cflinuxfs2UpgradeNeeded);
-
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = [
+  const template = new Template(ctx.viewContext, `${summarisedOrganization.entity.name} – Spaces`);
+  template.breadcrumbs = [
     { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
     { text: organization.entity.name },
   ];
 
   return {
-    body: spacesTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      managers,
-      organization: summarisedOrganization,
-      spaces: summarisedSpaces,
-      users,
-      isAdmin,
-      isBillingManager,
-      isManager,
-      cflinuxfs2UpgradeNeeded,
-      breadcrumbs,
-    }),
+    body: template.render(<SpacesPage
+      isAdmin={isAdmin}
+      isBillingManager={isBillingManager}
+      isManager={isManager}
+      linkTo={ctx.linkTo}
+      organization={summarisedOrganization}
+      spaces={summarisedSpaces}
+      users={users}
+    />),
   };
 }
 
