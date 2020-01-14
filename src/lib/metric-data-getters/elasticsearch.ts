@@ -17,7 +17,25 @@ export interface IPrometheusMetric {
 
 const elasticsearchMetricPropertiesById: {[key in MetricName]: IPrometheusMetric} = {
   loadAvg: {
-    promQL: (guid: string) => `system_load1{service=~".*-${guid}"}`,
+    promQL: (guid: string) => `avg by (instance) (system_load1{service=~".*-${guid}"})`,
+  },
+  diskUsed: {
+    promQL: (guid: string) => `avg by (instance) (disk_used_percent{service=~".*-${guid}"})`,
+  },
+  diskReads: {
+    promQL: (guid: string) => `avg by (instance) (rate(diskio_reads{service=~".*-${guid}"}[5m]))`,
+  },
+  diskWrites: {
+    promQL: (guid: string) => `avg by (instance) (rate(diskio_writes{service=~".*-${guid}"}[5m]))`,
+  },
+  memoryUsed: {
+    promQL: (guid: string) => `avg by (instance) (mem_used_percent{service=~".*-${guid}"})`,
+  },
+  networkIn: {
+    promQL: (guid: string) => `avg by (instance) (rate(net_bytes_recv{service=~".*-${guid}"}[5m]))`,
+  },
+  networkOut: {
+    promQL: (guid: string) => `avg by (instance) (rate(net_bytes_sent{service=~".*-${guid}"}[5m]))`,
   },
 };
 

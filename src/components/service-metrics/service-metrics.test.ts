@@ -206,9 +206,10 @@ describe('service metrics test suite', () => {
     expect(response.body).toContain('Load avg');
     expect(response.body).toContain('Memory');
     expect(response.body).toContain('Disk usage');
-    expect(response.body).toContain('Disk quota');
-    expect(response.body).toContain('Disk RW');
-    expect(response.body).toContain('Network IO');
+    expect(response.body).toContain('Disk read rate');
+    expect(response.body).toContain('Disk write rate');
+    expect(response.body).toContain('Network in');
+    expect(response.body).toContain('Network out');
   });
 
   it('should not return metrics for a user provided service', async () => {
