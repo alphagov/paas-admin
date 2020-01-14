@@ -1,4 +1,7 @@
 import moment from 'moment';
+import React from 'react';
+
+import { Template } from '../../layouts';
 
 import { BillingClient } from '../../lib/billing';
 import CloudFoundryClient from '../../lib/cf';
@@ -10,10 +13,9 @@ import {
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
-import {fromOrg, IBreadcrumb} from '../breadcrumbs';
+import {fromOrg} from '../breadcrumbs';
 import { UserFriendlyError } from '../errors';
-
-import usageTemplate from './statements.njk';
+import { IFilterResource, StatementsPage } from './views';
 
 interface IResourceUsage {
   readonly resourceGUID: string;
@@ -171,7 +173,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   const orderBy = params.sort || 'name';
   const orderDirection = params.order || 'asc';
 
-  const spaces = items.reduce((all: any[], next) => {
+  const spaces = items.reduce((all: IFilterResource[], next) => {
     if (!all.find(i => i.guid === next.spaceGUID)) {
       all.push({guid: next.spaceGUID, name: next.spaceName});
     }
@@ -179,7 +181,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     return all;
   }, []);
 
-  const plans = items.reduce((all: any[], next) => {
+  const plans = items.reduce((all: IFilterResource[], next) => {
     if (!all.find(i => i.guid === next.planGUID)) {
       all.push({guid: next.planGUID, name: next.planName});
     }
@@ -188,7 +190,7 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   }, []);
 
   const listSpaces = [{guid: 'none', name: 'All spaces'}, ...[...spaces].sort(sortByName)];
-  const listPlans = [{guid: 'none', name: 'All Services'}, ...plans.sort(sortByName)];
+  const listPlans = [{guid: 'none', name: 'All Services'}, ...[...plans].sort(sortByName)];
 
   const unorderedFilteredItems = items.filter(item =>
       (filterSpace   === 'none' || item.spaceGUID === filterSpace) &&
@@ -210,34 +212,31 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     incVAT: filteredItems.reduce((sum, event) => sum + event.price.incVAT, 0),
   };
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+  const template = new Template(ctx.viewContext, `Statement`);
+  template.breadcrumbs = fromOrg(ctx, organization, [
     { text: 'Monthly billing statement' },
   ]);
 
   return {
-    body: usageTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      organization,
-      filter,
-      totals,
-      items: filteredItems,
-      spaces: listSpaces,
-      plans: listPlans,
-      usdCurrencyRates,
-      isCurrentMonth:
-        Object.keys(listOfPastYearMonths)[0] === params.rangeStart,
-      listOfPastYearMonths,
-      filterMonth: params.rangeStart,
-      filterSpace: listSpaces.find(i => i.guid === (params.space || 'none')),
-      filterService: listPlans.find(i => i.guid === (params.service || 'none')),
-      orderBy,
-      orderDirection,
-      currentMonth,
-      adminFee: ctx.app.adminFee,
-      breadcrumbs,
-    }),
+    body: template.render(<StatementsPage
+      listOfPastYearMonths={listOfPastYearMonths}
+      spaces={listSpaces}
+      plans={listPlans}
+      currentMonth={currentMonth}
+      adminFee={ctx.app.adminFee}
+      totals={totals}
+      usdCurrencyRates={usdCurrencyRates}
+      isCurrentMonth={Object.keys(listOfPastYearMonths)[0] === params.rangeStart}
+      csrf={ctx.viewContext.csrf}
+      filterMonth={params.rangeStart}
+      filterService={listPlans.find(i => i.guid === (params.service || 'none'))}
+      filterSpace={listSpaces.find(i => i.guid === (params.space || 'none'))}
+      linkTo={ctx.linkTo}
+      organizationGUID={organization.metadata.guid}
+      orderBy={orderBy}
+      orderDirection={orderDirection}
+      items={filteredItems}
+    />),
   };
 }
 

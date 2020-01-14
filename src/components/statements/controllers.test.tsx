@@ -3,7 +3,7 @@ import moment from 'moment';
 import nock from 'nock';
 
 import * as statement from '.';
-
+import { testSpacing } from '../../layouts/react-spacing.test';
 import * as billingData from '../../lib/billing/billing.test.data';
 import * as data from '../../lib/cf/cf.test.data';
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
@@ -12,7 +12,7 @@ import {createTestContext} from '../app/app.test-helpers';
 import {config} from '../app/app.test.config';
 import {IContext} from '../app/context';
 import {Token} from '../auth';
-import {composeCSV, ISortable, ISortableBy, ISortableDirection, order, sortByName} from './statements';
+import {composeCSV, ISortable, ISortableBy, ISortableDirection, order, sortByName} from './controllers';
 
 const resourceTemplate = {
   resourceGUID: '',
@@ -92,6 +92,7 @@ describe('statements test suite', () => {
     });
 
     expect(response.body).toContain('Statement');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should prepare statement to download', async () => {
@@ -249,8 +250,8 @@ describe('statements test suite', () => {
       service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
     });
 
-    expect(response.body).toContain('&pound;1 to &dollar;1.25');
-    expect(response.body).not.toContain('&pound;1 to &dollar;1.25 after');
+    expect(response.body).toContain('£1 to $1.25');
+    expect(response.body).not.toContain('£1 to $1.25 after');
   });
 
   it('outputs multiple USD rates if there are multiple this month', async () => {
@@ -284,8 +285,8 @@ describe('statements test suite', () => {
     });
 
     expect(response.body).toContain('Exchange rate:');
-    expect(response.body).toContain('&pound;1 to &dollar;1.25 from January 1st 2017');
-    expect(response.body).toContain('&pound;1 to &dollar;2.00 from January 15th 2017');
+    expect(response.body).toContain('£1 to $1.25 from January 1st 2017');
+    expect(response.body).toContain('£1 to $2.00 from January 15th 2017');
   });
 
   it('should throw an error due to selecting middle of the month', async () => {
