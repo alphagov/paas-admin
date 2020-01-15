@@ -1,20 +1,18 @@
+import cheerio from 'cheerio';
 import jwt from 'jsonwebtoken';
 
-import {IResponse} from '../../lib/router';
+import { testSpacing } from '../../layouts/react-spacing.test';
+import { IResponse } from '../../lib/router';
+import { createTestContext } from '../app/app.test-helpers';
+import { IContext } from '../app/context';
+import { Token } from '../auth';
+import { CLOUD_CONTROLLER_ADMIN } from '../auth/has-role';
 
-import {createTestContext} from '../app/app.test-helpers';
-import {IContext} from '../app/context';
-import {CLOUD_CONTROLLER_ADMIN} from '../auth/has-role';
-
-import {
-  Token,
-} from '../auth';
-
-import { viewHomepage } from './homepage';
+import { viewHomepage } from './controllers';
 
 const tokenKey = 'secret';
 
-describe('homepage', () => {
+describe(viewHomepage, () => {
   describe('when not a platform admin', () => {
 
     const time = Math.floor(Date.now() / 1000);
@@ -51,9 +49,11 @@ describe('homepage', () => {
     const ctx: IContext = createTestContext({ token });
 
     let response: IResponse;
+    let $: CheerioStatic;
 
     beforeEach(async () => {
       response = await viewHomepage(ctx, {});
+      $ = cheerio.load(response.body as string);
     });
 
     it('should show the homepage with useful headings', async () => {
@@ -71,7 +71,7 @@ describe('homepage', () => {
     it('should show a form to lookup a user', async () => {
       expect(response.body).toMatch(/User management/);
       expect(response.body).toMatch(/Find a user/);
-      expect(response.body).toMatch(/<button[^<]*Find user\s+<\/button>/m);
+      expect($('button').text()).toContain('Find user');
     });
 
     it('should show a form to show costs', async () => {
@@ -83,6 +83,7 @@ describe('homepage', () => {
       expect(response.body).toMatch(/Costs by service/);
       expect(response.body).toMatch(/Spend for PMO team/);
       expect(response.body).toMatch(/Sankey/);
+      expect(testSpacing(response.body as string)).toHaveLength(0);
     });
   });
 });

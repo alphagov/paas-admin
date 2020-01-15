@@ -1,4 +1,4 @@
-import moment from 'moment';
+import React from 'react';
 
 import {
   IParameters,
@@ -6,9 +6,9 @@ import {
   NotAuthorisedError,
 } from '../../lib/router';
 
+import { Template } from '../../layouts';
 import { IContext } from '../app/context';
-
-import homepageTemplate from './homepage.njk';
+import { PlatformAdministratorPage } from './views';
 
 export async function viewHomepage(
   ctx: IContext,
@@ -20,13 +20,12 @@ export async function viewHomepage(
     throw new NotAuthorisedError('Not a platform admin');
   }
 
-  const thisYear = moment().format('YYYY');
+  const template = new Template(ctx.viewContext, 'Platform Administrator');
 
   return {
-    body: homepageTemplate.render({
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      thisYear,
-    }),
+    body: template.render(<PlatformAdministratorPage
+      linkTo={ctx.linkTo}
+      csrf={ctx.viewContext.csrf}
+    />),
   };
 }
