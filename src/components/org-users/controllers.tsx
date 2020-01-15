@@ -1,10 +1,11 @@
-import lodash, {CollectionChain} from 'lodash';
-import merge from 'merge-deep';
-import {BaseLogger} from 'pino';
+import lodash, { CollectionChain, mapValues, merge, values as values } from 'lodash';
+import { BaseLogger } from 'pino';
+import React from 'react';
 
-import {isUndefined} from 'util';
-import {AccountsClient} from '../../lib/accounts';
+import { isUndefined } from 'util';
 
+import { Template } from '../../layouts';
+import { AccountsClient } from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
 import {
   IOrganizationUserRoles,
@@ -12,58 +13,40 @@ import {
   ISpace,
   ISpaceUserRoles,
   OrganizationUserRoleEndpoints,
-  OrganizationUserRoles,
 } from '../../lib/cf/types';
 import NotificationClient from '../../lib/notify';
-import {IParameters, IResponse} from '../../lib/router';
-import {NotFoundError} from '../../lib/router/errors';
-import UAAClient, {IUaaInvitation, IUaaUser} from '../../lib/uaa';
+import { IParameters, IResponse } from '../../lib/router';
+import { NotFoundError } from '../../lib/router/errors';
+import UAAClient, { IUaaInvitation, IUaaUser } from '../../lib/uaa';
 
-import {IContext} from '../app/context';
-import {CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN} from '../auth';
-import {fromOrg, IBreadcrumb} from '../breadcrumbs';
+import { IContext } from '../app/context';
+import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
+import { fromOrg } from '../breadcrumbs';
+import {
+  DeleteConfirmationPage,
+  EditPage,
+  InvitePage,
+  IRoleValues,
+  IUserRoles,
+  IUserRolesByGuid,
+  IValidationError,
+  OrganizationUsersPage,
+  SuccessPage,
+} from './views';
 
-import deleteTemplate from './delete.njk';
-import deleteSuccessTemplate from './delete.success.njk';
-import editTemplate from './edit.njk';
-import editSuccessTemplate from './edit.success.njk';
-import inviteTemplate from './invite.njk';
-import inviteSuccessTemplate from './invite.success.njk';
-import orgUsersTemplate from './org-users.njk';
-
-interface IInvalid {
-  readonly field: string;
-  readonly message: string;
-}
-
-interface IPermissionState {
-  readonly current: string;
-  readonly desired?: string;
-}
-
-interface IPermissions {
+interface IPostPermissions {
   readonly [guid: string]: {
-    readonly [permission: string]: IPermissionState;
+    readonly [permission: string]: {
+      readonly current: string;
+      readonly desired: string;
+    };
   };
 }
 
-interface IRoleValues {
-  org_roles: IPermissions;
-  space_roles: IPermissions;
-}
-
-interface IUserPostBody extends IRoleValues {
-  email: string;
-}
-
-interface IUserRoles {
-  readonly spaces: ReadonlyArray<ISpace>;
-  readonly orgRoles: ReadonlyArray<OrganizationUserRoles>;
-  readonly username: string;
-}
-
-interface IUserRolesByGuid {
-  readonly [guid: string]: IUserRoles;
+interface IUserPostBody {
+  email?: string;
+  org_roles?: IPostPermissions;
+  space_roles?: IPostPermissions;
 }
 
 interface ISpaceUsers {
@@ -72,9 +55,9 @@ interface ISpaceUsers {
 }
 
 class ValidationError extends Error {
-  public readonly errors: ReadonlyArray<IInvalid>;
+  public readonly errors: ReadonlyArray<IValidationError>;
 
-  constructor(arrayOfErrors: ReadonlyArray<IInvalid>) {
+  constructor(arrayOfErrors: ReadonlyArray<IValidationError>) {
     super(arrayOfErrors.map(e => e.message).join(','));
     this.errors = arrayOfErrors;
     this.name = 'ValidationError';
@@ -86,7 +69,7 @@ const VALID_EMAIL = /[^.]@[^.]/;
 async function setAllUserRolesForOrg(
   cf: CloudFoundryClient,
   params: IParameters,
-  roles: { readonly org: IPermissions, readonly space: IPermissions },
+  roles: { readonly org: IPostPermissions, readonly space: IPostPermissions },
 ): Promise<any> {
   const spaces = await cf.orgSpaces(params.organizationGUID);
 
@@ -237,13 +220,11 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
 
   const [
     isManager,
-    isBillingManager,
     organization,
     userOrgRoles,
     spacesVisibleToUser,
   ] = await Promise.all([
     cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
     cf.organization(params.organizationGUID),
     cf.usersForOrganization(params.organizationGUID),
     cf.orgSpaces(params.organizationGUID),
@@ -276,30 +257,19 @@ export async function listUsers(ctx: IContext, params: IParameters): Promise<IRe
     .value()
   ;
 
-  const userHasLoginMapping: { [key: string]: boolean } = lodash
-    .chain(userOrgRoles.map(u => u.metadata.guid))
-    .keyBy(id => id)
-    .mapValues(id => uaaUsers.findIndex(u => u ? u.id === id : false) >= 0)
-  .value();
-
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+  const template = new Template(ctx.viewContext, 'Team members');
+  template.breadcrumbs = fromOrg(ctx, organization, [
     { text: 'Team members' },
   ]);
 
   return {
-    body: orgUsersTemplate.render({
-      routePartOf: ctx.routePartOf,
-      context: ctx.viewContext,
-      isAdmin,
-      isManager,
-      isBillingManager,
-      linkTo: ctx.linkTo,
-      users,
-      userOriginMapping,
-      organization,
-      userHasLoginMapping,
-      breadcrumbs,
-    }),
+    body: template.render(<OrganizationUsersPage
+      linkTo={ctx.linkTo}
+      organizationGUID={organization.metadata.guid}
+      privileged={isAdmin || isManager}
+      users={users}
+      userOriginMapping={userOriginMapping}
+    />),
   };
 }
 
@@ -311,11 +281,7 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-
-  const [isManager, isBillingManager] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
-  ]);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -328,46 +294,29 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
   ]);
 
   /* istanbul ignore next */
-  const values: IRoleValues = {
+  const formValues: IRoleValues = {
     org_roles: {
-      [params.organizationGUID]: {
-        billing_managers: {
-          current: '0',
-          desired: '0',
-        },
-        managers: {
-          current: '0',
-          desired: '0',
-        },
-        auditors: {
-          current: '0',
-          desired: '0',
-        },
+      [organization.metadata.guid]: {
+        billing_managers: { current: false, desired: false },
+        managers: { current: false, desired: false },
+        auditors: { current: false, desired: false },
       },
     },
     space_roles: await spaces.reduce(async (next: Promise<any>, space: ISpace) => {
       const spaceRoles = await next;
 
       spaceRoles[space.metadata.guid] = {
-        managers: {
-          current: '0',
-          desired: '0',
-        },
-        developers: {
-          current: '0',
-          desired: '0',
-        },
-        auditors: {
-          current: '0',
-          desired: '0',
-        },
+        managers: { current: false, desired: false },
+        developers: { current: false, desired: false },
+        auditors: { current: false, desired: false },
       };
 
       return spaceRoles;
     }, Promise.resolve({})),
   };
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+  const template = new Template(ctx.viewContext, 'Invite a new team member');
+  template.breadcrumbs = fromOrg(ctx, organization, [
     {
       text: 'Team members',
       href: ctx.linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}),
@@ -376,19 +325,13 @@ export async function inviteUserForm(ctx: IContext, params: IParameters): Promis
   ]);
 
   return {
-    body: inviteTemplate.render({
-      errors: [],
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      organization,
-      spaces,
-      values,
-      isAdmin,
-      isBillingManager,
-      isManager,
-      breadcrumbs,
-    }),
+    body: template.render(<InvitePage
+      csrf={ctx.viewContext.csrf}
+      linkTo={ctx.linkTo}
+      organization={organization}
+      spaces={spaces}
+      values={formValues}
+    />),
   };
 }
 
@@ -399,11 +342,22 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
     logger: ctx.app.logger,
   });
 
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
+  const accounts = new AccountsClient({
+    apiEndpoint: ctx.app.accountsAPI,
+    secret: ctx.app.accountsSecret,
+    logger: ctx.app.logger,
+  });
+
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-  const [isManager, isBillingManager] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
-  ]);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -414,47 +368,25 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
     cf.organization(params.organizationGUID),
     cf.orgSpaces(params.organizationGUID),
   ]);
-  const errors = [];
-  const values: IUserPostBody = merge({
+  const errors: IValidationError[] = [];
+  const userBody: IUserPostBody = merge({
     org_roles: {[params.organizationGUID]: {}},
     space_roles: {},
   }, body);
 
   try {
-    if (!VALID_EMAIL.test(values.email)) {
-      errors.push({field: 'email', message: 'a valid email address is required'});
-    }
-
-    if (Object.keys(values.org_roles[params.organizationGUID]).length === 0
-      && Object.keys(values.space_roles).length === 0) {
-      errors.push({field: 'roles', message: 'at least one role should be selected'});
-    }
-
+    errors.push(...validateValues(userBody));
     if (errors.length > 0) {
       throw new ValidationError(errors);
     }
 
-    const uaa = new UAAClient({
-      apiEndpoint: ctx.app.uaaAPI,
-      clientCredentials: {
-        clientID: ctx.app.oauthClientID,
-        clientSecret: ctx.app.oauthClientSecret,
-      },
-    });
-
-    const accounts = new AccountsClient({
-      apiEndpoint: ctx.app.accountsAPI,
-      secret: ctx.app.accountsSecret,
-      logger: ctx.app.logger,
-    });
-
-    const uaaUser = await uaa.findUser(values.email);
+    const uaaUser = await uaa.findUser(userBody.email!);
     let userGUID = uaaUser && uaaUser.id;
     let invitation: IUaaInvitation | undefined;
 
     if (!userGUID) {
       invitation = await uaa.inviteUser(
-        values.email,
+        userBody.email!,
         'user_invitation',
         encodeURIComponent('https://www.cloud.service.gov.uk/next-steps?success'),
       );
@@ -466,7 +398,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
 
       userGUID = invitation.userId;
 
-      await accounts.createUser(userGUID, values.email, values.email);
+      await accounts.createUser(userGUID, userBody.email!, userBody.email!);
     }
 
     const users = await cf.usersForOrganization(params.organizationGUID);
@@ -480,6 +412,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
 
     await cf.assignUserToOrganization(params.organizationGUID, userGUID);
 
+    /* istanbul ignore next */
     await setAllUserRolesForOrg(
       cf,
       {
@@ -487,8 +420,8 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
         userGUID,
       },
       {
-        org: values.org_roles,
-        space: values.space_roles,
+        org: userBody.org_roles || {},
+        space: userBody.space_roles || {},
       },
     );
 
@@ -502,7 +435,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
           },
         });
 
-        await notify.sendWelcomeEmail(values.email, {
+        await notify.sendWelcomeEmail(userBody.email!, {
           organisation: organization.entity.name,
           url: invitation.inviteLink,
           location: ctx.app.location,
@@ -513,36 +446,34 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
       }
     }
 
+    const template = new Template(ctx.viewContext, 'Invited a new team member');
+
     return {
-      body: inviteSuccessTemplate.render({
-        errors,
-        routePartOf: ctx.routePartOf,
-        linkTo: ctx.linkTo,
-        context: ctx.viewContext,
-        organization,
-        isAdmin,
-        isBillingManager,
-        isManager,
-      }),
+      body: template.render(<SuccessPage linkTo={ctx.linkTo} organizationGUID={organization.metadata.guid}>
+        We have sent your invitation
+      </SuccessPage>),
     };
   } catch (err) {
     /* istanbul ignore next */
     if (err instanceof ValidationError) {
+      const template = new Template(ctx.viewContext, 'Invite a new team member');
+      template.breadcrumbs = fromOrg(ctx, organization, [
+        {
+          text: 'Team members',
+          href: ctx.linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}),
+        },
+        { text: 'Invite a new team member' },
+      ]);
+
       return {
-        body: inviteTemplate.render({
-          routePartOf: ctx.routePartOf,
-          linkTo: ctx.linkTo,
-          context: ctx.viewContext,
-          errors: err.errors,
-          organization,
-          spaces,
-          values,
-          isAdmin,
-          isBillingManager,
-          isManager,
-          managers: [undefined, undefined],
-          billing_managers: [undefined, undefined],
-        }),
+        body: template.render(<InvitePage
+          csrf={ctx.viewContext.csrf}
+          errors={err.errors}
+          linkTo={ctx.linkTo}
+          organization={organization}
+          spaces={spaces}
+          values={parseValues(userBody)}
+        />),
         status: 400,
       };
     }
@@ -624,14 +555,12 @@ export async function resendInvitation(ctx: IContext, params: IParameters, _: ob
     location: ctx.app.location,
   });
 
+  const template = new Template(ctx.viewContext, 'Invited a new team member');
+
   return {
-    body: inviteSuccessTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      errors: [],
-      organization,
-    }),
+    body: template.render(<SuccessPage linkTo={ctx.linkTo} organizationGUID={organization.metadata.guid}>
+      We have sent your invitation
+    </SuccessPage>),
   };
 }
 
@@ -657,10 +586,7 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-  const [isManager, isBillingManager] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
-  ]);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
 
   const users = await cf.usersForOrganization(params.organizationGUID);
   const managers = users.filter((manager: IOrganizationUserRoles) =>
@@ -700,20 +626,20 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
   }
 
   /* istanbul ignore next */
-  const values: IRoleValues = {
+  const formValues: IRoleValues = {
     org_roles: {
       [params.organizationGUID]: {
         billing_managers: {
-          current: user.entity.organization_roles.includes('billing_manager') ? '1' : '0',
-          desired: user.entity.organization_roles.includes('billing_manager') ? '1' : '0',
+          current: user.entity.organization_roles.includes('billing_manager'),
+          desired: user.entity.organization_roles.includes('billing_manager'),
         },
         managers: {
-          current: user.entity.organization_roles.includes('org_manager') ? '1' : '0',
-          desired: user.entity.organization_roles.includes('org_manager') ? '1' : '0',
+          current: user.entity.organization_roles.includes('org_manager'),
+          desired: user.entity.organization_roles.includes('org_manager'),
         },
         auditors: {
-          current: user.entity.organization_roles.includes('org_auditor') ? '1' : '0',
-          desired: user.entity.organization_roles.includes('org_auditor') ? '1' : '0',
+          current: user.entity.organization_roles.includes('org_auditor'),
+          desired: user.entity.organization_roles.includes('org_auditor'),
         },
       },
     },
@@ -724,16 +650,16 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
 
       spaceRoles[space.metadata.guid] = {
         managers: {
-          current: usr && usr.entity.space_roles.includes('space_manager') ? '1' : '0',
-          desired: usr && usr.entity.space_roles.includes('space_manager') ? '1' : '0',
+          current: usr?.entity.space_roles.includes('space_manager'),
+          desired: usr?.entity.space_roles.includes('space_manager'),
         },
         developers: {
-          current: usr && usr.entity.space_roles.includes('space_developer') ? '1' : '0',
-          desired: usr && usr.entity.space_roles.includes('space_developer') ? '1' : '0',
+          current: usr?.entity.space_roles.includes('space_developer'),
+          desired: usr?.entity.space_roles.includes('space_developer'),
         },
         auditors: {
-          current: usr && usr.entity.space_roles.includes('space_auditor') ? '1' : '0',
-          desired: usr && usr.entity.space_roles.includes('space_auditor') ? '1' : '0',
+          current: usr?.entity.space_roles.includes('space_auditor'),
+          desired: usr?.entity.space_roles.includes('space_auditor'),
         },
       };
 
@@ -741,7 +667,8 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
     }, Promise.resolve({})),
   };
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+  const template = new Template(ctx.viewContext, 'Update a team member');
+  template.breadcrumbs = fromOrg(ctx, organization, [
     {
       text: 'Team members',
       href: ctx.linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}),
@@ -751,24 +678,19 @@ export async function editUser(ctx: IContext, params: IParameters): Promise<IRes
 
   /* istanbul ignore next */
   return {
-    body: editTemplate.render({
-      isActive: uaaUser.active && uaaUser.verified,
-      errors: [],
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      managers,
-      billingManagers,
-      organization,
-      spaces,
-      user,
-      email: accountsUser.email,
-      values,
-      isAdmin,
-      isBillingManager,
-      isManager,
-      breadcrumbs,
-    }),
+    body: template.render(<EditPage
+      billingManagers={billingManagers.length}
+      csrf={ctx.viewContext.csrf}
+      email={accountsUser.email}
+      errors={[]}
+      isActive={uaaUser.active && uaaUser.verified}
+      linkTo={ctx.linkTo}
+      managers={managers.length}
+      organization={organization}
+      spaces={spaces}
+      user={user}
+      values={formValues}
+    />),
   };
 }
 
@@ -779,11 +701,22 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
     logger: ctx.app.logger,
   });
 
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
+  const accountsClient = new AccountsClient({
+    apiEndpoint: ctx.app.accountsAPI,
+    secret: ctx.app.accountsSecret,
+    logger: ctx.app.logger,
+  });
+
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-  const [isManager, isBillingManager] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
-  ]);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -795,24 +728,24 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
     cf.orgSpaces(params.organizationGUID),
     cf.usersForOrganization(params.organizationGUID),
   ]);
-  const errors = [];
-  const values: IUserPostBody = merge({
+  const errors: IValidationError[] = [];
+  const userBody: IUserPostBody = merge({
     org_roles: {[params.organizationGUID]: {}},
     space_roles: {},
   }, body);
 
   const user = orgUsers.find((u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
+  if (!user) {
+    throw new NotFoundError('user not found in CF');
+  }
 
   try {
-    if (Object.keys(values.org_roles[params.organizationGUID]).length === 0
-      && Object.keys(values.space_roles).length === 0) {
-      errors.push({field: 'roles', message: 'at least one role should be selected'});
-    }
-
+    errors.push(...validateValues({...userBody, email: user.entity.username}));
     if (errors.length > 0) {
       throw new ValidationError(errors);
     }
 
+    /* istanbul ignore next */
     await setAllUserRolesForOrg(
       cf,
       {
@@ -820,39 +753,62 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
         userGUID: params.userGUID,
       },
       {
-        org: values.org_roles,
-        space: values.space_roles,
+        org: userBody.org_roles || {},
+        space: userBody.space_roles || {},
       },
     );
 
+    const template = new Template(ctx.viewContext, 'Updated a team member');
+
     return {
-      body: editSuccessTemplate.render({
-        routePartOf: ctx.routePartOf,
-        linkTo: ctx.linkTo,
-        context: ctx.viewContext,
-        organization,
-        isAdmin,
-        isBillingManager,
-        isManager,
-      }),
+      body: template.render(<SuccessPage linkTo={ctx.linkTo} organizationGUID={organization.metadata.guid}>
+        We have updated the user
+      </SuccessPage>),
     };
   } catch (err) {
     /* istanbul ignore next */
     if (err instanceof ValidationError) {
+      const users = await cf.usersForOrganization(params.organizationGUID);
+      const managers = users.filter((manager: IOrganizationUserRoles) =>
+        manager.entity.organization_roles.some(role => role === 'org_manager'),
+      );
+      const billingManagers = users.filter((manager: IOrganizationUserRoles) =>
+        manager.entity.organization_roles.some(role => role === 'billing_manager'),
+      );
+
+      const uaaUser = await uaa.getUser(user.metadata.guid);
+      const accountsUser = await accountsClient.getUser(params.userGUID);
+      if (!accountsUser) {
+        ctx.app.logger.warn(
+          `user ${uaaUser.id} was found in UAA and CF, but not in paas-accounts. ` +
+          `Was the user created incorrectly? They should be invited via paas-admin`,
+        );
+        throw new NotFoundError('user not found in paas-accounts');
+      }
+
+      const template = new Template(ctx.viewContext, 'Update a team member');
+      template.breadcrumbs = fromOrg(ctx, organization, [
+        {
+          text: 'Team members',
+          href: ctx.linkTo('admin.organizations.users', {organizationGUID: organization.metadata.guid}),
+        },
+        { text: accountsUser.email },
+      ]);
+
       return {
-        body: editTemplate.render({
-          routePartOf: ctx.routePartOf,
-          linkTo: ctx.linkTo,
-          context: ctx.viewContext,
-          errors: err.errors,
-          organization,
-          spaces,
-          user,
-          values,
-          isAdmin,
-          isBillingManager,
-          isManager,
-        }),
+        body: template.render(<EditPage
+          billingManagers={billingManagers.length}
+          csrf={ctx.viewContext.csrf}
+          email={accountsUser.email}
+          errors={err.errors}
+          isActive={uaaUser.active && uaaUser.verified}
+          linkTo={ctx.linkTo}
+          managers={managers.length}
+          organization={organization}
+          spaces={spaces}
+          user={user}
+          values={parseValues(userBody)}
+        />),
         status: 400,
       };
     }
@@ -870,14 +826,11 @@ export async function confirmDeletion(ctx: IContext, params: IParameters): Promi
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-  const [isManager, isBillingManager] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
-  ]);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
-    throw new NotFoundError('not found');
+    throw new NotFoundError('User not found');
   }
 
   const [organization, orgUsers] = await Promise.all([
@@ -885,18 +838,19 @@ export async function confirmDeletion(ctx: IContext, params: IParameters): Promi
     cf.usersForOrganization(params.organizationGUID),
   ]);
   const user = orgUsers.find((u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID);
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+
+  const template = new Template(ctx.viewContext, 'Confirm user deletion');
 
   return {
-    body: deleteTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      organization,
-      user,
-      isAdmin,
-      isBillingManager,
-      isManager,
-    }),
+    body: template.render(<DeleteConfirmationPage
+      csrf={ctx.viewContext.csrf}
+      linkTo={ctx.linkTo}
+      organizationGUID={organization.metadata.guid}
+      user={user}
+    />),
   };
 }
 
@@ -908,10 +862,7 @@ export async function deleteUser(ctx: IContext, params: IParameters, _: object):
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
-  const [isManager, isBillingManager] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
-  ]);
+  const isManager = await cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager');
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -927,15 +878,43 @@ export async function deleteUser(ctx: IContext, params: IParameters, _: object):
     false,
   );
 
+  const template = new Template(ctx.viewContext, 'Deleted a team member');
+
   return {
-    body: deleteSuccessTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      organization,
-      isAdmin,
-      isBillingManager,
-      isManager,
+    body: template.render(<SuccessPage linkTo={ctx.linkTo} organizationGUID={organization.metadata.guid}>
+      We have unassigned this member from your organisation.
+    </SuccessPage>),
+  };
+}
+
+function validateValues(body: IUserPostBody): ReadonlyArray<IValidationError> {
+  const errors: IValidationError[] = [];
+
+  if (!body.email || !VALID_EMAIL.test(body.email)) {
+    errors.push({field: 'email', message: 'a valid email address is required'});
+  }
+
+  const orgRolesSelected = values(body.org_roles).some(permissions => values(permissions).some(x => x.desired === '1'));
+  const spaceRolesSelected = values(body.space_roles).some(permissions => values(permissions).some(x => x.desired === '1'));
+  if (!orgRolesSelected && !spaceRolesSelected) {
+    errors.push({field: 'roles', message: 'at least one role should be selected'});
+  }
+
+  return errors;
+}
+
+function parseValues(body: IUserPostBody) {
+  const convert = (roles: IPostPermissions) => mapValues(roles, permissions =>
+    mapValues(permissions, state => ({
+      current: state.current === '1',
+      desired: state.desired === '1',
     }),
+  ));
+
+  /* istanbul ignore next */
+  return {
+    email: body.email,
+    org_roles: convert(body.org_roles || {}),
+    space_roles: convert(body.space_roles || {}),
   };
 }

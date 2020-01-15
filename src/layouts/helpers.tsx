@@ -33,3 +33,7 @@ export function bytesToHuman(startingBytes: number): ReactElement {
 export function conditionallyDisplay(b: boolean, element: ReactElement): ReactElement | undefined {
   return b ? element : undefined;
 }
+
+export function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}

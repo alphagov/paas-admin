@@ -2,7 +2,7 @@ import { shallow } from 'enzyme';
 import React from 'react';
 
 import { GIBIBYTE, KIBIBYTE, MEBIBYTE, TEBIBYTE } from './constants';
-import { bytesToHuman, conditionallyDisplay, percentage } from './helpers';
+import { bytesToHuman, capitalize, conditionallyDisplay, percentage } from './helpers';
 
 describe(percentage, () => {
   it('should do the right thing', () => {
@@ -34,5 +34,11 @@ describe(conditionallyDisplay, () => {
 
     expect(shallow(OK).html()).toEqual('<p>OK</p>');
     expect(notOK).toBeUndefined();
+  });
+});
+
+describe(capitalize, () => {
+  it('should do the right thing', () => {
+    expect(capitalize('test')).toEqual('Test');
   });
 });

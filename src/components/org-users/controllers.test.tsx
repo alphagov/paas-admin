@@ -4,6 +4,7 @@ import nock from 'nock';
 
 import * as orgUsers from '.';
 
+import { testSpacing } from '../../layouts/react-spacing.test';
 import * as cfData from '../../lib/cf/cf.test.data';
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
@@ -56,14 +57,14 @@ describe('org-users test suite', () => {
       .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/user_roles')
       .reply(200, cfData.userRolesForSpace)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
     ;
 
@@ -101,7 +102,7 @@ describe('org-users test suite', () => {
     ;
 
     const response = await orgUsers.listUsers(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
     });
 
     expect(response.body).toContain('Team members');
@@ -109,9 +110,10 @@ describe('org-users test suite', () => {
     expect(response.body).toContain('Custom-origin-1');
     expect(response.body).toContain('Custom-origin-2');
     expect(response.body).toContain('Custom-origin-3');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
-  it('should not show users who don\'t have UAA accounts', async () => {
+  it('should not show users who do not have UAA accounts', async () => {
     nockCF
       .get('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/user_roles')
       .reply(200, cfData.userRolesForSpace)
@@ -119,14 +121,14 @@ describe('org-users test suite', () => {
       .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/user_roles')
       .reply(200, cfData.userRolesForSpace)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
     ;
 
@@ -162,7 +164,7 @@ describe('org-users test suite', () => {
 
     try {
       const response = await orgUsers.listUsers(ctx, {
-        organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+        organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       });
 
       expect(response.body).not.toBeFalsy();
@@ -174,29 +176,29 @@ describe('org-users test suite', () => {
 
   it('should show the invite page', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(1)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
     ;
 
     const response = await orgUsers.inviteUserForm(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
     });
 
     expect(response.body).toContain('Invite a new team member');
-    expect(response.body).not.toContain('[object Object]');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should show error message when email is missing', async () => {
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
-      .times(2)
+      .times(1)
       .reply(200, cfData.userRolesForOrg)
 
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
@@ -212,16 +214,20 @@ describe('org-users test suite', () => {
       org_roles: {
         'a7aff246-5f5b-4cf8-87d8-f316053e4a20': {
           managers: {
-            current: 1,
+            current: '1',
           },
           billing_managers: {
-            current: 0,
+            current: '0',
           },
           auditors: {
-            current: 0,
-            desired: 1,
+            current: '0',
+            desired: '1',
           },
         },
+      },
+      space_roles: {
+        '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
@@ -232,30 +238,40 @@ describe('org-users test suite', () => {
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers]"]:disabled').length).toEqual(0);
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][billing_managers]"]:checked').length).toEqual(0);
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][auditors]"]:checked').length).toEqual(1);
-    expect(response.body).not.toContain('[object Object]');
     expect(response.status).toEqual(400);
+    expect(testSpacing(response.body as string)).toHaveLength(0);
     // tslint:enable:max-line-length
   });
 
   it('should show error message when email is invalid according to our regex', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(1)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
     ;
 
     const response = await orgUsers.inviteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-    }, {email: 'x'});
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+    }, {
+      email: 'x',
+      org_roles: {
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({}),
+      },
+      space_roles: {
+        '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
+      },
+    });
 
     expect(response.body).toContain('a valid email address is required');
     expect(response.status).toEqual(400);
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should show error message when invitee is already a member of org', async () => {
@@ -268,102 +284,23 @@ describe('org-users test suite', () => {
     ;
 
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
     ;
 
     const response = await orgUsers.inviteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
     }, {
       email: 'imeCkO@test.org',
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
-          billing_managers: {
-            current: '0',
-            desired: '1',
-          },
-        }),
-      },
-    });
-
-    expect(response.body).toContain('is already a member of the organisation');
-    expect(response.body).not.toContain('[object Object]');
-    expect(response.status).toEqual(400);
-  });
-
-  it('should show error when no roles selected', async () => {
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, cfData.userRolesForOrg)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
-      .reply(200, cfData.spaces)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()))
-    ;
-
-    const response = await orgUsers.inviteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-    }, {email: 'jeff@jeff.com'});
-
-    expect(response.body).toContain('at least one role should be selected');
-    expect(response.status).toEqual(400);
-  });
-
-  it('should invite the user, set BillingManager role and show success', async () => {
-    // tslint:disable:max-line-length
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
-      .reply(200, cfData.userRolesForOrg)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
-      .times(2)
-      .reply(200, cfData.spaces)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()))
-
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
-      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
-
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
-      .reply(200, `{}`)
-    ;
-    // tslint:enable:max-line-length
-
-    nockAccounts
-      .post('/users/').reply(201)
-    ;
-
-    // tslint:disable:max-line-length
-    nockUAA
-      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation')
-      .reply(200, uaaData.invite)
-
-      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
-      .reply(200, uaaData.noFoundUsersByEmail)
-
-      .post('/oauth/token?grant_type=client_credentials')
-      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
-    ;
-    // tslint:enable:max-line-length
-
-    const response = await orgUsers.inviteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-    }, {
-      email: 'jeff@jeff.com',
-      org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
           billing_managers: {
             current: '0',
             desired: '1',
@@ -372,30 +309,125 @@ describe('org-users test suite', () => {
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
+      },
+    });
+
+    expect(response.body).toContain('is already a member of the organisation');
+    expect(response.status).toEqual(400);
+    expect(testSpacing(response.body as string)).toHaveLength(0);
+  });
+
+  it('should show error when no roles selected', async () => {
+    nockCF
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(1)
+      .reply(200, cfData.userRolesForOrg)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
+      .reply(200, cfData.spaces)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
+      .reply(200, JSON.stringify(defaultOrg()))
+    ;
+
+    const response = await orgUsers.inviteUser(ctx, {
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+    }, {
+      email: 'jeff@jeff.com',
+      org_roles: {
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({}),
+      },
+      space_roles: {
+        '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
+      },
+    });
+
+    expect(response.body).toContain('at least one role should be selected');
+    expect(response.status).toEqual(400);
+    expect(testSpacing(response.body as string)).toHaveLength(0);
+  });
+
+  it('should invite the user, set BillingManager role and show success', async () => {
+    // tslint:disable:max-line-length
+    nockCF
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
+      .reply(200, cfData.userRolesForOrg)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
+      .times(2)
+      .reply(200, cfData.spaces)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
+      .reply(200, JSON.stringify(defaultOrg()))
+
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
+      .reply(201, `{"metadata": {"guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20"}}`)
+
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
+      .reply(200, `{}`)
+    ;
+    // tslint:enable:max-line-length
+
+    nockAccounts
+      .post('/users/').reply(201)
+    ;
+
+    // tslint:disable:max-line-length
+    nockUAA
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation')
+      .reply(200, uaaData.invite)
+
+      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
+      .reply(200, uaaData.noFoundUsersByEmail)
+
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+    ;
+    // tslint:enable:max-line-length
+
+    const response = await orgUsers.inviteUser(ctx, {
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+    }, {
+      email: 'jeff@jeff.com',
+      org_roles: {
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
+          billing_managers: {
+            current: '0',
+            desired: '1',
+          },
+        }),
+      },
+      space_roles: {
+        '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Invited a new team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, set OrgManager role and show success', async () => {
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
-      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
+      .reply(201, `{"metadata": {"guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20"}}`)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
       .reply(200, `{}`)
     ;
 
@@ -416,11 +448,11 @@ describe('org-users test suite', () => {
     ;
 
     const response = await orgUsers.inviteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
     }, {
       email: 'jeff@jeff.com',
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
           managers: {
             current: '0',
             desired: '1',
@@ -429,30 +461,32 @@ describe('org-users test suite', () => {
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Invited a new team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, set OrgAuditor role and show success', async () => {
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
-      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
+      .reply(201, `{"metadata": {"guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20"}}`)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
       .reply(200, `{}`)
     ;
 
@@ -472,11 +506,11 @@ describe('org-users test suite', () => {
     // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
     }, {
       email: 'jeff@jeff.com',
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
           auditors: {
             current: '0',
             desired: '1',
@@ -485,28 +519,30 @@ describe('org-users test suite', () => {
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Invited a new team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, set SpaceManager role and show success', async () => {
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
-      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
+      .reply(201, `{"metadata": {"guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20"}}`)
 
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(200, `{}`)
@@ -529,11 +565,11 @@ describe('org-users test suite', () => {
     // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
     }, {
       email: 'jeff@jeff.com',
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({}),
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({}),
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({
@@ -542,28 +578,30 @@ describe('org-users test suite', () => {
             desired: '1',
           },
         }),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Invited a new team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, set SpaceDeveloper role and show success', async () => {
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
-      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
+      .reply(201, `{"metadata": {"guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20"}}`)
 
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(200, `{}`)
@@ -586,11 +624,11 @@ describe('org-users test suite', () => {
     // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
     }, {
       email: 'jeff@jeff.com',
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({}),
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({}),
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({
@@ -599,28 +637,30 @@ describe('org-users test suite', () => {
             desired: '1',
           },
         }),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Invited a new team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, set SpaceAuditor role and show success', async () => {
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
-      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
+      .reply(201, `{"metadata": {"guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20"}}`)
 
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
       .reply(200, `{}`)
@@ -643,11 +683,11 @@ describe('org-users test suite', () => {
     // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
     }, {
       email: 'jeff@jeff.com',
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({}),
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({}),
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({
@@ -656,30 +696,32 @@ describe('org-users test suite', () => {
             desired: '1',
           },
         }),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Invited a new team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, and add them to accounts', async () => {
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
-      .reply(201, `{"metadata": {"guid": "3deb9f04-b449-4f94-b3dd-c73cefe5b275"}}`)
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
+      .reply(201, `{"metadata": {"guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20"}}`)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
       .reply(200, `{}`)
     ;
 
@@ -700,11 +742,11 @@ describe('org-users test suite', () => {
     // tslint:enable:max-line-length
 
     await orgUsers.inviteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
     }, {
       email: 'jeff@jeff.com',
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
           billing_managers: {
             current: '0',
             desired: '1',
@@ -713,22 +755,23 @@ describe('org-users test suite', () => {
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
   });
 
   it('should fail if the user does not exist in org', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
       .reply(200, cfData.userRolesForOrg)
     ;
 
     await expect(orgUsers.resendInvitation(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'not-existing-user',
     }, {})).rejects.toThrow(/user not found/);
   });
@@ -757,62 +800,80 @@ describe('org-users test suite', () => {
     ;
 
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
     ;
     // tslint:enable:max-line-length
 
     const response = await orgUsers.resendInvitation(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-id-253',
     }, {});
 
     expect(response.body).toContain('Invited a new team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should show the user delete page', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
     ;
 
     const response = await orgUsers.confirmDeletion(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
     });
 
     expect(response.body).toContain('Confirm user deletion');
   });
 
-  it('should update the user, set BillingManager role and show success - User Edit', async () => {
+  it('should throw a not found error when API returns none matching users', async () => {
+    nockCF
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
+      .reply(200, cfData.userRolesForOrg)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
+      .reply(200, JSON.stringify(defaultOrg()))
+    ;
+
+    await expect(orgUsers.confirmDeletion(ctx, {
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      userGUID: 'NOT-EXISTING',
+    })).rejects.toThrowError('User not found');
+  });
+
+  it('should update the user, set BillingManager role and show success - User Delete', async () => {
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
+      .delete('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true')
       .reply(200, {})
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(1)
       .reply(200, cfData.userRolesForOrg)
     ;
     // tslint:enable:max-line-length
 
     const response = await orgUsers.deleteUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: '5ff19d4c-8fa0-4d74-94e0-52eac86d55a8',
     }, {});
 
     expect(response.body).toContain('Deleted a team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should show the user edit page', async () => {
@@ -845,7 +906,7 @@ describe('org-users test suite', () => {
       .reply(200, JSON.stringify(defaultOrg()))
 
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
-      .times(4)
+      .times(3)
       .reply(200, cfData.userRolesForOrg)
     ;
 
@@ -861,7 +922,7 @@ describe('org-users test suite', () => {
     expect(response.body).toContain('one@user.in.database');
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers]"]:disabled').length).toEqual(0);
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20]"]:checked').length).toEqual(3);
-    expect(response.body).not.toContain('[object Object]');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
     // tslint:enable:max-line-length
   });
 
@@ -895,7 +956,7 @@ describe('org-users test suite', () => {
       .reply(200, JSON.stringify(defaultOrg()))
 
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
-      .times(4)
+      .times(3)
       .reply(200, cfData.userRolesForOrgWithOneManager)
     ;
 
@@ -913,25 +974,25 @@ describe('org-users test suite', () => {
     expect($('input[type="hidden"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers][desired]"]').length).toEqual(1);
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][billing_managers]"]:disabled').length).toEqual(1);
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20]"]:checked').length).toEqual(3);
-    expect(response.body).not.toContain('[object Object]');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
     // tslint:enable:max-line-length
   });
 
   it('should fail to show the user edit page due to not existing user', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(4)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(3)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
     ;
 
     await expect(orgUsers.editUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'not-existing-user',
     })).rejects.toThrow(/user not found/);
   });
@@ -951,70 +1012,120 @@ describe('org-users test suite', () => {
     ;
 
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(4)
-      .reply(200, cfData.userRolesForOrg)
-    ;
-
-    await expect(orgUsers.editUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-      userGUID: 'uaa-user-edit-123456',
-    })).rejects.toThrow(/user not found/);
-  });
-
-  it('should show error when no roles selected - User Edit', async () => {
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
-      .reply(200, cfData.spaces)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()))
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(3)
       .reply(200, cfData.userRolesForOrg)
     ;
 
-    const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+    await expect(orgUsers.editUser(ctx, {
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
-    }, {test: 'qwerty123456'});
+    })).rejects.toThrow(/user not found/);
+  });
+
+  it('should show error when user does not exist in CF - User Edit', async () => {
+    nockCF
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
+      .reply(200, cfData.spaces)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
+      .reply(200, JSON.stringify(defaultOrg()))
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
+      .reply(200, cfData.userRolesForOrg)
+    ;
+
+    await expect(orgUsers.updateUser(ctx, {
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      userGUID: 'NOT_FOUND',
+    }, {})).rejects.toThrowError(/user not found in CF/);
+  });
+
+  it('should show error when no roles selected - User Edit', async () => {
+    nockCF
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
+      .reply(200, cfData.spaces)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
+      .reply(200, JSON.stringify(defaultOrg()))
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(3)
+      .reply(200, cfData.userRolesForOrg)
+    ;
+
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .times(1)
+      .reply(200, `{"access_token": "FAKE_ACCESS_TOKEN"}`)
+
+      .get('/Users/uaa-user-edit-123456')
+      .reply(200, JSON.stringify({
+        ...JSON.parse(uaaData.user),
+        id: 'uaa-user-edit-123456',
+        origin: 'custom-origin-1',
+      }))
+    ;
+
+    nockAccounts
+      .get('/users/uaa-user-edit-123456').reply(200, `{
+        "user_uuid": "uaa-user-edit-123456",
+        "user_email": "one@user.in.database",
+        "username": "one@user.in.database"
+      }`)
+    ;
+
+    const response = await orgUsers.updateUser(ctx, {
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      userGUID: 'uaa-user-edit-123456',
+    }, {
+      email: 'jeff@jefferson.com',
+      org_roles: {
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({}),
+      },
+      space_roles: {
+        '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
+      },
+    });
 
     expect(response.body).toContain('at least one role should be selected');
     expect(response.status).toEqual(400);
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set BillingManager role and show success - User Edit', async () => {
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/uaa-user-edit-123456?recursive=true')
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/uaa-user-edit-123456?recursive=true')
       .reply(200, `{}`)
     ;
     // tslint:enable:max-line-length
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
           billing_managers: {
             current: '0',
             desired: '1',
@@ -1023,37 +1134,43 @@ describe('org-users test suite', () => {
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Updated a team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, remove BillingManager role and show success - User Edit', async () => {
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/billing_managers/uaa-user-changeperms-123456?recursive=true')
+      .delete('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/uaa-id-253?recursive=true')
       .reply(200, `{}`)
     ;
     // tslint:enable:max-line-length
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-      userGUID: 'uaa-user-changeperms-123456',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      userGUID: 'uaa-id-253',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
+          managers: {
+            current: '1',
+            desired: '1',
+          },
           billing_managers: {
             current: '1',
           },
@@ -1061,34 +1178,36 @@ describe('org-users test suite', () => {
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
     expect(response.body).toContain('Updated a team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set OrgManager role and show success - User Edit', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-edit-123456?recursive=true')
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/managers/uaa-user-edit-123456?recursive=true')
       .reply(200, `{}`)
     ;
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
           managers: {
             current: '0',
             desired: '1',
@@ -1097,6 +1216,7 @@ describe('org-users test suite', () => {
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
@@ -1106,28 +1226,28 @@ describe('org-users test suite', () => {
   it('should update the user, remove OrgManager role and show success - User Edit', async () => {
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-changeperms-123456?recursive=true')
+      .delete('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/managers/uaa-user-changeperms-123456?recursive=true')
       .reply(200, `{}`)
     ;
     // tslint:enable:max-line-length
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-changeperms-123456',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
           managers: {
             current: '1',
           },
@@ -1139,34 +1259,36 @@ describe('org-users test suite', () => {
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
     expect(response.body).toContain('Updated a team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set OrgAuditor role and show success - User Edit', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/uaa-user-edit-123456?recursive=true')
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/auditors/uaa-user-edit-123456?recursive=true')
       .reply(200, `{}`)
     ;
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
           auditors: {
             current: '0',
             desired: '1',
@@ -1175,37 +1297,43 @@ describe('org-users test suite', () => {
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Updated a team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, remove OrgAuditor role and show success - User Edit', async () => {
     // tslint:disable:max-line-length
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
-      .delete('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/auditors/uaa-user-changeperms-123456?recursive=true')
+      .delete('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/auditors/uaa-id-253?recursive=true')
       .reply(200, `{}`)
     ;
     // tslint:enable:max-line-length
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-      userGUID: 'uaa-user-changeperms-123456',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      userGUID: 'uaa-id-253',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
+          managers: {
+            current: '1',
+            desired: '1',
+          },
           auditors: {
             current: '1',
           },
@@ -1213,22 +1341,24 @@ describe('org-users test suite', () => {
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Updated a team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set SpaceManager role and show success - User Edit', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
@@ -1237,11 +1367,11 @@ describe('org-users test suite', () => {
     ;
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({}),
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({}),
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({
@@ -1250,22 +1380,24 @@ describe('org-users test suite', () => {
             desired: '1',
           },
         }),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Updated a team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set SpaceDeveloper role and show success - User Edit', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
@@ -1274,11 +1406,11 @@ describe('org-users test suite', () => {
     ;
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({}),
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({}),
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({
@@ -1287,22 +1419,24 @@ describe('org-users test suite', () => {
             desired: '1',
           },
         }),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Updated a team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set SpaceAuditor role and show success - User Edit', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
@@ -1311,11 +1445,11 @@ describe('org-users test suite', () => {
     ;
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({}),
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({}),
       },
       space_roles: {
         '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({
@@ -1324,9 +1458,11 @@ describe('org-users test suite', () => {
             desired: '1',
           },
         }),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 
     expect(response.body).toContain('Updated a team member');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 });

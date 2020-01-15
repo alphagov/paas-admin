@@ -1,1 +1,1 @@
-export * from './org-users';
+export * from './controllers';
