@@ -467,6 +467,82 @@ describe('service metrics test suite', () => {
     expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
   });
 
+  it('should download an elasticsearch csv', async () => {
+    nock('https://example.com/prom')
+      .get('/api/v1/query_range')
+      .query(true)
+      .times(elasticsearchMetricNames.length)
+      .reply(200, getStubPrometheusMetricsSeriesData(['001', '002']))
+    ;
+
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'elasticsearch',
+      },
+    });
+
+    const rangeStop = moment();
+    const rangeStart = rangeStop.subtract(1, 'hour');
+
+    const response = await downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'loadAvg',
+      units: 'Number',
+      rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+    });
+
+    expect(response.mimeType).toEqual('text/csv');
+    expect(response.download.name).toMatch(/elasticsearch-metrics.*\.csv/);
+    expect(response.download.data).toMatch(/Service,Instance,Time,Value/);
+    expect(response.download.data).toMatch(new RegExp(`elasticsearch,00[1-2],${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`));
+
+    const lines = response.download.data.split('\n');
+
+    expect(lines.length).toBeGreaterThan(2);
+    expect(lines.length).toBeLessThan(450);
+
+    const [{}, first, ...{}] = lines;
+    const [{}, {}, firstDate, {}] = first.split(',');
+    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
+  });
+
+  it('should fail to download csv if no data returned from prometheus', async () => {
+    nock('https://example.com/prom')
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(200, getStubPrometheusMetricsSeriesData([]))
+    ;
+
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'elasticsearch',
+      },
+    });
+
+    await expect(downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'diskUsed',
+      units: 'Bytes',
+      rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+    })).rejects.toThrow(/Did not get metric diskUsed for elasticsearch/);
+  });
+
   it('should fail to download csv if no data returned from cloudwatch', async () => {
     nock('https://aws-cloudwatch.example.com/')
       .post('/')

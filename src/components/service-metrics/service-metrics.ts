@@ -33,7 +33,7 @@ import cloudfrontServiceMetricsTemplate from './cloudfront-service-metrics.njk';
 import elasticacheMetricsTemplate from './elasticache-service-metrics-csv.njk';
 import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk';
 
-// import elasticsearchMetricsTemplate from './elasticsearch-service-metrics-csv.njk';
+import elasticsearchMetricsTemplate from './elasticsearch-service-metrics-csv.njk';
 import elasticsearchServiceMetricsTemplate from './elasticsearch-service-metrics.njk';
 
 import rdsMetricsTemplate from './rds-service-metrics-csv.njk';
@@ -175,6 +175,7 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
 
       template = cloudfrontServiceMetricsTemplate;
       metricSeries = cloudfrontMetricSeries;
+
       break;
     case 'mysql':
     case 'postgres':
@@ -187,6 +188,7 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
 
       template = rdsServiceMetricsTemplate;
       metricSeries = rdsMetricSeries;
+
       break;
     case 'redis':
       const elasticacheMetricSeries = await new ElastiCacheMetricDataGetter(
@@ -198,6 +200,7 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
 
       template = elasticacheServiceMetricsTemplate;
       metricSeries = elasticacheMetricSeries;
+
       break;
     case 'elasticsearch':
       const elasticsearchMetricSeries = await new ElasticsearchMetricDataGetter(
@@ -211,6 +214,7 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
 
       template = elasticsearchServiceMetricsTemplate;
       metricSeries = elasticsearchMetricSeries;
+
       break;
     default:
       throw new Error(`Unrecognised service label ${serviceLabel}`);
@@ -339,7 +343,20 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
 
       break;
     case 'elasticsearch':
-      throw new Error('Not implemented');
+
+      const elasticsearchMetricSeries = await new ElasticsearchMetricDataGetter(
+        new PromClient(
+          ctx.app.prometheusEndpoint,
+          ctx.app.prometheusUsername,
+          ctx.app.prometheusPassword,
+          ctx.app.logger,
+        ),
+      ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
+
+      template = elasticsearchMetricsTemplate;
+      metricData = elasticsearchMetricSeries[params.metric];
+
+      break;
     default:
       throw new Error(`Unrecognised service label ${serviceLabel}`);
   }
