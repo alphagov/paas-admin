@@ -85,7 +85,7 @@
     descriptionHTML: 'Percentage of allocated memory elasticsearch is using. High values may indicate you need to optimise your elasticsearch queries or <a href=\"https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan" class=\"govuk-link\">update your service to use a bigger plan</a>.',
     chart: drawLineGraph(
       'memory',
-      'Number',
+      'Percent',
       '.2r',
       metricSeries['memoryUsed']
     ),
@@ -104,7 +104,7 @@
     descriptionHTML: 'Percentage of allocated storage elasticsearch is using. If elasticsearch runs out of disk space, the service will stop working. High values may indicate you need to reduce elasticsearch usage or <a href=\"https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan" class=\"govuk-link\">update your service to use a bigger plan</a>.',
     chart: drawLineGraph(
       'disk',
-      'Number',
+      'Percent',
       '.2r',
       metricSeries['diskUsed']
     ),
@@ -142,7 +142,7 @@
     descriptionHTML: 'The average number of disk write operations elasticsearch is performing per second.',
     chart: drawLineGraph(
       'disk writes',
-      'Number',
+      'Writes per second',
       '.2r',
       metricSeries['diskWrites']
     ),
