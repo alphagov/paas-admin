@@ -17,6 +17,7 @@ import {
   RDSMetricDataGetter,
   rdsMetricNames,
 } from '../../lib/metric-data-getters';
+import { IMetricSerie } from '../../lib/metrics';
 import roundDown from '../../lib/moment/round';
 import PromClient from '../../lib/prom';
 import { IParameters, IResponse } from '../../lib/router';
@@ -305,6 +306,9 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
 
   const name = `${serviceLabel}-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`;
 
+  let template: typeof import('*.njk');
+  let metricData: ReadonlyArray<IMetricSerie> | undefined;
+
   switch (serviceLabel) {
     case 'cdn-route':
       const cloudfrontMetricSeries = await new CloudFrontMetricDataGetter(
@@ -318,21 +322,10 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
         }),
       ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
 
-      if (typeof cloudfrontMetricSeries[params.metric] === 'undefined') {
-        throw new Error('No response from Cloudwatch');
-      }
+      template = cloudfrontMetricsTemplate;
+      metricData = cloudfrontMetricSeries[params.metric];
 
-      return {
-        mimeType: 'text/csv',
-        download: {
-          name,
-          data: cloudfrontMetricsTemplate.render({
-            ...defaultTemplateParams,
-            metricData: cloudfrontMetricSeries[params.metric],
-            units: params.units,
-          }),
-        },
-      };
+      break;
     case 'mysql':
     case 'postgres':
       const rdsMetricSeries = await new RDSMetricDataGetter(
@@ -342,22 +335,12 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
         }),
       ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
 
-      if (typeof rdsMetricSeries[params.metric] === 'undefined') {
-        throw new Error('No response from Cloudwatch');
-      }
+      template = rdsMetricsTemplate;
+      metricData = rdsMetricSeries[params.metric];
 
-      return {
-        mimeType: 'text/csv',
-        download: {
-          name,
-          data: rdsMetricsTemplate.render({
-            ...defaultTemplateParams,
-            metricData: rdsMetricSeries[params.metric],
-            units: params.units,
-          }),
-        },
-      };
+      break;
     case 'redis':
+
       const elasticacheMetricSeries = await new ElastiCacheMetricDataGetter(
         new cw.CloudWatchClient({
           region: ctx.app.awsRegion,
@@ -365,26 +348,31 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
         }),
       ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
 
-      if (typeof elasticacheMetricSeries[params.metric] === 'undefined') {
-        throw new Error('No response from Cloudwatch');
-      }
+      template = elasticacheMetricsTemplate;
+      metricData = elasticacheMetricSeries[params.metric];
 
-      return {
-        mimeType: 'text/csv',
-        download: {
-          name,
-          data: elasticacheMetricsTemplate.render({
-            ...defaultTemplateParams,
-            metricData: elasticacheMetricSeries[params.metric],
-            units: params.units,
-          }),
-        },
-      };
+      break;
     case 'elasticsearch':
       throw new Error('Not implemented');
     default:
       throw new Error(`Unrecognised service label ${serviceLabel}`);
   }
+
+  if (typeof metricData === 'undefined') {
+    throw new Error(`Did not get metric ${params.metric} for ${serviceLabel}`);
+  }
+
+  return {
+    mimeType: 'text/csv',
+    download: {
+      name,
+      data: template.render({
+        ...defaultTemplateParams,
+        units: params.units,
+        metricData,
+      }),
+    },
+  };
 }
 
 function parseRange(start: string, stop: string): IRange {

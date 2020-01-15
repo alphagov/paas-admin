@@ -468,7 +468,7 @@ describe('service metrics test suite', () => {
       units: 'Bytes',
       rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
-      })).rejects.toThrow(/No response from Cloudwatch/);
+    })).rejects.toThrow(/Did not get metric mFreeStorageSpace for postgres/);
   });
 
   it('should redirect if no range or metric provided for csv download', async () => {
