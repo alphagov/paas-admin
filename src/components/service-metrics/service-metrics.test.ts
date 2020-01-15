@@ -603,4 +603,21 @@ describe('service metrics test suite', () => {
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
     })).rejects.toThrow(/Unrecognised service label unknown-service-label/);
   });
+
+  it('should fail to download csv for a user provided service', async () => {
+    const userProvidedServiceGUID = '54e4c645-7d20-4271-8c27-8cc904e1e7ee';
+
+    await expect(downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: userProvidedServiceGUID,
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'aMetric',
+      units: 'aUnit',
+      rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+    })).rejects.toThrow(/Unrecognised service label User Provided Service/);
+  });
 });
