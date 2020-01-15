@@ -1,11 +1,11 @@
 import nock from 'nock';
 
-import {viewService} from '.';
-
+import { testSpacing } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
+import { viewService } from './controllers';
 
 // tslint:disable:max-line-length
 nock('https://example.com/api')
@@ -30,6 +30,7 @@ describe('services test suite', () => {
     });
 
     expect(response.body).toContain('name-1508 - Service Overview');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should show the user provided service overview page', async () => {
@@ -40,5 +41,6 @@ describe('services test suite', () => {
     });
 
     expect(response.body).toContain('name-1700 - Service Overview');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 });

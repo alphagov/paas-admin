@@ -290,11 +290,11 @@ export interface IServicePlan {
 export interface IServiceInstance {
   readonly entity: {
     readonly credentials: object;
-    readonly dashboard_url: null,
+    readonly dashboard_url?: null,
     readonly gateway_data: null,
-    readonly last_operation: {
+    readonly last_operation?: {
       readonly created_at: string;
-      readonly description: string;
+      readonly description?: string;
       readonly state: string;
       readonly type: string; // tslint:disable-line:no-reserved-keywords
       readonly updated_at: string;
