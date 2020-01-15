@@ -485,4 +485,27 @@ describe('service metrics test suite', () => {
     expect(response.redirect).toContain('rangeStart');
     expect(response.redirect).toContain('rangeStop');
   });
+
+  it('should fail to download csv if the service label is not known', async () => {
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'unknown-service-label',
+      },
+    });
+
+    await expect(downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'aMetric',
+      units: 'aUnit',
+      rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+    })).rejects.toThrow(/Unrecognised service label unknown-service-label/);
+  });
 });
