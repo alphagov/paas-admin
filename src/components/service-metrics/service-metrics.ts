@@ -28,7 +28,7 @@ import { drawLineGraph, summariseSerie } from '../charts/line-graph';
 import { UserFriendlyError } from '../errors';
 
 import cloudfrontMetricsTemplate from './cloudfront-service-metrics-csv.njk';
-import cloudfrontServiceMetrics from './cloudfront-service-metrics.njk';
+import cloudfrontServiceMetricsTemplate from './cloudfront-service-metrics.njk';
 
 import elasticacheMetricsTemplate from './elasticache-service-metrics-csv.njk';
 import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk';
@@ -153,6 +153,9 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
     }),
   };
 
+  let template;
+  let metricSeries;
+
   switch (serviceLabel) {
     case 'User Provided Service':
       return {
@@ -170,16 +173,9 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         }),
       ).getData(cloudfrontMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
 
-      const cloudfrontMetricSummaries = mapValues(cloudfrontMetricSeries, s => s.map(summariseSerie));
-
-      return {
-        body: cloudfrontServiceMetrics.render({
-          ...defaultTemplateParams,
-          drawLineGraph,
-          metricSeries: cloudfrontMetricSeries,
-          metricSummaries: cloudfrontMetricSummaries,
-        }),
-      };
+      template = cloudfrontServiceMetricsTemplate;
+      metricSeries = cloudfrontMetricSeries;
+      break;
     case 'mysql':
     case 'postgres':
       const rdsMetricSeries = await new RDSMetricDataGetter(
@@ -189,16 +185,9 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         }),
       ).getData(rdsMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
 
-      const rdsMetricSummaries = mapValues(rdsMetricSeries, s => s.map(summariseSerie));
-
-      return {
-        body: rdsServiceMetricsTemplate.render({
-          ...defaultTemplateParams,
-          drawLineGraph,
-          metricSeries: rdsMetricSeries,
-          metricSummaries: rdsMetricSummaries,
-        }),
-      };
+      template = rdsServiceMetricsTemplate;
+      metricSeries = rdsMetricSeries;
+      break;
     case 'redis':
       const elasticacheMetricSeries = await new ElastiCacheMetricDataGetter(
         new cw.CloudWatchClient({
@@ -207,16 +196,9 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         }),
       ).getData(elasticacheMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
 
-      const elasticacheMetricSummaries = mapValues(elasticacheMetricSeries, s => s.map(summariseSerie));
-
-      return {
-        body: elasticacheServiceMetricsTemplate.render({
-          ...defaultTemplateParams,
-          drawLineGraph,
-          metricSeries: elasticacheMetricSeries,
-          metricSummaries: elasticacheMetricSummaries,
-        }),
-      };
+      template = elasticacheServiceMetricsTemplate;
+      metricSeries = elasticacheMetricSeries;
+      break;
     case 'elasticsearch':
       const elasticsearchMetricSeries = await new ElasticsearchMetricDataGetter(
         new PromClient(
@@ -227,19 +209,23 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         ),
       ).getData(elasticsearchMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
 
-      const elasticsearchMetricSummaries = mapValues(elasticsearchMetricSeries, s => s.map(summariseSerie));
-
-      return {
-        body: elasticsearchServiceMetricsTemplate.render({
-          ...defaultTemplateParams,
-          drawLineGraph,
-          metricSeries: elasticsearchMetricSeries,
-          metricSummaries: elasticsearchMetricSummaries,
-        }),
-      };
+      template = elasticsearchServiceMetricsTemplate;
+      metricSeries = elasticsearchMetricSeries;
+      break;
     default:
       throw new Error(`Unrecognised service label ${serviceLabel}`);
   }
+
+  const metricSummaries = mapValues(metricSeries, s => s.map(summariseSerie));
+
+  return {
+    body: template.render({
+      ...defaultTemplateParams,
+      drawLineGraph,
+      metricSeries,
+      metricSummaries,
+    }),
+  };
 }
 
 export async function downloadServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
