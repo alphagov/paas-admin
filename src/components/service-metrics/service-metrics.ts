@@ -153,14 +153,16 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
     }),
   };
 
+  if (serviceLabel === 'User Provided Service') {
+    return {
+      body: unsupportedServiceMetricsTemplate.render(defaultTemplateParams),
+    };
+  }
+
   let template;
   let metricSeries;
 
   switch (serviceLabel) {
-    case 'User Provided Service':
-      return {
-        body: unsupportedServiceMetricsTemplate.render(defaultTemplateParams),
-      };
     case 'cdn-route':
       const cloudfrontMetricSeries = await new CloudFrontMetricDataGetter(
         new cw.CloudWatchClient({
@@ -177,8 +179,8 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
       metricSeries = cloudfrontMetricSeries;
 
       break;
-    case 'mysql':
     case 'postgres':
+    case 'mysql':
       const rdsMetricSeries = await new RDSMetricDataGetter(
         new cw.CloudWatchClient({
           region: ctx.app.awsRegion,
@@ -316,8 +318,8 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
       metricData = cloudfrontMetricSeries[params.metric];
 
       break;
-    case 'mysql':
     case 'postgres':
+    case 'mysql':
       const rdsMetricSeries = await new RDSMetricDataGetter(
         new cw.CloudWatchClient({
           region: ctx.app.awsRegion,
