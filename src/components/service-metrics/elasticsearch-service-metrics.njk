@@ -24,6 +24,7 @@
       <ul class="govuk-list">
         <li><a href="#load-average" class="govuk-link">Load average</a></li>
         <li><a href="#memory" class="govuk-link">Memory</a></li>
+        <li><a href="#elasticsearch-indices-count" class="govuk-link">Elasticsearch indices count</a></li>
         <li><a href="#disk-usage" class="govuk-link">Disk usage</a></li>
         <li><a href="#disk-reads" class="govuk-link">Disk reads</a></li>
         <li><a href="#disk-writes" class="govuk-link">Disk writes</a></li>
@@ -53,6 +54,25 @@
     units: 'Number',
     metric: 'loadAvg',
     summaries: metricSummaries['loadAvg'],
+    downloadLink: downloadLink
+  }) }}
+</div>
+
+<div class="govuk-width-container">
+  {{ metric({
+    id: 'elasticsearch-indices-count',
+    format: 'number',
+    titleHTML: 'Elasticsearch indices count',
+    descriptionHTML: 'The number of indices present in elasticsearch. Large number of indices may indicate a bug in your application or require you to <a href=\"https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan" class=\"govuk-link\">update your service to use a bigger plan</a>.',
+    chart: drawLineGraph(
+      'elasticsearch indices count',
+      'Number',
+      '.2r',
+      metricSeries['elasticsearchIndicesCount']
+    ),
+    units: 'Number',
+    metric: 'elasticsearchIndicesCount',
+    summaries: metricSummaries['elasticsearchIndicesCount'],
     downloadLink: downloadLink
   }) }}
 </div>

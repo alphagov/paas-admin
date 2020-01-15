@@ -37,6 +37,9 @@ const elasticsearchMetricPropertiesById: {[key in MetricName]: IPrometheusMetric
   networkOut: {
     promQL: (guid: string) => `avg by (instance) (rate(net_bytes_sent{service=~".*-${guid}"}[5m]))`,
   },
+  elasticsearchIndicesCount: {
+    promQL: (guid: string) => `avg by (instance) (elasticsearch_clusterstats_indices_count{service=~".*-${guid}"})`,
+  },
 };
 
 export const elasticsearchMetricNames = Object.keys(elasticsearchMetricPropertiesById);
