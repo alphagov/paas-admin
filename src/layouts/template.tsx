@@ -13,11 +13,15 @@ export class Template {
   private _language: string = 'en';
   private _breadcrumbs?: ReadonlyArray<IBreadcrumbsItem>;
 
-  constructor(private ctx: IViewContext, private _title: string) {
+  constructor(private ctx: IViewContext, private _title?: string) {
   }
 
   public set breadcrumbs(items: ReadonlyArray<IBreadcrumbsItem>) {
     this._breadcrumbs = items;
+  }
+
+  public set title(value: string) {
+    this._title = value;
   }
 
   public render(page: ReactElement): string {
@@ -29,7 +33,7 @@ export class Template {
     <html lang=${this._language} class="govuk-template">
         <head>
           <meta charSet="utf-8" />
-          <title lang="${this._language}">${this._title}</title>
+          <title lang="${this._language}">${this._title || 'GOV.UK Platform as a Service - Administration Tool'}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
           <meta name="theme-color" content="${themeColor}" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
