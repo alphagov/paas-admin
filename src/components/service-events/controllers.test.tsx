@@ -1,14 +1,17 @@
 import lodash from 'lodash';
+import moment from 'moment';
 import nock from 'nock';
 
-import {viewServiceEvent, viewServiceEvents} from '.';
+import { viewServiceEvent, viewServiceEvents } from '.';
 
+import { DATE_TIME } from '../../layouts';
+import { testSpacing } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
-import {auditEvent as defaultAuditEvent} from '../../lib/cf/test-data/audit-event';
-import {org as defaultOrg} from '../../lib/cf/test-data/org';
-import {wrapV3Resources} from '../../lib/cf/test-data/wrap-resources';
-import {createTestContext} from '../app/app.test-helpers';
-import {IContext} from '../app/context';
+import { auditEvent as defaultAuditEvent } from '../../lib/cf/test-data/audit-event';
+import { org as defaultOrg } from '../../lib/cf/test-data/org';
+import { wrapV3Resources } from '../../lib/cf/test-data/wrap-resources';
+import { createTestContext } from '../app/app.test-helpers';
+import { IContext } from '../app/context';
 
 const organizationGUID = '6e1ca5aa-55f1-4110-a97f-1f3473e771b9';
 const spaceGUID        = '38511660-89d9-4a6e-a889-c32c7e94f139';
@@ -46,35 +49,37 @@ describe('service event', () => {
   });
 
   it('should show an event', async () => {
+    const event = defaultAuditEvent();
     nockCF
-      .get(`/v3/audit_events/${defaultAuditEvent().guid}`)
-      .reply(200, JSON.stringify(defaultAuditEvent()))
+      .get(`/v3/audit_events/${event.guid}`)
+      .reply(200, JSON.stringify(event))
     ;
 
     const response = await viewServiceEvent(ctx, {
       organizationGUID, spaceGUID, serviceGUID,
-      eventGUID: defaultAuditEvent().guid,
+      eventGUID: event.guid,
     });
 
     expect(response.body).toContain('name-1508 - Service Event');
 
-    expect(response.body).toContain(/* Date        */ 'June 8th 2016');
-    expect(response.body).toMatch(/*   Time        */ /1[67]:41/);
+    expect(response.body).toContain(/* DateTime    */ moment(event.updated_at).format(DATE_TIME));
     expect(response.body).toContain(/* Actor       */ 'admin');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should show the email of the event actor if it is a user with an email', async () => {
+    const event = defaultAuditEvent();
     nockCF
-      .get(`/v3/audit_events/${defaultAuditEvent().guid}`)
-      .reply(200, JSON.stringify(defaultAuditEvent()))
+      .get(`/v3/audit_events/${event.guid}`)
+      .reply(200, JSON.stringify(event))
     ;
 
     nockAccounts
-      .get(`/users/${defaultAuditEvent().actor.guid}`)
+      .get(`/users/${event.actor.guid}`)
       .reply(200, `{
-        "user_uuid": "${defaultAuditEvent().actor.guid}",
+        "user_uuid": "${event.actor.guid}",
         "user_email": "one@user.in.database",
         "username": "one@user.in.database"
       }`)
@@ -82,39 +87,40 @@ describe('service event', () => {
 
     const response = await viewServiceEvent(ctx, {
       organizationGUID, spaceGUID, serviceGUID,
-      eventGUID: defaultAuditEvent().guid,
+      eventGUID: event.guid,
     });
 
     expect(response.body).toContain('name-1508 - Service Event');
 
-    expect(response.body).toContain(/* Date        */ 'June 8th 2016');
-    expect(response.body).toMatch(/*   Time        */ /1[67]:41/);
+    expect(response.body).toContain(/* DateTime    */ moment(event.updated_at).format(DATE_TIME));
     expect(response.body).toContain(/* Actor       */ 'one@user.in.database');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should show the name event actor if it is not a user', async () => {
+    const event = defaultAuditEvent();
     nockCF
-      .get(`/v3/audit_events/${defaultAuditEvent().guid}`)
+      .get(`/v3/audit_events/${event.guid}`)
       .reply(200, JSON.stringify(lodash.merge(
-        defaultAuditEvent(),
+        event,
         { actor: { type: 'unknown', name: 'unknown-actor'}},
       )))
     ;
 
     const response = await viewServiceEvent(ctx, {
       organizationGUID, spaceGUID, serviceGUID,
-      eventGUID: defaultAuditEvent().guid,
+      eventGUID: event.guid,
     });
 
     expect(response.body).toContain('name-1508 - Service Event');
 
-    expect(response.body).toContain(/* Date        */ 'June 8th 2016');
-    expect(response.body).toMatch(/*   Time        */ /1[67]:41/);
+    expect(response.body).toContain(/* DateTime    */ moment(event.updated_at).format(DATE_TIME));
     expect(response.body).toContain(/* Actor       */ 'unknown-actor');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 });
 
@@ -168,6 +174,7 @@ describe('service events', () => {
       expect(response.body).toContain('name-1508 - Service Events');
       expect(response.body).toContain('Displaying page 1 of 1');
       expect(response.body).toContain('0 total events');
+      expect(testSpacing(response.body as string)).toHaveLength(0);
     });
   });
 
@@ -218,8 +225,8 @@ describe('service events', () => {
 
       expect(response.body).toContain('Displaying page 1 of 2702');
       expect(response.body).toContain('1337 total events');
-      expect(response.body).toContain('<a class="govuk-link" disabled>Previous page</a>');
-      expect(response.body).not.toContain('<a class="govuk-link" disabled>Next page</a>');
+      expect(response.body).toContain('<a class="govuk-link">Previous page</a>');
+      expect(response.body).not.toContain('<a class="govuk-link">Next page</a>');
       expect(response.body).toContain('Next page');
 
       expect(response.body).toContain('one@user.in.database');
@@ -229,6 +236,7 @@ describe('service events', () => {
       expect(response.body).toContain('Updated service instance');
       expect(response.body).toContain('Created service instance');
       expect(response.body).toContain('<code>some unknown event type</code>');
+      expect(testSpacing(response.body as string)).toHaveLength(0);
     });
   });
 });
