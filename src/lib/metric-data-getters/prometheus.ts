@@ -1,7 +1,3 @@
-import {
-  _UnmarshalledMetricDataResult as CloudWatchResult,
-} from '@aws-sdk/client-cloudwatch-node';
-
 import _ from 'lodash';
 import moment from 'moment';
 

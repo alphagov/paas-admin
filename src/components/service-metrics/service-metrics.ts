@@ -298,7 +298,7 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
 
   const name = `${serviceLabel}-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`;
 
-  let template: typeof import('*.njk');
+  let template: { render: (a: any) => string };
   let metricData: ReadonlyArray<IMetricSerie> | undefined;
 
   switch (serviceLabel) {

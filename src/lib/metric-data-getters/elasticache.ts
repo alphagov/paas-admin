@@ -79,7 +79,7 @@ export class ElastiCacheMetricDataGetter extends CloudWatchMetricDataGetter impl
     period: moment.Duration,
     rangeStart: moment.Moment, rangeStop: moment.Moment,
   ): Promise<{[key in MetricName]: ReadonlyArray<IMetricSerie>}> {
-    const replicationGroupId = await this.getElasticacheReplicationGroupId(guid);
+    const replicationGroupId = this.getElasticacheReplicationGroupId(guid);
 
     // AWS won't let us make more than 5 search queries in the same request,
     // so we have to chunk them up into multiple requests.
