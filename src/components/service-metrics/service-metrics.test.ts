@@ -203,7 +203,7 @@ describe('service metrics test suite', () => {
     });
 
     expect(response.status).not.toEqual(302);
-    expect(response.body).toContain('Load avg');
+    expect(response.body).toContain('Load average');
     expect(response.body).toContain('Memory');
     expect(response.body).toContain('Disk usage');
     expect(response.body).toContain('Disk read rate');

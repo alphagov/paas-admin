@@ -22,7 +22,7 @@
     <div class="govuk-grid-column-two-thirds">
       <p>Currently the available metrics for {{serviceLabel}} are:</p>
       <ul class="govuk-list">
-        <li><a href="#load-avg" class="govuk-link">Load avg</a></li>
+        <li><a href="#load-average" class="govuk-link">Load average</a></li>
         <li><a href="#memory" class="govuk-link">Memory</a></li>
         <li><a href="#disk-usage" class="govuk-link">Disk usage</a></li>
         <li><a href="#disk-reads" class="govuk-link">Disk reads</a></li>
@@ -40,12 +40,12 @@
 
 <div class="govuk-width-container">
   {{ metric({
-    id: 'load-avg',
+    id: 'load-average',
     format: 'number',
-    titleHTML: 'Load avg',
+    titleHTML: 'Load average',
     descriptionHTML: 'How much computational work elasticsearch is doing. High load average may indicate you need to reduce your usage or <a href=\"https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan" class=\"govuk-link\">update your service to use a bigger plan</a>.',
     chart: drawLineGraph(
-      'load avg',
+      'load average',
       'Number',
       '.2r',
       metricSeries['loadAvg']
