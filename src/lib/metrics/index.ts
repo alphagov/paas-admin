@@ -12,9 +12,6 @@ export type MetricName =
   | CloudFrontMetricName | ElasticacheMetricName | RDSMetricName
 ;
 
-export type ServiceLabel = 'postgres' | 'mysql' | 'redis' | string;
-export type ServiceType = 'rds' | 'elasticache' | 'cloudfront';
-
 export interface IMetric {
   date: Date;
   value: number;
