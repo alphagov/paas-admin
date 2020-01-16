@@ -2,6 +2,7 @@ import moment from 'moment';
 import nock from 'nock';
 import {createTestContext} from '../app/app.test-helpers';
 
+import { testSpacing } from '../../layouts/react-spacing.test';
 import {config} from '../app/app.test.config';
 import {IContext} from '../app/context';
 import {getCalculator} from '../calculator';
@@ -50,6 +51,12 @@ describe('calculator test suite', () => {
         },
         {
           ...defaultPricingPlan,
+          name: 'app',
+          plan_guid: 'f4d4b95b-f55e-4593-8d54-3364c25798c4',
+          storage_in_mb: 524288,
+        },
+        {
+          ...defaultPricingPlan,
           name: 'postgres tiny-9.6',
           plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c5',
         },
@@ -90,6 +97,7 @@ describe('calculator test suite', () => {
     expect(response.body).toMatch(/\bredis\b/);
     expect(response.body).toMatch(/\belasticsearch\b/);
     expect(response.body).toMatch(/\baws-s3-bucket\b/);
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should get a zero quote if no items are specified', async () => {
@@ -105,7 +113,8 @@ describe('calculator test suite', () => {
     });
 
     expect(response.body).toContain('Pricing calculator');
-    expect(response.body).toContain('<p class="paas-price">&pound; 0.00</p>');
+    expect(response.body).toContain('<p class="paas-price">£0.00</p>');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
 
   });
 
@@ -161,9 +170,10 @@ describe('calculator test suite', () => {
     });
 
     expect(response.body).toContain('app');
-    expect(response.body).toContain('&pound;19.98');
+    expect(response.body).toContain('£19.98');
     expect(response.body).toContain('postgres');
-    expect(response.body).toContain('&pound;13.32');
+    expect(response.body).toContain('£13.32');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should sort the quote by order added', async () => {
@@ -198,7 +208,7 @@ describe('calculator test suite', () => {
 
     const response = await getCalculator(ctx, {
       items: [
-        {planGUID: appGuid, numberOfNodes: '1'},
+        {planGUID: appGuid, numberOfNodes: '1', memoryInMB: 512},
         {planGUID: postgresGuid},
       ],
     });
@@ -210,6 +220,7 @@ describe('calculator test suite', () => {
       const idxApp = response.body.indexOf('app');
       expect(idxPostgres > idxApp).toBeTruthy(); // expected postgres to appear after app
     }
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should blacklist compose plan', async () => {
@@ -231,6 +242,7 @@ describe('calculator test suite', () => {
 
     const response = await getCalculator(ctx, {});
     expect(response.body).not.toContain('compose');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should show postgres plan wih version', async () => {
@@ -277,6 +289,7 @@ describe('calculator test suite', () => {
 
     const response = await getCalculator(ctx, {});
     expect(response.body).toMatch(/postgres\s+9.6/);
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should use calculator and ignore empty application', async () => {
@@ -327,6 +340,7 @@ describe('calculator test suite', () => {
     });
 
     expect(response.body).toContain('Pricing calculator');
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should omit printing "default" when there is only a default pricing plan', async () => {
@@ -348,5 +362,6 @@ describe('calculator test suite', () => {
     const response = await getCalculator(ctx, {});
     expect(response.body).toContain('aws-s3-bucket');
     expect(response.body).not.toMatch(/aws-s3-bucket\s+default/);
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 });

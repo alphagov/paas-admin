@@ -1,1 +1,1 @@
-export * from './calculator';
+export * from './controllers';

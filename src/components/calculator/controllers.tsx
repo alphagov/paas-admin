@@ -1,35 +1,16 @@
-import {sum} from 'lodash';
+import { sum } from 'lodash';
 import moment from 'moment';
+import React from 'react';
 import uuid from 'uuid';
 
+import { Template } from '../../layouts';
 import { BillingClient } from '../../lib/billing';
 import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
+import { CalculatorPage, ICalculatorState, IQuote, IResourceItem } from './views';
 
-import calculatorTemplate from './calculator.njk';
 import * as formulaGrammar from './formulaGrammar.pegjs';
-
-interface IQuote {
-  readonly events: ReadonlyArray<IBillableEvent>;
-  readonly exVAT: number;
-  readonly incVAT: number;
-}
-
-export interface IResourceItem {
-  planGUID: string;
-  numberOfNodes: string;
-  memoryInMB: string;
-  storageInMB: string;
-}
-
-interface ICalculatorState {
-  monthOfEstimate: string;
-  rangeStart: string;
-  rangeStop: string;
-  items: ReadonlyArray<IResourceItem>;
-  plans: ReadonlyArray<IPricingPlan>;
-}
 
 interface IVersionedPricingPlan extends IPricingPlan {
   version: string;
@@ -95,7 +76,7 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
      .filter(blacklistCompose)
      .map(toVersionedPricingPlans)
      .sort(bySize);
-  const state: ICalculatorState = {
+  const state = {
     monthOfEstimate,
     rangeStart,
     rangeStop,
@@ -107,14 +88,13 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
     quote = await getQuote(billing, state);
   }
 
+  const template = new Template(ctx.viewContext, 'Pricing calculator');
+
   return {
-    body: calculatorTemplate.render({
-      routePartOf: ctx.routePartOf,
-      linkTo: ctx.linkTo,
-      context: ctx.viewContext,
-      state,
-      quote,
-    }),
+    body: template.render(<CalculatorPage
+      state={state}
+      quote={quote}
+    />),
   };
 }
 
