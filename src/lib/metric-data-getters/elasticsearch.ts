@@ -45,9 +45,8 @@ const elasticsearchMetricPropertiesById: {[key in MetricName]: IPrometheusMetric
 export const elasticsearchMetricNames = Object.keys(elasticsearchMetricPropertiesById);
 
 export class ElasticsearchMetricDataGetter extends PrometheusMetricDataGetter implements IMetricDataGetter {
-
-  constructor(private promClient: PromClient) {
-    super();
+  constructor(promClient: PromClient) {
+    super(promClient);
   }
 
   public async getData(
@@ -57,25 +56,16 @@ export class ElasticsearchMetricDataGetter extends PrometheusMetricDataGetter im
     rangeStart: moment.Moment, rangeStop: moment.Moment,
   ): Promise<{[key in MetricName]: ReadonlyArray<IMetricSerie>}> {
 
-    const queryResults: ReadonlyArray<ReadonlyArray<IMetricSerie> | undefined> = await Promise.all(
-      metricNames.map(metricName => this.promClient.getSeries(
-        elasticsearchMetricPropertiesById[metricName].promQL(guid),
-        period.asSeconds(), rangeStart.toDate(), rangeStop.toDate(),
-      )),
+    const queries = metricNames.map(metricName => elasticsearchMetricPropertiesById[metricName].promQL(guid));
+
+    const metricData = await this.getDataFromPrometheus(
+      metricNames, queries,
+      period, rangeStart, rangeStop,
     );
 
-    const queriesAndResults: { [key in MetricName]: ReadonlyArray<IMetricSerie> | undefined } = _.zipObject(
-      metricNames,
-      queryResults,
+    return _.mapValues(
+      metricData,
+      series => this.addPlaceholderData(series, period, rangeStart, rangeStop),
     );
-
-    const metricData: { [key in MetricName]: ReadonlyArray<IMetricSerie> } = {};
-    _.forEach(queriesAndResults, (maybeSerie: ReadonlyArray<IMetricSerie> | undefined, metricName: MetricName) => {
-      if (typeof maybeSerie !== 'undefined') {
-        metricData[metricName] = maybeSerie!;
-      }
-    });
-
-    return _.mapValues(metricData, series => this.addPlaceholderData(series, period, rangeStart, rangeStop));
   }
 }
