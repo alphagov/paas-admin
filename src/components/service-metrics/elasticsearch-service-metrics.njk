@@ -47,11 +47,11 @@
     descriptionHTML: 'How much computational work elasticsearch is doing. High load average may indicate you need to reduce your usage or <a href=\"https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan" class=\"govuk-link\">update your service to use a bigger plan</a>.',
     chart: drawLineGraph(
       'load average',
-      'Number',
+      'Load',
       '.2r',
       metricSeries['loadAvg']
     ),
-    units: 'Number',
+    units: 'Load',
     metric: 'loadAvg',
     summaries: metricSummaries['loadAvg'],
     downloadLink: downloadLink
@@ -123,7 +123,7 @@
     descriptionHTML: 'The average number of disk read operations elasticsearch is performing per second.',
     chart: drawLineGraph(
       'disk reads',
-      'Number',
+      'Reads per second',
       '.2r',
       metricSeries['diskReads']
     ),
@@ -161,7 +161,7 @@
     descriptionHTML: 'The number of bytes received by elasticsearch.',
     chart: drawLineGraph(
       'network bytes received',
-      'Number',
+      'Bytes per second',
       '.2r',
       metricSeries['networkIn']
     ),
@@ -180,7 +180,7 @@
     descriptionHTML: 'The number of bytes sent by elasticsearch.',
     chart: drawLineGraph(
       'network bytes send',
-      'Number',
+      'Bytes per second',
       '.2r',
       metricSeries['networkOut']
     ),
