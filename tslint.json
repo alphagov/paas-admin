@@ -107,6 +107,11 @@
           "file": "src/layouts/template.tsx",
           "method": "EnableClientSideJavaScript",
           "comment": "This block is NOT customazible, meaning nothing should be able to inject code into it. It needs to NOT be securely parsed either, as this would prevent it's functionality from kicking in on client's browser."
+        },
+        {
+          "file": "src/components/reports/views.tsx",
+          "method": "SankeyInputJSON",
+          "comment": "This block is NOT customazible, meaning nothing should be able to inject code into it. It needs to NOT be securely parsed either, as this would parse JSON required by frontend with escaped syntax."
         }
       ]
     ],
