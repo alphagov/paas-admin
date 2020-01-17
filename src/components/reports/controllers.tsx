@@ -260,6 +260,12 @@ export async function viewCostReport(
   const billableEventCount = billableEvents.length;
 
   const template = new Template(ctx.viewContext, `Costs Report`);
+  template.subnav = { items: [
+    { text: 'Summary', link: ctx.linkTo('admin.reports.cost', { rangeStart: rangeStart.format(DATE) }),
+      active: true },
+    { text: 'By service', link: ctx.linkTo('admin.reports.costbyservice', { rangeStart: rangeStart.format(DATE) }) },
+    { text: 'Visualisation', link: ctx.linkTo('admin.reports.visualisation', { rangeStart: rangeStart.format(DATE) }) },
+  ] };
 
   return {
     body: template.render(<CostReport
@@ -392,6 +398,12 @@ export async function viewCostByServiceReport(
     billableEvents, orgsByGUID, spacesByGUID);
 
   const template = new Template(ctx.viewContext, `Costs By Service Report`);
+  template.subnav = { items: [
+    { text: 'Summary', link: ctx.linkTo('admin.reports.cost', { rangeStart: rangeStart.format(DATE) }) },
+    { text: 'By service', link: ctx.linkTo('admin.reports.costbyservice', { rangeStart: rangeStart.format(DATE) }),
+      active: true },
+    { text: 'Visualisation', link: ctx.linkTo('admin.reports.visualisation', { rangeStart: rangeStart.format(DATE) }) },
+  ] };
 
   return {
     body: template.render(<CostByServiceReport
@@ -576,6 +588,12 @@ export async function viewVisualisation(
   const data = buildD3SankeyInput(billablesByOrganisationAndService, organisationsByOwner);
 
   const template = new Template(ctx.viewContext, `Costs Report Visualisation`);
+  template.subnav = { items: [
+    { text: 'Summary', link: ctx.linkTo('admin.reports.cost', { rangeStart: rangeStart.format(DATE) }) },
+    { text: 'By service', link: ctx.linkTo('admin.reports.costbyservice', { rangeStart: rangeStart.format(DATE) }) },
+    { text: 'Visualisation', link: ctx.linkTo('admin.reports.visualisation', { rangeStart: rangeStart.format(DATE) }),
+      active: true },
+  ] };
 
   return {
     body: template.render(<VisualisationPage

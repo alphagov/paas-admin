@@ -23,6 +23,17 @@ interface IMainProperties {
   readonly children: ReactElement;
 }
 
+interface ISubNavigationItem {
+  readonly text: string;
+  readonly link: string;
+  readonly active?: boolean;
+}
+
+export interface ISubNavigationProperties {
+  readonly title?: string;
+  readonly items: ReadonlyArray<ISubNavigationItem>;
+}
+
 export function Header(params: IHeaderProperties): ReactElement {
   const platformLink = (
     <li className="govuk-header__navigation-item admin">
@@ -157,5 +168,20 @@ export function Footer(): ReactElement {
         </div>
       </div>
     </footer>
+  );
+}
+
+export function SubNavigation(props: ISubNavigationProperties): ReactElement {
+  return (
+    <div className="govuk-grid-row subnav">
+      <div className="govuk-grid-column-one-third">
+        <strong>{props.title}</strong>
+      </div>
+
+      <nav className="govuk-grid-column-two-thirds">
+        {props.items.map((item, index) =>
+          <a key={index} href={item.link} className={`govuk-link ${item.active ? 'active' : ''}`}>{item.text}</a>)}
+      </nav>
+    </div>
   );
 }

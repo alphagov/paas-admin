@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server'; // tslint:disable-line:
 
 import { IViewContext } from '../components/app';
 import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs';
-import { Footer, Header, Main, PhaseBanner } from './partials';
+import { Footer, Header, ISubNavigationProperties, Main, PhaseBanner, SubNavigation } from './partials';
 
 import govukPrintStyles from './govuk.print.scss';
 import govukIE8Styles from './govuk.screen.ie8.scss';
@@ -12,6 +12,7 @@ import govukStyles from './govuk.screen.scss';
 export class Template {
   private _language: string = 'en';
   private _breadcrumbs?: ReadonlyArray<IBreadcrumbsItem>;
+  private _subnav?: ISubNavigationProperties;
 
   constructor(private ctx: IViewContext, private _title?: string) {
   }
@@ -22,6 +23,10 @@ export class Template {
 
   public set title(value: string) {
     this._title = value;
+  }
+
+  public set subnav(value: ISubNavigationProperties) {
+    this._subnav = value;
   }
 
   public render(page: ReactElement): string {
@@ -84,6 +89,7 @@ export class Template {
                 view our pricing
               </a>
             </PhaseBanner>
+            {this._subnav ? <SubNavigation title={this._subnav.title} items={this._subnav.items} /> : undefined}
             {this._breadcrumbs ? <Breadcrumbs items={this._breadcrumbs} /> : undefined}
             <Main>
               {page}
