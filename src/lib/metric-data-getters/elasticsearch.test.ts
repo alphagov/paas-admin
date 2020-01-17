@@ -30,7 +30,7 @@ describe('Elasticsearch', () => {
       expect(data.loadAvg[0].metrics).toContainEqual({ date: rangeStart.toDate(), value: aValue });
     });
 
-    it('should get data filter out the results of bad queries', async () => {
+    it('get data should filter out the results of bad queries', async () => {
       const getSeries = jest.fn();
 
       const rangeStart = moment();
