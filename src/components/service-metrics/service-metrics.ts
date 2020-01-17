@@ -111,12 +111,13 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
 
   const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
 
-  const service = isUserProvidedService ?
-  await cf.userServiceInstance(params.serviceGUID) :
-  await cf.serviceInstance(params.serviceGUID);
+  const service = isUserProvidedService
+    ? await cf.userServiceInstance(params.serviceGUID)
+    : await cf.serviceInstance(params.serviceGUID);
 
-  const serviceLabel = isUserProvidedService ? 'User Provided Service'
-  : (await cf.service(service.entity.service_guid)).entity.label;
+  const serviceLabel = isUserProvidedService
+    ? 'User Provided Service'
+    : (await cf.service(service.entity.service_guid)).entity.label;
 
   const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
     {
@@ -273,12 +274,13 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
 
   const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
 
-  const service = isUserProvidedService ?
-  await cf.userServiceInstance(params.serviceGUID) :
-  await cf.serviceInstance(params.serviceGUID);
+  const service = isUserProvidedService
+    ? await cf.userServiceInstance(params.serviceGUID)
+    : await cf.serviceInstance(params.serviceGUID);
 
-  const serviceLabel = isUserProvidedService ? 'User Provided Service'
-  : (await cf.service(service.entity.service_guid)).entity.label;
+  const serviceLabel = isUserProvidedService
+    ? 'User Provided Service'
+    : (await cf.service(service.entity.service_guid)).entity.label;
 
   const defaultTemplateParams = {
     routePartOf: ctx.routePartOf,
