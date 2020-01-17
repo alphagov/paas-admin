@@ -112,6 +112,11 @@
           "file": "src/components/reports/views.tsx",
           "method": "SankeyInputJSON",
           "comment": "This block is NOT customazible, meaning nothing should be able to inject code into it. It needs to NOT be securely parsed either, as this would parse JSON required by frontend with escaped syntax."
+        },
+        {
+          "file": "src/components/service-metrics/views.tsx",
+          "method": "MetricChartGraph",
+          "comment": "This block is NOT customazible, meaning nothing should be able to inject code into it. It needs to NOT be securely parsed either, as we're building charts in the backeng and returning HTML markup."
         }
       ]
     ],

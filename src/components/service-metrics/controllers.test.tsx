@@ -1,14 +1,13 @@
 import nock from 'nock';
 
-import {downloadServiceMetrics, resolveServiceMetrics, viewServiceMetrics} from '.';
-
 import moment from 'moment';
 import querystring from 'querystring';
 
+import { testSpacing } from '../../layouts/react-spacing.test';
 import { getStubCloudwatchMetricsData } from '../../lib/aws/aws-cloudwatch.test.data';
 import { getStubResourcesByTag } from '../../lib/aws/aws-tags.test.data';
 import * as data from '../../lib/cf/cf.test.data';
-import {org as defaultOrg} from '../../lib/cf/test-data/org';
+import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import {
   cloudfrontMetricNames,
   elasticacheMetricNames,
@@ -16,10 +15,13 @@ import {
   rdsMetricNames,
 } from '../../lib/metric-data-getters';
 import { getStubPrometheusMetricsSeriesData } from '../../lib/prom/prom.test.data';
-import {createTestContext} from '../app/app.test-helpers';
-import {IContext} from '../app/context';
+import { createTestContext } from '../app/app.test-helpers';
+import { IContext } from '../app/context';
 
-const ctx: IContext = createTestContext();
+import { composeValue, downloadServiceMetrics, resolveServiceMetrics, viewServiceMetrics } from '.';
+
+const linker = (route) => `https://example.com/${route}`;
+const ctx: IContext = {...createTestContext(), linkTo: linker};
 
 describe('service metrics test suite', () => {
   let oldEnv: any;
@@ -70,6 +72,8 @@ describe('service metrics test suite', () => {
 
     expect(response.status).not.toEqual(302);
     expect(response.body).toContain('name-1508 - Service Metrics');
+
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should show the service metrics page when asking JUST for over one year of metrics', async () => {
@@ -91,6 +95,8 @@ describe('service metrics test suite', () => {
 
     expect(response.status).not.toEqual(302);
     expect(response.body).toContain('name-1508 - Service Metrics');
+
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should return cloudwatch metrics for a postgres backing service', async () => {
@@ -117,6 +123,8 @@ describe('service metrics test suite', () => {
 
     expect(response.status).not.toEqual(302);
     expect(response.body).toContain('Database Connections');
+
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should return cloudwatch metrics for a redis backing service', async () => {
@@ -144,6 +152,8 @@ describe('service metrics test suite', () => {
 
     expect(response.status).not.toEqual(302);
     expect(response.body).toContain('Cache hits');
+
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should return cloudwatch metrics for a cdn-route backing service', async () => {
@@ -176,6 +186,8 @@ describe('service metrics test suite', () => {
     expect(response.status).not.toEqual(302);
     expect(response.body).toContain('Requests');
     expect(response.body).toContain('Total error rate');
+
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should return prometheus metrics for an elasticsearch backing service', async () => {
@@ -211,6 +223,8 @@ describe('service metrics test suite', () => {
     expect(response.body).toContain('Disk write rate');
     expect(response.body).toContain('Network in');
     expect(response.body).toContain('Network out');
+
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should not return metrics for a user provided service', async () => {
@@ -227,6 +241,8 @@ describe('service metrics test suite', () => {
     expect(response.body).not.toContain('Database Connections');
     expect(response.body).not.toContain('Cache hits');
     expect(response.body).toContain('Metrics are not available for this service yet.');
+
+    expect(testSpacing(response.body as string)).toHaveLength(0);
   });
 
   it('should throw an error when encountering an unknown service', async () => {
@@ -362,8 +378,7 @@ describe('service metrics test suite', () => {
       .filter(line => line.length > 0)
     ;
 
-    expect(lines.length).toBeGreaterThan(2);
-    expect(lines.length).toBeLessThan(400);
+    expect(lines.length).toEqual(2);
 
     const [{}, first, ...{}] = lines;
     const [{}, firstDate, {}] = first.split(',');
@@ -408,8 +423,7 @@ describe('service metrics test suite', () => {
 
     const lines = response.download.data.split('\n');
 
-    expect(lines.length).toBeGreaterThan(2);
-    expect(lines.length).toBeLessThan(450);
+    expect(lines.length).toEqual(2);
 
     const [{}, first, ...{}] = lines;
     const [{}, {}, firstDate, {}] = first.split(',');
@@ -459,8 +473,7 @@ describe('service metrics test suite', () => {
 
     const lines = response.download.data.split('\n');
 
-    expect(lines.length).toBeGreaterThan(2);
-    expect(lines.length).toBeLessThan(450);
+    expect(lines.length).toEqual(2);
 
     const [{}, first, ...{}] = lines;
     const [{}, firstDate, ...{}] = first.split(',');
@@ -506,8 +519,7 @@ describe('service metrics test suite', () => {
 
     const lines = response.download.data.split('\n');
 
-    expect(lines.length).toBeGreaterThan(2);
-    expect(lines.length).toBeLessThan(450);
+    expect(lines.length).toEqual(2);
 
     const [{}, first, ...{}] = lines;
     const [{}, {}, firstDate, {}] = first.split(',');
@@ -619,5 +631,13 @@ describe('service metrics test suite', () => {
       rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
     })).rejects.toThrow(/Unrecognised service label User Provided Service/);
+  });
+});
+
+describe(composeValue, () => {
+  it('should compose values correctly', () => {
+    expect(composeValue(2048, 'Bytes')).toEqual('2.00KiB');
+    expect(composeValue(45, 'Percent')).toEqual('45.00%');
+    expect(composeValue(128)).toEqual('128.00');
   });
 });

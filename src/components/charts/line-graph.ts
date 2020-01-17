@@ -1,11 +1,11 @@
-import {extent, max} from 'd3-array';
-import {axisBottom, axisLeft} from 'd3-axis';
-import {format as d3Format} from 'd3-format';
-import {scaleLinear, scaleTime} from 'd3-scale';
-import {select} from 'd3-selection';
-import {line} from 'd3-shape';
-import {JSDOM} from 'jsdom';
-import {flatMap} from 'lodash';
+import { extent, max } from 'd3-array';
+import { axisBottom, axisLeft } from 'd3-axis';
+import { format as d3Format } from 'd3-format';
+import { scaleLinear, scaleTime } from 'd3-scale';
+import { select } from 'd3-selection';
+import { line } from 'd3-shape';
+import { JSDOM } from 'jsdom';
+import { flatMap } from 'lodash';
 import moment from 'moment';
 
 import {

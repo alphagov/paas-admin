@@ -1,8 +1,10 @@
 import * as cw from '@aws-sdk/client-cloudwatch-node';
 import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
-
-import { mapValues } from 'lodash';
+import { mapValues, values } from 'lodash';
 import moment from 'moment';
+import React from 'react';
+
+import { bytesConvert, Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import {
   CloudFrontMetricDataGetter,
@@ -17,30 +19,21 @@ import {
   RDSMetricDataGetter,
   rdsMetricNames,
 } from '../../lib/metric-data-getters';
-import { IMetricSerie } from '../../lib/metrics';
 import roundDown from '../../lib/moment/round';
 import PromClient from '../../lib/prom';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
-import { CLOUD_CONTROLLER_ADMIN, CLOUD_CONTROLLER_GLOBAL_AUDITOR, CLOUD_CONTROLLER_READ_ONLY_ADMIN } from '../auth';
-import { fromOrg, IBreadcrumb } from '../breadcrumbs';
-import { drawLineGraph, summariseSerie } from '../charts/line-graph';
+import { fromOrg } from '../breadcrumbs';
+import { summariseSerie } from '../charts/line-graph';
 import { UserFriendlyError } from '../errors';
 
-import cloudfrontMetricsTemplate from './cloudfront-service-metrics-csv.njk';
-import cloudfrontServiceMetricsTemplate from './cloudfront-service-metrics.njk';
-
-import elasticacheMetricsTemplate from './elasticache-service-metrics-csv.njk';
-import elasticacheServiceMetricsTemplate from './elasticache-service-metrics.njk';
-
-import elasticsearchMetricsTemplate from './elasticsearch-service-metrics-csv.njk';
-import elasticsearchServiceMetricsTemplate from './elasticsearch-service-metrics.njk';
-
-import rdsMetricsTemplate from './rds-service-metrics-csv.njk';
-import rdsServiceMetricsTemplate from './rds-service-metrics.njk';
-
-import unsupportedServiceMetricsTemplate from './unsupported-service-metrics.njk';
+import { cloudFrontMetrics, elastiCacheMetrics, elasticSearchMetrics, rdsMetrics } from './metrics';
 import { getPeriod } from './utils';
+import {
+  IMetricProperties,
+  MetricPage,
+  UnsupportedServiceMetricsPage,
+} from './views';
 
 interface IRange {
   readonly period: moment.Duration;
@@ -79,12 +72,6 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
     logger: ctx.app.logger,
   });
 
-  const isAdmin = ctx.token.hasAnyScope(
-    CLOUD_CONTROLLER_ADMIN,
-    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-  );
-
   if (!params.rangeStart || !params.rangeStop) {
     return {
       status: 302,
@@ -101,9 +88,7 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
 
   const {rangeStart, rangeStop, period} = parseRange(params.rangeStart, params.rangeStop);
 
-  const [isManager, isBillingManager, userProvidedServices, space, organization] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+  const [userProvidedServices, space, organization] = await Promise.all([
     cf.userServices(params.spaceGUID),
     cf.space(params.spaceGUID),
     cf.organization(params.organizationGUID),
@@ -119,7 +104,8 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
     ? 'User Provided Service'
     : (await cf.service(service.entity.service_guid)).entity.label;
 
-  const breadcrumbs: ReadonlyArray<IBreadcrumb> = fromOrg(ctx, organization, [
+  const template = new Template(ctx.viewContext, `${service.entity.name} - Service Metrics`);
+  template.breadcrumbs = fromOrg(ctx, organization, [
     {
       text: space.entity.name,
       href: ctx.linkTo('admin.organizations.spaces.services.list', {
@@ -131,41 +117,37 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
   ]);
 
   const defaultTemplateParams = {
-    routePartOf: ctx.routePartOf,
+    csrf: ctx.viewContext.csrf,
     linkTo: ctx.linkTo,
-    context: ctx.viewContext,
-    organization,
+    organizationGUID: organization.metadata.guid,
+    period,
+    rangeStart: rangeStart.toDate(),
+    rangeStop: rangeStop.toDate(),
+    routePartOf: ctx.routePartOf,
     service,
     serviceLabel,
-    space,
-    isAdmin,
-    isBillingManager,
-    isManager,
-    breadcrumbs,
-    period,
-    rangeStart,
-    rangeStop,
-    downloadLink: ctx.linkTo('admin.organizations.spaces.services.metrics.download', {
-      organizationGUID: organization.metadata.guid,
-      spaceGUID: space.metadata.guid,
-      serviceGUID: service.metadata.guid,
-      rangeStart,
-      rangeStop,
-    }),
+    spaceGUID: space.metadata.guid,
   };
 
   if (serviceLabel === 'User Provided Service') {
+
     return {
-      body: unsupportedServiceMetricsTemplate.render(defaultTemplateParams),
+      body: template.render(<UnsupportedServiceMetricsPage {...defaultTemplateParams} />),
     };
   }
 
-  let template;
-  let metricSeries;
+  const downloadLink = ctx.linkTo('admin.organizations.spaces.services.metrics.download', {
+    organizationGUID: organization.metadata.guid,
+    spaceGUID: space.metadata.guid,
+    serviceGUID: service.metadata.guid,
+    rangeStart,
+    rangeStop,
+  });
+  let metrics: ReadonlyArray<IMetricProperties>;
 
   switch (serviceLabel) {
     case 'cdn-route':
-      const cloudfrontMetricSeries = await new CloudFrontMetricDataGetter(
+      const cloudFrontMetricSeries = await new CloudFrontMetricDataGetter(
         new cw.CloudWatchClient({
           region: 'us-east-1',
           endpoint: ctx.app.awsCloudwatchEndpoint,
@@ -176,9 +158,11 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         }),
       ).getData(cloudfrontMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
 
-      template = cloudfrontServiceMetricsTemplate;
-      metricSeries = cloudfrontMetricSeries;
-
+      metrics = cloudFrontMetrics(
+        cloudFrontMetricSeries,
+        mapValues(cloudFrontMetricSeries, s => s.map(summariseSerie)),
+        downloadLink,
+      );
       break;
     case 'postgres':
     case 'mysql':
@@ -189,24 +173,28 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         }),
       ).getData(rdsMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
 
-      template = rdsServiceMetricsTemplate;
-      metricSeries = rdsMetricSeries;
-
+      metrics = rdsMetrics(
+        rdsMetricSeries,
+        mapValues(rdsMetricSeries, s => s.map(summariseSerie)),
+        downloadLink,
+      );
       break;
     case 'redis':
-      const elasticacheMetricSeries = await new ElastiCacheMetricDataGetter(
+      const elastiCacheMetricSeries = await new ElastiCacheMetricDataGetter(
         new cw.CloudWatchClient({
           region: ctx.app.awsRegion,
           endpoint: ctx.app.awsCloudwatchEndpoint,
         }),
       ).getData(elasticacheMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
 
-      template = elasticacheServiceMetricsTemplate;
-      metricSeries = elasticacheMetricSeries;
-
+      metrics = elastiCacheMetrics(
+        elastiCacheMetricSeries,
+        mapValues(elastiCacheMetricSeries, s => s.map(summariseSerie)),
+        downloadLink,
+      );
       break;
     case 'elasticsearch':
-      const elasticsearchMetricSeries = await new ElasticsearchMetricDataGetter(
+      const elasticSearchMetricSeries = await new ElasticsearchMetricDataGetter(
         new PromClient(
           ctx.app.prometheusEndpoint,
           ctx.app.prometheusUsername,
@@ -215,23 +203,18 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         ),
       ).getData(elasticsearchMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
 
-      template = elasticsearchServiceMetricsTemplate;
-      metricSeries = elasticsearchMetricSeries;
-
+      metrics = elasticSearchMetrics(
+        elasticSearchMetricSeries,
+        mapValues(elasticSearchMetricSeries, s => s.map(summariseSerie)),
+        downloadLink,
+      );
       break;
     default:
       throw new Error(`Unrecognised service label ${serviceLabel}`);
   }
 
-  const metricSummaries = mapValues(metricSeries, s => s.map(summariseSerie));
-
   return {
-    body: template.render({
-      ...defaultTemplateParams,
-      drawLineGraph,
-      metricSeries,
-      metricSummaries,
-    }),
+    body: template.render(<MetricPage {...defaultTemplateParams} metrics={metrics} />),
   };
 }
 
@@ -241,12 +224,6 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
     apiEndpoint: ctx.app.cloudFoundryAPI,
     logger: ctx.app.logger,
   });
-
-  const isAdmin = ctx.token.hasAnyScope(
-    CLOUD_CONTROLLER_ADMIN,
-    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-  );
 
   if (!params.rangeStart || !params.rangeStop || !params.metric || !params.units) {
     return {
@@ -264,13 +241,7 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
 
   const {rangeStart, rangeStop, period} = parseRange(params.rangeStart, params.rangeStop);
 
-  const [isManager, isBillingManager, userProvidedServices, space, organization] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
-    cf.userServices(params.spaceGUID),
-    cf.space(params.spaceGUID),
-    cf.organization(params.organizationGUID),
-  ]);
+  const userProvidedServices = await cf.userServices(params.spaceGUID);
 
   const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
 
@@ -282,26 +253,10 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
     ? 'User Provided Service'
     : (await cf.service(service.entity.service_guid)).entity.label;
 
-  const defaultTemplateParams = {
-    routePartOf: ctx.routePartOf,
-    linkTo: ctx.linkTo,
-    context: ctx.viewContext,
-    organization,
-    service,
-    serviceLabel,
-    space,
-    isAdmin,
-    isBillingManager,
-    isManager,
-    period,
-    rangeStart,
-    rangeStop,
-  };
-
   const name = `${serviceLabel}-metrics-${params.metric}-${params.rangeStart}-${params.rangeStop}.csv`;
 
-  let template: { render: (a: any) => string };
-  let metricData: ReadonlyArray<IMetricSerie> | undefined;
+  let headers: ReadonlyArray<string>;
+  let contents: ReadonlyArray<ReadonlyArray<string>>;
 
   switch (serviceLabel) {
     case 'cdn-route':
@@ -316,9 +271,14 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
         }),
       ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
 
-      template = cloudfrontMetricsTemplate;
-      metricData = cloudfrontMetricSeries[params.metric];
-
+      headers = ['Service', 'Time', 'Value'];
+      contents = values(cloudfrontMetricSeries[params.metric])
+      .map(metric => metric.metrics.map(series => [
+        serviceLabel,
+        moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+        composeValue(series.value, params.units),
+      ]))
+      .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
     case 'postgres':
     case 'mysql':
@@ -329,12 +289,16 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
         }),
       ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
 
-      template = rdsMetricsTemplate;
-      metricData = rdsMetricSeries[params.metric];
-
+      headers = ['Service', 'Time', 'Value'];
+      contents = values(rdsMetricSeries[params.metric])
+      .map(metric => metric.metrics.map(series => [
+        serviceLabel,
+        moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+        composeValue(series.value, params.units),
+      ]))
+      .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
     case 'redis':
-
       const elasticacheMetricSeries = await new ElastiCacheMetricDataGetter(
         new cw.CloudWatchClient({
           region: ctx.app.awsRegion,
@@ -342,12 +306,17 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
         }),
       ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
 
-      template = elasticacheMetricsTemplate;
-      metricData = elasticacheMetricSeries[params.metric];
-
+      headers = ['Service', 'Instance', 'Time', 'Value'];
+      contents = values(elasticacheMetricSeries[params.metric])
+        .map(metric => metric.metrics.map(series => [
+          serviceLabel,
+          metric.label,
+          moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+          composeValue(series.value, params.units),
+        ]))
+        .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
     case 'elasticsearch':
-
       const elasticsearchMetricSeries = await new ElasticsearchMetricDataGetter(
         new PromClient(
           ctx.app.prometheusEndpoint,
@@ -357,27 +326,34 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
         ),
       ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
 
-      template = elasticsearchMetricsTemplate;
-      metricData = elasticsearchMetricSeries[params.metric];
-
+      headers = ['Service', 'Instance', 'Time', 'Value'];
+      contents = values(elasticsearchMetricSeries[params.metric])
+        .map(metric => metric.metrics.map(series => [
+          serviceLabel,
+          metric.label,
+          moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+          composeValue(series.value, params.units),
+        ]))
+        .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
     default:
       throw new Error(`Unrecognised service label ${serviceLabel}`);
   }
 
-  if (typeof metricData === 'undefined') {
+  if (!contents.length) {
     throw new Error(`Did not get metric ${params.metric} for ${serviceLabel}`);
   }
+
+  const csvData = [
+    headers,
+    contents,
+  ];
 
   return {
     mimeType: 'text/csv',
     download: {
       name,
-      data: template.render({
-        ...defaultTemplateParams,
-        units: params.units,
-        metricData,
-      }),
+      data: csvData.map(line => line.join(',')).join('\n'),
     },
   };
 }
@@ -400,4 +376,18 @@ function parseRange(start: string, stop: string): IRange {
   const period = moment.duration(getPeriod(rangeStart, rangeStop), 'seconds');
 
   return { period, rangeStart: roundDown(rangeStart, period), rangeStop: roundDown(rangeStop, period) };
+}
+
+export function composeValue(value: number, units?: string): string {
+  const safeValue = isNaN(value) ? 0 : value;
+
+  switch (units) {
+    case 'Bytes':
+      const bytes = bytesConvert(safeValue);
+      return `${bytes.value}${bytes.short}`;
+    case 'Percent':
+      return `${safeValue.toFixed(2)}%`;
+  }
+
+  return `${safeValue.toFixed(2)}`;
 }
