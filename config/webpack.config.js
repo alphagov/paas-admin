@@ -101,18 +101,6 @@ let cfg = {
         ]
       },
       {
-        test: /\.(njk|html)$/,
-        use: [
-          {
-            loader: path.resolve(__dirname, './njk-loader.js'),
-            options: {
-              includePaths: ['@govuk-frontend/govuk/components'],
-              configure: path.resolve(__dirname, './nunjucks.config.js')
-            }
-          }
-        ]
-      },
-      {
         test: /\.(ts(x?))/,
         use: [
           {

@@ -135,7 +135,6 @@
     "nanoid": "^2.1.9",
     "node-jose": "^1.1.3",
     "notifications-node-client": "^4.7.0",
-    "nunjucks": "^3.2.0",
     "openid-client": "^3.11.0",
     "p-limit": "^2.2.2",
     "passport": "^0.4.1",
@@ -160,7 +159,6 @@
     "testEnvironment": "node",
     "coveragePathIgnorePatterns": [
       "/node_modules/",
-      "/.+.njk",
       "<rootDir>/config/",
       "<rootDir>/src/components/errors/",
       "index.ts"
@@ -186,7 +184,6 @@
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest",
       "^.+\\.(css|scss|sass)$": "identity-obj-proxy",
-      "^.+\\.(html|njk)$": "<rootDir>/config/jest/njk.js",
       "^.+\\.(pegjs)$": "<rootDir>/config/jest/pegjs.js",
       "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/config/jest/file.js"
     },

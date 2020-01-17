@@ -9,7 +9,6 @@ export default {
     ],
     scriptSrc: [
       `'self'`,
-      // node_modules/govuk-frontend/template.njk, xpath: //html/body/script[1]
       `'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU='`,
       'www.google-analytics.com',
       'www.googletagmanager.com',
