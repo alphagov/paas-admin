@@ -40,4 +40,7 @@ export const config: IAppConfig = {
   awsCloudwatchEndpoint: 'https://aws-cloudwatch.example.com/',
   awsResourceTaggingAPIEndpoint: 'https://aws-tags.example.com',
   adminFee: 0.1,
+  prometheusEndpoint: 'https://example.com/prom',
+  prometheusUsername: 'prometheusUsername',
+  prometheusPassword: 'prometheusPassword',
 };

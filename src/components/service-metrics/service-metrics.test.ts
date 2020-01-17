@@ -9,6 +9,13 @@ import { getStubCloudwatchMetricsData } from '../../lib/aws/aws-cloudwatch.test.
 import { getStubResourcesByTag } from '../../lib/aws/aws-tags.test.data';
 import * as data from '../../lib/cf/cf.test.data';
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
+import {
+  cloudfrontMetricNames,
+  elasticacheMetricNames,
+  elasticsearchMetricNames,
+  rdsMetricNames,
+} from '../../lib/metric-data-getters';
+import { getStubPrometheusMetricsSeriesData } from '../../lib/prom/prom.test.data';
 import {createTestContext} from '../app/app.test-helpers';
 import {IContext} from '../app/context';
 
@@ -46,10 +53,10 @@ describe('service metrics test suite', () => {
 
   it('should show the service metrics page', async () => {
     nock('https://aws-cloudwatch.example.com/')
-      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
-        {id: 'mFreeStorageSpace', label: ''},
-        {id: 'mCPUUtilization', label: ''},
-      ]));
+      .post('/')
+      .times(1)
+      .reply(200, getStubCloudwatchMetricsData(rdsMetricNames.map(m => ({ id: m, label: m }))))
+    ;
 
     mockService(data.serviceObj);
 
@@ -67,10 +74,10 @@ describe('service metrics test suite', () => {
 
   it('should show the service metrics page when asking JUST for over one year of metrics', async () => {
     nock('https://aws-cloudwatch.example.com/')
-      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
-        {id: 'mFreeStorageSpace', label: ''},
-        {id: 'mCPUUtilization', label: ''},
-      ]));
+      .post('/')
+      .times(1)
+      .reply(200, getStubCloudwatchMetricsData(rdsMetricNames.map(m => ({ id: m, label: m }))))
+    ;
 
     mockService(data.serviceObj);
 
@@ -88,10 +95,10 @@ describe('service metrics test suite', () => {
 
   it('should return cloudwatch metrics for a postgres backing service', async () => {
     nock('https://aws-cloudwatch.example.com/')
-      .post('/').times(1).reply(200, getStubCloudwatchMetricsData([
-        {id: 'mFreeStorageSpace', label: 'some-label'},
-        {id: 'mCPUUtilization', label: ''},
-      ]));
+      .post('/')
+      .times(1)
+      .reply(200, getStubCloudwatchMetricsData(rdsMetricNames.map(m => ({ id: m, label: m }))))
+    ;
 
     mockService({
       ...data.serviceObj,
@@ -114,10 +121,10 @@ describe('service metrics test suite', () => {
 
   it('should return cloudwatch metrics for a redis backing service', async () => {
     nock('https://aws-cloudwatch.example.com/')
-      .post('/').times(2).reply(200, getStubCloudwatchMetricsData([
-        {id: 'mCacheHits', label: ''},
-        {id: 'mCacheMisses', label: ''},
-      ]));
+      .post('/')
+      .times(2)
+      .reply(200, getStubCloudwatchMetricsData(elasticacheMetricNames.map(m => ({ id: m, label: m }))))
+    ;
 
     mockService({
       ...data.serviceObj,
@@ -139,16 +146,15 @@ describe('service metrics test suite', () => {
     expect(response.body).toContain('Cache hits');
   });
 
-  it('should return cloudwatch metrics for a cloudfront backing service', async () => {
+  it('should return cloudwatch metrics for a cdn-route backing service', async () => {
     nock('https://aws-tags.example.com/')
       .post('/').reply(200, getStubResourcesByTag())
     ;
 
     nock('https://aws-cloudwatch.example.com/')
-      .post('/').times(2).reply(200, getStubCloudwatchMetricsData([
-        {id: 'mRequests', label: ''},
-        {id: 'mTotalErrorRate', label: ''},
-      ]))
+      .post('/')
+      .times(2)
+      .reply(200, getStubCloudwatchMetricsData(cloudfrontMetricNames.map(m => ({ id: m, label: m }))))
     ;
 
     mockService({
@@ -172,6 +178,41 @@ describe('service metrics test suite', () => {
     expect(response.body).toContain('Total error rate');
   });
 
+  it('should return prometheus metrics for an elasticsearch backing service', async () => {
+    nock('https://example.com/prom')
+      .get('/api/v1/query_range')
+      .query(true)
+      .times(elasticsearchMetricNames.length)
+      .reply(200, getStubPrometheusMetricsSeriesData(['001', '002']))
+    ;
+
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'elasticsearch',
+      },
+    });
+
+    const response = await viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+    });
+
+    expect(response.status).not.toEqual(302);
+    expect(response.body).toContain('Load average');
+    expect(response.body).toContain('Memory');
+    expect(response.body).toContain('Elasticsearch indices count');
+    expect(response.body).toContain('Disk usage');
+    expect(response.body).toContain('Disk read rate');
+    expect(response.body).toContain('Disk write rate');
+    expect(response.body).toContain('Network in');
+    expect(response.body).toContain('Network out');
+  });
+
   it('should not return metrics for a user provided service', async () => {
     const userProvidedServiceGUID = '54e4c645-7d20-4271-8c27-8cc904e1e7ee';
     const response = await viewServiceMetrics(ctx, {
@@ -186,6 +227,24 @@ describe('service metrics test suite', () => {
     expect(response.body).not.toContain('Database Connections');
     expect(response.body).not.toContain('Cache hits');
     expect(response.body).toContain('Metrics are not available for this service yet.');
+  });
+
+  it('should throw an error when encountering an unknown service', async () => {
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'unknown-service-label',
+      },
+    });
+
+    await expect(viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+    })).rejects.toThrow(/Unrecognised service label unknown-service-label/);
   });
 
   it('should redirect if no range provided', async () => {
@@ -288,6 +347,7 @@ describe('service metrics test suite', () => {
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       metric: 'mFreeStorageSpace',
+      units: 'Bytes',
       rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
     });
@@ -336,6 +396,7 @@ describe('service metrics test suite', () => {
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       metric: 'mCacheHits',
+      units: 'Number',
       rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
     });
@@ -355,7 +416,7 @@ describe('service metrics test suite', () => {
     expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
   });
 
-  it('should download a cloudfront csv', async () => {
+  it('should download a cdn-route csv', async () => {
     nock('https://aws-tags.example.com/')
       .post('/').reply(200, getStubResourcesByTag())
     ;
@@ -386,6 +447,7 @@ describe('service metrics test suite', () => {
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       metric: 'mRequests',
+      units: 'Number',
       rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
     });
@@ -405,18 +467,102 @@ describe('service metrics test suite', () => {
     expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
   });
 
-  it('should fail to download csv if no data returned from cloudwatch', async () => {
+  it('should download an elasticsearch csv', async () => {
+    nock('https://example.com/prom')
+      .get('/api/v1/query_range')
+      .query(true)
+      .times(elasticsearchMetricNames.length)
+      .reply(200, getStubPrometheusMetricsSeriesData(['001', '002']))
+    ;
+
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'elasticsearch',
+      },
+    });
+
+    const rangeStop = moment();
+    const rangeStart = rangeStop.subtract(1, 'hour');
+
+    const response = await downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'loadAvg',
+      units: 'Number',
+      rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+    });
+
+    expect(response.mimeType).toEqual('text/csv');
+    expect(response.download.name).toMatch(/elasticsearch-metrics.*\.csv/);
+    expect(response.download.data).toMatch(/Service,Instance,Time,Value/);
+    expect(response.download.data).toMatch(new RegExp(`elasticsearch,00[1-2],${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`));
+
+    const lines = response.download.data.split('\n');
+
+    expect(lines.length).toBeGreaterThan(2);
+    expect(lines.length).toBeLessThan(450);
+
+    const [{}, first, ...{}] = lines;
+    const [{}, {}, firstDate, {}] = first.split(',');
+    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
+  });
+
+  it('should fail to download csv if no data returned from prometheus', async () => {
+    nock('https://example.com/prom')
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(200, getStubPrometheusMetricsSeriesData([]))
+    ;
+
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'elasticsearch',
+      },
+    });
+
     await expect(downloadServiceMetrics({
       ...ctx,
       linkTo: (_name, params) => querystring.stringify(params),
     }, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
-      metric: 'mFreeStorageSpace',
+      metric: 'diskUsed',
+      units: 'Bytes',
       rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
-      })).rejects.toThrow(/No response from Cloudwatch/);
+    })).rejects.toThrow(/Did not get metric diskUsed for elasticsearch/);
+  });
+
+  it('should fail to download csv if no data returned from cloudwatch', async () => {
+    nock('https://aws-cloudwatch.example.com/')
+      .post('/')
+      .reply(200, getStubCloudwatchMetricsData([]))
+    ;
+
+    mockService(data.serviceObj);
+
+    await expect(downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'mFreeStorageSpace',
+      units: 'Bytes',
+      rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+    })).rejects.toThrow(/Did not get metric mFreeStorageSpace for postgres/);
   });
 
   it('should redirect if no range or metric provided for csv download', async () => {
@@ -433,5 +579,45 @@ describe('service metrics test suite', () => {
     expect(response.status).toEqual(302);
     expect(response.redirect).toContain('rangeStart');
     expect(response.redirect).toContain('rangeStop');
+  });
+
+  it('should fail to download csv if the service label is not known', async () => {
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'unknown-service-label',
+      },
+    });
+
+    await expect(downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'aMetric',
+      units: 'aUnit',
+      rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+    })).rejects.toThrow(/Unrecognised service label unknown-service-label/);
+  });
+
+  it('should fail to download csv for a user provided service', async () => {
+    const userProvidedServiceGUID = '54e4c645-7d20-4271-8c27-8cc904e1e7ee';
+
+    await expect(downloadServiceMetrics({
+      ...ctx,
+      linkTo: (_name, params) => querystring.stringify(params),
+    }, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      serviceGUID: userProvidedServiceGUID,
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+      metric: 'aMetric',
+      units: 'aUnit',
+      rangeStart: moment().subtract(1, 'hour').format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+    })).rejects.toThrow(/Unrecognised service label User Provided Service/);
   });
 });

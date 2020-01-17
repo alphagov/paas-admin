@@ -43,7 +43,15 @@
     format: 'number',
     titleHTML: 'Requests',
     descriptionHTML: 'How many HTTP requests your CDN route service has served.',
-    metric: metricGraphsById['mRequests'],
+    chart: drawLineGraph(
+      'HTTP requests',
+      'Number',
+      '.2s',
+      metricSeries['mRequests']
+    ),
+    units: 'Number',
+    metric: 'mRequests',
+    summaries: metricSummaries['mRequests'],
     downloadLink: downloadLink
   }) }}
 
@@ -52,7 +60,15 @@
     format: 'percentile',
     titleHTML: 'Total error rate',
     descriptionHTML: 'The percentages of HTTP responses with either a 4XX or 5XX HTTP status code, which can represent a client or a server error.',
-    metric: metricGraphsById['mTotalErrorRate'],
+    chart: drawLineGraph(
+      'percentage of HTTP requests with either a 4XX or 5XX status code',
+      'Percent',
+      '.1s',
+      metricSeries['mTotalErrorRate']
+    ),
+    units: 'Percent',
+    metric: 'mTotalErrorRate',
+    summaries: metricSummaries['mTotalErrorRate'],
     downloadLink: downloadLink
   }) }}
 
@@ -61,7 +77,15 @@
     format: 'percentile',
     titleHTML: '4xx error rate',
     descriptionHTML: 'The percentages of HTTP responses with a 4XX HTTP status code, which represents a client error.',
-    metric: metricGraphsById['m4xxErrorRate'],
+    chart: drawLineGraph(
+      'percentage of HTTP requests with a 4XX status code',
+      'Percent',
+      '.1s',
+      metricSeries['m4xxErrorRate']
+    ),
+    units: 'Percent',
+    metric: 'm4xxErrorRate',
+    summaries: metricSummaries['m4xxErrorRate'],
     downloadLink: downloadLink
   }) }}
 
@@ -70,7 +94,15 @@
     format: 'percentile',
     titleHTML: '5xx error rate',
     descriptionHTML: 'The percentages of HTTP responses with a 5XX HTTP status code, which represents a server error.',
-    metric: metricGraphsById['m5xxErrorRate'],
+    chart: drawLineGraph(
+      'percentage of HTTP requests with a 5XX status code',
+      'Percent',
+      '.1s',
+      metricSeries['m5xxErrorRate']
+    ),
+    units: 'Percent',
+    metric: 'm5xxErrorRate',
+    summaries: metricSummaries['m5xxErrorRate'],
     downloadLink: downloadLink
   }) }}
 
@@ -79,7 +111,15 @@
     format: 'bytes',
     titleHTML: 'Bytes uploaded',
     descriptionHTML: 'The number of bytes sent to your applications by the CDN route service.',
-    metric: metricGraphsById['mBytesUploaded'],
+    chart: drawLineGraph(
+      'number of bytes sent to the origin',
+      'Bytes',
+      '.2s',
+      metricSeries['mBytesUploaded']
+    ),
+    units: 'Bytes',
+    metric: 'mBytesUploaded',
+    summaries: metricSummaries['mBytesUploaded'],
     downloadLink: downloadLink
   }) }}
 
@@ -88,7 +128,15 @@
     format: 'bytes',
     titleHTML: 'Bytes downloaded',
     descriptionHTML: 'The number of bytes received from your applications by the CDN route service.',
-    metric: metricGraphsById['mBytesDownloaded'],
+    chart: drawLineGraph(
+      'number of bytes received from the origin',
+      'Bytes',
+      '.2s',
+      metricSeries['mBytesDownloaded']
+    ),
+    units: 'Bytes',
+    metric: 'mBytesDownloaded',
+    summaries: metricSummaries['mBytesDownloaded'],
     downloadLink: downloadLink
   }) }}
 </div>

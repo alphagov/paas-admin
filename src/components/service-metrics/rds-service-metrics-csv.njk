@@ -8,7 +8,7 @@
   {%- endif -%}
 {%- endmacro -%}
 Service,Time,Value{{ "\n" -}}
-{% for series in metricData.seriesArray[0].metrics -%}
-  {%- set row = [serviceLabel, series.date | dateTime, fmt(series.value, metricData.units)] -%}
+{% for series in metricData[0].metrics -%}
+  {%- set row = [serviceLabel, series.date | dateTime, fmt(series.value, units)] -%}
   {{- row | join(",") }}{{ "\n" -}}
 {% endfor -%}

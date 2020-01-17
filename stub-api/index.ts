@@ -1,9 +1,10 @@
 import express from 'express';
-import stubAws from './stub-aws';
-import stubUaa from './stub-uaa';
 import stubAccounts from './stub-accounts';
+import stubAws from './stub-aws';
 import stubBilling from './stub-billing';
 import stubCf from './stub-cf';
+import stubPrometheus from './stub-prometheus';
+import stubUaa from './stub-uaa';
 
 export interface IStubServerConfig {
   name: string;
@@ -46,6 +47,11 @@ const apis: readonly IStubServerConfig[] = [
     name: 'aws',
     ports: {adminPort, apiPort: parseInt(process.env['STUB_AWS_PORT'] || '3005', 10)},
     factory: stubAws,
+  },
+  {
+    name: 'prometheus',
+    ports: {adminPort, apiPort: parseInt(process.env['STUB_PROMETHEUS_PORT'] || '3005', 10)},
+    factory: stubPrometheus,
   },
 ];
 

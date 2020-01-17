@@ -101,6 +101,9 @@ async function main() {
     awsCloudwatchEndpoint: process.env.AWS_CLOUDWATCH_ENDPOINT,
     awsResourceTaggingAPIEndpoint: process.env.AWS_RESOURCE_TAGGING_API_ENDPOINT,
     adminFee: .1,
+    prometheusEndpoint: expectEnvVariable('PROMETHEUS_ENDPOINT'),
+    prometheusUsername: expectEnvVariable('PROMETHEUS_USERNAME'),
+    prometheusPassword: expectEnvVariable('PROMETHEUS_PASSWORD'),
   };
 
   const server = new Server(app(config), {

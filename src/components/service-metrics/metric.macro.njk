@@ -9,9 +9,9 @@
     <div class="govuk-grid-column-two-thirds-from-desktop">
         <p>{{ params.descriptionHTML | safe }}</p>
 
-        <div>{{ params.metric.graph | safe }}</div>
+        <div>{{ params.chart.outerHTML | safe }}</div>
 
-        {% set csvlink =  [params.downloadLink, '&metric=', params.metric.id] %}
+        {% set csvlink =  [params.downloadLink, '&metric=', params.metric, '&units=', params.units] %}
         <a href="{{ csvlink | join }}" class="govuk-link" title="Download as a CSV">Download as a CSV</a>
     </div>
     <div class="govuk-grid-column-one-third-from-desktop">
@@ -19,16 +19,16 @@
         <caption class="govuk-table__caption govuk-visually-hidden">Summary</caption>
         <thead class="govuk-table__head">
           <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__header {{ 'govuk-visually-hidden' if params.metric.seriesSummaries.length == 1 }}"><small>Instance</small></th>
-            {% for series in params.metric.seriesSummaries %}
-              <th scope="col" class="govuk-table__header govuk-table__header--numeric {{ 'govuk-visually-hidden' if params.metric.seriesSummaries.length == 1 }}"><small>{{ series.label }}</small></th>
+            <th scope="col" class="govuk-table__header {{ 'govuk-visually-hidden' if params.summaries.length == 1 }}"><small>Instance</small></th>
+            {% for series in params.summaries %}
+              <th scope="col" class="govuk-table__header govuk-table__header--numeric {{ 'govuk-visually-hidden' if params.summaries.length == 1 }}"><small>{{ series.label }}</small></th>
             {% endfor %}
           </tr>
         </thead>
         <tbody class="govuk-table__body">
           <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header"><small>Latest</small></th>
-            {% for series in params.metric.seriesSummaries %}
+            {% for series in params.summaries %}
               <td class="govuk-table__cell govuk-table__cell--numeric">
                 <small>
                   {% if params.format === 'bytes' %}
@@ -45,7 +45,7 @@
           <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header"><small>Average</small></th>
 
-            {% for series in params.metric.seriesSummaries %}
+            {% for series in params.summaries %}
               <td class="govuk-table__cell govuk-table__cell--numeric">
                 <small>
                   {% if params.format === 'bytes' %}
@@ -62,7 +62,7 @@
           <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header"><small>Min</small></th>
 
-            {% for series in params.metric.seriesSummaries %}
+            {% for series in params.summaries %}
               <td class="govuk-table__cell govuk-table__cell--numeric">
                 <small>
                   {% if params.format === 'bytes' %}
@@ -79,7 +79,7 @@
           <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__header"><small>Max</small></th>
 
-            {% for series in params.metric.seriesSummaries %}
+            {% for series in params.summaries %}
               <td class="govuk-table__cell govuk-table__cell--numeric">
                 <small>
                   {% if params.format === 'bytes' %}

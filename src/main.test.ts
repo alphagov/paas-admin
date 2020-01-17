@@ -20,6 +20,9 @@ const envVars = {
   GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',
   TEST_TIMEOUT: process.env.TEST_TIMEOUT as string,
   DOMAIN_NAME: 'https://admin.example.com',
+  PROMETHEUS_ENDPOINT: 'https://example.com/prom',
+  PROMETHEUS_USERNAME: 'admin',
+  PROMETHEUS_PASSWORD: 'password',
 };
 
 export interface IProcess extends ChildProcess {

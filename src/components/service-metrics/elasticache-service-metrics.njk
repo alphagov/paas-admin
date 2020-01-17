@@ -48,7 +48,15 @@
     titleHTML: 'CPU Utilisation',
     descriptionHTML: 'How much computational work redis is doing. High CPU Utilisation may indicate you need to reduce your usage
         or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans" class="govuk-link">update your service to use a bigger plan</a>.',
-    metric: metricGraphsById['mCPUUtilization'],
+    chart: drawLineGraph(
+      'percentage CPU Utilisation',
+      'Percent',
+      '.2r',
+      metricSeries['mCPUUtilization']
+    ),
+    units: 'Percent',
+    metric: 'mCPUUtilization',
+    summaries: metricSummaries['mCPUUtilization'],
     downloadLink: downloadLink
   }) }}
 
@@ -60,7 +68,15 @@
       internal buffers. If redis reaches its memory limit and cannot evict any
       keys it will return errors when executing commands that increase memory
       use.',
-    metric: metricGraphsById['mBytesUsedForCache'],
+    chart: drawLineGraph(
+      'bytes used for the cache',
+      'Bytes',
+      '.2s',
+      metricSeries['mBytesUsedForCache']
+    ),
+    units: 'Bytes',
+    metric: 'mBytesUsedForCache',
+    summaries: metricSummaries['mBytesUsedForCache'],
     downloadLink: downloadLink
   }) }}
 
@@ -70,7 +86,15 @@
     titleHTML: 'Swap memory used',
     descriptionHTML: 'If redis is running low on memory it will start to swap memory onto the hard disk. If redis is using more than 50 <abbr title="MegaBytes">MB</abbr>
       of swap memory you may need to reduce your usage or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans" class="govuk-link">update your service to use a bigger plan</a>.',
-    metric: metricGraphsById['mSwapUsage'],
+    chart: drawLineGraph(
+      'bytes used in swap memory',
+      'Bytes',
+      '.2s',
+      metricSeries['mSwapUsage']
+    ),
+    units: 'Bytes',
+    metric: 'mSwapUsage',
+    summaries: metricSummaries['mSwapUsage'],
     downloadLink: downloadLink
   }) }}
 
@@ -79,7 +103,15 @@
     titleHTML: 'Evictions',
     descriptionHTML: 'Redis will evict keys when it reaches its configured memory limit. It will try to remove less recently used keys first, but only among keys
       that have an EXPIRE set. If there are no keys left to evict redis will return errors when executing commands that increase memory use.',
-    metric: metricGraphsById['mEvictions'],
+    chart: drawLineGraph(
+      'number of keys evicted by Redis',
+      'Number',
+      '.2s',
+      metricSeries['mEvictions']
+    ),
+    units: 'Number',
+    metric: 'mEvictions',
+    summaries: metricSummaries['mEvictions'],
     downloadLink: downloadLink
   }) }}
 
@@ -88,7 +120,15 @@
     titleHTML: 'Connection count',
     descriptionHTML: 'How many open connections there are to redis. High values may indicate problems with your applications&apos; connection management.
       Zero values may indicate that redis is unavailable, or that your applications cannot connect to the database.',
-    metric: metricGraphsById['mCurrConnections'],
+    chart: drawLineGraph(
+      'number of connections to Redis',
+      'Number',
+      '.2r',
+      metricSeries['mCurrConnections']
+    ),
+    units: 'Number',
+    metric: 'mCurrConnections',
+    summaries: metricSummaries['mCurrConnections'],
     downloadLink: downloadLink
   }) }}
 
@@ -96,7 +136,15 @@
     id: 'cache-hits',
     titleHTML: 'Cache hits',
     descriptionHTML: 'The number of successful key lookups.',
-    metric: metricGraphsById['mCacheHits'],
+    chart: drawLineGraph(
+      'number of cache hits',
+      'Number',
+      '.2s',
+      metricSeries['mCacheHits']
+    ),
+    units: 'Number',
+    metric: 'mCacheHits',
+    summaries: metricSummaries['mCacheHits'],
     downloadLink: downloadLink
   }) }}
 
@@ -104,7 +152,15 @@
     id: 'cache-misses',
     titleHTML: 'Cache misses',
     descriptionHTML: 'The number of unsuccessful key lookups.',
-    metric: metricGraphsById['mCacheMisses'],
+    chart: drawLineGraph(
+      'number of cache misses',
+      'Number',
+      '.2s',
+      metricSeries['mCacheMisses']
+    ),
+    units: 'Number',
+    metric: 'mCacheMisses',
+    summaries: metricSummaries['mCacheMisses'],
     downloadLink: downloadLink
   }) }}
 
@@ -112,7 +168,15 @@
     id: 'item-count',
     titleHTML: 'Item count',
     descriptionHTML: 'The number of items in redis.',
-    metric: metricGraphsById['mCurrItems'],
+    chart: drawLineGraph(
+      'number of cache misses',
+      'Number',
+      '.2s',
+      metricSeries['mCurrItems']
+    ),
+    units: 'Number',
+    metric: 'mCurrItems',
+    summaries: metricSummaries['mCurrItems'],
     downloadLink: downloadLink
   }) }}
 
@@ -121,7 +185,15 @@
     format: 'bytes',
     titleHTML: 'Network bytes in',
     descriptionHTML: 'The number of bytes redis has read from the network.',
-    metric: metricGraphsById['mNetworkBytesIn'],
+    chart: drawLineGraph(
+      'number of bytes redis has read from the network',
+      'Bytes',
+      '.2s',
+      metricSeries['mNetworkBytesIn']
+    ),
+    units: 'Bytes',
+    metric: 'mNetworkBytesIn',
+    summaries: metricSummaries['mNetworkBytesIn'],
     downloadLink: downloadLink
   }) }}
 
@@ -130,7 +202,15 @@
     format: 'bytes',
     titleHTML: 'Network bytes out',
     descriptionHTML: 'The number of bytes sent by redis.',
-    metric: metricGraphsById['mNetworkBytesOut'],
+    chart: drawLineGraph(
+      'number of bytes sent by redis',
+      'Bytes',
+      '.2s',
+      metricSeries['mNetworkBytesOut']
+    ),
+    units: 'Bytes',
+    metric: 'mNetworkBytesOut',
+    summaries: metricSummaries['mNetworkBytesOut'],
     downloadLink: downloadLink
   }) }}
 </div>
