@@ -74,7 +74,7 @@
     "loader-utils": "^1.2.3",
     "lodash": "^4.17.15",
     "mocha": "^6.2.2",
-    "nock": "^11.7.1",
+    "nock": "^11.7.2",
     "node-sass": "^4.13.0",
     "nodemon-webpack-plugin": "^4.2.2",
     "pegjs": "^0.10.0",
