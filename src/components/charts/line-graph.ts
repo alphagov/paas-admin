@@ -137,9 +137,8 @@ export function drawLineGraph(
 }
 
 export function summariseSerie(serie: IMetricSerie): IMetricSerieSummary {
-  const matches = serie.label.match(/-(\d+$)/);
+  const matches = serie.label.match(/-(\d{3})/);
 
-  // istanbul ignore next
   const label = matches && matches.length > 1 ? matches[1] : '001';
 
   const latestMetric = serie.metrics.reduce((value, m) => !isNaN(m.value) ? m.value : value, 0);

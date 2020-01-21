@@ -1,4 +1,5 @@
-import {drawLineGraph} from './line-graph';
+import { IMetricSerie } from '../../lib/metrics';
+import { drawLineGraph, summariseSerie } from './line-graph';
 
 const defaultTitle = 'some title';
 const defaultUnits = 'some-units';
@@ -66,5 +67,37 @@ describe('line graphs', () => {
     expect(seriesPaths).toHaveLength(3);
     const legends = result.querySelectorAll('.legend');
     expect(legends).toHaveLength(0);
+  });
+});
+
+describe(summariseSerie, () => {
+  const metricSerie: IMetricSerie = {
+    label: 'cf-0aaa00aaaa0aa-002 MetricName',
+    metrics: [
+      { date: new Date(`2020-01-01[T]00:00:00`), value: 90 },
+      { date: new Date(`2020-01-01[T]01:00:00`), value: 32 },
+      { date: new Date(`2020-01-01[T]02:00:00`), value: 56 },
+      { date: new Date(`2020-01-01[T]03:00:00`), value: 12 },
+      { date: new Date(`2020-01-01[T]04:00:00`), value: 2 },
+      { date: new Date(`2020-01-01[T]05:00:00`), value: 94 },
+      { date: new Date(`2020-01-01[T]06:00:00`), value: 73 },
+      { date: new Date(`2020-01-01[T]07:00:00`), value: NaN },
+    ],
+  };
+
+  it('should generate summary correctly', () => {
+    const summary = summariseSerie(metricSerie);
+
+    expect(summary.label).toEqual('002');
+    expect(summary.max).toEqual(94);
+    expect(summary.min).toEqual(2);
+    expect(summary.average.toFixed(2)).toEqual('51.29');
+    expect(summary.latest).toEqual(73);
+  });
+
+  it('should fallback to default label if cannot match pattern', () => {
+    const summary = summariseSerie({ ...metricSerie, label: 'cf MetricName' });
+
+    expect(summary.label).toEqual('001');
   });
 });
