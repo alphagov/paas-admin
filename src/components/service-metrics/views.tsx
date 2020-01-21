@@ -134,9 +134,14 @@ function Metric(props: IMetricProperties): ReactElement {
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
               <th scope="col" className={`govuk-table__header ${props.summaries.length === 1 ? 'govuk-visually-hidden' : ''}`}><small>Instance</small></th>
-              {props.summaries.map(series => (
-                <th key={series.label} scope="col" className={`govuk-table__header govuk-table__header--numeric ${props.summaries.length === 1 ? 'govuk-visually-hidden' : ''}`}>
-                  <small>{series.label}</small>
+              {props.summaries.map((series, index) => (
+                <th key={index} scope="col" className={`govuk-table__header govuk-table__header--numeric ${props.summaries.length === 1 ? 'govuk-visually-hidden' : ''}`}>
+                  <small>
+                    {series.label.length > 3
+                      ? <abbr title={series.label}>{String(index).padStart(3, '0')}</abbr>
+                      : series.label
+                    }
+                  </small>
                 </th>
               ))}
             </tr>

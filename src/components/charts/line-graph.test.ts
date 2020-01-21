@@ -98,6 +98,6 @@ describe(summariseSerie, () => {
   it('should fallback to default label if cannot match pattern', () => {
     const summary = summariseSerie({ ...metricSerie, label: 'cf MetricName' });
 
-    expect(summary.label).toEqual('001');
+    expect(summary.label).toEqual('cf MetricName');
   });
 });
