@@ -4,7 +4,7 @@ import moment from 'moment';
 import React from 'react';
 
 import { DATE_TIME } from '../../layouts';
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { IAccountsUser } from '../../lib/accounts';
 import { IAuditEvent, IAuditEventActorTarget } from '../../lib/cf/types';
 import { Details, Event, TargetedEvent, Totals } from './views';
@@ -12,7 +12,7 @@ import { Details, Event, TargetedEvent, Totals } from './views';
 describe(Details, () => {
   it('should display details element', () => {
     const markup = shallow(<Details />);
-    expect(testSpacing(markup.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(markup.html())).toHaveLength(0);
   });
 });
 
@@ -37,7 +37,7 @@ describe(Event, () => {
     expect($('.actor dd').text()).not.toContain(event.actor.guid);
     expect($('.description dd').text()).toContain(event.type);
     expect($('.metadata dd').text()).toContain('\"droplet_guid\": \"DROPLET_GUID\"');
-    expect(testSpacing($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });
 
   it('should display event element when actors name is missing', () => {
@@ -51,7 +51,7 @@ describe(Event, () => {
     expect($('.description dd').text()).not.toContain(event.type);
     expect($('.description dd').text()).not.toContain('audit.space.create');
     expect($('.description dd').text()).toContain('Created space');
-    expect(testSpacing($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });
 
   it('should display event element when actor separately provided', () => {
@@ -59,7 +59,7 @@ describe(Event, () => {
     const $ = cheerio.load(markup.html());
     expect($('.actor dd').text()).toContain(actor.email);
     expect($('.actor dd').text()).toContain('jeff');
-    expect(testSpacing($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });
 });
 
@@ -87,7 +87,7 @@ describe(TargetedEvent, () => {
     expect($('.target dd code').text()).toContain(target.guid);
     expect($('.description dd').text()).toContain(event.type);
     expect($('.metadata dd').text()).toContain('\"droplet_guid\": \"DROPLET_GUID\"');
-    expect(testSpacing($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });
 
   it('should display targeted event element when actors name is missing', () => {
@@ -102,7 +102,7 @@ describe(TargetedEvent, () => {
     expect($('.description dd').text()).not.toContain(event.type);
     expect($('.description dd').text()).not.toContain('audit.space.create');
     expect($('.description dd').text()).toContain('Created space');
-    expect(testSpacing($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });
 
   it('should display targeted event element when actor separately provided', () => {
@@ -111,7 +111,7 @@ describe(TargetedEvent, () => {
     expect($('.actor dd').text()).toContain(actor.email);
     expect($('.target dd').text()).toContain('jeff');
     expect($('.target dd').text()).not.toContain(target.guid);
-    expect(testSpacing($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });
 });
 
@@ -120,6 +120,6 @@ describe(Totals, () => {
     const markup = shallow(<Totals results={5} page={1} pages={1} />);
     const $ = cheerio.load(markup.html());
     expect($('p').text()).toContain('There are 5 total events. Displaying page 1 of 1.');
-    expect(testSpacing($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });
 });

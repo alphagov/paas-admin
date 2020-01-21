@@ -5,7 +5,7 @@ import nock from 'nock';
 import * as spaces from '.';
 
 import { DATE_TIME } from '../../layouts';
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
 import {app as defaultApp} from '../../lib/cf/test-data/app';
 import {auditEvent as defaultAuditEvent} from '../../lib/cf/test-data/audit-event';
@@ -61,7 +61,7 @@ describe('space event', () => {
     expect(response.body).toContain(/* Actor       */ 'admin');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show the email of the event actor if it is a user with an email', async () => {
@@ -90,7 +90,7 @@ describe('space event', () => {
     expect(response.body).toContain(/* Actor       */ 'one@user.in.database');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show the name event actor if it is not a user', async () => {
@@ -113,7 +113,7 @@ describe('space event', () => {
     expect(response.body).toContain(/* Actor       */ 'unknown-actor');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 });
 
@@ -187,7 +187,7 @@ describe('spaces test suite', () => {
     expect(response.body).toContain('Spaces');
     expect(response.body).toMatch(/0[.]00.*GiB.*\s+of\s+20[.]00.*GiB/m);
     expect(response.body).toMatch(/1[.]00.*GiB.*\s+of\s+no limit/m);
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show list of applications in space', async () => {
@@ -208,7 +208,7 @@ describe('spaces test suite', () => {
     const response = await spaces.listApplications(ctx, {organizationGUID, spaceGUID});
 
     expect(response.body).toContain(`${appName} - Overview`);
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show list of services in space', async () => {
@@ -233,7 +233,7 @@ describe('spaces test suite', () => {
 
     expect(response.body).toContain('name-2064 - Overview');
     expect(response.body).toContain('name-2104');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   describe('viewing events', () => {
@@ -263,7 +263,7 @@ describe('spaces test suite', () => {
         expect(response.body).toContain('name-2064 - Space Events');
         expect(response.body).toContain('Displaying page 1 of 1');
         expect(response.body).toContain('0 total events');
-        expect(testSpacing(response.body as string)).toHaveLength(0);
+        expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
       });
     });
 
@@ -331,7 +331,7 @@ describe('spaces test suite', () => {
         expect(response.body).toContain('Created application');
 
         expect(response.body).toContain('<code>some unknown event type</code>');
-        expect(testSpacing(response.body as string)).toHaveLength(0);
+        expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
       });
     });
   });

@@ -2,7 +2,7 @@ import cheerio from 'cheerio';
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 
 import { Breadcrumbs } from './views';
 
@@ -27,6 +27,6 @@ describe(Breadcrumbs, () => {
     expect($('li:last-of-type').text()).toEqual('4');
     expect($('li:last-of-type').prop('aria-current')).toEqual('page');
 
-    expect(testSpacing(markup.html() as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(markup.html() as string)).toHaveLength(0);
   });
 });

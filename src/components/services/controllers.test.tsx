@@ -1,6 +1,6 @@
 import nock from 'nock';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
 import {createTestContext} from '../app/app.test-helpers';
@@ -30,7 +30,7 @@ describe('services test suite', () => {
     });
 
     expect(response.body).toContain('name-1508 - Service Overview');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show the user provided service overview page', async () => {
@@ -41,6 +41,6 @@ describe('services test suite', () => {
     });
 
     expect(response.body).toContain('name-1700 - Service Overview');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 });

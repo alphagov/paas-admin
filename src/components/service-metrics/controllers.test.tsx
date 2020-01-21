@@ -3,7 +3,7 @@ import nock from 'nock';
 import moment from 'moment';
 import querystring from 'querystring';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { getStubCloudwatchMetricsData } from '../../lib/aws/aws-cloudwatch.test.data';
 import { getStubResourcesByTag } from '../../lib/aws/aws-tags.test.data';
 import * as data from '../../lib/cf/cf.test.data';
@@ -73,7 +73,7 @@ describe('service metrics test suite', () => {
     expect(response.status).not.toEqual(302);
     expect(response.body).toContain('name-1508 - Service Metrics');
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show the service metrics page when asking JUST for over one year of metrics', async () => {
@@ -96,7 +96,7 @@ describe('service metrics test suite', () => {
     expect(response.status).not.toEqual(302);
     expect(response.body).toContain('name-1508 - Service Metrics');
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should return cloudwatch metrics for a postgres backing service', async () => {
@@ -124,7 +124,7 @@ describe('service metrics test suite', () => {
     expect(response.status).not.toEqual(302);
     expect(response.body).toContain('Database Connections');
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should return cloudwatch metrics for a redis backing service', async () => {
@@ -153,7 +153,7 @@ describe('service metrics test suite', () => {
     expect(response.status).not.toEqual(302);
     expect(response.body).toContain('Cache hits');
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should return cloudwatch metrics for a cdn-route backing service', async () => {
@@ -187,7 +187,7 @@ describe('service metrics test suite', () => {
     expect(response.body).toContain('Requests');
     expect(response.body).toContain('Total error rate');
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should return prometheus metrics for an elasticsearch backing service', async () => {
@@ -224,7 +224,7 @@ describe('service metrics test suite', () => {
     expect(response.body).toContain('Network in');
     expect(response.body).toContain('Network out');
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should not return metrics for a user provided service', async () => {
@@ -242,7 +242,7 @@ describe('service metrics test suite', () => {
     expect(response.body).not.toContain('Cache hits');
     expect(response.body).toContain('Metrics are not available for this service yet.');
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should throw an error when encountering an unknown service', async () => {

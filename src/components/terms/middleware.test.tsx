@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import request from 'supertest';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { config } from '../app/app.test.config';
 import { Token } from '../auth';
 
@@ -72,7 +72,7 @@ describe('terms test suite', () => {
     const response = await agent.get('/');
     expect(response.text).toContain('HOME');
     expect(response.status).toEqual(200);
-    expect(testSpacing(response.text)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.text)).toHaveLength(0);
   });
 
   it('should redirect to view terms if there is a pending doc', async () => {
@@ -80,7 +80,7 @@ describe('terms test suite', () => {
     const response = await agent.get('/user-with-pending').redirects(0);
     expect(response.status).toEqual(302);
     expect(response.header.location).toEqual('/agreements/my-pending-doc');
-    expect(testSpacing(response.text as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.text as string)).toHaveLength(0);
   });
 
   it('should render a terms document with a form that references the document id', async () => {
@@ -90,7 +90,7 @@ describe('terms test suite', () => {
     expect($('[name="document_name"]').prop('value')).toEqual('my-pending-doc');
     expect(response.text).toContain('my-pending-doc-content-1');
     expect(response.status).toEqual(200);
-    expect(testSpacing(response.text as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.text as string)).toHaveLength(0);
   });
 
   it('should NOT redirect if there are no pending docs', async () => {

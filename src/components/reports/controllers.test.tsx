@@ -5,7 +5,7 @@ import lodash from 'lodash';
 import moment from 'moment';
 import nock from 'nock';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as cf from '../../lib/cf/cf.test.data';
 import { org as defaultOrg, v3Org as defaultOrgv3 } from '../../lib/cf/test-data/org';
 import { wrapResources, wrapV3Resources } from '../../lib/cf/test-data/wrap-resources';
@@ -312,7 +312,7 @@ describe('cost report test suite', () => {
     expect((response.body || '').toString().match(/£0[.]00/g))
       .toHaveLength(6);
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should report some billables but not attribute to org', async () => {
@@ -389,7 +389,7 @@ describe('cost report test suite', () => {
     expect((response.body || '').toString().match(/£0[.]00/g))
       .toHaveLength(4);
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should filter billable events by service plan', async () => {
@@ -446,13 +446,13 @@ describe('cost report test suite', () => {
     const firstResponse = await reports.viewCostReport(ctx, {rangeStart, service: 'matching plan'});
     expect((firstResponse.body || '').toString()).toMatch(/£1337\.13/);
 
-    expect(testSpacing(firstResponse.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(firstResponse.body as string)).toHaveLength(0);
 
     const secondResponse = await reports.viewCostReport(ctx, {rangeStart, service: 'non-matching plan'});
     expect((secondResponse.body || '').toString()).not.toMatch(/£1337\.13/);
     expect((secondResponse.body || '').toString()).toMatch(/£0\.00/);
 
-    expect(testSpacing(secondResponse.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(secondResponse.body as string)).toHaveLength(0);
   });
 
   it('should report some billables and attribute to org', async () => {
@@ -526,7 +526,7 @@ describe('cost report test suite', () => {
     expect((response.body || '').toString().match(/£0[.]02/g))
       .toHaveLength(6);
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('empty sumRecords', async () => {
@@ -816,7 +816,7 @@ describe('html cost report by service test suite', () => {
     expect(response.body)
       .toContain(`Billables by organisation and service for ${period}`);
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should group billable events by org and service', async () => {
@@ -886,7 +886,7 @@ describe('html cost report by service test suite', () => {
     expect(reponseBody).toMatch(/unknown<\/td><td class="govuk-table__cell govuk-table__cell--numeric">£10000.00/);
     expect(reponseBody).toMatch(/unknown<\/td><td class="govuk-table__cell govuk-table__cell--numeric">£100000.00/);
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
 });
@@ -1455,7 +1455,7 @@ describe('html visualisation report test suite', () => {
     expect(response.body).toContain(`No data`);
     expect(response.body).not.toContain(`<svg id="sankey"`);
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show non empty report for non-zero billables', async () => {
@@ -1502,7 +1502,7 @@ describe('html visualisation report test suite', () => {
     expect(response.body).toContain(`<svg id="sankey"`);
     expect(response.body).not.toContain(`No data`);
 
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 });
 

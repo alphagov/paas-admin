@@ -3,7 +3,7 @@ import pinoMiddleware from 'express-pino-logger';
 import pino from 'pino';
 import request from 'supertest';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import Router, { NotAuthorisedError, NotFoundError } from '../../lib/router';
 
 import { internalServerErrorMiddleware, UserFriendlyError } from '.';
@@ -46,7 +46,7 @@ describe('middleware', () => {
       expect(response.status).toEqual(500);
       expect(response.text).toContain('Sorry an error occurred');
       expect(response.text).toContain('friendly-bang');
-      expect(testSpacing(response.text)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.text)).toHaveLength(0);
     });
 
     it('should display a not-found 404 error page if a route throws that type of error', async () => {
@@ -58,7 +58,7 @@ describe('middleware', () => {
 
       expect(response.status).toEqual(404);
       expect(response.text).toContain('Page not found');
-      expect(testSpacing(response.text)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.text)).toHaveLength(0);
     });
 
     it('should display a not-authorised 403 error page if a route throws that type of error', async () => {
@@ -70,7 +70,7 @@ describe('middleware', () => {
 
       expect(response.status).toEqual(403);
       expect(response.text).toContain('Page not authorised');
-      expect(testSpacing(response.text)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.text)).toHaveLength(0);
     });
   });
 });

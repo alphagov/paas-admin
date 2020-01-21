@@ -4,7 +4,7 @@ import nock from 'nock';
 
 import * as orgUsers from '.';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as cfData from '../../lib/cf/cf.test.data';
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
@@ -110,7 +110,7 @@ describe('org-users test suite', () => {
     expect(response.body).toContain('Custom-origin-1');
     expect(response.body).toContain('Custom-origin-2');
     expect(response.body).toContain('Custom-origin-3');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should not show users who do not have UAA accounts', async () => {
@@ -192,7 +192,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Invite a new team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show error message when email is missing', async () => {
@@ -239,7 +239,7 @@ describe('org-users test suite', () => {
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][billing_managers]"]:checked').length).toEqual(0);
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][auditors]"]:checked').length).toEqual(1);
     expect(response.status).toEqual(400);
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     // tslint:enable:max-line-length
   });
 
@@ -271,7 +271,7 @@ describe('org-users test suite', () => {
 
     expect(response.body).toContain('a valid email address is required');
     expect(response.status).toEqual(400);
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show error message when invitee is already a member of org', async () => {
@@ -315,7 +315,7 @@ describe('org-users test suite', () => {
 
     expect(response.body).toContain('is already a member of the organisation');
     expect(response.status).toEqual(400);
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show error when no roles selected', async () => {
@@ -346,7 +346,7 @@ describe('org-users test suite', () => {
 
     expect(response.body).toContain('at least one role should be selected');
     expect(response.status).toEqual(400);
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, set BillingManager role and show success', async () => {
@@ -407,7 +407,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Invited a new team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, set OrgManager role and show success', async () => {
@@ -466,7 +466,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Invited a new team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, set OrgAuditor role and show success', async () => {
@@ -524,7 +524,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Invited a new team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, set SpaceManager role and show success', async () => {
@@ -583,7 +583,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Invited a new team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, set SpaceDeveloper role and show success', async () => {
@@ -642,7 +642,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Invited a new team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, set SpaceAuditor role and show success', async () => {
@@ -701,7 +701,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Invited a new team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should invite the user, and add them to accounts', async () => {
@@ -815,7 +815,7 @@ describe('org-users test suite', () => {
     }, {});
 
     expect(response.body).toContain('Invited a new team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show the user delete page', async () => {
@@ -873,7 +873,7 @@ describe('org-users test suite', () => {
     }, {});
 
     expect(response.body).toContain('Deleted a team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show the user edit page', async () => {
@@ -922,7 +922,7 @@ describe('org-users test suite', () => {
     expect(response.body).toContain('one@user.in.database');
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers]"]:disabled').length).toEqual(0);
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20]"]:checked').length).toEqual(3);
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     // tslint:enable:max-line-length
   });
 
@@ -974,7 +974,7 @@ describe('org-users test suite', () => {
     expect($('input[type="hidden"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers][desired]"]').length).toEqual(1);
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][billing_managers]"]:disabled').length).toEqual(1);
     expect($('input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20]"]:checked').length).toEqual(3);
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     // tslint:enable:max-line-length
   });
 
@@ -1098,7 +1098,7 @@ describe('org-users test suite', () => {
 
     expect(response.body).toContain('at least one role should be selected');
     expect(response.status).toEqual(400);
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set BillingManager role and show success - User Edit', async () => {
@@ -1139,7 +1139,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Updated a team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, remove BillingManager role and show success - User Edit', async () => {
@@ -1182,7 +1182,7 @@ describe('org-users test suite', () => {
       },
     });
     expect(response.body).toContain('Updated a team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set OrgManager role and show success - User Edit', async () => {
@@ -1263,7 +1263,7 @@ describe('org-users test suite', () => {
       },
     });
     expect(response.body).toContain('Updated a team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set OrgAuditor role and show success - User Edit', async () => {
@@ -1302,7 +1302,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Updated a team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, remove OrgAuditor role and show success - User Edit', async () => {
@@ -1346,7 +1346,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Updated a team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set SpaceManager role and show success - User Edit', async () => {
@@ -1385,7 +1385,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Updated a team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set SpaceDeveloper role and show success - User Edit', async () => {
@@ -1424,7 +1424,7 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Updated a team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should update the user, set SpaceAuditor role and show success - User Edit', async () => {
@@ -1463,6 +1463,6 @@ describe('org-users test suite', () => {
     });
 
     expect(response.body).toContain('Updated a team member');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 });

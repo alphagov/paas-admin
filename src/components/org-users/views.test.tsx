@@ -2,7 +2,7 @@ import cheerio from 'cheerio';
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { IOrganization, IOrganizationUserRoles, ISpace } from '../../lib/cf/types';
 import { DeleteConfirmationPage, IUserRoles, OrganizationUsersPage, Permission, PermissionTable } from './views';
 
@@ -22,7 +22,7 @@ describe(Permission, () => {
     expect($('input[type="hidden"][name="permission[desired]"]').prop('value')).toEqual('0');
     expect($('input[type="checkbox"][name="permission[desired]"]:checked').length).toEqual(0);
     expect($('input[type="checkbox"][name="permission[desired]"]:disabled').length).toEqual(1);
-    expect(testSpacing($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });
 });
 
@@ -90,7 +90,7 @@ describe(PermissionTable, () => {
     expect($('input[type="checkbox"][name^="space_roles[SPACE_GUID_3][developers][desired]"]:checked').length)
       .toEqual(0);
     expect($('input[type="checkbox"][name^="space_roles[SPACE_GUID_3][auditors][desired]"]:checked').length).toEqual(1);
-    expect(testSpacing($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });
 
   it('should display correctly with disabled checked manager boxes when not enough managers', () => {
@@ -122,7 +122,7 @@ describe(PermissionTable, () => {
     expect($('input[type="hidden"][name^="org_roles[ORG_GUID][billing_managers][desired]"]').length).toEqual(1);
 
     expect($('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked').length).toEqual(1);
-    expect(testSpacing($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });
 
   it('should display correctly with enabled unchecked manager boxes when not enough managers', () => {
@@ -150,7 +150,7 @@ describe(PermissionTable, () => {
     expect($('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:checked').length).toEqual(0);
     expect($('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:disabled').length).toEqual(0);
     expect($('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked').length).toEqual(1);
-    expect(testSpacing($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });
 });
 

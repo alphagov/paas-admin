@@ -3,7 +3,7 @@ import moment from 'moment';
 import nock from 'nock';
 
 import * as statement from '.';
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as billingData from '../../lib/billing/billing.test.data';
 import * as data from '../../lib/cf/cf.test.data';
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
@@ -92,7 +92,7 @@ describe('statements test suite', () => {
     });
 
     expect(response.body).toContain('Statement');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should prepare statement to download', async () => {

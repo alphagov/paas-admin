@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 import { IContext } from '../app';
 import { createTestContext } from '../app/app.test-helpers';
@@ -24,7 +24,7 @@ describe('account test suite', () => {
       ctx = setUpUAA(uaaData.ssoUser);
       const response = await account.getUseGoogleSSO(ctx, {});
       expect(response.body).toContain('id="opt-out-process-explanation"');
-      expect(testSpacing(response.body as string)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     });
 
     it('throws an error view when Google SSO is not configured', async () => {
@@ -39,7 +39,7 @@ describe('account test suite', () => {
       ctx = setUpUAA(uaaData.user);
       const response = await account.getUseGoogleSSO(ctx, {});
       expect(response.body).toContain('Activate');
-      expect(testSpacing(response.body as string)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     });
   });
 
@@ -94,7 +94,7 @@ describe('account test suite', () => {
 
         const response = await account.getGoogleOIDCCallback(ctx, params);
         expect(response.body).toContain('Access Denied');
-        expect(testSpacing(response.body as string)).toHaveLength(0);
+        expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
       });
 
       it('if the error is "temporarily_unavailable", returns a try again error', async () => {
@@ -110,7 +110,7 @@ describe('account test suite', () => {
 
         const response = await account.getGoogleOIDCCallback(ctx, params);
         expect(response.body).toContain('try again later');
-        expect(testSpacing(response.body as string)).toHaveLength(0);
+        expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
       });
 
       it('if the error is not "access_denied" or "temporarily_unavailable", returns a generic error', async () => {
@@ -158,7 +158,7 @@ describe('account test suite', () => {
 
       const response = await account.getGoogleOIDCCallback(ctx, {});
       expect((response.body as string).toLowerCase()).toContain('successful');
-      expect(testSpacing(response.body as string)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     });
 
     it('when the callback is unsuccessful, returns a failure template', async () => {
@@ -175,7 +175,7 @@ describe('account test suite', () => {
 
       const response = await account.getGoogleOIDCCallback(ctx, {});
       expect((response.body as string).toLowerCase()).toContain('unable to activate');
-      expect(testSpacing(response.body as string)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     });
   });
 
@@ -192,7 +192,7 @@ describe('account test suite', () => {
       ctx = setUpUAA(uaaData.user);
       const response = await account.getUseMicrosoftSSO(ctx, {});
       expect(response.body).toContain('Activate');
-      expect(testSpacing(response.body as string)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     });
   });
 
@@ -247,7 +247,7 @@ describe('account test suite', () => {
 
         const response = await account.getMicrosoftOIDCCallback(ctx, params);
         expect(response.body).toContain('Access Denied');
-        expect(testSpacing(response.body as string)).toHaveLength(0);
+        expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
       });
 
       it('if the error is "temporarily_unavailable", returns a try again error', async () => {
@@ -263,7 +263,7 @@ describe('account test suite', () => {
 
         const response = await account.getMicrosoftOIDCCallback(ctx, params);
         expect(response.body).toContain('try again later');
-        expect(testSpacing(response.body as string)).toHaveLength(0);
+        expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
       });
 
       it('if the error is not "access_denied" or "temporarily_unavailable", returns a generic error', async () => {
@@ -311,7 +311,7 @@ describe('account test suite', () => {
 
       const response = await account.getMicrosoftOIDCCallback(ctx, {});
       expect((response.body as string).toLowerCase()).toContain('successful');
-      expect(testSpacing(response.body as string)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     });
 
     it('when the callback is unsuccessful, returns a failure template', async () => {
@@ -328,7 +328,7 @@ describe('account test suite', () => {
 
       const response = await account.getMicrosoftOIDCCallback(ctx, {});
       expect((response.body as string).toLowerCase()).toContain('unable to activate');
-      expect(testSpacing(response.body as string)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     });
   });
 });

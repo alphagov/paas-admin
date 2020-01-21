@@ -1,5 +1,5 @@
 import React from 'react';
-import { testSpacing } from './react-spacing.test';
+import { spacesMissingAroundInlineElements } from './react-spacing.test';
 import { Template } from './template';
 
 describe(Template, () => {
@@ -18,7 +18,7 @@ describe(Template, () => {
     expect(markup).toContain('<meta name="csrf-token" content="qwertyuiop-1234567890" />');
     expect(markup).toContain('<body class="govuk-template__body">');
     expect(markup).toContain('<p>This is just a test</p>');
-    expect(testSpacing(markup)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(markup)).toHaveLength(0);
   });
 
   it('should set the default title if one is not provided.', async () => {

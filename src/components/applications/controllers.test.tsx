@@ -3,7 +3,7 @@ import nock from 'nock';
 
 import {viewApplication} from '.';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
 import {app as defaultApp} from '../../lib/cf/test-data/app';
 import {org as defaultOrg} from '../../lib/cf/test-data/org';
@@ -90,7 +90,7 @@ describe('applications test suite', () => {
     expect(response.body).toMatch(/cflinuxfs3/);
     expect(response.body).toMatch(/Detected Buildpack/);
     expect(response.body).not.toMatch(/Docker Image/);
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should say the name of the docker image being used', async () => {

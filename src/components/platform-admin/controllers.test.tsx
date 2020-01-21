@@ -1,7 +1,7 @@
 import cheerio from 'cheerio';
 import jwt from 'jsonwebtoken';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { IResponse } from '../../lib/router';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
@@ -83,7 +83,7 @@ describe(viewHomepage, () => {
       expect(response.body).toMatch(/Costs by service/);
       expect(response.body).toMatch(/Spend for PMO team/);
       expect(response.body).toMatch(/Sankey/);
-      expect(testSpacing(response.body as string)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     });
   });
 });

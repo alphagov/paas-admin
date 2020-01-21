@@ -5,7 +5,7 @@ import nock from 'nock';
 import { viewServiceEvent, viewServiceEvents } from '.';
 
 import { DATE_TIME } from '../../layouts';
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
 import { auditEvent as defaultAuditEvent } from '../../lib/cf/test-data/audit-event';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
@@ -66,7 +66,7 @@ describe('service event', () => {
     expect(response.body).toContain(/* Actor       */ 'admin');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show the email of the event actor if it is a user with an email', async () => {
@@ -96,7 +96,7 @@ describe('service event', () => {
     expect(response.body).toContain(/* Actor       */ 'one@user.in.database');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show the name event actor if it is not a user', async () => {
@@ -120,7 +120,7 @@ describe('service event', () => {
     expect(response.body).toContain(/* Actor       */ 'unknown-actor');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 });
 
@@ -174,7 +174,7 @@ describe('service events', () => {
       expect(response.body).toContain('name-1508 - Service Events');
       expect(response.body).toContain('Displaying page 1 of 1');
       expect(response.body).toContain('0 total events');
-      expect(testSpacing(response.body as string)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     });
   });
 
@@ -236,7 +236,7 @@ describe('service events', () => {
       expect(response.body).toContain('Updated service instance');
       expect(response.body).toContain('Created service instance');
       expect(response.body).toContain('<code>some unknown event type</code>');
-      expect(testSpacing(response.body as string)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     });
   });
 });

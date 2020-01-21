@@ -5,7 +5,7 @@ import nock from 'nock';
 import { viewApplicationEvent, viewApplicationEvents } from '.';
 
 import { DATE_TIME } from '../../layouts';
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
 import { app as defaultApp } from '../../lib/cf/test-data/app';
 import { auditEvent as defaultAuditEvent } from '../../lib/cf/test-data/audit-event';
@@ -242,7 +242,7 @@ describe('application events', () => {
       expect(response.body).toContain('Updated application');
       expect(response.body).toContain('Created application');
       expect(response.body).toContain('<code>some unknown event type</code>');
-      expect(testSpacing(response.body as string)).toHaveLength(0);
+      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
     });
   });
 });

@@ -2,7 +2,7 @@ import lodash from 'lodash';
 import nock from 'nock';
 
 import { listOrganizations } from '.';
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import {
   billableOrgQuota,
@@ -80,7 +80,7 @@ describe('organizations test suite', () => {
 
     expect(response.body).toMatch(/a-org-name-4.*(?!Trial)Billable/sm);
     expect(response.body).toMatch(/a-trial-org-name.*(?!Billable)Trial/sm);
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 });
 

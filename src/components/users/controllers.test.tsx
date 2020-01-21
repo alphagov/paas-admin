@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
-import { testSpacing } from '../../layouts/react-spacing.test';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import {userSummary} from '../../lib/cf/cf.test.data';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 import {createTestContext} from '../app/app.test-helpers';
@@ -143,7 +143,7 @@ describe('users test suite', () => {
     });
 
     expect(response.body).toContain('the-system_domain-org-name');
-    expect(testSpacing(response.body as string)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
   it('should show the users pages for a valid email when read only admin', async () => {
