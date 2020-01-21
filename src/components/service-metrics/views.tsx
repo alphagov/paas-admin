@@ -26,6 +26,7 @@ export interface IMetricProperties {
   readonly units: string;
   readonly format?: string;
   readonly title: ReactNode;
+  readonly titleText?: string;
   readonly description: ReactNode;
   readonly chart: SVGElement;
   readonly summaries: ReadonlyArray<IMetricSerieSummary>;
@@ -128,7 +129,9 @@ function Metric(props: IMetricProperties): ReactElement {
 
           <MetricChart chart={props.chart.outerHTML} />
 
-          <a href={downloadLink.toString()} className="govuk-link">Download as a CSV</a>
+          <a href={downloadLink.toString()} className="govuk-link">
+            Download "{props.titleText || props.title}" as a CSV
+          </a>
       </div>
       <div className="govuk-grid-column-one-third-from-desktop">
         <table className="govuk-table">
