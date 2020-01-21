@@ -40,6 +40,7 @@ interface IRangePickerProperties {
   readonly linkTo: RouteLinker;
   readonly service: IServiceInstance;
   readonly period: moment.Duration;
+  readonly persistancePeriod?: string;
 }
 
 interface IPageProperties {
@@ -52,6 +53,7 @@ interface IPageProperties {
 
 interface IMetricPageProperties extends IPageProperties {
   readonly csrf: string;
+  readonly persistancePeriod?: string;
   readonly rangeStart: Date;
   readonly rangeStop: Date;
   readonly serviceLabel: string;
@@ -176,6 +178,13 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
         Each point is an average over <strong className="non-breaking">{props.period.humanize()}</strong>.
       </p>
 
+      {props.persistancePeriod
+        ? <p className="govuk-body">
+            These metrics are retained for up to <strong>{props.persistancePeriod}</strong>.
+            While metrics are experimental, we cannot guarantee a minimum metrics retention period.
+          </p>
+        : <></>}
+
       <details className="govuk-details" data-module="govuk-details">
         <summary className="govuk-details__summary">
           <span className="govuk-details__summary-text">
@@ -283,7 +292,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds-from-desktop">
-            <p>Currently the available metrics for {props.serviceLabel} are:</p>
+            <p className="govuk-body">Currently the available metrics for {props.serviceLabel} are:</p>
             <ul className="govuk-list">
               {props.metrics.map(metric => (
                 <li key={metric.id}>
@@ -303,6 +312,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
               period={props.period}
               linkTo={props.linkTo}
               service={props.service}
+              persistancePeriod={props.persistancePeriod}
             />
           </div>
         </div>
