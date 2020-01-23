@@ -35,6 +35,8 @@ import {
   UnsupportedServiceMetricsPage,
 } from './views';
 
+const PERSISTANCE_MESSAGE_370_DAYS = '370 days';
+
 interface IRange {
   readonly period: moment.Duration;
   readonly rangeStart: moment.Moment;
@@ -144,6 +146,7 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
     rangeStop,
   });
   let metrics: ReadonlyArray<IMetricProperties>;
+  let persistancePeriod: string | undefined;
 
   switch (serviceLabel) {
     case 'cdn-route':
@@ -203,6 +206,7 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
         ),
       ).getData(elasticsearchMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
 
+      persistancePeriod = PERSISTANCE_MESSAGE_370_DAYS;
       metrics = elasticSearchMetrics(
         elasticSearchMetricSeries,
         mapValues(elasticSearchMetricSeries, s => s.map(summariseSerie)),
@@ -214,7 +218,11 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
   }
 
   return {
-    body: template.render(<MetricPage {...defaultTemplateParams} metrics={metrics} />),
+    body: template.render(<MetricPage
+      {...defaultTemplateParams}
+      metrics={metrics}
+      persistancePeriod={persistancePeriod}
+    />),
   };
 }
 

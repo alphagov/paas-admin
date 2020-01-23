@@ -53,7 +53,7 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
     body: template.render(<ServicePage
       routePartOf={ctx.routePartOf}
       linkTo={ctx.linkTo}
-      service={service}
+      service={summarisedService}
       organizationGUID={organization.metadata.guid}
       spaceGUID={space.metadata.guid}
     />),

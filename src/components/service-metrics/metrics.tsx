@@ -172,6 +172,7 @@ export function rdsMetrics(
     {
       id: 'read-iops',
       title: <>Read <abbr title="Input / Output Operations per Second">IOPS</abbr></>,
+      titleText: 'Read Input / Output Operations per Second',
       description: <>
         How many read operations your database is performing per second. Databases are limited to a number of <abbr
           title="Input / Output Operations per Second">IOPS</abbr> (read + write) based on how big their hard disk is.
@@ -192,6 +193,7 @@ export function rdsMetrics(
     {
       id: 'write-iops',
       title: <>Write <abbr title="Input / Output Operations per Second">IOPS</abbr></>,
+      titleText: 'Write Input / Output Operations per Second',
       description: <>
         How many write operations your database is performing per second. Databases are limited to a number of <abbr
           title="Input / Output Operations per Second">IOPS</abbr> (read + write) based on how big their hard disk is.

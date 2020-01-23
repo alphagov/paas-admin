@@ -26,6 +26,7 @@ export interface IMetricProperties {
   readonly units: string;
   readonly format?: string;
   readonly title: ReactNode;
+  readonly titleText?: string;
   readonly description: ReactNode;
   readonly chart: SVGElement;
   readonly summaries: ReadonlyArray<IMetricSerieSummary>;
@@ -40,6 +41,7 @@ interface IRangePickerProperties {
   readonly linkTo: RouteLinker;
   readonly service: IServiceInstance;
   readonly period: moment.Duration;
+  readonly persistancePeriod?: string;
 }
 
 interface IPageProperties {
@@ -52,6 +54,7 @@ interface IPageProperties {
 
 interface IMetricPageProperties extends IPageProperties {
   readonly csrf: string;
+  readonly persistancePeriod?: string;
   readonly rangeStart: Date;
   readonly rangeStop: Date;
   readonly serviceLabel: string;
@@ -126,7 +129,9 @@ function Metric(props: IMetricProperties): ReactElement {
 
           <MetricChart chart={props.chart.outerHTML} />
 
-          <a href={downloadLink.toString()} className="govuk-link">Download as a CSV</a>
+          <a href={downloadLink.toString()} className="govuk-link">
+            Download "{props.titleText || props.title}" as a CSV
+          </a>
       </div>
       <div className="govuk-grid-column-one-third-from-desktop">
         <table className="govuk-table">
@@ -134,9 +139,14 @@ function Metric(props: IMetricProperties): ReactElement {
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
               <th scope="col" className={`govuk-table__header ${props.summaries.length === 1 ? 'govuk-visually-hidden' : ''}`}><small>Instance</small></th>
-              {props.summaries.map(series => (
-                <th key={series.label} scope="col" className={`govuk-table__header govuk-table__header--numeric ${props.summaries.length === 1 ? 'govuk-visually-hidden' : ''}`}>
-                  <small>{series.label}</small>
+              {props.summaries.map((series, index) => (
+                <th key={index} scope="col" className={`govuk-table__header govuk-table__header--numeric ${props.summaries.length === 1 ? 'govuk-visually-hidden' : ''}`}>
+                  <small>
+                    {series.label.length > 3
+                      ? <abbr title={series.label}>{String(index).padStart(3, '0')}</abbr>
+                      : series.label
+                    }
+                  </small>
                 </th>
               ))}
             </tr>
@@ -170,6 +180,13 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
       <p className="govuk-body">
         Each point is an average over <strong className="non-breaking">{props.period.humanize()}</strong>.
       </p>
+
+      {props.persistancePeriod
+        ? <p className="govuk-body">
+            These metrics are retained for up to <strong>{props.persistancePeriod}</strong>.
+            While metrics are experimental, we cannot guarantee a minimum metrics retention period.
+          </p>
+        : <></>}
 
       <details className="govuk-details" data-module="govuk-details">
         <summary className="govuk-details__summary">
@@ -278,7 +295,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds-from-desktop">
-            <p>Currently the available metrics for {props.serviceLabel} are:</p>
+            <p className="govuk-body">Currently the available metrics for {props.serviceLabel} are:</p>
             <ul className="govuk-list">
               {props.metrics.map(metric => (
                 <li key={metric.id}>
@@ -298,6 +315,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
               period={props.period}
               linkTo={props.linkTo}
               service={props.service}
+              persistancePeriod={props.persistancePeriod}
             />
           </div>
         </div>
