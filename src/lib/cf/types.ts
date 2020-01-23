@@ -24,16 +24,15 @@ export interface IRoute {
 }
 
 export interface IApplication {
-  readonly entity: IApplicationSummary;
+  readonly entity: IApplicationEntity;
   readonly metadata: IMetadata;
 }
 
-export interface IApplicationSummary {
+interface IApplicationBase {
   readonly buildpack: string | null;
   readonly command: string | null;
   readonly console: boolean;
   readonly debug: string | null;
-  readonly detected_buildpack_guid: string | null;
   readonly detected_buildpack: string | null;
   readonly detected_start_command: string;
   readonly diego: boolean;
@@ -45,7 +44,6 @@ export interface IApplicationSummary {
   readonly docker_image: string | null;
   readonly enable_ssh: boolean;
   readonly environment_json: object | null;
-  readonly guid: string;
   readonly health_check_timeout: string | null;
   readonly health_check_type: string;
   readonly instances: number;
@@ -55,8 +53,6 @@ export interface IApplicationSummary {
   readonly package_updated_at: string;
   readonly ports: ReadonlyArray<number> | null;
   readonly production: boolean;
-  readonly routes: ReadonlyArray<IRoute>;
-  readonly running_instances: number;
   readonly service_count: number;
   readonly service_names: ReadonlyArray<string>;
   readonly space_guid: string;
@@ -67,6 +63,56 @@ export interface IApplicationSummary {
   readonly state: string;
   readonly urls: ReadonlyArray<string>;
   readonly version: string;
+}
+
+export interface IApplicationEntity extends IApplicationBase {
+  readonly events_url: string;
+  readonly route_mappings_url: string;
+  readonly routes_url: string;
+  readonly service_bindings_url: string;
+  readonly space_url: string;
+  readonly stack_url: string;
+}
+
+export interface IApplicationSummary extends IApplicationBase {
+  readonly detected_buildpack_guid: string | null;
+  readonly guid: string;
+  readonly health_check_http_endpoint: string;
+  readonly running_instances: number;
+  readonly routes: ReadonlyArray<IRoute>;
+  readonly services: ReadonlyArray<{
+    readonly guid: string;
+    readonly name: string;
+    readonly bound_app_count: number;
+    readonly last_operation: string | null;
+    readonly dashboard_url: string | null;
+    readonly service_broker_name: string;
+    readonly maintenance_info: {
+      readonly version: string;
+      readonly description: string;
+    };
+    readonly service_plan: {
+      readonly guid: string;
+      readonly name: string;
+      readonly maintenance_info: {
+        readonly version: string;
+        readonly description: string;
+      };
+      readonly service: {
+        readonly guid: string;
+        readonly label: string;
+        readonly provider: string | null;
+        readonly version: string | null;
+      };
+    };
+  }>;
+  readonly available_domains: ReadonlyArray<{
+    readonly guid: string;
+    readonly name: string;
+    readonly router_group_guid: string;
+    readonly router_group_type: string;
+    readonly owning_organization_guid: string;
+  }>;
 }
 
 export interface IInfo {
@@ -244,11 +290,11 @@ export interface IServicePlan {
 export interface IServiceInstance {
   readonly entity: {
     readonly credentials: object;
-    readonly dashboard_url: null,
+    readonly dashboard_url?: null,
     readonly gateway_data: null,
-    readonly last_operation: {
+    readonly last_operation?: {
       readonly created_at: string;
-      readonly description: string;
+      readonly description?: string;
       readonly state: string;
       readonly type: string; // tslint:disable-line:no-reserved-keywords
       readonly updated_at: string;

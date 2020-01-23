@@ -13,7 +13,7 @@ export interface IDocumentResponse {
 }
 
 export interface IUserDocumentResponse extends IDocumentResponse {
-  agreement_date: string | null;
+  agreement_date?: string;
 }
 
 export interface IDocument {
@@ -23,7 +23,7 @@ export interface IDocument {
 }
 
 export interface IUserDocument extends IDocument {
-  agreementDate: Date | null;
+  agreementDate?: Date;
 }
 
 export interface IAccountsClientConfig {
@@ -114,7 +114,7 @@ export class AccountsClient {
       .filter(pendingOnly);
   }
 
-  public async getUser(uuid: string): Promise<IAccountsUser | null> {
+  public async getUser(uuid: string): Promise<IAccountsUser | undefined> {
     try {
       const response = await this.request({
         url: `/users/${uuid}`,
@@ -124,7 +124,7 @@ export class AccountsClient {
       return parseUser(data);
     } catch (err) {
       if (err.response.status === 404) {
-        return null;
+        return;
       }
 
       throw err;
@@ -142,7 +142,7 @@ export class AccountsClient {
     return parsedResponse.users.map(parseUser);
   }
 
-  public async getUserByEmail(email: string): Promise<IAccountsUser | null> {
+  public async getUserByEmail(email: string): Promise<IAccountsUser | undefined> {
     const response = await this.request({
       url: `/users?email=${email}`,
       method: 'get',
@@ -151,7 +151,7 @@ export class AccountsClient {
     const parsedResponse: IAccountsUsersResponse = response.data;
 
     if (parsedResponse.users.length === 0) {
-      return null;
+      return;
     }
 
     if (parsedResponse.users.length > 1) {
@@ -177,7 +177,7 @@ export class AccountsClient {
 }
 
 function pendingOnly(doc: IUserDocument): boolean {
-  return doc.agreementDate === null;
+  return doc.agreementDate === undefined;
 }
 
 function latestOnly(docs: {readonly [key: string]: IUserDocument}, doc: IUserDocument) {
@@ -212,7 +212,7 @@ function parseDocument(doc: IDocumentResponse): IDocument {
 function parseUserDocument(doc: IUserDocumentResponse): IUserDocument {
   return {
     ...parseDocument(doc),
-    agreementDate: doc.agreement_date ? parseTimestamp(doc.agreement_date) : null,
+    agreementDate: doc.agreement_date ? parseTimestamp(doc.agreement_date) : undefined,
   };
 }
 

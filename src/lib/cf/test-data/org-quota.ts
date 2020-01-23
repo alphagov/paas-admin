@@ -1,7 +1,7 @@
 import { IOrganizationQuota } from '../types';
 
 export const billableOrgQuotaName = 'billable';
-export const billableOrgQuotaGUID = 'dcb680a9-b190-4838-a3d2-b84aa17517a6';
+export const billableOrgQuotaGUID = 'ORG-QUOTA-GUID';
 
 export const billableOrgQuota = (): IOrganizationQuota => JSON.parse(`{
   "metadata": {

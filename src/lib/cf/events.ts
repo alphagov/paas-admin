@@ -1,4 +1,4 @@
-export const eventTypeDescriptions = {
+export const eventTypeDescriptions: { readonly [event: string]: string } = {
   'app.crash': 'Application crashed',
 
   'audit.app.create':           'Created application',

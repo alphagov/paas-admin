@@ -48,7 +48,7 @@ let cfg = {
   },
 
   resolve: {
-    extensions: ['.ts', '.js', '.json']
+    extensions: ['.ts', '.tsx', '.js', '.json']
   },
 
   module: {
@@ -101,30 +101,12 @@ let cfg = {
         ]
       },
       {
-        test: /\.(njk|html)$/,
-        use: [
-          {
-            loader: path.resolve(__dirname, './njk-loader.js'),
-            options: {
-              includePaths: ['@govuk-frontend/govuk/components'],
-              configure: path.resolve(__dirname, './nunjucks.config.js')
-            }
-          },
-          {
-            loader: 'html-loader',
-            options: {
-              attrs: ['img:src', 'link:href', 'script:src']
-            }
-          }
-        ]
-      },
-      {
-        test: /\.ts/,
+        test: /\.(ts(x?))/,
         use: [
           {
             loader: 'ts-loader',
             options: {
-              reportFiles: [/(?<!\.test)\.ts/]
+              reportFiles: [/(?<!\.test)\.ts(x?)/]
             }
           }
         ]

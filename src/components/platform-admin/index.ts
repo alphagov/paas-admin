@@ -1,2 +1,2 @@
-export * from './homepage';
+export * from './controllers';
 export * from './redirect';

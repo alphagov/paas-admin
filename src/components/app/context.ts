@@ -4,6 +4,9 @@ import Router, { IParameters, Route } from '../../lib/router';
 import { Token } from '../auth';
 import { IAppConfig } from './app';
 
+export type RouteLinker = (name: string, params?: IParameters) => string;
+export type RouteActiveChecker = (name: string) => boolean;
+
 export interface IRawToken {
   readonly user_id: string;
   readonly scope: ReadonlyArray<string>;
@@ -18,9 +21,9 @@ export interface IViewContext {
 
 export interface IContext {
   readonly app: IAppConfig;
-  readonly routePartOf: (name: string) => boolean;
-  readonly linkTo: (name: string, params?: IParameters) => string;
-  readonly absoluteLinkTo: (name: string, params?: IParameters) => string;
+  readonly routePartOf: RouteActiveChecker;
+  readonly linkTo: RouteLinker;
+  readonly absoluteLinkTo: RouteLinker;
   readonly log: Logger;
   readonly token: Token;
   readonly session: CookieSessionInterfaces.CookieSessionObject;

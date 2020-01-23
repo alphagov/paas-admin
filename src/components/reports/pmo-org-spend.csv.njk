@@ -1,4 +1,0 @@
-Billing month,Org,Region,Unique ID,Spend in GBP without VAT
-{%- for billablesForOrg in billablesByOrganisation %}
-{{ month }},{{ billablesForOrg.org.name }},{{ location }},{{ billablesForOrg.org.guid }},{{ (billablesForOrg.exVAT + (billablesForOrg.exVAT * adminFee)) | currency(2) }}
-{%- endfor %}

@@ -1,1 +1,1 @@
-export * from './service-events';
+export * from './controllers';

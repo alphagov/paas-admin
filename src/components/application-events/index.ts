@@ -1,1 +1,1 @@
-export * from './application-events';
+export * from './controllers';

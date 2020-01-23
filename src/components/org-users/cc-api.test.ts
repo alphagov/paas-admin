@@ -38,32 +38,36 @@ describe('permissions calling cc api', () => {
 
   it('should make a single request due to permission update', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, defaultOrg())
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
 
       .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/uaa-user-edit-123456')
       .reply(200, `{}`)
 
-      .put('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/managers/uaa-user-edit-123456?recursive=true')
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/managers/uaa-user-edit-123456?recursive=true')
       .reply(200, `{}`)
     ;
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
           managers: {
             current: '0',
+            desired: '1',
+          },
+          aduitors: {
+            current: '1',
             desired: '1',
           },
         }),
@@ -84,24 +88,24 @@ describe('permissions calling cc api', () => {
 
   it('should make no requests when permission has been previously and still is set', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, defaultOrg())
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
     ;
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
           managers: {
             current: '1',
             desired: '1',
@@ -124,25 +128,29 @@ describe('permissions calling cc api', () => {
 
   it('should make no requests when permission has been previously and still is unset', async () => {
     nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(3)
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .times(1)
       .reply(200, defaultOrg())
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
       .times(2)
       .reply(200, cfData.spaces)
     ;
 
     const response = await orgUsers.updateUser(ctx, {
-      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       userGUID: 'uaa-user-edit-123456',
     }, {
       org_roles: {
-        '3deb9f04-b449-4f94-b3dd-c73cefe5b275': composeOrgRoles({
+        'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
+          managers: {
+            current: '1',
+            desired: '1',
+          },
           billing_managers: {
             current: '0',
           },
@@ -154,6 +162,7 @@ describe('permissions calling cc api', () => {
             current: '0',
           },
         }),
+        'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
       },
     });
 

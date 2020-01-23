@@ -1,11 +1,11 @@
-import {extent, max} from 'd3-array';
-import {axisBottom, axisLeft} from 'd3-axis';
-import {format as d3Format} from 'd3-format';
-import {scaleLinear, scaleTime} from 'd3-scale';
-import {select} from 'd3-selection';
-import {line} from 'd3-shape';
-import {JSDOM} from 'jsdom';
-import {flatMap} from 'lodash';
+import { extent, max } from 'd3-array';
+import { axisBottom, axisLeft } from 'd3-axis';
+import { format as d3Format } from 'd3-format';
+import { scaleLinear, scaleTime } from 'd3-scale';
+import { select } from 'd3-selection';
+import { line } from 'd3-shape';
+import { JSDOM } from 'jsdom';
+import { flatMap } from 'lodash';
 import moment from 'moment';
 
 import {
@@ -137,9 +137,8 @@ export function drawLineGraph(
 }
 
 export function summariseSerie(serie: IMetricSerie): IMetricSerieSummary {
-  const matches = serie.label.match(/-(\d+$)/);
+  const matches = serie.label.match(/-(\d{3})/);
 
-  // istanbul ignore next
   const label = matches && matches.length > 1 ? matches[1] : '001';
 
   const latestMetric = serie.metrics.reduce((value, m) => !isNaN(m.value) ? m.value : value, 0);

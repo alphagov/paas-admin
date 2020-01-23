@@ -145,10 +145,10 @@ describe('lib/accounts test suite', () => {
     expect(ok).toBeTruthy();
   });
 
-  it('should return null when a user cannot be found', async () => {
+  it('should return undefined when a user cannot be found', async () => {
     const ac = new AccountsClient(cfg);
     const user = await ac.getUser('4f11eb3b-f45c-4fd3-9241-533d29a0582b');
-    expect(user).toBeNull();
+    expect(user).toBeUndefined();
   });
 
   it('should pass along any errors from a non-404', async () => {
@@ -184,15 +184,15 @@ describe('lib/accounts test suite', () => {
   it('should get a user by email', async () => {
     const ac = new AccountsClient(cfg);
     const user = await ac.getUserByEmail('one@user.in.database');
-    expect(user).not.toBeNull();
+    expect(user).not.toBeUndefined();
     expect(user!.email).toEqual('one@user.in.database');
     expect(user!.username).toEqual('one@user.in.database');
   });
 
-  it('should return null for a user which does not exist', async () => {
+  it('should return undefined for a user which does not exist', async () => {
     const ac = new AccountsClient(cfg);
     const user = await ac.getUserByEmail('no@user.in.database');
-    expect(user).toBeNull();
+    expect(user).toBeUndefined();
   });
 
   it('should throw an error when multiple users are returned by the API', async () => {
