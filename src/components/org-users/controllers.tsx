@@ -740,7 +740,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
   }
 
   try {
-    errors.push(...validateValues({...userBody, email: user.entity.username}));
+    errors.push(...validateValues({...userBody, email: 'admin@example.com'}));
     if (errors.length > 0) {
       throw new ValidationError(errors);
     }
