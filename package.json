@@ -86,7 +86,7 @@
     "pegjs": "^0.10.0",
     "pegjs-loader": "^0.5.5",
     "sass-lint": "^1.13.1",
-    "sass-loader": "^8.0.0",
+    "sass-loader": "^8.0.2",
     "schema-utils": "^2.6.1",
     "supertest": "^4.0.2",
     "ts-jest": "^24.3.0",
