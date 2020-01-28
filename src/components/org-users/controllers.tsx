@@ -375,7 +375,7 @@ export async function inviteUser(ctx: IContext, params: IParameters, body: objec
   }, body);
 
   try {
-    errors.push(...validateValues(userBody));
+    errors.push(...validateEmail(userBody), ...validatePermissions(userBody));
     if (errors.length > 0) {
       throw new ValidationError(errors);
     }
@@ -740,7 +740,7 @@ export async function updateUser(ctx: IContext, params: IParameters, body: objec
   }
 
   try {
-    errors.push(...validateValues({...userBody, email: 'admin@example.com'}));
+    errors.push(...validatePermissions(userBody));
     if (errors.length > 0) {
       throw new ValidationError(errors);
     }
@@ -887,17 +887,23 @@ export async function deleteUser(ctx: IContext, params: IParameters, _: object):
   };
 }
 
-function validateValues(body: IUserPostBody): ReadonlyArray<IValidationError> {
+function validatePermissions({ org_roles, space_roles }: IUserPostBody): ReadonlyArray<IValidationError> {
   const errors: IValidationError[] = [];
 
-  if (!body.email || !VALID_EMAIL.test(body.email)) {
-    errors.push({field: 'email', message: 'a valid email address is required'});
-  }
-
-  const orgRolesSelected = values(body.org_roles).some(permissions => values(permissions).some(x => x.desired === '1'));
-  const spaceRolesSelected = values(body.space_roles).some(permissions => values(permissions).some(x => x.desired === '1'));
+  const orgRolesSelected = values(org_roles).some(permissions => values(permissions).some(x => x.desired === '1'));
+  const spaceRolesSelected = values(space_roles).some(permissions => values(permissions).some(x => x.desired === '1'));
   if (!orgRolesSelected && !spaceRolesSelected) {
     errors.push({field: 'roles', message: 'at least one role should be selected'});
+  }
+
+  return errors;
+}
+
+function validateEmail({ email }: IUserPostBody): ReadonlyArray<IValidationError> {
+  const errors: IValidationError[] = [];
+
+  if (!email || !VALID_EMAIL.test(email)) {
+    errors.push({field: 'email', message: 'a valid email address is required'});
   }
 
   return errors;
