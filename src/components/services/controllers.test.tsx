@@ -7,7 +7,6 @@ import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
 import { viewService } from './controllers';
 
-// tslint:disable:max-line-length
 nock('https://example.com/api')
   .get('/v2/organizations/6e1ca5aa-55f1-4110-a97f-1f3473e771b9/user_roles')
   .times(5)
@@ -37,7 +36,6 @@ nock('https://example.com/api')
   )
   .times(1)
   .reply(200, data.userServiceInstance);
-// tslint:enable:max-line-length
 
 const ctx: IContext = createTestContext();
 

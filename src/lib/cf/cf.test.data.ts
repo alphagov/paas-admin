@@ -1,4 +1,3 @@
-// tslint:disable:max-line-length
 export const info = `{
   "name": "vcap",
   "build": "2222",
@@ -1163,4 +1162,3 @@ export const stacksWithoutCflinuxfs2 = `{
   ]
 }`;
 
-// tslint:enable:max-line-length

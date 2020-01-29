@@ -1,4 +1,3 @@
-// tslint:disable:max-line-length
 
 export const billableEvents = `[
   {"event_guid":"0231ecbf-799c-4afa-8b76-76cb47a43b58","event_start":"2018-06-22T12:35:02+00:00","event_stop":"2018-06-22T12:35:54+00:00","resource_guid":"e0a488d0-6f1d-4d01-8ad6-725422405250","resource_name":"alfred","resource_type":"postgres","org_guid":"3deb9f04-b449-4f94-b3dd-c73cefe5b275","org_name":"admin","space_guid":"5489e195-c42b-4e61-bf30-323c331ecc01","space_name":"real-hero","plan_guid":"f4d4b95a-f55e-4593-8d54-3364c25798c4","number_of_nodes":1,"memory_in_mb":1024,"storage_in_mb":0,"price":{"ex_vat" : "0.02", "inc_vat" : "0.024", "details" : [{"name" : "platform", "start" : "2018-06-22T12:35:02+00:00", "stop" : "2018-06-22T12:35:54+00:00", "plan_name" : "staging", "ex_vat" : "0.01", "inc_vat" : "0.012", "vat_rate" : "0.2", "vat_code" : "Standard", "currency_code" : "USD", "currency_rate" : "0.8"}, {"name" : "instance", "start" : "2018-06-22T12:35:02+00:00", "stop" : "2018-06-22T12:35:54+00:00", "plan_name" : "staging", "ex_vat" : "0.01", "inc_vat" : "0.012", "vat_rate" : "0.2", "vat_code" : "Standard", "currency_code" : "USD", "currency_rate" : "0.8"}]}},
@@ -12,4 +11,3 @@ export const currencyRates = `[
   {"code": "USD", "rate": 0.9, "valid_from": "2018-06-01"}
 ]`;
 
-// tslint:enable:max-line-length

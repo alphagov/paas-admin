@@ -1,4 +1,3 @@
-// tslint:disable-next-line:no-submodule-imports
 import parse from 'csv-parse/lib/sync';
 import jwt from 'jsonwebtoken';
 import lodash from 'lodash';

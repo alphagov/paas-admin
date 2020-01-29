@@ -306,7 +306,6 @@ export async function downloadCSV(
   return viewStatement(ctx, { ...params, download: true });
 }
 
-// tslint:disable-next-line:readonly-array
 export function order(
   items: Array<IResourceUsage>,
   sort: ISortable,
