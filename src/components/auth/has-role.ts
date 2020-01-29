@@ -36,7 +36,6 @@ export class Token {
   }
 
   public hasAnyScope(...scopes: Array<string>): boolean {
-    // tslint:disable-line:readonly-array
     for (const scope of scopes) {
       if (this.scopes.includes(scope)) {
         return true;

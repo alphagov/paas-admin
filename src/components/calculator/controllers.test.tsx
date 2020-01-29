@@ -43,7 +43,6 @@ describe('calculator test suite', () => {
       .endOf('month')
       .format('YYYY-MM-DD');
 
-    // tslint:disable:max-line-length
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(
@@ -92,7 +91,6 @@ describe('calculator test suite', () => {
           },
         ]),
       );
-    // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {});
 
@@ -139,7 +137,6 @@ describe('calculator test suite', () => {
       .endOf('month')
       .format('YYYY-MM-DD');
 
-    // tslint:disable:max-line-length
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(
@@ -184,7 +181,6 @@ describe('calculator test suite', () => {
           },
         ]),
       );
-    // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {
       items: [
@@ -218,7 +214,6 @@ describe('calculator test suite', () => {
 
     const postgresGuid = 'f4d4b95a-f55e-4593-8d54-3364c25798c4';
     const appGuid = 'f4d4b95b-f55e-4593-8d54-3364c25798c0';
-    // tslint:disable:max-line-length
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(
@@ -247,7 +242,6 @@ describe('calculator test suite', () => {
           },
         ]),
       );
-    // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {
       items: [
@@ -276,7 +270,6 @@ describe('calculator test suite', () => {
       .endOf('month')
       .format('YYYY-MM-DD');
 
-    // tslint:disable:max-line-length
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(
@@ -289,7 +282,6 @@ describe('calculator test suite', () => {
           },
         ]),
       );
-    // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {});
     expect(response.body).not.toContain('compose');
@@ -306,7 +298,6 @@ describe('calculator test suite', () => {
       .endOf('month')
       .format('YYYY-MM-DD');
 
-    // tslint:disable:max-line-length
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(
@@ -344,7 +335,6 @@ describe('calculator test suite', () => {
           },
         ]),
       );
-    // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {});
     expect(response.body).toMatch(/postgres\s+9.6/);
@@ -361,7 +351,6 @@ describe('calculator test suite', () => {
       .endOf('month')
       .format('YYYY-MM-DD');
 
-    // tslint:disable:max-line-length
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(
@@ -402,7 +391,6 @@ describe('calculator test suite', () => {
           },
         ]),
       );
-    // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {
       items: [
@@ -425,7 +413,6 @@ describe('calculator test suite', () => {
       .endOf('month')
       .format('YYYY-MM-DD');
 
-    // tslint:disable:max-line-length
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
       .reply(
@@ -437,7 +424,6 @@ describe('calculator test suite', () => {
           },
         ]),
       );
-    // tslint:enable:max-line-length
 
     const response = await getCalculator(ctx, {});
     expect(response.body).toContain('aws-s3-bucket');

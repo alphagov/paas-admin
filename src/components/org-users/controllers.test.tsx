@@ -264,7 +264,6 @@ describe('org-users test suite', () => {
 
     const $ = cheerio.load(response.body as string);
 
-    // tslint:disable:max-line-length
     expect(response.body).toContain('a valid email address is required');
     expect(
       $(
@@ -285,7 +284,6 @@ describe('org-users test suite', () => {
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
-    // tslint:enable:max-line-length
   });
 
   it('should show error message when email is invalid according to our regex', async () => {
@@ -409,7 +407,6 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, set BillingManager role and show success', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
@@ -434,11 +431,9 @@ describe('org-users test suite', () => {
         '/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8?recursive=true',
       )
       .reply(200, '{}');
-    // tslint:enable:max-line-length
 
     nockAccounts.post('/users/').reply(201);
 
-    // tslint:disable:max-line-length
     nockUAA
       .post(
         '/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation',
@@ -450,7 +445,6 @@ describe('org-users test suite', () => {
 
       .post('/oauth/token?grant_type=client_credentials')
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
-    // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(
       ctx,
@@ -481,7 +475,6 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, set OrgManager role and show success', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
@@ -518,7 +511,6 @@ describe('org-users test suite', () => {
 
       .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
       .reply(200, uaaData.noFoundUsersByEmail);
-    // tslint:enable:max-line-length
 
     nockAccounts.post('/users/').reply(201);
 
@@ -551,7 +543,6 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, set OrgAuditor role and show success', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
@@ -590,7 +581,6 @@ describe('org-users test suite', () => {
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
 
     nockAccounts.post('/users/').reply(201);
-    // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(
       ctx,
@@ -621,7 +611,6 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, set SpaceManager role and show success', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
@@ -660,7 +649,6 @@ describe('org-users test suite', () => {
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
 
     nockAccounts.post('/users/').reply(201);
-    // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(
       ctx,
@@ -691,7 +679,6 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, set SpaceDeveloper role and show success', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
@@ -730,7 +717,6 @@ describe('org-users test suite', () => {
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
 
     nockAccounts.post('/users/').reply(201);
-    // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(
       ctx,
@@ -761,7 +747,6 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, set SpaceAuditor role and show success', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
@@ -800,7 +785,6 @@ describe('org-users test suite', () => {
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
 
     nockAccounts.post('/users/').reply(201);
-    // tslint:enable:max-line-length
 
     const response = await orgUsers.inviteUser(
       ctx,
@@ -831,7 +815,6 @@ describe('org-users test suite', () => {
   });
 
   it('should invite the user, and add them to accounts', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
@@ -870,7 +853,6 @@ describe('org-users test suite', () => {
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
 
     nockAccounts.post('/users/').reply(201);
-    // tslint:enable:max-line-length
 
     await orgUsers.inviteUser(
       ctx,
@@ -917,7 +899,6 @@ describe('org-users test suite', () => {
   });
 
   it('should resend user invite', async () => {
-    // tslint:disable:max-line-length
     nockUAA
       .post(
         '/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation',
@@ -948,7 +929,6 @@ describe('org-users test suite', () => {
 
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()));
-    // tslint:enable:max-line-length
 
     const response = await orgUsers.resendInvitation(
       ctx,
@@ -1000,7 +980,6 @@ describe('org-users test suite', () => {
   });
 
   it('should update the user, set BillingManager role and show success - User Delete', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
@@ -1013,7 +992,6 @@ describe('org-users test suite', () => {
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(1)
       .reply(200, cfData.userRolesForOrg);
-    // tslint:enable:max-line-length
 
     const response = await orgUsers.deleteUser(
       ctx,
@@ -1071,7 +1049,6 @@ describe('org-users test suite', () => {
 
     const $ = cheerio.load(response.body as string);
 
-    // tslint:disable:max-line-length
     expect(response.body).toContain('Update a team member');
     expect(response.body).toContain('one@user.in.database');
     expect(
@@ -1087,7 +1064,6 @@ describe('org-users test suite', () => {
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
-    // tslint:enable:max-line-length
   });
 
   it('should show the user edit page with disabled manager checkboxes due to single manager being set', async () => {
@@ -1131,7 +1107,6 @@ describe('org-users test suite', () => {
 
     const $ = cheerio.load(response.body as string);
 
-    // tslint:disable:max-line-length
     expect(response.body).toContain('Update a team member');
     expect(response.body).toContain('one@user.in.database');
     expect(
@@ -1157,7 +1132,6 @@ describe('org-users test suite', () => {
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
-    // tslint:enable:max-line-length
   });
 
   it('should fail to show the user edit page due to not existing user', async () => {
@@ -1295,7 +1269,6 @@ describe('org-users test suite', () => {
   });
 
   it('should update the user, set BillingManager role and show success - User Edit', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
@@ -1312,7 +1285,6 @@ describe('org-users test suite', () => {
         '/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/uaa-user-edit-123456?recursive=true',
       )
       .reply(200, '{}');
-    // tslint:enable:max-line-length
 
     const response = await orgUsers.updateUser(
       ctx,
@@ -1343,7 +1315,6 @@ describe('org-users test suite', () => {
   });
 
   it('should update the user, remove BillingManager role and show success - User Edit', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
@@ -1360,7 +1331,6 @@ describe('org-users test suite', () => {
         '/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/uaa-id-253?recursive=true',
       )
       .reply(200, '{}');
-    // tslint:enable:max-line-length
 
     const response = await orgUsers.updateUser(
       ctx,
@@ -1436,7 +1406,6 @@ describe('org-users test suite', () => {
   });
 
   it('should update the user, remove OrgManager role and show success - User Edit', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
       .times(2)
@@ -1453,7 +1422,6 @@ describe('org-users test suite', () => {
         '/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/managers/uaa-user-changeperms-123456?recursive=true',
       )
       .reply(200, '{}');
-    // tslint:enable:max-line-length
 
     const response = await orgUsers.updateUser(
       ctx,
@@ -1532,7 +1500,6 @@ describe('org-users test suite', () => {
   });
 
   it('should update the user, remove OrgAuditor role and show success - User Edit', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
       .reply(200, JSON.stringify(defaultOrg()))
@@ -1549,7 +1516,6 @@ describe('org-users test suite', () => {
         '/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/auditors/uaa-id-253?recursive=true',
       )
       .reply(200, '{}');
-    // tslint:enable:max-line-length
 
     const response = await orgUsers.updateUser(
       ctx,

@@ -42,9 +42,7 @@ describe('line graphs', () => {
     expect(legends).toHaveLength(3);
   });
 
-  // tslint:disable:max-line-length
   it('should render multiple series as multiple paths and not show a legend if the formats do not end with numbers', () => {
-    // tslint:enable:max-line-length
     const series = [
       { date: new Date(2019, 1, 1), value: 42 },
       { date: new Date(2019, 2, 1), value: 58 },

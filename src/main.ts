@@ -72,7 +72,6 @@ async function main() {
     providerName: 'microsoft',
     clientID: expectEnvVariable('MS_CLIENT_ID'),
     clientSecret: expectEnvVariable('MS_CLIENT_SECRET'),
-    // tslint:disable-next-line:max-line-length
     discoveryURL:
       'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration',
   });
@@ -81,7 +80,6 @@ async function main() {
     providerName: 'google',
     clientID: expectEnvVariable('GOOGLE_CLIENT_ID'),
     clientSecret: expectEnvVariable('GOOGLE_CLIENT_SECRET'),
-    // tslint:disable-next-line:max-line-length
     discoveryURL:
       'https://accounts.google.com/.well-known/openid-configuration',
   });

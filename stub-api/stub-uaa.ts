@@ -56,7 +56,6 @@ function mockUAA(app: express.Application, config: IStubServerPorts): express.Ap
   app.get(
     '/oauth/authorize',
     (_req, res) => {
-      // tslint:disable-next-line:no-http-string
       const location = `http://0:${adminPort}/auth/login/callback?code=some-code`;
       res.redirect(301, location);
     },

@@ -37,7 +37,6 @@ describe('service metrics test suite', () => {
     process.env.AWS_ACCESS_KEY_ID = 'some-key-id';
     process.env.AWS_SECRET_ACCESS_KEY = 'some-secret-key';
 
-    // tslint:disable:max-line-length
     nock('https://example.com/api')
       .get('/v2/organizations/6e1ca5aa-55f1-4110-a97f-1f3473e771b9/user_roles')
       .times(5)
@@ -64,7 +63,6 @@ describe('service metrics test suite', () => {
       )
       .times(1)
       .reply(200, data.userServiceInstance);
-    // tslint:enable:max-line-length
   });
 
   function mockService(service: object) {

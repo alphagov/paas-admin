@@ -310,7 +310,6 @@ describe('cost report test suite', () => {
   });
 
   it('should report zero for zero billables', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations')
       .times(1)
@@ -353,7 +352,6 @@ describe('cost report test suite', () => {
       .startOf('month')
       .format('YYYY-MM-DD');
 
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations')
       .times(1)
@@ -433,7 +431,6 @@ describe('cost report test suite', () => {
       .startOf('month')
       .format('YYYY-MM-DD');
 
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations')
       .times(2)
@@ -510,7 +507,6 @@ describe('cost report test suite', () => {
       .startOf('month')
       .format('YYYY-MM-DD');
 
-    // tslint:disable:max-line-length
     nockCF
       .get('/v2/organizations')
       .times(1)
@@ -930,7 +926,6 @@ describe('html cost report by service test suite', () => {
   const ctx: IContext = createTestContext();
 
   it('should show empty report for zero billables', async () => {
-    // tslint:disable:max-line-length
     nockCF
       .get('/v3/organizations')
       .times(1)
@@ -1002,7 +997,6 @@ describe('html cost report by service test suite', () => {
       price: defaultPrice,
     };
 
-    // tslint:disable:max-line-length
     nockCF
       .get('/v3/organizations')
       .times(1)
