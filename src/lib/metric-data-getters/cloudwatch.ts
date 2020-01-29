@@ -12,8 +12,7 @@ export interface ICloudWatchMetric {
 
 export class CloudWatchMetricDataGetter {
   public addPlaceholderData(
-    /* tslint:disable readonly-array */
-    results: Array<CloudWatchResult> /* tslint:enable readonly-array */,
+    results: Array<CloudWatchResult>,
 
     period: moment.Duration,
     rangeStart: moment.Moment,

@@ -1,5 +1,3 @@
-/* tslint:disable:insecure-random */
-
 import _ from 'lodash';
 
 import { getGappyRandomData } from '../metrics';

@@ -48,7 +48,6 @@ export interface IMetricGraphDisplayable {
   readonly series: ReadonlyArray<IMetricSerie>;
 }
 
-/* tslint:disable:insecure-random */
 /* istanbul ignore next */
 export function getGappyRandomData(): {
   readonly timestamps: ReadonlyArray<string>;
@@ -88,4 +87,3 @@ export function getGappyRandomData(): {
 
   return { timestamps, values };
 }
-/* tslint:enable:insecure-random */
