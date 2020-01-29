@@ -1161,4 +1161,3 @@ export const stacksWithoutCflinuxfs2 = `{
     }
   ]
 }`;
-
