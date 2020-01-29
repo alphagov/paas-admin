@@ -1,74 +1,83 @@
 import cheerio from 'cheerio';
 import { shallow } from 'enzyme';
 import React from 'react';
-import { CostByServiceReport, CostReport, OrganizationsReport, VisualisationPage } from './views';
+import {
+  CostByServiceReport,
+  CostReport,
+  OrganizationsReport,
+  VisualisationPage,
+} from './views';
 
 describe(OrganizationsReport, () => {
-  const org = [{
-    guid: 'org-guid',
-    created_at: '2020-01-01',
-    updated_at: '2020-01-01',
-    name: 'org-name',
-    suspended: false,
-    relationships: {
-      quota: {
-        data: {
-          guid: 'quota-guid',
+  const org = [
+    {
+      guid: 'org-guid',
+      created_at: '2020-01-01',
+      updated_at: '2020-01-01',
+      name: 'org-name',
+      suspended: false,
+      relationships: {
+        quota: {
+          data: {
+            guid: 'quota-guid',
+          },
+        },
+      },
+      links: {
+        self: {
+          href: 'self-link',
+        },
+        domains: {
+          href: 'domain-link',
+        },
+        default_domain: {
+          href: 'default-domain-link',
+        },
+      },
+      metadata: {
+        labels: {},
+        annotations: {
+          owner: 'owner',
         },
       },
     },
-    links: {
-      self: {
-        href: 'self-link',
-      },
-      domains: {
-        href: 'domain-link',
-      },
-      default_domain: {
-        href: 'default-domain-link',
-      },
-    },
-    metadata: {
-      labels: {},
-      annotations: {
-        owner: 'owner',
-      },
-    },
-  }];
+  ];
 
-  const billableOrg = [{
-    guid: 'org-guid',
-    created_at: '2019-12-01',
-    updated_at: '2020-01-01',
-    name: 'org-name',
-    suspended: false,
-    relationships: {
-      quota: {
-        data: {
-          guid: 'billable-quota-guid',
+  const billableOrg = [
+    {
+      guid: 'org-guid',
+      created_at: '2019-12-01',
+      updated_at: '2020-01-01',
+      name: 'org-name',
+      suspended: false,
+      relationships: {
+        quota: {
+          data: {
+            guid: 'billable-quota-guid',
+          },
+        },
+      },
+      links: {
+        self: {
+          href: 'self-link',
+        },
+        domains: {
+          href: 'domain-link',
+        },
+        default_domain: {
+          href: 'default-domain-link',
+        },
+      },
+      metadata: {
+        labels: {},
+        annotations: {
+          owner: 'billable-owner',
         },
       },
     },
-    links: {
-      self: {
-        href: 'self-link',
-      },
-      domains: {
-        href: 'domain-link',
-      },
-      default_domain: {
-        href: 'default-domain-link',
-      },
-    },
-    metadata: {
-      labels: {},
-      annotations: {
-        owner: 'billable-owner',
-      },
-    },
-  }];
+  ];
 
-  const orgQuota =   {
+  const orgQuota = {
     entity: {
       app_instance_limit: 1,
       app_task_limit: 1,
@@ -91,7 +100,7 @@ describe(OrganizationsReport, () => {
     },
   };
 
-  const billableQuota =   {
+  const billableQuota = {
     entity: {
       app_instance_limit: 1,
       app_task_limit: 1,
@@ -115,14 +124,19 @@ describe(OrganizationsReport, () => {
   };
 
   it('should parse the orgainzations report', () => {
-    const markup = shallow(<OrganizationsReport
-      linkTo={route => `__LINKS_TO__${route}`}
-      organizations={org}
-      trialOrgs={org}
-      billableOrgs={billableOrg}
-      orgQuotaMapping={{'quota-guid': orgQuota, 'billable-quota-guid': billableQuota}}
-      orgTrialExpirys={{'org-guid': new Date('2019-01-30')}}
-    />);
+    const markup = shallow(
+      <OrganizationsReport
+        linkTo={route => `__LINKS_TO__${route}`}
+        organizations={org}
+        trialOrgs={org}
+        billableOrgs={billableOrg}
+        orgQuotaMapping={{
+          'quota-guid': orgQuota,
+          'billable-quota-guid': billableQuota,
+        }}
+        orgTrialExpirys={{ 'org-guid': new Date('2019-01-30') }}
+      />,
+    );
     const $ = cheerio.load(markup.html());
     expect($('.govuk-body').text()).toContain('There is 1 organisation');
     expect($('td').text()).toContain('owner');
@@ -136,14 +150,19 @@ describe(OrganizationsReport, () => {
   it('should parse the orgainzations report with owner undefined', () => {
     org[0].metadata.annotations.owner = undefined;
     billableOrg[0].metadata.annotations.owner = undefined;
-    const markup = shallow(<OrganizationsReport
-      linkTo={route => `__LINKS_TO__${route}`}
-      organizations={org}
-      trialOrgs={org}
-      billableOrgs={billableOrg}
-      orgQuotaMapping={{'quota-guid': orgQuota, 'billable-quota-guid': billableQuota}}
-      orgTrialExpirys={{'org-guid': new Date('2019-01-30')}}
-    />);
+    const markup = shallow(
+      <OrganizationsReport
+        linkTo={route => `__LINKS_TO__${route}`}
+        organizations={org}
+        trialOrgs={org}
+        billableOrgs={billableOrg}
+        orgQuotaMapping={{
+          'quota-guid': orgQuota,
+          'billable-quota-guid': billableQuota,
+        }}
+        orgTrialExpirys={{ 'org-guid': new Date('2019-01-30') }}
+      />,
+    );
     const $ = cheerio.load(markup.html());
     expect($('td').text()).toContain('Unknown');
   });
@@ -172,18 +191,22 @@ describe(CostReport, () => {
   };
 
   it('should parse the cost report', () => {
-    const markup = shallow(<CostReport
-      date={'January 2020'}
-      billableEventCount={2}
-      totalBillables={totalBillables}
-      orgCostRecords={[orgCostRecords]}
-      quotaCostRecords={[quotaCostRecords]}
-    />);
+    const markup = shallow(
+      <CostReport
+        date={'January 2020'}
+        billableEventCount={2}
+        totalBillables={totalBillables}
+        orgCostRecords={[orgCostRecords]}
+        quotaCostRecords={[quotaCostRecords]}
+      />,
+    );
     const $ = cheerio.load(markup.html());
     expect($('h2').text()).toContain('2 Billable events');
     expect($('h2').text()).toContain('75.56 Total including VAT');
     expect($('h2').text()).toContain('62.97 Total excluding VAT');
-    expect($('h1').text()).toContain('Billables by organisation for January 2020');
+    expect($('h1').text()).toContain(
+      'Billables by organisation for January 2020',
+    );
     expect($('h1').text()).toContain('Billables by quota for January 2020');
     expect($('th').text()).toContain('org-name');
     expect($('td').text()).toContain('75.56');
@@ -220,17 +243,25 @@ describe(CostByServiceReport, () => {
   };
 
   it('should parse the cost by service report', () => {
-    const markup = shallow(<CostByServiceReport
-      date={'January 2020'}
-      billablesByService={[billablesByService]}
-      billablesByOrganisationAndService={[billablesByOrganisationAndService]}
-      billablesByOrganisationAndSpaceAndService={[billablesByOrganisationAndSpaceAndService]}
-    />);
+    const markup = shallow(
+      <CostByServiceReport
+        date={'January 2020'}
+        billablesByService={[billablesByService]}
+        billablesByOrganisationAndService={[billablesByOrganisationAndService]}
+        billablesByOrganisationAndSpaceAndService={[
+          billablesByOrganisationAndSpaceAndService,
+        ]}
+      />,
+    );
 
     const $ = cheerio.load(markup.html());
     expect($('h1').text()).toContain('Billables by service for January 2020');
-    expect($('h1').text()).toContain('Billables by organisation and service for January 2020');
-    expect($('h1').text()).toContain('Billables by organisation and space and service for January 2020');
+    expect($('h1').text()).toContain(
+      'Billables by organisation and service for January 2020',
+    );
+    expect($('h1').text()).toContain(
+      'Billables by organisation and space and service for January 2020',
+    );
     expect($('td').text()).toContain('service-group');
     expect($('td').text()).toContain('75.56');
     expect($('td').text()).toContain('62.97');
@@ -241,31 +272,33 @@ describe(CostByServiceReport, () => {
 
 describe(VisualisationPage, () => {
   const data = {
-    links: [{
-      source: 1,
-      target: 1,
-      value: 1,
-    }],
-    nodes: [{
-      name: 'node',
-    }],
+    links: [
+      {
+        source: 1,
+        target: 1,
+        value: 1,
+      },
+    ],
+    nodes: [
+      {
+        name: 'node',
+      },
+    ],
   };
 
   it('should parse visualisation with data', () => {
-    const markup = shallow(<VisualisationPage
-      date={'January 2020'}
-      data={data}
-    />);
+    const markup = shallow(
+      <VisualisationPage date={'January 2020'} data={data} />,
+    );
 
     const $ = cheerio.load(markup.html());
     expect($('h1').text()).toContain('Billing flow for January 2020');
   });
 
   it('should parse visualisation with no data', () => {
-    const markup = shallow(<VisualisationPage
-      date={'January 2020'}
-      data={null}
-    />);
+    const markup = shallow(
+      <VisualisationPage date={'January 2020'} data={null} />,
+    );
 
     const $ = cheerio.load(markup.html());
     expect($('h1').text()).toContain('Billing flow for January 2020');

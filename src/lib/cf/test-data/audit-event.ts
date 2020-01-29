@@ -11,7 +11,8 @@ export const targetName = 'my-app';
 export const spaceGUID = 'cb97dd25-d4f7-4185-9e6f-ad6e585c207c';
 export const orgGUID = 'd9be96f5-ea8f-4549-923f-bec882e32e3c';
 
-export const auditEvent = (): IAuditEvent => JSON.parse(`{
+export const auditEvent = (): IAuditEvent =>
+  JSON.parse(`{
   "guid": "${eventGUID}",
   "created_at": "2016-06-08T16:41:23Z",
   "updated_at": "2016-06-08T16:41:26Z",

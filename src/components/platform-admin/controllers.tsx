@@ -1,10 +1,6 @@
 import React from 'react';
 
-import {
-  IParameters,
-  IResponse,
-  NotAuthorisedError,
-} from '../../lib/router';
+import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 
 import { Template } from '../../layouts';
 import { IContext } from '../app/context';
@@ -23,9 +19,11 @@ export async function viewHomepage(
   const template = new Template(ctx.viewContext, 'Platform Administrator');
 
   return {
-    body: template.render(<PlatformAdministratorPage
-      linkTo={ctx.linkTo}
-      csrf={ctx.viewContext.csrf}
-    />),
+    body: template.render(
+      <PlatformAdministratorPage
+        linkTo={ctx.linkTo}
+        csrf={ctx.viewContext.csrf}
+      />,
+    ),
   };
 }

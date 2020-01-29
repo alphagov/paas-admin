@@ -1,7 +1,11 @@
 import pino from 'pino';
 import sourceMapSupport from 'source-map-support';
 
-import app, {IAppConfig, IOIDCConfig, OIDCProviderName} from './components/app';
+import app, {
+  IAppConfig,
+  IOIDCConfig,
+  OIDCProviderName,
+} from './components/app';
 import CloudFoundryClient from './lib/cf';
 
 import Server from './server';
@@ -24,12 +28,12 @@ function expectEnvVariable(variableName: string): string {
 }
 
 function onError(err: Error) {
-  logger.error({exit: 1}, err.toString());
+  logger.error({ exit: 1 }, err.toString());
   process.exit(100);
 }
 
 function onShutdown() {
-  logger.info({exit: 0}, 'shutdown gracefully');
+  logger.info({ exit: 0 }, 'shutdown gracefully');
   process.exit(0);
 }
 
@@ -69,7 +73,8 @@ async function main() {
     clientID: expectEnvVariable('MS_CLIENT_ID'),
     clientSecret: expectEnvVariable('MS_CLIENT_SECRET'),
     // tslint:disable-next-line:max-line-length
-    discoveryURL: `https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration`,
+    discoveryURL:
+      'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration',
   });
 
   providers.set('google', {
@@ -77,13 +82,14 @@ async function main() {
     clientID: expectEnvVariable('GOOGLE_CLIENT_ID'),
     clientSecret: expectEnvVariable('GOOGLE_CLIENT_SECRET'),
     // tslint:disable-next-line:max-line-length
-    discoveryURL: `https://accounts.google.com/.well-known/openid-configuration`,
+    discoveryURL:
+      'https://accounts.google.com/.well-known/openid-configuration',
   });
 
   const config: IAppConfig = {
     logger,
     sessionSecret: process.env.SESSION_SECRET || 'mysecret',
-    allowInsecureSession: (process.env.ALLOW_INSECURE_SESSION === 'true'),
+    allowInsecureSession: process.env.ALLOW_INSECURE_SESSION === 'true',
     billingAPI: expectEnvVariable('BILLING_URL'),
     accountsAPI: expectEnvVariable('ACCOUNTS_URL'),
     accountsSecret: expectEnvVariable('ACCOUNTS_SECRET'),
@@ -99,8 +105,9 @@ async function main() {
     oidcProviders: providers,
     domainName: expectEnvVariable('DOMAIN_NAME'),
     awsCloudwatchEndpoint: process.env.AWS_CLOUDWATCH_ENDPOINT,
-    awsResourceTaggingAPIEndpoint: process.env.AWS_RESOURCE_TAGGING_API_ENDPOINT,
-    adminFee: .1,
+    awsResourceTaggingAPIEndpoint:
+      process.env.AWS_RESOURCE_TAGGING_API_ENDPOINT,
+    adminFee: 0.1,
     prometheusEndpoint: expectEnvVariable('PROMETHEUS_ENDPOINT'),
     prometheusUsername: expectEnvVariable('PROMETHEUS_USERNAME'),
     prometheusPassword: expectEnvVariable('PROMETHEUS_PASSWORD'),
@@ -118,16 +125,21 @@ async function main() {
   });
 
   await server.start();
-  pino().info({
-    authorizationAPI,
-    billingAPI: config.billingAPI,
-    accountsAPI: config.accountsAPI,
-    cloudFoundryAPI,
-    port: server.http.address().port,
-    uaaAPI,
-  }, `listening http://localhost:${server.http.address().port}/`);
+  pino().info(
+    {
+      authorizationAPI,
+      billingAPI: config.billingAPI,
+      accountsAPI: config.accountsAPI,
+      cloudFoundryAPI,
+      port: server.http.address().port,
+      uaaAPI,
+    },
+    `listening http://localhost:${server.http.address().port}/`,
+  );
 
   return server.wait();
 }
 
-main().then(onShutdown).catch(onError);
+main()
+  .then(onShutdown)
+  .catch(onError);

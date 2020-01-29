@@ -7,14 +7,17 @@ jest.mock('request-promise-native');
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import nock from 'nock';
-import request, {SuperTest, Test} from 'supertest';
+import request, { SuperTest, Test } from 'supertest';
 
-import {org as defaultOrg} from '../../lib/cf/test-data/org';
-import { billableOrgQuota, billableOrgQuotaGUID } from '../../lib/cf/test-data/org-quota';
-import {wrapResources} from '../../lib/cf/test-data/wrap-resources';
+import { org as defaultOrg } from '../../lib/cf/test-data/org';
+import {
+  billableOrgQuota,
+  billableOrgQuotaGUID,
+} from '../../lib/cf/test-data/org-quota';
+import { wrapResources } from '../../lib/cf/test-data/wrap-resources';
 import Router, { IParameters } from '../../lib/router';
 
-import {CLOUD_CONTROLLER_ADMIN} from '../auth';
+import { CLOUD_CONTROLLER_ADMIN } from '../auth';
 
 import init from './app';
 import csp from './app.csp';
@@ -60,7 +63,7 @@ describe('app test suite', () => {
         path: '/',
       },
     ]);
-    const ctx = initContext({csrfToken: () => ''}, r, r.find('/'), config);
+    const ctx = initContext({ csrfToken: () => '' }, r, r.find('/'), config);
 
     expect(ctx.routePartOf('test')).toBeTruthy();
     expect(ctx.routePartOf('te')).toBeTruthy();
@@ -78,12 +81,16 @@ describe('app test suite', () => {
     const app = init(config);
     const response = await request(app).get('/should-not-exists/404');
 
-    expect(response.header['set-cookie'].join('|')).toContain('pazmin-session.sig');
+    expect(response.header['set-cookie'].join('|')).toContain(
+      'pazmin-session.sig',
+    );
   });
 
   it('should redirect to oauth provider for auth', async () => {
     const app = init(config);
-    const response = await request(app).get(router.findByName('admin.organizations').composeURL());
+    const response = await request(app).get(
+      router.findByName('admin.organizations').composeURL(),
+    );
 
     expect(response.status).toEqual(302);
   });
@@ -104,12 +111,12 @@ describe('app test suite', () => {
         if (path.includes('/pricing_plans')) {
           return '/billing/pricing_plans';
         }
+
         return path;
       })
 
-      .get(`/pricing_plans`)
-      .reply(200, [])
-    ;
+      .get('/pricing_plans')
+      .reply(200, []);
 
     const app = init(config);
     const response = await request(app).get('/calculator');
@@ -118,8 +125,12 @@ describe('app test suite', () => {
   });
 
   it('should be able to handle 500 error when accessing pricing calculator', async () => {
-    const rangeStart = moment().startOf('month').format('YYYY-MM-DD');
-    const rangeStop = moment().endOf('month').format('YYYY-MM-DD');
+    const rangeStart = moment()
+      .startOf('month')
+      .format('YYYY-MM-DD');
+    const rangeStop = moment()
+      .endOf('month')
+      .format('YYYY-MM-DD');
 
     nockBilling
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
@@ -146,28 +157,30 @@ describe('app test suite', () => {
 
     const app = init(config);
     const time = Math.floor(Date.now() / 1000);
-    const token = jwt.sign({
-      user_id: 'uaa-user-123',
-      scope: [],
-      exp: (time + (24 * 60 * 60)),
-      origin: 'uaa',
-    }, tokenKey);
+    const token = jwt.sign(
+      {
+        user_id: 'uaa-user-123',
+        scope: [],
+        exp: time + 24 * 60 * 60,
+        origin: 'uaa',
+      },
+      tokenKey,
+    );
 
     beforeEach(async () => {
-      nockUAA
-        .post('/oauth/token')
-        .reply(200, {
-          access_token: token,
-          token_type: 'bearer',
-          refresh_token: '__refresh_token__',
-          expires_in: (24 * 60 * 60),
-          scope: 'openid oauth.approvals',
-          jti: '__jti__',
-        })
-      ;
+      nockUAA.post('/oauth/token').reply(200, {
+        access_token: token,
+        token_type: 'bearer',
+        refresh_token: '__refresh_token__',
+        expires_in: 24 * 60 * 60,
+        scope: 'openid oauth.approvals',
+        jti: '__jti__',
+      });
 
       agent = request.agent(app);
-      response = await agent.get('/auth/login/callback?code=__fakecode__&state=__fakestate__');
+      response = await agent.get(
+        '/auth/login/callback?code=__fakecode__&state=__fakestate__',
+      );
 
       response.header['set-cookie'][0]
         .split(',')
@@ -181,43 +194,34 @@ describe('app test suite', () => {
     });
 
     it('should redirect to organisations when accessed root', async () => {
-      nockAccounts
-        .get('/users/uaa-user-123/documents')
-        .reply(200, `[]`)
-      ;
+      nockAccounts.get('/users/uaa-user-123/documents').reply(200, '[]');
 
-      nockUAA
-        .get('/token_keys')
-        .reply(200, {keys: [{value: tokenKey}]})
-      ;
+      nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
 
       response = await agent.get(router.findByName('admin.home').composeURL());
 
       expect(response.status).toEqual(302);
-      expect(response.header.location).toEqual(router.findByName('admin.organizations').composeURL());
+      expect(response.header.location).toEqual(
+        router.findByName('admin.organizations').composeURL(),
+      );
     });
 
     describe('visiting the organisations page', () => {
       beforeEach(async () => {
-        nockAccounts
-          .get('/users/uaa-user-123/documents')
-          .reply(200, `[]`)
-        ;
+        nockAccounts.get('/users/uaa-user-123/documents').reply(200, '[]');
 
         nockCF
           .get('/v2/organizations')
           .reply(200, JSON.stringify(wrapResources(defaultOrg())))
 
           .get(`/v2/quota_definitions/${billableOrgQuotaGUID}`)
-          .reply(200, JSON.stringify(billableOrgQuota()))
-        ;
+          .reply(200, JSON.stringify(billableOrgQuota()));
 
-        nockUAA
-          .get('/token_keys')
-          .reply(200, {keys: [{value: tokenKey}]})
-        ;
+        nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
 
-        response = await agent.get(router.findByName('admin.organizations').composeURL());
+        response = await agent.get(
+          router.findByName('admin.organizations').composeURL(),
+        );
       });
 
       it('should return organisations', () => {
@@ -225,7 +229,9 @@ describe('app test suite', () => {
       });
 
       it('should render as text/html with utf-8 charset', () => {
-        expect(response.header['content-type']).toEqual('text/html; charset=utf-8');
+        expect(response.header['content-type']).toEqual(
+          'text/html; charset=utf-8',
+        );
       });
 
       it('should have a Content Security Policy set', () => {
@@ -276,15 +282,9 @@ describe('app test suite', () => {
     });
 
     it('missing pages should come back with a 404', async () => {
-      nockAccounts
-        .get('/users/uaa-user-123/documents')
-        .reply(200, `[]`)
-      ;
+      nockAccounts.get('/users/uaa-user-123/documents').reply(200, '[]');
 
-      nockUAA
-        .get('/token_keys')
-        .reply(200, {keys: [{value: tokenKey}]})
-      ;
+      nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
 
       response = await agent.get('/this-should-not-exists');
 
@@ -294,46 +294,47 @@ describe('app test suite', () => {
     it('should store a session in a signed cookie', async () => {
       response = await request(app).get('/test');
 
-      expect(response.header['set-cookie'].some(
-        (x: string) => x.includes('pazmin-session.sig')))
-        .toBe(true);
+      expect(
+        response.header['set-cookie'].some((x: string) =>
+          x.includes('pazmin-session.sig'),
+        ),
+      ).toBe(true);
     });
 
     it('should redirect homepage to organisations', async () => {
       const home = router.find('/');
       const orgs = router.findByName('admin.organizations');
-      const redirectResponse = await home.definition.action({
-        routePartOf: () => false,
-        linkTo: (name: string, params: IParameters = {}) => router.findByName(name).composeURL(params),
-      }, {});
+      const redirectResponse = await home.definition.action(
+        {
+          routePartOf: () => false,
+          linkTo: (name: string, params: IParameters = {}) =>
+            router.findByName(name).composeURL(params),
+        },
+        {},
+      );
 
       expect(redirectResponse.redirect).toEqual(orgs.definition.path);
     });
 
     it('should add a meta tag for origin', async () => {
-      nockAccounts
-        .get('/users/uaa-user-123/documents')
-        .reply(200, `[]`)
-      ;
+      nockAccounts.get('/users/uaa-user-123/documents').reply(200, '[]');
 
       nockCF
         .get('/v2/organizations')
         .reply(200, JSON.stringify(wrapResources(defaultOrg())))
 
         .get(`/v2/quota_definitions/${billableOrgQuotaGUID}`)
-        .reply(200, JSON.stringify(billableOrgQuota()))
-      ;
+        .reply(200, JSON.stringify(billableOrgQuota()));
 
-      nockUAA
-        .get('/token_keys')
-        .reply(200, {keys: [{value: tokenKey}]})
-      ;
+      nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
 
       const orgs = router.findByName('admin.organizations');
       response = await agent.get(orgs.definition.path);
 
       expect(response.status).toEqual(200);
-      expect(response.text).toMatch('<meta name="x-user-identity-origin" content="uaa" />');
+      expect(response.text).toMatch(
+        '<meta name="x-user-identity-origin" content="uaa" />',
+      );
     });
   });
 
@@ -343,28 +344,30 @@ describe('app test suite', () => {
 
     const app = init(config);
     const time = Math.floor(Date.now() / 1000);
-    const token = jwt.sign({
-      user_id: 'uaa-user-123',
-      scope: [CLOUD_CONTROLLER_ADMIN],
-      exp: (time + (24 * 60 * 60)),
-      origin: 'uaa',
-    }, tokenKey);
+    const token = jwt.sign(
+      {
+        user_id: 'uaa-user-123',
+        scope: [CLOUD_CONTROLLER_ADMIN],
+        exp: time + 24 * 60 * 60,
+        origin: 'uaa',
+      },
+      tokenKey,
+    );
 
     beforeEach(async () => {
-      nockUAA
-        .post('/oauth/token')
-        .reply(200, {
-          access_token: token,
-          token_type: 'bearer',
-          refresh_token: '__refresh_token__',
-          expires_in: (24 * 60 * 60),
-          scope: `openid oauth.approvals ${CLOUD_CONTROLLER_ADMIN}`,
-          jti: '__jti__',
-        })
-      ;
+      nockUAA.post('/oauth/token').reply(200, {
+        access_token: token,
+        token_type: 'bearer',
+        refresh_token: '__refresh_token__',
+        expires_in: 24 * 60 * 60,
+        scope: `openid oauth.approvals ${CLOUD_CONTROLLER_ADMIN}`,
+        jti: '__jti__',
+      });
 
       agent = request.agent(app);
-      response = await agent.get('/auth/login/callback?code=__fakecode__&state=__fakestate__');
+      response = await agent.get(
+        '/auth/login/callback?code=__fakecode__&state=__fakestate__',
+      );
 
       response.header['set-cookie'][0]
         .split(',')
@@ -379,29 +382,23 @@ describe('app test suite', () => {
 
     describe('visiting the organisations page', () => {
       beforeEach(async () => {
-        nockAccounts
-          .get('/users/uaa-user-123/documents')
-          .reply(200, `[]`)
-        ;
+        nockAccounts.get('/users/uaa-user-123/documents').reply(200, '[]');
 
         nockCF
           .get('/v2/organizations')
           .reply(200, JSON.stringify(wrapResources(defaultOrg())))
 
           .get(`/v2/quota_definitions/${billableOrgQuotaGUID}`)
-          .reply(200, JSON.stringify(billableOrgQuota()))
-        ;
+          .reply(200, JSON.stringify(billableOrgQuota()));
 
-        nockUAA
-          .get('/token_keys')
-          .reply(200, {keys: [{value: tokenKey}]})
-        ;
+        nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
 
-        response = await agent.get(router.findByName('admin.organizations').composeURL());
+        response = await agent.get(
+          router.findByName('admin.organizations').composeURL(),
+        );
       });
 
       it('should show a link to the platform admin page', () => {
-
         expect(response.status).toEqual(200);
         expect(response.text).toMatch(/Platform admin/);
       });
@@ -412,33 +409,37 @@ describe('app test suite', () => {
     const app = init(config);
     const agent = request.agent(app);
     const time = Math.floor(Date.now() / 1000);
-    const token = jwt.sign({
-      user_id: 'uaa-user-123',
-      scope: [],
-      exp: (time - (24 * 60 * 60)),
-    }, tokenKey);
+    const token = jwt.sign(
+      {
+        user_id: 'uaa-user-123',
+        scope: [],
+        exp: time - 24 * 60 * 60,
+      },
+      tokenKey,
+    );
 
     it('should authenticate successfully', async () => {
-      nockUAA
-        .post('/oauth/token')
-        .reply(200, {
-          access_token: token, // eslint-disable-line camelcase
-          token_type: 'bearer', // eslint-disable-line camelcase
-          refresh_token: '__refresh_token__', // eslint-disable-line camelcase
-          expires_in: (24 * 60 * 60), // eslint-disable-line camelcase
-          scope: 'openid oauth.approvals',
-          jti: '__jti__',
-        })
-      ;
+      nockUAA.post('/oauth/token').reply(200, {
+        access_token: token, // eslint-disable-line camelcase
+        token_type: 'bearer', // eslint-disable-line camelcase
+        refresh_token: '__refresh_token__', // eslint-disable-line camelcase
+        expires_in: 24 * 60 * 60, // eslint-disable-line camelcase
+        scope: 'openid oauth.approvals',
+        jti: '__jti__',
+      });
 
-      const response = await agent.get('/auth/login/callback?code=__fakecode__&state=__fakestate__');
+      const response = await agent.get(
+        '/auth/login/callback?code=__fakecode__&state=__fakestate__',
+      );
 
       expect(response.status).toEqual(302);
       expect(response.header['set-cookie'][0]).toContain('pazmin-session');
     });
 
     it('should be redirected to login due to expired token', async () => {
-      const response = await agent.get(router.findByName('admin.organizations').composeURL());
+      const response = await agent.get(
+        router.findByName('admin.organizations').composeURL(),
+      );
 
       expect(response.status).toEqual(302);
     });

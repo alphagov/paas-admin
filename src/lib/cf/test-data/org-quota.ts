@@ -3,7 +3,8 @@ import { IOrganizationQuota } from '../types';
 export const billableOrgQuotaName = 'billable';
 export const billableOrgQuotaGUID = 'ORG-QUOTA-GUID';
 
-export const billableOrgQuota = (): IOrganizationQuota => JSON.parse(`{
+export const billableOrgQuota = (): IOrganizationQuota =>
+  JSON.parse(`{
   "metadata": {
     "guid": "${billableOrgQuotaGUID}",
     "url": "/v2/quota_definitions/${billableOrgQuotaGUID}",
@@ -29,7 +30,8 @@ export const billableOrgQuota = (): IOrganizationQuota => JSON.parse(`{
 export const trialOrgQuotaName = 'default';
 export const trialOrgQuotaGUID = '99999999-a8c0-4c43-9c72-649df53da8cb';
 
-export const trialOrgQuota = (): IOrganizationQuota => JSON.parse(`{
+export const trialOrgQuota = (): IOrganizationQuota =>
+  JSON.parse(`{
   "metadata": {
     "guid": "${trialOrgQuotaGUID}",
     "url": "/v2/quota_definitions/${trialOrgQuotaGUID}",

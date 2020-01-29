@@ -13,16 +13,13 @@ describe('line graphs', () => {
 
   it('should render a single series as a path and not show a legend', () => {
     const series = [
-      {date: new Date(2019, 1, 1), value: 58},
-      {date: new Date(2019, 2, 1), value: 42},
-      {date: new Date(2019, 3, 1), value: 53},
+      { date: new Date(2019, 1, 1), value: 58 },
+      { date: new Date(2019, 2, 1), value: 42 },
+      { date: new Date(2019, 3, 1), value: 53 },
     ];
-    const result = drawLineGraph(
-      defaultTitle, defaultUnits, defaultFormat,
-      [
-        { metrics: series, label: 'some-label'},
-      ],
-    );
+    const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, [
+      { metrics: series, label: 'some-label' },
+    ]);
     const seriesPaths = result.querySelectorAll('path.series');
     expect(seriesPaths).toHaveLength(1);
     const legends = result.querySelectorAll('.legend');
@@ -31,17 +28,14 @@ describe('line graphs', () => {
 
   it('should render multiple series as multiple paths and show a legend', () => {
     const series = [
-      {date: new Date(2019, 1, 1), value: 42},
-      {date: new Date(2019, 2, 1), value: 58},
+      { date: new Date(2019, 1, 1), value: 42 },
+      { date: new Date(2019, 2, 1), value: 58 },
     ];
-    const result = drawLineGraph(
-      defaultTitle, defaultUnits, defaultFormat,
-      [
-        { metrics: series, label: 'some-label-001'},
-        { metrics: series, label: 'some-label-002'},
-        { metrics: series, label: 'some-label-003'},
-      ],
-    );
+    const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, [
+      { metrics: series, label: 'some-label-001' },
+      { metrics: series, label: 'some-label-002' },
+      { metrics: series, label: 'some-label-003' },
+    ]);
     const seriesPaths = result.querySelectorAll('path.series');
     expect(seriesPaths).toHaveLength(3);
     const legends = result.querySelectorAll('.legend');
@@ -52,17 +46,14 @@ describe('line graphs', () => {
   it('should render multiple series as multiple paths and not show a legend if the formats do not end with numbers', () => {
     // tslint:enable:max-line-length
     const series = [
-      {date: new Date(2019, 1, 1), value: 42},
-      {date: new Date(2019, 2, 1), value: 58},
+      { date: new Date(2019, 1, 1), value: 42 },
+      { date: new Date(2019, 2, 1), value: 58 },
     ];
-    const result = drawLineGraph(
-      defaultTitle, defaultUnits, defaultFormat,
-      [
-        { metrics: series, label: 'some-label-one'},
-        { metrics: series, label: 'some-label-two'},
-        { metrics: series, label: 'some-label-three'},
-      ],
-    );
+    const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, [
+      { metrics: series, label: 'some-label-one' },
+      { metrics: series, label: 'some-label-two' },
+      { metrics: series, label: 'some-label-three' },
+    ]);
     const seriesPaths = result.querySelectorAll('path.series');
     expect(seriesPaths).toHaveLength(3);
     const legends = result.querySelectorAll('.legend');
@@ -74,14 +65,14 @@ describe(summariseSerie, () => {
   const metricSerie: IMetricSerie = {
     label: 'cf-0aaa00aaaa0aa-002 MetricName',
     metrics: [
-      { date: new Date(`2020-01-01[T]00:00:00`), value: 90 },
-      { date: new Date(`2020-01-01[T]01:00:00`), value: 32 },
-      { date: new Date(`2020-01-01[T]02:00:00`), value: 56 },
-      { date: new Date(`2020-01-01[T]03:00:00`), value: 12 },
-      { date: new Date(`2020-01-01[T]04:00:00`), value: 2 },
-      { date: new Date(`2020-01-01[T]05:00:00`), value: 94 },
-      { date: new Date(`2020-01-01[T]06:00:00`), value: 73 },
-      { date: new Date(`2020-01-01[T]07:00:00`), value: NaN },
+      { date: new Date('2020-01-01[T]00:00:00'), value: 90 },
+      { date: new Date('2020-01-01[T]01:00:00'), value: 32 },
+      { date: new Date('2020-01-01[T]02:00:00'), value: 56 },
+      { date: new Date('2020-01-01[T]03:00:00'), value: 12 },
+      { date: new Date('2020-01-01[T]04:00:00'), value: 2 },
+      { date: new Date('2020-01-01[T]05:00:00'), value: 94 },
+      { date: new Date('2020-01-01[T]06:00:00'), value: 73 },
+      { date: new Date('2020-01-01[T]07:00:00'), value: NaN },
     ],
   };
 

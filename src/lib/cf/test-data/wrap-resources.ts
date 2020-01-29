@@ -12,7 +12,9 @@ export function wrapResources(...resources: ReadonlyArray<any>) {
   };
 }
 
-export function wrapV3Resources(...resources: ReadonlyArray<any>): IV3Response<any> {
+export function wrapV3Resources(
+  ...resources: ReadonlyArray<any>
+): IV3Response<any> {
   return {
     pagination: {
       total_pages: 1,

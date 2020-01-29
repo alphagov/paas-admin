@@ -1,8 +1,8 @@
 import nanoid from 'nanoid';
 import * as oidc from 'openid-client';
 import UAAClient from '../../lib/uaa';
-import {UaaOrigin} from '../../lib/uaa/uaa';
-import {IContext} from '../app';
+import { UaaOrigin } from '../../lib/uaa/uaa';
+import { IContext } from '../app';
 
 export const KEY_STATE = 'oidc_flow_state';
 const KEY_OID = 'oid';
@@ -10,14 +10,15 @@ const KEY_SUB = 'sub';
 
 export default class OIDC {
   constructor(
-    private clientID: string,
-    private clientSecret: string,
-    private discoveryURL: string,
-    private redirectURL: string,
-  ) {
-  }
+    private readonly clientID: string,
+    private readonly clientSecret: string,
+    private readonly discoveryURL: string,
+    private readonly redirectURL: string,
+  ) {}
 
-  public async getAuthorizationOIDCURL(session: CookieSessionInterfaces.CookieSessionObject): Promise<string> {
+  public async getAuthorizationOIDCURL(
+    session: CookieSessionInterfaces.CookieSessionObject,
+  ): Promise<string> {
     const client = await this.createOIDCClient();
     const state = this.generateStateToken();
 
@@ -34,6 +35,7 @@ export default class OIDC {
       response_type: 'code',
     };
     session.save();
+
     return redirectUrl;
   }
 
@@ -46,13 +48,12 @@ export default class OIDC {
     try {
       const client = await this.createOIDCClient();
 
-      const {state, response_type} = ctx.session[KEY_STATE];
+      const { state, response_type } = ctx.session[KEY_STATE];
 
-      const tokenSet = await client.callback(
-        this.redirectURL,
-        authResponse,
-        { state, response_type },
-      );
+      const tokenSet = await client.callback(this.redirectURL, authResponse, {
+        state,
+        response_type,
+      });
 
       let newUsername;
       const claims = tokenSet.claims();
@@ -78,6 +79,7 @@ export default class OIDC {
       return true;
     } catch (e) {
       ctx.app.logger.error(e);
+
       return false;
     }
   }
@@ -96,5 +98,4 @@ export default class OIDC {
   private generateStateToken(): string {
     return nanoid(24);
   }
-
 }

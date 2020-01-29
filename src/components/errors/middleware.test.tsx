@@ -4,18 +4,18 @@ import pino from 'pino';
 import request from 'supertest';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
-import Router, { NotAuthorisedError, NotFoundError } from '../../lib/router';
+import { NotAuthorisedError, NotFoundError } from '../../lib/router';
 
-import { internalServerErrorMiddleware, UserFriendlyError } from '.';
+import { UserFriendlyError, internalServerErrorMiddleware } from '.';
 
 describe('middleware', () => {
   let app: Express;
-  const logger = pino({level: 'silent'});
+  const logger = pino({ level: 'silent' });
 
   beforeEach(() => {
     app = express();
 
-    app.use(pinoMiddleware({logger}));
+    app.use(pinoMiddleware({ logger }));
 
     app.use((req: any, _res, next) => {
       req.csrfToken = () => '';

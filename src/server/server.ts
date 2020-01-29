@@ -21,6 +21,7 @@ export default class Server {
     }
     this.http = createServer(this.handler);
     this.http.listen(this.port);
+
     return new Promise((resolve, reject) => {
       this.http.once('listening', () => resolve(this));
       this.http.once('error', reject);
@@ -35,6 +36,7 @@ export default class Server {
     const h = this.http;
     this.http = null;
     h.close();
+
     return wait;
   }
 
@@ -42,6 +44,7 @@ export default class Server {
     if (!this.http) {
       throw new Error('Server: cannot wait on server: server is not started');
     }
+
     return new Promise((resolve, reject) => {
       this.http.once('close', resolve);
       this.http.once('error', reject);
@@ -57,5 +60,4 @@ export default class Server {
     this.http.removeListener('request', oldHandler);
     this.http.on('request', this.handler);
   }
-
 }

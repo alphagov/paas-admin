@@ -3,7 +3,7 @@ import moment from 'moment';
 import { BaseLogger } from 'pino';
 import qs from 'qs';
 
-import {intercept} from '../axios-logger/axios';
+import { intercept } from '../axios-logger/axios';
 
 const DEFAULT_TIMEOUT = 300000;
 
@@ -19,21 +19,26 @@ export default class BillingClient {
   }
 
   public async request(req: AxiosRequestConfig): Promise<AxiosResponse> {
-    return request({
-      baseURL: this.config.apiEndpoint,
-      headers: {
-        Authorization: `Bearer ${this.config.accessToken}`,
+    return request(
+      {
+        baseURL: this.config.apiEndpoint,
+        headers: {
+          Authorization: `Bearer ${this.config.accessToken}`,
+        },
+        paramsSerializer(params) {
+          return qs.stringify(params, {
+            indices: false,
+          });
+        },
+        ...req,
       },
-      paramsSerializer(params) {
-        return qs.stringify(params, {
-          indices: false,
-        });
-      },
-      ...req,
-    }, this.config.logger);
+      this.config.logger,
+    );
   }
 
-  public async getBillableEvents(params: IEventFilter): Promise<ReadonlyArray<IBillableEvent>> {
+  public async getBillableEvents(
+    params: IEventFilter,
+  ): Promise<ReadonlyArray<IBillableEvent>> {
     const response = await this.request({
       url: '/billable_events',
       params: {
@@ -48,7 +53,9 @@ export default class BillingClient {
     return data.map(parseBillableEvent);
   }
 
-  public async getForecastEvents(params: IForecastParameters): Promise<ReadonlyArray<IBillableEvent>> {
+  public async getForecastEvents(
+    params: IForecastParameters,
+  ): Promise<ReadonlyArray<IBillableEvent>> {
     const response = await this.request({
       url: '/forecast_events',
       params: {
@@ -64,7 +71,9 @@ export default class BillingClient {
     return data.map(parseBillableEvent);
   }
 
-  public async getPricingPlans(params: IRangeable): Promise<ReadonlyArray<IPricingPlan>> {
+  public async getPricingPlans(
+    params: IRangeable,
+  ): Promise<ReadonlyArray<IPricingPlan>> {
     const response = await this.request({
       url: '/pricing_plans',
       params: {
@@ -78,7 +87,9 @@ export default class BillingClient {
     return data.map(parsePricingPlan);
   }
 
-  public async getCurrencyRates(params: IRangeable): Promise<ReadonlyArray<IRate>> {
+  public async getCurrencyRates(
+    params: IRangeable,
+  ): Promise<ReadonlyArray<IRate>> {
     const response = await this.request({
       url: '/currency_rates',
       params: {
@@ -109,6 +120,7 @@ export default class BillingClient {
 
 function parseDate(d: Date): string {
   const m = moment(d);
+
   return m.format('YYYY-MM-DD');
 }
 
@@ -199,6 +211,7 @@ function parsePricingPlan(plan: IPricingPlanResponse): IPricingPlan {
   // this information if cf. A better solution is to get paas-billing should
   // provide this information
   const [serviceName, ...planName] = plan.name.split(/\s+/);
+
   return {
     serviceName,
     planName: planName.join(''),
@@ -228,7 +241,10 @@ function parseRate(rate: IRateResponse): IRate {
   };
 }
 
-async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<AxiosResponse> {
+async function request(
+  req: AxiosRequestConfig,
+  logger: BaseLogger,
+): Promise<AxiosResponse> {
   const reqWithDefaults: AxiosRequestConfig = {
     method: 'get',
     validateStatus,

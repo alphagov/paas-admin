@@ -9,7 +9,10 @@ import { IContext } from '../app';
 import { fromOrg } from '../breadcrumbs';
 import { ApplicationEventDetailPage, ApplicationEventsPage } from './views';
 
-export async function viewApplicationEvent(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function viewApplicationEvent(
+  ctx: IContext,
+  params: IParameters,
+): Promise<IResponse> {
   const accountsClient = new AccountsClient({
     apiEndpoint: ctx.app.accountsAPI,
     secret: ctx.app.accountsSecret,
@@ -31,17 +34,17 @@ export async function viewApplicationEvent(ctx: IContext, params: IParameters): 
     cf.auditEvent(eventGUID),
   ]);
 
-  const eventActorGUID: string | undefined = event.actor.type === 'user'
-    ? event.actor.guid
-    : undefined
-  ;
+  const eventActorGUID: string | undefined =
+    event.actor.type === 'user' ? event.actor.guid : undefined;
 
   const eventActor: IAccountsUser | undefined = eventActorGUID
     ? await accountsClient.getUser(eventActorGUID)
-    : undefined
-  ;
+    : undefined;
 
-  const template = new Template(ctx.viewContext, `${application.entity.name} - Application Event`);
+  const template = new Template(
+    ctx.viewContext,
+    `${application.entity.name} - Application Event`,
+  );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
       text: space.entity.name,
@@ -64,15 +67,20 @@ export async function viewApplicationEvent(ctx: IContext, params: IParameters): 
   ]);
 
   return {
-    body: template.render(<ApplicationEventDetailPage
-      actor={eventActor || undefined}
-      application={application}
-      event={event}
-    />),
+    body: template.render(
+      <ApplicationEventDetailPage
+        actor={eventActor || undefined}
+        application={application}
+        event={event}
+      />,
+    ),
   };
 }
 
-export async function viewApplicationEvents(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function viewApplicationEvents(
+  ctx: IContext,
+  params: IParameters,
+): Promise<IResponse> {
   const accountsClient = new AccountsClient({
     apiEndpoint: ctx.app.accountsAPI,
     secret: ctx.app.accountsSecret,
@@ -85,7 +93,8 @@ export async function viewApplicationEvents(ctx: IContext, params: IParameters):
     logger: ctx.app.logger,
   });
 
-  const page: number = params.page === undefined ? 1 : parseInt(params.page, 10);
+  const page: number =
+    params.page === undefined ? 1 : parseInt(params.page, 10);
 
   const [organization, space, application, pageOfEvents] = await Promise.all([
     cf.organization(params.organizationGUID),
@@ -94,29 +103,32 @@ export async function viewApplicationEvents(ctx: IContext, params: IParameters):
     cf.auditEvents(page, /* targetGUIDs */ [params.applicationGUID]),
   ]);
 
-  const {resources: events, pagination} = pageOfEvents;
+  const { resources: events, pagination } = pageOfEvents;
 
-  let eventActorEmails: {[key: string]: string} = {};
+  let eventActorEmails: { [key: string]: string } = {};
   const userActorGUIDs = lodash
     .chain(events)
     .filter(e => e.actor.type === 'user')
     .map(e => e.actor.guid)
     .uniq()
-    .value()
-  ;
+    .value();
 
   if (userActorGUIDs.length > 0) {
-    const actorAccounts: ReadonlyArray<IAccountsUser> = await accountsClient.getUsers(userActorGUIDs);
+    const actorAccounts: ReadonlyArray<IAccountsUser> = await accountsClient.getUsers(
+      userActorGUIDs,
+    );
 
     eventActorEmails = lodash
       .chain(actorAccounts)
       .keyBy(account => account.uuid)
       .mapValues(account => account.email)
-      .value()
-    ;
+      .value();
   }
 
-  const template = new Template(ctx.viewContext, `${application.entity.name} - Application Events`);
+  const template = new Template(
+    ctx.viewContext,
+    `${application.entity.name} - Application Events`,
+  );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
       text: space.entity.name,
@@ -129,15 +141,17 @@ export async function viewApplicationEvents(ctx: IContext, params: IParameters):
   ]);
 
   return {
-    body: template.render(<ApplicationEventsPage
-      actorEmails={eventActorEmails}
-      application={application}
-      events={events}
-      linkTo={ctx.linkTo}
-      organizationGUID={organization.metadata.guid}
-      pagination={{...pagination, page}}
-      routePartOf={ctx.routePartOf}
-      spaceGUID={space.metadata.guid}
-    />),
+    body: template.render(
+      <ApplicationEventsPage
+        actorEmails={eventActorEmails}
+        application={application}
+        events={events}
+        linkTo={ctx.linkTo}
+        organizationGUID={organization.metadata.guid}
+        pagination={{ ...pagination, page }}
+        routePartOf={ctx.routePartOf}
+        spaceGUID={space.metadata.guid}
+      />,
+    ),
   };
 }

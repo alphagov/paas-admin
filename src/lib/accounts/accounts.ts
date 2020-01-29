@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import moment from 'moment';
 import { BaseLogger } from 'pino';
 
-import {intercept} from '../axios-logger/axios';
+import { intercept } from '../axios-logger/axios';
 
 const DEFAULT_TIMEOUT = 5000;
 
@@ -54,17 +54,20 @@ export class AccountsClient {
   }
 
   public async request(req: AxiosRequestConfig): Promise<AxiosResponse> {
-    return request({
-      baseURL: this.config.apiEndpoint,
-      auth: {
-        username: 'admin',
-        password: this.config.secret,
+    return request(
+      {
+        baseURL: this.config.apiEndpoint,
+        auth: {
+          username: 'admin',
+          password: this.config.secret,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        ...req,
       },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      ...req,
-    }, this.config.logger);
+      this.config.logger,
+    );
   }
 
   public async getDocument(name: string): Promise<IDocument> {
@@ -72,6 +75,7 @@ export class AccountsClient {
       url: `/documents/${name}`,
     });
     const data: IDocumentResponse = response.data;
+
     return parseDocument(data);
   }
 
@@ -86,13 +90,17 @@ export class AccountsClient {
         return status === 201;
       },
     });
+
     return true;
   }
 
-  public async createAgreement(documentName: string, userUUID: string): Promise<boolean> {
+  public async createAgreement(
+    documentName: string,
+    userUUID: string,
+  ): Promise<boolean> {
     await this.request({
       method: 'POST',
-      url: `/agreements`,
+      url: '/agreements',
       data: JSON.stringify({
         user_uuid: userUUID,
         document_name: documentName,
@@ -101,17 +109,22 @@ export class AccountsClient {
         return status === 201;
       },
     });
+
     return true;
   }
 
-  public async getPendingDocumentsForUserUUID(uuid: string): Promise<ReadonlyArray<IUserDocument>> {
+  public async getPendingDocumentsForUserUUID(
+    uuid: string,
+  ): Promise<ReadonlyArray<IUserDocument>> {
     const response = await this.request({
       url: `/users/${uuid}/documents`,
     });
     const data: ReadonlyArray<IUserDocumentResponse> = response.data;
-    const initialMap: {[key: string]: IUserDocument} = {};
-    return Object.values(data.map(parseUserDocument).reduce(latestOnly, initialMap))
-      .filter(pendingOnly);
+    const initialMap: { [key: string]: IUserDocument } = {};
+
+    return Object.values(
+      data.map(parseUserDocument).reduce(latestOnly, initialMap),
+    ).filter(pendingOnly);
   }
 
   public async getUser(uuid: string): Promise<IAccountsUser | undefined> {
@@ -121,6 +134,7 @@ export class AccountsClient {
       });
 
       const data: IAccountsUserResponse = response.data;
+
       return parseUser(data);
     } catch (err) {
       if (err.response.status === 404) {
@@ -131,7 +145,9 @@ export class AccountsClient {
     }
   }
 
-  public async getUsers(uuids: ReadonlyArray<string>): Promise<ReadonlyArray<IAccountsUser>> {
+  public async getUsers(
+    uuids: ReadonlyArray<string>,
+  ): Promise<ReadonlyArray<IAccountsUser>> {
     const response = await this.request({
       url: `/users?uuids=${uuids.join(',')}`,
       method: 'get',
@@ -142,7 +158,9 @@ export class AccountsClient {
     return parsedResponse.users.map(parseUser);
   }
 
-  public async getUserByEmail(email: string): Promise<IAccountsUser | undefined> {
+  public async getUserByEmail(
+    email: string,
+  ): Promise<IAccountsUser | undefined> {
     const response = await this.request({
       url: `/users?email=${email}`,
       method: 'get',
@@ -155,15 +173,21 @@ export class AccountsClient {
     }
 
     if (parsedResponse.users.length > 1) {
-      throw new Error('getUserByEmail received more than one result from Accounts API');
+      throw new Error(
+        'getUserByEmail received more than one result from Accounts API',
+      );
     }
 
     return parseUser(parsedResponse.users[0]);
   }
 
-  public async createUser(uuid: string, username: string, email: string): Promise<boolean> {
+  public async createUser(
+    uuid: string,
+    username: string,
+    email: string,
+  ): Promise<boolean> {
     const response = await this.request({
-      url: `/users/`,
+      url: '/users/',
       method: 'post',
       data: JSON.stringify({
         user_uuid: uuid,
@@ -180,8 +204,11 @@ function pendingOnly(doc: IUserDocument): boolean {
   return doc.agreementDate === undefined;
 }
 
-function latestOnly(docs: {readonly [key: string]: IUserDocument}, doc: IUserDocument) {
-  const reducedDocs = {...docs};
+function latestOnly(
+  docs: { readonly [key: string]: IUserDocument },
+  doc: IUserDocument,
+) {
+  const reducedDocs = { ...docs };
 
   if (!reducedDocs[doc.name]) {
     reducedDocs[doc.name] = doc;
@@ -198,6 +225,7 @@ function parseTimestamp(s: string): Date {
   if (!m.isValid()) {
     throw new Error(`AccountsClient: invalid date format: ${s}`);
   }
+
   return moment(s, moment.ISO_8601).toDate();
 }
 
@@ -212,7 +240,9 @@ function parseDocument(doc: IDocumentResponse): IDocument {
 function parseUserDocument(doc: IUserDocumentResponse): IUserDocument {
   return {
     ...parseDocument(doc),
-    agreementDate: doc.agreement_date ? parseTimestamp(doc.agreement_date) : undefined,
+    agreementDate: doc.agreement_date
+      ? parseTimestamp(doc.agreement_date)
+      : undefined,
   };
 }
 
@@ -224,7 +254,10 @@ function parseUser(user: IAccountsUserResponse): IAccountsUser {
   };
 }
 
-async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<AxiosResponse> {
+async function request(
+  req: AxiosRequestConfig,
+  logger: BaseLogger,
+): Promise<AxiosResponse> {
   const reqWithDefaults: AxiosRequestConfig = {
     method: 'get',
     validateStatus,
@@ -241,6 +274,7 @@ async function request(req: AxiosRequestConfig, logger: BaseLogger): Promise<Axi
     }
     throw responseError(msg, req, response.status, reqWithDefaults, response);
   }
+
   return response;
 }
 
@@ -264,5 +298,6 @@ function responseError(
   err.code = responseCode;
   err.request = req;
   err.response = response;
+
   return err;
 }

@@ -8,7 +8,12 @@ import { BillingClient } from '../../lib/billing';
 import { IParameters, IResponse } from '../../lib/router';
 
 import { IContext } from '../app/context';
-import { CalculatorPage, ICalculatorState, IQuote, IResourceItem } from './views';
+import {
+  CalculatorPage,
+  ICalculatorState,
+  IQuote,
+  IResourceItem,
+} from './views';
 
 import * as formulaGrammar from './formulaGrammar.pegjs';
 
@@ -21,6 +26,7 @@ function toVersionedPricingPlans(plan: IPricingPlan): IVersionedPricingPlan {
   const parts = plan.planName.split('-');
   const version = parts.slice(-1).join('');
   const variant = parts.slice(0, -1).join('-');
+
   return {
     ...plan,
     version,
@@ -38,6 +44,7 @@ function safelistServices(p: IPricingPlan): boolean {
     'aws-s3-bucket',
     'influxdb',
   ];
+
   return safelist.some(name => name === p.serviceName);
 }
 
@@ -58,24 +65,39 @@ function sizeToNumber(s: string): string {
 function bySize(a: IPricingPlan, b: IPricingPlan): number {
   const nameA = sizeToNumber(a.planName);
   const nameB = sizeToNumber(b.planName);
+
   return nameA > nameB ? 1 : -1;
 }
 
-export async function getCalculator(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function getCalculator(
+  ctx: IContext,
+  params: IParameters,
+): Promise<IResponse> {
   const monthOfEstimate = moment().format('MMMM YYYY');
-  const rangeStart = params.rangeStart || moment().startOf('month').format('YYYY-MM-DD');
-  const rangeStop = params.rangeStop || moment().endOf('month').format('YYYY-MM-DD');
+  const rangeStart =
+    params.rangeStart ||
+    moment()
+      .startOf('month')
+      .format('YYYY-MM-DD');
+  const rangeStop =
+    params.rangeStop ||
+    moment()
+      .endOf('month')
+      .format('YYYY-MM-DD');
   const billing = new BillingClient({
     apiEndpoint: ctx.app.billingAPI,
     logger: ctx.app.logger,
   });
-  const plans = (await billing.getPricingPlans({
-    rangeStart: moment(rangeStart).toDate(),
-    rangeStop: moment(rangeStop).toDate(),
-  })).filter(safelistServices)
-     .filter(blacklistCompose)
-     .map(toVersionedPricingPlans)
-     .sort(bySize);
+  const plans = (
+    await billing.getPricingPlans({
+      rangeStart: moment(rangeStart).toDate(),
+      rangeStop: moment(rangeStop).toDate(),
+    })
+  )
+    .filter(safelistServices)
+    .filter(blacklistCompose)
+    .map(toVersionedPricingPlans)
+    .sort(bySize);
   const state = {
     monthOfEstimate,
     rangeStart,
@@ -91,17 +113,20 @@ export async function getCalculator(ctx: IContext, params: IParameters): Promise
   const template = new Template(ctx.viewContext, 'Pricing calculator');
 
   return {
-    body: template.render(<CalculatorPage
-      state={state}
-      quote={quote}
-    />),
+    body: template.render(<CalculatorPage state={state} quote={quote} />),
   };
 }
 
-async function getQuote(billing: BillingClient, state: ICalculatorState): Promise<IQuote> {
+async function getQuote(
+  billing: BillingClient,
+  state: ICalculatorState,
+): Promise<IQuote> {
   const rangeStart = moment(state.rangeStart);
   const rangeStop = moment(state.rangeStop);
-  const rates = await billing.getCurrencyRates({rangeStart: rangeStart.toDate(), rangeStop: rangeStop.toDate()});
+  const rates = await billing.getCurrencyRates({
+    rangeStart: rangeStart.toDate(),
+    rangeStop: rangeStop.toDate(),
+  });
   const latestUsdRate = rates.find(currencyRate => currencyRate.code === 'USD');
   /* istanbul ignore if */
   if (!latestUsdRate) {
@@ -148,6 +173,7 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
           ),
         },
       };
+
       return appEvent;
     }
     const serviceEvent = {
@@ -168,13 +194,21 @@ async function getQuote(billing: BillingClient, state: ICalculatorState): Promis
         ),
       },
     };
+
     return serviceEvent;
   });
 
   return {
-    events: (forecastEvents as IBillableEvent[]),
-    exVAT: forecastEvents.reduce((total: number, instance: IBillableEvent) => total + instance.price.exVAT, 0),
-    incVAT: forecastEvents.reduce((total: number, instance: IBillableEvent) => total + instance.price.incVAT, 0),
+    events: forecastEvents as Array<IBillableEvent>,
+    exVAT: forecastEvents.reduce(
+      (total: number, instance: IBillableEvent) => total + instance.price.exVAT,
+      0,
+    ),
+    incVAT: forecastEvents.reduce(
+      (total: number, instance: IBillableEvent) =>
+        total + instance.price.incVAT,
+      0,
+    ),
   };
 }
 
@@ -184,14 +218,19 @@ function calculateQuote(
   numberOfNodes: number,
   plan: IPricingPlan,
   currencyRate: IRate,
-): number  {
-  return sum(plan.components.map(c => {
-    const thirtyDaysInSeconds = 30 * 24 * 60 * 60;
-    const formula = c.formula
-      .replace('$memory_in_mb', memoryInMB.toString())
-      .replace('$storage_in_mb', storageInMB.toString())
-      .replace('$number_of_nodes', numberOfNodes.toString())
-      .replace('$time_in_seconds', thirtyDaysInSeconds.toString());
-    return formulaGrammar.parse(formula);
-  })) * currencyRate.rate;
+): number {
+  return (
+    sum(
+      plan.components.map(c => {
+        const thirtyDaysInSeconds = 30 * 24 * 60 * 60;
+        const formula = c.formula
+          .replace('$memory_in_mb', memoryInMB.toString())
+          .replace('$storage_in_mb', storageInMB.toString())
+          .replace('$number_of_nodes', numberOfNodes.toString())
+          .replace('$time_in_seconds', thirtyDaysInSeconds.toString());
+
+        return formulaGrammar.parse(formula);
+      }),
+    ) * currencyRate.rate
+  );
 }

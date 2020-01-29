@@ -647,7 +647,8 @@ export const serviceObj = {
     documentation_url: null,
     service_broker_guid: '0e7250aa-364f-42c2-8fd2-808b0224376f',
     plan_updateable: false,
-    service_plans_url: '/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5/service_plans',
+    service_plans_url:
+      '/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5/service_plans',
   },
 };
 export const serviceString = JSON.stringify(serviceObj);

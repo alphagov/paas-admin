@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 import CloudFoundryClient from '../../lib/cf';
@@ -9,7 +8,10 @@ import { IContext } from '../app/context';
 import { fromOrg } from '../breadcrumbs';
 import { ServicePage } from './views';
 
-export async function viewService(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function viewService(
+  ctx: IContext,
+  params: IParameters,
+): Promise<IResponse> {
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
@@ -22,22 +24,31 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
     cf.organization(params.organizationGUID),
   ]);
 
-  const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
+  const isUserProvidedService = userProvidedServices.some(
+    s => s.metadata.guid === params.serviceGUID,
+  );
 
-  const service = isUserProvidedService ?
-    await cf.userServiceInstance(params.serviceGUID) :
-    await cf.serviceInstance(params.serviceGUID);
+  const service = isUserProvidedService
+    ? await cf.userServiceInstance(params.serviceGUID)
+    : await cf.serviceInstance(params.serviceGUID);
 
-  const servicePlan = !isUserProvidedService ? await cf.servicePlan(service.entity.service_plan_guid) : undefined;
+  const servicePlan = !isUserProvidedService
+    ? await cf.servicePlan(service.entity.service_plan_guid)
+    : undefined;
 
   const summarisedService = {
     entity: service.entity,
     metadata: service.metadata,
     service_plan: servicePlan,
-    service: servicePlan ? await cf.service(servicePlan.entity.service_guid) : undefined,
+    service: servicePlan
+      ? await cf.service(servicePlan.entity.service_guid)
+      : undefined,
   };
 
-  const template = new Template(ctx.viewContext, `${service.entity.name} - Service Overview`);
+  const template = new Template(
+    ctx.viewContext,
+    `${service.entity.name} - Service Overview`,
+  );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
       text: space.entity.name,
@@ -50,12 +61,14 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
   ]);
 
   return {
-    body: template.render(<ServicePage
-      routePartOf={ctx.routePartOf}
-      linkTo={ctx.linkTo}
-      service={summarisedService}
-      organizationGUID={organization.metadata.guid}
-      spaceGUID={space.metadata.guid}
-    />),
+    body: template.render(
+      <ServicePage
+        routePartOf={ctx.routePartOf}
+        linkTo={ctx.linkTo}
+        service={summarisedService}
+        organizationGUID={organization.metadata.guid}
+        spaceGUID={space.metadata.guid}
+      />,
+    ),
   };
 }

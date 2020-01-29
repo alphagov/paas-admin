@@ -51,52 +51,62 @@ const router = new Router([
   {
     action: spaces.viewSpaceEvent,
     name: 'admin.organizations.spaces.event.view',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/events/:eventGUID',
+    path:
+      '/organisations/:organizationGUID/spaces/:spaceGUID/events/:eventGUID',
   },
   {
     action: applications.viewApplication,
     name: 'admin.organizations.spaces.applications.view',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID',
+    path:
+      '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID',
   },
   {
     action: applicationEvents.viewApplicationEvents,
     name: 'admin.organizations.spaces.applications.events.view',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/events',
+    path:
+      '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/events',
   },
   {
     action: applicationEvents.viewApplicationEvent,
     name: 'admin.organizations.spaces.applications.event.view',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/events/:eventGUID',
+    path:
+      '/organisations/:organizationGUID/spaces/:spaceGUID/applications/:applicationGUID/events/:eventGUID',
   },
   {
     action: services.viewService,
     name: 'admin.organizations.spaces.services.view',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID',
+    path:
+      '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID',
   },
   {
     action: serviceMetrics.viewServiceMetrics,
     name: 'admin.organizations.spaces.services.metrics.view',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics',
+    path:
+      '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics',
   },
   {
     action: serviceMetrics.downloadServiceMetrics,
     name: 'admin.organizations.spaces.services.metrics.download',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics/download',
+    path:
+      '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics/download',
   },
   {
     action: serviceMetrics.resolveServiceMetrics,
     name: 'admin.organizations.spaces.services.metrics.redirect',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics/:offset',
+    path:
+      '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/metrics/:offset',
   },
   {
     action: serviceEvents.viewServiceEvents,
     name: 'admin.organizations.spaces.services.events.view',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/events',
+    path:
+      '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/events',
   },
   {
     action: serviceEvents.viewServiceEvent,
     name: 'admin.organizations.spaces.services.event.view',
-    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/events/:eventGUID',
+    path:
+      '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/events/:eventGUID',
   },
   {
     action: orgUsers.listUsers,

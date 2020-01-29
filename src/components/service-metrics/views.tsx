@@ -2,7 +2,7 @@ import { forIn } from 'lodash';
 import moment from 'moment';
 import React, { ReactElement, ReactNode } from 'react';
 
-import { bytesToHuman, DATE_TIME } from '../../layouts';
+import { DATE_TIME, bytesToHuman } from '../../layouts';
 import { IServiceInstance } from '../../lib/cf/types';
 import { IMetricSerieSummary } from '../../lib/metrics';
 import { RouteActiveChecker, RouteLinker } from '../app';
@@ -93,7 +93,12 @@ class MetricChart extends React.Component {
 
   private MetricChartGraph(): ReactElement {
     return (
-      <div dangerouslySetInnerHTML={{__html: this.props.chart as unknown as string}}></div>
+      <div
+        dangerouslySetInnerHTML={{
+          // eslint-disable-next-line react/prop-types
+          __html: (this.props.chart as unknown) as string,
+        }}
+      ></div>
     );
   }
 }
@@ -105,7 +110,10 @@ function SummaryRow(props: ISummaryRowProperties): ReactElement {
         <small>{props.title}</small>
       </th>
       {props.instances.map(series => (
-        <td key={series.label} className="govuk-table__cell govuk-table__cell--numeric">
+        <td
+          key={series.label}
+          className="govuk-table__cell govuk-table__cell--numeric"
+        >
           <small>{formatValue(series[props.property], props.format)}</small>
         </td>
       ))}
@@ -114,7 +122,10 @@ function SummaryRow(props: ISummaryRowProperties): ReactElement {
 }
 
 function Metric(props: IMetricProperties): ReactElement {
-  const downloadLink = parseURL(props.downloadLink, { metric: props.metric, units: props.units });
+  const downloadLink = parseURL(props.downloadLink, {
+    metric: props.metric,
+    units: props.units,
+  });
 
   return (
     <div className="govuk-grid-row govuk-!-padding-bottom-9">
@@ -125,37 +136,75 @@ function Metric(props: IMetricProperties): ReactElement {
       </div>
 
       <div className="govuk-grid-column-two-thirds-from-desktop">
-          <p className="govuk-body">{props.description}</p>
+        <p className="govuk-body">{props.description}</p>
 
-          <MetricChart chart={props.chart.outerHTML} />
+        <MetricChart chart={props.chart.outerHTML} />
 
-          <a href={downloadLink.toString()} className="govuk-link">
-            Download "{props.titleText || props.title}" as a CSV
-          </a>
+        <a href={downloadLink.toString()} className="govuk-link">
+          Download &quot;{props.titleText || props.title}&quot; as a CSV
+        </a>
       </div>
       <div className="govuk-grid-column-one-third-from-desktop">
         <table className="govuk-table">
-          <caption className="govuk-table__caption govuk-visually-hidden">Summary</caption>
+          <caption className="govuk-table__caption govuk-visually-hidden">
+            Summary
+          </caption>
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
-              <th scope="col" className={`govuk-table__header ${props.summaries.length === 1 ? 'govuk-visually-hidden' : ''}`}><small>Instance</small></th>
+              <th
+                scope="col"
+                className={`govuk-table__header ${
+                  props.summaries.length === 1 ? 'govuk-visually-hidden' : ''
+                }`}
+              >
+                <small>Instance</small>
+              </th>
               {props.summaries.map((series, index) => (
-                <th key={index} scope="col" className={`govuk-table__header govuk-table__header--numeric ${props.summaries.length === 1 ? 'govuk-visually-hidden' : ''}`}>
+                <th
+                  key={index}
+                  scope="col"
+                  className={`govuk-table__header govuk-table__header--numeric ${
+                    props.summaries.length === 1 ? 'govuk-visually-hidden' : ''
+                  }`}
+                >
                   <small>
-                    {series.label.length > 3
-                      ? <abbr title={series.label}>{String(index).padStart(3, '0')}</abbr>
-                      : series.label
-                    }
+                    {series.label.length > 3 ? (
+                      <abbr title={series.label}>
+                        {String(index).padStart(3, '0')}
+                      </abbr>
+                    ) : (
+                      series.label
+                    )}
                   </small>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody className="govuk-table__body">
-            <SummaryRow title="Latest" property="latest" format={props.format} instances={props.summaries} />
-            <SummaryRow title="Average" property="average" format={props.format} instances={props.summaries} />
-            <SummaryRow title="Min" property="min" format={props.format} instances={props.summaries} />
-            <SummaryRow title="Max" property="max" format={props.format} instances={props.summaries} />
+            <SummaryRow
+              title="Latest"
+              property="latest"
+              format={props.format}
+              instances={props.summaries}
+            />
+            <SummaryRow
+              title="Average"
+              property="average"
+              format={props.format}
+              instances={props.summaries}
+            />
+            <SummaryRow
+              title="Min"
+              property="min"
+              format={props.format}
+              instances={props.summaries}
+            />
+            <SummaryRow
+              title="Max"
+              property="max"
+              format={props.format}
+              instances={props.summaries}
+            />
           </tbody>
         </table>
       </div>
@@ -167,26 +216,37 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
   return (
     <div className="paas-statement-filters">
       <p className="govuk-body">
-        Showing metrics for <a href={props.linkTo('admin.organizations.spaces.services.view', {
-          organizationGUID: props.organizationGUID,
-          spaceGUID: props.spaceGUID,
-          serviceGUID: props.service.metadata.guid,
-        })} className="govuk-link non-breaking">{props.service.entity.name}</a> between <br />
+        Showing metrics for{' '}
+        <a
+          href={props.linkTo('admin.organizations.spaces.services.view', {
+            organizationGUID: props.organizationGUID,
+            spaceGUID: props.spaceGUID,
+            serviceGUID: props.service.metadata.guid,
+          })}
+          className="govuk-link non-breaking"
+        >
+          {props.service.entity.name}
+        </a>{' '}
+        between <br />
         <strong>{moment(props.rangeStart).format(DATE_TIME)}</strong>
         <br /> and <br />
         <strong>{moment(props.rangeStop).format(DATE_TIME)}</strong>
       </p>
 
       <p className="govuk-body">
-        Each point is an average over <strong className="non-breaking">{props.period.humanize()}</strong>.
+        Each point is an average over{' '}
+        <strong className="non-breaking">{props.period.humanize()}</strong>.
       </p>
 
-      {props.persistancePeriod
-        ? <p className="govuk-body">
-            These metrics are retained for up to <strong>{props.persistancePeriod}</strong>.
-            While metrics are experimental, we cannot guarantee a minimum metrics retention period.
-          </p>
-        : <></>}
+      {props.persistancePeriod ? (
+        <p className="govuk-body">
+          These metrics are retained for up to{' '}
+          <strong>{props.persistancePeriod}</strong>. While metrics are
+          experimental, we cannot guarantee a minimum metrics retention period.
+        </p>
+      ) : (
+        <></>
+      )}
 
       <details className="govuk-details" data-module="govuk-details">
         <summary className="govuk-details__summary">
@@ -205,44 +265,74 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
             { short: '30d', long: '30 days' },
           ].map(last => (
             <li key={last.short}>
-              <a href={props.linkTo('admin.organizations.spaces.services.metrics.redirect', {
-                organizationGUID: props.organizationGUID,
-                spaceGUID: props.spaceGUID,
-                serviceGUID: props.service.metadata.guid,
-                offset: last.short,
-              })} className="govuk-link" title={`last ${last.long}`}>Last {last.long}</a>
+              <a
+                href={props.linkTo(
+                  'admin.organizations.spaces.services.metrics.redirect',
+                  {
+                    organizationGUID: props.organizationGUID,
+                    spaceGUID: props.spaceGUID,
+                    serviceGUID: props.service.metadata.guid,
+                    offset: last.short,
+                  },
+                )}
+                className="govuk-link"
+                title={`last ${last.long}`}
+              >
+                Last {last.long}
+              </a>
             </li>
           ))}
         </ol>
 
-        <form method="get"
-          action={props.linkTo('admin.organizations.spaces.services.metrics.view', {
-            organizationGUID: props.organizationGUID,
-            spaceGUID: props.spaceGUID,
-            serviceGUID: props.service.metadata.guid,
-          })}>
+        <form
+          method="get"
+          action={props.linkTo(
+            'admin.organizations.spaces.services.metrics.view',
+            {
+              organizationGUID: props.organizationGUID,
+              spaceGUID: props.spaceGUID,
+              serviceGUID: props.service.metadata.guid,
+            },
+          )}
+        >
           <input type="hidden" name="_csrf" value={props.csrf} />
 
           <h3 className="govuk-heading-s">Or provide custom date</h3>
           <div className="govuk-form-group">
-            <label className="govuk-label" htmlFor="rangeStart">Start time</label>
-            <input type="datetime-local"
+            <label className="govuk-label" htmlFor="rangeStart">
+              Start time
+            </label>
+            <input
+              type="datetime-local"
               id="rangeStart"
               name="rangeStart"
               className="govuk-input"
-              defaultValue={moment(props.rangeStart).format('YYYY-MM-DD[T]HH:mm')} />
+              defaultValue={moment(props.rangeStart).format(
+                'YYYY-MM-DD[T]HH:mm',
+              )}
+            />
           </div>
 
           <div className="govuk-form-group">
-            <label className="govuk-label" htmlFor="rangeStop">End time</label>
-            <input type="datetime-local"
+            <label className="govuk-label" htmlFor="rangeStop">
+              End time
+            </label>
+            <input
+              type="datetime-local"
               id="rangeStop"
               name="rangeStop"
               className="govuk-input"
-              defaultValue={moment(props.rangeStop).format('YYYY-MM-DD[T]HH:mm')} />
+              defaultValue={moment(props.rangeStop).format(
+                'YYYY-MM-DD[T]HH:mm',
+              )}
+            />
           </div>
 
-          <button className="govuk-button" data-module="govuk-button" data-prevent-double-click={true}>
+          <button
+            className="govuk-button"
+            data-module="govuk-button"
+            data-prevent-double-click={true}
+          >
             Update
           </button>
         </form>
@@ -255,29 +345,31 @@ function ExperimentalWarning(): ReactElement {
   return (
     <div className="border-bottom-box">
       <p className="govuk-body">
-        <strong className="govuk-tag">
-          experimental
-        </strong>
+        <strong className="govuk-tag">experimental</strong>
       </p>
 
       <p className="govuk-body">
-        Backing service metrics is a new feature under active development. Expect frequent changes.
+        Backing service metrics is a new feature under active development.
+        Expect frequent changes.
       </p>
 
       <p className="govuk-body">
-        Please email us at
-        {' '}
-        <a href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk" className="govuk-link">
+        Please email us at{' '}
+        <a
+          href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk"
+          className="govuk-link"
+        >
           gov-uk-paas-support@digital.cabinet-office.gov.uk
-        </a>
-        {' '}
+        </a>{' '}
         if you have any feedback.
       </p>
     </div>
   );
 }
 
-export function UnsupportedServiceMetricsPage(props: IPageProperties): ReactElement {
+export function UnsupportedServiceMetricsPage(
+  props: IPageProperties,
+): ReactElement {
   return (
     <ServiceTab {...props}>
       <ExperimentalWarning />
@@ -295,11 +387,15 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds-from-desktop">
-            <p className="govuk-body">Currently the available metrics for {props.serviceLabel} are:</p>
+            <p className="govuk-body">
+              Currently the available metrics for {props.serviceLabel} are:
+            </p>
             <ul className="govuk-list">
               {props.metrics.map(metric => (
                 <li key={metric.id}>
-                  <a href={`#${metric.id}`} className="govuk-link">{metric.title}</a>
+                  <a href={`#${metric.id}`} className="govuk-link">
+                    {metric.title}
+                  </a>
                 </li>
               ))}
             </ul>

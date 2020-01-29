@@ -1,4 +1,4 @@
-import {parse} from './formulaGrammar.pegjs';
+import { parse } from './formulaGrammar.pegjs';
 
 describe('Billing formula grammar', () => {
   it('should return a single number', () => {
@@ -60,12 +60,26 @@ describe('Billing formula grammar', () => {
       { formula: '0', expectedValue: 0 },
       { formula: 'ceil(20000/3600) * 3.385', expectedValue: 20.31 },
       { formula: '2 * ceil(20000/3600) * 0.18', expectedValue: 2.16 },
-      { formula: '2 * 20000 * (2048/1024.0) * (0.01 / 3600)', expectedValue: 0.22222 },
-      { formula: '(4096/1024) * ceil(20000/2678401) * 0.266', expectedValue: 1.064 },
-      { formula: '(2 * 20000 * (2048/1024.0) * (0.01 / 3600)) * 0.40', expectedValue: 0.08888 },
-      { formula: '((1936.57/(48*1024))/30/24) * 2048 * ceil(20000 / 3600)', expectedValue: 0.6724201389 },
+      {
+        formula: '2 * 20000 * (2048/1024.0) * (0.01 / 3600)',
+        expectedValue: 0.22222,
+      },
+      {
+        formula: '(4096/1024) * ceil(20000/2678401) * 0.266',
+        expectedValue: 1.064,
+      },
+      {
+        formula: '(2 * 20000 * (2048/1024.0) * (0.01 / 3600)) * 0.40',
+        expectedValue: 0.08888,
+      },
+      {
+        formula: '((1936.57/(48*1024))/30/24) * 2048 * ceil(20000 / 3600)',
+        expectedValue: 0.6724201389,
+      },
     ];
-    formulae.forEach(f => expect(parse(f.formula)).toBeCloseTo(f.expectedValue, 4));
+    formulae.forEach(f =>
+      expect(parse(f.formula)).toBeCloseTo(f.expectedValue, 4),
+    );
   });
 
   it('should error if the formula is badly formed', () => {

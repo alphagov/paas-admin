@@ -26,7 +26,7 @@ const envVars = {
 };
 
 export interface IProcess extends ChildProcess {
-  logs?: string[]; // tslint:disable-line:readonly-array
+  logs?: Array<string>; // tslint:disable-line:readonly-array
   port?: number;
 }
 
@@ -37,27 +37,32 @@ describe.only('main test suite', () => {
     const proc = await run(envVars);
     expect(proc.port).toBeGreaterThan(0);
 
-    const response = await request(`http://localhost:${proc.port}`).get('/healthcheck');
+    const response = await request(`http://localhost:${proc.port}`).get(
+      '/healthcheck',
+    );
     expect(response.status).toEqual(200);
 
     await kill(proc);
   });
 
   it('should listen on PORT environment variable', async () => {
-    const newEnvVars = {...envVars, PORT: 4551};
+    const newEnvVars = { ...envVars, PORT: 4551 };
     const proc = await run(newEnvVars);
-    const response = await request(`http://localhost:4551`).get('/healthcheck');
+    const response = await request('http://localhost:4551').get('/healthcheck');
 
     expect(response.status).toEqual(200);
+
     return kill(proc);
   });
 
   it('should emit structured request logs', async () => {
-    const newEnvVars = {...envVars, LOG_LEVEL: 'info'};
+    const newEnvVars = { ...envVars, LOG_LEVEL: 'info' };
 
     const proc = await run(newEnvVars);
     try {
-      const response = await request(`http://localhost:${proc.port}`).get('/healthcheck');
+      const response = await request(`http://localhost:${proc.port}`).get(
+        '/healthcheck',
+      );
       expect(response.status).toEqual(200);
 
       const line = await waitForOutput(proc, /request completed/);
@@ -67,6 +72,7 @@ describe.only('main test suite', () => {
     } catch (err) {
       expect(err).not.toBeDefined();
     }
+
     return kill(proc);
   });
 
@@ -82,9 +88,9 @@ describe.only('main test suite', () => {
     expect(code).toEqual(0);
   });
 
-  it('should exit with non-zero status on error (invalid PORT)', (done) => {
-    const newEnvVars = {...envVars, PORT: '-1'};
-    const proc = spawn(process.argv0, ['./dist/main.js'], {env: newEnvVars});
+  it('should exit with non-zero status on error (invalid PORT)', done => {
+    const newEnvVars = { ...envVars, PORT: '-1' };
+    const proc = spawn(process.argv0, ['./dist/main.js'], { env: newEnvVars });
     proc.once('error', fail);
     proc.once('close', code => {
       expect(code).not.toEqual(0);
@@ -92,10 +98,10 @@ describe.only('main test suite', () => {
     });
   });
 
-  it('should exit due to a missing variable', (done) => {
-    const newEnvVars = {...envVars};
+  it('should exit due to a missing variable', done => {
+    const newEnvVars = { ...envVars };
     newEnvVars.API_URL = '';
-    const proc = spawn(process.argv0, ['./dist/main.js'], {env: newEnvVars});
+    const proc = spawn(process.argv0, ['./dist/main.js'], { env: newEnvVars });
     proc.once('error', fail);
     proc.once('close', code => {
       expect(code).not.toEqual(0);
@@ -106,7 +112,7 @@ describe.only('main test suite', () => {
 
 async function run(env = {}): Promise<any> {
   return new Promise((resolve, reject) => {
-    const proc: IProcess = spawn(process.argv0, ['./dist/main.js'], {env});
+    const proc: IProcess = spawn(process.argv0, ['./dist/main.js'], { env });
     let isListening = false;
     const logs = proc.logs || [];
 
@@ -119,8 +125,13 @@ async function run(env = {}): Promise<any> {
         try {
           proc.port = JSON.parse(data.toString()).port;
         } catch (err) {
-          reject(new Error(`expected to be able to parse the log line to extract the port number: ${err}`));
+          reject(
+            new Error(
+              `expected to be able to parse the log line to extract the port number: ${err}`,
+            ),
+          );
           proc.kill('SIGKILL');
+
           return;
         }
 
@@ -130,7 +141,9 @@ async function run(env = {}): Promise<any> {
 
     proc.once('close', code => {
       if (!isListening) {
-        reject(new Error(`process exited with code ${code}: ${logs.join('\n')}`));
+        reject(
+          new Error(`process exited with code ${code}: ${logs.join('\n')}`),
+        );
       }
     });
 
@@ -146,10 +159,14 @@ async function kill(proc: IProcess, sig?: string) {
   });
 }
 
-async function waitForOutput(proc: IProcess, regexp: RegExp, attempt?: number): Promise<any> {
+async function waitForOutput(
+  proc: IProcess,
+  regexp: RegExp,
+  attempt?: number,
+): Promise<any> {
   return new Promise((resolve, reject) => {
     if (!proc.logs) {
-      return reject(new Error(`no logs provided`));
+      return reject(new Error('no logs provided'));
     }
 
     for (const line of proc.logs) {
@@ -161,10 +178,15 @@ async function waitForOutput(proc: IProcess, regexp: RegExp, attempt?: number): 
     const att = attempt || 1;
 
     if (att > 10) {
-      return reject(new Error(`timeout waiting for log line to match: ${regexp.toString()}\n
-      proc logs: ${proc.logs.join('\n')}`));
+      return reject(
+        new Error(`timeout waiting for log line to match: ${regexp.toString()}\n
+      proc logs: ${proc.logs.join('\n')}`),
+      );
     }
-    return resolve(sleep(100).then(async () => waitForOutput(proc, regexp, att + 1)));
+
+    return resolve(
+      sleep(100).then(async () => waitForOutput(proc, regexp, att + 1)),
+    );
   });
 }
 

@@ -4,15 +4,15 @@ declare module 'notifications-node-client' {
       readonly id: string;
       readonly reference: string | null;
       readonly content: {
-          readonly subject: string;
-          readonly body: string;
-          readonly from_email: string;
+        readonly subject: string;
+        readonly body: string;
+        readonly from_email: string;
       };
       readonly uri: string;
       readonly template: {
-          readonly id: string;
-          readonly version: number;
-          readonly uri: string;
+        readonly id: string;
+        readonly version: number;
+        readonly uri: string;
       };
     };
     readonly status: number;
@@ -20,10 +20,14 @@ declare module 'notifications-node-client' {
 
   export class NotifyClient {
     constructor(apiKey: string);
-    sendEmail(template: string, email: string, params?: {
-      personalisation?: object,
-			reference?: string,
-			emailReplyToId?: string,
-    }): Promise<IResponse>
+    sendEmail(
+      template: string,
+      email: string,
+      params?: {
+        personalisation?: object;
+        reference?: string;
+        emailReplyToId?: string;
+      },
+    ): Promise<IResponse>;
   }
 }

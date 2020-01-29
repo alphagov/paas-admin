@@ -15,7 +15,10 @@ import {
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
 
-export async function getUser(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function getUser(
+  ctx: IContext,
+  params: IParameters,
+): Promise<IResponse> {
   const emailOrUserGUID = params.emailOrUserGUID;
 
   if (typeof emailOrUserGUID !== 'string') {
@@ -39,11 +42,10 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
     logger: ctx.app.logger,
   });
 
-  const accountsUser = (
-    (emailOrUserGUID.indexOf('@') >= 0)
-    ? await accountsClient.getUserByEmail(emailOrUserGUID)
-    : await accountsClient.getUser(emailOrUserGUID)
-  );
+  const accountsUser =
+    emailOrUserGUID.indexOf('@') >= 0
+      ? await accountsClient.getUserByEmail(emailOrUserGUID)
+      : await accountsClient.getUser(emailOrUserGUID);
 
   if (!accountsUser) {
     throw new NotFoundError(
@@ -73,14 +75,16 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
   const template = new Template(ctx.viewContext, 'User');
 
   return {
-    body: template.render(<UserPage
-      groups={uaaUser.groups}
-      lastLogon={new Date(uaaUser.lastLogonTime)}
-      linkTo={ctx.linkTo}
-      managedOrganizations={cfUserSummary.entity.managed_organizations}
-      organizations={cfUserSummary.entity.organizations}
-      origin={origin}
-      user={accountsUser}
-    />),
+    body: template.render(
+      <UserPage
+        groups={uaaUser.groups}
+        lastLogon={new Date(uaaUser.lastLogonTime)}
+        linkTo={ctx.linkTo}
+        managedOrganizations={cfUserSummary.entity.managed_organizations}
+        organizations={cfUserSummary.entity.organizations}
+        origin={origin}
+        user={accountsUser}
+      />,
+    ),
   };
 }

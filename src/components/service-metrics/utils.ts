@@ -32,6 +32,7 @@ export function getPeriod(rangeStart: Moment, rangeStop: Moment): number {
     if (idealPeriod <= 60) {
       return allowedPeriods[bisectLeft(allowedPeriods, idealPeriod)];
     }
+
     return Math.ceil(idealPeriod / 60) * 60;
   }
   if (fifteenDaysAgo.isBefore(rangeStart)) {
@@ -40,5 +41,6 @@ export function getPeriod(rangeStart: Moment, rangeStop: Moment): number {
   if (sixtyThreeDaysAgo.isBefore(rangeStart)) {
     return Math.ceil(idealPeriod / 300) * 300;
   }
+
   return Math.ceil(idealPeriod / 3600) * 3600;
 }

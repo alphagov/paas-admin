@@ -6,15 +6,13 @@ import * as cw from '@aws-sdk/client-cloudwatch-node';
 import base32Encode from 'base32-encode';
 import fnv from 'fnv-plus';
 
-import {
-  IMetricDataGetter,
-  IMetricSerie,
-  MetricName,
-} from '../metrics';
+import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
 
 import { CloudWatchMetricDataGetter, ICloudWatchMetric } from './cloudwatch';
 
-const elasticacheMetricPropertiesById: {[key in MetricName]: ICloudWatchMetric} = {
+const elasticacheMetricPropertiesById: {
+  [key in MetricName]: ICloudWatchMetric;
+} = {
   mCPUUtilization: {
     name: 'CPUUtilization',
     stat: 'Average',
@@ -57,19 +55,23 @@ const elasticacheMetricPropertiesById: {[key in MetricName]: ICloudWatchMetric} 
   },
 };
 
-export const elasticacheMetricNames = Object.keys(elasticacheMetricPropertiesById);
+export const elasticacheMetricNames = Object.keys(
+  elasticacheMetricPropertiesById,
+);
 
-export class ElastiCacheMetricDataGetter extends CloudWatchMetricDataGetter implements IMetricDataGetter {
-  constructor(
-    private cloudwatchClient: cw.CloudWatchClient,
-  ) {
+export class ElastiCacheMetricDataGetter extends CloudWatchMetricDataGetter
+  implements IMetricDataGetter {
+  constructor(private readonly cloudwatchClient: cw.CloudWatchClient) {
     super();
   }
 
   public getElasticacheReplicationGroupId(guid: string): string {
     const hashHexString = fnv.hash(guid, 64).hex();
     const hashBuffer = Buffer.from(hashHexString, 'hex');
-    const hashBase32String = base32Encode(hashBuffer, 'RFC4648', {padding: false});
+    const hashBase32String = base32Encode(hashBuffer, 'RFC4648', {
+      padding: false,
+    });
+
     return `cf-${hashBase32String.toLowerCase()}`;
   }
 
@@ -77,8 +79,9 @@ export class ElastiCacheMetricDataGetter extends CloudWatchMetricDataGetter impl
     metricNames: ReadonlyArray<MetricName>,
     guid: string,
     period: moment.Duration,
-    rangeStart: moment.Moment, rangeStop: moment.Moment,
-  ): Promise<{[key in MetricName]: ReadonlyArray<IMetricSerie>}> {
+    rangeStart: moment.Moment,
+    rangeStop: moment.Moment,
+  ): Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }> {
     const replicationGroupId = this.getElasticacheReplicationGroupId(guid);
 
     // AWS won't let us make more than 5 search queries in the same request,
@@ -89,7 +92,10 @@ export class ElastiCacheMetricDataGetter extends CloudWatchMetricDataGetter impl
     const metricDataInputs = chunks.map(chunk => ({
       MetricDataQueries: chunk.map(metricId => {
         const metricDimension = elasticacheMetricPropertiesById[metricId];
-        const expression = `SEARCH('{AWS/ElastiCache,CacheClusterId} MetricName="${metricDimension.name}" AND ${replicationGroupId}', 'Average', ${period.asSeconds()})`;
+        const expression = `SEARCH('{AWS/ElastiCache,CacheClusterId} MetricName="${
+          metricDimension.name
+        }" AND ${replicationGroupId}', 'Average', ${period.asSeconds()})`;
+
         return {
           Id: metricId,
           Expression: expression,
@@ -100,15 +106,18 @@ export class ElastiCacheMetricDataGetter extends CloudWatchMetricDataGetter impl
     }));
 
     const responses = await Promise.all(
-      metricDataInputs
-      .map(input => this.cloudwatchClient.send(new cw.GetMetricDataCommand(input))),
+      metricDataInputs.map(input =>
+        this.cloudwatchClient.send(new cw.GetMetricDataCommand(input)),
+      ),
     );
 
-    const results = _.flatMap(responses, response => response.MetricDataResults!);
+    const results = _.flatMap(
+      responses,
+      response => response.MetricDataResults!,
+    );
 
-    return Promise.resolve(this.addPlaceholderData(
-      results,
-      period, rangeStart, rangeStop,
-    ));
+    return Promise.resolve(
+      this.addPlaceholderData(results, period, rangeStart, rangeStop),
+    );
   }
 }

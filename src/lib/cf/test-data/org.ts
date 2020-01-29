@@ -1,10 +1,11 @@
 import { IOrganization, IV3OrganizationResource } from '../types';
 
-export const orgName      = 'the-system_domain-org-name';
-export const orgGUID      = 'a7aff246-5f5b-4cf8-87d8-f316053e4a20';
+export const orgName = 'the-system_domain-org-name';
+export const orgGUID = 'a7aff246-5f5b-4cf8-87d8-f316053e4a20';
 export const orgQuotaGUID = 'ORG-QUOTA-GUID';
 
-export const org = (): IOrganization => JSON.parse(`{
+export const org = (): IOrganization =>
+  JSON.parse(`{
   "metadata": {
     "guid": "${orgGUID}",
     "url": "/v2/organizations/${orgGUID}",
@@ -29,7 +30,8 @@ export const org = (): IOrganization => JSON.parse(`{
   }
 }`);
 
-export const v3Org = (): IV3OrganizationResource => JSON.parse(`{
+export const v3Org = (): IV3OrganizationResource =>
+  JSON.parse(`{
   "guid": "${orgGUID}",
   "created_at": "2016-06-08T16:41:33Z",
   "updated_at": "2016-06-08T16:41:26Z",

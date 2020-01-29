@@ -3,15 +3,11 @@ import moment from 'moment';
 
 import * as cw from '@aws-sdk/client-cloudwatch-node';
 
-import {
-  IMetricDataGetter,
-  IMetricSerie,
-  MetricName,
-} from '../metrics';
+import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
 
 import { CloudWatchMetricDataGetter, ICloudWatchMetric } from './cloudwatch';
 
-const rdsMetricPropertiesById: {[key in MetricName]: ICloudWatchMetric} = {
+const rdsMetricPropertiesById: { [key in MetricName]: ICloudWatchMetric } = {
   mFreeStorageSpace: {
     name: 'FreeStorageSpace',
     stat: 'Average',
@@ -40,10 +36,9 @@ const rdsMetricPropertiesById: {[key in MetricName]: ICloudWatchMetric} = {
 
 export const rdsMetricNames = Object.keys(rdsMetricPropertiesById);
 
-export class RDSMetricDataGetter extends CloudWatchMetricDataGetter implements IMetricDataGetter {
-  constructor(
-    private cloudwatchClient: cw.CloudWatchClient,
-  ) {
+export class RDSMetricDataGetter extends CloudWatchMetricDataGetter
+  implements IMetricDataGetter {
+  constructor(private readonly cloudwatchClient: cw.CloudWatchClient) {
     super();
   }
 
@@ -55,37 +50,43 @@ export class RDSMetricDataGetter extends CloudWatchMetricDataGetter implements I
     metricNames: ReadonlyArray<MetricName>,
     guid: string,
     period: moment.Duration,
-    rangeStart: moment.Moment, rangeStop: moment.Moment,
-  ): Promise<{[key in MetricName]: ReadonlyArray<IMetricSerie>}> {
+    rangeStart: moment.Moment,
+    rangeStop: moment.Moment,
+  ): Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }> {
     const instanceId = this.getRdsDbInstanceIdentifier(guid);
 
-    const metricDataInputs = [{
-      MetricDataQueries: metricNames.map(metricId => ({
-        Id: metricId,
-        MetricStat: {
-          Metric: {
-            Namespace: 'AWS/RDS',
-            MetricName: rdsMetricPropertiesById[metricId].name,
-            Dimensions: [{Name: 'DBInstanceIdentifier', Value: instanceId}],
+    const metricDataInputs = [
+      {
+        MetricDataQueries: metricNames.map(metricId => ({
+          Id: metricId,
+          MetricStat: {
+            Metric: {
+              Namespace: 'AWS/RDS',
+              MetricName: rdsMetricPropertiesById[metricId].name,
+              Dimensions: [{ Name: 'DBInstanceIdentifier', Value: instanceId }],
+            },
+            Period: period.asSeconds(),
+            Stat: rdsMetricPropertiesById[metricId].stat,
           },
-          Period: period.asSeconds(),
-          Stat: rdsMetricPropertiesById[metricId].stat,
-        },
-      })),
-      StartTime: rangeStart.toDate(),
-      EndTime: rangeStop.toDate(),
-    }];
+        })),
+        StartTime: rangeStart.toDate(),
+        EndTime: rangeStop.toDate(),
+      },
+    ];
 
     const responses = await Promise.all(
-      metricDataInputs
-      .map(input => this.cloudwatchClient.send(new cw.GetMetricDataCommand(input))),
+      metricDataInputs.map(input =>
+        this.cloudwatchClient.send(new cw.GetMetricDataCommand(input)),
+      ),
     );
 
-    const results = _.flatMap(responses, response => response.MetricDataResults!);
+    const results = _.flatMap(
+      responses,
+      response => response.MetricDataResults!,
+    );
 
-    return Promise.resolve(this.addPlaceholderData(
-      results,
-      period, rangeStart, rangeStop,
-    ));
+    return Promise.resolve(
+      this.addPlaceholderData(results, period, rangeStart, rangeStop),
+    );
   }
 }

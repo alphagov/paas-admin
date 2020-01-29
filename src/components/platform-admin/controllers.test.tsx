@@ -14,12 +14,11 @@ const tokenKey = 'secret';
 
 describe(viewHomepage, () => {
   describe('when not a platform admin', () => {
-
     const time = Math.floor(Date.now() / 1000);
     const rawToken = {
       user_id: 'uaa-id-253',
       scope: [],
-      exp: (time + (24 * 60 * 60)),
+      exp: time + 24 * 60 * 60,
       origin: 'uaa',
     };
     const accessToken = jwt.sign(rawToken, tokenKey);
@@ -28,19 +27,18 @@ describe(viewHomepage, () => {
     const ctx: IContext = createTestContext({ token });
 
     it('should return an error', async () => {
-      await expect(
-        viewHomepage(ctx, {}),
-      ).rejects.toThrow(/Not a platform admin/);
+      await expect(viewHomepage(ctx, {})).rejects.toThrow(
+        /Not a platform admin/,
+      );
     });
   });
 
   describe('when a platform admin', () => {
-
     const time = Math.floor(Date.now() / 1000);
     const rawToken = {
       user_id: 'uaa-id-253',
       scope: [CLOUD_CONTROLLER_ADMIN],
-      exp: (time + (24 * 60 * 60)),
+      exp: time + 24 * 60 * 60,
       origin: 'uaa',
     };
     const accessToken = jwt.sign(rawToken, tokenKey);
@@ -83,7 +81,9 @@ describe(viewHomepage, () => {
       expect(response.body).toMatch(/Costs by service/);
       expect(response.body).toMatch(/Spend for PMO team/);
       expect(response.body).toMatch(/Sankey/);
-      expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+      expect(
+        spacesMissingAroundInlineElements(response.body as string),
+      ).toHaveLength(0);
     });
   });
 });

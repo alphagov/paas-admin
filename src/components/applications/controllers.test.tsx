@@ -1,17 +1,16 @@
 import lodash from 'lodash';
 import nock from 'nock';
 
-import {viewApplication} from '.';
+import { viewApplication } from '.';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
-import {app as defaultApp} from '../../lib/cf/test-data/app';
-import {org as defaultOrg} from '../../lib/cf/test-data/org';
-import {createTestContext} from '../app/app.test-helpers';
-import {IContext} from '../app/context';
+import { app as defaultApp } from '../../lib/cf/test-data/app';
+import { org as defaultOrg } from '../../lib/cf/test-data/org';
+import { createTestContext } from '../app/app.test-helpers';
+import { IContext } from '../app/context';
 
 describe('applications test suite', () => {
-
   let nockCF: nock.Scope;
 
   beforeEach(() => {
@@ -21,8 +20,7 @@ describe('applications test suite', () => {
 
     nockCF
       .get('/v2/organizations/6e1ca5aa-55f1-4110-a97f-1f3473e771b9')
-      .reply(200, defaultOrg())
-    ;
+      .reply(200, defaultOrg());
   });
 
   afterEach(() => {
@@ -40,9 +38,13 @@ describe('applications test suite', () => {
   it('should show the application overview page', async () => {
     nockCF
       .get(`/v2/apps/${guid}`)
-      .reply(200, lodash.merge(
-        defaultApp(), {metadata: {guid}, entity: {name, space_guid: spaceGUID, stack_guid: stackGUID}},
-      ))
+      .reply(
+        200,
+        lodash.merge(defaultApp(), {
+          metadata: { guid },
+          entity: { name, space_guid: spaceGUID, stack_guid: stackGUID },
+        }),
+      )
 
       .get(`/v2/apps/${guid}/summary`)
       .reply(200, data.appSummary)
@@ -51,8 +53,7 @@ describe('applications test suite', () => {
       .reply(200, data.space)
 
       .get(`/v2/stacks/${stackGUID}`)
-      .reply(200, data.stack)
-    ;
+      .reply(200, data.stack);
 
     const response = await viewApplication(ctx, {
       applicationGUID: guid,
@@ -66,9 +67,13 @@ describe('applications test suite', () => {
   it('should say the name of the stack being used', async () => {
     nockCF
       .get(`/v2/apps/${guid}`)
-      .reply(200, lodash.merge(
-        defaultApp(), {metadata: {guid}, entity: {name, space_guid: spaceGUID, stack_guid: stackGUID}},
-      ))
+      .reply(
+        200,
+        lodash.merge(defaultApp(), {
+          metadata: { guid },
+          entity: { name, space_guid: spaceGUID, stack_guid: stackGUID },
+        }),
+      )
 
       .get(`/v2/apps/${guid}/summary`)
       .reply(200, data.appSummary)
@@ -77,8 +82,7 @@ describe('applications test suite', () => {
       .reply(200, data.space)
 
       .get(`/v2/stacks/${stackGUID}`)
-      .reply(200, data.stack)
-    ;
+      .reply(200, data.stack);
 
     const response = await viewApplication(ctx, {
       applicationGUID: guid,
@@ -90,24 +94,28 @@ describe('applications test suite', () => {
     expect(response.body).toMatch(/cflinuxfs3/);
     expect(response.body).toMatch(/Detected Buildpack/);
     expect(response.body).not.toMatch(/Docker Image/);
-    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
   });
 
   it('should say the name of the docker image being used', async () => {
     const dockerGUID = '646f636b-6572-0d0a-8697-86641668c123';
     nockCF
       .get(`/v2/apps/${dockerGUID}`)
-      .reply(200, lodash.merge(
-        defaultApp(),
-        {
-          metadata: {guid},
+      .reply(
+        200,
+        lodash.merge(defaultApp(), {
+          metadata: { guid },
           entity: {
             name,
-            docker_image: 'governmentpaas/is-cool', buildpack: null,
-            space_guid: spaceGUID, stack_guid: stackGUID,
+            docker_image: 'governmentpaas/is-cool',
+            buildpack: null,
+            space_guid: spaceGUID,
+            stack_guid: stackGUID,
           },
-        },
-      ))
+        }),
+      )
 
       .get(`/v2/apps/${dockerGUID}/summary`)
       .reply(200, data.dockerAppSummary)
@@ -116,8 +124,7 @@ describe('applications test suite', () => {
       .reply(200, data.space)
 
       .get(`/v2/stacks/${stackGUID}`)
-      .reply(200, data.stack)
-    ;
+      .reply(200, data.stack);
 
     const response = await viewApplication(ctx, {
       applicationGUID: dockerGUID,

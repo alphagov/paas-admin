@@ -13,6 +13,7 @@ export function getStubPrometheusMetricsSeriesData(
       resultType: 'series',
       result: instances.map(instance => {
         const { timestamps, values } = getGappyRandomData();
+
         return {
           metric: { instance },
           values: _.zip(timestamps, values),

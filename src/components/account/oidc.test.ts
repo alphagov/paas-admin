@@ -2,10 +2,10 @@ import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import * as jose from 'node-jose';
 import { CallbackParamsType } from 'openid-client';
-import {URL} from 'url';
+import { URL } from 'url';
 
 import UAAClient from '../../lib/uaa/uaa';
-import {createTestContext} from '../app/app.test-helpers';
+import { createTestContext } from '../app/app.test-helpers';
 import OIDC, * as oidc from './oidc';
 import * as fixtures from './oidc.test.fixtures';
 
@@ -32,7 +32,8 @@ describe('oidc test suite', () => {
   const redirectURL = 'https://admin.cloud.service.gov.uk/oidc/callback';
   const clientID = 'CLIENTID';
   const clientSecret = 'CLIENTSECRET';
-  const discoveryURL = 'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration';
+  const discoveryURL =
+    'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration';
 
   beforeEach(() => {
     // @ts-ignore
@@ -42,10 +43,14 @@ describe('oidc test suite', () => {
   it('generates a correct auth url based on openid discovery', async () => {
     nockMicrosoftDiscovery
       .get('/tenant_id/v2.0/.well-known/openid-configuration')
-      .reply(200, JSON.stringify(fixtures.microsoftDiscoveryDoc))
-    ;
+      .reply(200, JSON.stringify(fixtures.microsoftDiscoveryDoc));
 
-    const oidcClient = new OIDC(clientID, clientSecret, discoveryURL, redirectURL);
+    const oidcClient = new OIDC(
+      clientID,
+      clientSecret,
+      discoveryURL,
+      redirectURL,
+    );
     const ctx = createTestContext();
 
     const response = await oidcClient.getAuthorizationOIDCURL(ctx.session);
@@ -71,8 +76,7 @@ describe('oidc test suite', () => {
   it('trades an authorization code for an id token', async () => {
     nockMicrosoftDiscovery
       .get('/tenant_id/v2.0/.well-known/openid-configuration')
-      .reply(200, JSON.stringify(fixtures.microsoftDiscoveryDoc))
-    ;
+      .reply(200, JSON.stringify(fixtures.microsoftDiscoveryDoc));
 
     // Create signing key
     const key = await createJOSEKey();
@@ -84,18 +88,32 @@ describe('oidc test suite', () => {
     const token = createAndSignIDToken(key);
 
     // Serve token from token endpoint
-    const tokenNock = configureTokenEndpoint(fixtures.microsoftDiscoveryDoc.token_endpoint, token);
+    const tokenNock = configureTokenEndpoint(
+      fixtures.microsoftDiscoveryDoc.token_endpoint,
+      token,
+    );
 
     // Set up OIDC client
-    const uaa = new UAAClient({apiEndpoint: ''});
+    const uaa = new UAAClient({ apiEndpoint: '' });
     const ctx = createTestContext();
-    const authResponse: CallbackParamsType = {code: 'testcode', state: 'teststate'};
-    ctx.session[oidc.KEY_STATE] = {state: authResponse.state, response_type: 'code'};
+    const authResponse: CallbackParamsType = {
+      code: 'testcode',
+      state: 'teststate',
+    };
+    ctx.session[oidc.KEY_STATE] = {
+      state: authResponse.state,
+      response_type: 'code',
+    };
     const providerName = 'microsoft';
 
     const client = new OIDC(clientID, clientSecret, discoveryURL, redirectURL);
 
-    const success = await client.oidcCallback(ctx, authResponse, uaa, providerName);
+    const success = await client.oidcCallback(
+      ctx,
+      authResponse,
+      uaa,
+      providerName,
+    );
 
     expect(tokenNock.isDone()).toBeTruthy();
     expect(success).toBeTruthy();
@@ -104,8 +122,7 @@ describe('oidc test suite', () => {
   it('updates the UAA user with the Microsoft OID from the id token', async () => {
     nockMicrosoftDiscovery
       .get('/tenant_id/v2.0/.well-known/openid-configuration')
-      .reply(200, JSON.stringify(fixtures.microsoftDiscoveryDoc))
-    ;
+      .reply(200, JSON.stringify(fixtures.microsoftDiscoveryDoc));
 
     // Create signing key
     const key = await createJOSEKey();
@@ -121,22 +138,44 @@ describe('oidc test suite', () => {
     });
 
     // Serve token from token endpoint
-    configureTokenEndpoint(fixtures.microsoftDiscoveryDoc.token_endpoint, token);
+    configureTokenEndpoint(
+      fixtures.microsoftDiscoveryDoc.token_endpoint,
+      token,
+    );
 
     // Set up OIDC client
-    const uaa = new UAAClient({apiEndpoint: ''});
+    const uaa = new UAAClient({ apiEndpoint: '' });
     const ctx = createTestContext();
-    const authResponse: CallbackParamsType = {code: 'testcode', state: 'teststate'};
-    ctx.session[oidc.KEY_STATE] = {state: authResponse.state, response_type: 'code'};
+    const authResponse: CallbackParamsType = {
+      code: 'testcode',
+      state: 'teststate',
+    };
+    ctx.session[oidc.KEY_STATE] = {
+      state: authResponse.state,
+      response_type: 'code',
+    };
     const providerName = 'microsoft';
 
     const client = new OIDC(clientID, clientSecret, discoveryURL, redirectURL);
 
-    const success = await client.oidcCallback(ctx, authResponse, uaa, providerName);
+    const success = await client.oidcCallback(
+      ctx,
+      authResponse,
+      uaa,
+      providerName,
+    );
 
     expect(success).toBeTruthy();
-    expect(uaa.setUserOrigin).toHaveBeenCalledWith(ctx.token.userID, 'microsoft', 'ms-oid');
-    expect(uaa.setUserOrigin).not.toHaveBeenCalledWith(ctx.token.userID, 'google', 'google-sub');
+    expect(uaa.setUserOrigin).toHaveBeenCalledWith(
+      ctx.token.userID,
+      'microsoft',
+      'ms-oid',
+    );
+    expect(uaa.setUserOrigin).not.toHaveBeenCalledWith(
+      ctx.token.userID,
+      'google',
+      'google-sub',
+    );
   });
 
   it('updates the UAA user with the Google SUB from the id token', async () => {
@@ -157,20 +196,45 @@ describe('oidc test suite', () => {
     configureTokenEndpoint(fixtures.googleDiscoveryDoc.token_endpoint, token);
 
     // Set up OIDC client
-    const uaa = new UAAClient({apiEndpoint: ''});
+    const uaa = new UAAClient({ apiEndpoint: '' });
     const ctx = createTestContext();
-    const authResponse: CallbackParamsType = {code: 'testcode', state: 'teststate'};
-    ctx.session[oidc.KEY_STATE] = {state: authResponse.state, response_type: 'code'};
+    const authResponse: CallbackParamsType = {
+      code: 'testcode',
+      state: 'teststate',
+    };
+    ctx.session[oidc.KEY_STATE] = {
+      state: authResponse.state,
+      response_type: 'code',
+    };
     const providerName = 'google';
-    const googleDiscoveryURL = 'https://accounts.google.com/.well-known/openid-configuration';
+    const googleDiscoveryURL =
+      'https://accounts.google.com/.well-known/openid-configuration';
 
-    const client = new OIDC(clientID, clientSecret, googleDiscoveryURL, redirectURL);
+    const client = new OIDC(
+      clientID,
+      clientSecret,
+      googleDiscoveryURL,
+      redirectURL,
+    );
 
-    const success = await client.oidcCallback(ctx, authResponse, uaa, providerName);
+    const success = await client.oidcCallback(
+      ctx,
+      authResponse,
+      uaa,
+      providerName,
+    );
 
     expect(success).toBeTruthy();
-    expect(uaa.setUserOrigin).toHaveBeenCalledWith(ctx.token.userID, 'google', 'google-sub');
-    expect(uaa.setUserOrigin).not.toHaveBeenCalledWith(ctx.token.userID, 'microsoft', 'ms-oid');
+    expect(uaa.setUserOrigin).toHaveBeenCalledWith(
+      ctx.token.userID,
+      'google',
+      'google-sub',
+    );
+    expect(uaa.setUserOrigin).not.toHaveBeenCalledWith(
+      ctx.token.userID,
+      'microsoft',
+      'ms-oid',
+    );
   });
 
   it('returns false and log an error when the authorization code cannot be traded for an access token', async () => {
@@ -186,15 +250,24 @@ describe('oidc test suite', () => {
     const token = createAndSignIDToken(signingKey);
 
     // Serve token from token endpoint
-    configureTokenEndpoint(fixtures.microsoftDiscoveryDoc.token_endpoint, token);
+    configureTokenEndpoint(
+      fixtures.microsoftDiscoveryDoc.token_endpoint,
+      token,
+    );
 
     // Create a mocked UAA client
-    const uaa = new UAAClient({apiEndpoint: ''});
+    const uaa = new UAAClient({ apiEndpoint: '' });
 
     // Set up session state
     const ctx = createTestContext();
-    const authResponse: CallbackParamsType = {code: 'testcode', state: 'teststate'};
-    ctx.session[oidc.KEY_STATE] = {state: authResponse.state, response_type: 'code'};
+    const authResponse: CallbackParamsType = {
+      code: 'testcode',
+      state: 'teststate',
+    };
+    ctx.session[oidc.KEY_STATE] = {
+      state: authResponse.state,
+      response_type: 'code',
+    };
 
     // Set up logger mock
     ctx.app.logger.error = jest.fn();
@@ -202,7 +275,12 @@ describe('oidc test suite', () => {
     // Create an OIDC client
     const client = new OIDC(clientID, clientSecret, discoveryURL, redirectURL);
 
-    const actual = await client.oidcCallback(ctx, authResponse, uaa, 'microsoft');
+    const actual = await client.oidcCallback(
+      ctx,
+      authResponse,
+      uaa,
+      'microsoft',
+    );
 
     expect(actual).toBeFalsy();
     expect(ctx.app.logger.error).toHaveBeenCalledTimes(1);
@@ -211,12 +289,9 @@ describe('oidc test suite', () => {
 
 async function createJOSEKey(): Promise<jose.JWK.Key> {
   const store: jose.JWK.KeyStore = jose.JWK.createKeyStore();
-  const key: jose.JWK.Key = await store.generate(
-    'RSA',
-    1024,
-    {
-      use: 'sig',
-    });
+  const key: jose.JWK.Key = await store.generate('RSA', 1024, {
+    use: 'sig',
+  });
 
   await store.add(key);
 
@@ -229,32 +304,39 @@ function createAndSignIDToken(key: jose.JWK.Key, claims?: {}) {
     iss: 'https://login.microsoftonline.com/tenant_id/v2.0',
     aud: 'CLIENTID',
     sub: 'subject',
-    iat: Math.round((Date.now() / 1000) - 100),
-    exp: Math.round((Date.now() / 1000) + 100),
+    iat: Math.round(Date.now() / 1000 - 100),
+    exp: Math.round(Date.now() / 1000 + 100),
     ...(claims || {}),
   };
-  return jwt.sign(
-    payload,
-    key.toPEM(true),
-    {keyid: key.kid, algorithm: 'RS256'},
-  );
+
+  return jwt.sign(payload, key.toPEM(true), {
+    keyid: key.kid,
+    algorithm: 'RS256',
+  });
 }
 
 function configureJWKSEndpoint(jwksEndpoint: string, key: jose.JWK.Key) {
   const jwksEndpointURL = new URL(jwksEndpoint);
   nock(jwksEndpointURL.origin)
-    .get(jwksEndpointURL.pathname).reply(200, JSON.stringify({keys: [key]}));
+    .get(jwksEndpointURL.pathname)
+    .reply(200, JSON.stringify({ keys: [key] }));
 }
 
-function configureTokenEndpoint(tokenEndpoint: string, token: string): nock.Scope {
+function configureTokenEndpoint(
+  tokenEndpoint: string,
+  token: string,
+): nock.Scope {
   const tokenEndpointURL = new URL(tokenEndpoint);
   const tokenNock = nock(tokenEndpointURL.origin);
 
-  tokenNock.post(tokenEndpointURL.pathname).reply(200, JSON.stringify({
-    id_token: token,
-    token_type: 'bearer',
-    expires_in: 10000,
-  }));
+  tokenNock.post(tokenEndpointURL.pathname).reply(
+    200,
+    JSON.stringify({
+      id_token: token,
+      token_type: 'bearer',
+      expires_in: 10000,
+    }),
+  );
 
   return tokenNock;
 }

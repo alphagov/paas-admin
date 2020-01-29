@@ -1,8 +1,10 @@
 import jwt from 'jsonwebtoken';
 
 export const CLOUD_CONTROLLER_ADMIN = 'cloud_controller.admin';
-export const CLOUD_CONTROLLER_READ_ONLY_ADMIN = 'cloud_controller.admin_read_only';
-export const CLOUD_CONTROLLER_GLOBAL_AUDITOR = 'cloud_controller.global_auditor';
+export const CLOUD_CONTROLLER_READ_ONLY_ADMIN =
+  'cloud_controller.admin_read_only';
+export const CLOUD_CONTROLLER_GLOBAL_AUDITOR =
+  'cloud_controller.global_auditor';
 
 interface IToken {
   readonly exp: number;
@@ -17,7 +19,10 @@ export class Token {
   public readonly userID: string;
   public readonly origin: string;
 
-  constructor(public readonly accessToken: string, public readonly signingKeys: ReadonlyArray<string>) {
+  constructor(
+    public readonly accessToken: string,
+    public readonly signingKeys: ReadonlyArray<string>,
+  ) {
     const rawToken = verify(accessToken, signingKeys);
 
     this.expiry = rawToken.exp;
@@ -30,7 +35,8 @@ export class Token {
     return this.scopes.includes(scope);
   }
 
-  public hasAnyScope(...scopes: string[]): boolean { // tslint:disable-line:readonly-array
+  public hasAnyScope(...scopes: Array<string>): boolean {
+    // tslint:disable-line:readonly-array
     for (const scope of scopes) {
       if (this.scopes.includes(scope)) {
         return true;
@@ -49,7 +55,10 @@ export class Token {
   }
 }
 
-function verify(accessToken: string, signingKeys: ReadonlyArray<string>): IToken {
+function verify(
+  accessToken: string,
+  signingKeys: ReadonlyArray<string>,
+): IToken {
   let rawToken: any;
   let jwtError;
 
@@ -69,19 +78,27 @@ function verify(accessToken: string, signingKeys: ReadonlyArray<string>): IToken
   }
 
   if (typeof rawToken !== 'object') {
-    throw new Error('jwt: could not verify the token as no object has been verified');
+    throw new Error(
+      'jwt: could not verify the token as no object has been verified',
+    );
   }
 
   if (!rawToken.exp) {
-    throw new Error('jwt: could not verify the token as no exp has been decoded');
+    throw new Error(
+      'jwt: could not verify the token as no exp has been decoded',
+    );
   }
 
   if (!rawToken.origin) {
-    throw new Error('jwt: could not verify the token as no origin has been decoded');
+    throw new Error(
+      'jwt: could not verify the token as no origin has been decoded',
+    );
   }
 
   if (!Array.isArray(rawToken.scope)) {
-    throw new Error('jwt: could not verify the token as no scope(s) has been decoded');
+    throw new Error(
+      'jwt: could not verify the token as no scope(s) has been decoded',
+    );
   }
 
   return {

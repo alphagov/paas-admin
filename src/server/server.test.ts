@@ -11,18 +11,26 @@ describe('server test suite', () => {
     await server.start();
     const port = server.http.address().port;
     expect(port > 0).toBeTruthy(); // has a non-zero port number
-    await request(`http://localhost:${port}`).get('/').expect('SPECTRUM_IS_GREEN').expect(200);
+    await request(`http://localhost:${port}`)
+      .get('/')
+      .expect('SPECTRUM_IS_GREEN')
+      .expect(200);
+
     return server.stop();
   });
 
   it('should start on the given port', async () => {
     const handler = express();
     handler.get('/', (_req, res) => res.send('FULLY_ACKNOWLEDGED_BROADCAST'));
-    const server = new Server(handler, {port: 7612});
+    const server = new Server(handler, { port: 7612 });
     await server.start();
     const port = server.http.address().port;
     expect(port).toEqual(7612); // has assigned port
-    await request(`http://localhost:${port}`).get('/').expect('FULLY_ACKNOWLEDGED_BROADCAST').expect(200);
+    await request(`http://localhost:${port}`)
+      .get('/')
+      .expect('FULLY_ACKNOWLEDGED_BROADCAST')
+      .expect(200);
+
     return server.stop();
   });
 
@@ -32,9 +40,16 @@ describe('server test suite', () => {
     const server = new Server(handler);
     await server.start();
     const port = server.http.address().port;
-    await request(`http://localhost:${port}`).get('/').expect(200);
+    await request(`http://localhost:${port}`)
+      .get('/')
+      .expect(200);
     await server.stop();
-    return expect(request(`http://localhost:${port}`).get('/').timeout(500)).rejects.toThrow(/ECONNREFUSED/);
+
+    return expect(
+      request(`http://localhost:${port}`)
+        .get('/')
+        .timeout(500),
+    ).rejects.toThrow(/ECONNREFUSED/);
   });
 
   it('should replace the handler when updated', async () => {
@@ -45,9 +60,16 @@ describe('server test suite', () => {
     const server = new Server(handlerA);
     await server.start();
     const port = server.http.address().port;
-    await request(`http://localhost:${port}`).get('/').expect('HANDLER_A').catch(fail);
+    await request(`http://localhost:${port}`)
+      .get('/')
+      .expect('HANDLER_A')
+      .catch(fail);
     server.update(handlerB);
-    await request(`http://localhost:${port}`).get('/').expect('HANDLER_B').catch(fail);
+    await request(`http://localhost:${port}`)
+      .get('/')
+      .expect('HANDLER_B')
+      .catch(fail);
+
     return server.stop();
   });
 
@@ -60,7 +82,11 @@ describe('server test suite', () => {
     server.update(handlerB);
     await server.start();
     const port = server.http.address().port;
-    await request(`http://localhost:${port}`).get('/').expect('HANDLER_B').catch(fail);
+    await request(`http://localhost:${port}`)
+      .get('/')
+      .expect('HANDLER_B')
+      .catch(fail);
+
     return server.stop();
   });
 
@@ -68,6 +94,7 @@ describe('server test suite', () => {
     const server = new Server(express());
     await server.start();
     await expect(server.start()).rejects.toThrow(/already started/);
+
     return server.stop();
   });
 
