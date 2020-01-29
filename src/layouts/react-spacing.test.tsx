@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server'; // tslint:disable-line:no-submodule-imports
+import { renderToStaticMarkup } from 'react-dom/server';
 
 export function spacesMissingAroundInlineElements(
   body: string,

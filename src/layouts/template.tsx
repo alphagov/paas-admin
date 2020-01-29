@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server'; // tslint:disable-line:no-submodule-imports
+import { renderToStaticMarkup } from 'react-dom/server';
 
 import { IViewContext } from '../components/app';
 import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs';

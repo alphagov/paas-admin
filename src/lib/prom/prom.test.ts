@@ -64,7 +64,7 @@ describe('lib/prom test suite', () => {
               moment()
                 .toDate()
                 .getTime() / 1000,
-              `${Math.random() * 100}`, // tslint:disable-line:insecure-random
+              `${Math.random() * 100}`,
             ],
           },
         ],
@@ -115,25 +115,25 @@ describe('lib/prom test suite', () => {
                 moment()
                   .toDate()
                   .getTime() / 1000,
-                `${Math.random() * 100}`, // tslint:disable-line:insecure-random
+                `${Math.random() * 100}`,
               ],
               [
                 moment()
                   .toDate()
                   .getTime() / 1000,
-                `${Math.random() * 100}`, // tslint:disable-line:insecure-random
+                `${Math.random() * 100}`,
               ],
               [
                 moment()
                   .toDate()
                   .getTime() / 1000,
-                `${Math.random() * 100}`, // tslint:disable-line:insecure-random
+                `${Math.random() * 100}`,
               ],
               [
                 moment()
                   .toDate()
                   .getTime() / 1000,
-                `${Math.random() * 100}`, // tslint:disable-line:insecure-random
+                `${Math.random() * 100}`,
               ],
             ],
           },
@@ -146,25 +146,25 @@ describe('lib/prom test suite', () => {
                 moment()
                   .toDate()
                   .getTime() / 1000,
-                `${Math.random() * 100}`, // tslint:disable-line:insecure-random
+                `${Math.random() * 100}`,
               ],
               [
                 moment()
                   .toDate()
                   .getTime() / 1000,
-                `${Math.random() * 100}`, // tslint:disable-line:insecure-random
+                `${Math.random() * 100}`,
               ],
               [
                 moment()
                   .toDate()
                   .getTime() / 1000,
-                `${Math.random() * 100}`, // tslint:disable-line:insecure-random
+                `${Math.random() * 100}`,
               ],
               [
                 moment()
                   .toDate()
                   .getTime() / 1000,
-                `${Math.random() * 100}`, // tslint:disable-line:insecure-random
+                `${Math.random() * 100}`,
               ],
             ],
           },

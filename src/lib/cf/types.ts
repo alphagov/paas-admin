@@ -286,7 +286,7 @@ export interface IServicePlan {
     readonly extra: string | null;
     readonly free: boolean;
     readonly name: string;
-    readonly public: boolean; // tslint:disable-line:no-reserved-keywords
+    readonly public: boolean;
     readonly service_guid: string;
     readonly service_instances_url: string;
     readonly service_url: string;
@@ -304,7 +304,7 @@ export interface IServiceInstance {
       readonly created_at: string;
       readonly description?: string;
       readonly state: string;
-      readonly type: string; // tslint:disable-line:no-reserved-keywords
+      readonly type: string;
       readonly updated_at: string;
     };
     readonly name: string;
@@ -318,7 +318,7 @@ export interface IServiceInstance {
     readonly space_guid: string;
     readonly space_url: string;
     readonly tags: ReadonlyArray<string>;
-    readonly type: string; // tslint:disable-line:no-reserved-keywords
+    readonly type: string;
   };
   readonly metadata: IMetadata;
 }
@@ -456,7 +456,7 @@ export interface IUserServices {
     readonly space_url: string;
     readonly syslog_drain_url: string;
     readonly tags: ReadonlyArray<string>;
-    readonly type: string; // tslint:disable-line:no-reserved-keywords
+    readonly type: string;
   };
   readonly metadata: IMetadata;
 }

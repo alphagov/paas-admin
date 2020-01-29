@@ -26,7 +26,7 @@ const envVars = {
 };
 
 export interface IProcess extends ChildProcess {
-  logs?: Array<string>; // tslint:disable-line:readonly-array
+  logs?: Array<string>;
   port?: number;
 }
 
