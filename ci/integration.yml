@@ -14,7 +14,7 @@ run:
     - -ex
     - -c
     - |
-      NODE_ENV=development npm install
+      NODE_ENV=development npm ci
+      TEST_TIMEOUT=60000 npm test
       npm run build
-      TEST_TIMEOUT=60000 NODE_ENV=development npm test
-      TEST_TIMEOUT=60000 NODE_ENV=production npm test
+
