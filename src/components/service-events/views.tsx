@@ -26,7 +26,7 @@ interface IPaginationProperties {
 }
 
 interface IServiceEventsPageProperties extends IPaginationProperties {
-  readonly actorEmails: { readonly [key: string]: string; };
+  readonly actorEmails: { readonly [key: string]: string };
   readonly events: ReadonlyArray<IAuditEvent>;
   readonly routePartOf: RouteActiveChecker;
 }
@@ -39,7 +39,12 @@ interface IServiceEventDetailPageProperties {
 
 function Link(props: ILinkProperties): ReactElement {
   return (
-    <a className="govuk-link" href={props.disabled === false ? props.href : undefined}>{props.children}</a>
+    <a
+      className="govuk-link"
+      href={props.disabled === false ? props.href : undefined}
+    >
+      {props.children}
+    </a>
   );
 }
 
@@ -54,10 +59,9 @@ function Pagination(props: IPaginationProperties): ReactElement {
           page: props.pagination.page - 1,
         })}
         disabled={props.pagination.page <= 1}
-      >Previous page</Link>
-
-      {' '}
-
+      >
+        Previous page
+      </Link>{' '}
       <Link
         href={props.linkTo('admin.organizations.spaces.services.events.view', {
           organizationGUID: props.organizationGUID,
@@ -66,30 +70,38 @@ function Pagination(props: IPaginationProperties): ReactElement {
           page: props.pagination.page + 1,
         })}
         disabled={props.pagination.page >= props.pagination.total_pages}
-      >Next page</Link>
+      >
+        Next page
+      </Link>
     </p>
   );
 }
 
-export function ServiceEventDetailPage(props: IServiceEventDetailPageProperties): ReactElement {
-  return (<>
-    <h1 className="govuk-heading-l">
-      <span className="govuk-caption-l">Service Event</span>
-      {' '}
-      {props.service.entity.name}
-    </h1>
+export function ServiceEventDetailPage(
+  props: IServiceEventDetailPageProperties,
+): ReactElement {
+  return (
+    <>
+      <h1 className="govuk-heading-l">
+        <span className="govuk-caption-l">Service Event</span>{' '}
+        {props.service.entity.name}
+      </h1>
 
-    <Event event={props.event} actor={props.actor} />
-  </>);
+      <Event event={props.event} actor={props.actor} />
+    </>
+  );
 }
 
-export function ServiceEventsPage(props: IServiceEventsPageProperties): ReactElement {
+export function ServiceEventsPage(
+  props: IServiceEventsPageProperties,
+): ReactElement {
   return (
     <ServiceTab {...props}>
       <Totals
         results={props.pagination.total_results}
         page={props.pagination.page}
-        pages={props.pagination.total_pages} />
+        pages={props.pagination.total_pages}
+      />
 
       <Details />
 
@@ -111,20 +123,30 @@ export function ServiceEventsPage(props: IServiceEventsPageProperties): ReactEle
           </tr>
         </thead>
         <tbody className="govuk-table__body">
-          {props.events.map(event => (<EventListItem
+          {props.events.map(event => (
+            <EventListItem
               key={event.guid}
-              actor={props.actorEmails[event.actor.guid] || event.actor.name || <code>{event.actor.guid}</code>}
+              actor={
+                props.actorEmails[event.actor.guid] ||
+                event.actor.name || <code>{event.actor.guid}</code>
+              }
               date={event.updated_at}
-              href={props.linkTo('admin.organizations.spaces.services.event.view', {
-                organizationGUID: props.organizationGUID,
-                spaceGUID: props.spaceGUID,
-                serviceGUID: props.service.metadata.guid,
-                eventGUID: event.guid,
-              })}
-              type={eventTypeDescriptions[event.type] || <code>{event.type}</code>}
-            />))}
-          </tbody>
-        </table>
+              href={props.linkTo(
+                'admin.organizations.spaces.services.event.view',
+                {
+                  organizationGUID: props.organizationGUID,
+                  spaceGUID: props.spaceGUID,
+                  serviceGUID: props.service.metadata.guid,
+                  eventGUID: event.guid,
+                },
+              )}
+              type={
+                eventTypeDescriptions[event.type] || <code>{event.type}</code>
+              }
+            />
+          ))}
+        </tbody>
+      </table>
     </ServiceTab>
   );
 }

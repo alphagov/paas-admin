@@ -1,8 +1,7 @@
-import {IUaaUser} from '../../lib/uaa';
+import { IUaaUser } from '../../lib/uaa';
 
 export class AccountUser {
-  constructor(private user: IUaaUser) {
-  }
+  constructor(private readonly user: IUaaUser) {}
 
   get name(): string {
     return `${this.user.name.givenName} ${this.user.name.familyName}`;

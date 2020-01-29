@@ -1,13 +1,13 @@
-import Router, {IParameters, IResponse} from '../../lib/router';
-import {config} from './app.test.config';
-import {IContext, initContext} from './context';
+import Router, { IParameters, IResponse } from '../../lib/router';
+import { config } from './app.test.config';
+import { IContext, initContext } from './context';
 
-const noopActionFunc =
-  async (_: IContext, __: IParameters): Promise<IResponse> => {
-    return new Promise<IResponse>(
-      (resolve) => resolve({body: 'noop'}),
-    );
-  };
+const noopActionFunc = async (
+  _: IContext,
+  __: IParameters,
+): Promise<IResponse> => {
+  return new Promise<IResponse>(resolve => resolve({ body: 'noop' }));
+};
 
 describe('IContext', () => {
   describe('linkTo', () => {

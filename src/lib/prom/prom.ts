@@ -21,7 +21,8 @@ interface IPrometheusQueryResponseResult extends IPrometheusResponseResultBase {
   readonly value: PrometheusValue;
 }
 
-interface IPrometheusQueryRangeResponseResult extends IPrometheusResponseResultBase {
+interface IPrometheusQueryRangeResponseResult
+  extends IPrometheusResponseResultBase {
   readonly values: ReadonlyArray<PrometheusValue>;
 }
 
@@ -36,20 +37,30 @@ interface IPrometheusResponse<T> {
 }
 
 export default class PromClient {
-  private username: string;
-  private password: string;
+  private readonly username: string;
+  private readonly password: string;
   private readonly apiEndpoint: string;
   private readonly logger: BaseLogger;
 
-  constructor(endpoint: string, username: string, password: string, logger: BaseLogger) {
+  constructor(
+    endpoint: string,
+    username: string,
+    password: string,
+    logger: BaseLogger,
+  ) {
     this.apiEndpoint = endpoint;
     this.username = username;
     this.password = password;
     this.logger = logger;
   }
 
-  public async getValue(query: string, time: Date): Promise<ReadonlyArray<number> | undefined> {
-    const promResponse: AxiosResponse<IPrometheusResponse<IPrometheusQueryResponseResult>> = await this.request('/api/v1/query', {
+  public async getValue(
+    query: string,
+    time: Date,
+  ): Promise<ReadonlyArray<number> | undefined> {
+    const promResponse: AxiosResponse<IPrometheusResponse<
+      IPrometheusQueryResponseResult
+    >> = await this.request('/api/v1/query', {
       time: moment(time).unix(),
       query,
     });
@@ -68,7 +79,9 @@ export default class PromClient {
     start: Date,
     end: Date,
   ): Promise<ReadonlyArray<IMetricSerie> | undefined> {
-    const promResponse: AxiosResponse<IPrometheusResponse<IPrometheusQueryRangeResponseResult>> = await this.request('/api/v1/query_range', {
+    const promResponse: AxiosResponse<IPrometheusResponse<
+      IPrometheusQueryRangeResponseResult
+    >> = await this.request('/api/v1/query_range', {
       start: moment(start).unix(),
       end: moment(end).unix(),
       step: parseInt(step.toFixed(0), 10),
@@ -97,15 +110,16 @@ export default class PromClient {
 
   private async request(
     path: string,
-    params: {readonly [key: string]: string | number},
+    params: { readonly [key: string]: string | number },
   ): Promise<AxiosResponse> {
-
     const instance = axios.create();
     intercept(instance, 'prom', this.logger);
 
     const method = 'GET';
     const response = await instance.request({
-      method, params, baseURL: this.apiEndpoint,
+      method,
+      params,
+      baseURL: this.apiEndpoint,
       url: path,
       validateStatus: (status: number) => status > 0 && status < 501,
       timeout: DEFAULT_TIMEOUT,

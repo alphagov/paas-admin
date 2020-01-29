@@ -14,7 +14,7 @@ export interface IUaaEmail {
 
 export interface IUaaGroup {
   display: string;
-  'type': string;
+  type: string;
   value: string;
 }
 
@@ -43,10 +43,10 @@ export interface IUaaUser {
   meta: IUaaUserMeta;
   userName: string;
   name: IUaaName;
-  emails: readonly IUaaEmail[];
-  groups: readonly IUaaGroup[];
-  approvals: readonly IUaaApproval[];
-  phoneNumbers: readonly IUaaPhoneNumber[];
+  emails: ReadonlyArray<IUaaEmail>;
+  groups: ReadonlyArray<IUaaGroup>;
+  approvals: ReadonlyArray<IUaaApproval>;
+  phoneNumbers: ReadonlyArray<IUaaPhoneNumber>;
   active: boolean;
   verified: boolean;
   origin: string;
@@ -54,5 +54,5 @@ export interface IUaaUser {
   passwordLastModified: string;
   previousLogonTime: number;
   lastLogonTime: number;
-  schemas: readonly string[];
+  schemas: ReadonlyArray<string>;
 }

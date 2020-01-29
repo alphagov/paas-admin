@@ -9,10 +9,10 @@ import { Breadcrumbs } from './views';
 describe(Breadcrumbs, () => {
   it('should produce path of items', () => {
     const breadcrumbs = [
-      {text: '1', href: '/1'},
-      {text: '2', href: '/2'},
-      {text: '3', href: '/3'},
-      {text: '4'},
+      { text: '1', href: '/1' },
+      { text: '2', href: '/2' },
+      { text: '3', href: '/3' },
+      { text: '4' },
     ];
 
     const markup = shallow(<Breadcrumbs items={breadcrumbs} />);
@@ -27,6 +27,8 @@ describe(Breadcrumbs, () => {
     expect($('li:last-of-type').text()).toEqual('4');
     expect($('li:last-of-type').prop('aria-current')).toEqual('page');
 
-    expect(spacesMissingAroundInlineElements(markup.html() as string)).toHaveLength(0);
+    expect(
+      spacesMissingAroundInlineElements(markup.html() as string),
+    ).toHaveLength(0);
   });
 });

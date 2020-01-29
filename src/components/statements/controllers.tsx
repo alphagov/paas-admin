@@ -13,7 +13,7 @@ import {
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
-import {fromOrg} from '../breadcrumbs';
+import { fromOrg } from '../breadcrumbs';
 import { UserFriendlyError } from '../errors';
 import { IFilterResource, StatementsPage } from './views';
 
@@ -59,7 +59,10 @@ export interface ISortable {
 
 const YYYMMDD = 'YYYY-MM-DD';
 
-export async function statementRedirection(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function statementRedirection(
+  ctx: IContext,
+  params: IParameters,
+): Promise<IResponse> {
   const date = params.rangeStart ? moment(params.rangeStart) : moment();
 
   return {
@@ -70,7 +73,10 @@ export async function statementRedirection(ctx: IContext, params: IParameters): 
   };
 }
 
-export async function viewStatement(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function viewStatement(
+  ctx: IContext,
+  params: IParameters,
+): Promise<IResponse> {
   const rangeStart = moment(params.rangeStart, YYYMMDD);
   const filterSpace = params.space ? params.space : 'none';
   const filterService = params.service ? params.service : 'none';
@@ -79,7 +85,9 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   }
 
   if (rangeStart.date() > 1) {
-    throw new Error('Billing Statement: expected rangeStart to be the first day of the month');
+    throw new Error(
+      'Billing Statement: expected rangeStart to be the first day of the month',
+    );
   }
 
   const currentMonth = rangeStart.format('MMMM');
@@ -97,8 +105,16 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   );
 
   const [isManager, isBillingManager] = await Promise.all([
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'org_manager'),
-    cf.hasOrganizationRole(params.organizationGUID, ctx.token.userID, 'billing_manager'),
+    cf.hasOrganizationRole(
+      params.organizationGUID,
+      ctx.token.userID,
+      'org_manager',
+    ),
+    cf.hasOrganizationRole(
+      params.organizationGUID,
+      ctx.token.userID,
+      'billing_manager',
+    ),
   ]);
 
   /* istanbul ignore next */
@@ -124,78 +140,115 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
   try {
     events = await billingClient.getBillableEvents(filter);
   } catch {
-    throw new UserFriendlyError('Billing is currently unavailable, please try again later.');
+    throw new UserFriendlyError(
+      'Billing is currently unavailable, please try again later.',
+    );
   }
 
   /* istanbul ignore next */
   const cleanEvents = events.map(ev => ({
     ...ev,
-    resourceName: /__conduit_\d+__/.test(ev.resourceName) ?
-      'conduit-tunnel' : ev.resourceName,
+    resourceName: /__conduit_\d+__/.test(ev.resourceName)
+      ? 'conduit-tunnel'
+      : ev.resourceName,
   }));
 
   const currencyRates = await billingClient.getCurrencyRates(filter);
-  const usdCurrencyRates = currencyRates.filter(currencyRate => currencyRate.code === 'USD');
+  const usdCurrencyRates = currencyRates.filter(
+    currencyRate => currencyRate.code === 'USD',
+  );
 
   /* istanbul ignore next */
-  const itemsObject: IResourceGroup = cleanEvents.reduce((resources: IResourceGroup, event: IBillableEvent) => {
-    const key = [event.orgGUID, event.spaceGUID, event.planGUID, event.resourceName].join(':');
-    const {[key]: resource, ...rest} = resources;
+  const itemsObject: IResourceGroup = cleanEvents.reduce(
+    (resources: IResourceGroup, event: IBillableEvent) => {
+      const key = [
+        event.orgGUID,
+        event.spaceGUID,
+        event.planGUID,
+        event.resourceName,
+      ].join(':');
+      const { [key]: resource, ...rest } = resources;
 
-    if (!resource) {
-      return {...rest, [key]: {
-        ...event,
-        planName: event.price.details.map(pc => pc.planName.replace('Free', 'micro'))
-          .find(name => name !== '') || 'unknown',
-      }};
-    }
+      if (!resource) {
+        return {
+          ...rest,
+          [key]: {
+            ...event,
+            planName:
+              event.price.details
+                .map(pc => pc.planName.replace('Free', 'micro'))
+                .find(name => name !== '') || 'unknown',
+          },
+        };
+      }
 
-    const {price, ...resourceFields} = resource;
-    return {...rest, [key]: {
-      ...resourceFields,
-      price: {
-        exVAT: price.exVAT + event.price.exVAT,
-        incVAT: price.incVAT + event.price.incVAT,
-      },
-    }};
-  }, {});
+      const { price, ...resourceFields } = resource;
+
+      return {
+        ...rest,
+        [key]: {
+          ...resourceFields,
+          price: {
+            exVAT: price.exVAT + event.price.exVAT,
+            incVAT: price.incVAT + event.price.incVAT,
+          },
+        },
+      };
+    },
+    {},
+  );
 
   const items = Object.values(itemsObject);
 
-  const listOfPastYearMonths: {[i: string]: string} = {};
+  const listOfPastYearMonths: { [i: string]: string } = {};
 
   for (let i = 0; i < 12; i++) {
-    const month = moment().subtract(i, 'month').startOf('month');
+    const month = moment()
+      .subtract(i, 'month')
+      .startOf('month');
 
-    listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format('MMMM')} ${month.format('YYYY')}`;
+    listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format(
+      'MMMM',
+    )} ${month.format('YYYY')}`;
   }
 
   const orderBy = params.sort || 'name';
   const orderDirection = params.order || 'asc';
 
-  const spaces = items.reduce((all: IFilterResource[], next) => {
+  const spaces = items.reduce((all: Array<IFilterResource>, next) => {
     if (!all.find(i => i.guid === next.spaceGUID)) {
-      all.push({guid: next.spaceGUID, name: next.spaceName});
+      all.push({ guid: next.spaceGUID, name: next.spaceName });
     }
 
     return all;
   }, []);
 
-  const plans = items.reduce((all: IFilterResource[], next) => {
+  const plans = items.reduce((all: Array<IFilterResource>, next) => {
     if (!all.find(i => i.guid === next.planGUID)) {
-      all.push({guid: next.planGUID, name: next.planName});
+      all.push({ guid: next.planGUID, name: next.planName });
     }
 
     return all;
   }, []);
 
-  const listSpaces = [{guid: 'none', name: 'All spaces'}, ...[...spaces].sort(sortByName)];
-  const listPlans = [{guid: 'none', name: 'All Services'}, ...[...plans].sort(sortByName)];
+  const listSpaces = [
+    { guid: 'none', name: 'All spaces' },
+    ...[...spaces].sort(sortByName),
+  ];
+  const listPlans = [
+    { guid: 'none', name: 'All Services' },
+    ...[...plans].sort(sortByName),
+  ];
 
-  const unorderedFilteredItems = items.filter(item =>
-      (filterSpace   === 'none' || item.spaceGUID === filterSpace) &&
-      (filterService === 'none' || item.planGUID  === filterService));
-  const filteredItems = order(unorderedFilteredItems, {sort: orderBy, order: orderDirection});
+  const unorderedFilteredItems = items.filter(
+    item =>
+      (filterSpace === 'none' || item.spaceGUID === filterSpace) &&
+      (filterService === 'none' || item.planGUID === filterService),
+  );
+  const filteredItems = order(unorderedFilteredItems, {
+    sort: orderBy,
+    order: orderDirection,
+  });
 
   if (params.download) {
     return {
@@ -212,40 +265,51 @@ export async function viewStatement(ctx: IContext, params: IParameters): Promise
     incVAT: filteredItems.reduce((sum, event) => sum + event.price.incVAT, 0),
   };
 
-  const template = new Template(ctx.viewContext, `Statement`);
+  const template = new Template(ctx.viewContext, 'Statement');
   template.breadcrumbs = fromOrg(ctx, organization, [
     { text: 'Monthly billing statement' },
   ]);
 
   return {
-    body: template.render(<StatementsPage
-      listOfPastYearMonths={listOfPastYearMonths}
-      spaces={listSpaces}
-      plans={listPlans}
-      currentMonth={currentMonth}
-      adminFee={ctx.app.adminFee}
-      totals={totals}
-      usdCurrencyRates={usdCurrencyRates}
-      isCurrentMonth={Object.keys(listOfPastYearMonths)[0] === params.rangeStart}
-      csrf={ctx.viewContext.csrf}
-      filterMonth={params.rangeStart}
-      filterService={listPlans.find(i => i.guid === (params.service || 'none'))}
-      filterSpace={listSpaces.find(i => i.guid === (params.space || 'none'))}
-      linkTo={ctx.linkTo}
-      organizationGUID={organization.metadata.guid}
-      orderBy={orderBy}
-      orderDirection={orderDirection}
-      items={filteredItems}
-    />),
+    body: template.render(
+      <StatementsPage
+        listOfPastYearMonths={listOfPastYearMonths}
+        spaces={listSpaces}
+        plans={listPlans}
+        currentMonth={currentMonth}
+        adminFee={ctx.app.adminFee}
+        totals={totals}
+        usdCurrencyRates={usdCurrencyRates}
+        isCurrentMonth={
+          Object.keys(listOfPastYearMonths)[0] === params.rangeStart
+        }
+        csrf={ctx.viewContext.csrf}
+        filterMonth={params.rangeStart}
+        filterService={listPlans.find(
+          i => i.guid === (params.service || 'none'),
+        )}
+        filterSpace={listSpaces.find(i => i.guid === (params.space || 'none'))}
+        linkTo={ctx.linkTo}
+        organizationGUID={organization.metadata.guid}
+        orderBy={orderBy}
+        orderDirection={orderDirection}
+        items={filteredItems}
+      />,
+    ),
   };
 }
 
-export async function downloadCSV(ctx: IContext, params: IParameters): Promise<IResponse> {
-  return viewStatement(ctx, {...params, download: true});
+export async function downloadCSV(
+  ctx: IContext,
+  params: IParameters,
+): Promise<IResponse> {
+  return viewStatement(ctx, { ...params, download: true });
 }
 
- // tslint:disable-next-line:readonly-array
-export function order(items: IResourceUsage[], sort: ISortable): IResourceUsage[] {
+export function order(
+  items: Array<IResourceUsage>,
+  sort: ISortable,
+): Array<IResourceUsage> {
   switch (sort.sort) {
     case 'plan':
       items.sort(sortByPlan);
@@ -271,16 +335,21 @@ export function sortByName(a: IFilterTuple, b: IFilterTuple) {
   if (a.name > b.name) {
     return 1;
   }
+
   return 0;
 }
 
-export function sortByResourceName(a: IResourceWithResourceName, b: IResourceWithResourceName) {
+export function sortByResourceName(
+  a: IResourceWithResourceName,
+  b: IResourceWithResourceName,
+) {
   if (a.resourceName < b.resourceName) {
     return -1;
   }
   if (a.resourceName > b.resourceName) {
     return 1;
   }
+
   return 0;
 }
 
@@ -291,6 +360,7 @@ export function sortByPlan(a: IResourceWithPlanName, b: IResourceWithPlanName) {
   if (a.planName > b.planName) {
     return 1;
   }
+
   return 0;
 }
 
@@ -301,10 +371,14 @@ export function sortBySpace(a: IResourceUsage, b: IResourceUsage) {
   if (a.spaceName > b.spaceName) {
     return 1;
   }
+
   return 0;
 }
 
-export function composeCSV(items: ReadonlyArray<IResourceUsage>, adminFee: number): string {
+export function composeCSV(
+  items: ReadonlyArray<IResourceUsage>,
+  adminFee: number,
+): string {
   const lines = ['Name,Space,Plan,Ex VAT,Inc VAT'];
 
   for (const item of items) {
@@ -325,8 +399,8 @@ export function composeCSV(items: ReadonlyArray<IResourceUsage>, adminFee: numbe
     incVAT: items.reduce((sum, event) => sum + event.price.incVAT, 0),
   };
   const adminFees = {
-    exVAT: (totals.exVAT * adminFee),
-    incVAT: (totals.incVAT * adminFee),
+    exVAT: totals.exVAT * adminFee,
+    incVAT: totals.incVAT * adminFee,
   };
   const toatlsIncludingAdminFee = {
     exVAT: (totals.exVAT + adminFees.exVAT).toFixed(2),
@@ -334,8 +408,14 @@ export function composeCSV(items: ReadonlyArray<IResourceUsage>, adminFee: numbe
   };
 
   lines.push(',,,,');
-  lines.push(`10% Administration fees,,,${adminFees.exVAT.toFixed(2)},${adminFees.incVAT.toFixed(2)}`);
-  lines.push(`Total,,,${toatlsIncludingAdminFee.exVAT},${toatlsIncludingAdminFee.incVAT}`);
+  lines.push(
+    `10% Administration fees,,,${adminFees.exVAT.toFixed(
+      2,
+    )},${adminFees.incVAT.toFixed(2)}`,
+  );
+  lines.push(
+    `Total,,,${toatlsIncludingAdminFee.exVAT},${toatlsIncludingAdminFee.incVAT}`,
+  );
 
   return lines.join('\n');
 }

@@ -4,7 +4,7 @@ import { BaseLogger } from 'pino';
 import { authenticate } from '../uaa';
 import * as cf from './types';
 
-import {intercept} from '../axios-logger/axios';
+import { intercept } from '../axios-logger/axios';
 
 const DEFAULT_TIMEOUT = 30000;
 
@@ -36,7 +36,10 @@ export default class CloudFoundryClient {
     this.tokenEndpoint = config.tokenEndpoint || '';
 
     this.accessToken = config.accessToken || '';
-    this.clientCredentials = config.clientCredentials || {clientID: '', clientSecret: ''};
+    this.clientCredentials = config.clientCredentials || {
+      clientID: '',
+      clientSecret: '',
+    };
 
     this.logger = config.logger;
   }
@@ -54,6 +57,7 @@ export default class CloudFoundryClient {
     }
 
     this.tokenEndpoint = info.token_endpoint;
+
     return this.tokenEndpoint;
   }
 
@@ -64,20 +68,31 @@ export default class CloudFoundryClient {
 
     if (this.clientCredentials.clientSecret !== '') {
       const tokenEndpoint = await this.getTokenEndpoint();
-      this.accessToken = await authenticate(tokenEndpoint, this.clientCredentials);
+      this.accessToken = await authenticate(
+        tokenEndpoint,
+        this.clientCredentials,
+      );
     }
 
     if (!this.accessToken) {
-      throw new TypeError('CFClient: either an accessToken or clientCredentials are required to authenticate');
+      throw new TypeError(
+        'CFClient: either an accessToken or clientCredentials are required to authenticate',
+      );
     }
 
     return this.accessToken;
   }
 
-  public async request(method: httpMethod, url: string, data?: any, params?: any): Promise<AxiosResponse> {
+  public async request(
+    method: httpMethod,
+    url: string,
+    data?: any,
+    params?: any,
+  ): Promise<AxiosResponse> {
     const token = await this.getAccessToken();
+
     return request(this.apiEndpoint, method, url, this.logger, {
-      headers: {Authorization: `Bearer ${token}`},
+      headers: { Authorization: `Bearer ${token}` },
       data,
       params,
     });
@@ -96,135 +111,224 @@ export default class CloudFoundryClient {
     return [...data, ...newData];
   }
 
-  public async allV3Resources<T>(response: AxiosResponse<cf.IV3Response<T>>): Promise<ReadonlyArray<T>> {
+  public async allV3Resources<T>(
+    response: AxiosResponse<cf.IV3Response<T>>,
+  ): Promise<ReadonlyArray<T>> {
     const data: ReadonlyArray<T> = response.data.resources;
 
     if (!response.data.pagination.next) {
       return data;
     }
 
-    const newResponse = await this.request('get', response.data.pagination.next.href);
+    const newResponse = await this.request(
+      'get',
+      response.data.pagination.next.href,
+    );
     const newData: ReadonlyArray<T> = await this.allV3Resources(newResponse);
 
     return [...data, ...newData];
   }
 
   public async info(): Promise<cf.IInfo> {
-    const response = await request(this.apiEndpoint, 'get', '/v2/info', this.logger);
+    const response = await request(
+      this.apiEndpoint,
+      'get',
+      '/v2/info',
+      this.logger,
+    );
+
     return response.data;
   }
 
-  public async createOrganization(orgRequest: cf.IOrganizationRequest): Promise<cf.IOrganization> {
-    const response = await this.request('post', `/v2/organizations`, orgRequest);
+  public async createOrganization(
+    orgRequest: cf.IOrganizationRequest,
+  ): Promise<cf.IOrganization> {
+    const response = await this.request(
+      'post',
+      '/v2/organizations',
+      orgRequest,
+    );
+
     return response.data;
   }
 
   public async organizations(): Promise<ReadonlyArray<cf.IOrganization>> {
-    const response = await this.request('get', `/v2/organizations`);
+    const response = await this.request('get', '/v2/organizations');
+
     return this.allResources(response);
   }
 
-  public async v3Organizations(): Promise<ReadonlyArray<cf.IV3OrganizationResource>> {
-    const response = await this.request('get', `/v3/organizations`);
+  public async v3Organizations(): Promise<
+    ReadonlyArray<cf.IV3OrganizationResource>
+  > {
+    const response = await this.request('get', '/v3/organizations');
+
     return this.allV3Resources(response);
   }
 
-  public async organization(organizationGUID: string): Promise<cf.IOrganization> {
-    const response = await this.request('get', `/v2/organizations/${organizationGUID}`);
+  public async organization(
+    organizationGUID: string,
+  ): Promise<cf.IOrganization> {
+    const response = await this.request(
+      'get',
+      `/v2/organizations/${organizationGUID}`,
+    );
+
     return response.data;
   }
 
   public async deleteOrganization(orgRequest: {
-    readonly guid: string,
-    readonly recursive: boolean,
-    readonly async: boolean,
+    readonly guid: string;
+    readonly recursive: boolean;
+    readonly async: boolean;
   }): Promise<void> {
     const query = `?recursive=${orgRequest.recursive}&async=${orgRequest.async}`;
-    await this.request('delete', `/v2/organizations/${orgRequest.guid}${query}`, orgRequest);
+    await this.request(
+      'delete',
+      `/v2/organizations/${orgRequest.guid}${query}`,
+      orgRequest,
+    );
   }
 
-  public async quotaDefinitions(search?: { readonly name: string }): Promise<ReadonlyArray<cf.IOrganizationQuota>> {
+  public async quotaDefinitions(search?: {
+    readonly name: string;
+  }): Promise<ReadonlyArray<cf.IOrganizationQuota>> {
     let query = '';
     if (search && search.name) {
       query = `?q=name:${search.name}`;
     }
     const response = await this.request('get', `/v2/quota_definitions${query}`);
     const all = await this.allResources(response);
+
     return all;
   }
 
-  public async organizationQuota(quotaGUID: string): Promise<cf.IOrganizationQuota> {
-    const response = await this.request('get', `/v2/quota_definitions/${quotaGUID}`);
+  public async organizationQuota(
+    quotaGUID: string,
+  ): Promise<cf.IOrganizationQuota> {
+    const response = await this.request(
+      'get',
+      `/v2/quota_definitions/${quotaGUID}`,
+    );
+
     return response.data;
   }
 
   public async spaces(): Promise<ReadonlyArray<cf.ISpace>> {
-    const response = await this.request('get', `/v2/spaces`);
+    const response = await this.request('get', '/v2/spaces');
+
     return this.allResources(response);
   }
 
-  public async orgSpaces(organizationGUID: string): Promise<ReadonlyArray<cf.ISpace>> {
-    const response = await this.request('get', `/v2/organizations/${organizationGUID}/spaces`);
+  public async orgSpaces(
+    organizationGUID: string,
+  ): Promise<ReadonlyArray<cf.ISpace>> {
+    const response = await this.request(
+      'get',
+      `/v2/organizations/${organizationGUID}/spaces`,
+    );
+
     return this.allResources(response);
   }
 
   public async space(spaceGUID: string): Promise<cf.ISpace> {
     const response = await this.request('get', `/v2/spaces/${spaceGUID}`);
+
     return response.data;
   }
 
   public async spaceSummary(spaceGUID: string): Promise<cf.ISpaceSummary> {
-    const response = await this.request('get', `/v2/spaces/${spaceGUID}/summary`);
+    const response = await this.request(
+      'get',
+      `/v2/spaces/${spaceGUID}/summary`,
+    );
+
     return response.data;
   }
 
   public async spaceQuota(quotaGUID: string): Promise<cf.ISpaceQuota> {
-    const response = await this.request('get', `/v2/space_quota_definitions/${quotaGUID}`);
+    const response = await this.request(
+      'get',
+      `/v2/space_quota_definitions/${quotaGUID}`,
+    );
+
     return response.data;
   }
 
-  public async spacesForUserInOrganization(user: string, organization: string): Promise<ReadonlyArray<cf.IResource>> {
-    const response = await this.request('get', `/v2/users/${user}/spaces?q=organization_guid:${organization}`);
+  public async spacesForUserInOrganization(
+    user: string,
+    organization: string,
+  ): Promise<ReadonlyArray<cf.IResource>> {
+    const response = await this.request(
+      'get',
+      `/v2/users/${user}/spaces?q=organization_guid:${organization}`,
+    );
+
     return this.allResources(response);
   }
 
-  public async applications(spaceGUID: string): Promise<ReadonlyArray<cf.IApplication>> {
+  public async applications(
+    spaceGUID: string,
+  ): Promise<ReadonlyArray<cf.IApplication>> {
     const response = await this.request('get', `/v2/spaces/${spaceGUID}/apps`);
+
     return this.allResources(response);
   }
 
   public async application(applicationGUID: string): Promise<cf.IApplication> {
     const response = await this.request('get', `/v2/apps/${applicationGUID}`);
+
     return response.data;
   }
 
-  public async applicationSummary(applicationGUID: string): Promise<cf.IApplicationSummary> {
-    const response = await this.request('get', `/v2/apps/${applicationGUID}/summary`);
+  public async applicationSummary(
+    applicationGUID: string,
+  ): Promise<cf.IApplicationSummary> {
+    const response = await this.request(
+      'get',
+      `/v2/apps/${applicationGUID}/summary`,
+    );
+
     return response.data;
   }
 
-  public async services(spaceGUID: string): Promise<ReadonlyArray<cf.IServiceInstance>> {
-    const response = await this.request('get', `/v2/spaces/${spaceGUID}/service_instances`);
+  public async services(
+    spaceGUID: string,
+  ): Promise<ReadonlyArray<cf.IServiceInstance>> {
+    const response = await this.request(
+      'get',
+      `/v2/spaces/${spaceGUID}/service_instances`,
+    );
+
     return this.allResources(response);
   }
 
-  public async serviceInstance(instanceGUID: string): Promise<cf.IServiceInstance> {
-    const response = await this.request('get', `/v2/service_instances/${instanceGUID}`);
+  public async serviceInstance(
+    instanceGUID: string,
+  ): Promise<cf.IServiceInstance> {
+    const response = await this.request(
+      'get',
+      `/v2/service_instances/${instanceGUID}`,
+    );
+
     return response.data;
   }
 
   public async service(serviceGUID: string): Promise<cf.IService> {
     const response = await this.request('get', `/v2/services/${serviceGUID}`);
+
     return response.data;
   }
 
   public async servicePlan(planGUID: string): Promise<cf.IServicePlan> {
     const response = await this.request('get', `/v2/service_plans/${planGUID}`);
+
     return response.data;
   }
 
   public async createUser(userId: string): Promise<cf.IUser> {
     const response = await this.request('post', '/v2/users', { guid: userId });
+
     return response.data;
   }
 
@@ -234,42 +338,72 @@ export default class CloudFoundryClient {
 
   public async userSummary(userId: string): Promise<cf.IUserSummary> {
     const response = await this.request('get', `/v2/users/${userId}/summary`);
+
     return response.data;
   }
 
-  public async usersForOrganization(organizationGUID: string): Promise<ReadonlyArray<cf.IOrganizationUserRoles>> {
-    const response = await this.request('get', `/v2/organizations/${organizationGUID}/user_roles`);
+  public async usersForOrganization(
+    organizationGUID: string,
+  ): Promise<ReadonlyArray<cf.IOrganizationUserRoles>> {
+    const response = await this.request(
+      'get',
+      `/v2/organizations/${organizationGUID}/user_roles`,
+    );
+
     return this.allResources(response);
   }
 
-  public async usersForSpace(spaceGUID: string): Promise<ReadonlyArray<cf.ISpaceUserRoles>> {
-    const response = await this.request('get', `/v2/spaces/${spaceGUID}/user_roles`);
+  public async usersForSpace(
+    spaceGUID: string,
+  ): Promise<ReadonlyArray<cf.ISpaceUserRoles>> {
+    const response = await this.request(
+      'get',
+      `/v2/spaces/${spaceGUID}/user_roles`,
+    );
+
     return this.allResources(response);
   }
 
-  public async userServices(spaceGUID: string): Promise<ReadonlyArray<cf.IUserServices>> {
-    const response = await this.request('get', `/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`);
+  public async userServices(
+    spaceGUID: string,
+  ): Promise<ReadonlyArray<cf.IUserServices>> {
+    const response = await this.request(
+      'get',
+      `/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`,
+    );
+
     return this.allResources(response);
   }
 
-  public async userServiceInstance(instanceGUID: string): Promise<cf.IServiceInstance> {
-    const response = await this.request('get', `/v2/user_provided_service_instances/${instanceGUID}`);
+  public async userServiceInstance(
+    instanceGUID: string,
+  ): Promise<cf.IServiceInstance> {
+    const response = await this.request(
+      'get',
+      `/v2/user_provided_service_instances/${instanceGUID}`,
+    );
+
     return response.data;
   }
 
   public async stacks(): Promise<ReadonlyArray<cf.IStack>> {
-    const response = await this.request('get', `/v2/stacks`);
+    const response = await this.request('get', '/v2/stacks');
+
     return this.allResources(response);
   }
 
   public async stack(stackGUID: string): Promise<cf.IStack> {
     const response = await this.request('get', `/v2/stacks/${stackGUID}`);
+
     return response.data;
   }
 
   public async cflinuxfs2StackGUID(): Promise<string | undefined> {
     const response = await this.stacks();
-    const cflinuxfs2 = response.filter((stack: cf.IStack) => stack.entity.name === 'cflinuxfs2');
+    const cflinuxfs2 = response.filter(
+      (stack: cf.IStack) => stack.entity.name === 'cflinuxfs2',
+    );
+
     return cflinuxfs2.length > 0 ? cflinuxfs2[0].metadata.guid : undefined;
   }
 
@@ -283,11 +417,21 @@ export default class CloudFoundryClient {
       mod ? 'put' : 'delete',
       `/v2/organizations/${organizationGUID}/${role}/${userGUID}?recursive=true`,
     );
+
     return response.data;
   }
 
-  public async setSpaceRole(spaceGUID: string, userGUID: string, role: string, mod: boolean): Promise<cf.IResource> {
-    const response = await this.request(mod ? 'put' : 'delete', `/v2/spaces/${spaceGUID}/${role}/${userGUID}`);
+  public async setSpaceRole(
+    spaceGUID: string,
+    userGUID: string,
+    role: string,
+    mod: boolean,
+  ): Promise<cf.IResource> {
+    const response = await this.request(
+      mod ? 'put' : 'delete',
+      `/v2/spaces/${spaceGUID}/${role}/${userGUID}`,
+    );
+
     return response.data;
   }
 
@@ -299,6 +443,7 @@ export default class CloudFoundryClient {
       'put',
       `/v2/organizations/${organizationGUID}/users/${userGUID}`,
     );
+
     return response.data;
   }
 
@@ -308,7 +453,9 @@ export default class CloudFoundryClient {
     role: cf.OrganizationUserRoles,
   ): Promise<boolean> {
     const users = await this.usersForOrganization(organizationGUID);
-    const user = users.find((u: cf.IOrganizationUserRoles) => u.metadata.guid === userGUID);
+    const user = users.find(
+      (u: cf.IOrganizationUserRoles) => u.metadata.guid === userGUID,
+    );
 
     if (!user) {
       return false;
@@ -318,19 +465,23 @@ export default class CloudFoundryClient {
   }
 
   public async auditEvent(auditEventGUID: string): Promise<cf.IAuditEvent> {
-    const resp = await this.request('get', `/v3/audit_events/${auditEventGUID}`);
+    const resp = await this.request(
+      'get',
+      `/v3/audit_events/${auditEventGUID}`,
+    );
 
     return resp.data;
   }
 
   public async auditEvents(
-    page: number = 1,
+    page = 1,
     targetGUIDs?: ReadonlyArray<string>,
     spaceGUIDs?: ReadonlyArray<string>,
     orgGUIDs?: ReadonlyArray<string>,
   ): Promise<cf.IV3Response<cf.IAuditEvent>> {
     const resp = await this.request(
-      'get', `/v3/audit_events`,
+      'get',
+      '/v3/audit_events',
       /* data */ undefined,
       /* params */ {
         target_guids: targetGUIDs ? targetGUIDs.join(',') : undefined,
@@ -353,7 +504,6 @@ async function request(
   logger: BaseLogger,
   opts?: any,
 ): Promise<AxiosResponse> {
-
   const instance = axios.create();
   intercept(instance, 'cf', logger);
 

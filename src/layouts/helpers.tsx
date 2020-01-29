@@ -7,7 +7,7 @@ interface IConvertedBytes {
   readonly value: string;
 }
 
-const longUnits: { readonly [key: string]: string; } = {
+const longUnits: { readonly [key: string]: string } = {
   KiB: 'kibibytes',
   MiB: 'mebibytes',
   GiB: 'gibibytes',
@@ -16,6 +16,7 @@ const longUnits: { readonly [key: string]: string; } = {
 
 export function percentage(value: number, ofValue: number): string {
   const result = 100 * (value / ofValue);
+
   return `${result.toFixed(1)}%`;
 }
 
@@ -33,16 +34,27 @@ export function bytesConvert(startingBytes: number): IConvertedBytes {
     ++u;
   }
 
-  return { long: longUnits[units[u]], short: units[u], value: bytes.toFixed(2) };
+  return {
+    long: longUnits[units[u]],
+    short: units[u],
+    value: bytes.toFixed(2),
+  };
 }
 
 export function bytesToHuman(startingBytes: number): ReactElement {
   const converted = bytesConvert(startingBytes);
 
-  return (<>{converted.value} <abbr title={converted.long}>{converted.short}</abbr></>);
+  return (
+    <>
+      {converted.value} <abbr title={converted.long}>{converted.short}</abbr>
+    </>
+  );
 }
 
-export function conditionallyDisplay(b: boolean, element: ReactElement): ReactElement | undefined {
+export function conditionallyDisplay(
+  b: boolean,
+  element: ReactElement,
+): ReactElement | undefined {
   return b ? element : undefined;
 }
 

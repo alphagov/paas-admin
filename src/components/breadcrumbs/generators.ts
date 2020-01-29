@@ -10,8 +10,10 @@ export function fromOrg(
   return [
     { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
     {
-      text: organization.entity.name ,
-      href: ctx.linkTo('admin.organizations.view', {organizationGUID: organization.metadata.guid}),
+      text: organization.entity.name,
+      href: ctx.linkTo('admin.organizations.view', {
+        organizationGUID: organization.metadata.guid,
+      }),
     },
     ...children,
   ];

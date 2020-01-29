@@ -1,5 +1,5 @@
 import RouteParser from 'route-parser';
-import {URL, URLSearchParams} from 'url';
+import { URL, URLSearchParams } from 'url';
 
 export interface IParameters {
   readonly [i: string]: any;
@@ -18,7 +18,11 @@ export interface IResponse {
   readonly mimeType?: 'image/png' | 'text/csv';
 }
 
-export type ActionFunction = (ctx: any, params: IParameters, body?: any) => Promise<IResponse>;
+export type ActionFunction = (
+  ctx: any,
+  params: IParameters,
+  body?: any,
+) => Promise<IResponse>;
 
 export interface IRouteDefinition {
   readonly action: ActionFunction;
@@ -46,13 +50,16 @@ export default class Route {
     }
 
     const used = this.parser.match(url);
-    const extra = Object.keys(params).reduce((extraKeys: IParameters, param: string) => {
-      if (used && used[param] === undefined) {
-        return {...extraKeys, [param]: params[param]};
-      }
+    const extra = Object.keys(params).reduce(
+      (extraKeys: IParameters, param: string) => {
+        if (used && used[param] === undefined) {
+          return { ...extraKeys, [param]: params[param] };
+        }
 
-      return extraKeys;
-    }, {});
+        return extraKeys;
+      },
+      {},
+    );
 
     if (Object.keys(extra).length === 0) {
       return url;
@@ -66,6 +73,7 @@ export default class Route {
   public composeAbsoluteURL(domain: string, params: IParameters = {}): string {
     const path = this.composeURL(params);
     const domainURL = new URL(path, domain);
+
     return domainURL.toString();
   }
 

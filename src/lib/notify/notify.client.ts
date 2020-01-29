@@ -25,10 +25,13 @@ export default class NotificationClient {
     this.templates = config.templates || {};
   }
 
-  public async sendWelcomeEmail(emailAddress: string, personalisation: IWelcomeEmailParameters) {
+  public async sendWelcomeEmail(
+    emailAddress: string,
+    personalisation: IWelcomeEmailParameters,
+  ) {
     /* istanbul ignore next */
     if (!this.templates.welcome) {
-      throw new Error(`NotifyClient: templates.welcome: id is required`);
+      throw new Error('NotifyClient: templates.welcome: id is required');
     }
 
     const templateID = this.templates.welcome;

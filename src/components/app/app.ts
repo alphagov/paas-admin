@@ -57,73 +57,103 @@ export interface IOIDCConfig {
 export default function(config: IAppConfig) {
   const app = express();
 
-  app.use(pinoMiddleware({
-    logger: config.logger,
-    serializers: {
-      req: (req: IncomingMessage) => ({
-        method: req.method,
-        url: req.url,
-      }),
-      res: /* istanbul ignore next */ (res: ServerResponse) => ({
-        status: res.statusCode,
-      }),
-    },
-  }));
+  app.use(
+    pinoMiddleware({
+      logger: config.logger,
+      serializers: {
+        req: (req: IncomingMessage) => ({
+          method: req.method,
+          url: req.url,
+        }),
+        res: /* istanbul ignore next */ (res: ServerResponse) => ({
+          status: res.statusCode,
+        }),
+      },
+    }),
+  );
 
   app.set('trust proxy', true);
 
-  app.use(cookieSession({
-    name: 'pazmin-session',
-    keys: [config.sessionSecret],
-    secure: !config.allowInsecureSession,
-    httpOnly: true,
-  }));
+  app.use(
+    cookieSession({
+      name: 'pazmin-session',
+      keys: [config.sessionSecret],
+      secure: !config.allowInsecureSession,
+      httpOnly: true,
+    }),
+  );
 
-  app.use('/assets', staticGzip('dist/assets', {immutable: true}));
-  app.use('/assets', staticGzip('node_modules/govuk-frontend/govuk', {immutable: true}));
-  app.use('/assets', staticGzip('node_modules/govuk-frontend/govuk/assets', {immutable: true}));
-  app.use('/assets', staticGzip('node_modules/d3/dist', {immutable: true}));
-  app.use('/assets', staticGzip('node_modules/d3-sankey/dist', {immutable: true}));
+  app.use('/assets', staticGzip('dist/assets', { immutable: true }));
+  app.use(
+    '/assets',
+    staticGzip('node_modules/govuk-frontend/govuk', { immutable: true }),
+  );
+  app.use(
+    '/assets',
+    staticGzip('node_modules/govuk-frontend/govuk/assets', { immutable: true }),
+  );
+  app.use('/assets', staticGzip('node_modules/d3/dist', { immutable: true }));
+  app.use(
+    '/assets',
+    staticGzip('node_modules/d3-sankey/dist', { immutable: true }),
+  );
   app.use(compression());
 
   app.use(helmet());
   app.use(helmet.contentSecurityPolicy(csp));
 
-  app.use(express.urlencoded({extended: true}));
+  app.use(express.urlencoded({ extended: true }));
   app.use(csrf());
 
-  app.get('/healthcheck', (_req: express.Request, res: express.Response) => res.send({message: 'OK'}));
+  app.get('/healthcheck', (_req: express.Request, res: express.Response) =>
+    res.send({ message: 'OK' }),
+  );
 
   app.get('/forbidden', () => {
     throw new NotAuthorisedError('Forbidden');
   });
 
-  app.get('/calculator', (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const route = router.findByName('admin.home');
-    const ctx = initContext(req, router, route, config);
+  app.get(
+    '/calculator',
+    (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction,
+    ) => {
+      const route = router.findByName('admin.home');
+      const ctx = initContext(req, router, route, config);
 
-    getCalculator(ctx, {...req.query, ...req.params, ...route.parser.match(req.path)})
-      .then((response: IResponse) => {
-        res.status(response.status || 200).send(response.body);
+      getCalculator(ctx, {
+        ...req.query,
+        ...req.params,
+        ...route.parser.match(req.path),
       })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
-  });
+        .then((response: IResponse) => {
+          res.status(response.status || 200).send(response.body);
+        })
+        .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
 
   // Authenticated endpoints follow
-  app.use(auth({
-    authorizationURL: `${config.authorizationAPI}/oauth/authorize`,
-    clientID: config.oauthClientID,
-    clientSecret: config.oauthClientSecret,
-    logoutURL: `${config.authorizationAPI}/logout.do`,
-    tokenURL: `${config.uaaAPI}/oauth/token`,
-    uaaAPI: config.uaaAPI,
-  }));
+  app.use(
+    auth({
+      authorizationURL: `${config.authorizationAPI}/oauth/authorize`,
+      clientID: config.oauthClientID,
+      clientSecret: config.oauthClientSecret,
+      logoutURL: `${config.authorizationAPI}/logout.do`,
+      tokenURL: `${config.uaaAPI}/oauth/token`,
+      uaaAPI: config.uaaAPI,
+    }),
+  );
 
-  app.use(termsCheckerMiddleware(config.location, {
-    apiEndpoint: config.accountsAPI,
-    secret: config.accountsSecret,
-    logger: config.logger,
-  }));
+  app.use(
+    termsCheckerMiddleware(config.location, {
+      apiEndpoint: config.accountsAPI,
+      secret: config.accountsSecret,
+      logger: config.logger,
+    }),
+  );
 
   app.use(routerMiddleware(router, config));
 

@@ -11,7 +11,7 @@ import auth from '.';
 describe('auth test suite', () => {
   const app = express();
   const tokenKey = 'secret';
-  const logger = pino({level: 'silent'});
+  const logger = pino({ level: 'silent' });
 
   let nockUAA: nock.Scope;
 
@@ -27,18 +27,20 @@ describe('auth test suite', () => {
     nock.cleanAll();
   });
 
-  app.use(pinoMiddleware({logger}));
+  app.use(pinoMiddleware({ logger }));
 
-  app.use(cookieSession({name: 'auth-test', keys: ['mysecret']}));
+  app.use(cookieSession({ name: 'auth-test', keys: ['mysecret'] }));
 
-  app.use(auth({
-    authorizationURL: 'https://example.com/login/oauth/authorize',
-    clientID: 'key',
-    clientSecret: 'secret',
-    logoutURL: 'https://example.com/login/logout.do',
-    tokenURL: 'https://example.com/uaa/oauth/token',
-    uaaAPI: 'https://example.com/uaa',
-  }));
+  app.use(
+    auth({
+      authorizationURL: 'https://example.com/login/oauth/authorize',
+      clientID: 'key',
+      clientSecret: 'secret',
+      logoutURL: 'https://example.com/login/logout.do',
+      tokenURL: 'https://example.com/uaa/oauth/token',
+      uaaAPI: 'https://example.com/uaa',
+    }),
+  );
 
   app.get('/test', (_req, res) => {
     res.status(200);
@@ -57,18 +59,22 @@ describe('auth test suite', () => {
       const response = await request(app).get('/auth/login');
 
       expect(response.status).toEqual(302);
-      expect(response.header.location)
-        .toEqual('https://example.com/login/oauth/authorize?response_type=code&client_id=key');
+      expect(response.header.location).toEqual(
+        'https://example.com/login/oauth/authorize?response_type=code&client_id=key',
+      );
     });
 
     describe('can login with a code', () => {
       const time = Math.floor(Date.now() / 1000);
-      const token = jwt.sign({
-        user_id: 'uaa-user-123',
-        scope: [],
-        exp: (time + (24 * 60 * 60)),
-        origin: 'uaa',
-      }, tokenKey);
+      const token = jwt.sign(
+        {
+          user_id: 'uaa-user-123',
+          scope: [],
+          exp: time + 24 * 60 * 60,
+          origin: 'uaa',
+        },
+        tokenKey,
+      );
 
       const agent = request.agent(app);
 
@@ -79,19 +85,18 @@ describe('auth test suite', () => {
       });
 
       it('should authenticate successfully', async () => {
-        nockUAA
-          .post('/oauth/token')
-          .reply(200, {
-            access_token: token,
-            token_type: 'bearer',
-            refresh_token: '__refresh_token__',
-            expires_in: (24 * 60 * 60),
-            scope: 'openid oauth.approvals',
-            jti: '__jti__',
-          })
-        ;
+        nockUAA.post('/oauth/token').reply(200, {
+          access_token: token,
+          token_type: 'bearer',
+          refresh_token: '__refresh_token__',
+          expires_in: 24 * 60 * 60,
+          scope: 'openid oauth.approvals',
+          jti: '__jti__',
+        });
 
-        const response = await agent.get('/auth/login/callback?code=__fakecode&state=__fakestate');
+        const response = await agent.get(
+          '/auth/login/callback?code=__fakecode&state=__fakestate',
+        );
 
         response.header['set-cookie'][0]
           .split(',')
@@ -103,10 +108,7 @@ describe('auth test suite', () => {
       });
 
       it('can reach an endpoint behind authentication', async () => {
-        nockUAA
-          .get('/token_keys')
-          .reply(200, {keys: [{value: tokenKey}]})
-        ;
+        nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
 
         const response = await agent.get('/test');
 
@@ -117,7 +119,9 @@ describe('auth test suite', () => {
         const response = await agent.get('/auth/logout');
 
         expect(response.status).toEqual(302);
-        expect(response.header.location).toEqual('https://example.com/login/logout.do');
+        expect(response.header.location).toEqual(
+          'https://example.com/login/logout.do',
+        );
       });
 
       it('can not reach an endpoint behind authentication', async () => {
@@ -132,19 +136,18 @@ describe('auth test suite', () => {
       const agent = request.agent(app);
 
       it('should authenticate successfully', async () => {
-        nockUAA
-          .post('/oauth/token')
-          .reply(200, {
-            access_token: '__access_token__',
-            token_type: 'bearer',
-            refresh_token: '__refresh_token__',
-            expires_in: (24 * 60 * 60),
-            scope: 'openid oauth.approvals',
-            jti: '__jti__',
-          })
-        ;
+        nockUAA.post('/oauth/token').reply(200, {
+          access_token: '__access_token__',
+          token_type: 'bearer',
+          refresh_token: '__refresh_token__',
+          expires_in: 24 * 60 * 60,
+          scope: 'openid oauth.approvals',
+          jti: '__jti__',
+        });
 
-        const response = await agent.get('/auth/login/callback?code=__fakecode__&state=__fakestate__');
+        const response = await agent.get(
+          '/auth/login/callback?code=__fakecode__&state=__fakestate__',
+        );
 
         expect(response.status).toEqual(302);
       });
@@ -160,12 +163,15 @@ describe('auth test suite', () => {
   describe('when misconfigured', () => {
     const agent = request.agent(app);
     const time = Math.floor(Date.now() / 1000);
-    const token = jwt.sign({
-      user_id: 'uaa-user-123',
-      scope: [],
-      exp: (time + (24 * 60 * 60)),
-      origin: 'uaa',
-    }, tokenKey);
+    const token = jwt.sign(
+      {
+        user_id: 'uaa-user-123',
+        scope: [],
+        exp: time + 24 * 60 * 60,
+        origin: 'uaa',
+      },
+      tokenKey,
+    );
 
     it('should authenticate successfully', async () => {
       nockUAA
@@ -175,13 +181,14 @@ describe('auth test suite', () => {
           access_token: token,
           token_type: 'bearer',
           refresh_token: '__refresh_token__',
-          expires_in: (24 * 60 * 60),
+          expires_in: 24 * 60 * 60,
           scope: 'openid oauth.approvals',
           jti: '__jti__',
-        })
-      ;
+        });
 
-      const response = await agent.get('/auth/login/callback?code=__fakecode&state=__fakestate');
+      const response = await agent.get(
+        '/auth/login/callback?code=__fakecode&state=__fakestate',
+      );
 
       response.header['set-cookie'][0]
         .split(',')
@@ -193,10 +200,7 @@ describe('auth test suite', () => {
     });
 
     it('should be redirected to login due faulty /token_keys endpoint', async () => {
-      nockUAA
-        .get('/token_keys')
-        .reply(500)
-      ;
+      nockUAA.get('/token_keys').reply(500);
 
       const response = await agent.get('/test');
 

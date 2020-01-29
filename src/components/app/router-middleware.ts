@@ -13,6 +13,7 @@ function handleResponse(res: express.Response) {
 
     if (r.download) {
       res.attachment(r.download.name);
+
       return res.send(r.download.data);
     }
 
@@ -24,7 +25,10 @@ function handleResponse(res: express.Response) {
   };
 }
 
-export function routerMiddleware(router: Router, appConfig: IAppConfig): express.Application {
+export function routerMiddleware(
+  router: Router,
+  appConfig: IAppConfig,
+): express.Application {
   const app = express();
 
   app.use((req: any, _res: express.Response, next: express.NextFunction) => {
@@ -32,26 +36,33 @@ export function routerMiddleware(router: Router, appConfig: IAppConfig): express
     next();
   });
 
-  app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-    let route;
-    try {
-      route = router.find(req.path, req.method);
-    } catch (err) {
-      return next(err);
-    }
+  app.use(
+    (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction,
+    ) => {
+      let route;
+      try {
+        route = router.find(req.path, req.method);
+      } catch (err) {
+        return next(err);
+      }
 
-    const params = {
-      ...req.query,
-      ...req.params,
-      ...route.parser.match(req.path),
-    };
+      const params = {
+        ...req.query,
+        ...req.params,
+        ...route.parser.match(req.path),
+      };
 
-    const ctx = initContext(req, router, route, appConfig);
+      const ctx = initContext(req, router, route, appConfig);
 
-    route.definition.action(ctx, params, req.body)
-      .then(handleResponse(res))
-      .catch(next);
-  });
+      route.definition
+        .action(ctx, params, req.body)
+        .then(handleResponse(res))
+        .catch(next);
+    },
+  );
 
   return app;
 }

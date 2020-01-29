@@ -1,15 +1,24 @@
 import React from 'react';
 
 import { Template } from '../../layouts';
-import {  IParameters, IResponse  } from '../../lib/router';
+import { IParameters, IResponse } from '../../lib/router';
 import UAAClient from '../../lib/uaa';
-import { UaaOrigin} from '../../lib/uaa/uaa';
+import { UaaOrigin } from '../../lib/uaa/uaa';
 import { IContext, IOIDCConfig } from '../app';
 import { AccountUser } from './account_user';
 import OIDC from './oidc';
-import { AccessDeniedPage, SSOPage, SuccessfulUpliftPage, UnavailablePage, UnsuccessfulUpliftPage } from './views';
+import {
+  AccessDeniedPage,
+  SSOPage,
+  SuccessfulUpliftPage,
+  UnavailablePage,
+  UnsuccessfulUpliftPage,
+} from './views';
 
-export async function getUseGoogleSSO(ctx: IContext, _params: IParameters): Promise<IResponse> {
+export async function getUseGoogleSSO(
+  ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
   const cfgProvided = ctx.app.oidcProviders.get('google');
 
   if (!cfgProvided) {
@@ -17,19 +26,27 @@ export async function getUseGoogleSSO(ctx: IContext, _params: IParameters): Prom
   }
 
   const user = await fetchLoggedInUser(ctx);
-  const template = new Template(ctx.viewContext, 'Google Single Sign On - GOV.UK PaaS');
+  const template = new Template(
+    ctx.viewContext,
+    'Google Single Sign On - GOV.UK PaaS',
+  );
 
   return {
-    body: template.render(<SSOPage
-      csrf={ctx.viewContext.csrf}
-      linkTo={ctx.linkTo}
-      user={user}
-      provider="google"
-    />),
+    body: template.render(
+      <SSOPage
+        csrf={ctx.viewContext.csrf}
+        linkTo={ctx.linkTo}
+        user={user}
+        provider="google"
+      />,
+    ),
   };
 }
 
-export async function postUseGoogleSSO(ctx: IContext, _params: IParameters): Promise<IResponse> {
+export async function postUseGoogleSSO(
+  ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
   const cfgProvided = ctx.app.oidcProviders.get('google');
 
   if (!cfgProvided) {
@@ -49,7 +66,10 @@ export async function postUseGoogleSSO(ctx: IContext, _params: IParameters): Pro
   };
 }
 
-export async function getGoogleOIDCCallback(ctx: IContext, _params: IParameters): Promise<IResponse> {
+export async function getGoogleOIDCCallback(
+  ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
   const uaa = new UAAClient({
     apiEndpoint: ctx.app.uaaAPI,
     clientCredentials: {
@@ -80,17 +100,40 @@ export async function getGoogleOIDCCallback(ctx: IContext, _params: IParameters)
     state: _params.state,
   };
 
-  const success = await oidcClient.oidcCallback(ctx, authResponse, uaa, cfgProvided.providerName as UaaOrigin);
-  const template = new Template(ctx.viewContext, `${success ? 'Successful' : 'Unsuccessful'} Google Single Sign On - Activation - GOV.UK PaaS`);
+  const success = await oidcClient.oidcCallback(
+    ctx,
+    authResponse,
+    uaa,
+    cfgProvided.providerName as UaaOrigin,
+  );
+  const template = new Template(
+    ctx.viewContext,
+    `${
+      success ? 'Successful' : 'Unsuccessful'
+    } Google Single Sign On - Activation - GOV.UK PaaS`,
+  );
 
   return {
-    body: success ?
-    template.render(<SuccessfulUpliftPage linkTo={ctx.linkTo} provider={cfgProvided.providerName} />) :
-    template.render(<UnsuccessfulUpliftPage linkTo={ctx.linkTo} provider={cfgProvided.providerName} />),
+    body: success
+      ? template.render(
+          <SuccessfulUpliftPage
+            linkTo={ctx.linkTo}
+            provider={cfgProvided.providerName}
+          />,
+        )
+      : template.render(
+          <UnsuccessfulUpliftPage
+            linkTo={ctx.linkTo}
+            provider={cfgProvided.providerName}
+          />,
+        ),
   };
 }
 
-export async function getUseMicrosoftSSO(ctx: IContext, _params: IParameters): Promise<IResponse> {
+export async function getUseMicrosoftSSO(
+  ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
   const cfgProvided = ctx.app.oidcProviders.get('microsoft');
 
   if (!cfgProvided) {
@@ -98,19 +141,27 @@ export async function getUseMicrosoftSSO(ctx: IContext, _params: IParameters): P
   }
 
   const user = await fetchLoggedInUser(ctx);
-  const template = new Template(ctx.viewContext, 'Microsoft Single Sign On - GOV.UK PaaS');
+  const template = new Template(
+    ctx.viewContext,
+    'Microsoft Single Sign On - GOV.UK PaaS',
+  );
 
   return {
-    body: template.render(<SSOPage
-      csrf={ctx.viewContext.csrf}
-      linkTo={ctx.linkTo}
-      user={user}
-      provider="microsoft"
-    />),
+    body: template.render(
+      <SSOPage
+        csrf={ctx.viewContext.csrf}
+        linkTo={ctx.linkTo}
+        user={user}
+        provider="microsoft"
+      />,
+    ),
   };
 }
 
-export async function postUseMicrosoftSSO(ctx: IContext, _params: IParameters): Promise<IResponse> {
+export async function postUseMicrosoftSSO(
+  ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
   const cfgProvided = ctx.app.oidcProviders.get('microsoft');
 
   if (!cfgProvided) {
@@ -130,7 +181,10 @@ export async function postUseMicrosoftSSO(ctx: IContext, _params: IParameters): 
   };
 }
 
-export async function getMicrosoftOIDCCallback(ctx: IContext, _params: IParameters): Promise<IResponse> {
+export async function getMicrosoftOIDCCallback(
+  ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
   const uaa = new UAAClient({
     apiEndpoint: ctx.app.uaaAPI,
     clientCredentials: {
@@ -161,13 +215,33 @@ export async function getMicrosoftOIDCCallback(ctx: IContext, _params: IParamete
     state: _params.state,
   };
 
-  const success = await oidcClient.oidcCallback(ctx, authResponse, uaa, cfgProvided.providerName as UaaOrigin);
-  const template = new Template(ctx.viewContext, `${success ? 'Successful' : 'Unsuccessful'} Microsoft Single Sign On - Activation - GOV.UK PaaS`);
+  const success = await oidcClient.oidcCallback(
+    ctx,
+    authResponse,
+    uaa,
+    cfgProvided.providerName as UaaOrigin,
+  );
+  const template = new Template(
+    ctx.viewContext,
+    `${
+      success ? 'Successful' : 'Unsuccessful'
+    } Microsoft Single Sign On - Activation - GOV.UK PaaS`,
+  );
 
   return {
-    body: success ?
-    template.render(<SuccessfulUpliftPage linkTo={ctx.linkTo} provider={cfgProvided.providerName} />) :
-    template.render(<UnsuccessfulUpliftPage linkTo={ctx.linkTo} provider={cfgProvided.providerName} />),
+    body: success
+      ? template.render(
+          <SuccessfulUpliftPage
+            linkTo={ctx.linkTo}
+            provider={cfgProvided.providerName}
+          />,
+        )
+      : template.render(
+          <UnsuccessfulUpliftPage
+            linkTo={ctx.linkTo}
+            provider={cfgProvided.providerName}
+          />,
+        ),
   };
 }
 
@@ -183,25 +257,33 @@ export async function fetchLoggedInUser(ctx: IContext): Promise<AccountUser> {
   return new AccountUser(await uaa.getUser(ctx.token.userID));
 }
 
-async function oidcErrorHandler(ctx: IContext, _params: IParameters, cfg: IOIDCConfig): Promise<IResponse> {
-  ctx.app.logger.error('The OIDC callback returned an error', _params, cfg.providerName);
+async function oidcErrorHandler(
+  ctx: IContext,
+  _params: IParameters,
+  cfg: IOIDCConfig,
+): Promise<IResponse> {
+  ctx.app.logger.error(
+    'The OIDC callback returned an error',
+    _params,
+    cfg.providerName,
+  );
   const template = new Template(ctx.viewContext);
   let body: string;
 
   switch (_params.error) {
     case 'access_denied':
-      template.title = 'Sorry, there is a problem with the service – SSO Access Denied – GOV.UK PaaS';
-      body = template.render(<AccessDeniedPage
-        linkTo={ctx.linkTo}
-        provider={cfg.providerName}
-      />);
+      template.title =
+        'Sorry, there is a problem with the service – SSO Access Denied – GOV.UK PaaS';
+      body = template.render(
+        <AccessDeniedPage linkTo={ctx.linkTo} provider={cfg.providerName} />,
+      );
       break;
     case 'temporarily_unavailable':
-      template.title = 'Sorry, there is a problem with the service – SSO Temporarily Unavailable – GOV.UK PaaS';
-      body = template.render(<UnavailablePage
-        linkTo={ctx.linkTo}
-        provider={cfg.providerName}
-      />);
+      template.title =
+        'Sorry, there is a problem with the service – SSO Temporarily Unavailable – GOV.UK PaaS';
+      body = template.render(
+        <UnavailablePage linkTo={ctx.linkTo} provider={cfg.providerName} />,
+      );
       break;
     default:
       throw new Error('Unknown OIDC error');

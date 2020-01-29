@@ -1,8 +1,8 @@
 import pino from 'pino';
 
-import {IAppConfig, IOIDCConfig, OIDCProviderName} from './app';
+import { IAppConfig, IOIDCConfig, OIDCProviderName } from './app';
 
-const logger = pino({level: 'silent'});
+const logger = pino({ level: 'silent' });
 
 const sessionSecret = 'mysecret';
 
@@ -11,7 +11,8 @@ providers.set('microsoft', {
   providerName: 'microsoft',
   clientID: 'CLIENTID',
   clientSecret: 'CLIENTSECRET',
-  discoveryURL: 'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration',
+  discoveryURL:
+    'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration',
 });
 providers.set('google', {
   providerName: 'google',

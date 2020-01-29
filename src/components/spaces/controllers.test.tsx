@@ -7,12 +7,15 @@ import * as spaces from '.';
 import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
-import {app as defaultApp} from '../../lib/cf/test-data/app';
-import {auditEvent as defaultAuditEvent} from '../../lib/cf/test-data/audit-event';
-import {org as defaultOrg} from '../../lib/cf/test-data/org';
-import {wrapResources, wrapV3Resources} from '../../lib/cf/test-data/wrap-resources';
-import {createTestContext} from '../app/app.test-helpers';
-import {IContext} from '../app/context';
+import { app as defaultApp } from '../../lib/cf/test-data/app';
+import { auditEvent as defaultAuditEvent } from '../../lib/cf/test-data/audit-event';
+import { org as defaultOrg } from '../../lib/cf/test-data/org';
+import {
+  wrapResources,
+  wrapV3Resources,
+} from '../../lib/cf/test-data/wrap-resources';
+import { createTestContext } from '../app/app.test-helpers';
+import { IContext } from '../app/context';
 
 const ctx: IContext = createTestContext();
 const spaceGUID = 'bc8d3381-390d-4bd7-8c71-25309900a2e3';
@@ -33,8 +36,7 @@ describe('space event', () => {
       .reply(200, data.space)
 
       .get(`/v2/organizations/${organizationGUID}`)
-      .reply(200, defaultOrg())
-    ;
+      .reply(200, defaultOrg());
   });
 
   afterEach(() => {
@@ -48,72 +50,89 @@ describe('space event', () => {
     const event = defaultAuditEvent();
     nockCF
       .get(`/v3/audit_events/${event.guid}`)
-      .reply(200, JSON.stringify(event))
-    ;
+      .reply(200, JSON.stringify(event));
 
     const response = await spaces.viewSpaceEvent(ctx, {
-      organizationGUID, spaceGUID, eventGUID: event.guid,
+      organizationGUID,
+      spaceGUID,
+      eventGUID: event.guid,
     });
 
-    expect(response.body).toContain(`name-2064 - Space Event`);
+    expect(response.body).toContain('name-2064 - Space Event');
 
-    expect(response.body).toContain(/* DateTime    */ moment(event.updated_at).format(DATE_TIME));
+    expect(response.body).toContain(
+      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+    );
     expect(response.body).toContain(/* Actor       */ 'admin');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
-    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
   });
 
   it('should show the email of the event actor if it is a user with an email', async () => {
     const event = defaultAuditEvent();
     nockCF
       .get(`/v3/audit_events/${event.guid}`)
-      .reply(200, JSON.stringify(event))
-    ;
+      .reply(200, JSON.stringify(event));
 
-    nockAccounts
-      .get(`/users/${event.actor.guid}`)
-      .reply(200, `{
+    nockAccounts.get(`/users/${event.actor.guid}`).reply(
+      200,
+      `{
         "user_uuid": "${event.actor.guid}",
         "user_email": "one@user.in.database",
         "username": "one@user.in.database"
-      }`)
-    ;
+      }`,
+    );
 
     const response = await spaces.viewSpaceEvent(ctx, {
-      organizationGUID, spaceGUID, eventGUID: event.guid,
+      organizationGUID,
+      spaceGUID,
+      eventGUID: event.guid,
     });
 
-    expect(response.body).toContain(`name-2064 - Space Event`);
+    expect(response.body).toContain('name-2064 - Space Event');
 
-    expect(response.body).toContain(/* DateTime    */ moment(event.updated_at).format(DATE_TIME));
+    expect(response.body).toContain(
+      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+    );
     expect(response.body).toContain(/* Actor       */ 'one@user.in.database');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
-    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
   });
 
   it('should show the name event actor if it is not a user', async () => {
     const event = defaultAuditEvent();
-    nockCF
-      .get(`/v3/audit_events/${event.guid}`)
-      .reply(200, JSON.stringify(lodash.merge(
-        event,
-        { actor: { type: 'unknown', name: 'unknown-actor'}},
-      )))
-    ;
+    nockCF.get(`/v3/audit_events/${event.guid}`).reply(
+      200,
+      JSON.stringify(
+        lodash.merge(event, {
+          actor: { type: 'unknown', name: 'unknown-actor' },
+        }),
+      ),
+    );
 
     const response = await spaces.viewSpaceEvent(ctx, {
-      organizationGUID, spaceGUID, eventGUID: event.guid,
+      organizationGUID,
+      spaceGUID,
+      eventGUID: event.guid,
     });
 
-    expect(response.body).toContain(`name-2064 - Space Event`);
+    expect(response.body).toContain('name-2064 - Space Event');
 
-    expect(response.body).toContain(/* DateTime    */ moment(event.updated_at).format(DATE_TIME));
+    expect(response.body).toContain(
+      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+    );
     expect(response.body).toContain(/* Actor       */ 'unknown-actor');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
-    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
   });
 });
 
@@ -129,8 +148,7 @@ describe('spaces test suite', () => {
 
     nockCF
       .get(`/v2/organizations/${organizationGUID}`)
-      .reply(200, defaultOrg())
-    ;
+      .reply(200, defaultOrg());
   });
 
   afterEach(() => {
@@ -143,13 +161,14 @@ describe('spaces test suite', () => {
   it('should show the spaces pages', async () => {
     const secondSpace = '5489e195-c42b-4e61-bf30-323c331ecc01';
 
-    nockAccounts
-      .get('/users/uaa-id-253').reply(200, JSON.stringify({
+    nockAccounts.get('/users/uaa-id-253').reply(
+      200,
+      JSON.stringify({
         user_uuid: 'uaa-id-253',
         username: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
         user_email: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
-      }))
-    ;
+      }),
+    );
 
     nockCF
       .get(`/v2/organizations/${organizationGUID}/spaces`)
@@ -163,20 +182,33 @@ describe('spaces test suite', () => {
       .reply(200, data.spaceQuota)
 
       .get(`/v2/spaces/${spaceGUID}/apps`)
-      .reply(200, JSON.stringify(wrapResources(
-        lodash.merge(defaultApp(), {entity: {name: 'first-app'}}),
-        lodash.merge(defaultApp(), {entity: {name: 'second-app', state: 'RUNNING'}}),
-      )))
+      .reply(
+        200,
+        JSON.stringify(
+          wrapResources(
+            lodash.merge(defaultApp(), { entity: { name: 'first-app' } }),
+            lodash.merge(defaultApp(), {
+              entity: { name: 'second-app', state: 'RUNNING' },
+            }),
+          ),
+        ),
+      )
 
       .get('/v2/quota_definitions/ORG-QUOTA-GUID')
       .reply(200, data.organizationQuota)
 
       .get(`/v2/spaces/${secondSpace}/apps`)
-      .reply(200, JSON.stringify(wrapResources(
-        lodash.merge(defaultApp(), {entity: {name: 'second-space-app'}}),
-      )))
-    ;
-    const response = await spaces.listSpaces(ctx, {organizationGUID});
+      .reply(
+        200,
+        JSON.stringify(
+          wrapResources(
+            lodash.merge(defaultApp(), {
+              entity: { name: 'second-space-app' },
+            }),
+          ),
+        ),
+      );
+    const response = await spaces.listSpaces(ctx, { organizationGUID });
 
     expect(response.body).toContain('Quota usage');
     expect(response.body).toContain('5.0%');
@@ -187,7 +219,9 @@ describe('spaces test suite', () => {
     expect(response.body).toContain('Spaces');
     expect(response.body).toMatch(/0[.]00.*GiB.*\s+of\s+20[.]00.*GiB/m);
     expect(response.body).toMatch(/1[.]00.*GiB.*\s+of\s+no limit/m);
-    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
   });
 
   it('should show list of applications in space', async () => {
@@ -195,20 +229,32 @@ describe('spaces test suite', () => {
     const appName = 'name-2064';
     nockCF
       .get(`/v2/spaces/${spaceGUID}/apps`)
-      .reply(200, JSON.stringify(wrapResources(
-        lodash.merge(defaultApp(), {metadata: {guid: appGuid}, entity: {name: appName}}),
-      )))
+      .reply(
+        200,
+        JSON.stringify(
+          wrapResources(
+            lodash.merge(defaultApp(), {
+              metadata: { guid: appGuid },
+              entity: { name: appName },
+            }),
+          ),
+        ),
+      )
 
       .get(`/v2/apps/${appGuid}/summary`)
       .reply(200, data.appSummary)
 
       .get(`/v2/spaces/${spaceGUID}`)
-      .reply(200, data.space)
-    ;
-    const response = await spaces.listApplications(ctx, {organizationGUID, spaceGUID});
+      .reply(200, data.space);
+    const response = await spaces.listApplications(ctx, {
+      organizationGUID,
+      spaceGUID,
+    });
 
     expect(response.body).toContain(`${appName} - Overview`);
-    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
   });
 
   it('should show list of services in space', async () => {
@@ -226,22 +272,23 @@ describe('spaces test suite', () => {
       .reply(200, data.serviceString)
 
       .get(`/v2/spaces/${spaceGUID}`)
-      .reply(200, data.space)
-    ;
+      .reply(200, data.space);
 
-    const response = await spaces.listBackingServices(ctx, {organizationGUID, spaceGUID});
+    const response = await spaces.listBackingServices(ctx, {
+      organizationGUID,
+      spaceGUID,
+    });
 
     expect(response.body).toContain('name-2064 - Overview');
     expect(response.body).toContain('name-2104');
-    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
   });
 
   describe('viewing events', () => {
     beforeEach(() => {
-      nockCF
-        .get(`/v2/spaces/${spaceGUID}`)
-        .reply(200, data.space)
-      ;
+      nockCF.get(`/v2/spaces/${spaceGUID}`).reply(200, data.space);
     });
 
     describe('when there are no audit events to display', () => {
@@ -249,21 +296,26 @@ describe('spaces test suite', () => {
         nockCF
           .get('/v3/audit_events')
           .query({
-            page: 1, per_page: 25,
+            page: 1,
+            per_page: 25,
             order_by: '-updated_at',
             space_guids: spaceGUID,
           })
-          .reply(200, JSON.stringify(wrapV3Resources()))
-        ;
+          .reply(200, JSON.stringify(wrapV3Resources()));
       });
 
       it('should show a helpful message on the application events page', async () => {
-        const response = await spaces.viewSpaceEvents(ctx, {organizationGUID, spaceGUID});
+        const response = await spaces.viewSpaceEvents(ctx, {
+          organizationGUID,
+          spaceGUID,
+        });
 
         expect(response.body).toContain('name-2064 - Space Events');
         expect(response.body).toContain('Displaying page 1 of 1');
         expect(response.body).toContain('0 total events');
-        expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+        expect(
+          spacesMissingAroundInlineElements(response.body as string),
+        ).toHaveLength(0);
       });
     });
 
@@ -272,52 +324,88 @@ describe('spaces test suite', () => {
         nockCF
           .get('/v3/audit_events')
           .query({
-            page: 1, per_page: 25,
+            page: 1,
+            per_page: 25,
             order_by: '-updated_at',
             space_guids: spaceGUID,
           })
-          .reply(200, JSON.stringify(lodash.merge(wrapV3Resources(
-            lodash.merge(defaultAuditEvent(), {type: 'audit.app.delete-request'}),
-            lodash.merge(defaultAuditEvent(), {type: 'audit.app.restage'}),
-            lodash.merge(defaultAuditEvent(), {
-              type: 'audit.app.update',
-              target: { guid: defaultAuditEvent().actor.guid, name: defaultAuditEvent().actor.name, type: 'user' },
-            }),
-            lodash.merge(defaultAuditEvent(), {
-              type: 'audit.app.create',
-              target: { guid: 'unknown', name: 'an-application', type: 'app'},
-            }),
-            lodash.merge(defaultAuditEvent(), {
-              type: 'some unknown event type',
-              actor: { guid: 'unknown', name: 'some unknown actor', type: 'unknown' },
-            }),
-          ), {pagination: {
-            total_pages: 2702,
-            total_results: 1337,
-            next: { href: '/link-to-next-page' },
-          }})))
-        ;
+          .reply(
+            200,
+            JSON.stringify(
+              lodash.merge(
+                wrapV3Resources(
+                  lodash.merge(defaultAuditEvent(), {
+                    type: 'audit.app.delete-request',
+                  }),
+                  lodash.merge(defaultAuditEvent(), {
+                    type: 'audit.app.restage',
+                  }),
+                  lodash.merge(defaultAuditEvent(), {
+                    type: 'audit.app.update',
+                    target: {
+                      guid: defaultAuditEvent().actor.guid,
+                      name: defaultAuditEvent().actor.name,
+                      type: 'user',
+                    },
+                  }),
+                  lodash.merge(defaultAuditEvent(), {
+                    type: 'audit.app.create',
+                    target: {
+                      guid: 'unknown',
+                      name: 'an-application',
+                      type: 'app',
+                    },
+                  }),
+                  lodash.merge(defaultAuditEvent(), {
+                    type: 'some unknown event type',
+                    actor: {
+                      guid: 'unknown',
+                      name: 'some unknown actor',
+                      type: 'unknown',
+                    },
+                  }),
+                ),
+                {
+                  pagination: {
+                    total_pages: 2702,
+                    total_results: 1337,
+                    next: { href: '/link-to-next-page' },
+                  },
+                },
+              ),
+            ),
+          );
 
         nockAccounts
           .get('/users')
-          .query({uuids: defaultAuditEvent().actor.guid})
-          .reply(200, `{
+          .query({ uuids: defaultAuditEvent().actor.guid })
+          .reply(
+            200,
+            `{
             "users": [{
               "user_uuid": "${defaultAuditEvent().actor.guid}",
               "user_email": "one@user.in.database",
               "username": "one@user.in.database"
             }]
-          }`)
-        ;
+          }`,
+          );
       });
 
       it('should show a table of events on the application events page', async () => {
-        const response = await spaces.viewSpaceEvents(ctx, {organizationGUID, spaceGUID, page: 1});
+        const response = await spaces.viewSpaceEvents(ctx, {
+          organizationGUID,
+          spaceGUID,
+          page: 1,
+        });
 
         expect(response.body).toContain('name-2064 - Space Events');
         expect(response.body).toContain('1337 total events');
-        expect(response.body).toContain('<a class="govuk-link">Previous page</a>');
-        expect(response.body).not.toContain('<a class="govuk-link" disabled>Next page</a>');
+        expect(response.body).toContain(
+          '<a class="govuk-link">Previous page</a>',
+        );
+        expect(response.body).not.toContain(
+          '<a class="govuk-link" disabled>Next page</a>',
+        );
         expect(response.body).toContain('Next page');
 
         expect(response.body).toContain('one@user.in.database');
@@ -331,7 +419,9 @@ describe('spaces test suite', () => {
         expect(response.body).toContain('Created application');
 
         expect(response.body).toContain('<code>some unknown event type</code>');
-        expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+        expect(
+          spacesMissingAroundInlineElements(response.body as string),
+        ).toHaveLength(0);
       });
     });
   });

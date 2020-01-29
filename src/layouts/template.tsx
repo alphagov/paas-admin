@@ -1,21 +1,27 @@
 import React, { ReactElement } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server'; // tslint:disable-line:no-submodule-imports
+import { renderToStaticMarkup } from 'react-dom/server';
 
 import { IViewContext } from '../components/app';
 import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs';
-import { Footer, Header, ISubNavigationProperties, Main, PhaseBanner, SubNavigation } from './partials';
+import {
+  Footer,
+  Header,
+  ISubNavigationProperties,
+  Main,
+  PhaseBanner,
+  SubNavigation,
+} from './partials';
 
 import govukPrintStyles from './govuk.print.scss';
 import govukIE8Styles from './govuk.screen.ie8.scss';
 import govukStyles from './govuk.screen.scss';
 
 export class Template {
-  private _language: string = 'en';
+  private readonly _language = 'en';
   private _breadcrumbs?: ReadonlyArray<IBreadcrumbsItem>;
   private _subnav?: ISubNavigationProperties;
 
-  constructor(private ctx: IViewContext, private _title?: string) {
-  }
+  constructor(private readonly ctx: IViewContext, private _title?: string) {}
 
   public set breadcrumbs(items: ReadonlyArray<IBreadcrumbsItem>) {
     this._breadcrumbs = items;
@@ -38,7 +44,8 @@ export class Template {
     <html lang=${this._language} class="govuk-template">
         <head>
           <meta charSet="utf-8" />
-          <title lang="${this._language}">${this._title || 'GOV.UK Platform as a Service - Administration Tool'}</title>
+          <title lang="${this._language}">${this._title ||
+      'GOV.UK Platform as a Service - Administration Tool'}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
           <meta name="theme-color" content="${themeColor}" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -57,7 +64,8 @@ export class Template {
           <link rel="apple-touch-icon"
             href="${assetPath}/images/govuk-apple-touch-icon.png" />
 
-          <meta name="x-user-identity-origin" content="${this.ctx.origin || ''}" />
+          <meta name="x-user-identity-origin" content="${this.ctx.origin ||
+            ''}" />
 
           <!--[if !IE 8]><!-->
             <link href="${govukStyles}" media="screen" rel="stylesheet" />
@@ -74,41 +82,68 @@ export class Template {
 
           <meta property="og:image" content="${assetURL}/images/govuk-opengraph-image.png" />
         </head>
-        ${renderToStaticMarkup(<body className="govuk-template__body">
-          <this.EnableClientSideJavaScript />
+        ${renderToStaticMarkup(
+          <body className="govuk-template__body">
+            <this.EnableClientSideJavaScript />
 
-          <a href="#main-content" className="govuk-skip-link">Skip to main content</a>
+            <a href="#main-content" className="govuk-skip-link">
+              Skip to main content
+            </a>
 
-          <Header location={this.ctx.location} isPlatformAdmin={!!this.ctx.isPlatformAdmin} />
+            <Header
+              location={this.ctx.location}
+              isPlatformAdmin={!!this.ctx.isPlatformAdmin}
+            />
 
-          <div className="govuk-width-container">
-            <PhaseBanner tag={{ text: 'beta' }}>
-              <a className="govuk-link" href="https://www.cloud.service.gov.uk/support">
-                Get support
-              </a> or <a className="govuk-link" href="https://www.cloud.service.gov.uk/pricing">
-                view our pricing
-              </a>
-            </PhaseBanner>
-            {this._subnav ? <SubNavigation title={this._subnav.title} items={this._subnav.items} /> : undefined}
-            {this._breadcrumbs ? <Breadcrumbs items={this._breadcrumbs} /> : undefined}
-            <Main>
-              {page}
-            </Main>
-          </div>
+            <div className="govuk-width-container">
+              <PhaseBanner tag={{ text: 'beta' }}>
+                <a
+                  className="govuk-link"
+                  href="https://www.cloud.service.gov.uk/support"
+                >
+                  Get support
+                </a>{' '}
+                or{' '}
+                <a
+                  className="govuk-link"
+                  href="https://www.cloud.service.gov.uk/pricing"
+                >
+                  view our pricing
+                </a>
+              </PhaseBanner>
+              {this._subnav ? (
+                <SubNavigation
+                  title={this._subnav.title}
+                  items={this._subnav.items}
+                />
+              ) : (
+                undefined
+              )}
+              {this._breadcrumbs ? (
+                <Breadcrumbs items={this._breadcrumbs} />
+              ) : (
+                undefined
+              )}
+              <Main>{page}</Main>
+            </div>
 
-          <Footer />
+            <Footer />
 
-          <script src={`${assetPath}/all.js`}></script>
-          <script src={`${assetPath}/init.js`}></script>
-        </body>)}
+            <script src={`${assetPath}/all.js`}></script>
+            <script src={`${assetPath}/init.js`}></script>
+          </body>,
+        )}
       </html>`;
   }
 
   private EnableClientSideJavaScript(): ReactElement {
     return (
-      <script dangerouslySetInnerHTML={{
-        __html: `document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');`,
-      }}></script>
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            "document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');",
+        }}
+      ></script>
     );
   }
 }

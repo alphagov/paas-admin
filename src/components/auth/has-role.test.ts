@@ -22,7 +22,7 @@ it('should throw error if signed token is a string', async () => {
 });
 
 it('should throw error if expiry is missing', async () => {
-  const accessToken = jwt.sign({origin: 'uaa'}, tokenKeys[0]);
+  const accessToken = jwt.sign({ origin: 'uaa' }, tokenKeys[0]);
   expect(() => {
     const token = new Token(accessToken, tokenKeys);
     expect(token).not.toBeTruthy();
@@ -30,7 +30,7 @@ it('should throw error if expiry is missing', async () => {
 });
 
 it('should throw error if origin is missing', async () => {
-  const accessToken = jwt.sign({exp: (time + (24 * 60 * 60))}, tokenKeys[0]);
+  const accessToken = jwt.sign({ exp: time + 24 * 60 * 60 }, tokenKeys[0]);
   expect(() => {
     const token = new Token(accessToken, tokenKeys);
     expect(token).not.toBeTruthy();
@@ -38,7 +38,10 @@ it('should throw error if origin is missing', async () => {
 });
 
 it('should throw error if scope is not an array', async () => {
-  const accessToken = jwt.sign({origin: 'uaa', exp: (time + (24 * 60 * 60)), scope: 'not-an-array'}, tokenKeys[0]);
+  const accessToken = jwt.sign(
+    { origin: 'uaa', exp: time + 24 * 60 * 60, scope: 'not-an-array' },
+    tokenKeys[0],
+  );
   expect(() => {
     const token = new Token(accessToken, tokenKeys);
     expect(token).not.toBeTruthy();
@@ -46,30 +49,41 @@ it('should throw error if scope is not an array', async () => {
 });
 
 it('should have expiry', async () => {
-  const accessToken = jwt.sign({origin: 'uaa', exp: (time + (24 * 60 * 60)), scope: []}, tokenKeys[0]);
+  const accessToken = jwt.sign(
+    { origin: 'uaa', exp: time + 24 * 60 * 60, scope: [] },
+    tokenKeys[0],
+  );
   const token = new Token(accessToken, tokenKeys);
   expect(token.expiry).toBeDefined();
   expect(typeof token.expiry).toEqual('number');
 });
 
 it('should have scopes', async () => {
-  const accessToken = jwt.sign({origin: 'uaa', exp: (time + (24 * 60 * 60)), scope: ['read-write']}, tokenKeys[0]);
+  const accessToken = jwt.sign(
+    { origin: 'uaa', exp: time + 24 * 60 * 60, scope: ['read-write'] },
+    tokenKeys[0],
+  );
   const token = new Token(accessToken, tokenKeys);
   expect(token.scopes).toBeDefined();
   expect(token.scopes[0]).toEqual('read-write');
 });
 
 it('should have scopes', async () => {
-  const accessToken = jwt.sign({origin: 'uaa', exp: (time + (24 * 60 * 60)), scope: ['read-write']}, tokenKeys[0]);
+  const accessToken = jwt.sign(
+    { origin: 'uaa', exp: time + 24 * 60 * 60, scope: ['read-write'] },
+    tokenKeys[0],
+  );
   const token = new Token(accessToken, tokenKeys);
   expect(token.hasScope('read-write')).toBeTruthy();
 });
 
 it('should have scopes', async () => {
-  const accessToken = jwt.sign({
-    origin: 'uaa',
-    exp: (time + (24 * 60 * 60)),
-    scope: ['read-write', 'write-read']},
+  const accessToken = jwt.sign(
+    {
+      origin: 'uaa',
+      exp: time + 24 * 60 * 60,
+      scope: ['read-write', 'write-read'],
+    },
     tokenKeys[0],
   );
 
@@ -79,7 +93,10 @@ it('should have scopes', async () => {
 });
 
 it('should succeed when verifying with older key', async () => {
-  const accessToken = jwt.sign({origin: 'uaa', exp: (time + (24 * 60 * 60)), scope: ['read-write']}, tokenKeys[1]);
+  const accessToken = jwt.sign(
+    { origin: 'uaa', exp: time + 24 * 60 * 60, scope: ['read-write'] },
+    tokenKeys[1],
+  );
   const token = new Token(accessToken, tokenKeys);
   expect(token.expiry).toBeDefined();
 });

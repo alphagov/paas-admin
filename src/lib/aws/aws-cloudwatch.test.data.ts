@@ -6,8 +6,8 @@ interface IServiceIdAndLabel {
 }
 
 export function getStubCloudwatchMetricsData(
-    metricSeriesLabelsAndIds: ReadonlyArray<IServiceIdAndLabel>,
-  ): string {
+  metricSeriesLabelsAndIds: ReadonlyArray<IServiceIdAndLabel>,
+): string {
   // Creates a response with one days worth of data (with some gaps to test the charts can handle that)
   // Something like:
   //
@@ -34,9 +34,11 @@ export function getStubCloudwatchMetricsData(
   //     +----------------------------------------------------------------------------------+
   //
 
-  const members = metricSeriesLabelsAndIds.map(({label, id}) => {
-    const {timestamps, values} = getGappyRandomData();
-    return `<member>
+  const members = metricSeriesLabelsAndIds
+    .map(({ label, id }) => {
+      const { timestamps, values } = getGappyRandomData();
+
+      return `<member>
       <Timestamps>
         ${timestamps.map(t => `<member>${t}</member>`).join('\n')}
       </Timestamps>
@@ -47,7 +49,8 @@ export function getStubCloudwatchMetricsData(
       <Id>${id}</Id>
       <StatusCode>Complete</StatusCode>
     </member>`;
-  }).join('\n');
+    })
+    .join('\n');
 
   return `<GetMetricDataResponse xmlns="http://monitoring.amazonaws.com/doc/2010-08-01/">
     <GetMetricDataResult>

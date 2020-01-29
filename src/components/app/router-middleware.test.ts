@@ -16,17 +16,20 @@ describe('app test suite - router-middleware', () => {
     const router = new Router([
       {
         name: 'home',
-        action: async (_c, _p, _b) => ({body: {message: 'ok'}}),
+        action: async (_c, _p, _b) => ({ body: { message: 'ok' } }),
         path: '/',
       },
       {
         name: 'notModified',
-        action: async (_c, _p, _b) => ({body: {message: 'ok'}, status: 304}),
+        action: async (_c, _p, _b) => ({
+          body: { message: 'ok' },
+          status: 304,
+        }),
         path: '/304',
       },
       {
         name: 'redirect',
-        action: async (_c, _p, _b) => ({redirect: '/'}),
+        action: async (_c, _p, _b) => ({ redirect: '/' }),
         path: '/redirect',
       },
       {
@@ -45,22 +48,26 @@ describe('app test suite - router-middleware', () => {
       },
       {
         name: 'hello',
-        action: async (_c, p, _b) => ({body: {message: `Hello, ${p.name}!`}}),
+        action: async (_c, p, _b) => ({
+          body: { message: `Hello, ${p.name}!` },
+        }),
         path: '/hello/:name',
       },
       {
         name: 'download',
-        action: async (_c, _p, _b) => ({download: {data: `text`, name: 'download.txt'}}),
+        action: async (_c, _p, _b) => ({
+          download: { data: 'text', name: 'download.txt' },
+        }),
         path: '/download',
       },
       {
         name: 'png-mimetype',
-        action: async (_c, _p, _b) => ({mimeType: 'image/png'}),
+        action: async (_c, _p, _b) => ({ mimeType: 'image/png' }),
         path: '/image',
       },
       {
         name: 'csv-mimetype',
-        action: async (_c, _p, _b) => ({mimeType: 'text/csv'}),
+        action: async (_c, _p, _b) => ({ mimeType: 'text/csv' }),
         path: '/csv',
       },
     ]);
@@ -69,23 +76,36 @@ describe('app test suite - router-middleware', () => {
       return router.findByName(name).composeURL(params);
     }
 
-    app.use((req: express.Request, _res: express.Response, next: express.NextFunction) => {
-      req.csrfToken = () => '';
-      next();
-    });
+    app.use(
+      (
+        req: express.Request,
+        _res: express.Response,
+        next: express.NextFunction,
+      ) => {
+        req.csrfToken = () => '';
+        next();
+      },
+    );
 
     app.use(routerMiddleware(router, config));
 
-    app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-      if (err instanceof NotFoundError) {
-        return res.status(404).send({message: err.message});
-      }
-      if (err instanceof NotAuthorisedError) {
-        return res.status(403).send({message: err.message});
-      }
+    app.use(
+      (
+        err: Error,
+        _req: express.Request,
+        res: express.Response,
+        _next: express.NextFunction,
+      ) => {
+        if (err instanceof NotFoundError) {
+          return res.status(404).send({ message: err.message });
+        }
+        if (err instanceof NotAuthorisedError) {
+          return res.status(403).send({ message: err.message });
+        }
 
-      res.status(500).send({message: err.message});
-    });
+        res.status(500).send({ message: err.message });
+      },
+    );
 
     const agent = request.agent(app);
 
@@ -100,7 +120,7 @@ describe('app test suite - router-middleware', () => {
     const imgResponse = await agent.get('/image');
     const csvResponse = await agent.get('/csv');
 
-    expect(linkTo('hello', {name: 'World'})).toEqual('/hello/World');
+    expect(linkTo('hello', { name: 'World' })).toEqual('/hello/World');
     expect(linkTo('home')).toEqual('/');
     expect(okResponse.status).toEqual(200);
     expect(helloResponse.status).toEqual(200);
@@ -110,8 +130,12 @@ describe('app test suite - router-middleware', () => {
     expect(notAuthorisedResponse.status).toEqual(403);
     expect(notFoundResponse.status).toEqual(404);
     expect(serverErrorResponse.status).toEqual(500);
-    expect(downloadResponse.header['content-disposition']).toEqual(`attachment; filename="download.txt"`);
-    expect(imgResponse.header['content-type']).toEqual(`image/png`);
-    expect(csvResponse.header['content-type']).toEqual(`text/csv; charset=utf-8`);
+    expect(downloadResponse.header['content-disposition']).toEqual(
+      'attachment; filename="download.txt"',
+    );
+    expect(imgResponse.header['content-type']).toEqual('image/png');
+    expect(csvResponse.header['content-type']).toEqual(
+      'text/csv; charset=utf-8',
+    );
   });
 });

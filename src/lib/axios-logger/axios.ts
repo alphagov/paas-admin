@@ -6,7 +6,9 @@ function newAxiosRequestInterceptor(name: string, logger: BaseLogger) {
     const { url, method } = cfg;
 
     logger.info({
-      name, method, url,
+      name,
+      method,
+      url,
       message: `${name} making ${method} request to ${url}`,
     });
 
@@ -18,13 +20,17 @@ function newAxiosRequestInterceptor(name: string, logger: BaseLogger) {
 
 function newAxiosResponseInterceptor(name: string, logger: BaseLogger) {
   return (resp: AxiosResponse) => {
-    const {config, status} = resp;
-    const {url, method} = config;
+    const { config, status } = resp;
+    const { url, method } = config;
 
     const timeDelta = Date.now() - (config as any).startTime;
 
     const contents = {
-      name, method, url, status, time: timeDelta,
+      name,
+      method,
+      url,
+      status,
+      time: timeDelta,
       message: `${name} received ${status} when making ${method} request to ${url} in ${timeDelta}ms`,
     };
 
@@ -40,7 +46,7 @@ function newAxiosResponseInterceptor(name: string, logger: BaseLogger) {
 
 function newAxiosErrorInterceptor(name: string, logger: BaseLogger) {
   return (err: any) => {
-    logger.error({message: `${name} encountered error`});
+    logger.error({ message: `${name} encountered error` });
 
     return err;
   };

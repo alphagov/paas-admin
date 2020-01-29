@@ -1,4 +1,3 @@
-(function () {
+(function() {
   window.GOVUKFrontend.initAll();
-}());
-
+})();

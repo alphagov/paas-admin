@@ -1,8 +1,4 @@
-import {
-  IParameters,
-  IResponse,
-  NotAuthorisedError,
-} from '../../lib/router';
+import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 
 import { IContext } from '../app/context';
 
@@ -55,8 +51,8 @@ async function viewCosts(
   _params: IParameters,
   body: any,
 ): Promise<IResponse> {
-  const month  = body.month;
-  const year   = body.year;
+  const month = body.month;
+  const year = body.year;
   const format = body.format;
 
   if (typeof month === 'undefined' || month === '') {
@@ -74,10 +70,12 @@ async function viewCosts(
   const rangeStart = `${year}-${month}-01`;
 
   if (!rangeStart.match(/[20][123][0-9]-[01][0-9]-01/)) {
-    throw new Error(`Constructed date is invalid, should be YYYY-MM-DD: ${rangeStart}`);
+    throw new Error(
+      `Constructed date is invalid, should be YYYY-MM-DD: ${rangeStart}`,
+    );
   }
 
   return {
-    redirect: ctx.linkTo(`admin.reports.${format}`, {rangeStart}),
+    redirect: ctx.linkTo(`admin.reports.${format}`, { rangeStart }),
   };
 }

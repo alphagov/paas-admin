@@ -3,7 +3,6 @@ import nock from 'nock';
 import NotificationClient from '.';
 
 describe('lib/notify test suite', () => {
-
   let nockNotify: nock.Scope;
 
   beforeEach(() => {
@@ -21,12 +20,11 @@ describe('lib/notify test suite', () => {
   it('notify middleware should include NotifyClient on req', async () => {
     nockNotify
       .post('/v2/notifications/email')
-      .reply(200, {content: {body: 'FAKE_NOTIFY_RESPONSE'}})
-    ;
+      .reply(200, { content: { body: 'FAKE_NOTIFY_RESPONSE' } });
 
     const notify = new NotificationClient({
       apiKey: 'test-key-1234',
-      templates: {welcome: 'WELCOME_ID'},
+      templates: { welcome: 'WELCOME_ID' },
     });
 
     const personalisation = {

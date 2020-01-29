@@ -50,9 +50,13 @@ export function cloudFrontMetrics(
       id: '4xx-error-rate',
       format: 'percentile',
       title: '4xx error rate',
-      description: 'The percentages of HTTP responses with a 4XX HTTP status code, which represents a client error.',
+      description:
+        'The percentages of HTTP responses with a 4XX HTTP status code, which represents a client error.',
       chart: drawLineGraph(
-        'percentage of HTTP requests with a 4XX status code', 'Percent', '.1s', series.m4xxErrorRate,
+        'percentage of HTTP requests with a 4XX status code',
+        'Percent',
+        '.1s',
+        series.m4xxErrorRate,
       ),
       units: 'Percent',
       metric: 'm4xxErrorRate',
@@ -63,9 +67,13 @@ export function cloudFrontMetrics(
       id: '5xx-error-rate',
       format: 'percentile',
       title: '5xx error rate',
-      description: 'The percentages of HTTP responses with a 5XX HTTP status code, which represents a server error.',
+      description:
+        'The percentages of HTTP responses with a 5XX HTTP status code, which represents a server error.',
       chart: drawLineGraph(
-        'percentage of HTTP requests with a 5XX status code', 'Percent', '.1s', series.m5xxErrorRate,
+        'percentage of HTTP requests with a 5XX status code',
+        'Percent',
+        '.1s',
+        series.m5xxErrorRate,
       ),
       units: 'Percent',
       metric: 'm5xxErrorRate',
@@ -76,8 +84,14 @@ export function cloudFrontMetrics(
       id: 'bytes-uploaded',
       format: 'bytes',
       title: 'Bytes uploaded',
-      description: 'The number of bytes sent to your applications by the CDN route service.',
-      chart: drawLineGraph('number of bytes sent to the origin', 'Bytes', '.2s', series.mBytesUploaded),
+      description:
+        'The number of bytes sent to your applications by the CDN route service.',
+      chart: drawLineGraph(
+        'number of bytes sent to the origin',
+        'Bytes',
+        '.2s',
+        series.mBytesUploaded,
+      ),
       units: 'Bytes',
       metric: 'mBytesUploaded',
       summaries: summaries.mBytesUploaded,
@@ -87,8 +101,14 @@ export function cloudFrontMetrics(
       id: 'bytes-downloaded',
       format: 'bytes',
       title: 'Bytes downloaded',
-      description: 'The number of bytes received from your applications by the CDN route service.',
-      chart: drawLineGraph('number of bytes received from the origin', 'Bytes', '.2s', series.mBytesDownloaded),
+      description:
+        'The number of bytes received from your applications by the CDN route service.',
+      chart: drawLineGraph(
+        'number of bytes received from the origin',
+        'Bytes',
+        '.2s',
+        series.mBytesDownloaded,
+      ),
       units: 'Bytes',
       metric: 'mBytesDownloaded',
       summaries: summaries.mBytesDownloaded,
@@ -109,7 +129,12 @@ export function rdsMetrics(
       title: 'Free disk space',
       description: `How much hard disk space your database has remaining. If your database runs out of disk space it
         will stop working.`,
-      chart: drawLineGraph('bytes of free disk space', 'Bytes', '.2s', series.mFreeStorageSpace),
+      chart: drawLineGraph(
+        'bytes of free disk space',
+        'Bytes',
+        '.2s',
+        series.mFreeStorageSpace,
+      ),
       units: 'Bytes',
       metric: 'mFreeStorageSpace',
       summaries: summaries.mFreeStorageSpace,
@@ -119,15 +144,25 @@ export function rdsMetrics(
       id: 'cpu-utilisation',
       format: 'percentile',
       title: 'CPU Utilisation',
-      description: <>
-        How much computational work your database is doing. High CPU Utilisation may indicate you need to optimise your
-        database queries or <a
-          href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan"
-          className="govuk-link">
-          update your service to use a bigger plan
-        </a>.
-      </>,
-      chart: drawLineGraph('percentage CPU Utilisation', 'Percent', '.1r', series.mCPUUtilization),
+      description: (
+        <>
+          How much computational work your database is doing. High CPU
+          Utilisation may indicate you need to optimise your database queries or{' '}
+          <a
+            href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan"
+            className="govuk-link"
+          >
+            update your service to use a bigger plan
+          </a>
+          .
+        </>
+      ),
+      chart: drawLineGraph(
+        'percentage CPU Utilisation',
+        'Percent',
+        '.1r',
+        series.mCPUUtilization,
+      ),
       units: 'Percent',
       metric: 'mCPUUtilization',
       summaries: summaries.mCPUUtilization,
@@ -136,16 +171,27 @@ export function rdsMetrics(
     {
       id: 'database-connections',
       title: 'Database Connections',
-      description: <>
-        How many open connections there are to your database. High values may indicate problems with your applications'
-        connection management, or that you need to <a
-          href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan"
-          className="govuk-link">
-          update your service to use a bigger plan
-        </a>. Zero values may indicate the database is unavailable, or that your applications cannot connect to the
-        database.
-      </>,
-      chart: drawLineGraph('number of database connections', 'Number', '.1r', series.mDatabaseConnections),
+      description: (
+        <>
+          How many open connections there are to your database. High values may
+          indicate problems with your applications&apos; connection management,
+          or that you need to{' '}
+          <a
+            href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan"
+            className="govuk-link"
+          >
+            update your service to use a bigger plan
+          </a>
+          . Zero values may indicate the database is unavailable, or that your
+          applications cannot connect to the database.
+        </>
+      ),
+      chart: drawLineGraph(
+        'number of database connections',
+        'Number',
+        '.1r',
+        series.mDatabaseConnections,
+      ),
       units: 'Number',
       metric: 'mDatabaseConnections',
       summaries: summaries.mDatabaseConnections,
@@ -155,15 +201,27 @@ export function rdsMetrics(
       id: 'freeable-memory',
       format: 'bytes',
       title: 'Freeable Memory',
-      description: <>
-        How much <abbr title="Random Access Memory">RAM</abbr> the <abbr title="Virtual Machine">VM</abbr> your
-        database is running on has remaining. Values near zero may indicate you need to optimise your database queries
-        or <a href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan"
-          className="govuk-link">
-          update your service to use a bigger plan
-        </a>.
-      </>,
-      chart: drawLineGraph('bytes of freeable memory (RAM)', 'Bytes', '.2s', series.mFreeableMemory),
+      description: (
+        <>
+          How much <abbr title="Random Access Memory">RAM</abbr> the{' '}
+          <abbr title="Virtual Machine">VM</abbr> your database is running on
+          has remaining. Values near zero may indicate you need to optimise your
+          database queries or{' '}
+          <a
+            href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan"
+            className="govuk-link"
+          >
+            update your service to use a bigger plan
+          </a>
+          .
+        </>
+      ),
+      chart: drawLineGraph(
+        'bytes of freeable memory (RAM)',
+        'Bytes',
+        '.2s',
+        series.mFreeableMemory,
+      ),
       units: 'Bytes',
       metric: 'mFreeableMemory',
       summaries: summaries.mFreeableMemory,
@@ -171,20 +229,37 @@ export function rdsMetrics(
     },
     {
       id: 'read-iops',
-      title: <>Read <abbr title="Input / Output Operations per Second">IOPS</abbr></>,
+      title: (
+        <>
+          Read <abbr title="Input / Output Operations per Second">IOPS</abbr>
+        </>
+      ),
       titleText: 'Read Input / Output Operations per Second',
-      description: <>
-        How many read operations your database is performing per second. Databases are limited to a number of <abbr
-          title="Input / Output Operations per Second">IOPS</abbr> (read + write) based on how big their hard disk is.
-        You get 3 <abbr title="Input / Output Operations per Second">IOPS</abbr> per <abbr title="GibiByte">GiB</abbr>,
-        so a 100 GiB database would be limited to 300 IOPS. If it looks like your database is hitting its IOPS limit
-        you may need to <a
-          href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan"
-          className="govuk-link">
-          update your service to use a bigger plan
-        </a>.
-      </>,
-      chart: drawLineGraph('number of read IOPS', 'Number', '.2r', series.mReadIOPS),
+      description: (
+        <>
+          How many read operations your database is performing per second.
+          Databases are limited to a number of{' '}
+          <abbr title="Input / Output Operations per Second">IOPS</abbr> (read +
+          write) based on how big their hard disk is. You get 3{' '}
+          <abbr title="Input / Output Operations per Second">IOPS</abbr> per{' '}
+          <abbr title="GibiByte">GiB</abbr>, so a 100 GiB database would be
+          limited to 300 IOPS. If it looks like your database is hitting its
+          IOPS limit you may need to{' '}
+          <a
+            href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan"
+            className="govuk-link"
+          >
+            update your service to use a bigger plan
+          </a>
+          .
+        </>
+      ),
+      chart: drawLineGraph(
+        'number of read IOPS',
+        'Number',
+        '.2r',
+        series.mReadIOPS,
+      ),
       units: 'Number',
       metric: 'mReadIOPS',
       summaries: summaries.mReadIOPS,
@@ -192,20 +267,37 @@ export function rdsMetrics(
     },
     {
       id: 'write-iops',
-      title: <>Write <abbr title="Input / Output Operations per Second">IOPS</abbr></>,
+      title: (
+        <>
+          Write <abbr title="Input / Output Operations per Second">IOPS</abbr>
+        </>
+      ),
       titleText: 'Write Input / Output Operations per Second',
-      description: <>
-        How many write operations your database is performing per second. Databases are limited to a number of <abbr
-          title="Input / Output Operations per Second">IOPS</abbr> (read + write) based on how big their hard disk is.
-        You get 3 <abbr title="Input / Output Operations per Second">IOPS</abbr> per <abbr title="GibiByte">GiB</abbr>,
-        so a 100 GiB database would be limited to 300 IOPS. If it looks like your database is hitting its IOPS limit
-        you may need to <a
-          href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan"
-          className="govuk-link">
-          update your service to use a bigger plan
-        </a>.
-      </>,
-      chart: drawLineGraph('number of write IOPS', 'Number', '.2r', series.mWriteIOPS),
+      description: (
+        <>
+          How many write operations your database is performing per second.
+          Databases are limited to a number of{' '}
+          <abbr title="Input / Output Operations per Second">IOPS</abbr> (read +
+          write) based on how big their hard disk is. You get 3{' '}
+          <abbr title="Input / Output Operations per Second">IOPS</abbr> per{' '}
+          <abbr title="GibiByte">GiB</abbr>, so a 100 GiB database would be
+          limited to 300 IOPS. If it looks like your database is hitting its
+          IOPS limit you may need to{' '}
+          <a
+            href="https://docs.cloud.service.gov.uk/deploying_services/postgresql/#upgrade-postgresql-service-plan"
+            className="govuk-link"
+          >
+            update your service to use a bigger plan
+          </a>
+          .
+        </>
+      ),
+      chart: drawLineGraph(
+        'number of write IOPS',
+        'Number',
+        '.2r',
+        series.mWriteIOPS,
+      ),
       units: 'Number',
       metric: 'mWriteIOPS',
       summaries: summaries.mWriteIOPS,
@@ -224,15 +316,25 @@ export function elastiCacheMetrics(
       id: 'cpu-utilisation',
       format: 'percentile',
       title: 'CPU Utilisation',
-      description: <>
-        How much computational work redis is doing. High CPU Utilisation may indicate you need to reduce your usage or
-        {' '}
-        <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans"
-          className="govuk-link">
-          update your service to use a bigger plan
-        </a>.
-      </>,
-      chart: drawLineGraph('percentage CPU Utilisation', 'Percent', '.2r', series.mCPUUtilization),
+      description: (
+        <>
+          How much computational work redis is doing. High CPU Utilisation may
+          indicate you need to reduce your usage or{' '}
+          <a
+            href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans"
+            className="govuk-link"
+          >
+            update your service to use a bigger plan
+          </a>
+          .
+        </>
+      ),
+      chart: drawLineGraph(
+        'percentage CPU Utilisation',
+        'Percent',
+        '.2r',
+        series.mCPUUtilization,
+      ),
       units: 'Percent',
       metric: 'mCPUUtilization',
       summaries: summaries.mCPUUtilization,
@@ -246,7 +348,12 @@ export function elastiCacheMetrics(
         internal buffers. If redis reaches its memory limit and cannot evict any
         keys it will return errors when executing commands that increase memory
         use.`,
-      chart: drawLineGraph('bytes used for the cache', 'Bytes', '.2s', series.mBytesUsedForCache),
+      chart: drawLineGraph(
+        'bytes used for the cache',
+        'Bytes',
+        '.2s',
+        series.mBytesUsedForCache,
+      ),
       units: 'Bytes',
       metric: 'mBytesUsedForCache',
       summaries: summaries.mBytesUsedForCache,
@@ -256,15 +363,27 @@ export function elastiCacheMetrics(
       id: 'swap-memory-used',
       format: 'bytes',
       title: 'Swap memory used',
-      description: <>
-        If redis is running low on memory it will start to swap memory onto the hard disk.
-        If redis is using more than 50 <abbr title="MegaBytes">MB</abbr> of swap memory you may need to reduce your
-        usage or <a href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans"
-          className="govuk-link">
-          update your service to use a bigger plan
-        </a>.
-      </>,
-      chart: drawLineGraph('bytes used in swap memory', 'Bytes', '.2s', series.mSwapUsage),
+      description: (
+        <>
+          If redis is running low on memory it will start to swap memory onto
+          the hard disk. If redis is using more than 50{' '}
+          <abbr title="MegaBytes">MB</abbr> of swap memory you may need to
+          reduce your usage or{' '}
+          <a
+            href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans"
+            className="govuk-link"
+          >
+            update your service to use a bigger plan
+          </a>
+          .
+        </>
+      ),
+      chart: drawLineGraph(
+        'bytes used in swap memory',
+        'Bytes',
+        '.2s',
+        series.mSwapUsage,
+      ),
       units: 'Bytes',
       metric: 'mSwapUsage',
       summaries: summaries.mSwapUsage,
@@ -276,7 +395,12 @@ export function elastiCacheMetrics(
       description: `Redis will evict keys when it reaches its configured memory limit. It will try to remove less
         recently used keys first, but only among keys that have an EXPIRE set. If there are no keys left to evict
         redis will return errors when executing commands that increase memory use.`,
-      chart: drawLineGraph('number of keys evicted by Redis', 'Number', '.2s', series.mEvictions),
+      chart: drawLineGraph(
+        'number of keys evicted by Redis',
+        'Number',
+        '.2s',
+        series.mEvictions,
+      ),
       units: 'Number',
       metric: 'mEvictions',
       summaries: summaries.mEvictions,
@@ -288,7 +412,12 @@ export function elastiCacheMetrics(
       description: `How many open connections there are to redis. High values may indicate problems with your
         applications'; connection management. Zero values may indicate that redis is unavailable, or that your
         applications cannot connect to the database.`,
-      chart: drawLineGraph('number of connections to Redis', 'Number', '.2r', series.mCurrConnections),
+      chart: drawLineGraph(
+        'number of connections to Redis',
+        'Number',
+        '.2r',
+        series.mCurrConnections,
+      ),
       units: 'Number',
       metric: 'mCurrConnections',
       summaries: summaries.mCurrConnections,
@@ -298,7 +427,12 @@ export function elastiCacheMetrics(
       id: 'cache-hits',
       title: 'Cache hits',
       description: 'The number of successful key lookups.',
-      chart: drawLineGraph('number of cache hits', 'Number', '.2s', series.mCacheHits),
+      chart: drawLineGraph(
+        'number of cache hits',
+        'Number',
+        '.2s',
+        series.mCacheHits,
+      ),
       units: 'Number',
       metric: 'mCacheHits',
       summaries: summaries.mCacheHits,
@@ -308,7 +442,12 @@ export function elastiCacheMetrics(
       id: 'cache-misses',
       title: 'Cache misses',
       description: 'The number of unsuccessful key lookups.',
-      chart: drawLineGraph('number of cache misses', 'Number', '.2s', series.mCacheMisses),
+      chart: drawLineGraph(
+        'number of cache misses',
+        'Number',
+        '.2s',
+        series.mCacheMisses,
+      ),
       units: 'Number',
       metric: 'mCacheMisses',
       summaries: summaries.mCacheMisses,
@@ -318,7 +457,12 @@ export function elastiCacheMetrics(
       id: 'item-count',
       title: 'Item count',
       description: 'The number of items in redis.',
-      chart: drawLineGraph('number of cache misses', 'Number', '.2s', series.mCurrItems),
+      chart: drawLineGraph(
+        'number of cache misses',
+        'Number',
+        '.2s',
+        series.mCurrItems,
+      ),
       units: 'Number',
       metric: 'mCurrItems',
       summaries: summaries.mCurrItems,
@@ -330,7 +474,10 @@ export function elastiCacheMetrics(
       title: 'Network bytes in',
       description: 'The number of bytes redis has read from the network.',
       chart: drawLineGraph(
-        'number of bytes redis has read from the network', 'Bytes', '.2s', series.mNetworkBytesIn,
+        'number of bytes redis has read from the network',
+        'Bytes',
+        '.2s',
+        series.mNetworkBytesIn,
       ),
       units: 'Bytes',
       metric: 'mNetworkBytesIn',
@@ -342,7 +489,12 @@ export function elastiCacheMetrics(
       format: 'bytes',
       title: 'Network bytes out',
       description: 'The number of bytes sent by redis.',
-      chart: drawLineGraph('number of bytes sent by redis', 'Bytes', '.2s', series.mNetworkBytesOut),
+      chart: drawLineGraph(
+        'number of bytes sent by redis',
+        'Bytes',
+        '.2s',
+        series.mNetworkBytesOut,
+      ),
       units: 'Bytes',
       metric: 'mNetworkBytesOut',
       summaries: summaries.mNetworkBytesOut,
@@ -361,14 +513,19 @@ export function elasticSearchMetrics(
       id: 'load-average',
       format: 'number',
       title: 'Load average',
-      description: <>
-        How much computational work elasticsearch is doing. High load average may indicate you need to reduce your
-        usage or <a
-          href="https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan"
-          className="govuk-link">
-          update your service to use a bigger plan
-        </a>.
-      </>,
+      description: (
+        <>
+          How much computational work elasticsearch is doing. High load average
+          may indicate you need to reduce your usage or{' '}
+          <a
+            href="https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan"
+            className="govuk-link"
+          >
+            update your service to use a bigger plan
+          </a>
+          .
+        </>
+      ),
       chart: drawLineGraph('load average', 'Load', '.2r', series.loadAvg),
       units: 'Load',
       metric: 'loadAvg',
@@ -379,15 +536,25 @@ export function elasticSearchMetrics(
       id: 'elasticsearch-indices-count',
       format: 'number',
       title: 'Elasticsearch indices count',
-      description: <>
-        The number of indices present in elasticsearch. Large number of indices may indicate a bug in your application
-        or require you to <a
-          href="https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan"
-          className="govuk-link">
-          update your service to use a bigger plan
-        </a>.
-      </>,
-      chart: drawLineGraph('elasticsearch indices count', 'Number', '.2r', series.elasticsearchIndicesCount),
+      description: (
+        <>
+          The number of indices present in elasticsearch. Large number of
+          indices may indicate a bug in your application or require you to{' '}
+          <a
+            href="https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan"
+            className="govuk-link"
+          >
+            update your service to use a bigger plan
+          </a>
+          .
+        </>
+      ),
+      chart: drawLineGraph(
+        'elasticsearch indices count',
+        'Number',
+        '.2r',
+        series.elasticsearchIndicesCount,
+      ),
       units: 'Number',
       metric: 'elasticsearchIndicesCount',
       summaries: summaries.elasticsearchIndicesCount,
@@ -397,14 +564,19 @@ export function elasticSearchMetrics(
       id: 'memory',
       format: 'number',
       title: 'Memory usage',
-      description: <>
-        Percentage of allocated memory elasticsearch is using. High values may indicate you need to optimise your
-        elasticsearch queries or <a
-          href="https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan"
-          className="govuk-link">
-          update your service to use a bigger plan
-        </a>.
-      </>,
+      description: (
+        <>
+          Percentage of allocated memory elasticsearch is using. High values may
+          indicate you need to optimise your elasticsearch queries or{' '}
+          <a
+            href="https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan"
+            className="govuk-link"
+          >
+            update your service to use a bigger plan
+          </a>
+          .
+        </>
+      ),
       chart: drawLineGraph('memory', 'Percent', '.2r', series.memoryUsed),
       units: 'Percent',
       metric: 'memoryUsed',
@@ -415,14 +587,20 @@ export function elasticSearchMetrics(
       id: 'disk-usage',
       format: 'number',
       title: 'Disk usage',
-      description: <>
-        Percentage of allocated storage elasticsearch is using. If elasticsearch runs out of disk space, the service
-        will stop working. High values may indicate you need to reduce elasticsearch usage or <a
-          href="https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan"
-          className="govuk-link">
-          update your service to use a bigger plan
-        </a>.
-      </>,
+      description: (
+        <>
+          Percentage of allocated storage elasticsearch is using. If
+          elasticsearch runs out of disk space, the service will stop working.
+          High values may indicate you need to reduce elasticsearch usage or{' '}
+          <a
+            href="https://docs.cloud.service.gov.uk/deploying_services/elasticsearch/#upgrade-elasticsearch-service-plan"
+            className="govuk-link"
+          >
+            update your service to use a bigger plan
+          </a>
+          .
+        </>
+      ),
       chart: drawLineGraph('disk', 'Percent', '.2r', series.diskUsed),
       units: 'Percent',
       metric: 'diskUsed',
@@ -433,8 +611,14 @@ export function elasticSearchMetrics(
       id: 'disk-reads',
       format: 'number',
       title: 'Disk read rate',
-      description: 'The average number of disk read operations elasticsearch is performing per second.',
-      chart: drawLineGraph('disk reads', 'Reads per second', '.2r', series.diskReads),
+      description:
+        'The average number of disk read operations elasticsearch is performing per second.',
+      chart: drawLineGraph(
+        'disk reads',
+        'Reads per second',
+        '.2r',
+        series.diskReads,
+      ),
       units: 'Reads per second',
       metric: 'diskReads',
       summaries: summaries.diskReads,
@@ -444,8 +628,14 @@ export function elasticSearchMetrics(
       id: 'disk-writes',
       format: 'number',
       title: 'Disk write rate',
-      description: 'The average number of disk write operations elasticsearch is performing per second.',
-      chart: drawLineGraph('disk writes', 'Writes per second', '.2r', series.diskWrites),
+      description:
+        'The average number of disk write operations elasticsearch is performing per second.',
+      chart: drawLineGraph(
+        'disk writes',
+        'Writes per second',
+        '.2r',
+        series.diskWrites,
+      ),
       units: 'Writes per second',
       metric: 'diskWrites',
       summaries: summaries.diskWrites,
@@ -456,7 +646,12 @@ export function elasticSearchMetrics(
       format: 'number',
       title: 'Network in',
       description: 'The number of bytes received by elasticsearch.',
-      chart: drawLineGraph('network bytes received', 'Bytes per second', '.2r', series.networkIn),
+      chart: drawLineGraph(
+        'network bytes received',
+        'Bytes per second',
+        '.2r',
+        series.networkIn,
+      ),
       units: 'Bytes per second',
       metric: 'networkIn',
       summaries: summaries.networkIn,
@@ -467,7 +662,12 @@ export function elasticSearchMetrics(
       format: 'number',
       title: 'Network out',
       description: 'The number of bytes sent by elasticsearch.',
-      chart: drawLineGraph('network bytes send', 'Bytes per second', '.2r', series.networkOut),
+      chart: drawLineGraph(
+        'network bytes send',
+        'Bytes per second',
+        '.2r',
+        series.networkOut,
+      ),
       units: 'Bytes per second',
       metric: 'networkOut',
       summaries: summaries.networkOut,

@@ -133,8 +133,16 @@ export interface IInfo {
   readonly version: string;
 }
 
-export type OrganizationUserRoles = 'org_user' | 'org_manager' | 'org_auditor' | 'billing_manager';
-export type OrganizationUserRoleEndpoints = 'users' | 'managers' | 'auditors' | 'billing_managers';
+export type OrganizationUserRoles =
+  | 'org_user'
+  | 'org_manager'
+  | 'org_auditor'
+  | 'billing_manager';
+export type OrganizationUserRoleEndpoints =
+  | 'users'
+  | 'managers'
+  | 'auditors'
+  | 'billing_managers';
 
 export interface IOrganizationRequest {
   readonly name: string;
@@ -145,7 +153,7 @@ export interface IOrganization {
   readonly entity: {
     readonly app_events_url: string;
     readonly auditors_url: string;
-    readonly billing_enabled: boolean,
+    readonly billing_enabled: boolean;
     readonly billing_managers_url: string;
     readonly domains_url: string;
     readonly managers_url: string;
@@ -190,8 +198,8 @@ export interface IV3OrganizationResource extends IV3Metadata {
     quota: {
       data: {
         guid: string;
-      },
-    },
+      };
+    };
   };
   links: {
     self: IV3Link;
@@ -256,7 +264,7 @@ export interface IService {
     readonly extra: string | null;
     readonly info_url: string | null;
     readonly label: string;
-    readonly long_description: string | null,
+    readonly long_description: string | null;
     readonly plan_updateable: boolean;
     readonly provider: string | null;
     readonly requires: ReadonlyArray<string>;
@@ -278,7 +286,7 @@ export interface IServicePlan {
     readonly extra: string | null;
     readonly free: boolean;
     readonly name: string;
-    readonly public: boolean; // tslint:disable-line:no-reserved-keywords
+    readonly public: boolean;
     readonly service_guid: string;
     readonly service_instances_url: string;
     readonly service_url: string;
@@ -290,13 +298,13 @@ export interface IServicePlan {
 export interface IServiceInstance {
   readonly entity: {
     readonly credentials: object;
-    readonly dashboard_url?: null,
-    readonly gateway_data: null,
+    readonly dashboard_url?: null;
+    readonly gateway_data: null;
     readonly last_operation?: {
       readonly created_at: string;
       readonly description?: string;
       readonly state: string;
-      readonly type: string; // tslint:disable-line:no-reserved-keywords
+      readonly type: string;
       readonly updated_at: string;
     };
     readonly name: string;
@@ -310,7 +318,7 @@ export interface IServiceInstance {
     readonly space_guid: string;
     readonly space_url: string;
     readonly tags: ReadonlyArray<string>;
-    readonly type: string; // tslint:disable-line:no-reserved-keywords
+    readonly type: string;
   };
   readonly metadata: IMetadata;
 }
@@ -345,7 +353,7 @@ export interface IServiceSummary {
 
 export interface ISpace {
   readonly entity: {
-    readonly allow_ssh: boolean,
+    readonly allow_ssh: boolean;
     readonly app_events_url: string;
     readonly apps_url: string;
     readonly auditors_url: string;
@@ -359,7 +367,7 @@ export interface ISpace {
     readonly routes_url: string;
     readonly security_groups_url: string;
     readonly service_instances_url: string;
-    readonly space_quota_definition_guid: string | null,
+    readonly space_quota_definition_guid: string | null;
     readonly staging_security_groups_url: string;
   };
   readonly metadata: IMetadata;
@@ -427,17 +435,19 @@ export interface IUserSummaryOrganization {
 
 export interface IUserSummary {
   readonly entity: {
-    readonly organizations: ReadonlyArray<IUserSummaryOrganization>,
-    readonly managed_organizations: ReadonlyArray<IUserSummaryOrganization>,
-    readonly billing_managed_organizations: ReadonlyArray<IUserSummaryOrganization>,
-    readonly audited_organizations: ReadonlyArray<IUserSummaryOrganization>,
+    readonly organizations: ReadonlyArray<IUserSummaryOrganization>;
+    readonly managed_organizations: ReadonlyArray<IUserSummaryOrganization>;
+    readonly billing_managed_organizations: ReadonlyArray<
+      IUserSummaryOrganization
+    >;
+    readonly audited_organizations: ReadonlyArray<IUserSummaryOrganization>;
   };
   readonly metadata: IMetadata;
 }
 
 export interface IUserServices {
   readonly entity: {
-    readonly credentials: {[i: string]: string};
+    readonly credentials: { [i: string]: string };
     readonly name: string;
     readonly route_service_url: string | null;
     readonly routes_url: string;
@@ -446,7 +456,7 @@ export interface IUserServices {
     readonly space_url: string;
     readonly syslog_drain_url: string;
     readonly tags: ReadonlyArray<string>;
-    readonly type: string; // tslint:disable-line:no-reserved-keywords
+    readonly type: string;
   };
   readonly metadata: IMetadata;
 }

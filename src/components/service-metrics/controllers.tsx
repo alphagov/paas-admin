@@ -4,19 +4,16 @@ import { mapValues, values } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 
-import { bytesConvert, Template } from '../../layouts';
+import { Template, bytesConvert } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import {
   CloudFrontMetricDataGetter,
-  cloudfrontMetricNames,
-
   ElastiCacheMetricDataGetter,
-  elasticacheMetricNames,
-
   ElasticsearchMetricDataGetter,
-  elasticsearchMetricNames,
-
   RDSMetricDataGetter,
+  cloudfrontMetricNames,
+  elasticacheMetricNames,
+  elasticsearchMetricNames,
   rdsMetricNames,
 } from '../../lib/metric-data-getters';
 import roundDown from '../../lib/moment/round';
@@ -27,7 +24,12 @@ import { fromOrg } from '../breadcrumbs';
 import { summariseSerie } from '../charts/line-graph';
 import { UserFriendlyError } from '../errors';
 
-import { cloudFrontMetrics, elastiCacheMetrics, elasticSearchMetrics, rdsMetrics } from './metrics';
+import {
+  cloudFrontMetrics,
+  elastiCacheMetrics,
+  elasticSearchMetrics,
+  rdsMetrics,
+} from './metrics';
 import { getPeriod } from './utils';
 import {
   IMetricProperties,
@@ -43,9 +45,12 @@ interface IRange {
   readonly rangeStop: moment.Moment;
 }
 
-export async function resolveServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function resolveServiceMetrics(
+  ctx: IContext,
+  params: IParameters,
+): Promise<IResponse> {
   const rangeStop = moment();
-  const timeRanges: {[key: string]: moment.Moment} = {
+  const timeRanges: { [key: string]: moment.Moment } = {
     '1h': rangeStop.clone().subtract(1, 'hour'),
     '3h': rangeStop.clone().subtract(3, 'hours'),
     '12h': rangeStop.clone().subtract(12, 'hours'),
@@ -67,7 +72,10 @@ export async function resolveServiceMetrics(ctx: IContext, params: IParameters):
   };
 }
 
-export async function viewServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function viewServiceMetrics(
+  ctx: IContext,
+  params: IParameters,
+): Promise<IResponse> {
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
@@ -77,18 +85,22 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
   if (!params.rangeStart || !params.rangeStop) {
     return {
       status: 302,
-      redirect: ctx.linkTo(
-        'admin.organizations.spaces.services.metrics.view', {
-          organizationGUID: params.organizationGUID,
-          spaceGUID: params.spaceGUID,
-          serviceGUID: params.serviceGUID,
-          rangeStart: moment().subtract(24, 'hours').format('YYYY-MM-DD[T]HH:mm'),
-          rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
-        }),
+      redirect: ctx.linkTo('admin.organizations.spaces.services.metrics.view', {
+        organizationGUID: params.organizationGUID,
+        spaceGUID: params.spaceGUID,
+        serviceGUID: params.serviceGUID,
+        rangeStart: moment()
+          .subtract(24, 'hours')
+          .format('YYYY-MM-DD[T]HH:mm'),
+        rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      }),
     };
   }
 
-  const {rangeStart, rangeStop, period} = parseRange(params.rangeStart, params.rangeStop);
+  const { rangeStart, rangeStop, period } = parseRange(
+    params.rangeStart,
+    params.rangeStop,
+  );
 
   const [userProvidedServices, space, organization] = await Promise.all([
     cf.userServices(params.spaceGUID),
@@ -96,7 +108,9 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
     cf.organization(params.organizationGUID),
   ]);
 
-  const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
+  const isUserProvidedService = userProvidedServices.some(
+    s => s.metadata.guid === params.serviceGUID,
+  );
 
   const service = isUserProvidedService
     ? await cf.userServiceInstance(params.serviceGUID)
@@ -106,7 +120,10 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
     ? 'User Provided Service'
     : (await cf.service(service.entity.service_guid)).entity.label;
 
-  const template = new Template(ctx.viewContext, `${service.entity.name} - Service Metrics`);
+  const template = new Template(
+    ctx.viewContext,
+    `${service.entity.name} - Service Metrics`,
+  );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
       text: space.entity.name,
@@ -132,19 +149,23 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
   };
 
   if (serviceLabel === 'User Provided Service') {
-
     return {
-      body: template.render(<UnsupportedServiceMetricsPage {...defaultTemplateParams} />),
+      body: template.render(
+        <UnsupportedServiceMetricsPage {...defaultTemplateParams} />,
+      ),
     };
   }
 
-  const downloadLink = ctx.linkTo('admin.organizations.spaces.services.metrics.download', {
-    organizationGUID: organization.metadata.guid,
-    spaceGUID: space.metadata.guid,
-    serviceGUID: service.metadata.guid,
-    rangeStart,
-    rangeStop,
-  });
+  const downloadLink = ctx.linkTo(
+    'admin.organizations.spaces.services.metrics.download',
+    {
+      organizationGUID: organization.metadata.guid,
+      spaceGUID: space.metadata.guid,
+      serviceGUID: service.metadata.guid,
+      rangeStart,
+      rangeStop,
+    },
+  );
   let metrics: ReadonlyArray<IMetricProperties>;
   let persistancePeriod: string | undefined;
 
@@ -159,7 +180,13 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
           region: 'us-east-1',
           endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
         }),
-      ).getData(cloudfrontMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
+      ).getData(
+        cloudfrontMetricNames,
+        params.serviceGUID,
+        period,
+        rangeStart,
+        rangeStop,
+      );
 
       metrics = cloudFrontMetrics(
         cloudFrontMetricSeries,
@@ -174,7 +201,13 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
           region: ctx.app.awsRegion,
           endpoint: ctx.app.awsCloudwatchEndpoint,
         }),
-      ).getData(rdsMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
+      ).getData(
+        rdsMetricNames,
+        params.serviceGUID,
+        period,
+        rangeStart,
+        rangeStop,
+      );
 
       metrics = rdsMetrics(
         rdsMetricSeries,
@@ -188,7 +221,13 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
           region: ctx.app.awsRegion,
           endpoint: ctx.app.awsCloudwatchEndpoint,
         }),
-      ).getData(elasticacheMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
+      ).getData(
+        elasticacheMetricNames,
+        params.serviceGUID,
+        period,
+        rangeStart,
+        rangeStop,
+      );
 
       metrics = elastiCacheMetrics(
         elastiCacheMetricSeries,
@@ -204,7 +243,13 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
           ctx.app.prometheusPassword,
           ctx.app.logger,
         ),
-      ).getData(elasticsearchMetricNames, params.serviceGUID, period, rangeStart, rangeStop);
+      ).getData(
+        elasticsearchMetricNames,
+        params.serviceGUID,
+        period,
+        rangeStart,
+        rangeStop,
+      );
 
       persistancePeriod = PERSISTANCE_MESSAGE_370_DAYS;
       metrics = elasticSearchMetrics(
@@ -218,40 +263,56 @@ export async function viewServiceMetrics(ctx: IContext, params: IParameters): Pr
   }
 
   return {
-    body: template.render(<MetricPage
-      {...defaultTemplateParams}
-      metrics={metrics}
-      persistancePeriod={persistancePeriod}
-    />),
+    body: template.render(
+      <MetricPage
+        {...defaultTemplateParams}
+        metrics={metrics}
+        persistancePeriod={persistancePeriod}
+      />,
+    ),
   };
 }
 
-export async function downloadServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function downloadServiceMetrics(
+  ctx: IContext,
+  params: IParameters,
+): Promise<IResponse> {
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
     logger: ctx.app.logger,
   });
 
-  if (!params.rangeStart || !params.rangeStop || !params.metric || !params.units) {
+  if (
+    !params.rangeStart ||
+    !params.rangeStop ||
+    !params.metric ||
+    !params.units
+  ) {
     return {
       status: 302,
-      redirect: ctx.linkTo(
-        'admin.organizations.spaces.services.metrics.view', {
-          organizationGUID: params.organizationGUID,
-          spaceGUID: params.spaceGUID,
-          serviceGUID: params.serviceGUID,
-          rangeStart: moment().subtract(24, 'hours').format('YYYY-MM-DD[T]HH:mm'),
-          rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
-        }),
+      redirect: ctx.linkTo('admin.organizations.spaces.services.metrics.view', {
+        organizationGUID: params.organizationGUID,
+        spaceGUID: params.spaceGUID,
+        serviceGUID: params.serviceGUID,
+        rangeStart: moment()
+          .subtract(24, 'hours')
+          .format('YYYY-MM-DD[T]HH:mm'),
+        rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      }),
     };
   }
 
-  const {rangeStart, rangeStop, period} = parseRange(params.rangeStart, params.rangeStop);
+  const { rangeStart, rangeStop, period } = parseRange(
+    params.rangeStart,
+    params.rangeStop,
+  );
 
   const userProvidedServices = await cf.userServices(params.spaceGUID);
 
-  const isUserProvidedService = userProvidedServices.some(s => s.metadata.guid === params.serviceGUID);
+  const isUserProvidedService = userProvidedServices.some(
+    s => s.metadata.guid === params.serviceGUID,
+  );
 
   const service = isUserProvidedService
     ? await cf.userServiceInstance(params.serviceGUID)
@@ -277,16 +338,24 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
           region: 'us-east-1',
           endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
         }),
-      ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
+      ).getData(
+        [params.metric],
+        params.serviceGUID,
+        period,
+        rangeStart,
+        rangeStop,
+      );
 
       headers = ['Service', 'Time', 'Value'];
       contents = values(cloudfrontMetricSeries[params.metric])
-      .map(metric => metric.metrics.map(series => [
-        serviceLabel,
-        moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
-        composeValue(series.value, params.units),
-      ]))
-      .reduceRight((list, flatList) => [...flatList, ...list], []);
+        .map(metric =>
+          metric.metrics.map(series => [
+            serviceLabel,
+            moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+            composeValue(series.value, params.units),
+          ]),
+        )
+        .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
     case 'postgres':
     case 'mysql':
@@ -295,16 +364,24 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
           region: ctx.app.awsRegion,
           endpoint: ctx.app.awsCloudwatchEndpoint,
         }),
-      ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
+      ).getData(
+        [params.metric],
+        params.serviceGUID,
+        period,
+        rangeStart,
+        rangeStop,
+      );
 
       headers = ['Service', 'Time', 'Value'];
       contents = values(rdsMetricSeries[params.metric])
-      .map(metric => metric.metrics.map(series => [
-        serviceLabel,
-        moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
-        composeValue(series.value, params.units),
-      ]))
-      .reduceRight((list, flatList) => [...flatList, ...list], []);
+        .map(metric =>
+          metric.metrics.map(series => [
+            serviceLabel,
+            moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+            composeValue(series.value, params.units),
+          ]),
+        )
+        .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
     case 'redis':
       const elasticacheMetricSeries = await new ElastiCacheMetricDataGetter(
@@ -312,16 +389,24 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
           region: ctx.app.awsRegion,
           endpoint: ctx.app.awsCloudwatchEndpoint,
         }),
-      ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
+      ).getData(
+        [params.metric],
+        params.serviceGUID,
+        period,
+        rangeStart,
+        rangeStop,
+      );
 
       headers = ['Service', 'Instance', 'Time', 'Value'];
       contents = values(elasticacheMetricSeries[params.metric])
-        .map(metric => metric.metrics.map(series => [
-          serviceLabel,
-          metric.label,
-          moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
-          composeValue(series.value, params.units),
-        ]))
+        .map(metric =>
+          metric.metrics.map(series => [
+            serviceLabel,
+            metric.label,
+            moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+            composeValue(series.value, params.units),
+          ]),
+        )
         .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
     case 'elasticsearch':
@@ -332,16 +417,24 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
           ctx.app.prometheusPassword,
           ctx.app.logger,
         ),
-      ).getData([params.metric], params.serviceGUID, period, rangeStart, rangeStop);
+      ).getData(
+        [params.metric],
+        params.serviceGUID,
+        period,
+        rangeStart,
+        rangeStop,
+      );
 
       headers = ['Service', 'Instance', 'Time', 'Value'];
       contents = values(elasticsearchMetricSeries[params.metric])
-        .map(metric => metric.metrics.map(series => [
-          serviceLabel,
-          metric.label,
-          moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
-          composeValue(series.value, params.units),
-        ]))
+        .map(metric =>
+          metric.metrics.map(series => [
+            serviceLabel,
+            metric.label,
+            moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+            composeValue(series.value, params.units),
+          ]),
+        )
         .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
     default:
@@ -352,10 +445,7 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
     throw new Error(`Did not get metric ${params.metric} for ${serviceLabel}`);
   }
 
-  const csvData = [
-    headers,
-    contents,
-  ];
+  const csvData = [headers, contents];
 
   return {
     mimeType: 'text/csv',
@@ -369,12 +459,34 @@ export async function downloadServiceMetrics(ctx: IContext, params: IParameters)
 function parseRange(start: string, stop: string): IRange {
   const rangeStart = moment(start);
   const rangeStop = moment(stop);
-  if (rangeStart.isBefore(rangeStop.clone().subtract(1, 'year').subtract(1, 'week'))) {
-    throw new UserFriendlyError('Invalid time range provided. Cannot handle more than a year of metrics');
+  if (
+    rangeStart.isBefore(
+      rangeStop
+        .clone()
+        .subtract(1, 'year')
+        .subtract(1, 'week'),
+    )
+  ) {
+    throw new UserFriendlyError(
+      'Invalid time range provided. Cannot handle more than a year of metrics',
+    );
   }
 
-  if (rangeStop.isBefore(moment().subtract(1, 'years').subtract(1, 'week')) || rangeStart.isBefore(moment().subtract(1, 'years').subtract(1, 'week'))) {
-    throw new UserFriendlyError('Invalid time range provided. Cannot handle over a year old metrics');
+  if (
+    rangeStop.isBefore(
+      moment()
+        .subtract(1, 'years')
+        .subtract(1, 'week'),
+    ) ||
+    rangeStart.isBefore(
+      moment()
+        .subtract(1, 'years')
+        .subtract(1, 'week'),
+    )
+  ) {
+    throw new UserFriendlyError(
+      'Invalid time range provided. Cannot handle over a year old metrics',
+    );
   }
 
   if (rangeStop.isBefore(rangeStart)) {
@@ -383,7 +495,11 @@ function parseRange(start: string, stop: string): IRange {
 
   const period = moment.duration(getPeriod(rangeStart, rangeStop), 'seconds');
 
-  return { period, rangeStart: roundDown(rangeStart, period), rangeStop: roundDown(rangeStop, period) };
+  return {
+    period,
+    rangeStart: roundDown(rangeStart, period),
+    rangeStop: roundDown(rangeStop, period),
+  };
 }
 
 export function composeValue(value: number, units?: string): string {
@@ -392,6 +508,7 @@ export function composeValue(value: number, units?: string): string {
   switch (units) {
     case 'Bytes':
       const bytes = bytesConvert(safeValue);
+
       return `${bytes.value}${bytes.short}`;
     case 'Percent':
       return `${safeValue.toFixed(2)}%`;

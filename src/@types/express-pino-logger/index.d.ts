@@ -7,7 +7,11 @@ declare module 'express-pino-logger' {
     serializers?: { [key: string]: SerializerFn };
   }
 
-  type MiddlewareFunction = (req: express.Request, res: express.Response, next: express.NextFunction) => void;
+  type MiddlewareFunction = (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => void;
 
   export default function(opts?: IOptions): MiddlewareFunction;
 }

@@ -5,7 +5,11 @@ declare module 'express-static-gzip' {
     readonly immutable: boolean;
   }
 
-  type MiddlewareFunction = (req: express.Request, res: express.Response, next: express.NextFunction) => void;
+  type MiddlewareFunction = (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => void;
 
   export default function(path: string, opts?: IOptions): MiddlewareFunction;
 }

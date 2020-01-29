@@ -54,13 +54,18 @@ export default class UAAClient {
 
     /* istanbul ignore next */
     if (this.clientCredentials) {
-      this.accessToken = await authenticate(this.apiEndpoint, this.clientCredentials);
+      this.accessToken = await authenticate(
+        this.apiEndpoint,
+        this.clientCredentials,
+      );
     }
 
     /* istanbul ignore next */
     if (!this.accessToken) {
-      throw new Error(`UAAClient: unable to get access token: accessToken ` +
-        `or clientID and clientSecret must be provided`);
+      throw new Error(
+        'UAAClient: unable to get access token: accessToken ' +
+          'or clientID and clientSecret must be provided',
+      );
     }
 
     return this.accessToken;
@@ -88,14 +93,16 @@ export default class UAAClient {
     }
 
     this.signingKeys = response.data.keys.map((key: any) => key.value);
+
     return this.signingKeys;
   }
 
   public async request(method: string, url: string, opts: any = {}) {
     const token = await this.getAccessToken();
-    const requiredHeaders = {Authorization: `Bearer ${token}`};
+    const requiredHeaders = { Authorization: `Bearer ${token}` };
 
-    opts.headers = {...(opts.headers || {}), ...requiredHeaders};
+    opts.headers = { ...(opts.headers || {}), ...requiredHeaders };
+
     return request(this.apiEndpoint, method, url, {
       ...opts,
     });
@@ -103,6 +110,7 @@ export default class UAAClient {
 
   public async getUser(userGUID: string): Promise<types.IUaaUser> {
     const response = await this.request('get', `/Users/${userGUID}`);
+
     return response.data as types.IUaaUser;
   }
 
@@ -112,13 +120,16 @@ export default class UAAClient {
     // Limit number of users fetched from UAA concurrently
     const pool = pLimit(CONCURRENCY_LIMIT);
     const uaaUsers = Promise.all(
-      userGUIDs.map(
-        guid => pool(async () => {
+      userGUIDs.map(guid =>
+        pool(async () => {
           try {
             const user = await this.getUser(guid);
+
             return user;
           } catch {
-            return new Promise((resolve) => resolve(null)) as Promise<types.IUaaUser | null>;
+            return new Promise(resolve =>
+              resolve(null),
+            ) as Promise<types.IUaaUser | null>;
           }
         }),
       ),
@@ -128,17 +139,22 @@ export default class UAAClient {
   }
 
   public async findUser(email: string): Promise<types.IUaaUser> {
-    const params = {filter: `email eq ${JSON.stringify(email)}`};
-    const response = await this.request('get', '/Users', {params});
+    const params = { filter: `email eq ${JSON.stringify(email)}` };
+    const response = await this.request('get', '/Users', { params });
+
     return response.data.resources[0] as types.IUaaUser;
   }
 
-  public async inviteUser(email: string, clientID: string, redirectURI: string): Promise<IUaaInvitation> {
-    const data = {emails: [email]};
+  public async inviteUser(
+    email: string,
+    clientID: string,
+    redirectURI: string,
+  ): Promise<IUaaInvitation> {
+    const data = { emails: [email] };
     const response = await this.request(
       'post',
       `/invite_users?redirect_uri=${redirectURI}&client_id=${clientID}`,
-      {data},
+      { data },
     );
 
     // It seems the base URL for UAA is only configurable when using SAML
@@ -154,8 +170,10 @@ export default class UAAClient {
     // So they have to log in again, which is bad user experience and confusing
     const responseWithUpdatedLink = response.data.new_invites[0];
     responseWithUpdatedLink.inviteLink = responseWithUpdatedLink.inviteLink.replace(
-      'https://uaa.', 'https://login.',
+      'https://uaa.',
+      'https://login.',
     );
+
     return responseWithUpdatedLink;
   }
 
@@ -164,23 +182,18 @@ export default class UAAClient {
       userName: email,
       password,
       name: {},
-      emails: [{value: email, primary: true}],
+      emails: [{ value: email, primary: true }],
       active: true,
       verified: true,
     };
-    const response = await this.request(
-      'post',
-      '/Users',
-      {data},
-    );
+    const response = await this.request('post', '/Users', { data });
+
     return response.data;
   }
 
   public async deleteUser(userId: string) {
-    const response = await this.request(
-      'delete',
-      `/Users/${userId}`,
-    );
+    const response = await this.request('delete', `/Users/${userId}`);
+
     return response.data;
   }
 
@@ -204,11 +217,17 @@ export default class UAAClient {
       },
     };
     const response = await this.request('put', `/Users/${userId}`, reqOpts);
+
     return response.data as types.IUaaUser;
   }
 }
 
-async function request(endpoint: string, method: string, url: string, opts: any) {
+async function request(
+  endpoint: string,
+  method: string,
+  url: string,
+  opts: any,
+) {
   const response = await axios.request({
     url,
     method,
@@ -225,10 +244,14 @@ async function request(endpoint: string, method: string, url: string, opts: any)
     }
     throw new Error(msg);
   }
+
   return response;
 }
 
-export async function authenticate(endpoint: string, clientCredentials: IClientCredentials) {
+export async function authenticate(
+  endpoint: string,
+  clientCredentials: IClientCredentials,
+) {
   /* istanbul ignore next */
   if (!clientCredentials.clientID) {
     throw new TypeError('UAAClient: authenticate: clientID is required');
@@ -251,10 +274,14 @@ export async function authenticate(endpoint: string, clientCredentials: IClientC
       password: clientCredentials.clientSecret,
     },
   });
+
   return response.data.access_token;
 }
 
-export async function authenticateUser(endpoint: string, userCredentials: IUserCredentials) {
+export async function authenticateUser(
+  endpoint: string,
+  userCredentials: IUserCredentials,
+) {
   /* istanbul ignore next */
   if (!userCredentials.username) {
     throw new TypeError('UAAClient: authenticateUser: username is required');
@@ -277,5 +304,6 @@ export async function authenticateUser(endpoint: string, userCredentials: IUserC
       username: 'cf',
     },
   });
+
   return response.data.access_token;
 }

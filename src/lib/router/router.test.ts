@@ -64,7 +64,9 @@ describe('lib/router suite case', () => {
           path: '/b',
         },
       ]);
-      fail(`should have failed to setup router with dup routes but got ${router}`);
+      fail(
+        `should have failed to setup router with dup routes but got ${router}`,
+      );
     }).toThrow(/duplicate route entry/);
   });
 });

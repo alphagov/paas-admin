@@ -19,7 +19,12 @@ function platformLocation(region: string): string {
   }
 }
 
-export function internalServerErrorMiddleware(err: Error, req: any, res: express.Response, next: express.NextFunction) {
+export function internalServerErrorMiddleware(
+  err: Error,
+  req: any,
+  res: express.Response,
+  next: express.NextFunction,
+) {
   req.log.error(err);
 
   if (err instanceof NotFoundError) {
@@ -30,17 +35,24 @@ export function internalServerErrorMiddleware(err: Error, req: any, res: express
     return pageNotAuthorisedMiddleware(req, res, next);
   }
 
-  const template = new Template({
-    csrf: req.csrfToken(),
-    isPlatformAdmin: false,
-    location: platformLocation(
-      process.env.AWS_REGION || /* istanbul ignore next */ '',
-    ),
-  }, 'Internal Server Error');
+  const template = new Template(
+    {
+      csrf: req.csrfToken(),
+      isPlatformAdmin: false,
+      location: platformLocation(
+        process.env.AWS_REGION || /* istanbul ignore next */ '',
+      ),
+    },
+    'Internal Server Error',
+  );
 
   if (err instanceof UserFriendlyError) {
     res.status(500);
-    res.send(template.render(<ErrorPage title="Sorry an error occurred">{err.message}</ErrorPage>));
+    res.send(
+      template.render(
+        <ErrorPage title="Sorry an error occurred">{err.message}</ErrorPage>,
+      ),
+    );
 
     return;
   }
@@ -49,30 +61,52 @@ export function internalServerErrorMiddleware(err: Error, req: any, res: express
   res.send(template.render(<ErrorPage title="Sorry an error occurred" />));
 }
 
-export function pageNotFoundMiddleware(req: any, res: express.Response, _next: express.NextFunction) {
-  const template = new Template({
-    csrf: req.csrfToken(),
-    isPlatformAdmin: false,
-    location: platformLocation(
-      process.env.AWS_REGION || /* istanbul ignore next */ '',
-    ),
-  }, `Page not found`);
+export function pageNotFoundMiddleware(
+  req: any,
+  res: express.Response,
+  _next: express.NextFunction,
+) {
+  const template = new Template(
+    {
+      csrf: req.csrfToken(),
+      isPlatformAdmin: false,
+      location: platformLocation(
+        process.env.AWS_REGION || /* istanbul ignore next */ '',
+      ),
+    },
+    'Page not found',
+  );
   res.status(404);
-  res.send(template.render(<ErrorPage title="Page not found">
-    If you entered a web address please check it was correct.
-  </ErrorPage>));
+  res.send(
+    template.render(
+      <ErrorPage title="Page not found">
+        If you entered a web address please check it was correct.
+      </ErrorPage>,
+    ),
+  );
 }
 
-export function pageNotAuthorisedMiddleware(req: any, res: express.Response, _next: express.NextFunction) {
-  const template = new Template({
-    csrf: req.csrfToken(),
-    isPlatformAdmin: false,
-    location: platformLocation(
-      process.env.AWS_REGION || /* istanbul ignore next */ '',
-    ),
-  }, `Page not authorised`);
+export function pageNotAuthorisedMiddleware(
+  req: any,
+  res: express.Response,
+  _next: express.NextFunction,
+) {
+  const template = new Template(
+    {
+      csrf: req.csrfToken(),
+      isPlatformAdmin: false,
+      location: platformLocation(
+        process.env.AWS_REGION || /* istanbul ignore next */ '',
+      ),
+    },
+    'Page not authorised',
+  );
   res.status(403);
-  res.send(template.render(<ErrorPage title="Page not authorised">
-    If you entered a web address please check it was correct.
-  </ErrorPage>));
+  res.send(
+    template.render(
+      <ErrorPage title="Page not authorised">
+        If you entered a web address please check it was correct.
+      </ErrorPage>,
+    ),
+  );
 }

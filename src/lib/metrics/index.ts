@@ -8,9 +8,10 @@ export type ElasticacheMetricName = string;
 export type RDSMetricName = string;
 
 export type MetricName =
-  ElasticsearchMetricName
-  | CloudFrontMetricName | ElasticacheMetricName | RDSMetricName
-;
+  | ElasticsearchMetricName
+  | CloudFrontMetricName
+  | ElasticacheMetricName
+  | RDSMetricName;
 
 export interface IMetric {
   date: Date;
@@ -39,7 +40,7 @@ export interface IMetricDataGetter {
     period: moment.Duration,
     rangeStart: moment.Moment,
     rangeStop: moment.Moment,
-  ) => Promise<{[key in MetricName]: ReadonlyArray<IMetricSerie>}>;
+  ) => Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }>;
 }
 
 export interface IMetricGraphDisplayable {
@@ -47,22 +48,32 @@ export interface IMetricGraphDisplayable {
   readonly series: ReadonlyArray<IMetricSerie>;
 }
 
-/* tslint:disable:insecure-random */
 /* istanbul ignore next */
 export function getGappyRandomData(): {
-  readonly timestamps: ReadonlyArray<string>,
-  readonly values: ReadonlyArray<number>,
+  readonly timestamps: ReadonlyArray<string>;
+  readonly values: ReadonlyArray<number>;
 } {
   const minutesInADay = 24 * 60;
-  const timestamps: string[] = [];
-  const values: number[] = [];
+  const timestamps: Array<string> = [];
+  const values: Array<number> = [];
 
-  const startTime = roundDown(moment().subtract(1, 'day'), moment.duration(5, 'minutes'));
+  const startTime = roundDown(
+    moment().subtract(1, 'day'),
+    moment.duration(5, 'minutes'),
+  );
   for (let i = 0; i < minutesInADay; i += 5) {
-    if (i < minutesInADay * 0.2 || i > minutesInADay * 0.8 && i < minutesInADay * 0.9) {
+    if (
+      i < minutesInADay * 0.2 ||
+      (i > minutesInADay * 0.8 && i < minutesInADay * 0.9)
+    ) {
       // do nothing - empty piece of the graph
     } else {
-      timestamps.push(startTime.clone().add(i, 'minutes').toISOString());
+      timestamps.push(
+        startTime
+          .clone()
+          .add(i, 'minutes')
+          .toISOString(),
+      );
       let value = 0;
       if (values.length === 0) {
         value = Math.random() * 105;
@@ -73,6 +84,6 @@ export function getGappyRandomData(): {
       values.push(value);
     }
   }
+
   return { timestamps, values };
 }
-/* tslint:enable:insecure-random */

@@ -7,7 +7,8 @@ export function getStubResourcesByTag(): string {
           KeysWithNoncompliantValues: [],
           NoncompliantKeys: [],
         },
-        ResourceARN: 'arn:aws:cloudfront::123456789012:distribution/EDFDVBD632BHDS5',
+        ResourceARN:
+          'arn:aws:cloudfront::123456789012:distribution/EDFDVBD632BHDS5',
         Tags: [],
       },
     ],
