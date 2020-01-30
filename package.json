@@ -65,7 +65,7 @@
     "@types/source-map-support": "^0.5.1",
     "@types/supertest": "^2.0.8",
     "@types/uuid": "^3.4.7",
-    "@types/webpack-env": "^1.15.0",
+    "@types/webpack-env": "^1.15.1",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
     "@typescript-eslint/parser": "^2.18.0",
     "cheerio": "^1.0.0-rc.3",
