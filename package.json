@@ -32,7 +32,7 @@
   "license": "MIT",
   "devDependencies": {
     "@intervolga/optimize-cssnano-plugin": "^1.0.6",
-    "@types/cheerio": "^0.22.15",
+    "@types/cheerio": "^0.22.16",
     "@types/compression": "^1.0.1",
     "@types/cookie-session": "^2.0.37",
     "@types/csurf": "^1.9.36",
