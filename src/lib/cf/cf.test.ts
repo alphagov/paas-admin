@@ -465,7 +465,7 @@ describe('lib/cf test suite', () => {
       .reply(200, data.services);
 
     const client = new CloudFoundryClient(config);
-    const services = await client.services(
+    const services = await client.spaceServices(
       'f858c6b3-f6b1-4ae8-81dd-8e8747657fbe',
     );
 

@@ -265,7 +265,7 @@ export async function listBackingServices(
 
   const [space, services, userServices, organization] = await Promise.all([
     cf.space(params.spaceGUID),
-    cf.services(params.spaceGUID),
+    cf.spaceServices(params.spaceGUID),
     cf.userServices(params.spaceGUID),
     cf.organization(params.organizationGUID),
   ]);
