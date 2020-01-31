@@ -362,6 +362,12 @@ export default class CloudFoundryClient {
     return this.allResources(response);
   }
 
+  public async services(): Promise<ReadonlyArray<cf.IService>> {
+    const response = await this.request('get', `/v2/services`);
+
+    return this.allResources(response);
+  }
+
   public async serviceInstance(
     instanceGUID: string,
   ): Promise<cf.IServiceInstance> {

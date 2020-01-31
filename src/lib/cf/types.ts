@@ -276,7 +276,7 @@ export interface IService {
     readonly bindable: boolean;
     readonly description: string;
     readonly documentation_url: string | null;
-    readonly extra: string | null;
+    readonly extra: IKeyValuePairs | null;
     readonly info_url: string | null;
     readonly label: string;
     readonly long_description: string | null;
