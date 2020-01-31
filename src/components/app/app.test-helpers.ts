@@ -17,10 +17,6 @@ class FakeSession implements CookieSessionInterfaces.CookieSessionObject {
   }
 
   readonly [propertyName: string]: any;
-
-  public save(): void {
-    // Does nothing
-  }
 }
 
 export function createTestContext(ctx?: {}): IContext {

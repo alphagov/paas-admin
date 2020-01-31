@@ -34,7 +34,6 @@ export default class OIDC {
       state,
       response_type: 'code',
     };
-    session.save();
 
     return redirectUrl;
   }
@@ -74,7 +73,6 @@ export default class OIDC {
       await uaa.setUserOrigin(ctx.token.userID, providerName, newUsername);
 
       ctx.session[KEY_STATE] = null;
-      ctx.session.save();
 
       return true;
     } catch (e) {
