@@ -141,7 +141,7 @@ export class Template {
       <script
         dangerouslySetInnerHTML={{
           __html:
-            "document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');",
+            `document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');`,
         }}
       ></script>
     );

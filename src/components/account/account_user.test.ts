@@ -2,7 +2,7 @@ import { AccountUser } from './account_user';
 
 describe('AccountUser', () => {
   describe('name', () => {
-    it("name combines user's given and family names", () => {
+    it(`name combines user's given and family names`, () => {
       // We don't have a full implementation of this type
       // because it's used to represent a JSON payload
       const uaaUser: any = {
@@ -27,28 +27,28 @@ describe('AccountUser', () => {
   });
 
   describe('authenticationMethod', () => {
-    it("returns u&p if the user's origin is uaa", () => {
+    it(`returns u&p if the user's origin is uaa`, () => {
       const uaaUser: any = { origin: 'uaa' };
 
       const acctUser = new AccountUser(uaaUser);
       expect(acctUser.authenticationMethod).toEqual('Username & password');
     });
 
-    it("returns google if the user's origin is google", () => {
+    it(`returns google if the user's origin is google`, () => {
       const uaaUser: any = { origin: 'google' };
 
       const acctUser = new AccountUser(uaaUser);
       expect(acctUser.authenticationMethod).toEqual('Google');
     });
 
-    it("returns microsoft if the user's origin is microsoft", () => {
+    it(`returns microsoft if the user's origin is microsoft`, () => {
       const uaaUser: any = { origin: 'microsoft' };
 
       const acctUser = new AccountUser(uaaUser);
       expect(acctUser.authenticationMethod).toEqual('Microsoft');
     });
 
-    it("returns unknown if the user's origin is not uaa or google", () => {
+    it(`returns unknown if the user's origin is not uaa or google`, () => {
       const uaaUser: any = { origin: null };
 
       const acctUser = new AccountUser(uaaUser);

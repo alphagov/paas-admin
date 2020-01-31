@@ -218,7 +218,7 @@ describe('lib/uaa test suite', () => {
     expect(accessToken).toEqual('FAKE_ACCESS_TOKEN');
   });
 
-  it("should set the user's origin", async () => {
+  it(`should set the user's origin`, async () => {
     const isCorrectPatchBody: RequestBodyMatcher = body =>
       body.origin === 'google';
 

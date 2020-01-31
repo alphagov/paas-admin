@@ -331,7 +331,7 @@ describe('lib/cf test suite', () => {
     expect(quota.entity.name).toEqual('name-1996');
   });
 
-  it("should obtain list of an organization's spaces", async () => {
+  it(`should obtain list of an organization's spaces`, async () => {
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, data.spaces);

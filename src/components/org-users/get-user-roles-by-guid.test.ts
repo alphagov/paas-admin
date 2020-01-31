@@ -263,7 +263,7 @@ describe('_getUserRolesByGuid', () => {
     });
   });
 
-  it("should get the user's username from accounts, falling back to UAA", async () => {
+  it(`should get the user's username from accounts, falling back to UAA`, async () => {
     nockAccounts
       .get('/users/some-user-guid-0')
       .reply(
