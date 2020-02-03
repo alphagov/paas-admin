@@ -23,6 +23,8 @@ import { Token } from '../auth';
 import { config } from '../app/app.test.config';
 import * as reports from '../reports';
 
+const adminFee = 0.1;
+
 describe('organisations report helpers', () => {
   let nockCF: nock.Scope;
   const tokenKey = 'secret';
@@ -339,7 +341,7 @@ describe('cost report test suite', () => {
 
     expect(response.body).toContain('name-1996'); // the quota
 
-    expect((response.body || '').toString().match(/£0[.]00/g)).toHaveLength(6);
+    expect((response.body || '').toString().match(/£0[.]00/g)).toHaveLength(9);
 
     expect(
       spacesMissingAroundInlineElements(response.body as string),
@@ -416,9 +418,9 @@ describe('cost report test suite', () => {
 
     const response = await reports.viewCostReport(ctx, { rangeStart });
 
-    expect((response.body || '').toString().match(/£0[.]02/g)).toHaveLength(2);
+    expect((response.body || '').toString().match(/£0[.]02/g)).toHaveLength(3);
 
-    expect((response.body || '').toString().match(/£0[.]00/g)).toHaveLength(4);
+    expect((response.body || '').toString().match(/£0[.]00/g)).toHaveLength(6);
 
     expect(
       spacesMissingAroundInlineElements(response.body as string),
@@ -571,7 +573,7 @@ describe('cost report test suite', () => {
 
     const response = await reports.viewCostReport(ctx, { rangeStart });
 
-    expect((response.body || '').toString().match(/£0[.]02/g)).toHaveLength(6);
+    expect((response.body || '').toString().match(/£0[.]02/g)).toHaveLength(9);
 
     expect(
       spacesMissingAroundInlineElements(response.body as string),
@@ -579,9 +581,10 @@ describe('cost report test suite', () => {
   });
 
   it('empty sumRecords', async () => {
-    const summed = reports.sumRecords([]);
+    const summed = reports.sumRecords([], adminFee);
     expect(summed.incVAT).toEqual(0);
     expect(summed.exVAT).toEqual(0);
+    expect(summed.exVATWithAdminFee).toEqual(0);
   });
 
   it('n sumRecords', async () => {
@@ -594,9 +597,10 @@ describe('cost report test suite', () => {
         ...defaultBillableEvent,
         price: { incVAT: 5.5, exVAT: 5.5, details: [] },
       },
-    ]);
+    ], adminFee);
     expect(summed.incVAT).toEqual(15.5);
     expect(summed.exVAT).toEqual(16.5);
+    expect(summed.exVATWithAdminFee).toBeCloseTo(18.15, 5 /* digits */);
   });
 
   it('empty createOrgCostRecord', async () => {
@@ -615,6 +619,7 @@ describe('cost report test suite', () => {
 
         incVAT: 10,
         exVAT: 10,
+        exVATWithAdminFee: 11,
       },
       {
         orgGUID: 'ob',
@@ -625,6 +630,7 @@ describe('cost report test suite', () => {
 
         incVAT: 2.5,
         exVAT: 3.5,
+        exVATWithAdminFee: 3.85,
       },
       {
         orgGUID: 'oc',
@@ -635,6 +641,7 @@ describe('cost report test suite', () => {
 
         incVAT: 2.5,
         exVAT: 3.5,
+        exVATWithAdminFee: 3.85,
       },
     ]);
 
@@ -644,6 +651,7 @@ describe('cost report test suite', () => {
 
       incVAT: 12.5,
       exVAT: 13.5,
+      exVATWithAdminFee: 14.85,
     });
 
     expect(quotaRecords).toContainEqual({
@@ -652,6 +660,7 @@ describe('cost report test suite', () => {
 
       incVAT: 2.5,
       exVAT: 3.5,
+      exVATWithAdminFee: 3.85,
     });
   });
 
@@ -686,7 +695,7 @@ describe('cost report test suite', () => {
   });
 
   it('zero createOrgCostRecords', async () => {
-    const records = reports.createOrgCostRecords([], {}, {});
+    const records = reports.createOrgCostRecords([], {}, {}, adminFee);
     expect(records).toEqual([]);
   });
 
@@ -745,6 +754,7 @@ describe('cost report test suite', () => {
       {
         'quota-a': [],
       },
+      adminFee,
     );
 
     expect(records).toContainEqual({
@@ -756,6 +766,7 @@ describe('cost report test suite', () => {
 
       incVAT: 0,
       exVAT: 0,
+      exVATWithAdminFee: 0,
     });
   });
 
@@ -878,6 +889,7 @@ describe('cost report test suite', () => {
           },
         ],
       },
+      adminFee,
     );
 
     expect(records).toContainEqual({
@@ -889,6 +901,7 @@ describe('cost report test suite', () => {
 
       incVAT: 2.5,
       exVAT: 4.5,
+      exVATWithAdminFee: 4.95,
     });
 
     expect(records).toContainEqual({
@@ -900,6 +913,7 @@ describe('cost report test suite', () => {
 
       incVAT: 1,
       exVAT: 2.5,
+      exVATWithAdminFee: 2.75,
     });
   });
 });
@@ -1744,16 +1758,17 @@ describe('cost report grouping functions', () => {
 
   describe('getBillablesByOrganisation', () => {
     it('should work with zero orgs and events', () => {
-      const results = reports.getBillablesByOrganisation([], []);
+      const results = reports.getBillablesByOrganisation([], [], adminFee);
       expect(results).toHaveLength(0);
     });
 
     it('should work with zero events', () => {
-      const results = reports.getBillablesByOrganisation([defaultOrgv3()], []);
+      const results = reports.getBillablesByOrganisation([defaultOrgv3()], [], adminFee);
       expect(results).toHaveLength(1);
       expect(results[0]).toEqual({
         org: defaultOrgv3(),
         exVAT: 0,
+        exVATWithAdminFee: 0,
       });
     });
 
@@ -1772,12 +1787,16 @@ describe('cost report grouping functions', () => {
             price: { ...defaultPrice, exVAT: 10 },
           },
         ],
+        adminFee,
       );
       expect(results).toHaveLength(1);
       expect(results[0]).toEqual({
         org: { ...defaultOrgv3(), guid: 'org-one', name: 'Org One' },
         exVAT: 11,
+        exVATWithAdminFee: expect.any(Number),
       });
+
+      expect(results[0].exVATWithAdminFee).toBeCloseTo(12.1, 5);
     });
 
     it('should not sum costs for different organisations', () => {
@@ -1798,16 +1817,22 @@ describe('cost report grouping functions', () => {
             price: { ...defaultPrice, exVAT: 7 },
           },
         ],
+        adminFee,
       );
       expect(results).toHaveLength(2);
       expect(results).toContainEqual({
         org: { ...defaultOrgv3(), guid: 'org-one', name: 'Org One' },
         exVAT: 5,
+        exVATWithAdminFee: expect.any(Number),
       });
       expect(results).toContainEqual({
         org: { ...defaultOrgv3(), guid: 'org-two', name: 'Org Two' },
         exVAT: 7,
+        exVATWithAdminFee: expect.any(Number),
       });
+
+      expect(results.map(x => x.exVATWithAdminFee).sort()[0]).toBeCloseTo(5.5, 5);
+      expect(results.map(x => x.exVATWithAdminFee).sort()[1]).toBeCloseTo(7.7, 5);
     });
   });
 
@@ -1985,18 +2010,21 @@ describe('building D3 sankey input', () => {
           orgName: 'org-1',
           serviceGroup: 'service-1',
           exVAT: 1,
+          exVATWithAdminFee: 1.1,
         },
         {
           ...defaultBillable,
           orgName: 'org-2',
           serviceGroup: 'service-1',
           exVAT: 2,
+          exVATWithAdminFee: 2.2,
         },
         {
           ...defaultBillable,
           orgName: 'org-2',
           serviceGroup: 'service-2',
           exVAT: 3,
+          exVATWithAdminFee: 3.3,
         },
       ],
       [

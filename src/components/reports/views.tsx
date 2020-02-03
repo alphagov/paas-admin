@@ -25,6 +25,7 @@ interface IOrganizationsReportProperties {
 interface ICostable {
   readonly incVAT: number;
   readonly exVAT: number;
+  readonly exVATWithAdminFee: number;
 }
 
 interface IOrgCostRecord extends ICostable {
@@ -259,6 +260,12 @@ export function CostReport(props: ICostReportProperties): ReactElement {
             <span className="govuk-caption-m">Total excluding VAT</span>
           </h2>
         </div>
+        <div className="govuk-grid-column-one-quarter">
+          <h2 className="govuk-heading-m">
+            £{props.totalBillables.exVATWithAdminFee.toFixed(2)}{' '}
+            <span className="govuk-caption-m">Total excluding VAT including fee</span>
+          </h2>
+        </div>
       </div>
 
       <h1 className="govuk-heading-l">
@@ -286,6 +293,12 @@ export function CostReport(props: ICostReportProperties): ReactElement {
             >
               Excluding VAT
             </th>
+            <th
+              className="govuk-table__header govuk-table__header--numeric"
+              scope="col"
+            >
+              Excluding VAT including fee
+            </th>
           </tr>
         </thead>
         <tbody className="govuk-table__body">
@@ -300,6 +313,9 @@ export function CostReport(props: ICostReportProperties): ReactElement {
               </td>
               <td className="govuk-table__cell govuk-table__cell--numeric">
                 £{record.exVAT.toFixed(2)}
+              </td>
+              <td className="govuk-table__cell govuk-table__cell--numeric">
+                £{record.exVATWithAdminFee.toFixed(2)}
               </td>
             </tr>
           ))}
@@ -327,6 +343,12 @@ export function CostReport(props: ICostReportProperties): ReactElement {
             >
               Excluding VAT
             </th>
+            <th
+              className="govuk-table__header govuk-table__header--numeric"
+              scope="col"
+            >
+              Excluding VAT including fee
+            </th>
           </tr>
         </thead>
         <tbody className="govuk-table__body">
@@ -340,6 +362,9 @@ export function CostReport(props: ICostReportProperties): ReactElement {
               </td>
               <td className="govuk-table__cell govuk-table__cell--numeric">
                 £{record.exVAT.toFixed(2)}
+              </td>
+              <td className="govuk-table__cell govuk-table__cell--numeric">
+                £{record.exVATWithAdminFee.toFixed(2)}
               </td>
             </tr>
           ))}
@@ -372,6 +397,12 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
             >
               Excluding VAT
             </th>
+            <th
+              className="govuk-table__header govuk-table__header--numeric"
+              scope="col"
+            >
+              Excluding VAT including fee
+            </th>
           </tr>
         </thead>
         <tbody className="govuk-table__body">
@@ -383,6 +414,9 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
               </td>
               <td className="govuk-table__cell govuk-table__cell--numeric">
                 £{record.exVAT.toFixed(2)}
+              </td>
+              <td className="govuk-table__cell govuk-table__cell--numeric">
+                £{record.exVATWithAdminFee.toFixed(2)}
               </td>
             </tr>
           ))}
@@ -415,6 +449,12 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
             >
               Excluding VAT
             </th>
+            <th
+              className="govuk-table__header govuk-table__header--numeric"
+              scope="col"
+            >
+              Excluding VAT including fee
+            </th>
           </tr>
         </thead>
         <tbody className="govuk-table__body">
@@ -429,6 +469,9 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
               </td>
               <td className="govuk-table__cell govuk-table__cell--numeric">
                 £{record.exVAT.toFixed(2)}
+              </td>
+              <td className="govuk-table__cell govuk-table__cell--numeric">
+                £{record.exVATWithAdminFee.toFixed(2)}
               </td>
             </tr>
           ))}
@@ -464,6 +507,12 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
             >
               Excluding VAT
             </th>
+            <th
+              className="govuk-table__header govuk-table__header--numeric"
+              scope="col"
+            >
+              Excluding VAT including fee
+            </th>
           </tr>
         </thead>
         <tbody className="govuk-table__body">
@@ -479,6 +528,9 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
               </td>
               <td className="govuk-table__cell govuk-table__cell--numeric">
                 £{record.exVAT.toFixed(2)}
+              </td>
+              <td className="govuk-table__cell govuk-table__cell--numeric">
+                £{record.exVATWithAdminFee.toFixed(2)}
               </td>
             </tr>
           ))}
