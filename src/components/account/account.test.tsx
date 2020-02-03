@@ -56,7 +56,7 @@ describe('account test suite', () => {
       await expect(account.postUseGoogleSSO(ctx, {})).rejects.toThrowError();
     });
 
-    it("redirects to the OIDC authority's authorization endpoint", async () => {
+    it(`redirects to the OIDC authority's authorization endpoint`, async () => {
       ctx = setUpUAA(uaaData.user);
 
       const redirectURL = 'https://foo.bar';
@@ -227,7 +227,7 @@ describe('account test suite', () => {
       await expect(account.postUseMicrosoftSSO(ctx, {})).rejects.toThrowError();
     });
 
-    it("redirects to the OIDC authority's authorization endpoint", async () => {
+    it(`redirects to the OIDC authority's authorization endpoint`, async () => {
       ctx = setUpUAA(uaaData.user);
 
       const redirectURL = 'https://foo.bar';

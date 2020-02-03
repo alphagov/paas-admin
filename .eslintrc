@@ -8,9 +8,7 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended",
-    "plugin:react/recommended",
-    "prettier/@typescript-eslint"
+    "plugin:react/recommended"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -36,7 +34,6 @@
   },
   "plugins": [
     "@typescript-eslint",
-    "prettier",
     "react"
   ],
   "root": true,
@@ -56,8 +53,10 @@
     "@typescript-eslint/prefer-readonly": "error",
     "@typescript-eslint/promise-function-async": "warn",
     "arrow-parens": ["error", "as-needed"],
+    "comma-dangle": ["error", "always-multiline"],
     "jsx-quotes": ["error", "prefer-double"],
     "linebreak-style": ["error", "unix"],
+    "max-len": ["warn", {"code": 120}],
     "newline-before-return": "error",
     "no-case-declarations": "off",
     "no-console": "warn",
@@ -70,10 +69,11 @@
     "no-sequences": "error",
     "no-trailing-spaces": "error",
     "no-unused-expressions": "error",
+    "object-curly-spacing": ["error", "always"],
     "prefer-const": "error",
     "prefer-object-spread": "error",
     "prefer-template": "error",
-    "prettier/prettier": ["error", {"singleQuote": true, "trailingComma": "all"}],
+    "quotes": ["error", "single", {"allowTemplateLiterals": true, "avoidEscape": false}],
     "react/no-danger": "warn",
     "semi": ["error", "always"],
     "sort-imports": ["error", {"ignoreDeclarationSort": true}],

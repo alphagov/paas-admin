@@ -298,7 +298,7 @@ describe(DeleteConfirmationPage, () => {
     );
     const $ = cheerio.load(markup.html());
     expect($('h2').text()).toContain(
-      "Are you sure you'd like to remove the following user?",
+      `Are you sure you'd like to remove the following user?`,
     );
     expect($('p').text()).toContain('user-name');
   });
