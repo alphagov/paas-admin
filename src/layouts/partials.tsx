@@ -34,6 +34,11 @@ export interface ISubNavigationProperties {
   readonly items: ReadonlyArray<ISubNavigationItem>;
 }
 
+interface ICommandLineAlternativeProperties {
+  readonly children: string;
+  readonly context?: string;
+}
+
 export function Header(params: IHeaderProperties): ReactElement {
   const platformLink = (
     <li className="govuk-header__navigation-item admin">
@@ -247,5 +252,29 @@ export function SubNavigation(props: ISubNavigationProperties): ReactElement {
         ))}
       </nav>
     </div>
+  );
+}
+
+export function CommandLineAlternative(props: ICommandLineAlternativeProperties): ReactElement {
+  return (
+    <>
+      <h4 className="govuk-heading-s">On the commandline</h4>
+
+      <p>
+        You can also view the same information on the commandline, to see
+        details {props.context} use:
+      </p>
+
+      <p>
+        <code>{props.children}</code>
+      </p>
+
+      <a
+        href="https://docs.cloud.service.gov.uk/get_started.html#set-up-the-cloud-foundry-command-line"
+        className="govuk-link"
+      >
+        Read more about using PaaS on the commandline.
+      </a>
+    </>
   );
 }

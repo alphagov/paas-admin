@@ -1,5 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 
+import { CommandLineAlternative } from '../../layouts/partials';
 import { IApplication } from '../../lib/cf/types';
 import { RouteActiveChecker, RouteLinker } from '../app';
 import { IEnchancedApplication } from '../spaces/views';
@@ -220,23 +221,9 @@ export function ApplicationPage(
             </tbody>
           </table>
 
-          <h4 className="govuk-heading-s">On the commandline</h4>
-
-          <p>
-            You can also view the same information on the commandline, to see
-            details for all of your apps use:
-          </p>
-
-          <p>
-            <code>cf apps</code>
-          </p>
-
-          <a
-            href="https://docs.cloud.service.gov.uk/get_started.html#set-up-the-cloud-foundry-command-line"
-            className="govuk-link"
-          >
-            Read more about using PaaS on the commandline.
-          </a>
+          <CommandLineAlternative context="for all of your apps">
+            cf apps
+          </CommandLineAlternative>
         </div>
       </div>
     </ApplicationTab>
