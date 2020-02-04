@@ -43,7 +43,7 @@ export function Header(params: IHeaderProperties): ReactElement {
   const platformLink = (
     <li className="govuk-header__navigation-item admin">
       <a className="govuk-header__link" href="/platform-admin">
-        Platform admin
+        Admin
       </a>
     </li>
   );
@@ -102,10 +102,15 @@ export function Header(params: IHeaderProperties): ReactElement {
               aria-label="Top Level Navigation"
             >
               <li className="govuk-header__navigation-item">
-                <a className="govuk-header__link" href="/">
-                  Organisations
+                <a className="govuk-header__link" href="/marketplace">
+                  Marketplace
                 </a>
               </li>
+                <li className="govuk-header__navigation-item">
+                  <a className="govuk-header__link" href="/">
+                    Organisations
+                  </a>
+                </li>
               <li className="govuk-header__navigation-item">
                 <a
                   className="govuk-header__link"

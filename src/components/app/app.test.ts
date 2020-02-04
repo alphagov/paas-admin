@@ -276,7 +276,7 @@ describe('app test suite', () => {
 
       it('should not show a link to the platform admin page', () => {
         expect(response.status).toEqual(200);
-        expect(response.text).not.toMatch(/Platform admin/);
+        expect(response.text).not.toMatch(/Admin/);
       });
     });
 
@@ -396,7 +396,7 @@ describe('app test suite', () => {
 
       it('should show a link to the platform admin page', () => {
         expect(response.status).toEqual(200);
-        expect(response.text).toMatch(/Platform admin/);
+        expect(response.text).toMatch(/Admin/);
       });
     });
   });
