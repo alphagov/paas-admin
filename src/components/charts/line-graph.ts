@@ -1,6 +1,5 @@
 import { extent, max } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
-import { format as d3Format } from 'd3-format';
 import { scaleLinear, scaleTime } from 'd3-scale';
 import { select } from 'd3-selection';
 import { line } from 'd3-shape';
@@ -27,7 +26,7 @@ const padding = {
 export function drawLineGraph(
   title: string,
   units: string,
-  format: string,
+  formatter: (domainValue: any, index: number) => string,
   series: ReadonlyArray<IMetricSerie>,
 ): SVGElement {
   const jsdom = new JSDOM();
@@ -96,7 +95,7 @@ export function drawLineGraph(
     .call(
       axisLeft(yScale)
         .ticks(5)
-        .tickFormat(d3Format(format)),
+        .tickFormat(formatter),
     );
 
   svg.append('g')
