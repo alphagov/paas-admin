@@ -159,10 +159,7 @@ export default class CloudFoundryClient {
       return data;
     }
 
-    const newResponse = await this.request(
-      'get',
-      response.data.pagination.next.href,
-    );
+    const newResponse = await this.request('get', response.data.pagination.next.href);
     const newData: ReadonlyArray<T> = await this.allV3Resources(newResponse);
 
     return [...data, ...newData];
@@ -362,10 +359,10 @@ export default class CloudFoundryClient {
     return this.allResources(response);
   }
 
-  public async services(): Promise<ReadonlyArray<cf.IService>> {
-    const response = await this.request('get', `/v2/services`);
+  public async services<T>(): Promise<ReadonlyArray<cf.IV3Service<T>>> {
+    const response = await this.request('get', '/v3/service_offerings');
 
-    return this.allResources(response);
+    return this.allV3Resources(response);
   }
 
   public async serviceInstance(
@@ -383,6 +380,24 @@ export default class CloudFoundryClient {
     const response = await this.request('get', `/v2/services/${serviceGUID}`);
 
     return response.data;
+  }
+
+  public async v3Service<T>(serviceGUID: string): Promise<cf.IV3Service<T>> {
+    const response = await this.request('get', `/v3/service_offerings/${serviceGUID}`);
+
+    return response.data;
+  }
+
+  public async servicePlans(serviceGUID: string): Promise<ReadonlyArray<cf.IServicePlan>> {
+    const response = await this.request('get', `/v2/services/${serviceGUID}/service_plans`);
+
+    return this.allResources(response);
+  }
+
+  public async v3ServicePlans<T>(serviceGUID: string): Promise<ReadonlyArray<cf.IV3ServicePlan<T>>> {
+    const response = await this.request('get', `/v3/service_plans?service_offering_guids=${serviceGUID}`);
+
+    return this.allV3Resources(response);
   }
 
   public async servicePlan(planGUID: string): Promise<cf.IServicePlan> {

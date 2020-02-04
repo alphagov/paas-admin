@@ -293,12 +293,49 @@ export interface IService {
   readonly metadata: IMetadata;
 }
 
+export interface IV3Service<T> {
+  readonly guid: string;
+  readonly name: string;
+  readonly description: string;
+  readonly available: boolean;
+  readonly tags: ReadonlyArray<string>;
+  readonly requires: ReadonlyArray<string>;
+  readonly created_at: Date;
+  readonly updated_at: Date;
+  readonly shareable: boolean;
+  readonly broker_catalog: {
+    readonly id: string;
+    readonly metadata: T;
+    readonly features: {
+      readonly plan_updateable: boolean;
+      readonly bindable: boolean;
+      readonly instances_retrievable: boolean;
+      readonly bindings_retrievable: boolean;
+    };
+  };
+  readonly relationships: {
+    readonly [key: string]: {
+      readonly guid: string;
+      readonly name: string;
+    };
+  };
+  readonly links: {
+    readonly [key: string]: {
+      readonly href: string;
+    };
+  };
+  readonly metadata: {
+    readonly labels: object;
+    readonly annotations: object;
+  };
+}
+
 export interface IServicePlan {
   readonly entity: {
     readonly active: boolean;
     readonly bindable: boolean;
     readonly description: string;
-    readonly extra: string | null;
+    readonly extra: string;
     readonly free: boolean;
     readonly name: string;
     readonly public: boolean;
@@ -308,6 +345,38 @@ export interface IServicePlan {
     readonly unique_id: string;
   };
   readonly metadata: IMetadata;
+}
+
+export interface IV3ServicePlan<T> {
+  readonly guid: string;
+  readonly name: string;
+  readonly description: string;
+  readonly available: boolean;
+  readonly created_at: Date;
+  readonly updated_at: Date;
+  readonly broker_catalog: {
+    readonly id: string;
+    readonly metadata: T;
+    readonly features: {
+      readonly bindable: boolean;
+      readonly plan_updateable: boolean;
+    };
+  };
+  readonly schemas: {
+    readonly service_instance: {
+      readonly create: {
+        readonly parameters: object;
+      };
+      readonly update: {
+        readonly parameters: object;
+      };
+    };
+    readonly service_binding: {
+      readonly create: {
+        readonly parameters: object;
+      };
+    };
+  };
 }
 
 export interface IServiceInstance {
