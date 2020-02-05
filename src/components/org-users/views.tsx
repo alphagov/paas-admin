@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 
 import { capitalize } from '../../layouts';
+import { Tick } from '../../layouts/partials';
 import {
   IOrganization,
   IOrganizationUserRoles,
@@ -9,8 +10,6 @@ import {
   OrganizationUserRoles,
 } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
-
-import tickIcon from './tick.png';
 
 interface IDeleteConfirmationPageProperties {
   readonly csrf: string;
@@ -655,10 +654,6 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
       </div>
     </div>
   );
-}
-
-function Tick(): ReactElement {
-  return <img className="tick" alt="Yes" src={tickIcon} />;
 }
 
 export function OrganizationUsersPage(
