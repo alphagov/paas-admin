@@ -1,5 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 
+import tickIcon from './images/tick.png';
+
 interface IHeaderProperties {
   readonly assetPath?: string;
   readonly location: string;
@@ -277,4 +279,8 @@ export function CommandLineAlternative(props: ICommandLineAlternativeProperties)
       </a>
     </>
   );
+}
+
+export function Tick(): ReactElement {
+  return <img className="tick" alt="Yes" src={tickIcon} />;
 }

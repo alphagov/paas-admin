@@ -130,7 +130,7 @@
     "govuk-frontend": "^3.5.0",
     "helmet": "^3.21.2",
     "jmespath": "^0.15.0",
-    "jsdom": "^16.0.1",
+    "jsdom": "^16.1.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "merge-deep": "^3.0.2",

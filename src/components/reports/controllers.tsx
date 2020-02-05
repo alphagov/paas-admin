@@ -26,6 +26,7 @@ const DATE = 'YYYY-MM-DD';
 interface ICostable {
   readonly incVAT: number;
   readonly exVAT: number;
+  readonly exVATWithAdminFee: number;
 }
 
 type ICostSummary = ICostable;
@@ -47,11 +48,13 @@ export interface IBillableByService {
   serviceGroup: string;
   incVAT: number;
   exVAT: number;
+  exVATWithAdminFee: number;
 }
 
 export interface IBillableByOrganisation {
   org: IV3OrganizationResource;
   exVAT: number;
+  exVATWithAdminFee: number;
 }
 
 export interface IBillableByOrganisationAndService extends IBillableByService {
@@ -134,14 +137,19 @@ export function filterBillableOrgs(
 export function getBillablesByOrganisation(
   orgs: ReadonlyArray<IV3OrganizationResource>,
   billableEvents: ReadonlyArray<IBillableEvent>,
+  adminFee: number,
 ): ReadonlyArray<IBillableByOrganisation> {
   const billableEventsByOrganisation = groupBy(billableEvents, e => e.orgGUID);
 
-  return orgs.map(org => ({
-    org,
-    exVAT:
-      sumBy(billableEventsByOrganisation[org.guid], x => x.price.exVAT) || 0,
-  }));
+  return orgs.map(org => {
+    const exVAT = sumBy(billableEventsByOrganisation[org.guid], x => x.price.exVAT) || 0;
+    const exVATWithAdminFee = exVAT * (1 + adminFee);
+
+    return {
+      org,
+      exVAT, exVATWithAdminFee,
+    };
+  });
 }
 
 export const testable = {
@@ -281,10 +289,11 @@ export async function viewCostReport(
     orgs,
     orgQuotas,
     orgBillableEvents,
+    ctx.app.adminFee,
   );
   const quotaCostRecords = createQuotaCostRecords(orgCostRecords);
 
-  const totalBillables = sumRecords(billableEvents);
+  const totalBillables = sumRecords(billableEvents, ctx.app.adminFee);
   const billableEventCount = billableEvents.length;
 
   const template = new Template(ctx.viewContext, 'Costs Report');
@@ -348,6 +357,7 @@ export function createOrgCostRecords(
   orgs: ReadonlyArray<IOrganization>,
   orgQuotas: { readonly [key: string]: IOrganizationQuota },
   orgBillableEvents: { readonly [key: string]: ReadonlyArray<IBillableEvent> },
+  adminFee: number,
 ): ReadonlyArray<IOrgCostRecord> {
   return orgs.map(org => {
     const quota = orgQuotas[org.metadata.guid];
@@ -361,6 +371,7 @@ export function createOrgCostRecords(
       (acc: number, e: IBillableEvent) => acc + e.price.exVAT,
       0,
     );
+    const exVATWithAdminFee = exVAT * (1 + adminFee);
 
     return {
       orgGUID: org.metadata.guid,
@@ -368,7 +379,7 @@ export function createOrgCostRecords(
       quotaGUID: quota.metadata.guid,
       quotaName: quota.entity.name,
       incVAT,
-      exVAT,
+      exVAT, exVATWithAdminFee,
     };
   });
 }
@@ -384,12 +395,16 @@ export function createQuotaCostRecords(
       const accumulatedRecord = accumulator[record.quotaGUID];
       const currentIncVAT = accumulatedRecord ? accumulatedRecord.incVAT : 0;
       const currentExVAT = accumulatedRecord ? accumulatedRecord.exVAT : 0;
+      const currentExVATWithAdminFee = accumulatedRecord ? accumulatedRecord.exVATWithAdminFee : 0;
+
+      const incVAT = currentIncVAT + record.incVAT;
+      const exVAT = currentExVAT + record.exVAT;
+      const exVATWithAdminFee = currentExVATWithAdminFee + (record.exVATWithAdminFee);
 
       const quota = {
         quotaGUID: record.quotaGUID,
         quotaName: record.quotaName,
-        incVAT: currentIncVAT + record.incVAT,
-        exVAT: currentExVAT + record.exVAT,
+        incVAT, exVAT, exVATWithAdminFee,
       };
 
       return { ...accumulator, [record.quotaGUID]: quota };
@@ -402,6 +417,7 @@ export function createQuotaCostRecords(
 
 export function sumRecords(
   records: ReadonlyArray<IBillableEvent>,
+  adminFee: number,
 ): ICostSummary {
   let incVAT = 0;
   let exVAT = 0;
@@ -411,7 +427,9 @@ export function sumRecords(
     exVAT += record.price.exVAT;
   });
 
-  return { incVAT, exVAT };
+  const exVATWithAdminFee = exVAT * (1 + adminFee);
+
+  return { incVAT, exVAT, exVATWithAdminFee };
 }
 
 export async function viewCostByServiceReport(
@@ -448,15 +466,17 @@ export async function viewCostByServiceReport(
   const spaces = await cf.spaces();
   const spacesByGUID = groupBy(spaces, x => x.metadata.guid);
 
-  const billablesByService = getBillableEventsByService(billableEvents);
+  const billablesByService = getBillableEventsByService(billableEvents, ctx.app.adminFee);
   const billablesByOrganisationAndService = getBillableEventsByOrganisationAndService(
     billableEvents,
     orgsByGUID,
+    ctx.app.adminFee,
   );
   const billablesByOrganisationAndSpaceAndService = getBillableEventsByOrganisationAndSpaceAndService(
     billableEvents,
     orgsByGUID,
     spacesByGUID,
+    ctx.app.adminFee,
   );
 
   const template = new Template(ctx.viewContext, 'Costs By Service Report');
@@ -500,23 +520,28 @@ export async function viewCostByServiceReport(
 
 export function getBillableEventsByService(
   billableEvents: ReadonlyArray<IBillableEvent>,
+  adminFee: number,
 ): ReadonlyArray<IBillableByService> {
   const billableEventsByService = Object.entries(
     groupBy(billableEvents, getServiceGroup),
   );
 
   return billableEventsByService
-    .map(([serviceGroup, billableEventsForService]) => ({
-      serviceGroup,
-      incVAT: sumBy(billableEventsForService, x => x.price.incVAT),
-      exVAT: sumBy(billableEventsForService, x => x.price.exVAT),
-    }))
-    .sort(comparePriceIncVAT);
+    .map(([serviceGroup, billableEventsForService]) => {
+      const incVAT = sumBy(billableEventsForService, x => x.price.incVAT);
+      const exVAT = sumBy(billableEventsForService, x => x.price.exVAT);
+      const exVATWithAdminFee = exVAT * (1 + adminFee);
+
+      return { serviceGroup, incVAT, exVAT, exVATWithAdminFee };
+    })
+    .sort(comparePriceIncVAT)
+  ;
 }
 
 export function getBillableEventsByOrganisationAndService(
   billableEvents: ReadonlyArray<IBillableEvent>,
   orgsByGUID: Dictionary<ReadonlyArray<IV3OrganizationResource>>,
+  adminFee: number,
 ): ReadonlyArray<IBillableByOrganisationAndService> {
   const billableEventsByOrgGUID = Object.entries(
     groupBy(billableEvents, x => x.orgGUID),
@@ -526,7 +551,7 @@ export function getBillableEventsByOrganisationAndService(
     const org = (orgsByGUID[orgGUID] || [])[0];
     const orgName = org ? org.name : 'unknown';
 
-    return getBillableEventsByService(billableEventsForOrg).map(x => ({
+    return getBillableEventsByService(billableEventsForOrg, adminFee).map(x => ({
       ...x,
       orgGUID,
       orgName,
@@ -538,6 +563,7 @@ export function getBillableEventsByOrganisationAndSpaceAndService(
   billableEvents: ReadonlyArray<IBillableEvent>,
   orgsByGUID: Dictionary<ReadonlyArray<IV3OrganizationResource>>,
   spacesByGUID: Dictionary<ReadonlyArray<ISpace>>,
+  adminFee: number,
 ): ReadonlyArray<IBillableByOrganisationAndSpaceAndService> {
   const billableEventsByOrgGUID = Object.entries(
     groupBy(billableEvents, x => x.orgGUID),
@@ -556,7 +582,7 @@ export function getBillableEventsByOrganisationAndSpaceAndService(
         const space = (spacesByGUID[spaceGUID] || [])[0];
         const spaceName = space ? space.entity.name : 'unknown';
 
-        return getBillableEventsByService(billableEventsForSpace).map(x => ({
+        return getBillableEventsByService(billableEventsForSpace, adminFee).map(x => ({
           ...x,
           orgGUID,
           orgName,
@@ -651,6 +677,7 @@ export async function viewPmoOrgSpendReportCSV(
   const billablesByOrganisation = getBillablesByOrganisation(
     billableOrgs,
     billableEvents,
+    ctx.app.adminFee,
   );
 
   const nameMonth = moment(rangeStart).format('YYYY-MM');
@@ -714,6 +741,7 @@ export async function viewVisualisation(
   const billablesByOrganisationAndService = getBillableEventsByOrganisationAndService(
     billableEvents,
     orgsByGUID,
+    ctx.app.adminFee,
   );
   /* istanbul ignore next */
   const organisationsByOwner = orgs.map(x => ({

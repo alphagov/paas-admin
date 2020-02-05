@@ -171,6 +171,7 @@ describe(OrganizationsReport, () => {
 describe(CostReport, () => {
   const totalBillables = {
     exVAT: 62.97,
+    exVATWithAdminFee: 69.267,
     incVAT: 75.56,
   };
 
@@ -180,6 +181,7 @@ describe(CostReport, () => {
     quotaGUID: 'quota-guid',
     quotaName: 'quota-name',
     exVAT: 62.97,
+    exVATWithAdminFee: 69.267,
     incVAT: 75.56,
   };
 
@@ -187,6 +189,7 @@ describe(CostReport, () => {
     quotaGUID: 'quota-guid',
     quotaName: 'quota-name',
     exVAT: 62.97,
+    exVATWithAdminFee: 69.267,
     incVAT: 75.56,
   };
 
@@ -204,6 +207,7 @@ describe(CostReport, () => {
     expect($('h2').text()).toContain('2 Billable events');
     expect($('h2').text()).toContain('75.56 Total including VAT');
     expect($('h2').text()).toContain('62.97 Total excluding VAT');
+    expect($('h2').text()).toContain('69.27 Total excluding VAT including fee');
     expect($('h1').text()).toContain(
       'Billables by organisation for January 2020',
     );
@@ -211,9 +215,11 @@ describe(CostReport, () => {
     expect($('th').text()).toContain('org-name');
     expect($('td').text()).toContain('75.56');
     expect($('td').text()).toContain('62.97');
+    expect($('td').text()).toContain('69.27');
     expect($('th').text()).toContain('quota-name');
     expect($('td').text()).toContain('75.56');
     expect($('td').text()).toContain('62.97');
+    expect($('td').text()).toContain('69.27');
   });
 });
 
@@ -222,6 +228,7 @@ describe(CostByServiceReport, () => {
     serviceGroup: 'service-group',
     incVAT: 75.56,
     exVAT: 62.97,
+    exVATWithAdminFee: 69.267,
   };
 
   const billablesByOrganisationAndService = {
@@ -230,6 +237,7 @@ describe(CostByServiceReport, () => {
     serviceGroup: 'service-group',
     incVAT: 75.56,
     exVAT: 62.97,
+    exVATWithAdminFee: 69.267,
   };
 
   const billablesByOrganisationAndSpaceAndService = {
@@ -240,6 +248,7 @@ describe(CostByServiceReport, () => {
     serviceGroup: 'service-group',
     incVAT: 75.56,
     exVAT: 62.97,
+    exVATWithAdminFee: 69.267,
   };
 
   it('should parse the cost by service report', () => {
@@ -265,6 +274,7 @@ describe(CostByServiceReport, () => {
     expect($('td').text()).toContain('service-group');
     expect($('td').text()).toContain('75.56');
     expect($('td').text()).toContain('62.97');
+    expect($('td').text()).toContain('69.27');
     expect($('td').text()).toContain('org-name');
     expect($('td').text()).toContain('space-name');
   });
