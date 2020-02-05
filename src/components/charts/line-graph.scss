@@ -42,7 +42,7 @@ svg.govuk-paas-line-graph {
     }
   }
 
-  .grid line {
+  .grid line, .grid path {
     stroke: govuk-colour("mid-grey");
     stroke-opacity: .75;
     shape-rendering: crispEdges;

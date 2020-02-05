@@ -107,9 +107,7 @@ export function drawLineGraph(
         .ticks(5)
         .tickSize(-(viewBox.width - padding.left - padding.right))
         .tickFormat(() => ''),
-    )
-    .select('path')
-    .remove();
+    );
 
   svg.append('g')
     .attr('class', 'grid vertical')
@@ -119,9 +117,7 @@ export function drawLineGraph(
       axisBottom(xScale)
         .tickSize(-(viewBox.height - padding.bottom - padding.top))
         .tickFormat(() => ''),
-    )
-    .select('path')
-    .remove();
+    );
 
   series.forEach((serie, i) => {
     svg
