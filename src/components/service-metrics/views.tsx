@@ -234,8 +234,11 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
       </p>
 
       <p className="govuk-body">
-        Each point is an average over{' '}
-        <strong className="non-breaking">{props.period.humanize()}</strong>.
+        Each point on a graph is aggregated over
+        {' '}
+        <strong className="non-breaking">{props.period.humanize()}</strong>
+        {' '}
+        of data.
       </p>
 
       {props.persistancePeriod ? (
