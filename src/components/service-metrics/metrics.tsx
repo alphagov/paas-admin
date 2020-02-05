@@ -3,6 +3,7 @@ import React from 'react';
 import { IMetricSerie, IMetricSerieSummary } from '../../lib/metrics';
 import { drawLineGraph } from '../charts/line-graph';
 import { IMetricProperties } from './views';
+import { bytesConvert } from '../../layouts';
 
 interface ISeries {
   readonly [key: string]: ReadonlyArray<IMetricSerie>;
@@ -10,6 +11,32 @@ interface ISeries {
 
 interface ISummaries {
   readonly [key: string]: ReadonlyArray<IMetricSerieSummary>;
+}
+
+export function bytesLabel(value: number, _index: number): string {
+  const bytes = bytesConvert(value);
+
+  return `${bytes.value}${bytes.short}`;
+}
+
+export function percentLabel(value: number, _index: number): string {
+  return `${value}%`;
+}
+
+export function numberLabel(value: number, _index: number): string {
+  if (value >= 1000000000) {
+    return `${(value / 1000000000).toFixed(2)}b`;
+  }
+
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(2)}m`;
+  }
+
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(2)}k`;
+  }
+
+  return `${value}`;
 }
 
 export function cloudFrontMetrics(
@@ -23,7 +50,7 @@ export function cloudFrontMetrics(
       format: 'number',
       title: 'Requests',
       description: 'How many HTTP requests your CDN route service has served.',
-      chart: drawLineGraph('HTTP requests', 'Number', '.2s', series.mRequests),
+      chart: drawLineGraph('HTTP requests', 'Number', numberLabel, series.mRequests),
       units: 'Number',
       metric: 'mRequests',
       summaries: summaries.mRequests,
@@ -38,7 +65,7 @@ export function cloudFrontMetrics(
       chart: drawLineGraph(
         'percentage of HTTP requests with either a 4XX or 5XX status code',
         'Percent',
-        '.1s',
+        percentLabel,
         series.mTotalErrorRate,
       ),
       units: 'Percent',
@@ -55,7 +82,7 @@ export function cloudFrontMetrics(
       chart: drawLineGraph(
         'percentage of HTTP requests with a 4XX status code',
         'Percent',
-        '.1s',
+        percentLabel,
         series.m4xxErrorRate,
       ),
       units: 'Percent',
@@ -72,7 +99,7 @@ export function cloudFrontMetrics(
       chart: drawLineGraph(
         'percentage of HTTP requests with a 5XX status code',
         'Percent',
-        '.1s',
+        percentLabel,
         series.m5xxErrorRate,
       ),
       units: 'Percent',
@@ -89,7 +116,7 @@ export function cloudFrontMetrics(
       chart: drawLineGraph(
         'number of bytes sent to the origin',
         'Bytes',
-        '.2s',
+        bytesLabel,
         series.mBytesUploaded,
       ),
       units: 'Bytes',
@@ -106,7 +133,7 @@ export function cloudFrontMetrics(
       chart: drawLineGraph(
         'number of bytes received from the origin',
         'Bytes',
-        '.2s',
+        bytesLabel,
         series.mBytesDownloaded,
       ),
       units: 'Bytes',
@@ -132,7 +159,7 @@ export function rdsMetrics(
       chart: drawLineGraph(
         'bytes of free disk space',
         'Bytes',
-        '.2s',
+        bytesLabel,
         series.mFreeStorageSpace,
       ),
       units: 'Bytes',
@@ -160,7 +187,7 @@ export function rdsMetrics(
       chart: drawLineGraph(
         'percentage CPU Utilisation',
         'Percent',
-        '.1r',
+        percentLabel,
         series.mCPUUtilization,
       ),
       units: 'Percent',
@@ -189,7 +216,7 @@ export function rdsMetrics(
       chart: drawLineGraph(
         'number of database connections',
         'Number',
-        '.1r',
+        numberLabel,
         series.mDatabaseConnections,
       ),
       units: 'Number',
@@ -219,7 +246,7 @@ export function rdsMetrics(
       chart: drawLineGraph(
         'bytes of freeable memory (RAM)',
         'Bytes',
-        '.2s',
+        bytesLabel,
         series.mFreeableMemory,
       ),
       units: 'Bytes',
@@ -257,7 +284,7 @@ export function rdsMetrics(
       chart: drawLineGraph(
         'number of read IOPS',
         'Number',
-        '.2r',
+        numberLabel,
         series.mReadIOPS,
       ),
       units: 'Number',
@@ -295,7 +322,7 @@ export function rdsMetrics(
       chart: drawLineGraph(
         'number of write IOPS',
         'Number',
-        '.2r',
+        numberLabel,
         series.mWriteIOPS,
       ),
       units: 'Number',
@@ -332,7 +359,7 @@ export function elastiCacheMetrics(
       chart: drawLineGraph(
         'percentage CPU Utilisation',
         'Percent',
-        '.2r',
+        percentLabel,
         series.mCPUUtilization,
       ),
       units: 'Percent',
@@ -351,7 +378,7 @@ export function elastiCacheMetrics(
       chart: drawLineGraph(
         'bytes used for the cache',
         'Bytes',
-        '.2s',
+        bytesLabel,
         series.mBytesUsedForCache,
       ),
       units: 'Bytes',
@@ -381,7 +408,7 @@ export function elastiCacheMetrics(
       chart: drawLineGraph(
         'bytes used in swap memory',
         'Bytes',
-        '.2s',
+        bytesLabel,
         series.mSwapUsage,
       ),
       units: 'Bytes',
@@ -398,7 +425,7 @@ export function elastiCacheMetrics(
       chart: drawLineGraph(
         'number of keys evicted by Redis',
         'Number',
-        '.2s',
+        numberLabel,
         series.mEvictions,
       ),
       units: 'Number',
@@ -415,7 +442,7 @@ export function elastiCacheMetrics(
       chart: drawLineGraph(
         'number of connections to Redis',
         'Number',
-        '.2r',
+        numberLabel,
         series.mCurrConnections,
       ),
       units: 'Number',
@@ -430,7 +457,7 @@ export function elastiCacheMetrics(
       chart: drawLineGraph(
         'number of cache hits',
         'Number',
-        '.2s',
+        numberLabel,
         series.mCacheHits,
       ),
       units: 'Number',
@@ -445,7 +472,7 @@ export function elastiCacheMetrics(
       chart: drawLineGraph(
         'number of cache misses',
         'Number',
-        '.2s',
+        numberLabel,
         series.mCacheMisses,
       ),
       units: 'Number',
@@ -460,7 +487,7 @@ export function elastiCacheMetrics(
       chart: drawLineGraph(
         'number of cache misses',
         'Number',
-        '.2s',
+        numberLabel,
         series.mCurrItems,
       ),
       units: 'Number',
@@ -476,7 +503,7 @@ export function elastiCacheMetrics(
       chart: drawLineGraph(
         'number of bytes redis has read from the network',
         'Bytes',
-        '.2s',
+        bytesLabel,
         series.mNetworkBytesIn,
       ),
       units: 'Bytes',
@@ -492,7 +519,7 @@ export function elastiCacheMetrics(
       chart: drawLineGraph(
         'number of bytes sent by redis',
         'Bytes',
-        '.2s',
+        bytesLabel,
         series.mNetworkBytesOut,
       ),
       units: 'Bytes',
@@ -526,7 +553,7 @@ export function elasticSearchMetrics(
           .
         </>
       ),
-      chart: drawLineGraph('load average', 'Load', '.2r', series.loadAvg),
+      chart: drawLineGraph('load average', 'Load', numberLabel, series.loadAvg),
       units: 'Load',
       metric: 'loadAvg',
       summaries: summaries.loadAvg,
@@ -552,7 +579,7 @@ export function elasticSearchMetrics(
       chart: drawLineGraph(
         'elasticsearch indices count',
         'Number',
-        '.2r',
+        numberLabel,
         series.elasticsearchIndicesCount,
       ),
       units: 'Number',
@@ -577,7 +604,7 @@ export function elasticSearchMetrics(
           .
         </>
       ),
-      chart: drawLineGraph('memory', 'Percent', '.2r', series.memoryUsed),
+      chart: drawLineGraph('memory', 'Percent', percentLabel, series.memoryUsed),
       units: 'Percent',
       metric: 'memoryUsed',
       summaries: summaries.memoryUsed,
@@ -601,7 +628,7 @@ export function elasticSearchMetrics(
           .
         </>
       ),
-      chart: drawLineGraph('disk', 'Percent', '.2r', series.diskUsed),
+      chart: drawLineGraph('disk', 'Percent', percentLabel, series.diskUsed),
       units: 'Percent',
       metric: 'diskUsed',
       summaries: summaries.diskUsed,
@@ -616,7 +643,7 @@ export function elasticSearchMetrics(
       chart: drawLineGraph(
         'disk reads',
         'Reads per second',
-        '.2r',
+        numberLabel,
         series.diskReads,
       ),
       units: 'Reads per second',
@@ -633,7 +660,7 @@ export function elasticSearchMetrics(
       chart: drawLineGraph(
         'disk writes',
         'Writes per second',
-        '.2r',
+        numberLabel,
         series.diskWrites,
       ),
       units: 'Writes per second',
@@ -649,7 +676,7 @@ export function elasticSearchMetrics(
       chart: drawLineGraph(
         'network bytes received',
         'Bytes per second',
-        '.2r',
+        bytesLabel,
         series.networkIn,
       ),
       units: 'Bytes per second',
@@ -665,7 +692,7 @@ export function elasticSearchMetrics(
       chart: drawLineGraph(
         'network bytes send',
         'Bytes per second',
-        '.2r',
+        bytesLabel,
         series.networkOut,
       ),
       units: 'Bytes per second',

@@ -1,6 +1,5 @@
 import { extent, max } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
-import { format as d3Format } from 'd3-format';
 import { scaleLinear, scaleTime } from 'd3-scale';
 import { select } from 'd3-selection';
 import { line } from 'd3-shape';
@@ -27,7 +26,7 @@ const padding = {
 export function drawLineGraph(
   title: string,
   units: string,
-  format: string,
+  formatter: (domainValue: any, index: number) => string,
   series: ReadonlyArray<IMetricSerie>,
 ): SVGElement {
   const jsdom = new JSDOM();
@@ -72,13 +71,53 @@ export function drawLineGraph(
     .domain(xAxisExtent)
     .range([viewBox.x + padding.left, viewBox.width - padding.right]);
   const yScale = scaleLinear()
-    .domain([0, yAxisMax])
+    .domain([0, yAxisMax * 1.25 ])
     .range([viewBox.height - padding.bottom, viewBox.y + padding.top]);
 
   const drawLine = line<IMetric>()
     .defined(d => !isNaN(d.value))
     .x(d => xScale(d.date))
     .y(d => yScale(d.value));
+
+  svg
+    .append('text')
+    .attr('class', 'label left')
+    .attr('y', 15)
+    .attr('x', 0)
+    .attr('aria-hidden', 'true')
+    .text(units);
+
+  svg
+    .append('g')
+    .attr('class', 'axis left')
+    .attr('transform', `translate(${viewBox.x + padding.left})`)
+    .attr('aria-hidden', 'true')
+    .call(
+      axisLeft(yScale)
+        .ticks(5)
+        .tickFormat(formatter),
+    );
+
+  svg.append('g')
+    .attr('class', 'grid horizontal')
+    .attr('transform', `translate(${padding.left})`)
+    .attr('aria-hidden', 'true')
+    .call(
+      axisLeft(yScale)
+        .ticks(5)
+        .tickSize(-(viewBox.width - padding.left - padding.right))
+        .tickFormat(() => ''),
+    );
+
+  svg.append('g')
+    .attr('class', 'grid vertical')
+    .attr('transform', `translate(0,${viewBox.height - padding.bottom})`)
+    .attr('aria-hidden', 'true')
+    .call(
+      axisBottom(xScale)
+        .tickSize(-(viewBox.height - padding.bottom - padding.top))
+        .tickFormat(() => ''),
+    );
 
   series.forEach((serie, i) => {
     svg
@@ -121,7 +160,7 @@ export function drawLineGraph(
     .attr('class', 'axis bottom')
     .attr('transform', `translate(0, ${viewBox.height - padding.bottom})`)
     .attr('aria-hidden', 'true')
-    .call(axisBottom<Date>(xScale))
+    .call(axisBottom(xScale))
     .selectAll('text')
     .attr('y', 8)
     .attr('x', -8)
@@ -131,30 +170,11 @@ export function drawLineGraph(
 
   svg
     .append('text')
-    .attr('class', 'label left')
+    .attr('class', 'label bottom')
     .attr('y', viewBox.height - 30)
     .attr('x', viewBox.width - 50)
     .attr('aria-hidden', 'true')
     .text('Time');
-
-  svg
-    .append('text')
-    .attr('class', 'label left')
-    .attr('y', 15)
-    .attr('x', 0)
-    .attr('aria-hidden', 'true')
-    .text(units);
-
-  svg
-    .append('g')
-    .attr('class', 'axis left')
-    .attr('transform', `translate(${viewBox.x + padding.left})`)
-    .attr('aria-hidden', 'true')
-    .call(
-      axisLeft(yScale)
-        .ticks(5)
-        .tickFormat(d3Format(format)),
-    );
 
   const svgNode = svg.node();
   /* istanbul ignore if */

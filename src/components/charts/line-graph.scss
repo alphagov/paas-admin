@@ -37,11 +37,14 @@ svg.govuk-paas-line-graph {
   }
 
   .axis {
-    &.left .domain {
-      display: none;
-    }
     text {
       font-size: 16px;
     }
+  }
+
+  .grid line, .grid path {
+    stroke: govuk-colour("mid-grey");
+    stroke-opacity: .75;
+    shape-rendering: crispEdges;
   }
 }
