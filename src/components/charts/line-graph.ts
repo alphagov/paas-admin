@@ -20,7 +20,7 @@ const padding = {
   top: 25,
   right: 30,
   bottom: 132,
-  left: 50,
+  left: 90,
 };
 
 export function drawLineGraph(
