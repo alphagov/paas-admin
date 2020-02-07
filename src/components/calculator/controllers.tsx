@@ -48,7 +48,7 @@ function safelistServices(p: IPricingPlan): boolean {
   return safelist.some(name => name === p.serviceName);
 }
 
-function blacklistCompose(p: IPricingPlan): boolean {
+function filterComposeIOServices(p: IPricingPlan): boolean {
   return !/compose/.test(p.planName);
 }
 
@@ -95,7 +95,7 @@ export async function getCalculator(
     })
   )
     .filter(safelistServices)
-    .filter(blacklistCompose)
+    .filter(filterComposeIOServices)
     .map(toVersionedPricingPlans)
     .sort(bySize);
   const state = {

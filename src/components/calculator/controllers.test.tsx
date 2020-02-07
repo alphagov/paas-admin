@@ -262,7 +262,7 @@ describe('calculator test suite', () => {
     ).toHaveLength(0);
   });
 
-  it('should blacklist compose plan', async () => {
+  it('should filter out compose plans', async () => {
     const rangeStart = moment()
       .startOf('month')
       .format('YYYY-MM-DD');
