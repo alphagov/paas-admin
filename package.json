@@ -33,7 +33,7 @@
   "devDependencies": {
     "@intervolga/optimize-cssnano-plugin": "^1.0.6",
     "@types/cheerio": "^0.22.16",
-    "@types/compression": "^1.0.1",
+    "@types/compression": "^1.7.0",
     "@types/cookie-session": "^2.0.38",
     "@types/csurf": "^1.9.36",
     "@types/d3-array": "^2.0.0",
