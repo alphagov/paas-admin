@@ -20,7 +20,7 @@ export function percentage(value: number, ofValue: number): string {
   return `${result.toFixed(1)}%`;
 }
 
-export function bytesConvert(startingBytes: number): IConvertedBytes {
+export function bytesConvert(startingBytes: number, precision = 2): IConvertedBytes {
   let bytes = startingBytes;
   const units = ['KiB', 'MiB', 'GiB', 'TiB'];
 
@@ -37,12 +37,12 @@ export function bytesConvert(startingBytes: number): IConvertedBytes {
   return {
     long: longUnits[units[u]],
     short: units[u],
-    value: bytes.toFixed(2),
+    value: bytes.toFixed(precision),
   };
 }
 
-export function bytesToHuman(startingBytes: number): ReactElement {
-  const converted = bytesConvert(startingBytes);
+export function bytesToHuman(startingBytes: number, precision = 2): ReactElement {
+  const converted = bytesConvert(startingBytes, precision);
 
   return (
     <>

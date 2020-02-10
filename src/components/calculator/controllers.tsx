@@ -19,19 +19,17 @@ import * as formulaGrammar from './formulaGrammar.pegjs';
 
 interface IVersionedPricingPlan extends IPricingPlan {
   version: string;
-  variant: string;
 }
 
 function toVersionedPricingPlans(plan: IPricingPlan): IVersionedPricingPlan {
-  const parts = plan.planName.split('-');
-  const version = parts.slice(-1).join('');
-  const variant = parts.slice(0, -1).join('-');
+  let version = 'unknown';
 
-  return {
-    ...plan,
-    version,
-    variant,
-  };
+  const versions = plan.planName.match(/\d+(.[\d]+)?/);
+  if (versions !== null) {
+    version = version[0];
+  }
+
+  return { ...plan, version };
 }
 
 function safelistServices(p: IPricingPlan): boolean {

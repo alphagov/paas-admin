@@ -1,6 +1,8 @@
 import { groupBy, mapValues, values } from 'lodash';
 import React, { Fragment, ReactElement } from 'react';
 
+import { bytesToHuman } from '../../layouts/helpers';
+
 export interface IQuote {
   readonly events: ReadonlyArray<IBillableEvent>;
   readonly exVAT: number;
@@ -76,11 +78,10 @@ function Plans(props: IPlansProperties): ReactElement {
   return (
     <>
       {values(
-        mapValues(groupBy(props.plans, 'version'), (plans, version) => (
-          <tr key={version} className="govuk-table__row">
+        mapValues(groupBy(props.plans, 'serviceName'), (plans, serviceName) => (
+          <tr key={serviceName} className="govuk-table__row">
             <td className="govuk-table__cell" scope="row">
-              {props.serviceName}{' '}
-              {plans.length !== 1 || version !== 'default' ? version : ''}
+              {niceServiceName(props.serviceName)}
             </td>
             <td className="govuk-table__cell ">
               <form className="paas-service-selection" method="get">
@@ -93,12 +94,12 @@ function Plans(props: IPlansProperties): ReactElement {
                   <div className="govuk-form-group">
                     <select
                       className="govuk-select govuk-!-width-full"
-                      id={`service-${props.serviceName}-${version}`}
+                      id={`service-${props.serviceName}`}
                       name={`items[${props.state.items.length}][planGUID]`}
                     >
-                      {plans.map(plan => (
+                      {plans.slice().sort(orderPlans).map(plan => (
                         <option key={plan.planGUID} value={plan.planGUID}>
-                          {plan.planName}
+                          {niceServiceName(plan.planName)}
                         </option>
                       ))}
                     </select>
@@ -116,18 +117,18 @@ function Plans(props: IPlansProperties): ReactElement {
                           <div className="govuk-form-group">
                             <select
                               className="govuk-select govuk-!-width-full"
-                              id={`nodes-${props.serviceName}-${version}`}
+                              id={`nodes-app`}
                               name={`items[${props.state.items.length}][numberOfNodes]`}
                             >
-                              <option value="1">1 Instance</option>
-                              <option value="2">2 Instances</option>
-                              <option value="3">3 Instances</option>
-                              <option value="4">4 Instances</option>
-                              <option value="8">8 Instances</option>
-                              <option value="16">16 Instances</option>
-                              <option value="32">32 Instances</option>
-                              <option value="64">64 Instances</option>
-                              <option value="128">128 Instances</option>
+                              <option value="1">1 app instance</option>
+                              <option value="2">2 app instances</option>
+                              <option value="3">3 app instances</option>
+                              <option value="4">4 app instances</option>
+                              <option value="8">8 app instances</option>
+                              <option value="16">16 app instances</option>
+                              <option value="32">32 app instances</option>
+                              <option value="64">64 app instances</option>
+                              <option value="128">128 app instances</option>
                             </select>
                           </div>
                         </div>
@@ -141,18 +142,18 @@ function Plans(props: IPlansProperties): ReactElement {
                           <div className="govuk-form-group">
                             <select
                               className="govuk-select govuk-!-width-full"
-                              id={`mem-${props.serviceName}-${version}`}
+                              id={`mem-app`}
                               name={`items[${props.state.items.length}][memoryInMB]`}
                             >
-                              <option value="64">64 MB</option>
-                              <option value="128">128 MB</option>
-                              <option value="256">256 MB</option>
-                              <option value="1024">1.0 GB</option>
-                              <option value="1536">1.5 GB</option>
-                              <option value="2048">2.0 GB</option>
-                              <option value="4096">4.0 GB</option>
-                              <option value="8192">8.0 GB</option>
-                              <option value="16384">16.0 GB</option>
+                              <option value="64">64 MiB of memory</option>
+                              <option value="128">128 MiB of memory</option>
+                              <option value="256">256 MiB of memory</option>
+                              <option value="1024">1.0 GiB of memory</option>
+                              <option value="1536">1.5 GiB of memory</option>
+                              <option value="2048">2.0 GiB of memory</option>
+                              <option value="4096">4.0 GiB of memory</option>
+                              <option value="8192">8.0 GiB of memory</option>
+                              <option value="16384">16.0 GiB of memory</option>
                             </select>
                           </div>
                         </div>
@@ -223,7 +224,7 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
             {props.quote.events.map((event, index) => (
               <Fragment key={index}>
                 <tr>
-                  <td className="paas-service-heading">{event.resourceType}</td>
+                  <td className="paas-service-heading">{niceServiceName(event.resourceType)}</td>
                   <td>
                     <form method="get">
                       <StateFields
@@ -244,13 +245,11 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
                 </tr>
                 <tr className="paas-service-items">
                   <td>
-                    {event.resourceType === 'app' && event.numberOfNodes > 0
-                      ? `${event.numberOfNodes} Instances`
-                      : ''}{' '}
-                    {event.resourceType === 'app' && event.memoryInMB > 0
-                      ? `${event.memoryInMB} MB`
-                      : ''}
-                    {event.resourceType !== 'app' ? event.resourceName : ''}
+                    {
+                      event.resourceType === 'app'
+                      ? appInstanceDescription(event.memoryInMB, event.numberOfNodes)
+                      : event.resourceName
+                    }
                   </td>
                   <td className="paas-service-price">
                     £{event.price.exVAT.toFixed(2)}
@@ -260,7 +259,7 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
             ))}
             {props.quote.exVAT > 0 ? (
               <tr className="paas-admin-fee">
-                <td>admin fee 10%</td>
+                <td>Admin fee of 10%</td>
                 <td className="paas-service-price">
                   £{((props.quote.exVAT / 100) * 10).toFixed(2)}
                 </td>
@@ -302,4 +301,61 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
       </div>
     </>
   );
+}
+
+function orderPlans(planA: IPricingPlan, planB: IPricingPlan): number {
+  const versionRegex = /\d+(.\d+)?/;
+  const versionA: number = parseFloat((planA.planName.match(versionRegex) || ['0'])[0]);
+  const versionB: number = parseFloat((planB.planName.match(versionRegex) || ['0'])[0]);
+
+  // istanbul ignore next
+  if (versionA !== versionB) {
+    return versionB - versionA;
+  }
+
+  const sizeRegex = /xlarge|large|medium|small|tiny/;
+  const sizeA: string = (planA.planName.match(sizeRegex) || ['unknown'])[0];
+  const sizeB: string = (planB.planName.match(sizeRegex) || ['unknown'])[0];
+
+  const sizeMapping: {[key: string]: number} = {
+    'xlarge': 5,
+    'large': 4,
+    'medium': 3,
+    'small': 2,
+    'tiny': 1,
+    'unknown': 0,
+  };
+
+  const sizeValA: number = sizeMapping[sizeA] || 0;
+  const sizeValB: number = sizeMapping[sizeB] || 0;
+
+  return sizeValB - sizeValA;
+}
+
+function niceServiceName(planName: string): string {
+  if (planName === 'postgres') {
+    return 'Postgres';
+  }
+
+  const niceServiceNames: {[key: string]: string} = {
+    'app': 'Compute',
+    'postgres': 'Postgres',
+    'mysql': 'MySQL',
+    'elasticsearch': 'Elasticsearch',
+    'redis': 'Redis',
+    'influxdb': 'InfluxDB',
+    'aws-s3-bucket': 'Amazon S3',
+  };
+
+  return niceServiceNames[planName] || planName;
+}
+
+function appInstanceDescription(memoryInMB: number, instances: number): ReactElement {
+  return <>
+    {instances.toFixed(0)} app instance{instances === 1 ? '' : 's'}
+    {' '}
+    with
+    {' '}
+    {bytesToHuman(memoryInMB * 1024 * 1024, 0)} of memory
+  </>;
 }
