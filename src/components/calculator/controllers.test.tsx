@@ -95,12 +95,12 @@ describe('calculator test suite', () => {
     const response = await getCalculator(ctx, {});
 
     expect(response.body).toContain('Pricing calculator');
-    expect(response.body).toMatch(/\bapp\b/);
-    expect(response.body).toMatch(/\bpostgres\b/);
-    expect(response.body).toMatch(/\bmysql\b/);
-    expect(response.body).toMatch(/\bredis\b/);
-    expect(response.body).toMatch(/\belasticsearch\b/);
-    expect(response.body).toMatch(/\baws-s3-bucket\b/);
+    expect(response.body).toMatch(/\bCompute\b/);
+    expect(response.body).toMatch(/\bPostgres\b/);
+    expect(response.body).toMatch(/\bMySQL\b/);
+    expect(response.body).toMatch(/\bRedis\b/);
+    expect(response.body).toMatch(/\bElasticsearch\b/);
+    expect(response.body).toMatch(/\bAmazon S3\b/);
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -189,6 +189,10 @@ describe('calculator test suite', () => {
           numberOfNodes: '1',
         },
         {
+          planGUID: '00000000-0000-0000-0000-000000000001',
+          numberOfNodes: '2',
+        },
+        {
           planGUID: '00000000-0000-0000-0000-000000000002',
           numberOfNodes: '2',
         },
@@ -197,7 +201,7 @@ describe('calculator test suite', () => {
 
     expect(response.body).toContain('app');
     expect(response.body).toContain('£19.98');
-    expect(response.body).toContain('postgres');
+    expect(response.body).toContain('Postgres');
     expect(response.body).toContain('£13.32');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
@@ -250,19 +254,19 @@ describe('calculator test suite', () => {
       ],
     });
 
-    expect(response.body).toContain('postgres');
-    expect(response.body).toContain('app');
+    expect(response.body).toContain('Postgres');
+    expect(response.body).toContain('Compute');
     if (response.body && typeof response.body === 'string') {
-      const idxPostgres = response.body.indexOf('postgres');
-      const idxApp = response.body.indexOf('app');
-      expect(idxPostgres > idxApp).toBeTruthy(); // expected postgres to appear after app
+      const idxPostgres = response.body.indexOf('Postgres');
+      const idxCompute = response.body.indexOf('Compute');
+      expect(idxPostgres > idxCompute).toBeTruthy(); // expected postgres to appear after app
     }
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
   });
 
-  it('should blacklist compose plan', async () => {
+  it('should filter out compose plans', async () => {
     const rangeStart = moment()
       .startOf('month')
       .format('YYYY-MM-DD');
@@ -290,7 +294,7 @@ describe('calculator test suite', () => {
     ).toHaveLength(0);
   });
 
-  it('should show postgres plan wih version', async () => {
+  it('should show postgres plan and sort the versions', async () => {
     const rangeStart = moment()
       .startOf('month')
       .format('YYYY-MM-DD');
@@ -337,7 +341,16 @@ describe('calculator test suite', () => {
       );
 
     const response = await getCalculator(ctx, {});
-    expect(response.body).toMatch(/postgres\s+9.6/);
+    expect(response.body).toMatch(/Postgres/);
+
+    const planIndices = ['xlarge-9.6', 'medium-9.6', 'tiny-9.6']
+      .map(plan => response.body!.toString().indexOf(plan))
+    ;
+
+    const sortedPlanIndices = planIndices.slice().sort();
+
+    expect(planIndices).toEqual(sortedPlanIndices);
+
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -426,8 +439,8 @@ describe('calculator test suite', () => {
       );
 
     const response = await getCalculator(ctx, {});
-    expect(response.body).toContain('aws-s3-bucket');
-    expect(response.body).not.toMatch(/aws-s3-bucket\s+default/);
+    expect(response.body).toContain('Amazon S3');
+    expect(response.body).not.toMatch(/Amazon S3\s+default/);
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);

@@ -214,7 +214,7 @@ function parsePricingPlan(plan: IPricingPlanResponse): IPricingPlan {
 
   return {
     serviceName,
-    planName: planName.join(''),
+    planName: planName.join('-'),
     planGUID: plan.plan_guid,
     validFrom: parseTimestamp(plan.valid_from),
     components: plan.components.map(parseComponentResponse),
