@@ -91,7 +91,7 @@ export function Header(params: IHeaderProperties): ReactElement {
           <button
             type="button"
             role="button"
-            className="govuk-header__menu-button js-header-toggle"
+            className="govuk-header__menu-button govuk-js-header-toggle"
             aria-controls="navigation"
             aria-label="Show or hide Top Level Navigation"
           >
@@ -126,10 +126,11 @@ export function Header(params: IHeaderProperties): ReactElement {
               <li className="govuk-header__navigation-item">
                 <a
                   href="https://www.cloud.service.gov.uk/sign-in"
-                  title="Switch region"
-                  className={`paas-govuk-tag paas-govuk-tag-${params.location.toLowerCase()}`}
+                  title="Switch to a different region"
+                  className={`govuk-header__link paas-govuk-tag paas-govuk-tag-${params.location.toLowerCase()}`}
+                  aria-label={`Current region: ${params.location.toLowerCase()}. Switch to a different region.`}
                 >
-                  {params.location}
+                  <span>Region:</span> {params.location}
                 </a>
               </li>
             </ul>
