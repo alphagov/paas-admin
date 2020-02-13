@@ -54,7 +54,7 @@
     "@types/lodash": "^4.14.149",
     "@types/moment": "^2.13.0",
     "@types/nanoid": "^2.1.0",
-    "@types/node-jose": "^1.1.1",
+    "@types/node-jose": "^1.1.2",
     "@types/passport": "^1.0.2",
     "@types/passport-oauth2": "^1.4.8",
     "@types/pino": "^5.15.5",
