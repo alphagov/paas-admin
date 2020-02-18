@@ -368,4 +368,5 @@ describe('lib/accounts logging suite', () => {
         expect(JSON.stringify(e)).not.toMatch(new RegExp(obviousAccountsSecret));
       }
     });
+  });
 });

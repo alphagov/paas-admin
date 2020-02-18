@@ -272,7 +272,15 @@ async function request(
     if (typeof response.data === 'object') {
       msg = `${msg} and data ${JSON.stringify(response.data)}`;
     }
-    throw responseError(msg, req, response.status, reqWithDefaults, response);
+    throw responseError(
+      msg,
+      response.status,
+      {
+        ...reqWithDefaults,
+
+        /* redacted fields */
+        auth: undefined,
+      });
   }
 
   return response;
@@ -288,16 +296,13 @@ function validateStatus(status: number) {
 // That behaviour is expected by other methods.
 function responseError(
   message: string,
-  config: object,
   responseCode: number,
   req: AxiosRequestConfig,
-  response: AxiosResponse,
 ) {
   const err = new Error(message) as any;
-  err.config = config;
   err.code = responseCode;
   err.request = req;
-  err.response = response;
+  err.response = { status: responseCode };
 
   return err;
 }
