@@ -6,66 +6,72 @@ import { config } from '../../components/app/app.test.config';
 
 import { AccountsClient } from '.';
 
-const cfg = {
-  apiEndpoint: config.accountsAPI,
-  secret: config.accountsSecret,
-  logger: pino({ level: 'silent' }),
-};
+describe('lib/accounts test suite', () => {
+  const cfg = {
+    apiEndpoint: config.accountsAPI,
+    secret: config.accountsSecret,
+    logger: pino({ level: 'silent' }),
+  };
 
-nock(cfg.apiEndpoint)
-  .get('/documents/my-doc')
-  .reply(
-    200,
-    `{
+  afterAll(() => {
+    nock.cleanAll();
+  });
+
+  beforeAll(() => {
+    nock(cfg.apiEndpoint)
+      .get('/documents/my-doc')
+      .reply(
+        200,
+        `{
     "name": "my-doc",
     "valid_from": "2018-04-20T14:36:09+00:00",
     "content": "my-doc-content"
   }`,
-  )
-  .get('/documents/bad-timestamp-doc')
-  .reply(
-    200,
-    `{
+      )
+      .get('/documents/bad-timestamp-doc')
+      .reply(
+        200,
+        `{
     "name": "my-doc",
     "valid_from": "this-is-a-silly-date",
     "content": "my-doc-content"
   }`,
-  )
-  .get('/documents/json-500')
-  .reply(
-    500,
-    `{
+      )
+      .get('/documents/json-500')
+      .reply(
+        500,
+        `{
     "error": "internal-server-error-json"
   }`,
-  )
-  .get('/documents/plain-500')
-  .reply(
-    500,
-    `
+      )
+      .get('/documents/plain-500')
+      .reply(
+        500,
+        `
     error: internal-server-error-plain
   `,
-  )
-  .put('/documents/my-doc')
-  .reply(201, '')
-  .get('/users/4f11eb3b-f45c-4fd3-9241-533d29a0582b')
-  .reply(404)
-  .get('/users/1d2a9ece-3d06-4aa7-bffc-c521cf7ef6cb')
-  .reply(500)
-  .get('/users/7fab36d8-a63a-4543-9a24-d7a3fe2f128b')
-  .reply(
-    200,
-    `{
+      )
+      .put('/documents/my-doc')
+      .reply(201, '')
+      .get('/users/4f11eb3b-f45c-4fd3-9241-533d29a0582b')
+      .reply(404)
+      .get('/users/1d2a9ece-3d06-4aa7-bffc-c521cf7ef6cb')
+      .reply(500)
+      .get('/users/7fab36d8-a63a-4543-9a24-d7a3fe2f128b')
+      .reply(
+        200,
+        `{
     "user_uuid": "7fab36d8-a63a-4543-9a24-d7a3fe2f128b",
     "username": "example@example.org",
     "user_email": "example@example.org"
   }`,
-  )
-  .get('/users/error')
-  .reply(500)
-  .get('/users/7fab36d8-a63a-4543-9a24-d7a3fe2f128b/documents')
-  .reply(
-    200,
-    `[{
+      )
+      .get('/users/error')
+      .reply(500)
+      .get('/users/7fab36d8-a63a-4543-9a24-d7a3fe2f128b/documents')
+      .reply(
+        200,
+        `[{
     "name": "my-doc-1",
     "content": "my-pending-doc-content-1",
     "valid_from": "2018-04-20T14:36:09+00:00",
@@ -81,33 +87,33 @@ nock(cfg.apiEndpoint)
     "valid_from": "2018-01-01T16:37:09.362128Z",
     "agreement_date": "2018-05-21T16:52:55.624084Z"
   }]`,
-  )
-  .post('/agreements')
-  .reply(201, '')
-  .post('/users/')
-  .reply(201, '')
-  .get('/users?email=one@user.in.database')
-  .reply(
-    200,
-    `{
+      )
+      .post('/agreements')
+      .reply(201, '')
+      .post('/users/')
+      .reply(201, '')
+      .get('/users?email=one@user.in.database')
+      .reply(
+        200,
+        `{
     "users": [{
       "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
       "user_email": "one@user.in.database",
       "username": "one@user.in.database"
     }]
   }`,
-  )
-  .get('/users?email=no@user.in.database')
-  .reply(
-    200,
-    `{
+      )
+      .get('/users?email=no@user.in.database')
+      .reply(
+        200,
+        `{
     "users": []
   }`,
-  )
-  .get('/users?email=many@user.in.database')
-  .reply(
-    200,
-    `{
+      )
+      .get('/users?email=many@user.in.database')
+      .reply(
+        200,
+        `{
     "users": [{
       "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
       "user_email": "many@user.in.database",
@@ -118,31 +124,31 @@ nock(cfg.apiEndpoint)
       "username": "many@user.in.database"
     }]
   }`,
-  )
-  .get('/users?uuids=aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee')
-  .reply(
-    200,
-    `{
+      )
+      .get('/users?uuids=aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee')
+      .reply(
+        200,
+        `{
     "users": []
   }`,
-  )
-  .get('/users?uuids=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
-  .reply(
-    200,
-    `{
+      )
+      .get('/users?uuids=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+      .reply(
+        200,
+        `{
     "users": [{
       "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
       "user_email": "one@user.in.database",
       "username": "one@user.in.database"
     }]
   }`,
-  )
-  .get(
-    '/users?uuids=11111111-bbbb-cccc-dddd-eeeeeeeeeeee,22222222-bbbb-cccc-dddd-eeeeeeeeeeee',
-  )
-  .reply(
-    200,
-    `{
+      )
+      .get(
+        '/users?uuids=11111111-bbbb-cccc-dddd-eeeeeeeeeeee,22222222-bbbb-cccc-dddd-eeeeeeeeeeee',
+      )
+      .reply(
+        200,
+        `{
     "users": [{
       "user_uuid": "11111111-bbbb-cccc-dddd-eeeeeeeeeeee",
       "user_email": "one@user.in.database",
@@ -153,9 +159,9 @@ nock(cfg.apiEndpoint)
       "username": "two@user.in.database"
     }]
   }`,
-  );
+      );
+  });
 
-describe('lib/accounts test suite', () => {
   it('should fetch a document', async () => {
     const ac = new AccountsClient(cfg);
     const doc = await ac.getDocument('my-doc');
