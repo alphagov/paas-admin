@@ -321,3 +321,51 @@ describe('lib/accounts test suite', () => {
     expect(users[1].username).toEqual('two@user.in.database');
   });
 });
+
+describe('lib/accounts logging suite', () => {
+  let mockLogger: any;
+  let cfg: any;
+
+  const obviousAccountsSecret = 'very-sensitive-password';
+
+  beforeEach(() => {
+    mockLogger = {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    };
+
+    cfg = {
+      apiEndpoint: config.accountsAPI,
+      secret: obviousAccountsSecret,
+      logger: mockLogger,
+    };
+  });
+
+  afterEach(() => {
+    nock.cleanAll();
+  });
+
+  describe('error logging', () => {
+    beforeEach(() => {
+      nock(cfg.apiEndpoint)
+        .get('/documents/json-500')
+        .reply(500, JSON.stringify({ error: 'internal-server-error-json' }))
+      ;
+    });
+
+    it('should not put anything sensitive in responseError', async () => {
+      const ac = new AccountsClient(cfg);
+      expect.assertions(3);
+
+      try {
+        await ac.getDocument('json-500');
+        expect(false).toBeTruthy();
+      } catch (e) {
+        // try/catch to check multiple assertions against the thrown Error
+        expect(e.request.auth).toBe(undefined);
+        expect(e.response).toEqual({ status: 500 });
+        expect(JSON.stringify(e)).not.toMatch(new RegExp(obviousAccountsSecret));
+      }
+    });
+});
