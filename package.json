@@ -15,7 +15,7 @@
     "test:acceptance": "ts-mocha --exit acceptance-tests/**/*.test.ts",
     "lint": "npm run -s lint:ts && npm run -s lint:sass",
     "lint:sass": "sass-lint -v",
-    "lint:ts": "eslint --format codeframe --ext .js,.jsx,.ts,.tsx .",
+    "lint:ts": "eslint --quiet --format codeframe --ext .js,.jsx,.ts,.tsx .",
     "fix": "npm run -s fix:ts",
     "fix:sass": "sass-lint --fix ./src",
     "fix:ts": "eslint --fix --ext .js,.jsx,.ts,.tsx .",
