@@ -263,11 +263,10 @@ export function SubNavigation(props: ISubNavigationProperties): ReactElement {
 export function CommandLineAlternative(props: ICommandLineAlternativeProperties): ReactElement {
   return (
     <>
-      <h4 className="govuk-heading-s">On the commandline</h4>
+      <h4 className="govuk-heading-s">In the command line</h4>
 
       <p>
-        You can also view the same information on the commandline, to see
-        details {props.context} use:
+        You can also view this information in the Cloud Foundry command line interface by running:
       </p>
 
       <p>
@@ -278,7 +277,7 @@ export function CommandLineAlternative(props: ICommandLineAlternativeProperties)
         href="https://docs.cloud.service.gov.uk/get_started.html#set-up-the-cloud-foundry-command-line"
         className="govuk-link"
       >
-        Read more about using PaaS on the commandline.
+        Read more about using GOV.UK PaaS in the command line interface.
       </a>
     </>
   );
