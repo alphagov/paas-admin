@@ -141,6 +141,56 @@ describe('app test suite', () => {
     expect(response.status).toEqual(500);
   });
 
+  it('should be able to access marketplace without login', async () => {
+    const service = { guid: 'SERVICE_GUID', name: 'postgres', broker_catalog: { metadata: {} }, tags: [] };
+    nockCF
+      .get('/v3/service_offerings').reply(200, { pagination: { next: null }, resources: [ service ] });
+
+    const app = init(config);
+    const response = await request(app).get('/marketplace');
+
+    expect(response.status).toEqual(200);
+  });
+
+  it('should throw error when accessing marketplace without', async () => {
+    nockCF
+      .get('/v3/service_offerings').reply(404);
+
+    const app = init(config);
+    const response = await request(app).get('/marketplace');
+
+    expect(response.status).toEqual(500);
+  });
+
+  it('should be able to access marketplace service without login', async () => {
+    const service = { guid: 'SERVICE_GUID', name: 'postgres', broker_catalog: { metadata: {} }, tags: [] };
+    const plan = { name: 'tiny', broker_catalog: { metadata: {} } };
+    nockCF
+      .get('/v3/service_offerings/SERVICE_GUID')
+      .reply(200, service)
+
+      .get('/v3/service_plans?service_offering_guids=SERVICE_GUID')
+      .reply(200, { pagination: { next: null }, resources: [ plan ] })
+    ;
+
+    const app = init(config);
+    const response = await request(app).get('/marketplace/SERVICE_GUID');
+
+    expect(response.status).toEqual(200);
+  });
+
+  it('should throw error when accessing marketplace service', async () => {
+    nockCF
+      .get('/v3/service_offerings/SERVICE_GUID').reply(404)
+      .get('/v3/service_plans?service_offering_guids=SERVICE_GUID').reply(404)
+    ;
+
+    const app = init(config);
+    const response = await request(app).get('/marketplace/SERVICE_GUID');
+
+    expect(response.status).toEqual(500);
+  });
+
   it('should return a 403 when accessing /forbidden', async () => {
     // In practice this endpoint is only used for testing the 403 middleware
 
