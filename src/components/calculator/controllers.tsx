@@ -1,7 +1,7 @@
 import { sum } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import uuid from 'uuid';
+import * as uuid from 'uuid';
 
 import { Template } from '../../layouts';
 import { BillingClient } from '../../lib/billing';
