@@ -152,6 +152,16 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
+  public async v3CreateOrganization(orgRequest: cf.IV3OrganizationRequest): Promise<cf.IV3OrganizationResource> {
+    const response = await this.request(
+      'post',
+      '/v3/organizations',
+      orgRequest,
+    );
+
+    return response.data;
+  }
+
   public async organizations(): Promise<ReadonlyArray<cf.IOrganization>> {
     const response = await this.request('get', '/v2/organizations');
 
@@ -209,6 +219,16 @@ export default class CloudFoundryClient {
     const response = await this.request(
       'get',
       `/v2/quota_definitions/${quotaGUID}`,
+    );
+
+    return response.data;
+  }
+
+  public async v3CreateSpace(spaceRequest: cf.IV3SpaceRequest): Promise<cf.IV3SpaceResource> {
+    const response = await this.request(
+      'post',
+      '/v3/spaces',
+      spaceRequest,
     );
 
     return response.data;

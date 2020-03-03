@@ -1,3 +1,7 @@
+interface IKeyValuePairs {
+  readonly [key: string]: any;
+}
+
 export interface IMetadata {
   readonly guid: string;
   readonly url: string;
@@ -149,6 +153,15 @@ export interface IOrganizationRequest {
   readonly quota_definition_guid: string;
 }
 
+export interface IV3OrganizationRequest {
+  readonly name: string;
+  readonly metadata?: {
+    readonly annotations?: IKeyValuePairs;
+    readonly labels?: IKeyValuePairs;
+  };
+  readonly suspended?: boolean;
+}
+
 export interface IOrganization {
   readonly entity: {
     readonly app_events_url: string;
@@ -191,15 +204,17 @@ interface IV3Pagination {
   previous?: IV3Link;
 }
 
+interface IV3Relation {
+  readonly data: {
+    readonly guid: string;
+  };
+}
+
 export interface IV3OrganizationResource extends IV3Metadata {
   name: string;
   suspended: boolean;
   relationships: {
-    quota: {
-      data: {
-        guid: string;
-      };
-    };
+    quota: IV3Relation;
   };
   links: {
     self: IV3Link;
@@ -351,6 +366,18 @@ export interface IServiceSummary {
   };
 }
 
+export interface IV3SpaceRequest {
+  readonly name: string;
+  readonly relationships: {
+    readonly organization: IV3Relation;
+  };
+  readonly metadata?: {
+    readonly annotations?: IKeyValuePairs;
+    readonly labels?: IKeyValuePairs;
+  };
+  readonly suspended?: boolean;
+}
+
 export interface ISpace {
   readonly entity: {
     readonly allow_ssh: boolean;
@@ -371,6 +398,23 @@ export interface ISpace {
     readonly staging_security_groups_url: string;
   };
   readonly metadata: IMetadata;
+}
+
+export interface IV3SpaceResource extends IV3Metadata {
+  readonly guid: string;
+  readonly name: string;
+  readonly relationships: {
+    readonly organization: IV3Relation;
+    readonly quota: IV3Relation;
+  };
+  readonly links: {
+    readonly self: IV3Link;
+    readonly organization: IV3Link;
+  };
+  readonly metadata: {
+    readonly labels: IKeyValuePairs;
+    readonly annotations: IKeyValuePairs;
+  };
 }
 
 export interface ISpaceQuota {
@@ -447,7 +491,7 @@ export interface IUserSummary {
 
 export interface IUserServices {
   readonly entity: {
-    readonly credentials: { [i: string]: string };
+    readonly credentials: IKeyValuePairs;
     readonly name: string;
     readonly route_service_url: string | null;
     readonly routes_url: string;
