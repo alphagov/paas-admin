@@ -240,6 +240,17 @@ const router = new Router([
     name: 'platform-admin.redirect',
     path: '/platform-admin',
   },
+  {
+    action: platformAdmin.createOrganizationForm,
+    name: 'platform-admin.create-organization.form',
+    path: '/platform-admin/create-org',
+  },
+  {
+    action: platformAdmin.createOrganization,
+    method: 'post',
+    name: 'platform-admin.create-organization',
+    path: '/platform-admin/create-org',
+  },
 ]);
 
 export default router;
