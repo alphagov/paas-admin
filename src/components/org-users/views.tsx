@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { capitalize } from '../../layouts';
 import { Tick } from '../../layouts/partials';
@@ -20,7 +20,7 @@ interface IDeleteConfirmationPageProperties {
 }
 
 interface ISuccessPageProperties {
-  readonly children: string;
+  readonly children: ReactNode;
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
 }
