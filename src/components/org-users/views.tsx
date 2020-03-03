@@ -10,6 +10,7 @@ import {
   OrganizationUserRoles,
 } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
+import { IValidationError } from '../errors/types';
 
 interface IDeleteConfirmationPageProperties {
   readonly csrf: string;
@@ -55,11 +56,6 @@ interface IPermissionTableProperties {
   readonly organization: IOrganization;
   readonly spaces: ReadonlyArray<ISpace>;
   readonly values: IRoleValues;
-}
-
-export interface IValidationError {
-  readonly field: string;
-  readonly message: string;
 }
 
 interface IEditPageProperties extends IPermissionTableProperties {
