@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 
 import { RouteLinker } from '../app';
 import { IValidationError } from '../errors/types';
@@ -22,6 +22,13 @@ interface IFormProperties extends IProperties {
   readonly csrf: string;
   readonly errors?: ReadonlyArray<IValidationError>;
   readonly values?: INewOrganizationUserBody;
+}
+
+interface ICreateOrganizationPageProperties extends IFormProperties {
+  readonly owners: ReadonlyArray<{
+    readonly name: string;
+    readonly owner: string;
+  }>;
 }
 
 function Costs(props: IFormProperties): ReactElement {
@@ -202,9 +209,7 @@ export function PlatformAdministratorPage(
   );
 }
 
-export function CreateOrganizationPage(props: IFormProperties): ReactElement {
-  const codeStyling: CSSProperties = { whiteSpace: 'nowrap' };
-
+export function CreateOrganizationPage(props: ICreateOrganizationPageProperties): ReactElement {
   return (<div className="govuk-grid-row">
     <form method="post" className="govuk-grid-column-one-half">
       <h1 className="govuk-heading-xl">Create an Organisation</h1>
@@ -238,11 +243,8 @@ export function CreateOrganizationPage(props: IFormProperties): ReactElement {
           Organisation name
         </label>
         <span id="organization-hint" className="govuk-hint">
-          This needs to be all lowercase and hyphen separated meaningful name of the organisation. For instance:
-          {' '}
-          <code style={codeStyling}>govuk-paas</code>
-          {' '}or{' '}
-          <code style={codeStyling}>cabinet-office-digital</code>.
+          This needs to be all lowercase and hyphen separated meaningful name of the organisation.
+          You can also refer to the section on the side for some examples.
         </span>
         <input id="organization" name="organization" className="govuk-input" aria-describedby="organization-hint"
           type="text" defaultValue={props.values?.organization} required={true} pattern={SLUG_REGEX} />
@@ -253,11 +255,7 @@ export function CreateOrganizationPage(props: IFormProperties): ReactElement {
           Owner
         </label>
         <span id="owner-hint" className="govuk-hint">
-          The name of a party owning that organisation. For instance:
-          {' '}
-          <code style={codeStyling}>Government Digital Service</code>
-          {' '}or{' '}
-          <code style={codeStyling}>Cabinet Office</code>.
+          The name of a party owning that organisation. You can also refer to the section on the side for some examples.
         </span>
         <input id="owner" name="owner" className="govuk-input" aria-describedby="owner-hint" type="text"
           defaultValue={props.values?.owner} required={true} />
@@ -267,6 +265,24 @@ export function CreateOrganizationPage(props: IFormProperties): ReactElement {
         Create Organisation
       </button>
     </form>
+
+    <div className="govuk-grid-column-one-half">
+      <table className="govuk-table">
+        <caption className="govuk-table__caption">Existing owners</caption>
+        <thead className="govuk-table__head">
+          <tr className="govuk-table__row">
+            <th scope="col" className="govuk-table__header">Name</th>
+            <th scope="col" className="govuk-table__header">Owner</th>
+          </tr>
+        </thead>
+        <tbody className="govuk-table__body">
+          {props.owners.map((org, index) => <tr key={index} className="govuk-table__row">
+              <td className="govuk-table__cell">{org.name}</td>
+              <td className="govuk-table__cell">{org.owner}</td>
+            </tr>)}
+        </tbody>
+      </table>
+    </div>
   </div>);
 }
 

@@ -10,7 +10,7 @@ function linker(route: string, params?: IParameters): string {
 
 describe(CreateOrganizationPage, () => {
   it('should have csrf token', () => {
-    const markup = shallow(<CreateOrganizationPage csrf="CSRF_TOKEN" linkTo={linker} />);
+    const markup = shallow(<CreateOrganizationPage csrf="CSRF_TOKEN" linkTo={linker} owners={[]} />);
 
     expect(markup.render().find('[name=_csrf]')).toHaveLength(1);
     expect(markup.render().find('[name=_csrf]').prop('value')).toEqual('CSRF_TOKEN');
@@ -21,11 +21,16 @@ describe(CreateOrganizationPage, () => {
       csrf="CSRF_TOKEN"
       linkTo={linker}
       values={{ organization: '<script>alert("pwnd by test");</script>' }}
+      owners={[{ name: `<em>hacking</em>`, owner: '<strong>Hackers</strong>' }]}
     />);
 
     expect(markup.find('input#organization')).toHaveLength(1);
     expect(markup.find('input#organization').html()).not.toContain('<script>');
     expect(markup.find('input#organization').html()).toContain('&lt;script&gt;');
+    expect(markup.find('table').html()).not.toContain('<strong>');
+    expect(markup.find('table').html()).toContain('&lt;strong&gt;');
+    expect(markup.find('table').html()).not.toContain('<em>');
+    expect(markup.find('table').html()).toContain('&lt;em&gt;');
     expect(markup.find('input#organization').html()).toContain('&quot;pwnd by test&quot;');
   });
 
@@ -34,6 +39,7 @@ describe(CreateOrganizationPage, () => {
       csrf="CSRF_TOKEN"
       linkTo={linker}
       errors={[ { field: 'organization', message: 'required field' } ]}
+      owners={[]}
     />);
 
     expect(markup.find('.govuk-error-summary')).toHaveLength(1);

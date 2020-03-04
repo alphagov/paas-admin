@@ -13,6 +13,7 @@ import { CLOUD_CONTROLLER_ADMIN } from '../auth/has-role';
 import { createOrganization, createOrganizationForm, viewHomepage } from './controllers';
 
 jest.mock('../../lib/cf');
+const mockOrg = { metadata: { annotations: { owner: 'TEST_OWNER' } } };
 
 const tokenKey = 'secret';
 
@@ -129,9 +130,15 @@ describe(createOrganizationForm, () => {
       const token = new Token(accessToken, [tokenKey]);
 
       ctx = createTestContext({ token });
+
+      // @ts-ignore
+      CloudFoundryClient.mockClear();
     });
 
     it('should print the creation form correctly', async () => {
+      // @ts-ignore
+      CloudFoundryClient.prototype.v3Organizations.mockReturnValueOnce(Promise.resolve([ mockOrg ]));
+
       const response = await createOrganizationForm(ctx, {});
 
       expect(response.body).toBeDefined();
@@ -187,6 +194,9 @@ describe(createOrganization, () => {
     });
 
     it('should throw errors when field validation fails', async () => {
+      // @ts-ignore
+      CloudFoundryClient.prototype.v3Organizations.mockReturnValueOnce(Promise.resolve([ mockOrg ]));
+
       const response = await createOrganization(ctx, {}, {});
 
       expect(response.status).toEqual(422);
