@@ -70,16 +70,6 @@ abbr {
 }
 
 
-a.govuk-link:not([href*="//"]) {
-  &:visited, &:link {
-    color: $govuk-link-colour;
-  }
-
-  &:active {
-    color: $govuk-link-active-colour;
-  }
-
-  &:hover {
-    color: $govuk-link-hover-colour;
-  }
+.govuk-link:not([href*="//"]) {
+  @include govuk-link-style-no-visited-state;
 }
