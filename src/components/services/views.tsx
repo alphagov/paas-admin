@@ -35,7 +35,7 @@ export function Tab(props: ITabProperties) {
 
   return (
     <li className={classess.join(' ')}>
-      <a href={props.href} className="govuk-link">
+      <a href={props.href} className="govuk-tabs__tab">
         {props.children}
       </a>
     </li>
