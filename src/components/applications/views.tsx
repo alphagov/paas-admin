@@ -58,7 +58,7 @@ export function ApplicationTab(props: IApplicationTabProperties): ReactElement {
         {props.application.entity.name}
       </h1>
 
-      <div className="govuk-tabs" data-module="govuk-tabs">
+      <div className="govuk-tabs">
         <h2 className="govuk-tabs__title">Contents</h2>
 
         <ul className="govuk-tabs__list">
