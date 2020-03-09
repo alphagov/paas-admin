@@ -7,41 +7,43 @@ const logger = pino({ level: 'silent' });
 const sessionSecret = 'mysecret';
 
 const providers = new Map<OIDCProviderName, IOIDCConfig>();
+
 providers.set('microsoft', {
-  providerName: 'microsoft',
   clientID: 'CLIENTID',
   clientSecret: 'CLIENTSECRET',
-  discoveryURL:
-    'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration',
+  discoveryURL: 'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration',
+  providerName: 'microsoft',
 });
+
 providers.set('google', {
-  providerName: 'google',
   clientID: 'CLIENTID',
   clientSecret: 'CLIENTSECRET',
   discoveryURL: 'https://accounts.google.com/.well-known/openid-configuration',
+  providerName: 'google',
 });
+
 export const config: IAppConfig = {
-  logger,
-  sessionSecret,
-  allowInsecureSession: true,
-  billingAPI: 'https://example.com/billing',
   accountsAPI: 'https://example.com/accounts',
   accountsSecret: 'acc_secret',
-  oauthClientID: 'key',
-  oauthClientSecret: 'secret',
-  cloudFoundryAPI: 'https://example.com/api',
-  location: 'Ireland',
-  uaaAPI: 'https://example.com/uaa',
+  adminFee: 0.1,
+  allowInsecureSession: true,
   authorizationAPI: 'https://example.com/login',
+  awsCloudwatchEndpoint: 'https://aws-cloudwatch.example.com/',
+  awsRegion: 'eu-west-1',
+  awsResourceTaggingAPIEndpoint: 'https://aws-tags.example.com',
+  billingAPI: 'https://example.com/billing',
+  cloudFoundryAPI: 'https://example.com/api',
+  domainName: 'https://admin.example.com/',
+  location: 'Ireland',
+  logger,
   notifyAPIKey: 'test-123456-qwerty',
   notifyWelcomeTemplateID: 'qwerty-123456',
+  oauthClientID: 'key',
+  oauthClientSecret: 'secret',
   oidcProviders: providers,
-  domainName: 'https://admin.example.com/',
-  awsRegion: 'eu-west-1',
-  awsCloudwatchEndpoint: 'https://aws-cloudwatch.example.com/',
-  awsResourceTaggingAPIEndpoint: 'https://aws-tags.example.com',
-  adminFee: 0.1,
   prometheusEndpoint: 'https://example.com/prom',
-  prometheusUsername: 'prometheusUsername',
   prometheusPassword: 'prometheusPassword',
+  prometheusUsername: 'prometheusUsername',
+  sessionSecret,
+  uaaAPI: 'https://example.com/uaa',
 };

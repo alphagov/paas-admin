@@ -192,16 +192,16 @@ interface IV3Metadata extends IV3Addressable {
 }
 
 interface IV3Link {
-  href: string;
+  readonly href: string;
 }
 
 interface IV3Pagination {
-  total_results: number;
-  total_pages: number;
-  first: IV3Link;
-  last: IV3Link;
-  next?: IV3Link;
-  previous?: IV3Link;
+  readonly total_results: number;
+  readonly total_pages: number;
+  readonly first: IV3Link;
+  readonly last: IV3Link;
+  readonly next?: IV3Link;
+  readonly previous?: IV3Link;
 }
 
 interface IV3Relation {
@@ -211,20 +211,20 @@ interface IV3Relation {
 }
 
 export interface IV3OrganizationResource extends IV3Metadata {
-  name: string;
-  suspended: boolean;
-  relationships: {
-    quota: IV3Relation;
+  readonly name: string;
+  readonly suspended: boolean;
+  readonly relationships: {
+    readonly quota: IV3Relation;
   };
-  links: {
-    self: IV3Link;
-    domains: IV3Link;
-    default_domain: IV3Link;
+  readonly links: {
+    readonly self: IV3Link;
+    readonly domains: IV3Link;
+    readonly default_domain: IV3Link;
   };
-  metadata: {
-    labels: {};
-    annotations: {
-      owner?: string;
+  readonly metadata: {
+    readonly labels: {};
+    readonly annotations: {
+      readonly owner?: string;
     };
   };
 }

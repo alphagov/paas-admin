@@ -11,8 +11,8 @@ import { wrapResources, wrapV3Resources } from './test-data/wrap-resources';
 import CloudFoundryClient from '.';
 
 const config = {
-  apiEndpoint: 'https://example.com/api',
   accessToken: 'qwerty123456',
+  apiEndpoint: 'https://example.com/api',
   logger: pino({ level: 'silent' }),
 };
 
@@ -135,9 +135,9 @@ describe('lib/cf test suite', () => {
     nockCF
       .get('/v3/audit_events')
       .query({
+        order_by: '-updated_at',
         page: 1,
         per_page: 25,
-        order_by: '-updated_at',
         target_guids: defaultAuditEvent().guid,
       })
       .reply(200, JSON.stringify(wrapV3Resources(defaultAuditEvent())));
@@ -178,10 +178,10 @@ describe('lib/cf test suite', () => {
     nockCF
       .get('/v3/audit_events')
       .query({
-        page: 1,
-        per_page: 25,
         order_by: '-updated_at',
         organization_guids: defaultAuditEvent().organization.guid,
+        page: 1,
+        per_page: 25,
       })
       .reply(200, JSON.stringify(wrapV3Resources(defaultAuditEvent())));
 
@@ -290,9 +290,9 @@ describe('lib/cf test suite', () => {
 
     const client = new CloudFoundryClient(config);
     await client.deleteOrganization({
+      async: false,
       guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       recursive: true,
-      async: false,
     });
   });
 
@@ -331,7 +331,7 @@ describe('lib/cf test suite', () => {
     expect(quota.entity.name).toEqual('name-1996');
   });
 
-  it(`should obtain list of an organization's spaces`, async () => {
+  it('should obtain list of an organization\'s spaces', async () => {
     nockCF
       .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
       .reply(200, data.spaces);
@@ -436,7 +436,7 @@ describe('lib/cf test suite', () => {
       .reply(
         200,
         JSON.stringify(
-          lodash.merge(defaultApp(), { metadata: { guid }, entity: { name } }),
+          lodash.merge(defaultApp(), { entity: { name }, metadata: { guid } }),
         ),
       );
 
@@ -524,14 +524,14 @@ describe('lib/cf test suite', () => {
     );
   });
 
-  it('should delete a user', async () => {
+  it('should delete a user', () => {
     nockCF
       .delete('/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177?async=false')
       .reply(204);
 
     const client = new CloudFoundryClient(config);
     expect(async () =>
-      client.deleteUser('guid-cb24b36d-4656-468e-a50d-b53113ac6177'),
+      await client.deleteUser('guid-cb24b36d-4656-468e-a50d-b53113ac6177'),
     ).not.toThrowError();
   });
 

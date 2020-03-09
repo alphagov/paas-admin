@@ -47,14 +47,11 @@ interface IPaginationProperties {
 }
 
 function Link(props: ILinkProperties): ReactElement {
-  return (
-    <a
-      className="govuk-link"
-      href={props.disabled === false ? props.href : undefined}
-    >
-      {props.children}
-    </a>
-  );
+  if (props.disabled) {
+    return <span>{props.children}</span>;
+  }
+
+  return <a className="govuk-link" href={props.href}>{props.children}</a>;
 }
 
 function Pagination(props: IPaginationProperties): ReactElement {
@@ -64,10 +61,10 @@ function Pagination(props: IPaginationProperties): ReactElement {
         href={props.linkTo(
           'admin.organizations.spaces.applications.events.view',
           {
-            organizationGUID: props.organizationGUID,
-            spaceGUID: props.spaceGUID,
             applicationGUID: props.application.metadata.guid,
+            organizationGUID: props.organizationGUID,
             page: props.pagination.page - 1,
+            spaceGUID: props.spaceGUID,
           },
         )}
         disabled={props.pagination.page <= 1}
@@ -78,10 +75,10 @@ function Pagination(props: IPaginationProperties): ReactElement {
         href={props.linkTo(
           'admin.organizations.spaces.applications.events.view',
           {
-            organizationGUID: props.organizationGUID,
-            spaceGUID: props.spaceGUID,
             applicationGUID: props.application.metadata.guid,
+            organizationGUID: props.organizationGUID,
             page: props.pagination.page + 1,
+            spaceGUID: props.spaceGUID,
           },
         )}
         disabled={props.pagination.page >= props.pagination.total_pages}
@@ -155,10 +152,10 @@ export function ApplicationEventsPage(
               href={props.linkTo(
                 'admin.organizations.spaces.applications.event.view',
                 {
-                  organizationGUID: props.organizationGUID,
-                  spaceGUID: props.spaceGUID,
                   applicationGUID: props.application.metadata.guid,
                   eventGUID: event.guid,
+                  organizationGUID: props.organizationGUID,
+                  spaceGUID: props.spaceGUID,
                 },
               )}
               type={

@@ -5,6 +5,7 @@ import { IParameters, IResponse } from '../../lib/router';
 import UAAClient from '../../lib/uaa';
 import { UaaOrigin } from '../../lib/uaa/uaa';
 import { IContext, IOIDCConfig } from '../app';
+
 import { AccountUser } from './account_user';
 import OIDC from './oidc';
 import {
@@ -14,6 +15,44 @@ import {
   UnavailablePage,
   UnsuccessfulUpliftPage,
 } from './views';
+
+async function oidcErrorHandler(ctx: IContext, params: IParameters, cfg: IOIDCConfig): Promise<IResponse> {
+  ctx.app.logger.error(
+    'The OIDC callback returned an error',
+    params,
+    cfg.providerName,
+  );
+  const template = new Template(ctx.viewContext);
+
+  switch (params.error) {
+    case 'access_denied':
+      template.title = 'Sorry, there is a problem with the service – SSO Access Denied – GOV.UK PaaS';
+
+      return await Promise.resolve({
+        body: template.render(<AccessDeniedPage linkTo={ctx.linkTo} provider={cfg.providerName} />),
+      });
+    case 'temporarily_unavailable':
+      template.title = 'Sorry, there is a problem with the service – SSO Temporarily Unavailable – GOV.UK PaaS';
+
+      return await Promise.resolve({
+        body: template.render(<UnavailablePage linkTo={ctx.linkTo} provider={cfg.providerName} />),
+      });
+    default:
+      throw new Error('Unknown OIDC error');
+  }
+}
+
+export async function fetchLoggedInUser(ctx: IContext): Promise<AccountUser> {
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
+  return new AccountUser(await uaa.getUser(ctx.token.userID));
+}
 
 export async function getUseGoogleSSO(
   ctx: IContext,
@@ -68,7 +107,7 @@ export async function postUseGoogleSSO(
 
 export async function getGoogleOIDCCallback(
   ctx: IContext,
-  _params: IParameters,
+  params: IParameters,
 ): Promise<IResponse> {
   const uaa = new UAAClient({
     apiEndpoint: ctx.app.uaaAPI,
@@ -91,13 +130,13 @@ export async function getGoogleOIDCCallback(
     ctx.absoluteLinkTo('account.use-google-sso-callback.get'),
   );
 
-  if (_params.hasOwnProperty('error')) {
-    return oidcErrorHandler(ctx, _params, cfgProvided);
+  if (params.error) {
+    return oidcErrorHandler(ctx, params, cfgProvided);
   }
 
   const authResponse = {
-    code: _params.code,
-    state: _params.state,
+    code: params.code,
+    state: params.state,
   };
 
   const success = await oidcClient.oidcCallback(
@@ -206,7 +245,7 @@ export async function getMicrosoftOIDCCallback(
     ctx.absoluteLinkTo('account.use-microsoft-sso-callback.get'),
   );
 
-  if (_params.hasOwnProperty('error')) {
+  if (_params.error) {
     return oidcErrorHandler(ctx, _params, cfgProvided);
   }
 
@@ -243,51 +282,4 @@ export async function getMicrosoftOIDCCallback(
           />,
         ),
   };
-}
-
-export async function fetchLoggedInUser(ctx: IContext): Promise<AccountUser> {
-  const uaa = new UAAClient({
-    apiEndpoint: ctx.app.uaaAPI,
-    clientCredentials: {
-      clientID: ctx.app.oauthClientID,
-      clientSecret: ctx.app.oauthClientSecret,
-    },
-  });
-
-  return new AccountUser(await uaa.getUser(ctx.token.userID));
-}
-
-async function oidcErrorHandler(
-  ctx: IContext,
-  _params: IParameters,
-  cfg: IOIDCConfig,
-): Promise<IResponse> {
-  ctx.app.logger.error(
-    'The OIDC callback returned an error',
-    _params,
-    cfg.providerName,
-  );
-  const template = new Template(ctx.viewContext);
-  let body: string;
-
-  switch (_params.error) {
-    case 'access_denied':
-      template.title =
-        'Sorry, there is a problem with the service – SSO Access Denied – GOV.UK PaaS';
-      body = template.render(
-        <AccessDeniedPage linkTo={ctx.linkTo} provider={cfg.providerName} />,
-      );
-      break;
-    case 'temporarily_unavailable':
-      template.title =
-        'Sorry, there is a problem with the service – SSO Temporarily Unavailable – GOV.UK PaaS';
-      body = template.render(
-        <UnavailablePage linkTo={ctx.linkTo} provider={cfg.providerName} />,
-      );
-      break;
-    default:
-      throw new Error('Unknown OIDC error');
-  }
-
-  return { body };
 }

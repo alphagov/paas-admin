@@ -1,11 +1,11 @@
 import express from 'express';
 import React from 'react';
 
-import { AccountsClient, IAccountsClientConfig } from '../../lib/accounts';
-
 import { Template } from '../../layouts';
+import { AccountsClient, IAccountsClientConfig } from '../../lib/accounts';
 import { Token } from '../auth';
 import { internalServerErrorMiddleware } from '../errors';
+
 import { TermsPage } from './views';
 
 type MiddlewareFunction = (

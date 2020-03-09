@@ -13,47 +13,6 @@ interface IToken {
   readonly origin: string;
 }
 
-export class Token {
-  public readonly expiry: number;
-  public readonly scopes: ReadonlyArray<string>;
-  public readonly userID: string;
-  public readonly origin: string;
-
-  constructor(
-    public readonly accessToken: string,
-    public readonly signingKeys: ReadonlyArray<string>,
-  ) {
-    const rawToken = verify(accessToken, signingKeys);
-
-    this.expiry = rawToken.exp;
-    this.scopes = rawToken.scope;
-    this.userID = rawToken.user_id;
-    this.origin = rawToken.origin;
-  }
-
-  public hasScope(scope: string): boolean {
-    return this.scopes.includes(scope);
-  }
-
-  public hasAnyScope(...scopes: Array<string>): boolean {
-    for (const scope of scopes) {
-      if (this.scopes.includes(scope)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  public hasAdminScopes(): boolean {
-    return this.hasAnyScope(
-      CLOUD_CONTROLLER_ADMIN,
-      CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-      CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-    );
-  }
-}
-
 function verify(
   accessToken: string,
   signingKeys: ReadonlyArray<string>,
@@ -106,4 +65,45 @@ function verify(
     user_id: rawToken.user_id,
     origin: rawToken.origin,
   };
+}
+
+export class Token {
+  public readonly expiry: number;
+  public readonly scopes: ReadonlyArray<string>;
+  public readonly userID: string;
+  public readonly origin: string;
+
+  constructor(
+    public readonly accessToken: string,
+    public readonly signingKeys: ReadonlyArray<string>,
+  ) {
+    const rawToken = verify(accessToken, signingKeys);
+
+    this.expiry = rawToken.exp;
+    this.scopes = rawToken.scope;
+    this.userID = rawToken.user_id;
+    this.origin = rawToken.origin;
+  }
+
+  public hasScope(scope: string): boolean {
+    return this.scopes.includes(scope);
+  }
+
+  public hasAnyScope(...scopes: ReadonlyArray<string>): boolean {
+    for (const scope of scopes) {
+      if (this.scopes.includes(scope)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public hasAdminScopes(): boolean {
+    return this.hasAnyScope(
+      CLOUD_CONTROLLER_ADMIN,
+      CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+      CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    );
+  }
 }

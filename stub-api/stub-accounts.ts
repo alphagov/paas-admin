@@ -1,14 +1,16 @@
 import express from 'express';
-import {IAccountsUserResponse, IAccountsUsersResponse} from '../src/lib/accounts';
+
+import { IAccountsUserResponse } from '../src/lib/accounts';
 import * as cfStubData from '../src/lib/cf/cf.test.data';
 import * as uaaStubData from '../src/lib/uaa/uaa.test.data';
-import {IStubServerPorts} from './index';
+
+import { IStubServerPorts } from './index';
 
 function makeUser(id: string): IAccountsUserResponse {
   return {
+    user_email: `${id}@fake.cabinet-office.gov.uk`,
     user_uuid: id,
     username: `${id}@fake.cabinet-office.gov.uk`,
-    user_email: `${id}@fake.cabinet-office.gov.uk`,
   };
 }
 
@@ -27,7 +29,8 @@ function mockAccounts(app: express.Application, _config: IStubServerPorts): expr
     const email = req.query.email;
     if (typeof email !== 'string' && typeof uuids !== 'string') {
       res.status(400).send('No uuids or email');
-      return;
+
+return;
     }
 
     if (typeof email === 'string') {
@@ -40,7 +43,8 @@ function mockAccounts(app: express.Application, _config: IStubServerPorts): expr
       } else {
         res.status(404).send('Not found');
       }
-      return;
+
+return;
     }
 
     const uuidsAsList: ReadonlyArray<string> = uuids.split(',');
@@ -55,7 +59,8 @@ function mockAccounts(app: express.Application, _config: IStubServerPorts): expr
     // Satisfy TS compiler
     if (typeof req.params.guid !== 'string') {
       res.status(400).send('No guid');
-      return;
+
+return;
     }
 
     const id: string = req.params.guid;

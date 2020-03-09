@@ -26,8 +26,95 @@ interface IClientConfig {
 export type UaaOrigin = 'uaa' | 'google' | 'microsoft';
 
 export interface IUaaInvitation {
-  userId: string;
-  inviteLink: string;
+  readonly userId: string;
+  readonly inviteLink: string;
+}
+
+async function request(
+  endpoint: string,
+  method: string,
+  url: string,
+  opts: any,
+) {
+  const response = await axios.request({
+    baseURL: endpoint,
+    data: opts.data,
+    method,
+    params: opts.params,
+    url,
+    validateStatus: status => status > 0 && status < 501,
+
+    ...opts,
+  });
+  if (response.status < 200 || response.status >= 300) {
+    const msg = `UAAClient: ${method} ${url} failed with status ${response.status}`;
+    if (typeof response.data === 'object') {
+      throw new Error(`${msg} and data ${JSON.stringify(response.data)}`);
+    }
+    throw new Error(msg);
+  }
+
+  return response;
+}
+
+export async function authenticate(
+  endpoint: string,
+  clientCredentials: IClientCredentials,
+) {
+  /* istanbul ignore next */
+  if (!clientCredentials.clientID) {
+    throw new TypeError('UAAClient: authenticate: clientID is required');
+  }
+
+  /* istanbul ignore next */
+  if (!clientCredentials.clientSecret) {
+    throw new TypeError('UAAClient: authenticate: clientSecret is required');
+  }
+
+  const response = await request(endpoint, 'post', '/oauth/token', {
+    auth: {
+      password: clientCredentials.clientSecret,
+      username: clientCredentials.clientID,
+    },
+    params: {
+      grant_type: 'client_credentials',
+    },
+    timeout: DEFAULT_TIMEOUT,
+    withCredentials: true,
+  });
+
+  return response.data.access_token;
+}
+
+export async function authenticateUser(
+  endpoint: string,
+  userCredentials: IUserCredentials,
+) {
+  /* istanbul ignore next */
+  if (!userCredentials.username) {
+    throw new TypeError('UAAClient: authenticateUser: username is required');
+  }
+
+  /* istanbul ignore next */
+  if (!userCredentials.password) {
+    throw new TypeError('UAAClient: authenticateUser: password is required');
+  }
+
+  const response = await request(endpoint, 'post', '/oauth/token', {
+    auth: {
+      username: 'cf',
+    },
+    params: {
+      grant_type: 'password',
+      response_type: 'token',
+
+      ...userCredentials,
+    },
+    timeout: DEFAULT_TIMEOUT,
+    withCredentials: true,
+  });
+
+  return response.data.access_token;
 }
 
 export default class UAAClient {
@@ -77,18 +164,19 @@ export default class UAAClient {
     }
 
     const response = await axios.request({
-      url: '/token_keys',
-      method: 'get',
       baseURL: this.apiEndpoint,
+      method: 'get',
+      url: '/token_keys',
       validateStatus: (status: number) => status > 0 && status < 500,
     });
 
     if (response.status < 200 || response.status >= 300) {
-      let msg = `UAAClient: failed to obtain signing key due to status ${response.status}`;
+      const msg = `UAAClient: failed to obtain signing key due to status ${response.status}`;
       /* istanbul ignore next */
       if (typeof response.data === 'object') {
-        msg = `${msg} and data ${JSON.stringify(response.data)}`;
+        throw new Error(`${msg} and data ${JSON.stringify(response.data)}`);
       }
+      /* istanbul ignore next */
       throw new Error(msg);
     }
 
@@ -119,9 +207,9 @@ export default class UAAClient {
   ): Promise<ReadonlyArray<types.IUaaUser | null>> {
     // Limit number of users fetched from UAA concurrently
     const pool = pLimit(CONCURRENCY_LIMIT);
-    const uaaUsers = Promise.all(
-      userGUIDs.map(guid =>
-        pool(async () => {
+    const uaaUsers = await Promise.all(
+      userGUIDs.map(async guid =>
+        await pool(async () => {
           try {
             const user = await this.getUser(guid);
 
@@ -179,11 +267,11 @@ export default class UAAClient {
 
   public async createUser(email: string, password: string) {
     const data = {
-      userName: email,
-      password,
-      name: {},
-      emails: [{ value: email, primary: true }],
       active: true,
+      emails: [{ value: email, primary: true }],
+      name: {},
+      password,
+      userName: email,
       verified: true,
     };
     const response = await this.request('post', '/Users', { data });
@@ -220,90 +308,4 @@ export default class UAAClient {
 
     return response.data as types.IUaaUser;
   }
-}
-
-async function request(
-  endpoint: string,
-  method: string,
-  url: string,
-  opts: any,
-) {
-  const response = await axios.request({
-    url,
-    method,
-    baseURL: endpoint,
-    data: opts.data,
-    params: opts.params,
-    validateStatus: status => status > 0 && status < 501,
-    ...opts,
-  });
-  if (response.status < 200 || response.status >= 300) {
-    let msg = `UAAClient: ${method} ${url} failed with status ${response.status}`;
-    if (typeof response.data === 'object') {
-      msg = `${msg} and data ${JSON.stringify(response.data)}`;
-    }
-    throw new Error(msg);
-  }
-
-  return response;
-}
-
-export async function authenticate(
-  endpoint: string,
-  clientCredentials: IClientCredentials,
-) {
-  /* istanbul ignore next */
-  if (!clientCredentials.clientID) {
-    throw new TypeError('UAAClient: authenticate: clientID is required');
-  }
-
-  /* istanbul ignore next */
-  if (!clientCredentials.clientSecret) {
-    throw new TypeError('UAAClient: authenticate: clientSecret is required');
-  }
-
-  const response = await request(endpoint, 'post', '/oauth/token', {
-    timeout: DEFAULT_TIMEOUT,
-    params: {
-      grant_type: 'client_credentials',
-    },
-
-    withCredentials: true,
-    auth: {
-      username: clientCredentials.clientID,
-      password: clientCredentials.clientSecret,
-    },
-  });
-
-  return response.data.access_token;
-}
-
-export async function authenticateUser(
-  endpoint: string,
-  userCredentials: IUserCredentials,
-) {
-  /* istanbul ignore next */
-  if (!userCredentials.username) {
-    throw new TypeError('UAAClient: authenticateUser: username is required');
-  }
-
-  /* istanbul ignore next */
-  if (!userCredentials.password) {
-    throw new TypeError('UAAClient: authenticateUser: password is required');
-  }
-
-  const response = await request(endpoint, 'post', '/oauth/token', {
-    timeout: DEFAULT_TIMEOUT,
-    params: {
-      response_type: 'token',
-      grant_type: 'password',
-      ...userCredentials,
-    },
-    withCredentials: true,
-    auth: {
-      username: 'cf',
-    },
-  });
-
-  return response.data.access_token;
 }

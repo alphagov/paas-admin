@@ -7,6 +7,7 @@ import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { IAccountsUser } from '../../lib/accounts';
 import { IAuditEvent, IAuditEventActorTarget } from '../../lib/cf/types';
+
 import { Details, Event, TargetedEvent, Totals } from './views';
 
 describe(Details, () => {
@@ -19,12 +20,12 @@ describe(Details, () => {
 describe(Event, () => {
   const actor = ({ email: 'jeff@jefferson.com' } as unknown) as IAccountsUser;
   const event = ({
-    type: 'tester.testing',
     actor: { guid: 'AUDIT_EVENT_ACTOR_GUID', name: 'Jeff Jefferson' },
     data: {
       droplet_guid: 'DROPLET_GUID',
       package_guid: 'PACKAGE_GUID',
     },
+    type: 'tester.testing',
   } as unknown) as IAuditEvent;
   const updatedAt = new Date();
 
@@ -47,6 +48,7 @@ describe(Event, () => {
       <Event
         event={{
           ...event,
+          // @ts-ignore This is deliberate to test out the case when the name is not provided.
           actor: { ...event.actor, name: undefined },
           type: 'audit.space.create',
         }}
@@ -75,13 +77,13 @@ describe(TargetedEvent, () => {
   const actor = ({ email: 'jeff@jefferson.com' } as unknown) as IAccountsUser;
   const target = ({ guid: 'TAGET_GUID' } as unknown) as IAuditEventActorTarget;
   const event = ({
-    type: 'tester.testing',
     actor: { guid: 'AUDIT_EVENT_ACTOR_GUID', name: 'Jeff Jefferson' },
     data: {
       droplet_guid: 'DROPLET_GUID',
       package_guid: 'PACKAGE_GUID',
     },
     target,
+    type: 'tester.testing',
   } as unknown) as IAuditEvent;
   const updatedAt = new Date();
 
@@ -105,6 +107,7 @@ describe(TargetedEvent, () => {
       <TargetedEvent
         event={{
           ...event,
+          // @ts-ignore This is deliberate to test out the case when the name is not provided.
           actor: { ...event.actor, name: undefined },
           type: 'audit.space.create',
         }}

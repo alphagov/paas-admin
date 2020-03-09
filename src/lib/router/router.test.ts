@@ -1,16 +1,16 @@
 import Router from './router';
 
 describe('lib/router suite case', () => {
-  it('should setup the router correctly', async () => {
+  it('should setup the router correctly', () => {
     const router = new Router([
       {
+        action: async () => await Promise.resolve({}),
         name: 'test.route',
-        action: async () => ({}),
         path: '/',
       },
       {
+        action: async () => await Promise.resolve({}),
         name: 'test.route.further',
-        action: async () => ({}),
         path: '/further',
       },
     ]);
@@ -18,16 +18,16 @@ describe('lib/router suite case', () => {
     expect(router.routes.length).toEqual(2);
   });
 
-  it('should find routes correctly', async () => {
+  it('should find routes correctly', () => {
     const router = new Router([
       {
+        action: async () => await Promise.resolve({}),
         name: 'test.home',
-        action: async () => ({}),
         path: '/',
       },
       {
+        action: async () => await Promise.resolve({}),
         name: 'test.complex',
-        action: async () => ({}),
         path: '/more/:name/route/:file',
       },
     ]);
@@ -37,11 +37,11 @@ describe('lib/router suite case', () => {
     expect(() => router.find('/404')).toThrow(/unregistered route/);
   });
 
-  it('should find routes by name correctly', async () => {
+  it('should find routes by name correctly', () => {
     const router = new Router([
       {
+        action: async () => await Promise.resolve({}),
         name: 'test.home',
-        action: async () => ({}),
         path: '/',
       },
     ]);
@@ -50,17 +50,17 @@ describe('lib/router suite case', () => {
     expect(() => router.findByName('random')).toThrow(/named route not found/);
   });
 
-  it('should raise error for duplicate route names', async () => {
+  it('should raise error for duplicate route names', () => {
     expect(() => {
       const router = new Router([
         {
+          action: async () => await Promise.resolve({}),
           name: 'route.dupe',
-          action: async () => ({}),
           path: '/a',
         },
         {
+          action: async () => await Promise.resolve({}),
           name: 'route.dupe',
-          action: async () => ({}),
           path: '/b',
         },
       ]);

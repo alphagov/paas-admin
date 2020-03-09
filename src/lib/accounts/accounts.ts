@@ -7,23 +7,23 @@ import { intercept } from '../axios-logger/axios';
 const DEFAULT_TIMEOUT = 5000;
 
 export interface IDocumentResponse {
-  name: string;
-  valid_from: string;
-  content: string;
+  readonly name: string;
+  readonly valid_from: string;
+  readonly content: string;
 }
 
 export interface IUserDocumentResponse extends IDocumentResponse {
-  agreement_date?: string;
+  readonly agreement_date?: string;
 }
 
 export interface IDocument {
-  name: string;
-  validFrom: Date;
-  content: string;
+  readonly name: string;
+  readonly validFrom: Date;
+  readonly content: string;
 }
 
 export interface IUserDocument extends IDocument {
-  agreementDate?: Date;
+  readonly agreementDate?: Date;
 }
 
 export interface IAccountsClientConfig {
@@ -48,19 +48,127 @@ export interface IAccountsUser {
   readonly email: string;
 }
 
+function pendingOnly(doc: IUserDocument): boolean {
+  return doc.agreementDate === undefined;
+}
+
+function latestOnly(
+  docs: { readonly [key: string]: IUserDocument },
+  doc: IUserDocument,
+): { readonly [key: string]: IUserDocument } {
+  const reducedDocs = { ...docs };
+
+  if (!reducedDocs[doc.name]) {
+    reducedDocs[doc.name] = doc;
+  }
+  if (reducedDocs[doc.name].validFrom < doc.validFrom) {
+    reducedDocs[doc.name] = doc;
+  }
+
+  return reducedDocs;
+}
+
+function parseTimestamp(s: string): Date {
+  const m = moment(s, moment.ISO_8601);
+  if (!m.isValid()) {
+    throw new Error(`AccountsClient: invalid date format: ${s}`);
+  }
+
+  return moment(s, moment.ISO_8601).toDate();
+}
+
+function parseDocument(doc: IDocumentResponse): IDocument {
+  return {
+    content: doc.content,
+    name: doc.name,
+    validFrom: parseTimestamp(doc.valid_from),
+  };
+}
+
+function parseUserDocument(doc: IUserDocumentResponse): IUserDocument {
+  return {
+    ...parseDocument(doc),
+    agreementDate: doc.agreement_date
+      ? parseTimestamp(doc.agreement_date)
+      : undefined,
+  };
+}
+
+function parseUser(user: IAccountsUserResponse): IAccountsUser {
+  return {
+    email: user.user_email,
+    username: user.username,
+    uuid: user.user_uuid,
+  };
+}
+
+function validateStatus(status: number): boolean {
+  return status > 0 && status < 501;
+}
+
+// This is taken from the unexported axios/lib/core/enhanceError.js.
+// It's needed because we trap all response codes and wrap them in
+// some error handling that sets a human friendly error message.
+// That behaviour is expected by other methods.
+function responseError(
+  message: string,
+  responseCode: number,
+  req: AxiosRequestConfig,
+): any {
+  const err = new Error(message) as any;
+  err.code = responseCode;
+  err.request = req;
+  err.response = { status: responseCode };
+
+  return err;
+}
+
+async function request(
+  req: AxiosRequestConfig,
+  logger: BaseLogger,
+): Promise<AxiosResponse> {
+  const reqWithDefaults: AxiosRequestConfig = {
+    method: 'get',
+    timeout: DEFAULT_TIMEOUT,
+    validateStatus,
+
+    ...req,
+  };
+  const instance = axios.create();
+  intercept(instance, 'accounts', logger);
+  const response = await instance.request(reqWithDefaults);
+  if (response.status < 200 || response.status >= 300) {
+    let msg = `AccountsClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;
+    if (typeof response.data === 'object') {
+      msg = `${msg} and data ${JSON.stringify(response.data)}`;
+    }
+    throw responseError(
+      msg,
+      response.status,
+      {
+        ...reqWithDefaults,
+
+        /* redacted fields */
+        auth: undefined,
+      });
+  }
+
+  return response;
+}
+
 export class AccountsClient {
   constructor(private readonly config: IAccountsClientConfig) {
     this.config = config;
   }
 
   public async request(req: AxiosRequestConfig): Promise<AxiosResponse> {
-    return request(
+    return await request(
       {
-        baseURL: this.config.apiEndpoint,
         auth: {
-          username: 'admin',
           password: this.config.secret,
+          username: 'admin',
         },
+        baseURL: this.config.apiEndpoint,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -81,11 +189,11 @@ export class AccountsClient {
 
   public async putDocument(name: string, content: string): Promise<boolean> {
     await this.request({
-      method: 'PUT',
-      url: `/documents/${name}`,
       data: JSON.stringify({
         content,
       }),
+      method: 'PUT',
+      url: `/documents/${name}`,
       validateStatus(status: number) {
         return status === 201;
       },
@@ -99,12 +207,12 @@ export class AccountsClient {
     userUUID: string,
   ): Promise<boolean> {
     await this.request({
+      data: JSON.stringify({
+        document_name: documentName,
+        user_uuid: userUUID,
+      }),
       method: 'POST',
       url: '/agreements',
-      data: JSON.stringify({
-        user_uuid: userUUID,
-        document_name: documentName,
-      }),
       validateStatus(status: number) {
         return status === 201;
       },
@@ -120,7 +228,7 @@ export class AccountsClient {
       url: `/users/${uuid}/documents`,
     });
     const data: ReadonlyArray<IUserDocumentResponse> = response.data;
-    const initialMap: { [key: string]: IUserDocument } = {};
+    const initialMap: { readonly [key: string]: IUserDocument } = {};
 
     return Object.values(
       data.map(parseUserDocument).reduce(latestOnly, initialMap),
@@ -149,8 +257,8 @@ export class AccountsClient {
     uuids: ReadonlyArray<string>,
   ): Promise<ReadonlyArray<IAccountsUser>> {
     const response = await this.request({
-      url: `/users?uuids=${uuids.join(',')}`,
       method: 'get',
+      url: `/users?uuids=${uuids.join(',')}`,
     });
 
     const parsedResponse: IAccountsUsersResponse = response.data;
@@ -162,8 +270,8 @@ export class AccountsClient {
     email: string,
   ): Promise<IAccountsUser | undefined> {
     const response = await this.request({
-      url: `/users?email=${email}`,
       method: 'get',
+      url: `/users?email=${email}`,
     });
 
     const parsedResponse: IAccountsUsersResponse = response.data;
@@ -187,122 +295,15 @@ export class AccountsClient {
     email: string,
   ): Promise<boolean> {
     const response = await this.request({
-      url: '/users/',
-      method: 'post',
       data: JSON.stringify({
+        user_email: email,
         user_uuid: uuid,
         username,
-        user_email: email,
       }),
+      method: 'post',
+      url: '/users/',
     });
 
     return response.status === 201;
   }
-}
-
-function pendingOnly(doc: IUserDocument): boolean {
-  return doc.agreementDate === undefined;
-}
-
-function latestOnly(
-  docs: { readonly [key: string]: IUserDocument },
-  doc: IUserDocument,
-) {
-  const reducedDocs = { ...docs };
-
-  if (!reducedDocs[doc.name]) {
-    reducedDocs[doc.name] = doc;
-  }
-  if (reducedDocs[doc.name].validFrom < doc.validFrom) {
-    reducedDocs[doc.name] = doc;
-  }
-
-  return reducedDocs;
-}
-
-function parseTimestamp(s: string): Date {
-  const m = moment(s, moment.ISO_8601);
-  if (!m.isValid()) {
-    throw new Error(`AccountsClient: invalid date format: ${s}`);
-  }
-
-  return moment(s, moment.ISO_8601).toDate();
-}
-
-function parseDocument(doc: IDocumentResponse): IDocument {
-  return {
-    name: doc.name,
-    validFrom: parseTimestamp(doc.valid_from),
-    content: doc.content,
-  };
-}
-
-function parseUserDocument(doc: IUserDocumentResponse): IUserDocument {
-  return {
-    ...parseDocument(doc),
-    agreementDate: doc.agreement_date
-      ? parseTimestamp(doc.agreement_date)
-      : undefined,
-  };
-}
-
-function parseUser(user: IAccountsUserResponse): IAccountsUser {
-  return {
-    uuid: user.user_uuid,
-    username: user.username,
-    email: user.user_email,
-  };
-}
-
-async function request(
-  req: AxiosRequestConfig,
-  logger: BaseLogger,
-): Promise<AxiosResponse> {
-  const reqWithDefaults: AxiosRequestConfig = {
-    method: 'get',
-    validateStatus,
-    timeout: DEFAULT_TIMEOUT,
-    ...req,
-  };
-  const instance = axios.create();
-  intercept(instance, 'accounts', logger);
-  const response = await instance.request(reqWithDefaults);
-  if (response.status < 200 || response.status >= 300) {
-    let msg = `AccountsClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;
-    if (typeof response.data === 'object') {
-      msg = `${msg} and data ${JSON.stringify(response.data)}`;
-    }
-    throw responseError(
-      msg,
-      response.status,
-      {
-        ...reqWithDefaults,
-
-        /* redacted fields */
-        auth: undefined,
-      });
-  }
-
-  return response;
-}
-
-function validateStatus(status: number) {
-  return status > 0 && status < 501;
-}
-
-// This is taken from the unexported axios/lib/core/enhanceError.js.
-// It's needed because we trap all response codes and wrap them in
-// some error handling that sets a human friendly error message.
-// That behaviour is expected by other methods.
-function responseError(
-  message: string,
-  responseCode: number,
-  req: AxiosRequestConfig,
-) {
-  const err = new Error(message) as any;
-  err.code = responseCode;
-  err.request = req;
-  err.response = { status: responseCode };
-
-  return err;
 }

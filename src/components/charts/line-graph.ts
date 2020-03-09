@@ -48,7 +48,7 @@ export function drawLineGraph(
   const xAxisExtent = extent(
     flatMap(series, s => s.metrics),
     d => d.date,
-  ) as [Date, Date];
+  ) as readonly [Date, Date];
 
   const start = moment(xAxisExtent[0]);
   const end = moment(xAxisExtent[1]);
@@ -122,7 +122,7 @@ export function drawLineGraph(
   series.forEach((serie, i) => {
     svg
       .append('path')
-      .datum(serie.metrics as Array<IMetric>)
+      .datum(serie.metrics as ReadonlyArray<IMetric>)
       .attr('d', drawLine)
       .attr('class', `series series-${i}`)
       .attr('aria-hidden', 'true');

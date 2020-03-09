@@ -7,6 +7,7 @@ import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
 import { fromOrg } from '../breadcrumbs';
+
 import { ServiceEventDetailPage, ServiceEventsPage } from './views';
 
 export async function viewServiceEvent(
@@ -105,7 +106,7 @@ export async function viewServiceEvents(
 
   const { resources: events, pagination } = pageOfEvents;
 
-  let eventActorEmails: { [key: string]: string } = {};
+  let eventActorEmails: { readonly [key: string]: string } = {};
   const userActorGUIDs = lodash
     .chain(events)
     .filter(e => e.actor.type === 'user')

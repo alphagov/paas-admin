@@ -2,47 +2,48 @@ import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import nock from 'nock';
 
-import * as statement from '.';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as billingData from '../../lib/billing/billing.test.data';
 import * as data from '../../lib/cf/cf.test.data';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import { createTestContext } from '../app/app.test-helpers';
-
 import { config } from '../app/app.test.config';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
+
 import {
+  composeCSV,
   ISortable,
   ISortableBy,
   ISortableDirection,
-  composeCSV,
   order,
   sortByName,
 } from './controllers';
 
+import * as statement from '.';
+
 const resourceTemplate = {
-  resourceGUID: '',
-  resourceName: 'api',
-  resourceType: 'app',
   orgGUID: '',
-  spaceGUID: '',
-  spaceName: 'prod',
   planGUID: '',
   planName: 'app',
   price: {
     exVAT: 1.0,
     incVAT: 1.2,
   },
+  resourceGUID: '',
+  resourceName: 'api',
+  resourceType: 'app',
+  spaceGUID: '',
+  spaceName: 'prod',
 };
 
 const tokenKey = 'secret';
 const token = jwt.sign(
   {
-    user_id: 'uaa-id-253',
-    scope: [],
     exp: 2535018460,
     origin: 'uaa',
+    scope: [],
+    user_id: 'uaa-id-253',
   },
   tokenKey,
 );
@@ -157,8 +158,8 @@ describe('statements test suite', () => {
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       rangeStart: '2018-01-01',
-      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
       service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
     });
 
     expect(response.body).toContain('Statement');
@@ -186,8 +187,8 @@ describe('statements test suite', () => {
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       rangeStart: '2018-01-01',
-      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
       service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
     });
 
     // Spaces
@@ -222,8 +223,8 @@ describe('statements test suite', () => {
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       rangeStart: '2018-01-01',
-      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
       service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
     });
 
     expect(response.body).not.toContain('Exchange rate');
@@ -250,8 +251,8 @@ describe('statements test suite', () => {
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       rangeStart: '2018-01-01',
-      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
       service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
     });
 
     expect(response.body).toContain('£1 to $1.25');
@@ -282,8 +283,8 @@ describe('statements test suite', () => {
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       rangeStart: '2018-01-01',
-      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
       service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
     });
 
     expect(response.body).toContain('Exchange rate:');
@@ -322,62 +323,62 @@ describe('statements test suite', () => {
     expect(response.redirect).toContain(`/${currentMonth}`);
   });
 
-  it('should sort by different fields correctly', async () => {
+  it('should sort by different fields correctly', () => {
     const a = [
       {
         ...resourceTemplate,
-        resourceName: 'z',
         planName: 'Athens',
-        spaceName: '3',
         price: { exVAT: 0, incVAT: 1 },
-      },
-      {
-        ...resourceTemplate,
-        resourceName: 'a',
-        planName: 'Berlin',
-        spaceName: '4',
-        price: { exVAT: 0, incVAT: 2 },
-      },
-      {
-        ...resourceTemplate,
-        resourceName: 'b',
-        planName: 'Dublin',
-        spaceName: '1',
-        price: { exVAT: 0, incVAT: 3 },
-      },
-      {
-        ...resourceTemplate,
-        resourceName: 'd',
-        planName: 'Berlin',
+        resourceName: 'z',
         spaceName: '3',
-        price: { exVAT: 0, incVAT: 4 },
       },
       {
         ...resourceTemplate,
+        planName: 'Berlin',
+        price: { exVAT: 0, incVAT: 2 },
+        resourceName: 'a',
+        spaceName: '4',
+      },
+      {
+        ...resourceTemplate,
+        planName: 'Dublin',
+        price: { exVAT: 0, incVAT: 3 },
+        resourceName: 'b',
+        spaceName: '1',
+      },
+      {
+        ...resourceTemplate,
+        planName: 'Berlin',
+        price: { exVAT: 0, incVAT: 4 },
         resourceName: 'd',
+        spaceName: '3',
+      },
+      {
+        ...resourceTemplate,
         planName: 'Cairo',
-        spaceName: '2',
         price: { exVAT: 0, incVAT: 5 },
+        resourceName: 'd',
+        spaceName: '2',
       },
     ];
 
     const cases = [
-      { sort: 'name', order: 'asc', out: ['a', 'b', 'd', 'd', 'z'] },
-      { sort: 'space', order: 'asc', out: ['1', '2', '3', '3', '4'] },
+      { order: 'asc', out: ['a', 'b', 'd', 'd', 'z'], sort: 'name' },
+      { order: 'asc', out: ['1', '2', '3', '3', '4'], sort: 'space' },
       {
-        sort: 'plan',
         order: 'asc',
         out: ['Athens', 'Berlin', 'Berlin', 'Cairo', 'Dublin'],
-      },
-      { sort: 'name', order: 'desc', out: ['z', 'd', 'd', 'b', 'a'] },
-      { sort: 'space', order: 'desc', out: ['4', '3', '3', '2', '1'] },
-      {
         sort: 'plan',
+      },
+      { order: 'desc', out: ['z', 'd', 'd', 'b', 'a'], sort: 'name' },
+      { order: 'desc', out: ['4', '3', '3', '2', '1'], sort: 'space' },
+      {
         order: 'desc',
         out: ['Dublin', 'Cairo', 'Berlin', 'Berlin', 'Athens'],
+        sort: 'plan',
       },
-      { sort: 'amount', order: 'desc', out: [5, 4, 3, 2, 1] },
-      { sort: 'amount', order: 'asc', out: [1, 2, 3, 4, 5] },
+      { order: 'desc', out: [5, 4, 3, 2, 1], sort: 'amount' },
+      { order: 'asc', out: [1, 2, 3, 4, 5], sort: 'amount' },
     ];
 
     for (const c of cases) {
@@ -409,13 +410,13 @@ describe('statements test suite', () => {
     }
   });
 
-  it('should sort by entity name correctly', async () => {
+  it('should sort by entity name correctly', () => {
     const a = [
-      { name: 'z', guid: 'z' },
-      { name: 'a', guid: 'a' },
-      { name: 'b', guid: 'b' },
-      { name: 'd', guid: 'd' },
-      { name: 'd', guid: 'd' },
+      { guid: 'z', name: 'z' },
+      { guid: 'a', name: 'a' },
+      { guid: 'b', name: 'b' },
+      { guid: 'd', name: 'd' },
+      { guid: 'd', name: 'd' },
     ];
 
     a.sort(sortByName);
@@ -427,7 +428,7 @@ describe('statements test suite', () => {
     expect(a[4].name).toEqual('z');
   });
 
-  it('should compose csv content correctly', async () => {
+  it('should compose csv content correctly', () => {
     const adminFee = 0.1;
     const content = composeCSV([resourceTemplate], adminFee);
 

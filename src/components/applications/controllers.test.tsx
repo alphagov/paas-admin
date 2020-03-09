@@ -1,7 +1,6 @@
 import lodash from 'lodash';
 import nock from 'nock';
 
-import { viewApplication } from '.';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
@@ -9,6 +8,8 @@ import { app as defaultApp } from '../../lib/cf/test-data/app';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
+
+import { viewApplication } from '.';
 
 describe('applications test suite', () => {
   let nockCF: nock.Scope;
@@ -41,8 +42,8 @@ describe('applications test suite', () => {
       .reply(
         200,
         lodash.merge(defaultApp(), {
-          metadata: { guid },
           entity: { name, space_guid: spaceGUID, stack_guid: stackGUID },
+          metadata: { guid },
         }),
       )
 
@@ -70,8 +71,8 @@ describe('applications test suite', () => {
       .reply(
         200,
         lodash.merge(defaultApp(), {
-          metadata: { guid },
           entity: { name, space_guid: spaceGUID, stack_guid: stackGUID },
+          metadata: { guid },
         }),
       )
 
@@ -106,14 +107,14 @@ describe('applications test suite', () => {
       .reply(
         200,
         lodash.merge(defaultApp(), {
-          metadata: { guid },
           entity: {
-            name,
-            docker_image: 'governmentpaas/is-cool',
             buildpack: null,
+            docker_image: 'governmentpaas/is-cool',
+            name,
             space_guid: spaceGUID,
             stack_guid: stackGUID,
           },
+          metadata: { guid },
         }),
       )
 

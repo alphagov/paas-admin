@@ -132,14 +132,11 @@ interface IPaginationProperties {
 }
 
 function Link(props: ILinkProperties): ReactElement {
-  return (
-    <a
-      className="govuk-link"
-      href={props.disabled === false ? props.href : undefined}
-    >
-      {props.children}
-    </a>
-  );
+  if (props.disabled) {
+    return <span>{props.children}</span>;
+  }
+
+  return <a className="govuk-link" href={props.href}>{props.children}</a>;
 }
 
 function Pagination(props: IPaginationProperties): ReactElement {
@@ -148,8 +145,8 @@ function Pagination(props: IPaginationProperties): ReactElement {
       <Link
         href={props.linkTo('admin.organizations.spaces.events.view', {
           organizationGUID: props.organizationGUID,
-          spaceGUID: props.space.metadata.guid,
           page: props.pagination.page - 1,
+          spaceGUID: props.space.metadata.guid,
         })}
         disabled={props.pagination.page <= 1}
       >
@@ -158,8 +155,8 @@ function Pagination(props: IPaginationProperties): ReactElement {
       <Link
         href={props.linkTo('admin.organizations.spaces.events.view', {
           organizationGUID: props.organizationGUID,
-          spaceGUID: props.space.metadata.guid,
           page: props.pagination.page + 1,
+          spaceGUID: props.space.metadata.guid,
         })}
         disabled={props.pagination.page >= props.pagination.total_pages}
       >
@@ -277,7 +274,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
         {props.organization.entity.name}.
       </p>
 
-      <details className="govuk-details" role="group">
+      <details className="govuk-details">
         <summary
           className="govuk-details__summary"
           role="button"
@@ -464,9 +461,9 @@ export function ApplicationsPage(
                   href={props.linkTo(
                     'admin.organizations.spaces.applications.view',
                     {
+                      applicationGUID: application.metadata.guid,
                       organizationGUID: props.organizationGUID,
                       spaceGUID: props.space.metadata.guid,
-                      applicationGUID: application.metadata.guid,
                     },
                   )}
                   className="govuk-link"
@@ -556,8 +553,8 @@ export function BackingServicePage(
                     'admin.organizations.spaces.services.view',
                     {
                       organizationGUID: props.organizationGUID,
-                      spaceGUID: props.space.metadata.guid,
                       serviceGUID: service.metadata.guid,
+                      spaceGUID: props.space.metadata.guid,
                     },
                   )}
                   className="govuk-link"
@@ -633,9 +630,9 @@ export function EventsPage(props: IEventsPageProperties): ReactElement {
               }
               date={event.updated_at}
               href={props.linkTo('admin.organizations.spaces.event.view', {
+                eventGUID: event.guid,
                 organizationGUID: props.organizationGUID,
                 spaceGUID: props.space.metadata.guid,
-                eventGUID: event.guid,
               })}
               target={
                 props.actorEmails[event.target.guid] ||

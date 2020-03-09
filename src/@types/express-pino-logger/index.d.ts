@@ -4,7 +4,7 @@ declare module 'express-pino-logger' {
 
   interface IOptions {
     readonly logger: BaseLogger;
-    serializers?: { [key: string]: SerializerFn };
+    readonly serializers?: { readonly [key: string]: SerializerFn };
   }
 
   type MiddlewareFunction = (

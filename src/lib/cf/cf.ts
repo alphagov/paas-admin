@@ -1,10 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import { BaseLogger } from 'pino';
 
+import { intercept } from '../axios-logger/axios';
 import { authenticate } from '../uaa';
+
 import * as cf from './types';
 
-import { intercept } from '../axios-logger/axios';
 
 const DEFAULT_TIMEOUT = 30000;
 
@@ -22,6 +23,44 @@ interface IClientConfig {
 }
 
 type httpMethod = 'post' | 'get' | 'put' | 'delete';
+
+async function request(
+  endpoint: string,
+  method: httpMethod,
+  url: string,
+  logger: BaseLogger,
+  opts?: any,
+): Promise<AxiosResponse> {
+  const instance = axios.create();
+  intercept(instance, 'cf', logger);
+
+  const response = await instance.request({
+    baseURL: endpoint,
+    method,
+    timeout: DEFAULT_TIMEOUT,
+    url,
+    validateStatus: (status: number) => status > 0 && status < 501,
+
+    ...opts,
+  });
+
+  if (response.status < 200 || response.status >= 300) {
+    let msg = `cf: ${method} ${url} failed with status ${response.status}`;
+    if (typeof response.data === 'object') {
+      msg = `${msg} and data ${JSON.stringify(response.data)}`;
+    }
+
+    const err = new Error(msg);
+    /* istanbul ignore next */
+    if (typeof response.data === 'object' && response.data.error_code) {
+      // err.code = response.data.error_code;
+    }
+
+    throw err;
+  }
+
+  return response;
+}
 
 export default class CloudFoundryClient {
   private accessToken: string;
@@ -44,7 +83,7 @@ export default class CloudFoundryClient {
     this.logger = config.logger;
   }
 
-  public async getTokenEndpoint() {
+  public async getTokenEndpoint(): Promise<string> {
     /* istanbul ignore next */
     if (this.tokenEndpoint) {
       return this.tokenEndpoint;
@@ -92,8 +131,8 @@ export default class CloudFoundryClient {
     const token = await this.getAccessToken();
 
     return request(this.apiEndpoint, method, url, this.logger, {
-      headers: { Authorization: `Bearer ${token}` },
       data,
+      headers: { Authorization: `Bearer ${token}` },
       params,
     });
   }
@@ -504,52 +543,15 @@ export default class CloudFoundryClient {
       '/v3/audit_events',
       /* data */ undefined,
       /* params */ {
-        target_guids: targetGUIDs ? targetGUIDs.join(',') : undefined,
-        space_guids: spaceGUIDs ? spaceGUIDs.join(',') : undefined,
-        organization_guids: orgGUIDs ? orgGUIDs.join(',') : undefined,
         order_by: '-updated_at',
-        per_page: 25,
+        organization_guids: orgGUIDs ? orgGUIDs.join(',') : undefined,
         page,
+        per_page: 25,
+        space_guids: spaceGUIDs ? spaceGUIDs.join(',') : undefined,
+        target_guids: targetGUIDs ? targetGUIDs.join(',') : undefined,
       },
     );
 
     return resp.data;
   }
-}
-
-async function request(
-  endpoint: string,
-  method: httpMethod,
-  url: string,
-  logger: BaseLogger,
-  opts?: any,
-): Promise<AxiosResponse> {
-  const instance = axios.create();
-  intercept(instance, 'cf', logger);
-
-  const response = await instance.request({
-    method,
-    url,
-    baseURL: endpoint,
-    validateStatus: (status: number) => status > 0 && status < 501,
-    timeout: DEFAULT_TIMEOUT,
-    ...opts,
-  });
-
-  if (response.status < 200 || response.status >= 300) {
-    let msg = `cf: ${method} ${url} failed with status ${response.status}`;
-    if (typeof response.data === 'object') {
-      msg = `${msg} and data ${JSON.stringify(response.data)}`;
-    }
-
-    const err = new Error(msg);
-    /* istanbul ignore next */
-    if (typeof response.data === 'object' && response.data.error_code) {
-      // err.code = response.data.error_code;
-    }
-
-    throw err;
-  }
-
-  return response;
 }

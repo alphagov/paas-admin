@@ -1,7 +1,7 @@
 import { bisectLeft } from 'd3-array';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 
-export function getPeriod(rangeStart: Moment, rangeStop: Moment): number {
+export function getPeriod(rangeStart: moment.Moment, rangeStop: moment.Moment): number {
   const secondsDifference = rangeStop.diff(rangeStart) / 1000;
   const desiredNumberOfPoints = 300;
   const idealPeriod = secondsDifference / desiredNumberOfPoints;

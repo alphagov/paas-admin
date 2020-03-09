@@ -28,9 +28,9 @@ describe('lib/notify test suite', () => {
     });
 
     const personalisation = {
-      url: 'https://default.url',
-      organisation: 'DefaultOrg',
       location: 'DefaultLocation',
+      organisation: 'DefaultOrg',
+      url: 'https://default.url',
     };
 
     const notifyResponse = await notify.sendWelcomeEmail(

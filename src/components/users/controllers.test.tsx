@@ -6,14 +6,15 @@ import { userSummary } from '../../lib/cf/cf.test.data';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
-import * as users from './controllers';
-
 import {
   CLOUD_CONTROLLER_ADMIN,
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
   Token,
 } from '../auth';
+
+import * as users from './controllers';
+
 
 const tokenKey = 'secret';
 

@@ -1,13 +1,12 @@
 import React from 'react';
 
+import { Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import { IRoute } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
-
 import { IContext } from '../app/context';
 import { fromOrg } from '../breadcrumbs';
 
-import { Template } from '../../layouts';
 import { ApplicationPage } from './views';
 
 function buildURL(route: IRoute): string {
@@ -67,11 +66,11 @@ export async function viewApplication(
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
-      text: space.entity.name,
       href: ctx.linkTo('admin.organizations.spaces.applications.list', {
         organizationGUID: organization.metadata.guid,
         spaceGUID: space.metadata.guid,
       }),
+      text: space.entity.name,
     },
     { text: summarisedApplication.entity.name },
   ]);

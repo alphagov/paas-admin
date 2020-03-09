@@ -1,4 +1,5 @@
 import moment from 'moment';
+
 import roundDown from '../moment/round';
 
 export type ElasticsearchMetricName = string;
@@ -14,23 +15,23 @@ export type MetricName =
   | RDSMetricName;
 
 export interface IMetric {
-  date: Date;
-  value: number;
+  readonly date: Date;
+  readonly value: number;
 }
 
 export interface IMetricSerieSummary {
-  label: string;
+  readonly label: string;
 
-  average: number;
-  latest: number;
-  min: number;
-  max: number;
+  readonly average: number;
+  readonly latest: number;
+  readonly min: number;
+  readonly max: number;
 }
 
 export interface IMetricSerie {
-  label: string;
+  readonly label: string;
 
-  metrics: ReadonlyArray<IMetric>;
+  readonly metrics: ReadonlyArray<IMetric>;
 }
 
 export interface IMetricDataGetter {

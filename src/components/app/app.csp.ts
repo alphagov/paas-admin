@@ -1,18 +1,20 @@
-export default {
+export const csp = {
   directives: {
-    defaultSrc: [`'none'`],
-    styleSrc: [`'self'`, `'unsafe-inline'`],
+    connectSrc: ['\'self\'', 'www.google-analytics.com'],
+    defaultSrc: ['\'none\''],
+    fontSrc: ['\'self\'', 'data:'],
+    frameSrc: ['\'self\''],
+    imgSrc: ['\'self\'', 'www.google-analytics.com'],
+    mediaSrc: ['\'self\''],
+    objectSrc: ['\'self\''],
     scriptSrc: [
-      `'self'`,
-      `'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU='`,
+      '\'self\'',
+      '\'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU=\'',
       'www.google-analytics.com',
       'www.googletagmanager.com',
     ],
-    imgSrc: [`'self'`, 'www.google-analytics.com'],
-    connectSrc: [`'self'`, 'www.google-analytics.com'],
-    frameSrc: [`'self'`],
-    fontSrc: [`'self'`, 'data:'],
-    objectSrc: [`'self'`],
-    mediaSrc: [`'self'`],
+    styleSrc: ['\'self\'', '\'unsafe-inline\''],
   },
 };
+
+export default csp;

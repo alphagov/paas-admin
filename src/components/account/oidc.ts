@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import nanoid from 'nanoid';
 import * as oidc from 'openid-client';
+
 import UAAClient from '../../lib/uaa';
 import { UaaOrigin } from '../../lib/uaa/uaa';
 import { IContext } from '../app';
@@ -23,16 +25,16 @@ export default class OIDC {
     const state = this.generateStateToken();
 
     const redirectUrl = client.authorizationUrl({
-      scope: 'openid profile email',
-      response_type: 'code',
       redirect_uri: this.redirectURL,
+      response_type: 'code',
+      scope: 'openid profile email',
       // @ts-ignore
       state,
     });
 
     session[KEY_STATE] = {
-      state,
       response_type: 'code',
+      state,
     };
 
     return redirectUrl;
@@ -47,11 +49,11 @@ export default class OIDC {
     try {
       const client = await this.createOIDCClient();
 
-      const { state, response_type } = ctx.session[KEY_STATE];
+      const { response_type, state } = ctx.session[KEY_STATE];
 
       const tokenSet = await client.callback(this.redirectURL, authResponse, {
-        state,
         response_type,
+        state,
       });
 
       let newUsername;

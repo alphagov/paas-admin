@@ -160,7 +160,7 @@ describe('lib/uaa test suite', () => {
 
     nockUAA.get('/token_keys').reply(400, { message: 'pwnd' });
 
-    return expect(client.getSigningKeys()).rejects.toThrow(/status 400/);
+    await expect(client.getSigningKeys()).rejects.toThrow(/status 400/);
   });
 
   it('should retrieve particular user successfully', async () => {
@@ -195,10 +195,7 @@ describe('lib/uaa test suite', () => {
       .get('/Users/user-b')
       .reply(200, { id: 'user-b' });
 
-    const users = (await client.getUsers([
-      'user-a',
-      'user-b',
-    ])) as ReadonlyArray<IUaaUser>;
+    const users = await client.getUsers([ 'user-a', 'user-b' ]) as ReadonlyArray<IUaaUser>;
 
     expect(users.length).toEqual(2);
     expect(users[0].id).toEqual('user-a');
@@ -212,13 +209,13 @@ describe('lib/uaa test suite', () => {
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
 
     const accessToken = await authenticateUser(config.apiEndpoint, {
-      username: 'brucebanner',
       password: 'youwouldntlikemewhenimangry',
+      username: 'brucebanner',
     });
     expect(accessToken).toEqual('FAKE_ACCESS_TOKEN');
   });
 
-  it(`should set the user's origin`, async () => {
+  it('should set the user\'s origin', async () => {
     const isCorrectPatchBody: RequestBodyMatcher = body =>
       body.origin === 'google';
 

@@ -1,8 +1,8 @@
 import moment from 'moment';
 import nock from 'nock';
-import { createTestContext } from '../app/app.test-helpers';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
+import { createTestContext } from '../app/app.test-helpers';
 import { config } from '../app/app.test.config';
 import { IContext } from '../app/context';
 import { getCalculator } from '../calculator';
@@ -10,20 +10,20 @@ import { getCalculator } from '../calculator';
 const ctx: IContext = createTestContext();
 
 const defaultPricingPlan = {
-  name: 'default-plan-name',
-  plan_guid: 'default-plan-guid',
-  valid_from: '2017-01-01T00:00:00+00:00',
   components: [
     {
-      name: 'instance',
-      formula: 'ceil($time_in_seconds/3600) * 0.01',
-      vat_code: 'Standard',
       currency_code: 'USD',
+      formula: 'ceil($time_in_seconds/3600) * 0.01',
+      name: 'instance',
+      vat_code: 'Standard',
     },
   ],
   memory_in_mb: 0,
-  storage_in_mb: 0,
+  name: 'default-plan-name',
   number_of_nodes: 0,
+  plan_guid: 'default-plan-guid',
+  storage_in_mb: 0,
+  valid_from: '2017-01-01T00:00:00+00:00',
 };
 
 describe('calculator test suite', () => {
@@ -144,29 +144,29 @@ describe('calculator test suite', () => {
         JSON.stringify([
           {
             ...defaultPricingPlan,
-            name: 'app',
-            plan_guid: '00000000-0000-0000-0000-000000000001',
             components: [
               {
-                name: 'instance',
-                formula: '9.99',
-                vat_code: 'Standard',
                 currency_code: 'USD',
+                formula: '9.99',
+                name: 'instance',
+                vat_code: 'Standard',
               },
             ],
+            name: 'app',
+            plan_guid: '00000000-0000-0000-0000-000000000001',
           },
           {
             ...defaultPricingPlan,
-            name: 'postgres',
-            plan_guid: '00000000-0000-0000-0000-000000000002',
             components: [
               {
-                name: 'instance',
-                formula: '6.66',
-                vat_code: 'Standard',
                 currency_code: 'USD',
+                formula: '6.66',
+                name: 'instance',
+                vat_code: 'Standard',
               },
             ],
+            name: 'postgres',
+            plan_guid: '00000000-0000-0000-0000-000000000002',
           },
         ]),
       )
@@ -176,8 +176,8 @@ describe('calculator test suite', () => {
         JSON.stringify([
           {
             code: 'USD',
-            valid_from: '1970-01-01T00:00:00.000Z',
             rate: 2.0,
+            valid_from: '1970-01-01T00:00:00.000Z',
           },
         ]),
       );
@@ -185,16 +185,16 @@ describe('calculator test suite', () => {
     const response = await getCalculator(ctx, {
       items: [
         {
-          planGUID: '00000000-0000-0000-0000-000000000001',
           numberOfNodes: '1',
-        },
-        {
           planGUID: '00000000-0000-0000-0000-000000000001',
-          numberOfNodes: '2',
         },
         {
-          planGUID: '00000000-0000-0000-0000-000000000002',
           numberOfNodes: '2',
+          planGUID: '00000000-0000-0000-0000-000000000001',
+        },
+        {
+          numberOfNodes: '2',
+          planGUID: '00000000-0000-0000-0000-000000000002',
         },
       ],
     });
@@ -241,15 +241,15 @@ describe('calculator test suite', () => {
         JSON.stringify([
           {
             code: 'USD',
-            valid_from: '1970-01-01T00:00:00.000Z',
             rate: 2.0,
+            valid_from: '1970-01-01T00:00:00.000Z',
           },
         ]),
       );
 
     const response = await getCalculator(ctx, {
       items: [
-        { planGUID: appGuid, numberOfNodes: '1', memoryInMB: 512 },
+        { memoryInMB: 512, numberOfNodes: '1', planGUID: appGuid },
         { planGUID: postgresGuid },
       ],
     });
@@ -370,26 +370,26 @@ describe('calculator test suite', () => {
         200,
         JSON.stringify([
           {
-            name: 'mysql mysql-medium-5.7',
-            plan_guid: '_SERVICE_PLAN_GUID_',
-            valid_from: '2002-01-01',
             components: [
               {
-                name: 'cpu-usage',
-                formula: '$number_of_nodes * 0.001 * $time_in_seconds',
-                vat_code: 'Standard',
                 currency_code: 'GBP',
+                formula: '$number_of_nodes * 0.001 * $time_in_seconds',
+                name: 'cpu-usage',
+                vat_code: 'Standard',
               },
               {
-                name: 'storage-usage',
-                formula: '$storage_in_mb * 0.0001 * $time_in_seconds',
-                vat_code: 'Standard',
                 currency_code: 'GBP',
+                formula: '$storage_in_mb * 0.0001 * $time_in_seconds',
+                name: 'storage-usage',
+                vat_code: 'Standard',
               },
             ],
             memory_in_mb: 345,
-            storage_in_mb: 543,
+            name: 'mysql mysql-medium-5.7',
             number_of_nodes: 1,
+            plan_guid: '_SERVICE_PLAN_GUID_',
+            storage_in_mb: 543,
+            valid_from: '2002-01-01',
           },
         ]),
       )
@@ -399,8 +399,8 @@ describe('calculator test suite', () => {
         JSON.stringify([
           {
             code: 'USD',
-            valid_from: '1970-01-01T00:00:00.000Z',
             rate: 2.0,
+            valid_from: '1970-01-01T00:00:00.000Z',
           },
         ]),
       );

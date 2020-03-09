@@ -13,111 +13,6 @@ interface IBillingClientConfig {
   readonly logger: BaseLogger;
 }
 
-export default class BillingClient {
-  constructor(private readonly config: IBillingClientConfig) {
-    this.config = config;
-  }
-
-  public async request(req: AxiosRequestConfig): Promise<AxiosResponse> {
-    return request(
-      {
-        baseURL: this.config.apiEndpoint,
-        headers: {
-          Authorization: `Bearer ${this.config.accessToken}`,
-        },
-        paramsSerializer(params) {
-          return qs.stringify(params, {
-            indices: false,
-          });
-        },
-        ...req,
-      },
-      this.config.logger,
-    );
-  }
-
-  public async getBillableEvents(
-    params: IEventFilter,
-  ): Promise<ReadonlyArray<IBillableEvent>> {
-    const response = await this.request({
-      url: '/billable_events',
-      params: {
-        range_start: parseDate(params.rangeStart),
-        range_stop: parseDate(params.rangeStop),
-        org_guid: params.orgGUIDs,
-      },
-    });
-
-    const data: ReadonlyArray<IBillableEventResponse> = response.data;
-
-    return data.map(parseBillableEvent);
-  }
-
-  public async getForecastEvents(
-    params: IForecastParameters,
-  ): Promise<ReadonlyArray<IBillableEvent>> {
-    const response = await this.request({
-      url: '/forecast_events',
-      params: {
-        range_start: parseDate(params.rangeStart),
-        range_stop: parseDate(params.rangeStop),
-        org_guid: params.orgGUIDs,
-        events: JSON.stringify(params.events.map(parseUsageEventResponse)),
-      },
-    });
-
-    const data: ReadonlyArray<IBillableEventResponse> = response.data;
-
-    return data.map(parseBillableEvent);
-  }
-
-  public async getPricingPlans(
-    params: IRangeable,
-  ): Promise<ReadonlyArray<IPricingPlan>> {
-    const response = await this.request({
-      url: '/pricing_plans',
-      params: {
-        range_start: parseDate(params.rangeStart),
-        range_stop: parseDate(params.rangeStop),
-      },
-    });
-
-    const data: ReadonlyArray<IPricingPlanResponse> = response.data;
-
-    return data.map(parsePricingPlan);
-  }
-
-  public async getCurrencyRates(
-    params: IRangeable,
-  ): Promise<ReadonlyArray<IRate>> {
-    const response = await this.request({
-      url: '/currency_rates',
-      params: {
-        range_start: parseDate(params.rangeStart),
-        range_stop: parseDate(params.rangeStop),
-      },
-    });
-
-    const data: ReadonlyArray<IRateResponse> = response.data;
-
-    return data.map(parseRate);
-  }
-
-  public async getVATRates(params: IRangeable): Promise<ReadonlyArray<IRate>> {
-    const response = await this.request({
-      url: '/vat_rates',
-      params: {
-        range_start: parseDate(params.rangeStart),
-        range_stop: parseDate(params.rangeStop),
-      },
-    });
-
-    const data: ReadonlyArray<IRateResponse> = response.data;
-
-    return data.map(parseRate);
-  }
-}
-
 function parseDate(d: Date): string {
   const m = moment(d);
 
@@ -148,15 +43,15 @@ function parseUsageEvent(ev: IUsageEventResponse): IUsageEvent {
     eventGUID: ev.event_guid,
     eventStart: parseTimestamp(ev.event_start),
     eventStop: parseTimestamp(ev.event_stop),
+    memoryInMB: ev.memory_in_mb,
+    numberOfNodes: ev.number_of_nodes,
+    orgGUID: ev.org_guid,
+    planGUID: ev.plan_guid,
     resourceGUID: ev.resource_guid,
     resourceName: ev.resource_name,
     resourceType: ev.resource_type,
-    orgGUID: ev.org_guid,
     spaceGUID: ev.space_guid,
     spaceName: ev.space_name,
-    planGUID: ev.plan_guid,
-    numberOfNodes: ev.number_of_nodes,
-    memoryInMB: ev.memory_in_mb,
     storageInMB: ev.storage_in_mb,
   };
 }
@@ -166,42 +61,51 @@ function parseUsageEventResponse(ev: IUsageEvent): IUsageEventResponse {
     event_guid: ev.eventGUID,
     event_start: parseDate(ev.eventStart),
     event_stop: parseDate(ev.eventStop),
+    memory_in_mb: ev.memoryInMB,
+    number_of_nodes: ev.numberOfNodes,
+    org_guid: ev.orgGUID,
+    plan_guid: ev.planGUID,
     resource_guid: ev.resourceGUID,
     resource_name: ev.resourceName,
     resource_type: ev.resourceType,
-    org_guid: ev.orgGUID,
     space_guid: ev.spaceGUID,
     space_name: ev.spaceName,
-    plan_guid: ev.planGUID,
-    number_of_nodes: ev.numberOfNodes,
-    memory_in_mb: ev.memoryInMB,
     storage_in_mb: ev.storageInMB,
   };
 }
 
 function parsePriceComponent(pc: IPriceComponentResponse): IPriceComponent {
   return {
+    currencyCode: pc.currency_code,
+    exVAT: parseNumber(pc.ex_vat),
+    incVAT: parseNumber(pc.inc_vat),
     name: pc.name,
     planName: pc.plan_name,
     start: parseTimestamp(pc.start),
     stop: parseTimestamp(pc.stop),
     VATCode: pc.vat_code,
     VATRate: parseNumber(pc.vat_rate),
-    currencyCode: pc.currency_code,
-    incVAT: parseNumber(pc.inc_vat),
-    exVAT: parseNumber(pc.ex_vat),
   };
 }
 
 function parseBillableEvent(ev: IBillableEventResponse): IBillableEvent {
   return {
     ...parseUsageEvent(ev),
-    quotaGUID: ev.quota_definition_guid,
     price: {
-      incVAT: parseNumber(ev.price.inc_vat),
-      exVAT: parseNumber(ev.price.ex_vat),
       details: ev.price.details.map(parsePriceComponent),
+      exVAT: parseNumber(ev.price.ex_vat),
+      incVAT: parseNumber(ev.price.inc_vat),
     },
+    quotaGUID: ev.quota_definition_guid,
+  };
+}
+
+function parseComponentResponse(component: IComponentResponse): IComponent {
+  return {
+    currencyCode: component.currency_code,
+    formula: component.formula,
+    name: component.name,
+    vatCode: component.vat_code,
   };
 }
 
@@ -213,32 +117,27 @@ function parsePricingPlan(plan: IPricingPlanResponse): IPricingPlan {
   const [serviceName, ...planName] = plan.name.split(/\s+/);
 
   return {
-    serviceName,
-    planName: planName.join('-'),
-    planGUID: plan.plan_guid,
-    validFrom: parseTimestamp(plan.valid_from),
     components: plan.components.map(parseComponentResponse),
-    numberOfNodes: plan.number_of_nodes,
     memoryInMB: plan.memory_in_mb,
+    numberOfNodes: plan.number_of_nodes,
+    planGUID: plan.plan_guid,
+    planName: planName.join('-'),
+    serviceName,
     storageInMB: plan.storage_in_mb,
-  };
-}
-
-function parseComponentResponse(component: IComponentResponse): IComponent {
-  return {
-    name: component.name,
-    currencyCode: component.currency_code,
-    formula: component.formula,
-    vatCode: component.vat_code,
+    validFrom: parseTimestamp(plan.valid_from),
   };
 }
 
 function parseRate(rate: IRateResponse): IRate {
   return {
     code: rate.code,
-    validFrom: parseTimestamp(rate.valid_from),
     rate: parseNumber(rate.rate),
+    validFrom: parseTimestamp(rate.valid_from),
   };
+}
+
+function validateStatus(status: number): boolean {
+  return status > 0 && status < 501;
 }
 
 async function request(
@@ -247,8 +146,8 @@ async function request(
 ): Promise<AxiosResponse> {
   const reqWithDefaults: AxiosRequestConfig = {
     method: 'get',
-    validateStatus,
     timeout: DEFAULT_TIMEOUT,
+    validateStatus,
     ...req,
   };
 
@@ -275,6 +174,105 @@ async function request(
   return response;
 }
 
-function validateStatus(status: number) {
-  return status > 0 && status < 501;
+export default class BillingClient {
+  constructor(private readonly config: IBillingClientConfig) {
+    this.config = config;
+  }
+
+  public async request(req: AxiosRequestConfig): Promise<AxiosResponse> {
+    return await request(
+      {
+        baseURL: this.config.apiEndpoint,
+        headers: {
+          Authorization: `Bearer ${this.config.accessToken}`,
+        },
+        paramsSerializer(params) {
+          return qs.stringify(params, {
+            indices: false,
+          });
+        },
+        ...req,
+      },
+      this.config.logger,
+    );
+  }
+
+  public async getBillableEvents(
+    params: IEventFilter,
+  ): Promise<ReadonlyArray<IBillableEvent>> {
+    const response = await this.request({
+      params: {
+        org_guid: params.orgGUIDs,
+        range_start: parseDate(params.rangeStart),
+        range_stop: parseDate(params.rangeStop),
+      },
+      url: '/billable_events',
+    });
+
+    const data: ReadonlyArray<IBillableEventResponse> = response.data;
+
+    return data.map(parseBillableEvent);
+  }
+
+  public async getForecastEvents(params: IForecastParameters): Promise<ReadonlyArray<IBillableEvent>> {
+    const response = await this.request({
+      params: {
+        events: JSON.stringify(params.events.map(parseUsageEventResponse)),
+        org_guid: params.orgGUIDs,
+        range_start: parseDate(params.rangeStart),
+        range_stop: parseDate(params.rangeStop),
+      },
+      url: '/forecast_events',
+    });
+
+    const data: ReadonlyArray<IBillableEventResponse> = response.data;
+
+    return data.map(parseBillableEvent);
+  }
+
+  public async getPricingPlans(
+    params: IRangeable,
+  ): Promise<ReadonlyArray<IPricingPlan>> {
+    const response = await this.request({
+      params: {
+        range_start: parseDate(params.rangeStart),
+        range_stop: parseDate(params.rangeStop),
+      },
+      url: '/pricing_plans',
+    });
+
+    const data: ReadonlyArray<IPricingPlanResponse> = response.data;
+
+    return data.map(parsePricingPlan);
+  }
+
+  public async getCurrencyRates(
+    params: IRangeable,
+  ): Promise<ReadonlyArray<IRate>> {
+    const response = await this.request({
+      params: {
+        range_start: parseDate(params.rangeStart),
+        range_stop: parseDate(params.rangeStop),
+      },
+      url: '/currency_rates',
+    });
+
+    const data: ReadonlyArray<IRateResponse> = response.data;
+
+    return data.map(parseRate);
+  }
+
+  public async getVATRates(params: IRangeable): Promise<ReadonlyArray<IRate>> {
+    const response = await this.request({
+      params: {
+        range_start: parseDate(params.rangeStart),
+        range_stop: parseDate(params.rangeStop),
+      },
+      url: '/vat_rates',
+    });
+
+    const data: ReadonlyArray<IRateResponse> = response.data;
+
+    return data.map(parseRate);
+  }
 }

@@ -15,59 +15,61 @@ describe('app test suite - router-middleware', () => {
     const app = express();
     const router = new Router([
       {
+        action: async (_c, _p, _b) => await Promise.resolve({ body: { message: 'ok' } }),
         name: 'home',
-        action: async (_c, _p, _b) => ({ body: { message: 'ok' } }),
         path: '/',
       },
       {
-        name: 'notModified',
-        action: async (_c, _p, _b) => ({
+        action: async (_c, _p, _b) => await Promise.resolve({
           body: { message: 'ok' },
           status: 304,
         }),
+        name: 'notModified',
         path: '/304',
       },
       {
+        action: async (_c, _p, _b) => await Promise.resolve({ redirect: '/' }),
         name: 'redirect',
-        action: async (_c, _p, _b) => ({ redirect: '/' }),
         path: '/redirect',
       },
       {
-        name: 'serverError',
         action: async () => {
           throw new Error('TESTING 500');
+          await Promise.resolve('BAD');
         },
+        name: 'serverError',
         path: '/500',
       },
       {
-        name: 'notAuthorisedError',
         action: async () => {
           throw new NotAuthorisedError('DENIED 403');
+          await Promise.resolve('BAD');
         },
+        name: 'notAuthorisedError',
         path: '/403',
       },
       {
-        name: 'hello',
-        action: async (_c, p, _b) => ({
+        action: async (_c, p, _b) => await Promise.resolve({
           body: { message: `Hello, ${p.name}!` },
         }),
+        name: 'hello',
         path: '/hello/:name',
       },
       {
-        name: 'download',
-        action: async (_c, _p, _b) => ({
+        action: async (_c, _p, _b) => await Promise.resolve({
           download: { data: 'text', name: 'download.txt' },
         }),
+        name: 'download',
         path: '/download',
       },
       {
+        action: async (_c, _p, _b) => await Promise.resolve({ mimeType: 'image/png' }),
         name: 'png-mimetype',
-        action: async (_c, _p, _b) => ({ mimeType: 'image/png' }),
         path: '/image',
       },
       {
+        action: async (_c, _p, _b) => await Promise.resolve({ mimeType: 'text/csv' }),
         name: 'csv-mimetype',
-        action: async (_c, _p, _b) => ({ mimeType: 'text/csv' }),
         path: '/csv',
       },
     ]);

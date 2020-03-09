@@ -1,4 +1,5 @@
 import moment from 'moment';
+
 import { getPeriod } from './utils';
 
 describe('getPeriod', () => {

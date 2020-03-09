@@ -2,7 +2,6 @@ import cheerio from 'cheerio';
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
-import * as orgUsers from '.';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as cfData from '../../lib/cf/cf.test.data';
@@ -13,6 +12,8 @@ import { IContext } from '../app/context';
 import { Token } from '../auth';
 
 import { composeOrgRoles, composeSpaceRoles } from './test-helpers';
+
+import * as orgUsers from '.';
 
 const tokenKey = 'secret';
 

@@ -91,7 +91,7 @@ interface IOrganizationUsersPageProperties {
   readonly organizationGUID: string;
   readonly privileged: boolean;
   readonly users: IUserRolesByGuid;
-  readonly userOriginMapping: { [key: string]: string };
+  readonly userOriginMapping: { readonly [key: string]: string };
 }
 
 export function Permission(props: IPermissionProperties): ReactElement {
@@ -145,7 +145,7 @@ export function PermissionTable(
       <h2 className="govuk-heading-l">Set org and space roles</h2>
       <h4 className="govuk-heading-s">Organisation level roles</h4>
 
-      <details className="govuk-details" role="group">
+      <details className="govuk-details">
         <summary
           className="govuk-details__summary"
           role="button"
@@ -258,7 +258,7 @@ export function PermissionTable(
         </tbody>
       </table>
       <h4 className="govuk-heading-s">Space level roles</h4>
-      <details className="govuk-details" role="group">
+      <details className="govuk-details">
         <summary
           className="govuk-details__summary"
           role="button"
@@ -446,7 +446,7 @@ export function SuccessPage(props: ISuccessPageProperties): ReactElement {
   );
 }
 
-export function EditPage(props: IEditPageProperties) {
+export function EditPage(props: IEditPageProperties): ReactElement {
   return (
     <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
@@ -668,7 +668,7 @@ export function OrganizationUsersPage(
             profile page.
           </p>
 
-          <details className="govuk-details" role="group">
+          <details className="govuk-details">
             <summary
               className="govuk-details__summary"
               role="button"

@@ -1,8 +1,9 @@
 import moment from 'moment';
+
 import roundDown from './round';
 
 describe('rounding dates down', () => {
-  it('should round down the time to nearest 5min interval', async () => {
+  it('should round down the time to nearest 5min interval', () => {
     const fiveMins = moment.duration(5, 'minutes');
     expect(
       roundDown(moment('2019-11-13 09:03:00'), fiveMins).toISOString(),
@@ -21,7 +22,7 @@ describe('rounding dates down', () => {
     ).toEqual('2019-11-08T16:45:00.000Z');
   });
 
-  it('should round down the time to nearest day', async () => {
+  it('should round down the time to nearest day', () => {
     const oneDay = moment.duration(1, 'day');
     expect(
       roundDown(moment('2019-11-13 09:03:00'), oneDay).toISOString(),
@@ -40,7 +41,7 @@ describe('rounding dates down', () => {
     ).toEqual('2019-11-08T00:00:00.000Z');
   });
 
-  it('should round down the time to nearest second', async () => {
+  it('should round down the time to nearest second', () => {
     const oneSecond = moment.duration(1, 'second');
     expect(
       roundDown(moment('2019-11-13 09:03:00.123'), oneSecond).toISOString(),

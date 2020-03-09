@@ -1,5 +1,6 @@
-import RouteParser from 'route-parser';
 import { URL, URLSearchParams } from 'url';
+
+import RouteParser from 'route-parser';
 
 export interface IParameters {
   readonly [i: string]: any;

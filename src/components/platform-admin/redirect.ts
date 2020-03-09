@@ -1,34 +1,5 @@
 import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
-
 import { IContext } from '../app/context';
-
-export async function redirectToPage(
-  ctx: IContext,
-  params: IParameters,
-  body: any,
-): Promise<IResponse> {
-  const token = ctx.token;
-
-  if (!token.hasAdminScopes()) {
-    throw new NotAuthorisedError('not a platform admin');
-  }
-
-  const action = body.action;
-
-  if (typeof action === 'undefined') {
-    throw new Error('Action not present');
-  }
-
-  if (action === 'find-user') {
-    return findUser(ctx, params, body);
-  }
-
-  if (action === 'view-costs') {
-    return viewCosts(ctx, params, body);
-  }
-
-  throw new Error(`Unknown action: ${action}`);
-}
 
 async function findUser(
   ctx: IContext,
@@ -41,9 +12,9 @@ async function findUser(
     throw new Error('Field email-or-user-guid is undefined or blank');
   }
 
-  return {
+  return await Promise.resolve({
     redirect: ctx.linkTo('users.get', { emailOrUserGUID }),
-  };
+  });
 }
 
 async function viewCosts(
@@ -75,7 +46,35 @@ async function viewCosts(
     );
   }
 
-  return {
+  return await Promise.resolve({
     redirect: ctx.linkTo(`admin.reports.${format}`, { rangeStart }),
-  };
+  });
+}
+
+export async function redirectToPage(
+  ctx: IContext,
+  params: IParameters,
+  body: any,
+): Promise<IResponse> {
+  const token = ctx.token;
+
+  if (!token.hasAdminScopes()) {
+    throw new NotAuthorisedError('not a platform admin');
+  }
+
+  const action = body.action;
+
+  if (typeof action === 'undefined') {
+    throw new Error('Action not present');
+  }
+
+  if (action === 'find-user') {
+    return await findUser(ctx, params, body);
+  }
+
+  if (action === 'view-costs') {
+    return await viewCosts(ctx, params, body);
+  }
+
+  throw new Error(`Unknown action: ${action}`);
 }

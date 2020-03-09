@@ -1,6 +1,7 @@
-const webpack = require('webpack');
-const NodemonPlugin = require('nodemon-webpack-plugin');
 const path = require('path');
+
+const NodemonPlugin = require('nodemon-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = cfg => {
   if (cfg.watch) {
@@ -8,8 +9,9 @@ module.exports = cfg => {
       watch: path.resolve('./dist'),
       ignore: ['*.map'],
       verbose: true,
-      script: './dist/main.js'
+      script: './dist/main.js',
     }));
   }
-  return cfg;
+
+return cfg;
 };

@@ -2,7 +2,6 @@ import lodash from 'lodash';
 import moment from 'moment';
 import nock from 'nock';
 
-import * as spaces from '.';
 
 import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
@@ -16,6 +15,8 @@ import {
 } from '../../lib/cf/test-data/wrap-resources';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
+
+import * as spaces from '.';
 
 const ctx: IContext = createTestContext();
 const spaceGUID = 'bc8d3381-390d-4bd7-8c71-25309900a2e3';
@@ -400,12 +401,8 @@ describe('spaces test suite', () => {
 
         expect(response.body).toContain('name-2064 - Space Events');
         expect(response.body).toContain('1337 total events');
-        expect(response.body).toContain(
-          '<a class="govuk-link">Previous page</a>',
-        );
-        expect(response.body).not.toContain(
-          '<a class="govuk-link" disabled>Next page</a>',
-        );
+        expect(response.body).toContain('<span>Previous page</span>');
+        expect(response.body).not.toContain('<span>Next page</span>');
         expect(response.body).toContain('Next page');
 
         expect(response.body).toContain('one@user.in.database');

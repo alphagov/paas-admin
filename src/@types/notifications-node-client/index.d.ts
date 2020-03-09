@@ -24,9 +24,9 @@ declare module 'notifications-node-client' {
       template: string,
       email: string,
       params?: {
-        personalisation?: object;
-        reference?: string;
-        emailReplyToId?: string;
+        readonly personalisation?: object;
+        readonly reference?: string;
+        readonly emailReplyToId?: string;
       },
     ): Promise<IResponse>;
   }

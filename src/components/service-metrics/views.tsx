@@ -2,7 +2,7 @@ import { forIn } from 'lodash';
 import moment from 'moment';
 import React, { ReactElement, ReactNode } from 'react';
 
-import { DATE_TIME, bytesToHuman } from '../../layouts';
+import { bytesToHuman, DATE_TIME } from '../../layouts';
 import { IServiceInstance } from '../../lib/cf/types';
 import { IMetricSerieSummary } from '../../lib/metrics';
 import { RouteActiveChecker, RouteLinker } from '../app';
@@ -83,7 +83,7 @@ function parseURL(path: string, params: object): string {
 }
 
 class MetricChart extends React.Component {
-  constructor(public props: IMetricChartProperties) {
+  constructor(public readonly props: IMetricChartProperties) {
     super(props);
   }
 
@@ -94,6 +94,7 @@ class MetricChart extends React.Component {
   private MetricChartGraph(): ReactElement {
     return (
       <div
+        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           // eslint-disable-next-line react/prop-types
           __html: (this.props.chart as unknown) as string,
@@ -220,8 +221,8 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
         <a
           href={props.linkTo('admin.organizations.spaces.services.view', {
             organizationGUID: props.organizationGUID,
-            spaceGUID: props.spaceGUID,
             serviceGUID: props.service.metadata.guid,
+            spaceGUID: props.spaceGUID,
           })}
           className="govuk-link non-breaking"
         >
@@ -260,22 +261,22 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
 
         <ol className="govuk-list">
           {[
-            { short: '1h', long: '1 hour' },
-            { short: '3h', long: '3 hours' },
-            { short: '12h', long: '12 hours' },
-            { short: '24h', long: '24 hours' },
-            { short: '7d', long: '7 days' },
-            { short: '30d', long: '30 days' },
+            { long: '1 hour', short: '1h' },
+            { long: '3 hours', short: '3h' },
+            { long: '12 hours', short: '12h' },
+            { long: '24 hours', short: '24h' },
+            { long: '7 days', short: '7d' },
+            { long: '30 days', short: '30d' },
           ].map(last => (
             <li key={last.short}>
               <a
                 href={props.linkTo(
                   'admin.organizations.spaces.services.metrics.redirect',
                   {
-                    organizationGUID: props.organizationGUID,
-                    spaceGUID: props.spaceGUID,
-                    serviceGUID: props.service.metadata.guid,
                     offset: last.short,
+                    organizationGUID: props.organizationGUID,
+                    serviceGUID: props.service.metadata.guid,
+                    spaceGUID: props.spaceGUID,
                   },
                 )}
                 className="govuk-link"
@@ -293,8 +294,8 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
             'admin.organizations.spaces.services.metrics.view',
             {
               organizationGUID: props.organizationGUID,
-              spaceGUID: props.spaceGUID,
               serviceGUID: props.service.metadata.guid,
+              spaceGUID: props.spaceGUID,
             },
           )}
         >

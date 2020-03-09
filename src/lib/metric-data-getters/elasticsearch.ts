@@ -2,13 +2,12 @@ import _ from 'lodash';
 import moment from 'moment';
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
-
 import PromClient from '../prom';
 
 import { PrometheusMetricDataGetter } from './prometheus';
 
 export interface IPrometheusMetric {
-  promQL: (guid: string) => string;
+  readonly promQL: (guid: string) => string;
 }
 
 const elasticsearchMetricPropertiesById: {

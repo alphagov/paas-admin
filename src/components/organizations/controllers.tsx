@@ -1,12 +1,12 @@
 import lodash from 'lodash';
 import React from 'react';
 
+import { Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import { IOrganization } from '../../lib/cf/types';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app/context';
 
-import { Template } from '../../layouts';
 import { OrganizationsPage } from './views';
 
 function sortOrganizationsByName(
@@ -36,7 +36,7 @@ export async function listOrganizations(
     organizations.map(o => o.entity.quota_definition_guid),
   );
   const orgQuotas = await Promise.all(
-    orgQuotaGUIDs.map(q => cf.organizationQuota(q)),
+    orgQuotaGUIDs.map(async q => await cf.organizationQuota(q)),
   );
   const orgQuotasByGUID = lodash.keyBy(orgQuotas, q => q.metadata.guid);
   const template = new Template(ctx.viewContext, 'Organisations');

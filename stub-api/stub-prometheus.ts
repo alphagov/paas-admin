@@ -2,7 +2,7 @@ import express from 'express';
 import lodash from 'lodash';
 import moment from 'moment';
 
-import {IStubServerPorts} from './index';
+import { IStubServerPorts } from './index';
 
 function mockPrometheus(
   app: express.Application,

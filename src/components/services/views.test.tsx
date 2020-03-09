@@ -3,6 +3,7 @@ import { shallow } from 'enzyme';
 import React from 'react';
 
 import { IService, IServiceInstance, IServicePlan } from '../../lib/cf/types';
+
 import { ServicePage, ServiceTab } from './views';
 
 describe(ServiceTab, () => {

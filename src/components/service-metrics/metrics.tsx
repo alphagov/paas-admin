@@ -1,9 +1,10 @@
 import React from 'react';
 
+import { bytesConvert } from '../../layouts';
 import { IMetricSerie, IMetricSerieSummary } from '../../lib/metrics';
 import { drawLineGraph } from '../charts/line-graph';
+
 import { IMetricProperties } from './views';
-import { bytesConvert } from '../../layouts';
 
 interface ISeries {
   readonly [key: string]: ReadonlyArray<IMetricSerie>;

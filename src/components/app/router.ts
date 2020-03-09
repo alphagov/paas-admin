@@ -1,5 +1,4 @@
-import Router, { IParameters } from '../../lib/router';
-
+import Router, { IParameters, IResponse } from '../../lib/router';
 import * as account from '../account';
 import * as applicationEvents from '../application-events';
 import * as applications from '../applications';
@@ -13,11 +12,12 @@ import * as services from '../services';
 import * as spaces from '../spaces';
 import * as statements from '../statements';
 import * as users from '../users';
+
 import { IContext } from './context';
 
-const router = new Router([
+export const router = new Router([
   {
-    action: async (ctx: IContext, _params: IParameters) => ({
+    action: async (ctx: IContext, _params: IParameters): Promise<IResponse> => await Promise.resolve({
       redirect: ctx.linkTo('admin.organizations'),
     }),
     name: 'admin.home',
@@ -199,8 +199,8 @@ const router = new Router([
   },
   {
     action: account.postUseGoogleSSO,
-    name: 'account.use-google-sso.post',
     method: 'post',
+    name: 'account.use-google-sso.post',
     path: '/my-account/use-google-sso',
   },
   {
@@ -215,8 +215,8 @@ const router = new Router([
   },
   {
     action: account.postUseMicrosoftSSO,
-    name: 'account.use-microsoft-sso.post',
     method: 'post',
+    name: 'account.use-microsoft-sso.post',
     path: '/my-account/use-microsoft-sso',
   },
   {

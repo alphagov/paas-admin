@@ -1,4 +1,5 @@
 import { IMetricSerie } from '../../lib/metrics';
+
 import { drawLineGraph, summariseSerie } from './line-graph';
 
 const defaultTitle = 'some title';

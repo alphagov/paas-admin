@@ -1,5 +1,6 @@
 import moment from 'moment';
 import React, { ReactElement, ReactNode } from 'react';
+
 import { DATE_TIME } from '../../layouts';
 import { IAccountsUser } from '../../lib/accounts';
 import { eventTypeDescriptions } from '../../lib/cf';
@@ -34,7 +35,7 @@ interface ITargetedEventListItemProperties extends IEventListItemProperties {
 
 export function Details(): ReactElement {
   return (
-    <details className="govuk-details" role="group">
+    <details className="govuk-details">
       <summary
         className="govuk-details__summary"
         role="button"
@@ -69,7 +70,7 @@ export function Details(): ReactElement {
   );
 }
 
-function EventSummaryItem(props: IEventSummaryItemProperties) {
+function EventSummaryItem(props: IEventSummaryItemProperties): ReactElement {
   return (
     <div className={`govuk-summary-list__row ${props.title.toLowerCase()}`}>
       <dt className="govuk-summary-list__key">{props.title}</dt>

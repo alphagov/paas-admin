@@ -57,24 +57,24 @@ describe('Billing formula grammar', () => {
 
   it('should parse all the billing formula in use as of 2019-08-29', () => {
     const formulae = [
-      { formula: '0', expectedValue: 0 },
-      { formula: 'ceil(20000/3600) * 3.385', expectedValue: 20.31 },
-      { formula: '2 * ceil(20000/3600) * 0.18', expectedValue: 2.16 },
+      { expectedValue: 0, formula: '0' },
+      { expectedValue: 20.31, formula: 'ceil(20000/3600) * 3.385' },
+      { expectedValue: 2.16, formula: '2 * ceil(20000/3600) * 0.18' },
       {
-        formula: '2 * 20000 * (2048/1024.0) * (0.01 / 3600)',
         expectedValue: 0.22222,
+        formula: '2 * 20000 * (2048/1024.0) * (0.01 / 3600)',
       },
       {
-        formula: '(4096/1024) * ceil(20000/2678401) * 0.266',
         expectedValue: 1.064,
+        formula: '(4096/1024) * ceil(20000/2678401) * 0.266',
       },
       {
-        formula: '(2 * 20000 * (2048/1024.0) * (0.01 / 3600)) * 0.40',
         expectedValue: 0.08888,
+        formula: '(2 * 20000 * (2048/1024.0) * (0.01 / 3600)) * 0.40',
       },
       {
-        formula: '((1936.57/(48*1024))/30/24) * 2048 * ceil(20000 / 3600)',
         expectedValue: 0.6724201389,
+        formula: '((1936.57/(48*1024))/30/24) * 2048 * ceil(20000 / 3600)',
       },
     ];
     formulae.forEach(f =>

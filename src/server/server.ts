@@ -22,7 +22,7 @@ export default class Server {
     this.http = createServer(this.handler);
     this.http.listen(this.port);
 
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       this.http.once('listening', () => resolve(this));
       this.http.once('error', reject);
     });
@@ -37,7 +37,7 @@ export default class Server {
     this.http = null;
     h.close();
 
-    return wait;
+    return await wait;
   }
 
   public async wait() {
@@ -45,7 +45,7 @@ export default class Server {
       throw new Error('Server: cannot wait on server: server is not started');
     }
 
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       this.http.once('close', resolve);
       this.http.once('error', reject);
     });

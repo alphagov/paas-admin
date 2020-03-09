@@ -3,56 +3,56 @@
 // by the UAA API documentation
 
 export interface IUaaName {
-  familyName: string;
-  givenName: string;
+  readonly familyName: string;
+  readonly givenName: string;
 }
 
 export interface IUaaEmail {
-  value: string;
-  primary: boolean;
+  readonly value: string;
+  readonly primary: boolean;
 }
 
 export interface IUaaGroup {
-  display: string;
-  type: string;
-  value: string;
+  readonly display: string;
+  readonly type: string;
+  readonly value: string;
 }
 
 export interface IUaaApproval {
-  clientId: string;
-  lastUpdatedAt: string;
-  scope: string;
-  userId: string;
-  expiresAt: string;
-  status: string;
+  readonly clientId: string;
+  readonly lastUpdatedAt: string;
+  readonly scope: string;
+  readonly userId: string;
+  readonly expiresAt: string;
+  readonly status: string;
 }
 
 export interface IUaaPhoneNumber {
-  value: string;
+  readonly value: string;
 }
 
 export interface IUaaUserMeta {
-  created: string;
-  lastModified: string;
-  version: number;
+  readonly created: string;
+  readonly lastModified: string;
+  readonly version: number;
 }
 
 export interface IUaaUser {
-  id: string;
-  externalId: string;
-  meta: IUaaUserMeta;
-  userName: string;
-  name: IUaaName;
-  emails: ReadonlyArray<IUaaEmail>;
-  groups: ReadonlyArray<IUaaGroup>;
-  approvals: ReadonlyArray<IUaaApproval>;
-  phoneNumbers: ReadonlyArray<IUaaPhoneNumber>;
-  active: boolean;
-  verified: boolean;
-  origin: string;
-  zoneId: string;
-  passwordLastModified: string;
-  previousLogonTime: number;
-  lastLogonTime: number;
-  schemas: ReadonlyArray<string>;
+  readonly id: string;
+  readonly externalId: string;
+  readonly meta: IUaaUserMeta;
+  readonly userName: string;
+  readonly name: IUaaName;
+  readonly emails: ReadonlyArray<IUaaEmail>;
+  readonly groups: ReadonlyArray<IUaaGroup>;
+  readonly approvals: ReadonlyArray<IUaaApproval>;
+  readonly phoneNumbers: ReadonlyArray<IUaaPhoneNumber>;
+  readonly active: boolean;
+  readonly verified: boolean;
+  readonly origin: string;
+  readonly zoneId: string;
+  readonly passwordLastModified: string;
+  readonly previousLogonTime: number;
+  readonly lastLogonTime: number;
+  readonly schemas: ReadonlyArray<string>;
 }

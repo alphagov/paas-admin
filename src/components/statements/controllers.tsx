@@ -2,11 +2,9 @@ import moment from 'moment';
 import React from 'react';
 
 import { Template } from '../../layouts';
-
 import { BillingClient } from '../../lib/billing';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse, NotFoundError } from '../../lib/router';
-
 import { IContext } from '../app/context';
 import {
   CLOUD_CONTROLLER_ADMIN,
@@ -15,6 +13,7 @@ import {
 } from '../auth';
 import { fromOrg } from '../breadcrumbs';
 import { UserFriendlyError } from '../errors';
+
 import { IFilterResource, StatementsPage } from './views';
 
 interface IResourceUsage {
@@ -27,8 +26,8 @@ interface IResourceUsage {
   readonly planGUID: string;
   readonly planName: string;
   readonly price: {
-    incVAT: number;
-    exVAT: number;
+    readonly incVAT: number;
+    readonly exVAT: number;
   };
 }
 
@@ -59,18 +58,130 @@ export interface ISortable {
 
 const YYYMMDD = 'YYYY-MM-DD';
 
+
+
+export function sortByName(a: IFilterTuple, b: IFilterTuple): number {
+  if (a.name < b.name) {
+    return -1;
+  }
+  if (a.name > b.name) {
+    return 1;
+  }
+
+  return 0;
+}
+
+export function sortByResourceName(a: IResourceWithResourceName, b: IResourceWithResourceName): number {
+  if (a.resourceName < b.resourceName) {
+    return -1;
+  }
+  if (a.resourceName > b.resourceName) {
+    return 1;
+  }
+
+  return 0;
+}
+
+export function sortByPlan(a: IResourceWithPlanName, b: IResourceWithPlanName): number {
+  if (a.planName < b.planName) {
+    return -1;
+  }
+  if (a.planName > b.planName) {
+    return 1;
+  }
+
+  return 0;
+}
+
+export function sortBySpace(a: IResourceUsage, b: IResourceUsage): number {
+  if (a.spaceName < b.spaceName) {
+    return -1;
+  }
+  if (a.spaceName > b.spaceName) {
+    return 1;
+  }
+
+  return 0;
+}
+
+export function composeCSV(
+  items: ReadonlyArray<IResourceUsage>,
+  adminFee: number,
+): string {
+  const lines = ['Name,Space,Plan,Ex VAT,Inc VAT'];
+
+  for (const item of items) {
+    const fields = [
+      item.resourceName,
+      item.spaceName,
+      item.planName,
+      item.price.exVAT.toFixed(2),
+      item.price.incVAT.toFixed(2),
+    ];
+
+    lines.push(fields.join(','));
+  }
+
+  /* istanbul ignore next */
+  const totals = {
+    exVAT: items.reduce((sum, event) => sum + event.price.exVAT, 0),
+    incVAT: items.reduce((sum, event) => sum + event.price.incVAT, 0),
+  };
+  const adminFees = {
+    exVAT: totals.exVAT * adminFee,
+    incVAT: totals.incVAT * adminFee,
+  };
+  const toatlsIncludingAdminFee = {
+    exVAT: (totals.exVAT + adminFees.exVAT).toFixed(2),
+    incVAT: (totals.incVAT + adminFees.incVAT).toFixed(2),
+  };
+
+  lines.push(',,,,');
+  lines.push(
+    `10% Administration fees,,,${adminFees.exVAT.toFixed(
+      2,
+    )},${adminFees.incVAT.toFixed(2)}`,
+  );
+  lines.push(
+    `Total,,,${toatlsIncludingAdminFee.exVAT},${toatlsIncludingAdminFee.incVAT}`,
+  );
+
+  return lines.join('\n');
+}
+
+export function order(list: ReadonlyArray<IResourceUsage>, sort: ISortable): ReadonlyArray<IResourceUsage> {
+  const items = [...list];
+
+  switch (sort.sort) {
+    case 'plan':
+      items.sort(sortByPlan);
+      break;
+    case 'space':
+      items.sort(sortBySpace);
+      break;
+    case 'amount':
+      items.sort((x, y) => x.price.incVAT - y.price.incVAT);
+      break;
+    case 'name':
+    default:
+      items.sort(sortByResourceName);
+  }
+
+  return sort.order === 'asc' ? items : items.reverse();
+}
+
 export async function statementRedirection(
   ctx: IContext,
   params: IParameters,
 ): Promise<IResponse> {
   const date = params.rangeStart ? moment(params.rangeStart) : moment();
 
-  return {
+  return await Promise.resolve({
     redirect: ctx.linkTo('admin.statement.view', {
       ...params,
       rangeStart: date.startOf('month').format(YYYMMDD),
     }),
-  };
+  });
 }
 
 export async function viewStatement(
@@ -125,15 +236,15 @@ export async function viewStatement(
   const organization = await cf.organization(params.organizationGUID);
 
   const billingClient = new BillingClient({
-    apiEndpoint: ctx.app.billingAPI,
     accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.billingAPI,
     logger: ctx.app.logger,
   });
 
   const filter = {
+    orgGUIDs: [organization.metadata.guid],
     rangeStart: rangeStart.toDate(),
     rangeStop: rangeStart.add(1, 'month').toDate(),
-    orgGUIDs: [organization.metadata.guid],
   };
 
   let events;
@@ -215,20 +326,12 @@ export async function viewStatement(
   const orderBy = params.sort || 'name';
   const orderDirection = params.order || 'asc';
 
-  const spaces = items.reduce((all: Array<IFilterResource>, next) => {
-    if (!all.find(i => i.guid === next.spaceGUID)) {
-      all.push({ guid: next.spaceGUID, name: next.spaceName });
-    }
-
-    return all;
+  const spaces = items.reduce((all: ReadonlyArray<IFilterResource>, next) => {
+    return !all.find(i => i.guid === next.spaceGUID) ? [ ...all, { guid: next.spaceGUID, name: next.spaceName } ] : all;
   }, []);
 
-  const plans = items.reduce((all: Array<IFilterResource>, next) => {
-    if (!all.find(i => i.guid === next.planGUID)) {
-      all.push({ guid: next.planGUID, name: next.planName });
-    }
-
-    return all;
+  const plans = items.reduce((all: ReadonlyArray<IFilterResource>, next) => {
+    return !all.find(i => i.guid === next.planGUID) ? [ ...all, { guid: next.planGUID, name: next.planName } ] : all;
   }, []);
 
   const listSpaces = [
@@ -246,8 +349,8 @@ export async function viewStatement(
       (filterService === 'none' || item.planGUID === filterService),
   );
   const filteredItems = order(unorderedFilteredItems, {
-    sort: orderBy,
     order: orderDirection,
+    sort: orderBy,
   });
 
   if (params.download) {
@@ -303,119 +406,5 @@ export async function downloadCSV(
   ctx: IContext,
   params: IParameters,
 ): Promise<IResponse> {
-  return viewStatement(ctx, { ...params, download: true });
-}
-
-export function order(
-  items: Array<IResourceUsage>,
-  sort: ISortable,
-): Array<IResourceUsage> {
-  switch (sort.sort) {
-    case 'plan':
-      items.sort(sortByPlan);
-      break;
-    case 'space':
-      items.sort(sortBySpace);
-      break;
-    case 'amount':
-      items.sort((x, y) => x.price.incVAT - y.price.incVAT);
-      break;
-    case 'name':
-    default:
-      items.sort(sortByResourceName);
-  }
-
-  return sort.order === 'asc' ? items : items.reverse();
-}
-
-export function sortByName(a: IFilterTuple, b: IFilterTuple) {
-  if (a.name < b.name) {
-    return -1;
-  }
-  if (a.name > b.name) {
-    return 1;
-  }
-
-  return 0;
-}
-
-export function sortByResourceName(
-  a: IResourceWithResourceName,
-  b: IResourceWithResourceName,
-) {
-  if (a.resourceName < b.resourceName) {
-    return -1;
-  }
-  if (a.resourceName > b.resourceName) {
-    return 1;
-  }
-
-  return 0;
-}
-
-export function sortByPlan(a: IResourceWithPlanName, b: IResourceWithPlanName) {
-  if (a.planName < b.planName) {
-    return -1;
-  }
-  if (a.planName > b.planName) {
-    return 1;
-  }
-
-  return 0;
-}
-
-export function sortBySpace(a: IResourceUsage, b: IResourceUsage) {
-  if (a.spaceName < b.spaceName) {
-    return -1;
-  }
-  if (a.spaceName > b.spaceName) {
-    return 1;
-  }
-
-  return 0;
-}
-
-export function composeCSV(
-  items: ReadonlyArray<IResourceUsage>,
-  adminFee: number,
-): string {
-  const lines = ['Name,Space,Plan,Ex VAT,Inc VAT'];
-
-  for (const item of items) {
-    const fields = [
-      item.resourceName,
-      item.spaceName,
-      item.planName,
-      item.price.exVAT.toFixed(2),
-      item.price.incVAT.toFixed(2),
-    ];
-
-    lines.push(fields.join(','));
-  }
-
-  /* istanbul ignore next */
-  const totals = {
-    exVAT: items.reduce((sum, event) => sum + event.price.exVAT, 0),
-    incVAT: items.reduce((sum, event) => sum + event.price.incVAT, 0),
-  };
-  const adminFees = {
-    exVAT: totals.exVAT * adminFee,
-    incVAT: totals.incVAT * adminFee,
-  };
-  const toatlsIncludingAdminFee = {
-    exVAT: (totals.exVAT + adminFees.exVAT).toFixed(2),
-    incVAT: (totals.incVAT + adminFees.incVAT).toFixed(2),
-  };
-
-  lines.push(',,,,');
-  lines.push(
-    `10% Administration fees,,,${adminFees.exVAT.toFixed(
-      2,
-    )},${adminFees.incVAT.toFixed(2)}`,
-  );
-  lines.push(
-    `Total,,,${toatlsIncludingAdminFee.exVAT},${toatlsIncludingAdminFee.incVAT}`,
-  );
-
-  return lines.join('\n');
+  return await viewStatement(ctx, { ...params, download: true });
 }

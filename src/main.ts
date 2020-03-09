@@ -7,7 +7,6 @@ import app, {
   OIDCProviderName,
 } from './components/app';
 import CloudFoundryClient from './lib/cf';
-
 import Server from './server';
 
 const logger = pino({
@@ -85,30 +84,29 @@ async function main() {
   });
 
   const config: IAppConfig = {
-    logger,
-    sessionSecret: process.env.SESSION_SECRET || 'mysecret',
-    allowInsecureSession: process.env.ALLOW_INSECURE_SESSION === 'true',
-    billingAPI: expectEnvVariable('BILLING_URL'),
     accountsAPI: expectEnvVariable('ACCOUNTS_URL'),
     accountsSecret: expectEnvVariable('ACCOUNTS_SECRET'),
-    oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
-    oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
-    cloudFoundryAPI,
-    awsRegion,
-    location,
+    adminFee: 0.1,
+    allowInsecureSession: process.env.ALLOW_INSECURE_SESSION === 'true',
     authorizationAPI,
-    uaaAPI,
+    awsCloudwatchEndpoint: process.env.AWS_CLOUDWATCH_ENDPOINT,
+    awsRegion,
+    awsResourceTaggingAPIEndpoint: process.env.AWS_RESOURCE_TAGGING_API_ENDPOINT,
+    billingAPI: expectEnvVariable('BILLING_URL'),
+    cloudFoundryAPI,
+    domainName: expectEnvVariable('DOMAIN_NAME'),
+    location,
+    logger,
     notifyAPIKey: expectEnvVariable('NOTIFY_API_KEY'),
     notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null,
+    oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
+    oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
     oidcProviders: providers,
-    domainName: expectEnvVariable('DOMAIN_NAME'),
-    awsCloudwatchEndpoint: process.env.AWS_CLOUDWATCH_ENDPOINT,
-    awsResourceTaggingAPIEndpoint:
-      process.env.AWS_RESOURCE_TAGGING_API_ENDPOINT,
-    adminFee: 0.1,
     prometheusEndpoint: expectEnvVariable('PROMETHEUS_ENDPOINT'),
-    prometheusUsername: expectEnvVariable('PROMETHEUS_USERNAME'),
     prometheusPassword: expectEnvVariable('PROMETHEUS_PASSWORD'),
+    prometheusUsername: expectEnvVariable('PROMETHEUS_USERNAME'),
+    sessionSecret: process.env.SESSION_SECRET || 'mysecret',
+    uaaAPI,
   };
 
   const server = new Server(app(config), {
@@ -125,9 +123,9 @@ async function main() {
   await server.start();
   pino().info(
     {
+      accountsAPI: config.accountsAPI,
       authorizationAPI,
       billingAPI: config.billingAPI,
-      accountsAPI: config.accountsAPI,
       cloudFoundryAPI,
       port: server.http.address().port,
       uaaAPI,
