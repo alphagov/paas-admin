@@ -375,7 +375,7 @@ export function SpaceTab(props: ISpaceTabProperties): ReactElement {
         <span className="govuk-caption-l">Space</span> {props.space.entity.name}
       </h1>
 
-      <div className="govuk-tabs" data-module="govuk-tabs">
+      <div className="govuk-tabs">
         <h2 className="govuk-tabs__title">Contents</h2>
 
         <ul className="govuk-tabs__list">
