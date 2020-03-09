@@ -9,7 +9,7 @@ var $buttons = document.querySelectorAll('[data-module="govuk-button"]');
 var GOVUKButton = window.GOVUKFrontend.Button;
 if ($buttons) {
   for (var i = 0; i < $buttons.length; i++) {
-    new GOVUKButton($button).init();
+    new GOVUKButton($buttons[i]).init();
   };
 }
 
@@ -17,7 +17,7 @@ var $details = document.querySelectorAll('[data-module="govuk-details"]');
 var GOVUKDetails = window.GOVUKFrontend.Details;
 if ($details) {
   for (var i = 0; i < $details.length; i++) {
-    new GOVUKDetails($detail).init();
+    new GOVUKDetails($details[i]).init();
   };
 }
 
