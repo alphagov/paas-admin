@@ -1,14 +1,19 @@
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import cheerio from 'cheerio';
 import jwt from 'jsonwebtoken';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
+import CloudFoundryClient from '../../lib/cf';
 import { IResponse } from '../../lib/router';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
 import { CLOUD_CONTROLLER_ADMIN } from '../auth/has-role';
 
-import { viewHomepage } from './controllers';
+import { createOrganization, createOrganizationForm, viewHomepage } from './controllers';
+
+jest.mock('../../lib/cf');
+const mockOrg = { metadata: { annotations: { owner: 'TEST_OWNER' } } };
 
 const tokenKey = 'secret';
 
@@ -84,6 +89,140 @@ describe(viewHomepage, () => {
       expect(
         spacesMissingAroundInlineElements(response.body as string),
       ).toHaveLength(0);
+    });
+  });
+});
+
+describe(createOrganizationForm, () => {
+  describe('when not a platform admin', () => {
+    const time = Math.floor(Date.now() / 1000);
+    const rawToken = {
+      user_id: 'uaa-id-253',
+      scope: [],
+      exp: time + 24 * 60 * 60,
+      origin: 'uaa',
+    };
+    const accessToken = jwt.sign(rawToken, tokenKey);
+
+    const token = new Token(accessToken, [tokenKey]);
+    const ctx: IContext = createTestContext({ token });
+
+    it('should return an error', async () => {
+      await expect(viewHomepage(ctx, {})).rejects.toThrow(
+        /Not a platform admin/,
+      );
+    });
+  });
+
+  describe('when platform admin', () => {
+    let ctx: IContext;
+
+    beforeEach(() => {
+      const time = Math.floor(Date.now() / 1000);
+      const rawToken = {
+        user_id: 'uaa-id-253',
+        scope: [CLOUD_CONTROLLER_ADMIN],
+        exp: time + 24 * 60 * 60,
+        origin: 'uaa',
+      };
+      const accessToken = jwt.sign(rawToken, tokenKey);
+
+      const token = new Token(accessToken, [tokenKey]);
+
+      ctx = createTestContext({ token });
+
+      // @ts-ignore
+      CloudFoundryClient.mockClear();
+    });
+
+    it('should print the creation form correctly', async () => {
+      // @ts-ignore
+      CloudFoundryClient.prototype.v3Organizations.mockReturnValueOnce(Promise.resolve([ mockOrg ]));
+
+      const response = await createOrganizationForm(ctx, {});
+
+      expect(response.body).toBeDefined();
+      expect(response.body).toContain('CSRF_TOKEN');
+      expect(response.body).toContain('Create Organisation');
+      expect(response.body).toContain('id="organization"');
+      expect(response.body).toContain('id="owner"');
+      expect(response.body).toContain('<button');
+    });
+  });
+});
+
+describe(createOrganization, () => {
+  describe('when not a platform admin', () => {
+    const time = Math.floor(Date.now() / 1000);
+    const rawToken = {
+      user_id: 'uaa-id-253',
+      scope: [],
+      exp: time + 24 * 60 * 60,
+      origin: 'uaa',
+    };
+    const accessToken = jwt.sign(rawToken, tokenKey);
+
+    const token = new Token(accessToken, [tokenKey]);
+    const ctx: IContext = createTestContext({ token });
+
+    it('should return an error', async () => {
+      await expect(viewHomepage(ctx, {})).rejects.toThrow(
+        /Not a platform admin/,
+      );
+    });
+  });
+
+  describe('when platform admin', () => {
+    let ctx: IContext;
+
+    beforeEach(() => {
+      const time = Math.floor(Date.now() / 1000);
+      const rawToken = {
+        user_id: 'uaa-id-253',
+        scope: [CLOUD_CONTROLLER_ADMIN],
+        exp: time + 24 * 60 * 60,
+        origin: 'uaa',
+      };
+      const accessToken = jwt.sign(rawToken, tokenKey);
+
+      const token = new Token(accessToken, [tokenKey]);
+
+      ctx = createTestContext({ token });
+
+      // @ts-ignore
+      CloudFoundryClient.mockClear();
+    });
+
+    it('should throw errors when field validation fails', async () => {
+      // @ts-ignore
+      CloudFoundryClient.prototype.v3Organizations.mockReturnValueOnce(Promise.resolve([ mockOrg ]));
+
+      const response = await createOrganization(ctx, {}, {});
+
+      expect(response.status).toEqual(422);
+      expect(response.body).toBeDefined();
+      expect(response.body).toContain('<form');
+      expect(response.body).toContain('There is a problem');
+      expect(response.body).not.toContain('Success');
+    });
+
+    it('should printout a success page', async () => {
+      // @ts-ignore
+      CloudFoundryClient.prototype.v3CreateOrganization.mockReturnValueOnce(Promise.resolve({ guid: 'ORG_GUID' }));
+      // @ts-ignore
+      CloudFoundryClient.prototype.v3CreateSpace.mockReturnValueOnce(Promise.resolve({}));
+
+      const response = await createOrganization(ctx, {}, {
+        organization: 'new-organization',
+        owner: 'Organisation Owner',
+      });
+
+      expect(CloudFoundryClient.prototype.v3CreateOrganization).toHaveBeenCalled();
+      expect(CloudFoundryClient.prototype.v3CreateSpace).toHaveBeenCalled();
+      expect(response.status).toBeUndefined();
+      expect(response.body).toBeDefined();
+      expect(response.body).not.toContain('<form');
+      expect(response.body).toContain('Success');
     });
   });
 });

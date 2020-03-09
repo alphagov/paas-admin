@@ -1,13 +1,34 @@
 import React, { ReactElement } from 'react';
 
 import { RouteLinker } from '../app';
+import { IValidationError } from '../errors/types';
+import { SLUG_REGEX } from '../../layouts';
+import { SuccessPage } from '../org-users/views';
 
 interface IProperties {
   readonly linkTo: RouteLinker;
 }
 
+interface ICreateOrganizationSuccessPageProperties extends IProperties {
+  readonly organizationGUID: string;
+}
+
+export interface INewOrganizationUserBody {
+  readonly organization?: string;
+  readonly owner?: string;
+}
+
 interface IFormProperties extends IProperties {
   readonly csrf: string;
+  readonly errors?: ReadonlyArray<IValidationError>;
+  readonly values?: INewOrganizationUserBody;
+}
+
+interface ICreateOrganizationPageProperties extends IFormProperties {
+  readonly owners: ReadonlyArray<{
+    readonly name: string;
+    readonly owner: string;
+  }>;
 }
 
 function Costs(props: IFormProperties): ReactElement {
@@ -119,14 +140,18 @@ function Organizations(props: IProperties): ReactElement {
     <>
       <h2 className="govuk-heading-m">Organisation management</h2>
 
-      <p className="govuk-body">
-        <a
-          className="govuk-link"
-          href={props.linkTo('admin.reports.organizations')}
-        >
-          View trial and billable organisations
-        </a>
-      </p>
+      <ul className="govuk-list">
+        <li>
+          <a className="govuk-link" href={props.linkTo('platform-admin.create-organization.form')}>
+            Create new organisation
+          </a>
+        </li>
+        <li>
+          <a className="govuk-link" href={props.linkTo('admin.reports.organizations')}>
+            View trial and billable organisations
+          </a>
+        </li>
+      </ul>
     </>
   );
 }
@@ -182,4 +207,89 @@ export function PlatformAdministratorPage(
       </div>
     </>
   );
+}
+
+export function CreateOrganizationPage(props: ICreateOrganizationPageProperties): ReactElement {
+  return (<div className="govuk-grid-row">
+    <form method="post" className="govuk-grid-column-one-half">
+      <h1 className="govuk-heading-xl">Create an Organisation</h1>
+
+      <input type="hidden" name="_csrf" value={props.csrf} />
+
+      {props.errors
+        ? <div className="govuk-error-summary" aria-labelledby="error-summary-title"
+            role="alert" tabIndex={-1} data-module="govuk-error-summary">
+            <h2 className="govuk-error-summary__title" id="error-summary-title">
+              There is a problem
+            </h2>
+            <div className="govuk-error-summary__body">
+              <ul className="govuk-list govuk-error-summary__list">
+                {props.errors.map((error, index) => (
+                  <li key={index}><a href={`#${error.field}`}>{error.message}</a></li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        : null}
+
+      <p className="govuk-body">
+        This form will only create the organisation and add annotation to the new entity.
+        {' '}
+        <strong>You will need to invite members of the organisation separately.</strong>
+      </p>
+
+      <div className="govuk-form-group">
+        <label className="govuk-label" htmlFor="organization">
+          Organisation name
+        </label>
+        <span id="organization-hint" className="govuk-hint">
+          This needs to be all lowercase and hyphen separated meaningful name of the organisation.
+          You can also refer to the section on the side for some examples.
+        </span>
+        <input id="organization" name="organization" className="govuk-input" aria-describedby="organization-hint"
+          type="text" defaultValue={props.values?.organization} required={true} pattern={SLUG_REGEX} />
+      </div>
+
+      <div className="govuk-form-group">
+        <label className="govuk-label" htmlFor="owner">
+          Owner
+        </label>
+        <span id="owner-hint" className="govuk-hint">
+          The name of a party owning that organisation. You can also refer to the section on the side for some examples.
+        </span>
+        <input id="owner" name="owner" className="govuk-input" aria-describedby="owner-hint" type="text"
+          defaultValue={props.values?.owner} required={true} />
+      </div>
+
+      <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
+        Create Organisation
+      </button>
+    </form>
+
+    <div className="govuk-grid-column-one-half">
+      <table className="govuk-table">
+        <caption className="govuk-table__caption">Existing owners</caption>
+        <thead className="govuk-table__head">
+          <tr className="govuk-table__row">
+            <th scope="col" className="govuk-table__header">Name</th>
+            <th scope="col" className="govuk-table__header">Owner</th>
+          </tr>
+        </thead>
+        <tbody className="govuk-table__body">
+          {props.owners.map((org, index) => <tr key={index} className="govuk-table__row">
+              <td className="govuk-table__cell">{org.name}</td>
+              <td className="govuk-table__cell">{org.owner}</td>
+            </tr>)}
+        </tbody>
+      </table>
+    </div>
+  </div>);
+}
+
+export function CreateOrganizationSuccessPage(props: ICreateOrganizationSuccessPageProperties): ReactElement {
+  return (<SuccessPage linkTo={props.linkTo} organizationGUID={props.organizationGUID}>
+    We have created a new organisation!
+    <br />
+    You still need to invite people and assign permissions.
+  </SuccessPage>);
 }

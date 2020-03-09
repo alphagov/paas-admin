@@ -1161,3 +1161,67 @@ export const stacksWithoutCflinuxfs2 = `{
     }
   ]
 }`;
+
+export const v3Organisation = `{
+  "guid": "ORG_GUID",
+  "created_at": "2017-02-01T01:33:58Z",
+  "updated_at": "2017-02-01T01:33:58Z",
+  "name": "organization-name",
+  "suspended": false,
+  "relationships": {
+    "quota": {
+      "data": {
+        "guid": "ORG_QUOTA_GUID"
+      }
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/organizations/ORG_GUID"
+    },
+    "domains": {
+      "href": "https://api.example.org/v3/organizations/ORG_GUID/domains"
+    },
+    "default_domain": {
+      "href": "https://api.example.org/v3/organizations/ORG_GUID/domains/default"
+    },
+    "quota": {
+      "href": "https://api.example.org/v3/organization_quotas/ORG_QUOTA_GUID"
+    }
+  },
+  "metadata": {
+    "labels": {},
+    "annotations": {
+      "owner": "ORG_OWNER_ANNOTATION"
+    }
+  }
+}`;
+
+export const v3Space = `{
+  "guid": "SPACE_GUID",
+  "created_at": "2017-02-01T01:33:58Z",
+  "updated_at": "2017-02-01T01:33:58Z",
+  "name": "space-name",
+  "relationships": {
+    "organization": {
+      "data": {
+        "guid": "ORG_GUID"
+      }
+    },
+    "quota": {
+      "data": null
+    }
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org/v3/spaces/SPACE_GUID"
+    },
+    "organization": {
+      "href": "https://api.example.org/v3/organizations/ORG_GUID"
+    }
+  },
+  "metadata": {
+    "labels": {},
+    "annotations": {}
+  }
+}`;

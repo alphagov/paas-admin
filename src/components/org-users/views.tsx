@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { capitalize } from '../../layouts';
 import { Tick } from '../../layouts/partials';
@@ -10,6 +10,7 @@ import {
   OrganizationUserRoles,
 } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
+import { IValidationError } from '../errors/types';
 
 interface IDeleteConfirmationPageProperties {
   readonly csrf: string;
@@ -19,7 +20,7 @@ interface IDeleteConfirmationPageProperties {
 }
 
 interface ISuccessPageProperties {
-  readonly children: string;
+  readonly children: ReactNode;
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
 }
@@ -55,11 +56,6 @@ interface IPermissionTableProperties {
   readonly organization: IOrganization;
   readonly spaces: ReadonlyArray<ISpace>;
   readonly values: IRoleValues;
-}
-
-export interface IValidationError {
-  readonly field: string;
-  readonly message: string;
 }
 
 interface IEditPageProperties extends IPermissionTableProperties {

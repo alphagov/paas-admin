@@ -39,7 +39,7 @@ export function createTestContext(ctx?: {}): IContext {
       ['secret'],
     ),
     viewContext: {
-      csrf: '',
+      csrf: 'CSRF_TOKEN',
       location: config.location,
       isPlatformAdmin: false,
     },

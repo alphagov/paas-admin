@@ -759,4 +759,36 @@ describe('lib/cf test suite', () => {
 
     expect(cflinuxfs2StackGUID).toEqual(undefined);
   });
+
+  it('should be able to create organisation using v3 api', async () => {
+    nockCF.post('/v3/organizations').reply(201, data.v3Organisation);
+
+    const client = new CloudFoundryClient(config);
+    const organization = await client.v3CreateOrganization({
+      name: 'some-org-name',
+      metadata: { annotations: { owner: 'organisation-owner' } },
+    });
+
+    expect(organization).toHaveProperty('guid');
+    expect(organization.guid).toEqual('ORG_GUID');
+  });
+
+  it('should be able to create space using v3 api', async () => {
+    nockCF.post('/v3/spaces').reply(201, data.v3Space);
+
+    const client = new CloudFoundryClient(config);
+    const space = await client.v3CreateSpace({
+      name: 'some-org-name',
+      relationships: {
+        organization: {
+          data: {
+            guid: 'ORG_GUID',
+          },
+        },
+      },
+    });
+
+    expect(space).toHaveProperty('guid');
+    expect(space.guid).toEqual('SPACE_GUID');
+  });
 });
