@@ -809,7 +809,7 @@ export function OrganizationUsersPage(
                 )}
               </td>
               <td className="govuk-table__cell">
-                <ul className="plain">
+                <ul className="govuk-list govuk-!-margin-bottom-0">
                   {props.users[guid].spaces.map(space => (
                     <li key={space.metadata.guid}>
                       <a
