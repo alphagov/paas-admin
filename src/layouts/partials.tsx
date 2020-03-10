@@ -1,6 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
-
-import tickIcon from './images/tick.png';
+import React, { Fragment, ReactElement, ReactNode } from 'react';
 
 interface IHeaderProperties {
   readonly assetPath?: string;
@@ -283,5 +281,10 @@ export function CommandLineAlternative(props: ICommandLineAlternativeProperties)
 }
 
 export function Tick(): ReactElement {
-  return <img className="tick" alt="Yes" src={tickIcon} />;
+  return (
+    <Fragment>
+      <span className="tick-symbol" aria-hidden="true">&#10003;</span>
+      <span className="govuk-visually-hidden">yes</span>
+    </Fragment>
+    );
 }
