@@ -1,3 +1,22 @@
+.app-region-tag--ireland {
+  background-color: #006435;
+}
+
+.app-region-tag {
+  @include govuk-media-query($until: tablet) {
+    text-transform: capitalize;
+    background: none;
+    padding: 0;
+    margin: 0;
+    letter-spacing: normal;
+  }
+}
+
+.app-region-tag__text {
+  @include govuk-media-query($from: tablet) {
+    display: none;
+  }
+}
 
 @include govuk-media-query(tablet) {
   /* GOV.UK Platform-as-a-Service is too long */
