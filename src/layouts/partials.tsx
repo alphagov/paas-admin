@@ -127,10 +127,10 @@ export function Header(params: IHeaderProperties): ReactElement {
                 <a
                   href="https://www.cloud.service.gov.uk/sign-in"
                   title="Switch to a different region"
-                  className={`govuk-header__link paas-govuk-tag paas-govuk-tag-${params.location.toLowerCase()}`}
+                  className={`govuk-header__link govuk-tag app-region-tag app-region-tag--${params.location.toLowerCase()}`}
                   aria-label={`Current region: ${params.location.toLowerCase()}. Switch to a different region.`}
                 >
-                  <span>Region:</span> {params.location}
+                  <span className="app-region-tag__text">Region:</span> {params.location}
                 </a>
               </li>
             </ul>
