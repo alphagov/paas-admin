@@ -145,7 +145,7 @@ export function PermissionTable(
       <h2 className="govuk-heading-l">Set org and space roles</h2>
       <h4 className="govuk-heading-s">Organisation level roles</h4>
 
-      <details className="govuk-details">
+      <details className="govuk-details" role="group">
         <summary
           className="govuk-details__summary"
           role="button"
@@ -258,7 +258,7 @@ export function PermissionTable(
         </tbody>
       </table>
       <h4 className="govuk-heading-s">Space level roles</h4>
-      <details className="govuk-details">
+      <details className="govuk-details" role="group">
         <summary
           className="govuk-details__summary"
           role="button"
@@ -668,7 +668,7 @@ export function OrganizationUsersPage(
             profile page.
           </p>
 
-          <details className="govuk-details">
+          <details className="govuk-details" role="group">
             <summary
               className="govuk-details__summary"
               role="button"

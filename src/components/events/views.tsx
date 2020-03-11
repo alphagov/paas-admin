@@ -35,7 +35,7 @@ interface ITargetedEventListItemProperties extends IEventListItemProperties {
 
 export function Details(): ReactElement {
   return (
-    <details className="govuk-details">
+    <details className="govuk-details" role="group">
       <summary
         className="govuk-details__summary"
         role="button"

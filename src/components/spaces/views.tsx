@@ -274,7 +274,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
         {props.organization.entity.name}.
       </p>
 
-      <details className="govuk-details">
+      <details className="govuk-details" role="group">
         <summary
           className="govuk-details__summary"
           role="button"
