@@ -3,13 +3,14 @@ import { shallow } from 'enzyme';
 import React from 'react';
 
 import { IApplication } from '../../lib/cf/types';
-import { AppLink, ApplicationTab } from './views';
+
+import { ApplicationTab, AppLink } from './views';
 
 describe(ApplicationTab, () => {
   it('should produce path of items', () => {
     const application = ({
-      metadata: { guid: 'APPLICATION_GUID' },
       entity: { name: 'test-app' },
+      metadata: { guid: 'APPLICATION_GUID' },
     } as unknown) as IApplication;
     const markup = shallow(
       <ApplicationTab

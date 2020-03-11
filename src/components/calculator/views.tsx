@@ -42,6 +42,65 @@ interface IPlansProperties {
   readonly state: ICalculatorState;
 }
 
+function orderPlans(planA: IPricingPlan, planB: IPricingPlan): number {
+  const versionRegex = /\d+(.\d+)?/;
+  const versionA: number = parseFloat((planA.planName.match(versionRegex) || ['0'])[0]);
+  const versionB: number = parseFloat((planB.planName.match(versionRegex) || ['0'])[0]);
+
+  // istanbul ignore next
+  if (versionA !== versionB) {
+    return versionB - versionA;
+  }
+
+  const sizeRegex = /xlarge|large|medium|small|tiny/;
+  const sizeA: string = (planA.planName.match(sizeRegex) || ['unknown'])[0];
+  const sizeB: string = (planB.planName.match(sizeRegex) || ['unknown'])[0];
+
+  /* eslint-disable sort-keys */
+  const sizeMapping: {readonly [key: string]: number} = {
+    'xlarge': 5,
+    'large': 4,
+    'medium': 3,
+    'small': 2,
+    'tiny': 1,
+    'unknown': 0,
+  };
+  /* eslint-enable sort-keys */
+
+  const sizeValA: number = sizeMapping[sizeA] || 0;
+  const sizeValB: number = sizeMapping[sizeB] || 0;
+
+  return sizeValB - sizeValA;
+}
+
+function niceServiceName(planName: string): string {
+  if (planName === 'postgres') {
+    return 'Postgres';
+  }
+
+  const niceServiceNames: {readonly [key: string]: string} = {
+    'app': 'Compute',
+    'aws-s3-bucket': 'Amazon S3',
+    'elasticsearch': 'Elasticsearch',
+    'influxdb': 'InfluxDB',
+    'mysql': 'MySQL',
+    'postgres': 'Postgres',
+    'redis': 'Redis',
+  };
+
+  return niceServiceNames[planName] || planName;
+}
+
+function appInstanceDescription(memoryInMB: number, instances: number): ReactElement {
+  return <>
+    {instances.toFixed(0)} app instance{instances === 1 ? '' : 's'}
+    {' '}
+    with
+    {' '}
+    {bytesToHuman(memoryInMB * 1024 * 1024, 0)} of memory
+  </>;
+}
+
 function StateFields(props: IStateFieldsProperties): ReactElement {
   return (
     <>
@@ -80,7 +139,7 @@ function Plans(props: IPlansProperties): ReactElement {
       {values(
         mapValues(groupBy(props.plans, 'serviceName'), (plans, serviceName) => (
           <tr key={serviceName} className="govuk-table__row">
-            <td className="govuk-table__cell" scope="row">
+            <td className="govuk-table__cell">
               {niceServiceName(props.serviceName)}
             </td>
             <td className="govuk-table__cell ">
@@ -117,7 +176,7 @@ function Plans(props: IPlansProperties): ReactElement {
                           <div className="govuk-form-group">
                             <select
                               className="govuk-select govuk-!-width-full"
-                              id={`nodes-app`}
+                              id={'nodes-app'}
                               name={`items[${props.state.items.length}][numberOfNodes]`}
                             >
                               <option value="1">1 app instance</option>
@@ -142,7 +201,7 @@ function Plans(props: IPlansProperties): ReactElement {
                           <div className="govuk-form-group">
                             <select
                               className="govuk-select govuk-!-width-full"
-                              id={`mem-app`}
+                              id={'mem-app'}
                               name={`items[${props.state.items.length}][memoryInMB]`}
                             >
                               <option value="64">64 MiB of memory</option>
@@ -276,7 +335,7 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
           </p>
           <p className="paas-month">per month</p>
 
-          <details className="govuk-details">
+          <details className="govuk-details" role="group">
             <summary className="govuk-details__summary">
               <span className="govuk-details__summary-text">
                 Why costs may vary
@@ -301,61 +360,4 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
       </div>
     </>
   );
-}
-
-function orderPlans(planA: IPricingPlan, planB: IPricingPlan): number {
-  const versionRegex = /\d+(.\d+)?/;
-  const versionA: number = parseFloat((planA.planName.match(versionRegex) || ['0'])[0]);
-  const versionB: number = parseFloat((planB.planName.match(versionRegex) || ['0'])[0]);
-
-  // istanbul ignore next
-  if (versionA !== versionB) {
-    return versionB - versionA;
-  }
-
-  const sizeRegex = /xlarge|large|medium|small|tiny/;
-  const sizeA: string = (planA.planName.match(sizeRegex) || ['unknown'])[0];
-  const sizeB: string = (planB.planName.match(sizeRegex) || ['unknown'])[0];
-
-  const sizeMapping: {[key: string]: number} = {
-    'xlarge': 5,
-    'large': 4,
-    'medium': 3,
-    'small': 2,
-    'tiny': 1,
-    'unknown': 0,
-  };
-
-  const sizeValA: number = sizeMapping[sizeA] || 0;
-  const sizeValB: number = sizeMapping[sizeB] || 0;
-
-  return sizeValB - sizeValA;
-}
-
-function niceServiceName(planName: string): string {
-  if (planName === 'postgres') {
-    return 'Postgres';
-  }
-
-  const niceServiceNames: {[key: string]: string} = {
-    'app': 'Compute',
-    'postgres': 'Postgres',
-    'mysql': 'MySQL',
-    'elasticsearch': 'Elasticsearch',
-    'redis': 'Redis',
-    'influxdb': 'InfluxDB',
-    'aws-s3-bucket': 'Amazon S3',
-  };
-
-  return niceServiceNames[planName] || planName;
-}
-
-function appInstanceDescription(memoryInMB: number, instances: number): ReactElement {
-  return <>
-    {instances.toFixed(0)} app instance{instances === 1 ? '' : 's'}
-    {' '}
-    with
-    {' '}
-    {bytesToHuman(memoryInMB * 1024 * 1024, 0)} of memory
-  </>;
 }

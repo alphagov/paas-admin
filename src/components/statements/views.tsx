@@ -1,5 +1,6 @@
 import moment from 'moment';
 import React, { ReactElement } from 'react';
+
 import { DATE } from '../../layouts';
 import { RouteLinker } from '../app/context';
 
@@ -18,8 +19,8 @@ interface IResourceUsage {
   readonly planGUID: string;
   readonly planName: string;
   readonly price: {
-    incVAT: number;
-    exVAT: number;
+    readonly incVAT: number;
+    readonly exVAT: number;
   };
 }
 
@@ -42,7 +43,7 @@ interface IStatementProps {
 }
 
 interface IStatementsPageProperties extends IStatementProps {
-  readonly listOfPastYearMonths: { [i: string]: string };
+  readonly listOfPastYearMonths: { readonly [i: string]: string };
   readonly spaces: ReadonlyArray<any>;
   readonly plans: ReadonlyArray<any>;
   readonly currentMonth: string;

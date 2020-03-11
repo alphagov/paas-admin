@@ -91,7 +91,7 @@ interface IOrganizationUsersPageProperties {
   readonly organizationGUID: string;
   readonly privileged: boolean;
   readonly users: IUserRolesByGuid;
-  readonly userOriginMapping: { [key: string]: string };
+  readonly userOriginMapping: { readonly [key: string]: string };
 }
 
 export function Permission(props: IPermissionProperties): ReactElement {
@@ -446,7 +446,7 @@ export function SuccessPage(props: ISuccessPageProperties): ReactElement {
   );
 }
 
-export function EditPage(props: IEditPageProperties) {
+export function EditPage(props: IEditPageProperties): ReactElement {
   return (
     <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">

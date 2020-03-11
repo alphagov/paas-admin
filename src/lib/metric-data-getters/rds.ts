@@ -1,7 +1,7 @@
+import * as cw from '@aws-sdk/client-cloudwatch-node';
 import _ from 'lodash';
 import moment from 'moment';
 
-import * as cw from '@aws-sdk/client-cloudwatch-node';
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
 
@@ -61,9 +61,9 @@ export class RDSMetricDataGetter extends CloudWatchMetricDataGetter
           Id: metricId,
           MetricStat: {
             Metric: {
-              Namespace: 'AWS/RDS',
-              MetricName: rdsMetricPropertiesById[metricId].name,
               Dimensions: [{ Name: 'DBInstanceIdentifier', Value: instanceId }],
+              MetricName: rdsMetricPropertiesById[metricId].name,
+              Namespace: 'AWS/RDS',
             },
             Period: period.asSeconds(),
             Stat: rdsMetricPropertiesById[metricId].stat,
@@ -75,8 +75,8 @@ export class RDSMetricDataGetter extends CloudWatchMetricDataGetter
     ];
 
     const responses = await Promise.all(
-      metricDataInputs.map(input =>
-        this.cloudwatchClient.send(new cw.GetMetricDataCommand(input)),
+      metricDataInputs.map(async input =>
+        await this.cloudwatchClient.send(new cw.GetMetricDataCommand(input)),
       ),
     );
 

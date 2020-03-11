@@ -1,10 +1,9 @@
-import _ from 'lodash';
-import moment from 'moment';
 
 import * as cw from '@aws-sdk/client-cloudwatch-node';
-
-import base32Encode from 'base32-encode';
+import base32Encode from 'base32-encode'; // eslint-disable-line import/default
 import fnv from 'fnv-plus';
+import _ from 'lodash';
+import moment from 'moment';
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
 
@@ -97,8 +96,8 @@ export class ElastiCacheMetricDataGetter extends CloudWatchMetricDataGetter
         }" AND ${replicationGroupId}', 'Average', ${period.asSeconds()})`;
 
         return {
-          Id: metricId,
           Expression: expression,
+          Id: metricId,
         };
       }),
       StartTime: rangeStart.toDate(),
@@ -106,8 +105,8 @@ export class ElastiCacheMetricDataGetter extends CloudWatchMetricDataGetter
     }));
 
     const responses = await Promise.all(
-      metricDataInputs.map(input =>
-        this.cloudwatchClient.send(new cw.GetMetricDataCommand(input)),
+      metricDataInputs.map(async input =>
+        await this.cloudwatchClient.send(new cw.GetMetricDataCommand(input)),
       ),
     );
 

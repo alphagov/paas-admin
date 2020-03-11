@@ -1,4 +1,4 @@
-import parse from 'csv-parse/lib/sync';
+import parse from 'csv-parse/lib/sync'; // eslint-disable-line import/default
 import jwt from 'jsonwebtoken';
 import lodash from 'lodash';
 import moment from 'moment';
@@ -14,14 +14,13 @@ import {
   wrapResources,
   wrapV3Resources,
 } from '../../lib/cf/test-data/wrap-resources';
-import { testable as t, viewOrganizationsReport } from './controllers';
-
 import { createTestContext } from '../app/app.test-helpers';
+import { config } from '../app/app.test.config';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
-
-import { config } from '../app/app.test.config';
 import * as reports from '../reports';
+
+import { testable as t, viewOrganizationsReport } from './controllers';
 
 const adminFee = 0.1;
 
@@ -31,10 +30,10 @@ describe('organisations report helpers', () => {
 
   const time = Math.floor(Date.now() / 1000);
   const rawToken = {
-    user_id: 'uaa-id-253',
-    scope: [],
-    origin: 'uaa',
     exp: time + 24 * 60 * 60,
+    origin: 'uaa',
+    scope: [],
+    user_id: 'uaa-id-253',
   };
   const accessToken = jwt.sign(rawToken, tokenKey);
 
@@ -131,27 +130,27 @@ describe('organisations report helpers', () => {
     const orgs = [
       lodash.merge(defaultOrgv3(), {
         created_at: moment().toDate(),
-        relationships: { quota: { data: { guid: trialGUID } } },
         name: '1-trial-org',
+        relationships: { quota: { data: { guid: trialGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
         created_at: moment().toDate(),
-        relationships: { quota: { data: { guid: paidGUID } } },
         name: '1-paid-org',
-      }),
-      lodash.merge(defaultOrgv3(), {
-        created_at: moment()
-          .subtract(1, 'days')
-          .toDate(),
-        relationships: { quota: { data: { guid: trialGUID } } },
-        name: '2-trial-org',
-      }),
-      lodash.merge(defaultOrgv3(), {
-        created_at: moment()
-          .subtract(1, 'days')
-          .toDate(),
         relationships: { quota: { data: { guid: paidGUID } } },
+      }),
+      lodash.merge(defaultOrgv3(), {
+        created_at: moment()
+          .subtract(1, 'days')
+          .toDate(),
+        name: '2-trial-org',
+        relationships: { quota: { data: { guid: trialGUID } } },
+      }),
+      lodash.merge(defaultOrgv3(), {
+        created_at: moment()
+          .subtract(1, 'days')
+          .toDate(),
         name: '2-paid-org',
+        relationships: { quota: { data: { guid: paidGUID } } },
       }),
     ];
 
@@ -176,34 +175,34 @@ describe('organisations report helpers', () => {
 
     const orgs = [
       lodash.merge(defaultOrgv3(), {
-        guid: 'current-trial-org',
         created_at: moment().toDate(),
-        relationships: { quota: { data: { guid: trialGUID } } },
+        guid: 'current-trial-org',
         name: 'current-trial-org',
+        relationships: { quota: { data: { guid: trialGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        guid: 'expiring-trial-org',
         created_at: moment()
           .subtract(100, 'days')
           .toDate(),
-        relationships: { quota: { data: { guid: trialGUID } } },
+        guid: 'expiring-trial-org',
         name: 'expiring-trial-org',
+        relationships: { quota: { data: { guid: trialGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        guid: 'cheap-org',
         created_at: moment()
           .subtract(365, 'days')
           .toDate(),
-        relationships: { quota: { data: { guid: cheapGUID } } },
+        guid: 'cheap-org',
         name: 'cheap-org',
+        relationships: { quota: { data: { guid: cheapGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        guid: 'expensive-org',
         created_at: moment()
           .subtract(730, 'days')
           .toDate(),
-        relationships: { quota: { data: { guid: expensiveGUID } } },
+        guid: 'expensive-org',
         name: 'expensive-org',
+        relationships: { quota: { data: { guid: expensiveGUID } } },
       }),
     ];
 
@@ -278,22 +277,22 @@ describe('cost report test suite', () => {
     eventGUID: '',
     eventStart: new Date(),
     eventStop: new Date(),
+    memoryInMB: 0,
+    numberOfNodes: 0,
+    orgGUID: '',
+    planGUID: '',
+    price: {
+      details: [],
+      exVAT: 0,
+      incVAT: 0,
+    },
+    quotaGUID: '',
     resourceGUID: '',
     resourceName: '',
     resourceType: '',
-    orgGUID: '',
     spaceGUID: '',
-    quotaGUID: '',
     spaceName: '',
-    planGUID: '',
-    numberOfNodes: 0,
-    memoryInMB: 0,
     storageInMB: 0,
-    price: {
-      incVAT: 0,
-      exVAT: 0,
-      details: [],
-    },
   };
 
   beforeEach(() => {
@@ -580,22 +579,22 @@ describe('cost report test suite', () => {
     ).toHaveLength(0);
   });
 
-  it('empty sumRecords', async () => {
+  it('empty sumRecords', () => {
     const summed = reports.sumRecords([], adminFee);
     expect(summed.incVAT).toEqual(0);
     expect(summed.exVAT).toEqual(0);
     expect(summed.exVATWithAdminFee).toEqual(0);
   });
 
-  it('n sumRecords', async () => {
+  it('n sumRecords', () => {
     const summed = reports.sumRecords([
       {
         ...defaultBillableEvent,
-        price: { incVAT: 10, exVAT: 11, details: [] },
+        price: { details: [], exVAT: 11, incVAT: 10 },
       },
       {
         ...defaultBillableEvent,
-        price: { incVAT: 5.5, exVAT: 5.5, details: [] },
+        price: { details: [], exVAT: 5.5, incVAT: 5.5 },
       },
     ], adminFee);
     expect(summed.incVAT).toEqual(15.5);
@@ -603,87 +602,87 @@ describe('cost report test suite', () => {
     expect(summed.exVATWithAdminFee).toBeCloseTo(18.15, 5 /* digits */);
   });
 
-  it('empty createOrgCostRecord', async () => {
+  it('empty createOrgCostRecord', () => {
     const records = reports.createQuotaCostRecords([]);
     expect(records).toHaveLength(0);
   });
 
-  it('n createOrgCostRecord', async () => {
+  it('n createOrgCostRecord', () => {
     const quotaRecords = reports.createQuotaCostRecords([
       {
+        exVAT: 10,
+        exVATWithAdminFee: 11,
+        incVAT: 10,
+
         orgGUID: 'oa',
         orgName: 'oa',
 
         quotaGUID: 'qa',
         quotaName: 'qa',
-
-        incVAT: 10,
-        exVAT: 10,
-        exVATWithAdminFee: 11,
       },
       {
+        exVAT: 3.5,
+        exVATWithAdminFee: 3.85,
+        incVAT: 2.5,
+
         orgGUID: 'ob',
         orgName: 'ob',
 
         quotaGUID: 'qa',
         quotaName: 'qa',
-
-        incVAT: 2.5,
-        exVAT: 3.5,
-        exVATWithAdminFee: 3.85,
       },
       {
+        exVAT: 3.5,
+        exVATWithAdminFee: 3.85,
+        incVAT: 2.5,
+
         orgGUID: 'oc',
         orgName: 'oc',
 
         quotaGUID: 'qb',
         quotaName: 'qb',
-
-        incVAT: 2.5,
-        exVAT: 3.5,
-        exVATWithAdminFee: 3.85,
       },
     ]);
 
     expect(quotaRecords).toContainEqual({
-      quotaGUID: 'qa',
-      quotaName: 'qa',
-
-      incVAT: 12.5,
       exVAT: 13.5,
       exVATWithAdminFee: 14.85,
+      incVAT: 12.5,
+
+      quotaGUID: 'qa',
+      quotaName: 'qa',
     });
 
     expect(quotaRecords).toContainEqual({
-      quotaGUID: 'qb',
-      quotaName: 'qb',
-
-      incVAT: 2.5,
       exVAT: 3.5,
       exVATWithAdminFee: 3.85,
+      incVAT: 2.5,
+
+      quotaGUID: 'qb',
+      quotaName: 'qb',
     });
   });
 
-  it('zero aggregateBillingEvents', async () => {
+  it('zero aggregateBillingEvents', () => {
     const events = reports.aggregateBillingEvents([]);
     expect(events).toEqual({});
   });
 
-  it('n aggregateBillingEvents', async () => {
+  it('n aggregateBillingEvents', () => {
     const a1 = {
       ...defaultBillableEvent,
       orgGUID: 'a',
-      price: { incVAT: 1, exVAT: 2, details: [] },
+      price: { details: [], exVAT: 2, incVAT: 1 },
     };
     const a2 = {
       ...defaultBillableEvent,
       orgGUID: 'a',
-      price: { incVAT: 1, exVAT: 2, details: [] },
+      price: { details: [], exVAT: 2, incVAT: 1 },
     };
     const b1 = {
       ...defaultBillableEvent,
       orgGUID: 'b',
-      price: { incVAT: 1, exVAT: 2, details: [] },
+      price: { details: [], exVAT: 2, incVAT: 1 },
     };
 
     const events = reports.aggregateBillingEvents([a1, a2, b1]);
@@ -694,12 +693,12 @@ describe('cost report test suite', () => {
     expect(events.b).toHaveLength(1);
   });
 
-  it('zero createOrgCostRecords', async () => {
+  it('zero createOrgCostRecords', () => {
     const records = reports.createOrgCostRecords([], {}, {}, adminFee);
     expect(records).toEqual([]);
   });
 
-  it('orgs but no billable events createOrgCostRecords', async () => {
+  it('orgs but no billable events createOrgCostRecords', () => {
     const records = reports.createOrgCostRecords(
       [
         {
@@ -710,20 +709,20 @@ describe('cost report test suite', () => {
             billing_managers_url: '',
             domains_url: '',
             managers_url: '',
+            name: 'Org a',
             private_domains_url: '',
+            quota_definition_guid: 'quota-a',
             quota_definition_url: '',
-            users_url: '',
             space_quota_definitions_url: '',
             spaces_url: '',
             status: '',
-            quota_definition_guid: 'quota-a',
-            name: 'Org a',
+            users_url: '',
           },
           metadata: {
-            url: '',
             created_at: '',
-            updated_at: '',
             guid: 'org-a',
+            updated_at: '',
+            url: '',
           },
         },
       ],
@@ -744,10 +743,10 @@ describe('cost report test suite', () => {
             trial_db_allowed: true,
           },
           metadata: {
-            url: '',
             created_at: '',
-            updated_at: '',
             guid: 'quota-a',
+            updated_at: '',
+            url: '',
           },
         },
       },
@@ -758,19 +757,19 @@ describe('cost report test suite', () => {
     );
 
     expect(records).toContainEqual({
+      exVAT: 0,
+      exVATWithAdminFee: 0,
+      incVAT: 0,
+
       orgGUID: 'org-a',
       orgName: 'Org a',
 
       quotaGUID: 'quota-a',
       quotaName: 'Quota a',
-
-      incVAT: 0,
-      exVAT: 0,
-      exVATWithAdminFee: 0,
     });
   });
 
-  it('orgs and some billable events createOrgCostRecords', async () => {
+  it('orgs and some billable events createOrgCostRecords', () => {
     const records = reports.createOrgCostRecords(
       [
         {
@@ -781,20 +780,20 @@ describe('cost report test suite', () => {
             billing_managers_url: '',
             domains_url: '',
             managers_url: '',
+            name: 'Org a',
             private_domains_url: '',
+            quota_definition_guid: 'quota-a',
             quota_definition_url: '',
-            users_url: '',
             space_quota_definitions_url: '',
             spaces_url: '',
             status: '',
-            quota_definition_guid: 'quota-a',
-            name: 'Org a',
+            users_url: '',
           },
           metadata: {
-            url: '',
             created_at: '',
-            updated_at: '',
             guid: 'org-a',
+            updated_at: '',
+            url: '',
           },
         },
         {
@@ -805,20 +804,20 @@ describe('cost report test suite', () => {
             billing_managers_url: '',
             domains_url: '',
             managers_url: '',
+            name: 'Org b',
             private_domains_url: '',
+            quota_definition_guid: 'quota-a',
             quota_definition_url: '',
-            users_url: '',
             space_quota_definitions_url: '',
             spaces_url: '',
             status: '',
-            quota_definition_guid: 'quota-a',
-            name: 'Org b',
+            users_url: '',
           },
           metadata: {
-            url: '',
             created_at: '',
-            updated_at: '',
             guid: 'org-b',
+            updated_at: '',
+            url: '',
           },
         },
       ],
@@ -839,10 +838,10 @@ describe('cost report test suite', () => {
             trial_db_allowed: true,
           },
           metadata: {
-            url: '',
             created_at: '',
-            updated_at: '',
             guid: 'quota-a',
+            updated_at: '',
+            url: '',
           },
         },
         'org-b': {
@@ -861,10 +860,10 @@ describe('cost report test suite', () => {
             trial_db_allowed: true,
           },
           metadata: {
-            url: '',
             created_at: '',
-            updated_at: '',
             guid: 'quota-a',
+            updated_at: '',
+            url: '',
           },
         },
       },
@@ -873,19 +872,19 @@ describe('cost report test suite', () => {
           {
             ...defaultBillableEvent,
             orgGUID: 'b',
-            price: { incVAT: 1, exVAT: 2, details: [] },
+            price: { details: [], exVAT: 2, incVAT: 1 },
           },
           {
             ...defaultBillableEvent,
             orgGUID: 'b',
-            price: { incVAT: 1.5, exVAT: 2.5, details: [] },
+            price: { details: [], exVAT: 2.5, incVAT: 1 },
           },
         ],
         'org-b': [
           {
             ...defaultBillableEvent,
             orgGUID: 'b',
-            price: { incVAT: 1, exVAT: 2.5, details: [] },
+            price: { details: [], exVAT: 2.5, incVAT: 1 },
           },
         ],
       },
@@ -893,27 +892,27 @@ describe('cost report test suite', () => {
     );
 
     expect(records).toContainEqual({
+      exVAT: 4.5,
+      exVATWithAdminFee: 4.95,
+      incVAT: 2,
+
       orgGUID: 'org-a',
       orgName: 'Org a',
 
       quotaGUID: 'quota-a',
       quotaName: 'Quota a',
-
-      incVAT: 2.5,
-      exVAT: 4.5,
-      exVATWithAdminFee: 4.95,
     });
 
     expect(records).toContainEqual({
+      exVAT: 2.5,
+      exVATWithAdminFee: 2.75,
+      incVAT: 1,
+
       orgGUID: 'org-b',
       orgName: 'Org b',
 
       quotaGUID: 'quota-a',
       quotaName: 'Quota a',
-
-      incVAT: 1,
-      exVAT: 2.5,
-      exVATWithAdminFee: 2.75,
     });
   });
 });
@@ -921,6 +920,8 @@ describe('cost report test suite', () => {
 describe('html cost report by service test suite', () => {
   let nockCF: nock.Scope;
   let nockBilling: nock.Scope;
+
+  const ctx: IContext = createTestContext();
 
   beforeEach(() => {
     nock.cleanAll();
@@ -935,8 +936,6 @@ describe('html cost report by service test suite', () => {
 
     nock.cleanAll();
   });
-
-  const ctx: IContext = createTestContext();
 
   it('should show empty report for zero billables', async () => {
     nockCF
@@ -978,36 +977,36 @@ describe('html cost report by service test suite', () => {
       .format('YYYY-MM-DD');
 
     const defaultPriceDetails = {
+      currency_code: 'default-currency-code',
+      ex_vat: 0,
+      inc_vat: 0,
       name: 'instance',
+      plan_name: 'default-plan-name',
       start: '2018-04-20T14:36:09+00:00',
       stop: '2018-04-20T14:45:46+00:00',
-      plan_name: 'default-plan-name',
-      ex_vat: 0,
-      inc_vat: 0,
-      vat_rate: '0.2',
       vat_code: 'default-vat-code',
-      currency_code: 'default-currency-code',
+      vat_rate: '0.2',
     };
     const defaultPrice = {
+      details: [defaultPriceDetails],
       ex_vat: 0,
       inc_vat: 0,
-      details: [defaultPriceDetails],
     };
     const defaultBillableEvent = {
       event_guid: 'default-event-guid',
       event_start: '2018-04-20T14:36:09+00:00',
       event_stop: '2018-04-20T14:45:46+00:00',
+      memory_in_mb: 64,
+      number_of_nodes: 1,
+      org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      plan_guid: 'default-plan-guid',
+      price: defaultPrice,
+      quota_definition_guid: 'default-quota-definition-guid',
       resource_guid: 'default-resource-guid',
       resource_name: 'default-resource-name',
       resource_type: 'app',
-      org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       space_guid: 'default-space-guid',
-      plan_guid: 'default-plan-guid',
-      quota_definition_guid: 'default-quota-definition-guid',
-      number_of_nodes: 1,
-      memory_in_mb: 64,
       storage_in_mb: 0,
-      price: defaultPrice,
     };
 
     nockCF
@@ -1026,42 +1025,42 @@ describe('html cost report by service test suite', () => {
             ...defaultBillableEvent,
             price: {
               ...defaultPrice,
-              inc_vat: '1',
               details: [{ ...defaultPriceDetails, plan_name: 'task' }],
+              inc_vat: '1',
             },
           },
           {
             ...defaultBillableEvent,
             price: {
               ...defaultPrice,
-              inc_vat: '10',
               details: [{ ...defaultPriceDetails, plan_name: 'staging' }],
+              inc_vat: '10',
             },
           },
           {
             ...defaultBillableEvent,
             price: {
               ...defaultPrice,
-              inc_vat: '100',
               details: [{ ...defaultPriceDetails, plan_name: 'app' }],
+              inc_vat: '100',
             },
           },
           {
             ...defaultBillableEvent,
             price: {
               ...defaultPrice,
-              inc_vat: '1000',
               details: [{ ...defaultPriceDetails, plan_name: 'postgres' }],
+              inc_vat: '1000',
             },
           },
           {
             ...defaultBillableEvent,
-            price: { ...defaultPrice, inc_vat: '10000', details: [] },
+            price: { ...defaultPrice, details: [], inc_vat: '10000' },
           },
           {
             ...defaultBillableEvent,
             org_guid: 'some-unknown-org',
-            price: { ...defaultPrice, inc_vat: '100000', details: [] },
+            price: { ...defaultPrice, details: [], inc_vat: '100000' },
           },
         ]),
       );
@@ -1091,44 +1090,44 @@ describe('html cost report by service test suite', () => {
 
 describe('cost report grouping functions', () => {
   const defaultPriceDetails: IPriceComponent = {
+    currencyCode: '',
+    exVAT: 0,
+    incVAT: 0,
     name: '',
     planName: '',
     start: new Date(),
     stop: new Date(),
     VATCode: '',
     VATRate: 0,
-    currencyCode: '',
-    exVAT: 0,
-    incVAT: 0,
   };
-  const defaultPrice = { incVAT: 0, exVAT: 0, details: [] };
+  const defaultPrice = { details: [], exVAT: 0, incVAT: 0 };
   const defaultBillableEvent = {
-    price: defaultPrice,
     eventGUID: '',
     eventStart: new Date(),
     eventStop: new Date(),
+    memoryInMB: 0,
+    numberOfNodes: 0,
+    orgGUID: '',
+    planGUID: '',
+    price: defaultPrice,
     resourceGUID: '',
     resourceName: '',
     resourceType: '',
-    orgGUID: '',
     spaceGUID: '',
     spaceName: '',
-    planGUID: '',
-    numberOfNodes: 0,
-    memoryInMB: 0,
     storageInMB: 0,
   };
 
   describe('getBillableEventsByService', () => {
     it('should work with zero events', () => {
-      const result = reports.getBillableEventsByService([]);
+      const result = reports.getBillableEventsByService([], 0.1);
       expect(result).toHaveLength(0);
     });
 
     it('should treat an event with no details as an unknown services', () => {
       const result = reports.getBillableEventsByService([
         { ...defaultBillableEvent, price: { ...defaultPrice, details: [] } },
-      ]);
+      ], 0.1);
       expect(result).toHaveLength(1);
       expect(result[0].serviceGroup).toBe('unknown');
     });
@@ -1139,29 +1138,29 @@ describe('cost report grouping functions', () => {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 1,
             details: [{ ...defaultPriceDetails, planName: 'postgres tiny' }],
+            incVAT: 1,
           },
         },
         {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 10,
             details: [{ ...defaultPriceDetails, planName: 'postgres medium' }],
+            incVAT: 10,
           },
         },
         {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 100,
             details: [
               { ...defaultPriceDetails, planName: 'postgres leviathan' },
             ],
+            incVAT: 100,
           },
         },
-      ]);
+      ], 0.1);
       expect(result).toHaveLength(1);
       expect(result[0].serviceGroup).toBe('postgres');
       expect(result[0].incVAT).toBe(111);
@@ -1173,27 +1172,27 @@ describe('cost report grouping functions', () => {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 1,
             details: [{ ...defaultPriceDetails, planName: 'app' }],
+            incVAT: 1,
           },
         },
         {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 10,
             details: [{ ...defaultPriceDetails, planName: 'staging' }],
+            incVAT: 10,
           },
         },
         {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 100,
             details: [{ ...defaultPriceDetails, planName: 'task' }],
+            incVAT: 100,
           },
         },
-      ]);
+      ], 0.1);
       expect(result).toHaveLength(1);
       expect(result[0].serviceGroup).toBe('compute');
       expect(result[0].incVAT).toBe(111);
@@ -1205,53 +1204,53 @@ describe('cost report grouping functions', () => {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 1,
             details: [{ ...defaultPriceDetails, planName: 'postgres tiny' }],
+            incVAT: 1,
           },
         },
         {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 10,
             details: [{ ...defaultPriceDetails, planName: 'postgres medium' }],
+            incVAT: 10,
           },
         },
         {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 100,
             details: [
               { ...defaultPriceDetails, planName: 'postgres leviathan' },
             ],
+            incVAT: 100,
           },
         },
         {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 1000,
             details: [{ ...defaultPriceDetails, planName: 'app' }],
+            incVAT: 1000,
           },
         },
         {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 10000,
             details: [{ ...defaultPriceDetails, planName: 'staging' }],
+            incVAT: 10000,
           },
         },
         {
           ...defaultBillableEvent,
           price: {
             ...defaultPrice,
-            incVAT: 100000,
             details: [{ ...defaultPriceDetails, planName: 'task' }],
+            incVAT: 100000,
           },
         },
-      ]);
+      ], 0.1);
       expect(result).toHaveLength(2);
       expect(result[0].serviceGroup).toBe('compute');
       expect(result[0].incVAT).toBe(111000);
@@ -1262,7 +1261,7 @@ describe('cost report grouping functions', () => {
 
   describe('getBillableEventsByOrganisationAndService', () => {
     it('should work with zero events', () => {
-      const result = reports.getBillableEventsByOrganisationAndService([], {});
+      const result = reports.getBillableEventsByOrganisationAndService([], {}, 0.1);
       expect(result).toHaveLength(0);
     });
 
@@ -1273,6 +1272,7 @@ describe('cost report grouping functions', () => {
       const result = reports.getBillableEventsByOrganisationAndService(
         [{ ...defaultBillableEvent, orgGUID: 'some-org-guid' }],
         orgsByGUID,
+        0.1,
       );
       expect(result).toHaveLength(1);
       expect(result[0].orgName).toBe('some-org-name');
@@ -1290,8 +1290,8 @@ describe('cost report grouping functions', () => {
             orgGUID: 'org-guid-two',
             price: {
               ...defaultPrice,
-              incVAT: 1,
               details: [{ ...defaultPriceDetails, planName: 'mysql' }],
+              incVAT: 1,
             },
           },
           {
@@ -1299,8 +1299,8 @@ describe('cost report grouping functions', () => {
             orgGUID: 'org-guid-two',
             price: {
               ...defaultPrice,
+              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
               incVAT: 1,
-              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
             },
           },
           {
@@ -1308,8 +1308,8 @@ describe('cost report grouping functions', () => {
             orgGUID: 'org-guid-one',
             price: {
               ...defaultPrice,
+              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
               incVAT: 20,
-              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
             },
           },
           {
@@ -1317,12 +1317,13 @@ describe('cost report grouping functions', () => {
             orgGUID: 'org-guid-one',
             price: {
               ...defaultPrice,
-              incVAT: 100,
               details: [{ ...defaultPriceDetails, planName: 'postgres' }],
+              incVAT: 100,
             },
           },
         ],
         orgsByGUID,
+        0.1,
       );
       expect(result).toHaveLength(3);
       expect(result[0].orgName).toBe('org-name-one');
@@ -1345,6 +1346,7 @@ describe('cost report grouping functions', () => {
         [],
         {},
         {},
+        0.1,
       );
       expect(result).toHaveLength(0);
     });
@@ -1371,6 +1373,7 @@ describe('cost report grouping functions', () => {
         ],
         orgsByGUID,
         spacesByGUID,
+        0.1,
       );
       expect(result).toHaveLength(2);
       expect(result[0].orgName).toBe('some-org-name');
@@ -1393,56 +1396,57 @@ describe('cost report grouping functions', () => {
           {
             ...defaultBillableEvent,
             orgGUID: 'org-guid-two',
-            spaceGUID: 'space-guid-one',
             price: {
               ...defaultPrice,
+              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
               incVAT: 7,
-              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
             },
+            spaceGUID: 'space-guid-one',
           },
           {
             ...defaultBillableEvent,
             orgGUID: 'org-guid-two',
-            spaceGUID: 'space-guid-one',
             price: {
               ...defaultPrice,
+              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
               incVAT: 1,
-              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
             },
+            spaceGUID: 'space-guid-one',
           },
           {
             ...defaultBillableEvent,
             orgGUID: 'org-guid-two',
-            spaceGUID: 'space-guid-two',
             price: {
               ...defaultPrice,
+              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
               incVAT: 2,
-              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
             },
-          },
-          {
-            ...defaultBillableEvent,
-            orgGUID: 'org-guid-one',
-            spaceGUID: 'space-guid-one',
-            price: {
-              ...defaultPrice,
-              incVAT: 20,
-              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
-            },
-          },
-          {
-            ...defaultBillableEvent,
-            orgGUID: 'org-guid-one',
             spaceGUID: 'space-guid-two',
+          },
+          {
+            ...defaultBillableEvent,
+            orgGUID: 'org-guid-one',
             price: {
               ...defaultPrice,
-              incVAT: 100,
-              details: [{ ...defaultPriceDetails, planName: 'postgres' }],
+              details: [{ ...defaultPriceDetails, planName: 'mysql' }],
+              incVAT: 20,
             },
+            spaceGUID: 'space-guid-one',
+          },
+          {
+            ...defaultBillableEvent,
+            orgGUID: 'org-guid-one',
+            price: {
+              ...defaultPrice,
+              details: [{ ...defaultPriceDetails, planName: 'postgres' }],
+              incVAT: 100,
+            },
+            spaceGUID: 'space-guid-two',
           },
         ],
         orgsByGUID,
         spacesByGUID,
+        0.1,
       );
       expect(result).toHaveLength(4);
 
@@ -1534,34 +1538,34 @@ describe('csv organisation monthly spend report for the pmo team', () => {
     const rangeStart = moment().startOf('month');
 
     const defaultPriceDetails = {
-      name: 'instance',
-      start: '2018-04-20T14:36:09+00:00',
-      stop: '2018-04-20T14:45:46+00:00',
-      plan_name: 'default-plan-name',
       ex_vat: 0,
       inc_vat: 0,
+      name: 'instance',
+      plan_name: 'default-plan-name',
+      start: '2018-04-20T14:36:09+00:00',
+      stop: '2018-04-20T14:45:46+00:00',
       vat_rate: 10,
     };
     const defaultPrice = {
+      details: [defaultPriceDetails],
       ex_vat: 0,
       inc_vat: 0,
-      details: [defaultPriceDetails],
     };
     const defaultBillableEvent = {
       event_guid: 'default-event-guid',
       event_start: '2018-04-20T14:36:09+00:00',
       event_stop: '2018-04-20T14:45:46+00:00',
+      memory_in_mb: 64,
+      number_of_nodes: 1,
+      org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      plan_guid: 'default-plan-guid',
+      price: defaultPrice,
+      quota_definition_guid: 'default-quota-definition-guid',
       resource_guid: 'default-resource-guid',
       resource_name: 'default-resource-name',
       resource_type: 'app',
-      org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       space_guid: 'default-space-guid',
-      plan_guid: 'default-plan-guid',
-      quota_definition_guid: 'default-quota-definition-guid',
-      number_of_nodes: 1,
-      memory_in_mb: 64,
       storage_in_mb: 0,
-      price: defaultPrice,
     };
     nock(config.billingAPI)
       .get('/billable_events')
@@ -1596,8 +1600,8 @@ describe('csv organisation monthly spend report for the pmo team', () => {
       'Billing month': rangeStart.format('MMMM YYYY'),
       Org: 'Org One',
       Region: 'Ireland',
-      'Unique ID': 'org-one',
       'Spend in GBP without VAT': '1.10',
+      'Unique ID': 'org-one',
     });
   });
 
@@ -1605,34 +1609,34 @@ describe('csv organisation monthly spend report for the pmo team', () => {
     const rangeStart = moment().startOf('month');
 
     const defaultPriceDetails = {
-      name: 'instance',
-      start: '2018-04-20T14:36:09+00:00',
-      stop: '2018-04-20T14:45:46+00:00',
-      plan_name: 'default-plan-name',
       ex_vat: 0,
       inc_vat: 0,
+      name: 'instance',
+      plan_name: 'default-plan-name',
+      start: '2018-04-20T14:36:09+00:00',
+      stop: '2018-04-20T14:45:46+00:00',
       vat_rate: 10,
     };
     const defaultPrice = {
+      details: [ defaultPriceDetails ],
       ex_vat: 0,
       inc_vat: 0,
-      details: [defaultPriceDetails],
     };
     const defaultBillableEvent = {
       event_guid: 'default-event-guid',
       event_start: '2018-04-20T14:36:09+00:00',
       event_stop: '2018-04-20T14:45:46+00:00',
+      memory_in_mb: 64,
+      number_of_nodes: 1,
+      org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      plan_guid: 'default-plan-guid',
+      price: defaultPrice,
+      quota_definition_guid: 'default-quota-definition-guid',
       resource_guid: 'default-resource-guid',
       resource_name: 'default-resource-name',
       resource_type: 'app',
-      org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       space_guid: 'default-space-guid',
-      plan_guid: 'default-plan-guid',
-      quota_definition_guid: 'default-quota-definition-guid',
-      number_of_nodes: 1,
-      memory_in_mb: 64,
       storage_in_mb: 0,
-      price: defaultPrice,
     };
     nock(config.billingAPI)
       .get('/billable_events')
@@ -1688,15 +1692,15 @@ describe('csv organisation monthly spend report for the pmo team', () => {
       'Billing month': rangeStart.format('MMMM YYYY'),
       Org: 'Org One',
       Region: 'Ireland',
-      'Unique ID': 'org-one',
       'Spend in GBP without VAT': '1211.10',
+      'Unique ID': 'org-one',
     });
     expect(records).toContainEqual({
       'Billing month': rangeStart.format('MMMM YYYY'),
       Org: 'Org Two',
       Region: 'Ireland',
-      'Unique ID': 'org-two',
       'Spend in GBP without VAT': '11011.00',
+      'Unique ID': 'org-two',
     });
   });
 
@@ -1731,28 +1735,28 @@ describe('csv organisation monthly spend report for the pmo team', () => {
       'Billing month': rangeStart.format('MMMM YYYY'),
       Org: 'Org With Nothing Billed',
       Region: 'Ireland',
-      'Unique ID': 'org-with-nothing-billed',
       'Spend in GBP without VAT': '0.00',
+      'Unique ID': 'org-with-nothing-billed',
     });
   });
 });
 
 describe('cost report grouping functions', () => {
-  const defaultPrice = { incVAT: 0, exVAT: 0, details: [] };
+  const defaultPrice = { details: [], exVAT: 0, incVAT: 0 };
   const defaultBillableEvent = {
-    price: defaultPrice,
     eventGUID: '',
     eventStart: new Date(),
     eventStop: new Date(),
+    memoryInMB: 0,
+    numberOfNodes: 0,
+    orgGUID: '',
+    planGUID: '',
+    price: defaultPrice,
     resourceGUID: '',
     resourceName: '',
     resourceType: '',
-    orgGUID: '',
     spaceGUID: '',
     spaceName: '',
-    planGUID: '',
-    numberOfNodes: 0,
-    memoryInMB: 0,
     storageInMB: 0,
   };
 
@@ -1766,9 +1770,9 @@ describe('cost report grouping functions', () => {
       const results = reports.getBillablesByOrganisation([defaultOrgv3()], [], adminFee);
       expect(results).toHaveLength(1);
       expect(results[0]).toEqual({
-        org: defaultOrgv3(),
         exVAT: 0,
         exVATWithAdminFee: 0,
+        org: defaultOrgv3(),
       });
     });
 
@@ -1791,9 +1795,9 @@ describe('cost report grouping functions', () => {
       );
       expect(results).toHaveLength(1);
       expect(results[0]).toEqual({
-        org: { ...defaultOrgv3(), guid: 'org-one', name: 'Org One' },
         exVAT: 11,
         exVATWithAdminFee: expect.any(Number),
+        org: { ...defaultOrgv3(), guid: 'org-one', name: 'Org One' },
       });
 
       expect(results[0].exVATWithAdminFee).toBeCloseTo(12.1, 5);
@@ -1821,14 +1825,14 @@ describe('cost report grouping functions', () => {
       );
       expect(results).toHaveLength(2);
       expect(results).toContainEqual({
-        org: { ...defaultOrgv3(), guid: 'org-one', name: 'Org One' },
         exVAT: 5,
         exVATWithAdminFee: expect.any(Number),
+        org: { ...defaultOrgv3(), guid: 'org-one', name: 'Org One' },
       });
       expect(results).toContainEqual({
-        org: { ...defaultOrgv3(), guid: 'org-two', name: 'Org Two' },
         exVAT: 7,
         exVATWithAdminFee: expect.any(Number),
+        org: { ...defaultOrgv3(), guid: 'org-two', name: 'Org Two' },
       });
 
       expect(results.map(x => x.exVATWithAdminFee).sort()[0]).toBeCloseTo(5.5, 5);
@@ -1861,23 +1865,23 @@ describe('cost report grouping functions', () => {
     const orgs = [
       {
         ...defaultOrgv3(),
-        relationships: { quota: { data: { guid: trialGUID } } },
         name: '1-trial-org',
-      },
-      {
-        ...defaultOrgv3(),
-        relationships: { quota: { data: { guid: paidGUID } } },
-        name: '1-paid-org',
-      },
-      {
-        ...defaultOrgv3(),
         relationships: { quota: { data: { guid: trialGUID } } },
-        name: '2-trial-org',
       },
       {
         ...defaultOrgv3(),
+        name: '1-paid-org',
         relationships: { quota: { data: { guid: paidGUID } } },
+      },
+      {
+        ...defaultOrgv3(),
+        name: '2-trial-org',
+        relationships: { quota: { data: { guid: trialGUID } } },
+      },
+      {
+        ...defaultOrgv3(),
         name: '2-paid-org',
+        relationships: { quota: { data: { guid: paidGUID } } },
       },
     ];
 
@@ -1996,35 +2000,35 @@ describe('building D3 sankey input', () => {
 
   it('should produce nodes and links from billables, ignoring orgs without billables', () => {
     const defaultBillable = {
-      orgName: 'default-org-name',
-      orgGUID: 'default-org-guid',
-      serviceGroup: 'default-service',
       exVAT: 0,
       incVAT: 0,
+      orgGUID: 'default-org-guid',
+      orgName: 'default-org-name',
+      serviceGroup: 'default-service',
     };
 
     const result = reports.buildD3SankeyInput(
       [
         {
           ...defaultBillable,
-          orgName: 'org-1',
-          serviceGroup: 'service-1',
           exVAT: 1,
           exVATWithAdminFee: 1.1,
+          orgName: 'org-1',
+          serviceGroup: 'service-1',
         },
         {
           ...defaultBillable,
-          orgName: 'org-2',
-          serviceGroup: 'service-1',
           exVAT: 2,
           exVATWithAdminFee: 2.2,
+          orgName: 'org-2',
+          serviceGroup: 'service-1',
         },
         {
           ...defaultBillable,
-          orgName: 'org-2',
-          serviceGroup: 'service-2',
           exVAT: 3,
           exVATWithAdminFee: 3.3,
+          orgName: 'org-2',
+          serviceGroup: 'service-2',
         },
       ],
       [

@@ -6,7 +6,7 @@ import request from 'supertest';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { NotAuthorisedError, NotFoundError } from '../../lib/router';
 
-import { UserFriendlyError, internalServerErrorMiddleware } from '.';
+import { internalServerErrorMiddleware, UserFriendlyError } from '.';
 
 describe('middleware', () => {
   let app: Express;

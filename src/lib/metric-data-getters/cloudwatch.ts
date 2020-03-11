@@ -1,18 +1,17 @@
 import { _UnmarshalledMetricDataResult as CloudWatchResult } from '@aws-sdk/client-cloudwatch-node';
-
 import _ from 'lodash';
 import moment from 'moment';
 
 import { IMetric, MetricName } from '../metrics';
 
 export interface ICloudWatchMetric {
-  name: string;
-  stat: string;
+  readonly name: string;
+  readonly stat: string;
 }
 
 export class CloudWatchMetricDataGetter {
   public addPlaceholderData(
-    results: Array<CloudWatchResult>,
+    results: ReadonlyArray<CloudWatchResult>,
 
     period: moment.Duration,
     rangeStart: moment.Moment,
@@ -35,7 +34,7 @@ export class CloudWatchMetricDataGetter {
 
           const metricPairs = _.zip(serie.Timestamps!, serie.Values!);
 
-          const dataWithoutPlaceholders: { [key: number]: IMetric } = _.chain(
+          const dataWithoutPlaceholders: { readonly [key: number]: IMetric } = _.chain(
             metricPairs,
           )
             .keyBy(p => +p[0]!)

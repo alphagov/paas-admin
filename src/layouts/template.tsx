@@ -3,6 +3,11 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 import { IViewContext } from '../components/app';
 import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs';
+
+
+import govukPrintStyles from './govuk.print.scss';
+import govukIE8Styles from './govuk.screen.ie8.scss';
+import govukStyles from './govuk.screen.scss';
 import {
   Footer,
   Header,
@@ -11,10 +16,6 @@ import {
   PhaseBanner,
   SubNavigation,
 } from './partials';
-
-import govukPrintStyles from './govuk.print.scss';
-import govukIE8Styles from './govuk.screen.ie8.scss';
-import govukStyles from './govuk.screen.scss';
 
 export class Template {
   private readonly _language = 'en';
@@ -139,9 +140,10 @@ export class Template {
   private EnableClientSideJavaScript(): ReactElement {
     return (
       <script
+        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html:
-            `document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');`,
+            'document.body.className = ((document.body.className) ? document.body.className + \' js-enabled\' : \'js-enabled\');',
         }}
       ></script>
     );

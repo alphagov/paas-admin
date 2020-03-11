@@ -1,13 +1,13 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
-import * as orgUsers from '.';
 
 import { AccountsClient } from '../../lib/accounts';
-
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
+
+import * as orgUsers from '.';
 
 const tokenKey = 'secret';
 
@@ -263,7 +263,7 @@ describe('_getUserRolesByGuid', () => {
     });
   });
 
-  it(`should get the user's username from accounts, falling back to UAA`, async () => {
+  it('should get the user\'s username from accounts, falling back to UAA', async () => {
     nockAccounts
       .get('/users/some-user-guid-0')
       .reply(

@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
-
-import CloudFoundryClient from '../../lib/cf';
 import { Template } from '../../layouts';
-import { Token } from '../auth';
+import CloudFoundryClient from '../../lib/cf';
+import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import { IContext } from '../app/context';
+import { Token } from '../auth';
 
 import { validateNewOrganization } from './validators';
 import {
@@ -17,7 +16,7 @@ import {
 
 const TITLE_CREATE_ORG = 'Create Organisation';
 
-function throwErrorIfNotAdmin({ token }: { token: Token }): void {
+function throwErrorIfNotAdmin({ token }: { readonly token: Token }): void {
   if (token.hasAdminScopes()) {
     return;
   }
@@ -85,10 +84,10 @@ export async function createOrganization(
   }
 
   const organization = await cf.v3CreateOrganization({
-    name: body.organization!,
     metadata: {
       annotations: { owner: body.owner! },
     },
+    name: body.organization!,
   });
 
   await cf.v3CreateSpace({
@@ -112,12 +111,12 @@ export async function viewHomepage(
 
   const template = new Template(ctx.viewContext, 'Platform Administrator');
 
-  return {
+  return await Promise.resolve({
     body: template.render(
       <PlatformAdministratorPage
         linkTo={ctx.linkTo}
         csrf={ctx.viewContext.csrf}
       />,
     ),
-  };
+  });
 }

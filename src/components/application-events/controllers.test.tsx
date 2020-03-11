@@ -2,7 +2,6 @@ import lodash from 'lodash';
 import moment from 'moment';
 import nock from 'nock';
 
-import { viewApplicationEvent, viewApplicationEvents } from '.';
 
 import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
@@ -13,6 +12,8 @@ import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import { wrapV3Resources } from '../../lib/cf/test-data/wrap-resources';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
+
+import { viewApplicationEvent, viewApplicationEvents } from '.';
 
 const ctx: IContext = createTestContext();
 
@@ -86,10 +87,10 @@ describe('application event', () => {
     );
 
     const response = await viewApplicationEvent(ctx, {
-      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       applicationGUID: defaultApp().metadata.guid,
       eventGUID: defaultAuditEvent().guid,
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
     expect(response.body).toContain(
@@ -110,16 +111,16 @@ describe('application event', () => {
       200,
       JSON.stringify(
         lodash.merge(event, {
-          actor: { type: 'unknown', name: 'unknown-actor' },
+          actor: { name: 'unknown-actor', type: 'unknown' },
         }),
       ),
     );
 
     const response = await viewApplicationEvent(ctx, {
-      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       applicationGUID: defaultApp().metadata.guid,
       eventGUID: event.guid,
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
     expect(response.body).toContain(
@@ -168,9 +169,9 @@ describe('application events', () => {
       nockCF
         .get('/v3/audit_events')
         .query({
+          order_by: '-updated_at',
           page: 1,
           per_page: 25,
-          order_by: '-updated_at',
           target_guids: defaultApp().metadata.guid,
         })
         .reply(200, JSON.stringify(wrapV3Resources()));
@@ -178,9 +179,9 @@ describe('application events', () => {
 
     it('should show a helpful message on the application events page', async () => {
       const response = await viewApplicationEvents(ctx, {
+        applicationGUID: defaultApp().metadata.guid,
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
-        applicationGUID: defaultApp().metadata.guid,
       });
 
       expect(response.body).toContain(
@@ -196,9 +197,9 @@ describe('application events', () => {
       nockCF
         .get('/v3/audit_events')
         .query({
+          order_by: '-updated_at',
           page: 1,
           per_page: 25,
-          order_by: '-updated_at',
           target_guids: defaultApp().metadata.guid,
         })
         .reply(
@@ -215,19 +216,19 @@ describe('application events', () => {
                 lodash.merge(defaultAuditEvent(), { type: 'audit.app.update' }),
                 lodash.merge(defaultAuditEvent(), { type: 'audit.app.create' }),
                 lodash.merge(defaultAuditEvent(), {
-                  type: 'some unknown event type',
                   actor: {
                     guid: 'unknown',
                     name: 'some unknown actor',
                     type: 'unknown',
                   },
+                  type: 'some unknown event type',
                 }),
               ),
               {
                 pagination: {
+                  next: { href: '/link-to-next-page' },
                   total_pages: 2702,
                   total_results: 1337,
-                  next: { href: '/link-to-next-page' },
                 },
               },
             ),
@@ -251,10 +252,10 @@ describe('application events', () => {
 
     it('should show a table of events on the application events page', async () => {
       const response = await viewApplicationEvents(ctx, {
-        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         applicationGUID: defaultApp().metadata.guid,
+        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
         page: 1,
+        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       });
 
       expect(response.body).toContain(
@@ -263,12 +264,8 @@ describe('application events', () => {
 
       expect(response.body).toContain('Displaying page 1 of 2702');
       expect(response.body).toContain('1337 total events');
-      expect(response.body).toContain(
-        '<a class="govuk-link">Previous page</a>',
-      );
-      expect(response.body).not.toContain(
-        '<a class="govuk-link">Next page</a>',
-      );
+      expect(response.body).toContain('<span>Previous page</span>');
+      expect(response.body).not.toContain('<span>Next page</span>');
       expect(response.body).toContain('Next page');
 
       expect(response.body).toContain('one@user.in.database');

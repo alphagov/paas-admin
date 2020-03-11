@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 
+import { SLUG_REGEX } from '../../layouts';
 import { RouteLinker } from '../app';
 import { IValidationError } from '../errors/types';
-import { SLUG_REGEX } from '../../layouts';
 import { SuccessPage } from '../org-users/views';
 
 interface IProperties {
@@ -95,7 +95,7 @@ function Costs(props: IFormProperties): ReactElement {
         </div>
 
         <div className="govuk-form-group">
-          <label className="govuk-label govuk-date-input__label">Format</label>
+          <label className="govuk-label govuk-date-input__label" htmlFor="view-costs-format">Format</label>
           <div className="govuk-radios govuk-radios--small">
             {[
               { label: 'Overall costs', value: 'cost' },

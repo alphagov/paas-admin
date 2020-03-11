@@ -3,27 +3,27 @@ import Route from './route';
 describe('lib/router test suite - route', () => {
   it('should call for action correctly', async () => {
     const delRoute = new Route({
-      name: 'test.del.route',
-      action: async () => ({ body: 'DELETE ROUTE TEST' }),
+      action: async () => await Promise.resolve({ body: 'DELETE ROUTE TEST' }),
       method: 'DELETE',
+      name: 'test.del.route',
       path: '/',
     });
     const getRoute = new Route({
-      name: 'test.get.route',
-      action: async () => ({ body: 'GET ROUTE TEST' }),
+      action: async () => await Promise.resolve({ body: 'GET ROUTE TEST' }),
       method: 'GET',
+      name: 'test.get.route',
       path: '/',
     });
     const pstRoute = new Route({
-      name: 'test.pst.route',
-      action: async () => ({ body: 'POST ROUTE TEST' }),
+      action: async () => await Promise.resolve({ body: 'POST ROUTE TEST' }),
       method: 'POST',
+      name: 'test.pst.route',
       path: '/',
     });
     const putRoute = new Route({
-      name: 'test.put.route',
-      action: async () => ({ body: 'PUT ROUTE TEST' }),
+      action: async () => await Promise.resolve({ body: 'PUT ROUTE TEST' }),
       method: 'PUT',
+      name: 'test.put.route',
       path: '/',
     });
 
@@ -38,10 +38,10 @@ describe('lib/router test suite - route', () => {
   });
 
   describe('composing urls', () => {
-    it('should compose relative URLs correctly', async () => {
+    it('should compose relative URLs correctly', () => {
       const route = new Route({
+        action: async () => await Promise.resolve({}),
         name: 'test.route',
-        action: async () => ({}),
         path: '/hello/:name',
       });
 
@@ -54,16 +54,16 @@ describe('lib/router test suite - route', () => {
       );
     });
 
-    it('should compose absolute URLs correctly', async () => {
+    it('should compose absolute URLs correctly', () => {
       const domain = 'https://example.org/';
       const parameterisedRoute = new Route({
+        action: async () => await Promise.resolve({}),
         name: 'test.route',
-        action: async () => ({}),
         path: '/hello/:name',
       });
       const unparameterisedRoute = new Route({
+        action: async () => await Promise.resolve({}),
         name: 'test.route',
-        action: async () => ({}),
         path: '/hello/',
       });
 
@@ -88,10 +88,10 @@ describe('lib/router test suite - route', () => {
     });
   });
 
-  it('should match route correctly', async () => {
+  it('should match route correctly', () => {
     const route = new Route({
+      action: async () => await Promise.resolve({}),
       name: 'test.route',
-      action: async () => ({}),
       path: '/hello/:name',
     });
 

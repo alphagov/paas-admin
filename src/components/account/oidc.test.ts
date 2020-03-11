@@ -1,15 +1,72 @@
+import { URL } from 'url';
+
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import * as jose from 'node-jose';
 import { CallbackParamsType } from 'openid-client';
-import { URL } from 'url';
 
 import UAAClient from '../../lib/uaa/uaa';
 import { createTestContext } from '../app/app.test-helpers';
+
 import OIDC, * as oidc from './oidc';
 import * as fixtures from './oidc.test.fixtures';
 
 jest.mock('../../lib/uaa/uaa');
+
+async function createJOSEKey(): Promise<jose.JWK.Key> {
+  const store: jose.JWK.KeyStore = jose.JWK.createKeyStore();
+  const key: jose.JWK.Key = await store.generate('RSA', 1024, {
+    use: 'sig',
+  });
+
+  await store.add(key);
+
+  return key;
+}
+
+function createAndSignIDToken(key: jose.JWK.Key, claims?: {}) {
+  const payload: object = {
+    aud: 'CLIENTID',
+    exp: Math.round(Date.now() / 1000 + 100),
+    iat: Math.round(Date.now() / 1000 - 100),
+    iss: 'https://login.microsoftonline.com/tenant_id/v2.0',
+    oid: 'ms-oid',
+    sub: 'subject',
+
+    ...(claims || {}),
+  };
+
+  return jwt.sign(payload, key.toPEM(true), {
+    algorithm: 'RS256',
+    keyid: key.kid,
+  });
+}
+
+function configureJWKSEndpoint(jwksEndpoint: string, key: jose.JWK.Key) {
+  const jwksEndpointURL = new URL(jwksEndpoint);
+  nock(jwksEndpointURL.origin)
+    .get(jwksEndpointURL.pathname)
+    .reply(200, JSON.stringify({ keys: [key] }));
+}
+
+function configureTokenEndpoint(
+  tokenEndpoint: string,
+  token: string,
+): nock.Scope {
+  const tokenEndpointURL = new URL(tokenEndpoint);
+  const tokenNock = nock(tokenEndpointURL.origin);
+
+  tokenNock.post(tokenEndpointURL.pathname).reply(
+    200,
+    JSON.stringify({
+      expires_in: 10000,
+      id_token: token,
+      token_type: 'bearer',
+    }),
+  );
+
+  return tokenNock;
+}
 
 describe('oidc test suite', () => {
   let nockGoogleDiscovery: nock.Scope;
@@ -32,8 +89,7 @@ describe('oidc test suite', () => {
   const redirectURL = 'https://admin.cloud.service.gov.uk/oidc/callback';
   const clientID = 'CLIENTID';
   const clientSecret = 'CLIENTSECRET';
-  const discoveryURL =
-    'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration';
+  const discoveryURL = 'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration';
 
   beforeEach(() => {
     // @ts-ignore
@@ -101,8 +157,8 @@ describe('oidc test suite', () => {
       state: 'teststate',
     };
     ctx.session[oidc.KEY_STATE] = {
-      state: authResponse.state,
       response_type: 'code',
+      state: authResponse.state,
     };
     const providerName = 'microsoft';
 
@@ -132,9 +188,9 @@ describe('oidc test suite', () => {
 
     // Create and sign token
     const token = createAndSignIDToken(key, {
-      sub: 'google-sub',
-      oid: 'ms-oid',
       iss: 'https://login.microsoftonline.com/tenant_id/v2.0',
+      oid: 'ms-oid',
+      sub: 'google-sub',
     });
 
     // Serve token from token endpoint
@@ -151,8 +207,8 @@ describe('oidc test suite', () => {
       state: 'teststate',
     };
     ctx.session[oidc.KEY_STATE] = {
-      state: authResponse.state,
       response_type: 'code',
+      state: authResponse.state,
     };
     const providerName = 'microsoft';
 
@@ -187,9 +243,9 @@ describe('oidc test suite', () => {
 
     // Create and sign token
     const token = createAndSignIDToken(key, {
-      sub: 'google-sub',
-      oid: 'ms-oid',
       iss: 'https://accounts.google.com',
+      oid: 'ms-oid',
+      sub: 'google-sub',
     });
 
     // Serve token from token endpoint
@@ -203,8 +259,8 @@ describe('oidc test suite', () => {
       state: 'teststate',
     };
     ctx.session[oidc.KEY_STATE] = {
-      state: authResponse.state,
       response_type: 'code',
+      state: authResponse.state,
     };
     const providerName = 'google';
     const googleDiscoveryURL =
@@ -265,8 +321,8 @@ describe('oidc test suite', () => {
       state: 'teststate',
     };
     ctx.session[oidc.KEY_STATE] = {
-      state: authResponse.state,
       response_type: 'code',
+      state: authResponse.state,
     };
 
     // Set up logger mock
@@ -286,57 +342,3 @@ describe('oidc test suite', () => {
     expect(ctx.app.logger.error).toHaveBeenCalledTimes(1);
   });
 });
-
-async function createJOSEKey(): Promise<jose.JWK.Key> {
-  const store: jose.JWK.KeyStore = jose.JWK.createKeyStore();
-  const key: jose.JWK.Key = await store.generate('RSA', 1024, {
-    use: 'sig',
-  });
-
-  await store.add(key);
-
-  return key;
-}
-
-function createAndSignIDToken(key: jose.JWK.Key, claims?: {}) {
-  const payload: object = {
-    oid: 'ms-oid',
-    iss: 'https://login.microsoftonline.com/tenant_id/v2.0',
-    aud: 'CLIENTID',
-    sub: 'subject',
-    iat: Math.round(Date.now() / 1000 - 100),
-    exp: Math.round(Date.now() / 1000 + 100),
-    ...(claims || {}),
-  };
-
-  return jwt.sign(payload, key.toPEM(true), {
-    keyid: key.kid,
-    algorithm: 'RS256',
-  });
-}
-
-function configureJWKSEndpoint(jwksEndpoint: string, key: jose.JWK.Key) {
-  const jwksEndpointURL = new URL(jwksEndpoint);
-  nock(jwksEndpointURL.origin)
-    .get(jwksEndpointURL.pathname)
-    .reply(200, JSON.stringify({ keys: [key] }));
-}
-
-function configureTokenEndpoint(
-  tokenEndpoint: string,
-  token: string,
-): nock.Scope {
-  const tokenEndpointURL = new URL(tokenEndpoint);
-  const tokenNock = nock(tokenEndpointURL.origin);
-
-  tokenNock.post(tokenEndpointURL.pathname).reply(
-    200,
-    JSON.stringify({
-      id_token: token,
-      token_type: 'bearer',
-      expires_in: 10000,
-    }),
-  );
-
-  return tokenNock;
-}

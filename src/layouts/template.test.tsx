@@ -1,14 +1,15 @@
 import React from 'react';
+
 import { spacesMissingAroundInlineElements } from './react-spacing.test';
 import { Template } from './template';
 
 describe(Template, () => {
-  it('should be able to render GOV.UK frontend correctly', async () => {
+  it('should be able to render GOV.UK frontend correctly', () => {
     const template = new Template(
       {
         csrf: 'qwertyuiop-1234567890',
-        location: 'eu-west-2',
         isPlatformAdmin: false,
+        location: 'eu-west-2',
       },
       'TEST CASE',
     );
@@ -26,11 +27,11 @@ describe(Template, () => {
     expect(spacesMissingAroundInlineElements(markup)).toHaveLength(0);
   });
 
-  it('should set the default title if one is not provided.', async () => {
+  it('should set the default title if one is not provided.', () => {
     const template = new Template({
       csrf: 'qwertyuiop-1234567890',
-      location: 'eu-west-2',
       isPlatformAdmin: false,
+      location: 'eu-west-2',
     });
     const markup = template.render(<p>This is just a test</p>);
 

@@ -1,7 +1,6 @@
 import express from 'express';
 
 import Router, { IResponse } from '../../lib/router';
-
 import { IAppConfig } from '../app/app';
 import { initContext } from '../app/context';
 

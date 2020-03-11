@@ -1,8 +1,10 @@
 const path = require('path');
-const CompressionPlugin = require('compression-webpack-plugin');
+
 const OptimizeCssnanoPlugin = require('@intervolga/optimize-cssnano-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 const webpack = require('webpack');
 const nodeModules = require('webpack-node-externals');
+
 const enableServer = require('./server.config');
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -16,14 +18,14 @@ let cfg = {
 
   entry: {
     main: ['./src/main.ts'],
-    "assets/init": ['./src/frontend/javascript/init.js'],
-    "assets/sankey": ['./src/frontend/javascript/sankey.js'],
+    'assets/init': ['./src/frontend/javascript/init.js'],
+    'assets/sankey': ['./src/frontend/javascript/sankey.js'],
   },
 
   output: {
     path: path.resolve(__dirname, '..', 'dist'),
     filename: '[name].js',
-    publicPath: '/'
+    publicPath: '/',
   },
 
   devtool: 'source-map',
@@ -34,21 +36,21 @@ let cfg = {
     modules: false,
     warningsFilter: [
       // Express uses a dynamic require in view.js but we don't care
-      /node_modules\/express\/lib\/view\.js/
-    ]
+      /node_modules\/express\/lib\/view\.js/,
+    ],
   },
 
   optimization: {
     splitChunks: false,
-    runtimeChunk: false
+    runtimeChunk: false,
   },
 
   performance: {
-    hints: false
+    hints: false,
   },
 
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json']
+    extensions: ['.ts', '.tsx', '.js', '.json'],
   },
 
   module: {
@@ -61,9 +63,9 @@ let cfg = {
             options: {
               name: assetName(),
               esModule: false,
-            }
-          }
-        ]
+            },
+          },
+        ],
       },
       {
         test: /\.(scss)$/,
@@ -73,32 +75,32 @@ let cfg = {
             options: {
               name: assetName('css'),
               esModule: false,
-            }
+            },
           },
           {
             loader: 'extract-loader',
             options: {
-              publicPath: '/'
-            }
+              publicPath: '/',
+            },
           },
           {
             loader: 'css-loader',
             options: {
-              sourceMap: true
-            }
+              sourceMap: true,
+            },
           },
           {
             loader: 'sass-loader',
             options: {
               sassOptions: {
                 includePaths: [
-                  path.resolve(__dirname, '../node_modules')
-                ]
+                  path.resolve(__dirname, '../node_modules'),
+                ],
               },
-              sourceMap: true
-            }
-          }
-        ]
+              sourceMap: true,
+            },
+          },
+        ],
       },
       {
         test: /\.(ts(x?))/,
@@ -106,30 +108,30 @@ let cfg = {
           {
             loader: 'ts-loader',
             options: {
-              reportFiles: [/(?<!\.test)\.ts(x?)/]
-            }
-          }
-        ]
+              reportFiles: [/(?<!\.test)\.ts(x?)/],
+            },
+          },
+        ],
       },
       {
         test: /\.pegjs$/,
         use: [
           {
-            loader: 'pegjs-loader'
-          }
-        ]
-      }
-    ]
+            loader: 'pegjs-loader',
+          },
+        ],
+      },
+    ],
   },
 
   plugins: [
-    new webpack.EnvironmentPlugin({NODE_ENV}),
+    new webpack.EnvironmentPlugin({ NODE_ENV }),
     new CompressionPlugin({
       test: /\.(js|svg|css)$/,
       include: 'assets/',
-      deleteOriginalAssets: true
-    })
-  ]
+      deleteOriginalAssets: true,
+    }),
+  ],
 };
 
 if (process.env.ENABLE_WATCH === 'true') {
@@ -140,7 +142,7 @@ if (process.env.ENABLE_SERVER === 'true') {
   cfg = enableServer(cfg);
 }
 
-if (NODE_ENV === "production") {
+if (NODE_ENV === 'production') {
   cfg.plugins.push(new OptimizeCssnanoPlugin({
     sourceMap: false,
     cssnanoOptions: {
@@ -153,6 +155,6 @@ if (NODE_ENV === "production") {
   }));
 }
 
-cfg.externals.push(nodeModules({whitelist: []}));
+cfg.externals.push(nodeModules({ whitelist: [] }));
 
 module.exports = cfg;

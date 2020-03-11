@@ -35,7 +35,7 @@ interface ITabProperties {
   readonly children: string;
 }
 
-export function Tab(props: ITabProperties) {
+export function Tab(props: ITabProperties): ReactElement {
   const classess = ['govuk-tabs__list-item'];
   if (props.active) {
     classess.push('govuk-tabs__list-item--selected');
@@ -67,9 +67,9 @@ export function ApplicationTab(props: IApplicationTabProperties): ReactElement {
               'admin.organizations.spaces.applications.view',
             )}
             href={props.linkTo('admin.organizations.spaces.applications.view', {
+              applicationGUID: props.application.metadata.guid,
               organizationGUID: props.organizationGUID,
               spaceGUID: props.spaceGUID,
-              applicationGUID: props.application.metadata.guid,
             })}
           >
             Overview
@@ -81,9 +81,9 @@ export function ApplicationTab(props: IApplicationTabProperties): ReactElement {
             href={props.linkTo(
               'admin.organizations.spaces.applications.events.view',
               {
+                applicationGUID: props.application.metadata.guid,
                 organizationGUID: props.organizationGUID,
                 spaceGUID: props.spaceGUID,
-                applicationGUID: props.application.metadata.guid,
               },
             )}
           >

@@ -36,7 +36,7 @@ export default class NotificationClient {
 
     const templateID = this.templates.welcome;
 
-    return this.client.sendEmail(templateID, emailAddress, {
+    return await this.client.sendEmail(templateID, emailAddress, {
       personalisation,
     });
   }

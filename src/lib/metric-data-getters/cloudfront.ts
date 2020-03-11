@@ -1,8 +1,8 @@
+import * as cw from '@aws-sdk/client-cloudwatch-node';
+import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
 import _ from 'lodash';
 import moment from 'moment';
 
-import * as cw from '@aws-sdk/client-cloudwatch-node';
-import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
 
@@ -110,12 +110,12 @@ export class CloudFrontMetricDataGetter extends CloudWatchMetricDataGetter
           Id: metricId,
           MetricStat: {
             Metric: {
-              Namespace: 'AWS/CloudFront',
-              MetricName: cloudfrontMetricPropertiesById[metricId].name,
               Dimensions: [
                 { Name: 'DistributionId', Value: distributionId },
                 { Name: 'Region', Value: 'Global' },
               ],
+              MetricName: cloudfrontMetricPropertiesById[metricId].name,
+              Namespace: 'AWS/CloudFront',
             },
             Period: period.asSeconds(),
             Stat: cloudfrontMetricPropertiesById[metricId].stat,
@@ -127,8 +127,8 @@ export class CloudFrontMetricDataGetter extends CloudWatchMetricDataGetter
     ];
 
     const responses = await Promise.all(
-      metricDataInputs.map(input =>
-        this.cloudwatchClient.send(new cw.GetMetricDataCommand(input)),
+      metricDataInputs.map(async input =>
+        await this.cloudwatchClient.send(new cw.GetMetricDataCommand(input)),
       ),
     );
 

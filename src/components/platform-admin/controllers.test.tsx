@@ -21,10 +21,10 @@ describe(viewHomepage, () => {
   describe('when not a platform admin', () => {
     const time = Math.floor(Date.now() / 1000);
     const rawToken = {
-      user_id: 'uaa-id-253',
-      scope: [],
       exp: time + 24 * 60 * 60,
       origin: 'uaa',
+      scope: [],
+      user_id: 'uaa-id-253',
     };
     const accessToken = jwt.sign(rawToken, tokenKey);
 
@@ -41,10 +41,10 @@ describe(viewHomepage, () => {
   describe('when a platform admin', () => {
     const time = Math.floor(Date.now() / 1000);
     const rawToken = {
-      user_id: 'uaa-id-253',
-      scope: [CLOUD_CONTROLLER_ADMIN],
       exp: time + 24 * 60 * 60,
       origin: 'uaa',
+      scope: [CLOUD_CONTROLLER_ADMIN],
+      user_id: 'uaa-id-253',
     };
     const accessToken = jwt.sign(rawToken, tokenKey);
 
@@ -59,25 +59,25 @@ describe(viewHomepage, () => {
       $ = cheerio.load(response.body as string);
     });
 
-    it('should show the homepage with useful headings', async () => {
+    it('should show the homepage with useful headings', () => {
       expect(response.body).toMatch(/Platform Admin/);
       expect(response.body).toMatch(/Costs/);
       expect(response.body).toMatch(/Organisation management/);
       expect(response.body).toMatch(/User management/);
     });
 
-    it('should show a link to the org report', async () => {
+    it('should show a link to the org report', () => {
       expect(response.body).toMatch(/Organisation management/);
       expect(response.body).toMatch(/View trial and billable organisations/);
     });
 
-    it('should show a form to lookup a user', async () => {
+    it('should show a form to lookup a user', () => {
       expect(response.body).toMatch(/User management/);
       expect(response.body).toMatch(/Find a user/);
       expect($('button').text()).toContain('Find user');
     });
 
-    it('should show a form to show costs', async () => {
+    it('should show a form to show costs', () => {
       expect(response.body).toMatch(/Costs/);
       expect(response.body).toMatch(/View costs for a month/);
       expect(response.body).toMatch(/January/);
@@ -97,10 +97,10 @@ describe(createOrganizationForm, () => {
   describe('when not a platform admin', () => {
     const time = Math.floor(Date.now() / 1000);
     const rawToken = {
-      user_id: 'uaa-id-253',
-      scope: [],
       exp: time + 24 * 60 * 60,
       origin: 'uaa',
+      scope: [],
+      user_id: 'uaa-id-253',
     };
     const accessToken = jwt.sign(rawToken, tokenKey);
 
@@ -120,10 +120,10 @@ describe(createOrganizationForm, () => {
     beforeEach(() => {
       const time = Math.floor(Date.now() / 1000);
       const rawToken = {
-        user_id: 'uaa-id-253',
-        scope: [CLOUD_CONTROLLER_ADMIN],
         exp: time + 24 * 60 * 60,
         origin: 'uaa',
+        scope: [CLOUD_CONTROLLER_ADMIN],
+        user_id: 'uaa-id-253',
       };
       const accessToken = jwt.sign(rawToken, tokenKey);
 
@@ -155,10 +155,10 @@ describe(createOrganization, () => {
   describe('when not a platform admin', () => {
     const time = Math.floor(Date.now() / 1000);
     const rawToken = {
-      user_id: 'uaa-id-253',
-      scope: [],
       exp: time + 24 * 60 * 60,
       origin: 'uaa',
+      scope: [],
+      user_id: 'uaa-id-253',
     };
     const accessToken = jwt.sign(rawToken, tokenKey);
 
@@ -178,10 +178,10 @@ describe(createOrganization, () => {
     beforeEach(() => {
       const time = Math.floor(Date.now() / 1000);
       const rawToken = {
-        user_id: 'uaa-id-253',
-        scope: [CLOUD_CONTROLLER_ADMIN],
         exp: time + 24 * 60 * 60,
         origin: 'uaa',
+        scope: [CLOUD_CONTROLLER_ADMIN],
+        user_id: 'uaa-id-253',
       };
       const accessToken = jwt.sign(rawToken, tokenKey);
 

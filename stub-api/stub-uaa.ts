@@ -1,11 +1,12 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import {IUaaUser} from '../src/lib/uaa';
-import {IStubServerPorts} from './index';
+
+import { IUaaUser } from '../src/lib/uaa';
+
+import { IStubServerPorts } from './index';
 
 const tokenKey = 'tokensecret';
 const userId = '99022be6-feb8-4f78-96f3-7d11f4d476f1';
-const otherUserId = 'uaa-id-253';
 function mockUAA(app: express.Application, config: IStubServerPorts): express.Application {
   const { adminPort } = config;
   const fakeJwt = jwt.sign({
@@ -50,7 +51,7 @@ function mockUAA(app: express.Application, config: IStubServerPorts): express.Ap
 
   app.post(
     '/oauth/token',
-    (_req, res) => res.send(JSON.stringify({access_token: fakeJwt})),
+    (_req, res) => res.send(JSON.stringify({ access_token: fakeJwt })),
   );
 
   app.get(
@@ -63,7 +64,7 @@ function mockUAA(app: express.Application, config: IStubServerPorts): express.Ap
 
   app.get(
     '/token_keys',
-    (_req, res) => res.send(JSON.stringify({keys: [{value: tokenKey}]})),
+    (_req, res) => res.send(JSON.stringify({ keys: [{ value: tokenKey }] })),
   );
 
   app.get(

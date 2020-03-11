@@ -8,6 +8,7 @@ import {
   IOrganizationUserRoles,
   ISpace,
 } from '../../lib/cf/types';
+
 import {
   DeleteConfirmationPage,
   IUserRoles,
@@ -71,26 +72,26 @@ describe(PermissionTable, () => {
         values={{
           org_roles: {
             ORG_GUID: {
-              managers: { current: true, desired: true },
-              billing_managers: { current: true, desired: true },
               auditors: { current: false, desired: false },
+              billing_managers: { current: true, desired: true },
+              managers: { current: true, desired: true },
             },
           },
           space_roles: {
             SPACE_GUID_1: {
-              managers: { current: true, desired: true },
-              developers: { current: false, desired: false },
               auditors: { current: false, desired: false },
+              developers: { current: false, desired: false },
+              managers: { current: true, desired: true },
             },
             SPACE_GUID_2: {
-              managers: { current: false, desired: false },
-              developers: { current: true, desired: true },
               auditors: { current: false, desired: false },
+              developers: { current: true, desired: true },
+              managers: { current: false, desired: false },
             },
             SPACE_GUID_3: {
-              managers: { current: false, desired: false },
-              developers: { current: false, desired: false },
               auditors: { current: true, desired: true },
+              developers: { current: false, desired: false },
+              managers: { current: false, desired: false },
             },
           },
         }}
@@ -183,9 +184,9 @@ describe(PermissionTable, () => {
         values={{
           org_roles: {
             ORG_GUID: {
-              managers: { current: true, desired: true },
-              billing_managers: { current: true, desired: true },
               auditors: { current: true, desired: true },
+              billing_managers: { current: true, desired: true },
+              managers: { current: true, desired: true },
             },
           },
           space_roles: {},
@@ -242,9 +243,9 @@ describe(PermissionTable, () => {
         values={{
           org_roles: {
             ORG_GUID: {
-              managers: { current: false, desired: false },
-              billing_managers: { current: false, desired: false },
               auditors: { current: true, desired: true },
+              billing_managers: { current: false, desired: false },
+              managers: { current: false, desired: false },
             },
           },
           space_roles: {},
@@ -283,8 +284,8 @@ describe(PermissionTable, () => {
 
 describe(DeleteConfirmationPage, () => {
   const user = ({
-    metadata: { guid: 'USER_GUID' },
     entity: { username: 'user-name' },
+    metadata: { guid: 'USER_GUID' },
   } as unknown) as IOrganizationUserRoles;
 
   it('should ask user to confirm another user deleton', () => {
@@ -298,7 +299,7 @@ describe(DeleteConfirmationPage, () => {
     );
     const $ = cheerio.load(markup.html());
     expect($('h2').text()).toContain(
-      `Are you sure you'd like to remove the following user?`,
+      'Are you sure you\'d like to remove the following user?',
     );
     expect($('p').text()).toContain('user-name');
   });
@@ -306,18 +307,18 @@ describe(DeleteConfirmationPage, () => {
 
 describe(OrganizationUsersPage, () => {
   const space = ({
-    metadata: { guid: 'SPACE_GUID' },
     entity: { name: 'space-name' },
+    metadata: { guid: 'SPACE_GUID' },
   } as unknown) as ISpace;
   const users = {
     USER_GUID: ({
-      spaces: [space],
       orgRoles: [],
+      spaces: [space],
       username: 'user-name',
     } as unknown) as IUserRoles,
     USER_GUID_2: ({
-      spaces: [],
       orgRoles: ['org_manager', 'billing_manager', 'org_auditor'],
+      spaces: [],
       username: 'user-name-2',
     } as unknown) as IUserRoles,
   };

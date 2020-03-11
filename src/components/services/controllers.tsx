@@ -1,11 +1,11 @@
 import React from 'react';
 
+import { Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse } from '../../lib/router';
-
-import { Template } from '../../layouts';
 import { IContext } from '../app/context';
 import { fromOrg } from '../breadcrumbs';
+
 import { ServicePage } from './views';
 
 export async function viewService(

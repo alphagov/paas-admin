@@ -1,7 +1,8 @@
-import nock from 'nock';
+import querystring from 'querystring';
 
 import moment from 'moment';
-import querystring from 'querystring';
+import nock from 'nock';
+
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { getStubCloudwatchMetricsData } from '../../lib/aws/aws-cloudwatch.test.data';
@@ -25,7 +26,7 @@ import {
   viewServiceMetrics,
 } from '.';
 
-const linker = route => `https://example.com/${route}`;
+const linker = (route: string) => `https://example.com/${route}`;
 const ctx: IContext = { ...createTestContext(), linkTo: linker };
 
 describe('service metrics test suite', () => {
@@ -91,12 +92,12 @@ describe('service metrics test suite', () => {
 
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       rangeStart: moment()
         .subtract(1, 'hour')
         .format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
     expect(response.status).not.toEqual(302);
@@ -122,13 +123,13 @@ describe('service metrics test suite', () => {
 
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       rangeStart: moment()
         .subtract(1, 'year')
         .subtract(2, 'days')
         .format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
     expect(response.status).not.toEqual(302);
@@ -159,12 +160,12 @@ describe('service metrics test suite', () => {
     });
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       rangeStart: moment()
         .subtract(1, 'hour')
         .format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
     expect(response.status).not.toEqual(302);
@@ -196,12 +197,12 @@ describe('service metrics test suite', () => {
 
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       rangeStart: moment()
         .subtract(1, 'hour')
         .format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
     expect(response.status).not.toEqual(302);
@@ -237,12 +238,12 @@ describe('service metrics test suite', () => {
 
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       rangeStart: moment()
         .subtract(1, 'hour')
         .format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
     expect(response.status).not.toEqual(302);
@@ -271,12 +272,12 @@ describe('service metrics test suite', () => {
 
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       rangeStart: moment()
         .subtract(1, 'hour')
         .format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
     expect(response.status).not.toEqual(302);
@@ -298,12 +299,12 @@ describe('service metrics test suite', () => {
     const userProvidedServiceGUID = '54e4c645-7d20-4271-8c27-8cc904e1e7ee';
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      serviceGUID: userProvidedServiceGUID,
-      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       rangeStart: moment()
         .subtract(1, 'hour')
         .format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      serviceGUID: userProvidedServiceGUID,
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
     expect(response.status).not.toEqual(302);
@@ -330,12 +331,12 @@ describe('service metrics test suite', () => {
     await expect(
       viewServiceMetrics(ctx, {
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         rangeStart: moment()
           .subtract(1, 'hour')
           .format('YYYY-MM-DD[T]HH:mm'),
         rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       }),
     ).rejects.toThrow(/Unrecognised service label unknown-service-label/);
   });
@@ -366,10 +367,10 @@ describe('service metrics test suite', () => {
         linkTo: (_name, params) => querystring.stringify(params),
       },
       {
+        offset: '3h',
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
         serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
-        offset: '3h',
       },
     );
 
@@ -386,10 +387,10 @@ describe('service metrics test suite', () => {
         linkTo: (_name, params) => querystring.stringify(params),
       },
       {
+        offset: '9999999h',
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
         serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
-        offset: '9999999h',
       },
     );
 
@@ -403,12 +404,12 @@ describe('service metrics test suite', () => {
     await expect(
       viewServiceMetrics(ctx, {
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
-        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         rangeStart: moment().format('YYYY-MM-DD[T]HH:mm'),
         rangeStop: moment()
           .subtract(1, 'hour')
           .format('YYYY-MM-DD[T]HH:mm'),
+        serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       }),
     ).rejects.toThrow(/Invalid time range provided/);
   });
@@ -417,13 +418,13 @@ describe('service metrics test suite', () => {
     await expect(
       viewServiceMetrics(ctx, {
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
-        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         rangeStart: moment()
           .subtract(1, 'year')
           .subtract(2, 'weeks')
           .format('YYYY-MM-DD[T]HH:mm'),
         rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+        serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       }),
     ).rejects.toThrow('Cannot handle more than a year of metrics');
   });
@@ -432,12 +433,12 @@ describe('service metrics test suite', () => {
     await expect(
       viewServiceMetrics(ctx, {
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
-        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         rangeStart: moment()
           .subtract(1, 'week')
           .unix(),
         rangeStop: moment().unix(),
+        serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       }),
     ).rejects.toThrow('Cannot handle over a year old metrics');
   });
@@ -465,24 +466,25 @@ describe('service metrics test suite', () => {
         linkTo: (_name, params) => querystring.stringify(params),
       },
       {
-        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         metric: 'mFreeStorageSpace',
-        units: 'Bytes',
+        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
         rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
         rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+        units: 'Bytes',
       },
     );
 
     expect(response.mimeType).toEqual('text/csv');
-    expect(response.download.name).toMatch(/postgres-metrics.*\.csv/);
-    expect(response.download.data).toMatch(/Service,Time,Value/);
-    expect(response.download.data).toMatch(
+    expect(response.download).toBeDefined();
+    expect(response.download!.name).toMatch(/postgres-metrics.*\.csv/);
+    expect(response.download!.data).toMatch(/Service,Time,Value/);
+    expect(response.download!.data).toMatch(
       new RegExp(`postgres,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+B`),
     );
 
-    const lines = response.download.data
+    const lines = response.download!.data
       .split('\n')
       .filter(line => line.length > 0);
 
@@ -522,24 +524,25 @@ describe('service metrics test suite', () => {
         linkTo: (_name, params) => querystring.stringify(params),
       },
       {
-        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         metric: 'mCacheHits',
-        units: 'Number',
+        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
         rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
         rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+        units: 'Number',
       },
     );
 
     expect(response.mimeType).toEqual('text/csv');
-    expect(response.download.name).toMatch(/redis-metrics.*\.csv/);
-    expect(response.download.data).toMatch(/Service,Instance,Time,Value/);
-    expect(response.download.data).toMatch(
+    expect(response.download).toBeDefined();
+    expect(response.download!.name).toMatch(/redis-metrics.*\.csv/);
+    expect(response.download!.data).toMatch(/Service,Instance,Time,Value/);
+    expect(response.download!.data).toMatch(
       new RegExp(`redis,,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`),
     );
 
-    const lines = response.download.data.split('\n');
+    const lines = response.download!.data.split('\n');
 
     expect(lines.length).toEqual(2);
 
@@ -581,24 +584,25 @@ describe('service metrics test suite', () => {
         linkTo: (_name, params) => querystring.stringify(params),
       },
       {
-        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         metric: 'mRequests',
-        units: 'Number',
+        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
         rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
         rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+        units: 'Number',
       },
     );
 
     expect(response.mimeType).toEqual('text/csv');
-    expect(response.download.name).toMatch(/cdn-route-metrics.*\.csv/);
-    expect(response.download.data).toMatch(/Service,Time,Value/);
-    expect(response.download.data).toMatch(
+    expect(response.download).toBeDefined();
+    expect(response.download!.name).toMatch(/cdn-route-metrics.*\.csv/);
+    expect(response.download!.data).toMatch(/Service,Time,Value/);
+    expect(response.download!.data).toMatch(
       new RegExp(`cdn-route,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`),
     );
 
-    const lines = response.download.data.split('\n');
+    const lines = response.download!.data.split('\n');
 
     expect(lines.length).toEqual(2);
 
@@ -631,26 +635,27 @@ describe('service metrics test suite', () => {
         linkTo: (_name, params) => querystring.stringify(params),
       },
       {
-        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         metric: 'loadAvg',
-        units: 'Number',
+        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
         rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
         rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+        units: 'Number',
       },
     );
 
     expect(response.mimeType).toEqual('text/csv');
-    expect(response.download.name).toMatch(/elasticsearch-metrics.*\.csv/);
-    expect(response.download.data).toMatch(/Service,Instance,Time,Value/);
-    expect(response.download.data).toMatch(
+    expect(response.download).toBeDefined();
+    expect(response.download!.name).toMatch(/elasticsearch-metrics.*\.csv/);
+    expect(response.download!.data).toMatch(/Service,Instance,Time,Value/);
+    expect(response.download!.data).toMatch(
       new RegExp(
         `elasticsearch,00[1-2],${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`,
       ),
     );
 
-    const lines = response.download.data.split('\n');
+    const lines = response.download!.data.split('\n');
 
     expect(lines.length).toEqual(2);
 
@@ -680,15 +685,15 @@ describe('service metrics test suite', () => {
           linkTo: (_name, params) => querystring.stringify(params),
         },
         {
-          organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-          serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-          spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
           metric: 'diskUsed',
-          units: 'Bytes',
+          organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
           rangeStart: moment()
             .subtract(1, 'hour')
             .format('YYYY-MM-DD[T]HH:mm'),
           rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+          serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+          spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+          units: 'Bytes',
         },
       ),
     ).rejects.toThrow(/Did not get metric diskUsed for elasticsearch/);
@@ -708,15 +713,15 @@ describe('service metrics test suite', () => {
           linkTo: (_name, params) => querystring.stringify(params),
         },
         {
-          organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-          serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-          spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
           metric: 'mFreeStorageSpace',
-          units: 'Bytes',
+          organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
           rangeStart: moment()
             .subtract(1, 'hour')
             .format('YYYY-MM-DD[T]HH:mm'),
           rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+          serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+          spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+          units: 'Bytes',
         },
       ),
     ).rejects.toThrow(/Did not get metric mFreeStorageSpace for postgres/);
@@ -757,15 +762,15 @@ describe('service metrics test suite', () => {
           linkTo: (_name, params) => querystring.stringify(params),
         },
         {
-          organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-          serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-          spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
           metric: 'aMetric',
-          units: 'aUnit',
+          organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
           rangeStart: moment()
             .subtract(1, 'hour')
             .format('YYYY-MM-DD[T]HH:mm'),
           rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+          serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+          spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+          units: 'aUnit',
         },
       ),
     ).rejects.toThrow(/Unrecognised service label unknown-service-label/);
@@ -781,15 +786,15 @@ describe('service metrics test suite', () => {
           linkTo: (_name, params) => querystring.stringify(params),
         },
         {
-          organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-          serviceGUID: userProvidedServiceGUID,
-          spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
           metric: 'aMetric',
-          units: 'aUnit',
+          organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
           rangeStart: moment()
             .subtract(1, 'hour')
             .format('YYYY-MM-DD[T]HH:mm'),
           rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+          serviceGUID: userProvidedServiceGUID,
+          spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+          units: 'aUnit',
         },
       ),
     ).rejects.toThrow(/Unrecognised service label User Provided Service/);

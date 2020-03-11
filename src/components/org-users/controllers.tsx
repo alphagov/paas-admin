@@ -1,8 +1,9 @@
+import { isUndefined } from 'util';
+
 import lodash, { CollectionChain, mapValues, merge, values } from 'lodash';
 import { BaseLogger } from 'pino';
 import React from 'react';
 
-import { isUndefined } from 'util';
 
 import { Template } from '../../layouts';
 import { AccountsClient } from '../../lib/accounts';
@@ -18,7 +19,6 @@ import NotificationClient from '../../lib/notify';
 import { IParameters, IResponse } from '../../lib/router';
 import { NotFoundError } from '../../lib/router/errors';
 import UAAClient, { IUaaInvitation, IUaaUser } from '../../lib/uaa';
-
 import { IContext } from '../app/context';
 import {
   CLOUD_CONTROLLER_ADMIN,
@@ -26,14 +26,15 @@ import {
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
 import { fromOrg } from '../breadcrumbs';
+import { IValidationError } from '../errors/types';
+
 import {
   DeleteConfirmationPage,
   EditPage,
+  InvitePage,
   IRoleValues,
   IUserRoles,
   IUserRolesByGuid,
-  IValidationError,
-  InvitePage,
   OrganizationUsersPage,
   SuccessPage,
 } from './views';
@@ -48,9 +49,9 @@ interface IPostPermissions {
 }
 
 interface IUserPostBody {
-  email?: string;
-  org_roles?: IPostPermissions;
-  space_roles?: IPostPermissions;
+  readonly email?: string;
+  readonly org_roles?: IPostPermissions;
+  readonly space_roles?: IPostPermissions;
 }
 
 interface ISpaceUsers {
@@ -84,26 +85,24 @@ async function setAllUserRolesForOrg(
   ];
 
   await Promise.all(
-    orgRoleEndpoints.map((role: OrganizationUserRoleEndpoints):
-      | Promise<IResource>
-      | Promise<undefined> => {
+    orgRoleEndpoints.map(async (role: OrganizationUserRoleEndpoints): Promise<IResource | undefined> => {
       /* istanbul ignore next */
       if (!roles.org[params.organizationGUID]) {
-        return Promise.resolve(undefined);
+        return await Promise.resolve(undefined);
       }
 
       const oldPermission = roles.org[params.organizationGUID][role].current;
       const newPermission = roles.org[params.organizationGUID][role].desired;
 
       if (newPermission && newPermission === oldPermission) {
-        return Promise.resolve(undefined);
+        return await Promise.resolve(undefined);
       }
 
       if (isUndefined(newPermission) && oldPermission === '0') {
-        return Promise.resolve(undefined);
+        return await Promise.resolve(undefined);
       }
 
-      return cf.setOrganizationRole(
+      return await cf.setOrganizationRole(
         params.organizationGUID,
         params.userGUID,
         role,
@@ -119,21 +118,21 @@ async function setAllUserRolesForOrg(
       spaceRoleEndpoints.map(async (role: string) => {
         /* istanbul ignore next */
         if (!roles.space[space.metadata.guid]) {
-          return Promise.resolve(undefined);
+          return await Promise.resolve(undefined);
         }
 
         const oldPermission = roles.space[space.metadata.guid][role].current;
         const newPermission = roles.space[space.metadata.guid][role].desired;
 
         if (newPermission && newPermission === oldPermission) {
-          return Promise.resolve(undefined);
+          return await Promise.resolve(undefined);
         }
 
         if (isUndefined(newPermission) && oldPermission === '0') {
-          return Promise.resolve(undefined);
+          return await Promise.resolve(undefined);
         }
 
-        return cf.setSpaceRole(
+        return await cf.setSpaceRole(
           space.metadata.guid,
           params.userGUID,
           role,
@@ -163,12 +162,12 @@ export async function _getUserRolesByGuid(
     const accountsUser = await accountsClient.getUser(user.metadata.guid);
 
     userRolesByGuid[user.metadata.guid] = {
+      orgRoles: user.entity.organization_roles,
+      spaces: spacesByUser[user.metadata.guid] || [],
       username:
         accountsUser && accountsUser.username
           ? accountsUser.username
           : user.entity.username,
-      orgRoles: user.entity.organization_roles,
-      spaces: spacesByUser[user.metadata.guid] || [],
     };
   }
 
@@ -183,11 +182,6 @@ function _excludeUsersWithoutUaaRecord(
   const filteredRoles: { [key: string]: IUserRoles } = {};
 
   for (const guid in userRolesByGuid) {
-    /* istanbul ignore next */
-    if (!userRolesByGuid.hasOwnProperty(guid)) {
-      continue;
-    }
-
     const role = userRolesByGuid[guid];
 
     if (uaaUsers.some(u => u && u.id === guid)) {
@@ -201,6 +195,60 @@ function _excludeUsersWithoutUaaRecord(
   }
 
   return filteredRoles as IUserRolesByGuid;
+}
+
+function validatePermissions({
+  org_roles,
+  space_roles,
+}: IUserPostBody): ReadonlyArray<IValidationError> {
+  const errors: Array<IValidationError> = [];
+
+  const orgRolesSelected = values(org_roles).some(permissions =>
+    values(permissions).some(x => x.desired === '1'),
+  );
+  const spaceRolesSelected = values(space_roles).some(permissions =>
+    values(permissions).some(x => x.desired === '1'),
+  );
+  if (!orgRolesSelected && !spaceRolesSelected) {
+    errors.push({
+      field: 'roles',
+      message: 'at least one role should be selected',
+    });
+  }
+
+  return errors;
+}
+
+function validateEmail({
+  email,
+}: IUserPostBody): ReadonlyArray<IValidationError> {
+  const errors: Array<IValidationError> = [];
+
+  if (!email || !VALID_EMAIL.test(email)) {
+    errors.push({
+      field: 'email',
+      message: 'a valid email address is required',
+    });
+  }
+
+  return errors;
+}
+
+function parseValues(body: IUserPostBody) {
+  const convert = (roles: IPostPermissions) =>
+    mapValues(roles, permissions =>
+      mapValues(permissions, state => ({
+        current: state.current === '1',
+        desired: state.desired === '1',
+      })),
+    );
+
+  /* istanbul ignore next */
+  return {
+    email: body.email,
+    org_roles: convert(body.org_roles || {}),
+    space_roles: convert(body.space_roles || {}),
+  };
 }
 
 export async function listUsers(
@@ -251,8 +299,8 @@ export async function listUsers(
 
   const accountsClient = new AccountsClient({
     apiEndpoint: ctx.app.accountsAPI,
-    secret: ctx.app.accountsSecret,
     logger: ctx.app.logger,
+    secret: ctx.app.accountsSecret,
   });
 
   const userRolesByGuid = await _getUserRolesByGuid(
@@ -268,9 +316,10 @@ export async function listUsers(
     ctx.app.logger,
   );
 
-  const userOriginMapping: { [key: string]: string } = (lodash
-    .chain(uaaUsers)
-    .filter(u => u != null) as CollectionChain<IUaaUser>)
+  const userOriginMapping: { readonly [key: string]: string } = (lodash
+      .chain(uaaUsers)
+      .filter(u => u != null) as CollectionChain<IUaaUser>
+    )
     .keyBy(u => u.id)
     .mapValues(u => u.origin)
     .value();
@@ -322,9 +371,9 @@ export async function inviteUserForm(
   const formValues: IRoleValues = {
     org_roles: {
       [organization.metadata.guid]: {
+        auditors: { current: false, desired: false },
         billing_managers: { current: false, desired: false },
         managers: { current: false, desired: false },
-        auditors: { current: false, desired: false },
       },
     },
     space_roles: await spaces.reduce(
@@ -332,9 +381,9 @@ export async function inviteUserForm(
         const spaceRoles = await next;
 
         spaceRoles[space.metadata.guid] = {
-          managers: { current: false, desired: false },
-          developers: { current: false, desired: false },
           auditors: { current: false, desired: false },
+          developers: { current: false, desired: false },
+          managers: { current: false, desired: false },
         };
 
         return spaceRoles;
@@ -346,10 +395,10 @@ export async function inviteUserForm(
   const template = new Template(ctx.viewContext, 'Invite a new team member');
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
-      text: 'Team members',
       href: ctx.linkTo('admin.organizations.users', {
         organizationGUID: organization.metadata.guid,
       }),
+      text: 'Team members',
     },
     { text: 'Invite a new team member' },
   ]);
@@ -388,8 +437,8 @@ export async function inviteUser(
 
   const accounts = new AccountsClient({
     apiEndpoint: ctx.app.accountsAPI,
-    secret: ctx.app.accountsSecret,
     logger: ctx.app.logger,
+    secret: ctx.app.accountsSecret,
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
@@ -488,9 +537,9 @@ export async function inviteUser(
         });
 
         await notify.sendWelcomeEmail(userBody.email!, {
+          location: ctx.app.location,
           organisation: organization.entity.name,
           url: invitation.inviteLink,
-          location: ctx.app.location,
         });
       } catch (err) {
         ctx.log.error(
@@ -521,10 +570,10 @@ export async function inviteUser(
       );
       template.breadcrumbs = fromOrg(ctx, organization, [
         {
-          text: 'Team members',
           href: ctx.linkTo('admin.organizations.users', {
             organizationGUID: organization.metadata.guid,
           }),
+          text: 'Team members',
         },
         { text: 'Invite a new team member' },
       ]);
@@ -628,9 +677,9 @@ export async function resendInvitation(
   });
 
   await notify.sendWelcomeEmail(user.entity.username, {
+    location: ctx.app.location,
     organisation: organization.entity.name,
     url: invitation.inviteLink,
-    location: ctx.app.location,
   });
 
   const template = new Template(ctx.viewContext, 'Invited a new team member');
@@ -667,8 +716,8 @@ export async function editUser(
 
   const accountsClient = new AccountsClient({
     apiEndpoint: ctx.app.accountsAPI,
-    secret: ctx.app.accountsSecret,
     logger: ctx.app.logger,
+    secret: ctx.app.accountsSecret,
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
@@ -721,6 +770,10 @@ export async function editUser(
   const formValues: IRoleValues = {
     org_roles: {
       [params.organizationGUID]: {
+        auditors: {
+          current: user.entity.organization_roles.includes('org_auditor'),
+          desired: user.entity.organization_roles.includes('org_auditor'),
+        },
         billing_managers: {
           current: user.entity.organization_roles.includes('billing_manager'),
           desired: user.entity.organization_roles.includes('billing_manager'),
@@ -728,10 +781,6 @@ export async function editUser(
         managers: {
           current: user.entity.organization_roles.includes('org_manager'),
           desired: user.entity.organization_roles.includes('org_manager'),
-        },
-        auditors: {
-          current: user.entity.organization_roles.includes('org_auditor'),
-          desired: user.entity.organization_roles.includes('org_auditor'),
         },
       },
     },
@@ -744,17 +793,17 @@ export async function editUser(
         );
 
         spaceRoles[space.metadata.guid] = {
-          managers: {
-            current: usr?.entity.space_roles.includes('space_manager'),
-            desired: usr?.entity.space_roles.includes('space_manager'),
+          auditors: {
+            current: usr?.entity.space_roles.includes('space_auditor'),
+            desired: usr?.entity.space_roles.includes('space_auditor'),
           },
           developers: {
             current: usr?.entity.space_roles.includes('space_developer'),
             desired: usr?.entity.space_roles.includes('space_developer'),
           },
-          auditors: {
-            current: usr?.entity.space_roles.includes('space_auditor'),
-            desired: usr?.entity.space_roles.includes('space_auditor'),
+          managers: {
+            current: usr?.entity.space_roles.includes('space_manager'),
+            desired: usr?.entity.space_roles.includes('space_manager'),
           },
         };
 
@@ -767,10 +816,10 @@ export async function editUser(
   const template = new Template(ctx.viewContext, 'Update a team member');
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
-      text: 'Team members',
       href: ctx.linkTo('admin.organizations.users', {
         organizationGUID: organization.metadata.guid,
       }),
+      text: 'Team members',
     },
     { text: accountsUser.email },
   ]);
@@ -816,8 +865,8 @@ export async function updateUser(
 
   const accountsClient = new AccountsClient({
     apiEndpoint: ctx.app.accountsAPI,
-    secret: ctx.app.accountsSecret,
     logger: ctx.app.logger,
+    secret: ctx.app.accountsSecret,
   });
 
   const isAdmin = ctx.token.hasScope(CLOUD_CONTROLLER_ADMIN);
@@ -910,10 +959,10 @@ export async function updateUser(
       const template = new Template(ctx.viewContext, 'Update a team member');
       template.breadcrumbs = fromOrg(ctx, organization, [
         {
-          text: 'Team members',
           href: ctx.linkTo('admin.organizations.users', {
             organizationGUID: organization.metadata.guid,
           }),
+          text: 'Team members',
         },
         { text: accountsUser.email },
       ]);
@@ -1033,59 +1082,5 @@ export async function deleteUser(
         We have unassigned this member from your organisation.
       </SuccessPage>,
     ),
-  };
-}
-
-function validatePermissions({
-  org_roles,
-  space_roles,
-}: IUserPostBody): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
-
-  const orgRolesSelected = values(org_roles).some(permissions =>
-    values(permissions).some(x => x.desired === '1'),
-  );
-  const spaceRolesSelected = values(space_roles).some(permissions =>
-    values(permissions).some(x => x.desired === '1'),
-  );
-  if (!orgRolesSelected && !spaceRolesSelected) {
-    errors.push({
-      field: 'roles',
-      message: 'at least one role should be selected',
-    });
-  }
-
-  return errors;
-}
-
-function validateEmail({
-  email,
-}: IUserPostBody): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
-
-  if (!email || !VALID_EMAIL.test(email)) {
-    errors.push({
-      field: 'email',
-      message: 'a valid email address is required',
-    });
-  }
-
-  return errors;
-}
-
-function parseValues(body: IUserPostBody) {
-  const convert = (roles: IPostPermissions) =>
-    mapValues(roles, permissions =>
-      mapValues(permissions, state => ({
-        current: state.current === '1',
-        desired: state.desired === '1',
-      })),
-    );
-
-  /* istanbul ignore next */
-  return {
-    email: body.email,
-    org_roles: convert(body.org_roles || {}),
-    space_roles: convert(body.space_roles || {}),
   };
 }

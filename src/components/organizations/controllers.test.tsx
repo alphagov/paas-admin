@@ -1,7 +1,6 @@
 import lodash from 'lodash';
 import nock from 'nock';
 
-import { listOrganizations } from '.';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import {
@@ -13,6 +12,8 @@ import {
 import { wrapResources } from '../../lib/cf/test-data/wrap-resources';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
+
+import { listOrganizations } from '.';
 
 const organizations = JSON.stringify(
   wrapResources(
@@ -31,6 +32,21 @@ const organizations = JSON.stringify(
 );
 
 const ctx: IContext = createTestContext();
+
+function extractOrganizations(responseBody: string): ReadonlyArray<string> {
+  const re = /(.-(trial-)?org-name(-\d)?)/g;
+  const matches = [];
+  // :scream:
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const match = re.exec(responseBody);
+    if (match) {
+      matches.push(match[0]);
+    } else {
+      return matches;
+    }
+  }
+}
 
 describe('organizations test suite', () => {
   let nockCF: nock.Scope;
@@ -85,18 +101,3 @@ describe('organizations test suite', () => {
     ).toHaveLength(0);
   });
 });
-
-function extractOrganizations(responseBody: string): ReadonlyArray<string> {
-  const re = /(.-(trial-)?org-name(-\d)?)/g;
-  const matches = [];
-  // :scream:
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const match = re.exec(responseBody);
-    if (match) {
-      matches.push(match[0]);
-    } else {
-      return matches;
-    }
-  }
-}

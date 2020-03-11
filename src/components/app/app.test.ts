@@ -16,7 +16,6 @@ import {
 } from '../../lib/cf/test-data/org-quota';
 import { wrapResources } from '../../lib/cf/test-data/wrap-resources';
 import Router, { IParameters } from '../../lib/router';
-
 import { CLOUD_CONTROLLER_ADMIN } from '../auth';
 
 import init from './app';
@@ -51,15 +50,15 @@ describe('app test suite', () => {
     nock.cleanAll();
   });
 
-  it('should initContext correctly', async () => {
+  it('should initContext correctly', () => {
     const r = new Router([
       {
-        name: 'test',
-        action: async (c: IContext, _params: IParameters) => ({
+        action: async (c: IContext, _params: IParameters) => await Promise.resolve({
           body: {
             message: c.routePartOf('test') ? 'OK' : 'NOT OK',
           },
         }),
+        name: 'test',
         path: '/',
       },
     ]);
@@ -159,10 +158,10 @@ describe('app test suite', () => {
     const time = Math.floor(Date.now() / 1000);
     const token = jwt.sign(
       {
-        user_id: 'uaa-user-123',
-        scope: [],
         exp: time + 24 * 60 * 60,
         origin: 'uaa',
+        scope: [],
+        user_id: 'uaa-user-123',
       },
       tokenKey,
     );
@@ -170,11 +169,11 @@ describe('app test suite', () => {
     beforeEach(async () => {
       nockUAA.post('/oauth/token').reply(200, {
         access_token: token,
-        token_type: 'bearer',
-        refresh_token: '__refresh_token__',
         expires_in: 24 * 60 * 60,
-        scope: 'openid oauth.approvals',
         jti: '__jti__',
+        refresh_token: '__refresh_token__',
+        scope: 'openid oauth.approvals',
+        token_type: 'bearer',
       });
 
       agent = request.agent(app);
@@ -188,7 +187,7 @@ describe('app test suite', () => {
         .forEach((cookie: string) => agent.jar.setCookie(cookie));
     });
 
-    it('should authenticate successfully', async () => {
+    it('should authenticate successfully', () => {
       expect(response.status).toEqual(302);
       expect(response.header['set-cookie'][0]).toContain('pazmin-session');
     });
@@ -306,9 +305,8 @@ describe('app test suite', () => {
       const orgs = router.findByName('admin.organizations');
       const redirectResponse = await home.definition.action(
         {
+          linkTo: (name: string, params: IParameters = {}) => router.findByName(name).composeURL(params),
           routePartOf: () => false,
-          linkTo: (name: string, params: IParameters = {}) =>
-            router.findByName(name).composeURL(params),
         },
         {},
       );
@@ -332,9 +330,7 @@ describe('app test suite', () => {
       response = await agent.get(orgs.definition.path);
 
       expect(response.status).toEqual(200);
-      expect(response.text).toMatch(
-        '<meta name="x-user-identity-origin" content="uaa" />',
-      );
+      expect(response.text).toMatch('<meta name="x-user-identity-origin" content="uaa" />');
     });
   });
 
@@ -346,10 +342,10 @@ describe('app test suite', () => {
     const time = Math.floor(Date.now() / 1000);
     const token = jwt.sign(
       {
-        user_id: 'uaa-user-123',
-        scope: [CLOUD_CONTROLLER_ADMIN],
         exp: time + 24 * 60 * 60,
         origin: 'uaa',
+        scope: [CLOUD_CONTROLLER_ADMIN],
+        user_id: 'uaa-user-123',
       },
       tokenKey,
     );
@@ -357,11 +353,11 @@ describe('app test suite', () => {
     beforeEach(async () => {
       nockUAA.post('/oauth/token').reply(200, {
         access_token: token,
-        token_type: 'bearer',
-        refresh_token: '__refresh_token__',
         expires_in: 24 * 60 * 60,
-        scope: `openid oauth.approvals ${CLOUD_CONTROLLER_ADMIN}`,
         jti: '__jti__',
+        refresh_token: '__refresh_token__',
+        scope: `openid oauth.approvals ${CLOUD_CONTROLLER_ADMIN}`,
+        token_type: 'bearer',
       });
 
       agent = request.agent(app);
@@ -375,7 +371,7 @@ describe('app test suite', () => {
         .forEach((cookie: string) => agent.jar.setCookie(cookie));
     });
 
-    it('should authenticate successfully', async () => {
+    it('should authenticate successfully', () => {
       expect(response.status).toEqual(302);
       expect(response.header['set-cookie'][0]).toContain('pazmin-session');
     });
@@ -411,9 +407,9 @@ describe('app test suite', () => {
     const time = Math.floor(Date.now() / 1000);
     const token = jwt.sign(
       {
-        user_id: 'uaa-user-123',
-        scope: [],
         exp: time - 24 * 60 * 60,
+        scope: [],
+        user_id: 'uaa-user-123',
       },
       tokenKey,
     );
@@ -421,11 +417,11 @@ describe('app test suite', () => {
     it('should authenticate successfully', async () => {
       nockUAA.post('/oauth/token').reply(200, {
         access_token: token, // eslint-disable-line camelcase
-        token_type: 'bearer', // eslint-disable-line camelcase
-        refresh_token: '__refresh_token__', // eslint-disable-line camelcase
         expires_in: 24 * 60 * 60, // eslint-disable-line camelcase
-        scope: 'openid oauth.approvals',
         jti: '__jti__',
+        refresh_token: '__refresh_token__', // eslint-disable-line camelcase
+        scope: 'openid oauth.approvals',
+        token_type: 'bearer', // eslint-disable-line camelcase
       });
 
       const response = await agent.get(

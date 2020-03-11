@@ -2,21 +2,22 @@ import express from 'express';
 import lodash from 'lodash';
 
 import * as testData from '../src/lib/cf/cf.test.data';
-import {app as defaultApp} from '../src/lib/cf/test-data/app';
-import {auditEvent as defaultAuditEvent} from '../src/lib/cf/test-data/audit-event';
-import {org as defaultOrg, v3Org as defaultV3Org} from '../src/lib/cf/test-data/org';
-import {wrapResources, wrapV3Resources} from '../src/lib/cf/test-data/wrap-resources';
-import {IStubServerPorts} from './index';
+import { app as defaultApp } from '../src/lib/cf/test-data/app';
+import { auditEvent as defaultAuditEvent } from '../src/lib/cf/test-data/audit-event';
+import { org as defaultOrg, v3Org as defaultV3Org } from '../src/lib/cf/test-data/org';
+import { wrapResources, wrapV3Resources } from '../src/lib/cf/test-data/wrap-resources';
+
+import { IStubServerPorts } from './index';
 
 function mockCF(app: express.Application, config: IStubServerPorts): express.Application {
   const { apiPort } = config;
 
   const info = JSON.stringify({
-    name: "",
-    build: "",
-    support: "https://youtu.be/ZZ5LpwO-An4",
+    name: '',
+    build: '',
+    support: 'https://youtu.be/ZZ5LpwO-An4',
     version: 0,
-    description: "",
+    description: '',
     authorization_endpoint: `http://0:${apiPort}`,
     token_endpoint: `http://0:${apiPort}`,
     min_cli_version: null,
@@ -25,9 +26,9 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
     app_ssh_host_key_fingerprint: null,
     app_ssh_oauth_client: null,
     doppler_logging_endpoint: null,
-    api_version: "2.128.0",
-    osbapi_version: "2.14",
-    user: "default-stub-api-user"
+    api_version: '2.128.0',
+    osbapi_version: '2.14',
+    user: 'default-stub-api-user',
   });
 
   app.get('/v2/info', (_, res) => res.send(info));
@@ -37,13 +38,13 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
 
   app.get('/v2/organizations', (_, res) => res.send(JSON.stringify(
     wrapResources(
-      lodash.merge(defaultOrg(), {entity: {name: 'an-org'}}),
+      lodash.merge(defaultOrg(), { entity: { name: 'an-org' } }),
     ),
   )));
   app.get('/v3/organizations', (_, res) => res.send(JSON.stringify(
     wrapV3Resources(
-      lodash.merge(defaultV3Org(), {name: 'an-org'}),
-      lodash.merge(defaultV3Org(), {name: 'a-different-org', guid: 'a-different-org'}),
+      lodash.merge(defaultV3Org(), { name: 'an-org' }),
+      lodash.merge(defaultV3Org(), { name: 'a-different-org', guid: 'a-different-org' }),
     ),
   )));
 
@@ -76,9 +77,9 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
     const page = parseInt(req.param('page', '1'), 10);
 
     const predefinedResources = [
-      [lodash.merge(defaultAuditEvent(), {type: 'first-page'}), defaultAuditEvent()],
-      [lodash.merge(defaultAuditEvent(), {type: 'middle-page'}), defaultAuditEvent()],
-      [lodash.merge(defaultAuditEvent(), {type: 'last-page'}), defaultAuditEvent()],
+      [lodash.merge(defaultAuditEvent(), { type: 'first-page' }), defaultAuditEvent()],
+      [lodash.merge(defaultAuditEvent(), { type: 'middle-page' }), defaultAuditEvent()],
+      [lodash.merge(defaultAuditEvent(), { type: 'last-page' }), defaultAuditEvent()],
     ];
 
     res.send(JSON.stringify({

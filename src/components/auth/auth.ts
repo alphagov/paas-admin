@@ -3,7 +3,6 @@ import passport from 'passport';
 import { Strategy, StrategyOptions } from 'passport-oauth2';
 
 import UAAClient from '../../lib/uaa';
-
 import { internalServerErrorMiddleware } from '../errors';
 
 import { Token } from '.';
@@ -51,7 +50,7 @@ export default function authentication(config: IConfig) {
     new Strategy(
       options,
       (accessToken: string, refreshToken: string, profile: any, cb: any) => {
-        return cb(null, { accessToken, refreshToken, profile });
+        return cb(null, { accessToken, profile, refreshToken });
       },
     ),
   );
@@ -60,7 +59,7 @@ export default function authentication(config: IConfig) {
   app.use(passport.session());
 
   passport.serializeUser(
-    (user: { accessToken: string }, cb: (err: any, id?: string) => void) => {
+    (user: { readonly accessToken: string }, cb: (err: any, id?: string) => void) => {
       cb(null, user.accessToken);
     },
   );
@@ -68,7 +67,7 @@ export default function authentication(config: IConfig) {
   passport.deserializeUser(
     (
       accessToken: string,
-      cb: (err: any, user?: { accessToken: string }) => void,
+      cb: (err: any, user?: { readonly accessToken: string }) => void,
     ) => {
       cb(null, { accessToken });
     },
@@ -84,7 +83,7 @@ export default function authentication(config: IConfig) {
     },
   );
 
-  app.get('/auth/logout', (req: { logout: () => void }, res) => {
+  app.get('/auth/logout', (req: { readonly logout: () => void }, res) => {
     req.logout();
     res.redirect(config.logoutURL);
   });

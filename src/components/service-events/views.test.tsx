@@ -4,6 +4,7 @@ import React from 'react';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { IAuditEvent, IServiceInstance } from '../../lib/cf/types';
+
 import { ServiceEventsPage } from './views';
 
 describe(ServiceEventsPage, () => {

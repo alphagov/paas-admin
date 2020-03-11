@@ -2,9 +2,9 @@ import jwt from 'jsonwebtoken';
 
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
+import { Token } from '../auth';
 import { CLOUD_CONTROLLER_ADMIN } from '../auth/has-role';
 
-import { Token } from '../auth';
 
 import { redirectToPage } from './redirect';
 

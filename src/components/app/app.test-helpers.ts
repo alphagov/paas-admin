@@ -1,14 +1,16 @@
 import jwt from 'jsonwebtoken';
 import * as _ from 'lodash';
 import pino from 'pino';
+
 import { Token } from '../auth';
+
 import { config } from './app.test.config';
 import { IContext } from './context';
 
 class FakeSession implements CookieSessionInterfaces.CookieSessionObject {
-  public isChanged: boolean;
-  public isNew: boolean;
-  public isPopulated: boolean;
+  public readonly isChanged: boolean;
+  public readonly isNew: boolean;
+  public readonly isPopulated: boolean;
 
   constructor() {
     this.isChanged = false;
@@ -21,18 +23,19 @@ class FakeSession implements CookieSessionInterfaces.CookieSessionObject {
 
 export function createTestContext(ctx?: {}): IContext {
   return _.cloneDeep({
-    app: config,
-    routePartOf: () => false,
-    linkTo: route => `__LINKED_TO__${route}`,
     absoluteLinkTo: () => '__ABSOLUTE_LINKED_TO__',
+    app: config,
+    linkTo: route => `__LINKED_TO__${route}`,
     log: pino({ level: 'silent' }),
+    routePartOf: () => false,
+    session: new FakeSession(),
     token: new Token(
       jwt.sign(
         {
-          user_id: 'uaa-user-123',
           exp: 2535018460,
           origin: 'uaa',
           scope: [],
+          user_id: 'uaa-user-123',
         },
         'secret',
       ),
@@ -40,10 +43,10 @@ export function createTestContext(ctx?: {}): IContext {
     ),
     viewContext: {
       csrf: 'CSRF_TOKEN',
-      location: config.location,
       isPlatformAdmin: false,
+      location: config.location,
     },
-    session: new FakeSession(),
+
     ...ctx,
   });
 }

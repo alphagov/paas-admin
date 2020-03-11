@@ -29,7 +29,7 @@ describe('auth test suite', () => {
 
   app.use(pinoMiddleware({ logger }));
 
-  app.use(cookieSession({ name: 'auth-test', keys: ['mysecret'] }));
+  app.use(cookieSession({ keys: ['mysecret'], name: 'auth-test' }));
 
   app.use(
     auth({
@@ -68,10 +68,10 @@ describe('auth test suite', () => {
       const time = Math.floor(Date.now() / 1000);
       const token = jwt.sign(
         {
-          user_id: 'uaa-user-123',
-          scope: [],
           exp: time + 24 * 60 * 60,
           origin: 'uaa',
+          scope: [],
+          user_id: 'uaa-user-123',
         },
         tokenKey,
       );
@@ -87,11 +87,11 @@ describe('auth test suite', () => {
       it('should authenticate successfully', async () => {
         nockUAA.post('/oauth/token').reply(200, {
           access_token: token,
-          token_type: 'bearer',
-          refresh_token: '__refresh_token__',
           expires_in: 24 * 60 * 60,
-          scope: 'openid oauth.approvals',
           jti: '__jti__',
+          refresh_token: '__refresh_token__',
+          scope: 'openid oauth.approvals',
+          token_type: 'bearer',
         });
 
         const response = await agent.get(
@@ -138,11 +138,11 @@ describe('auth test suite', () => {
       it('should authenticate successfully', async () => {
         nockUAA.post('/oauth/token').reply(200, {
           access_token: '__access_token__',
-          token_type: 'bearer',
-          refresh_token: '__refresh_token__',
           expires_in: 24 * 60 * 60,
-          scope: 'openid oauth.approvals',
           jti: '__jti__',
+          refresh_token: '__refresh_token__',
+          scope: 'openid oauth.approvals',
+          token_type: 'bearer',
         });
 
         const response = await agent.get(
@@ -165,10 +165,10 @@ describe('auth test suite', () => {
     const time = Math.floor(Date.now() / 1000);
     const token = jwt.sign(
       {
-        user_id: 'uaa-user-123',
-        scope: [],
         exp: time + 24 * 60 * 60,
         origin: 'uaa',
+        scope: [],
+        user_id: 'uaa-user-123',
       },
       tokenKey,
     );
@@ -179,11 +179,11 @@ describe('auth test suite', () => {
         .times(1)
         .reply(200, {
           access_token: token,
-          token_type: 'bearer',
-          refresh_token: '__refresh_token__',
           expires_in: 24 * 60 * 60,
-          scope: 'openid oauth.approvals',
           jti: '__jti__',
+          refresh_token: '__refresh_token__',
+          scope: 'openid oauth.approvals',
+          token_type: 'bearer',
         });
 
       const response = await agent.get(

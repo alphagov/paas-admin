@@ -6,10 +6,37 @@ import * as uaaData from '../../lib/uaa/uaa.test.data';
 import { IContext } from '../app';
 import { createTestContext } from '../app/app.test-helpers';
 import { Token } from '../auth';
+
 import * as account from './account';
 import OIDC from './oidc';
 
 jest.mock('./oidc');
+
+function setUpUAA(userData: string): IContext {
+  const token = jwt.sign(
+    {
+      exp: 2535018460,
+      origin: 'uaa',
+      scope: [],
+      user_id: uaaData.userId,
+    },
+    'secret',
+  );
+
+  const ctx = createTestContext({
+    linkTo: (routeName: string) => routeName,
+    token: new Token(token, ['secret']),
+  });
+
+  nock.cleanAll();
+  nock(ctx.app.uaaAPI)
+    .get(`/Users/${uaaData.userId}`)
+    .reply(200, userData)
+    .post('/oauth/token?grant_type=client_credentials')
+    .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
+
+  return ctx;
+}
 
 describe('account test suite', () => {
   let ctx: IContext;
@@ -56,7 +83,7 @@ describe('account test suite', () => {
       await expect(account.postUseGoogleSSO(ctx, {})).rejects.toThrowError();
     });
 
-    it(`redirects to the OIDC authority's authorization endpoint`, async () => {
+    it('redirects to the OIDC authority\'s authorization endpoint', async () => {
       ctx = setUpUAA(uaaData.user);
 
       const redirectURL = 'https://foo.bar';
@@ -162,9 +189,7 @@ describe('account test suite', () => {
       // @ts-ignore
       OIDC.mockImplementation(() => {
         return {
-          oidcCallback: async () => {
-            return true;
-          },
+          oidcCallback: async () => await Promise.resolve(true),
         };
       });
 
@@ -181,9 +206,7 @@ describe('account test suite', () => {
       // @ts-ignore
       OIDC.mockImplementation(() => {
         return {
-          oidcCallback: async () => {
-            return false;
-          },
+          oidcCallback: async () => await Promise.resolve(false),
         };
       });
 
@@ -227,7 +250,7 @@ describe('account test suite', () => {
       await expect(account.postUseMicrosoftSSO(ctx, {})).rejects.toThrowError();
     });
 
-    it(`redirects to the OIDC authority's authorization endpoint`, async () => {
+    it('redirects to the OIDC authority\'s authorization endpoint', async () => {
       ctx = setUpUAA(uaaData.user);
 
       const redirectURL = 'https://foo.bar';
@@ -333,9 +356,7 @@ describe('account test suite', () => {
       // @ts-ignore
       OIDC.mockImplementation(() => {
         return {
-          oidcCallback: async () => {
-            return true;
-          },
+          oidcCallback: async () => await Promise.resolve(true),
         };
       });
 
@@ -352,9 +373,7 @@ describe('account test suite', () => {
       // @ts-ignore
       OIDC.mockImplementation(() => {
         return {
-          oidcCallback: async () => {
-            return false;
-          },
+          oidcCallback: async () => await Promise.resolve(false),
         };
       });
 
@@ -370,29 +389,3 @@ describe('account test suite', () => {
     });
   });
 });
-
-function setUpUAA(userData: string): IContext {
-  const token = jwt.sign(
-    {
-      user_id: uaaData.userId,
-      scope: [],
-      origin: 'uaa',
-      exp: 2535018460,
-    },
-    'secret',
-  );
-
-  const ctx = createTestContext({
-    linkTo: (routeName: string) => routeName,
-    token: new Token(token, ['secret']),
-  });
-
-  nock.cleanAll();
-  nock(ctx.app.uaaAPI)
-    .get(`/Users/${uaaData.userId}`)
-    .reply(200, userData)
-    .post('/oauth/token?grant_type=client_credentials')
-    .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
-
-  return ctx;
-}

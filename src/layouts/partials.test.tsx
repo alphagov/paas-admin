@@ -8,9 +8,7 @@ describe(Header, () => {
     const markup = shallow(
       <Header location="London" isPlatformAdmin={false} />,
     );
-    expect(markup.find('header nav li .app-region-tag').text()).toMatch(
-      'London',
-    );
+    expect(markup.find('header nav li .app-region-tag').text()).toMatch('London');
     expect(markup.find('header nav li.admin')).toHaveLength(0);
     // The following is for simply compliance with the design system.
     // https://github.com/alphagov/govuk-frontend/issues/1688
@@ -28,15 +26,13 @@ describe(Header, () => {
     const markup = shallow(
       <Header location="Ireland" isPlatformAdmin={true} />,
     );
-    expect(markup.find('header nav li .app-region-tag').text()).toMatch(
-      'Ireland',
-    );
+    expect(markup.find('header nav li .app-region-tag').text()).toMatch('Ireland');
     expect(markup.find('header nav li.admin')).toHaveLength(1);
   });
 });
 
 describe(Main, () => {
-  it('should successfully display the main element', async () => {
+  it('should successfully display the main element', () => {
     const markup = shallow(
       <Main>
         <p>This is a test</p>
@@ -47,11 +43,9 @@ describe(Main, () => {
 });
 
 describe(Footer, () => {
-  it('should successfully display the footer element', async () => {
+  it('should successfully display the footer element', () => {
     const markup = shallow(<Footer />);
-    expect(markup.find('.govuk-footer__licence-description').html()).toContain(
-      'All content is available under the <a',
-    );
+    expect(markup.find('.govuk-footer__licence-description').html()).toContain('All content is available under the <a');
     expect(
       markup
         .find('.govuk-footer__licence-description a')

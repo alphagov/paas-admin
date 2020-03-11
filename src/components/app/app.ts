@@ -1,3 +1,5 @@
+import { IncomingMessage, ServerResponse } from 'http';
+
 import compression from 'compression';
 import cookieSession from 'cookie-session';
 import csrf from 'csurf';
@@ -5,15 +7,14 @@ import express from 'express';
 import pinoMiddleware from 'express-pino-logger';
 import staticGzip from 'express-static-gzip';
 import helmet from 'helmet';
-import { IncomingMessage, ServerResponse } from 'http';
 import { BaseLogger } from 'pino';
 
 import { IResponse, NotAuthorisedError } from '../../lib/router';
 import auth from '../auth';
+import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
 import { termsCheckerMiddleware } from '../terms';
 
-import { getCalculator } from '../calculator';
 import csp from './app.csp';
 import { initContext } from './context';
 import router from './router';
@@ -34,7 +35,7 @@ export interface IAppConfig {
   readonly sessionSecret: string;
   readonly uaaAPI: string;
   readonly authorizationAPI: string;
-  readonly oidcProviders: Map<OIDCProviderName, IOIDCConfig>;
+  readonly oidcProviders: ReadonlyMap<OIDCProviderName, IOIDCConfig>;
   readonly domainName: string;
   readonly awsRegion: string;
   readonly awsCloudwatchEndpoint?: string;
@@ -54,7 +55,7 @@ export interface IOIDCConfig {
   readonly discoveryURL: string;
 }
 
-export default function(config: IAppConfig) {
+export default function(config: IAppConfig): express.Express {
   const app = express();
 
   app.use(
@@ -76,10 +77,10 @@ export default function(config: IAppConfig) {
 
   app.use(
     cookieSession({
-      name: 'pazmin-session',
-      keys: [config.sessionSecret],
-      secure: !config.allowInsecureSession,
       httpOnly: true,
+      keys: [config.sessionSecret],
+      name: 'pazmin-session',
+      secure: !config.allowInsecureSession,
     }),
   );
 
@@ -150,8 +151,8 @@ export default function(config: IAppConfig) {
   app.use(
     termsCheckerMiddleware(config.location, {
       apiEndpoint: config.accountsAPI,
-      secret: config.accountsSecret,
       logger: config.logger,
+      secret: config.accountsSecret,
     }),
   );
 

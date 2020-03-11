@@ -1,19 +1,20 @@
+/* eslint-disable no-case-declarations */
 import * as cw from '@aws-sdk/client-cloudwatch-node';
 import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
 import { mapValues, values } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 
-import { Template, bytesConvert } from '../../layouts';
+import { bytesConvert, Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import {
   CloudFrontMetricDataGetter,
-  ElastiCacheMetricDataGetter,
-  ElasticsearchMetricDataGetter,
-  RDSMetricDataGetter,
   cloudfrontMetricNames,
+  ElastiCacheMetricDataGetter,
   elasticacheMetricNames,
+  ElasticsearchMetricDataGetter,
   elasticsearchMetricNames,
+  RDSMetricDataGetter,
   rdsMetricNames,
 } from '../../lib/metric-data-getters';
 import roundDown from '../../lib/moment/round';
@@ -45,12 +46,71 @@ interface IRange {
   readonly rangeStop: moment.Moment;
 }
 
-export async function resolveServiceMetrics(
-  ctx: IContext,
-  params: IParameters,
-): Promise<IResponse> {
+function parseRange(start: string, stop: string): IRange {
+  const rangeStart = moment(start);
+  const rangeStop = moment(stop);
+  if (
+    rangeStart.isBefore(
+      rangeStop
+        .clone()
+        .subtract(1, 'year')
+        .subtract(1, 'week'),
+    )
+  ) {
+    throw new UserFriendlyError(
+      'Invalid time range provided. Cannot handle more than a year of metrics',
+    );
+  }
+
+  if (
+    rangeStop.isBefore(
+      moment()
+        .subtract(1, 'years')
+        .subtract(1, 'week'),
+    ) ||
+    rangeStart.isBefore(
+      moment()
+        .subtract(1, 'years')
+        .subtract(1, 'week'),
+    )
+  ) {
+    throw new UserFriendlyError(
+      'Invalid time range provided. Cannot handle over a year old metrics',
+    );
+  }
+
+  if (rangeStop.isBefore(rangeStart)) {
+    throw new UserFriendlyError('Invalid time range provided');
+  }
+
+  const period = moment.duration(getPeriod(rangeStart, rangeStop), 'seconds');
+
+  return {
+    period,
+    rangeStart: roundDown(rangeStart, period),
+    rangeStop: roundDown(rangeStop, period),
+  };
+}
+
+export function composeValue(value: number, units?: string): string {
+  const safeValue = isNaN(value) ? 0 : value;
+
+  switch (units) {
+    case 'Bytes':
+      const bytes = bytesConvert(safeValue);
+
+      return `${bytes.value}${bytes.short}`;
+    case 'Percent':
+      return `${safeValue.toFixed(2)}%`;
+  }
+
+  return `${safeValue.toFixed(2)}`;
+}
+
+export async function resolveServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
   const rangeStop = moment();
-  const timeRanges: { [key: string]: moment.Moment } = {
+  /* eslint-disable sort-keys */
+  const timeRanges: { readonly [key: string]: moment.Moment } = {
     '1h': rangeStop.clone().subtract(1, 'hour'),
     '3h': rangeStop.clone().subtract(3, 'hours'),
     '12h': rangeStop.clone().subtract(12, 'hours'),
@@ -58,18 +118,19 @@ export async function resolveServiceMetrics(
     '7d': rangeStop.clone().subtract(7, 'days'),
     '30d': rangeStop.clone().subtract(30, 'days'),
   };
+  /* eslint-enable sort-keys */
   const rangeStart = timeRanges[params.offset] || timeRanges['24h'];
 
-  return {
-    status: 302,
+  return await Promise.resolve({
     redirect: ctx.linkTo('admin.organizations.spaces.services.metrics.view', {
       organizationGUID: params.organizationGUID,
-      spaceGUID: params.spaceGUID,
-      serviceGUID: params.serviceGUID,
       rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
       rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+      serviceGUID: params.serviceGUID,
+      spaceGUID: params.spaceGUID,
     }),
-  };
+    status: 302,
+  });
 }
 
 export async function viewServiceMetrics(
@@ -84,16 +145,16 @@ export async function viewServiceMetrics(
 
   if (!params.rangeStart || !params.rangeStop) {
     return {
-      status: 302,
       redirect: ctx.linkTo('admin.organizations.spaces.services.metrics.view', {
         organizationGUID: params.organizationGUID,
-        spaceGUID: params.spaceGUID,
-        serviceGUID: params.serviceGUID,
         rangeStart: moment()
           .subtract(24, 'hours')
           .format('YYYY-MM-DD[T]HH:mm'),
         rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+        serviceGUID: params.serviceGUID,
+        spaceGUID: params.spaceGUID,
       }),
+      status: 302,
     };
   }
 
@@ -126,11 +187,11 @@ export async function viewServiceMetrics(
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
-      text: space.entity.name,
       href: ctx.linkTo('admin.organizations.spaces.services.list', {
         organizationGUID: organization.metadata.guid,
         spaceGUID: space.metadata.guid,
       }),
+      text: space.entity.name,
     },
     { text: service.entity.name },
   ]);
@@ -160,10 +221,10 @@ export async function viewServiceMetrics(
     'admin.organizations.spaces.services.metrics.download',
     {
       organizationGUID: organization.metadata.guid,
-      spaceGUID: space.metadata.guid,
-      serviceGUID: service.metadata.guid,
       rangeStart,
       rangeStop,
+      serviceGUID: service.metadata.guid,
+      spaceGUID: space.metadata.guid,
     },
   );
   let metrics: ReadonlyArray<IMetricProperties>;
@@ -173,12 +234,12 @@ export async function viewServiceMetrics(
     case 'cdn-route':
       const cloudFrontMetricSeries = await new CloudFrontMetricDataGetter(
         new cw.CloudWatchClient({
-          region: 'us-east-1',
           endpoint: ctx.app.awsCloudwatchEndpoint,
+          region: 'us-east-1',
         }),
         new rg.ResourceGroupsTaggingAPIClient({
-          region: 'us-east-1',
           endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
+          region: 'us-east-1',
         }),
       ).getData(
         cloudfrontMetricNames,
@@ -198,8 +259,8 @@ export async function viewServiceMetrics(
     case 'mysql':
       const rdsMetricSeries = await new RDSMetricDataGetter(
         new cw.CloudWatchClient({
-          region: ctx.app.awsRegion,
           endpoint: ctx.app.awsCloudwatchEndpoint,
+          region: ctx.app.awsRegion,
         }),
       ).getData(
         rdsMetricNames,
@@ -218,8 +279,8 @@ export async function viewServiceMetrics(
     case 'redis':
       const elastiCacheMetricSeries = await new ElastiCacheMetricDataGetter(
         new cw.CloudWatchClient({
-          region: ctx.app.awsRegion,
           endpoint: ctx.app.awsCloudwatchEndpoint,
+          region: ctx.app.awsRegion,
         }),
       ).getData(
         elasticacheMetricNames,
@@ -290,16 +351,16 @@ export async function downloadServiceMetrics(
     !params.units
   ) {
     return {
-      status: 302,
       redirect: ctx.linkTo('admin.organizations.spaces.services.metrics.view', {
         organizationGUID: params.organizationGUID,
-        spaceGUID: params.spaceGUID,
-        serviceGUID: params.serviceGUID,
         rangeStart: moment()
           .subtract(24, 'hours')
           .format('YYYY-MM-DD[T]HH:mm'),
         rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+        serviceGUID: params.serviceGUID,
+        spaceGUID: params.spaceGUID,
       }),
+      status: 302,
     };
   }
 
@@ -331,12 +392,12 @@ export async function downloadServiceMetrics(
     case 'cdn-route':
       const cloudfrontMetricSeries = await new CloudFrontMetricDataGetter(
         new cw.CloudWatchClient({
-          region: 'us-east-1',
           endpoint: ctx.app.awsCloudwatchEndpoint,
+          region: 'us-east-1',
         }),
         new rg.ResourceGroupsTaggingAPIClient({
-          region: 'us-east-1',
           endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
+          region: 'us-east-1',
         }),
       ).getData(
         [params.metric],
@@ -361,8 +422,8 @@ export async function downloadServiceMetrics(
     case 'mysql':
       const rdsMetricSeries = await new RDSMetricDataGetter(
         new cw.CloudWatchClient({
-          region: ctx.app.awsRegion,
           endpoint: ctx.app.awsCloudwatchEndpoint,
+          region: ctx.app.awsRegion,
         }),
       ).getData(
         [params.metric],
@@ -386,8 +447,8 @@ export async function downloadServiceMetrics(
     case 'redis':
       const elasticacheMetricSeries = await new ElastiCacheMetricDataGetter(
         new cw.CloudWatchClient({
-          region: ctx.app.awsRegion,
           endpoint: ctx.app.awsCloudwatchEndpoint,
+          region: ctx.app.awsRegion,
         }),
       ).getData(
         [params.metric],
@@ -448,71 +509,10 @@ export async function downloadServiceMetrics(
   const csvData = [headers, contents];
 
   return {
-    mimeType: 'text/csv',
     download: {
-      name,
       data: csvData.map(line => line.join(',')).join('\n'),
+      name,
     },
+    mimeType: 'text/csv',
   };
-}
-
-function parseRange(start: string, stop: string): IRange {
-  const rangeStart = moment(start);
-  const rangeStop = moment(stop);
-  if (
-    rangeStart.isBefore(
-      rangeStop
-        .clone()
-        .subtract(1, 'year')
-        .subtract(1, 'week'),
-    )
-  ) {
-    throw new UserFriendlyError(
-      'Invalid time range provided. Cannot handle more than a year of metrics',
-    );
-  }
-
-  if (
-    rangeStop.isBefore(
-      moment()
-        .subtract(1, 'years')
-        .subtract(1, 'week'),
-    ) ||
-    rangeStart.isBefore(
-      moment()
-        .subtract(1, 'years')
-        .subtract(1, 'week'),
-    )
-  ) {
-    throw new UserFriendlyError(
-      'Invalid time range provided. Cannot handle over a year old metrics',
-    );
-  }
-
-  if (rangeStop.isBefore(rangeStart)) {
-    throw new UserFriendlyError('Invalid time range provided');
-  }
-
-  const period = moment.duration(getPeriod(rangeStart, rangeStop), 'seconds');
-
-  return {
-    period,
-    rangeStart: roundDown(rangeStart, period),
-    rangeStop: roundDown(rangeStop, period),
-  };
-}
-
-export function composeValue(value: number, units?: string): string {
-  const safeValue = isNaN(value) ? 0 : value;
-
-  switch (units) {
-    case 'Bytes':
-      const bytes = bytesConvert(safeValue);
-
-      return `${bytes.value}${bytes.short}`;
-    case 'Percent':
-      return `${safeValue.toFixed(2)}%`;
-  }
-
-  return `${safeValue.toFixed(2)}`;
 }

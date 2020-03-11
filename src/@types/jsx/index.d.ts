@@ -4,6 +4,6 @@ interface IFallbackImage extends React.SVGProps<SVGImageElement> {
 
 declare namespace JSX {
   interface IntrinsicElements {
-    image: IFallbackImage;
+    readonly image: IFallbackImage;
   }
 }

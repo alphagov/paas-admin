@@ -2,6 +2,7 @@ import { Logger } from 'pino';
 
 import Router, { IParameters, Route } from '../../lib/router';
 import { Token } from '../auth';
+
 import { IAppConfig } from './app';
 
 export type RouteLinker = (name: string, params?: IParameters) => string;
@@ -41,25 +42,24 @@ export function initContext(
     req.token && req.token.hasAdminScopes && req.token.hasAdminScopes();
 
   return {
-    app: config,
-    routePartOf: (name: string) =>
-      route.definition.name === name || route.definition.name.startsWith(name),
-    linkTo: (name: string, params: IParameters = {}) => {
-      return router.findByName(name).composeURL(params);
-    },
-    absoluteLinkTo: (name: string, params: IParameters = {}) => {
+    absoluteLinkTo: (name: string, params: IParameters = {}): string => {
       return router
         .findByName(name)
         .composeAbsoluteURL(config.domainName, params);
     },
+    app: config,
+    linkTo: (name: string, params: IParameters = {}): string => {
+      return router.findByName(name).composeURL(params);
+    },
     log: req.log,
+    routePartOf: (name: string): boolean => route.definition.name === name || route.definition.name.startsWith(name),
+    session: req.session,
     token: req.token,
     viewContext: {
-      location: config.location,
       csrf: req.csrfToken(),
-      origin,
       isPlatformAdmin,
+      location: config.location,
+      origin,
     },
-    session: req.session,
   };
 }

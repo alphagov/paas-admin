@@ -2,7 +2,6 @@ import _ from 'lodash';
 import moment from 'moment';
 
 import { IMetric, IMetricSerie, MetricName } from '../metrics';
-
 import PromClient from '../prom';
 
 export class PrometheusMetricDataGetter {
@@ -55,8 +54,8 @@ export class PrometheusMetricDataGetter {
     const queryResults: ReadonlyArray<
       ReadonlyArray<IMetricSerie> | undefined
     > = await Promise.all(
-      queries.map(query =>
-        this.promClient.getSeries(
+      queries.map(async query =>
+        await this.promClient.getSeries(
           query,
           period.asSeconds(),
           rangeStart.toDate(),

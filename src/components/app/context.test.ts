@@ -1,4 +1,5 @@
 import Router, { IParameters, IResponse } from '../../lib/router';
+
 import { config } from './app.test.config';
 import { IContext, initContext } from './context';
 
@@ -6,7 +7,7 @@ const noopActionFunc = async (
   _: IContext,
   __: IParameters,
 ): Promise<IResponse> => {
-  return new Promise<IResponse>(resolve => resolve({ body: 'noop' }));
+  return await new Promise<IResponse>(resolve => resolve({ body: 'noop' }));
 };
 
 describe('IContext', () => {
@@ -20,10 +21,10 @@ describe('IContext', () => {
         },
       ]);
       const req = {
-        log: {},
-        token: {},
-        session: {},
         csrfToken: () => '',
+        log: {},
+        session: {},
+        token: {},
       };
       const ctx = initContext(req, router, router.routes[0], config);
 
@@ -43,10 +44,10 @@ describe('IContext', () => {
         },
       ]);
       const req = {
-        log: {},
-        token: {},
-        session: {},
         csrfToken: () => '',
+        log: {},
+        session: {},
+        token: {},
       };
       const ctx = initContext(req, router, router.routes[0], config);
 

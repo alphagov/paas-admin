@@ -3,7 +3,6 @@ import moment from 'moment';
 import { BaseLogger } from 'pino';
 
 import { intercept } from '../axios-logger/axios';
-
 import { IMetricSerie } from '../metrics';
 
 const DEFAULT_TIMEOUT = 30000;

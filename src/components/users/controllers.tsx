@@ -7,13 +7,14 @@ import { IParameters, IResponse } from '../../lib/router';
 import { NotFoundError } from '../../lib/router/errors';
 import UAAClient from '../../lib/uaa';
 import { IContext } from '../app/context';
-import { UserPage } from './views';
-
 import {
   CLOUD_CONTROLLER_ADMIN,
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
+
+import { UserPage } from './views';
+
 
 export async function getUser(
   ctx: IContext,

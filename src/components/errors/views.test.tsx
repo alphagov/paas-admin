@@ -2,6 +2,7 @@ import { shallow } from 'enzyme';
 import React from 'react';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
+
 import { ErrorPage } from './views';
 
 describe(ErrorPage, () => {

@@ -169,7 +169,7 @@ describe(StatementsPage, () => {
     expect($('input[name="order"]').prop('value')).toEqual('desc');
   });
 
-  it(`should parse statements page and notify tenant that there's no information for this month`, () => {
+  it('should parse statements page and notify tenant that there\'s no information for this month', () => {
     const markup = shallow(
       <StatementsPage
         spaces={[{ guid: 'SPACE_GUID', name: 'space name' }]}

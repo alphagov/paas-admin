@@ -3,6 +3,7 @@ import { shallow } from 'enzyme';
 import React from 'react';
 
 import { IApplication, IAuditEvent } from '../../lib/cf/types';
+
 import { ApplicationEventsPage } from './views';
 
 describe(ApplicationEventsPage, () => {

@@ -1,12 +1,13 @@
 import moment from 'moment';
 import React, { ReactElement } from 'react';
-import { DATE } from '../../layouts';
-import { RouteLinker } from '../app/context';
 
+import { DATE } from '../../layouts';
 import {
   IOrganizationQuota,
   IV3OrganizationResource,
 } from '../../lib/cf/types';
+import { RouteLinker } from '../app/context';
+
 import {
   IBillableByOrganisationAndService,
   IBillableByOrganisationAndSpaceAndService,
@@ -18,8 +19,8 @@ interface IOrganizationsReportProperties {
   readonly trialOrgs: ReadonlyArray<IV3OrganizationResource>;
   readonly billableOrgs: ReadonlyArray<IV3OrganizationResource>;
   readonly linkTo: RouteLinker;
-  readonly orgQuotaMapping: { [key: string]: IOrganizationQuota };
-  readonly orgTrialExpirys: { [key: string]: Date };
+  readonly orgQuotaMapping: { readonly [key: string]: IOrganizationQuota };
+  readonly orgTrialExpirys: { readonly [key: string]: Date };
 }
 
 interface ICostable {
@@ -59,18 +60,18 @@ interface ICostByServiceReport {
   >;
 }
 interface ID3SankeyNode {
-  name: string;
+  readonly name: string;
 }
 
 interface ID3SankeyLink {
-  source: number;
-  target: number;
-  value: number;
+  readonly source: number;
+  readonly target: number;
+  readonly value: number;
 }
 
 interface ID3SankeyInput {
-  nodes: ReadonlyArray<ID3SankeyNode>;
-  links: ReadonlyArray<ID3SankeyLink>;
+  readonly nodes: ReadonlyArray<ID3SankeyNode>;
+  readonly links: ReadonlyArray<ID3SankeyLink>;
 }
 
 interface IVisualisationPage {
@@ -83,7 +84,7 @@ interface ISankeyInputProperties {
 }
 
 class SankeyInput extends React.Component {
-  constructor(public props: ISankeyInputProperties) {
+  constructor(public readonly props: ISankeyInputProperties) {
     super(props);
   }
 
@@ -96,6 +97,7 @@ class SankeyInput extends React.Component {
       <script
         id="data"
         type="application/json"
+        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           // eslint-disable-next-line react/prop-types
           __html: JSON.stringify(this.props.data).replace('/', '/'),
@@ -460,7 +462,7 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
         <tbody className="govuk-table__body">
           {props.billablesByOrganisationAndService.map(record => (
             <tr key={record.orgGUID} className="govuk-table__row">
-              <td className="govuk-table__cell" scope="row">
+              <td className="govuk-table__cell">
                 {record.orgName}
               </td>
               <td className="govuk-table__cell">{record.serviceGroup}</td>
@@ -518,7 +520,7 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
         <tbody className="govuk-table__body">
           {props.billablesByOrganisationAndSpaceAndService.map(record => (
             <tr key={record.spaceGUID} className="govuk-table__row">
-              <td className="govuk-table__cell" scope="row">
+              <td className="govuk-table__cell">
                 {record.orgName}
               </td>
               <td className="govuk-table__cell">{record.spaceName}</td>

@@ -38,14 +38,11 @@ interface IServiceEventDetailPageProperties {
 }
 
 function Link(props: ILinkProperties): ReactElement {
-  return (
-    <a
-      className="govuk-link"
-      href={props.disabled === false ? props.href : undefined}
-    >
-      {props.children}
-    </a>
-  );
+  if (props.disabled) {
+    return <span>{props.children}</span>;
+  }
+
+  return <a className="govuk-link" href={props.href}>{props.children}</a>;
 }
 
 function Pagination(props: IPaginationProperties): ReactElement {
@@ -54,9 +51,9 @@ function Pagination(props: IPaginationProperties): ReactElement {
       <Link
         href={props.linkTo('admin.organizations.spaces.services.events.view', {
           organizationGUID: props.organizationGUID,
-          spaceGUID: props.spaceGUID,
-          serviceGUID: props.service.metadata.guid,
           page: props.pagination.page - 1,
+          serviceGUID: props.service.metadata.guid,
+          spaceGUID: props.spaceGUID,
         })}
         disabled={props.pagination.page <= 1}
       >
@@ -65,9 +62,9 @@ function Pagination(props: IPaginationProperties): ReactElement {
       <Link
         href={props.linkTo('admin.organizations.spaces.services.events.view', {
           organizationGUID: props.organizationGUID,
-          spaceGUID: props.spaceGUID,
-          serviceGUID: props.service.metadata.guid,
           page: props.pagination.page + 1,
+          serviceGUID: props.service.metadata.guid,
+          spaceGUID: props.spaceGUID,
         })}
         disabled={props.pagination.page >= props.pagination.total_pages}
       >
@@ -134,10 +131,10 @@ export function ServiceEventsPage(
               href={props.linkTo(
                 'admin.organizations.spaces.services.event.view',
                 {
-                  organizationGUID: props.organizationGUID,
-                  spaceGUID: props.spaceGUID,
-                  serviceGUID: props.service.metadata.guid,
                   eventGUID: event.guid,
+                  organizationGUID: props.organizationGUID,
+                  serviceGUID: props.service.metadata.guid,
+                  spaceGUID: props.spaceGUID,
                 },
               )}
               type={
