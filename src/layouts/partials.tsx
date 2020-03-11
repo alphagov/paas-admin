@@ -287,3 +287,7 @@ export function Tick(): ReactElement {
     </Fragment>
     );
 }
+
+export function NoTick(): ReactElement {
+  return <span className="govuk-visually-hidden">no</span>;
+}
