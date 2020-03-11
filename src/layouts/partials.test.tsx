@@ -8,7 +8,7 @@ describe(Header, () => {
     const markup = shallow(
       <Header location="London" isPlatformAdmin={false} />,
     );
-    expect(markup.find('header nav li a.paas-govuk-tag').text()).toMatch(
+    expect(markup.find('header nav li .app-region-tag').text()).toMatch(
       'London',
     );
     expect(markup.find('header nav li.admin')).toHaveLength(0);
@@ -28,7 +28,7 @@ describe(Header, () => {
     const markup = shallow(
       <Header location="Ireland" isPlatformAdmin={true} />,
     );
-    expect(markup.find('header nav li a.paas-govuk-tag').text()).toMatch(
+    expect(markup.find('header nav li .app-region-tag').text()).toMatch(
       'Ireland',
     );
     expect(markup.find('header nav li.admin')).toHaveLength(1);
