@@ -338,7 +338,7 @@ describe(OrganizationUsersPage, () => {
     expect($('td').text()).not.toContain('Origin-name');
     expect($('td').text()).not.toContain('Password');
     expect($('li').text()).toContain(space.entity.name);
-    expect($('.tick').length).toEqual(3);
+    expect($('.tick-symbol').length).toEqual(3);
   });
 
   it('should produce the org users view when being privileged', () => {

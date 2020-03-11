@@ -20,7 +20,6 @@ ul, ol {
   white-space: nowrap;
 }
 
-img.tick {
-  height: 20px;
-  width: 20px;
+.tick-symbol {
+  color: govuk-colour("green");
 }
