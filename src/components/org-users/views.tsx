@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 
 import { capitalize } from '../../layouts';
-import { Tick } from '../../layouts/partials';
+import { NoTick, Tick } from '../../layouts/partials';
 import {
   IOrganization,
   IOrganizationUserRoles,
@@ -784,28 +784,28 @@ export function OrganizationUsersPage(
                     capitalize(props.userOriginMapping[guid])
                   )
                 ) : (
-                  <></>
+                  <NoTick />
                 )}
               </td>
               <td className="govuk-table__cell">
                 {props.users[guid].orgRoles.includes('org_manager') ? (
                   <Tick />
                 ) : (
-                  <></>
+                  <NoTick />
                 )}
               </td>
               <td className="govuk-table__cell">
                 {props.users[guid].orgRoles.includes('billing_manager') ? (
                   <Tick />
                 ) : (
-                  <></>
+                  <NoTick />
                 )}
               </td>
               <td className="govuk-table__cell">
                 {props.users[guid].orgRoles.includes('org_auditor') ? (
                   <Tick />
                 ) : (
-                  <></>
+                  <NoTick />
                 )}
               </td>
               <td className="govuk-table__cell">

@@ -317,7 +317,7 @@ describe(OrganizationUsersPage, () => {
       username: 'user-name',
     } as unknown) as IUserRoles,
     USER_GUID_2: ({
-      orgRoles: ['org_manager', 'billing_manager', 'org_auditor'],
+      orgRoles: ['org_manager', 'billing_manager'],
       spaces: [],
       username: 'user-name-2',
     } as unknown) as IUserRoles,
@@ -339,7 +339,8 @@ describe(OrganizationUsersPage, () => {
     expect($('td').text()).not.toContain('Origin-name');
     expect($('td').text()).not.toContain('Password');
     expect($('li').text()).toContain(space.entity.name);
-    expect($('.tick-symbol').length).toEqual(3);
+    expect($('.tick-symbol').length).toEqual(2);
+    expect($('.govuk-table__body td:nth-child(4)').text()).toContain('no');
   });
 
   it('should produce the org users view when being privileged', () => {
