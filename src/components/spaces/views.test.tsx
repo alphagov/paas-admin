@@ -220,6 +220,25 @@ describe(BackingServicePage, () => {
     const $ = cheerio.load(markup.html());
     expect($('p').text()).toContain('This space contains 1 backing service');
   });
+
+  it('should not display a table of backing service if there no backing services', () => {
+    const noServices = ([] as unknown) as ReadonlyArray<
+      IEnchancedServiceInstance | IStripedUserServices
+    >;
+    const markup = shallow(
+      <BackingServicePage
+        linkTo={route => `__LINKS_TO__${route}`}
+        routePartOf={route =>
+          route === 'admin.organizations.spaces.applications.events.view'
+        }
+        organizationGUID="ORG_GUID"
+        services={noServices}
+        space={space}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('.govuk-table')).toHaveLength(0);
+  });
 });
 
 describe(SpacesPage, () => {
