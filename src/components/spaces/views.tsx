@@ -527,54 +527,59 @@ export function BackingServicePage(
         {props.services.length === 1 ? 'service' : 'services'}
       </p>
 
-      <table className="govuk-table">
-        <thead className="govuk-table__head">
-          <tr className="govuk-table__row">
-            <th className="govuk-table__header name" scope="col">
-              Service name
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Type
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Plan
-            </th>
-            <th className="govuk-table__header" scope="col">
-              State
-            </th>
-          </tr>
-        </thead>
-        <tbody className="govuk-table__body">
-          {props.services.map(service => (
-            <tr key={service.metadata.guid} className="govuk-table__row">
-              <td className="govuk-table__cell name">
-                <a
-                  href={props.linkTo(
-                    'admin.organizations.spaces.services.view',
-                    {
-                      organizationGUID: props.organizationGUID,
-                      serviceGUID: service.metadata.guid,
-                      spaceGUID: props.space.metadata.guid,
-                    },
-                  )}
-                  className="govuk-link"
-                >
-                  {service.entity.name}
-                </a>
-              </td>
-              <td className="govuk-table__cell label">
-                {service.definition?.entity.label || 'User Provided Service'}
-              </td>
-              <td className="govuk-table__cell plan">
-                {service.plan?.entity.name || 'N/A'}
-              </td>
-              <td className="govuk-table__cell status">
-                {service.entity.last_operation?.state || 'N/A'}
-              </td>
+      {props.services.length > 0 ? (
+        <table className="govuk-table">
+          <thead className="govuk-table__head">
+            <tr className="govuk-table__row">
+              <th className="govuk-table__header name" scope="col">
+                Service name
+              </th>
+              <th className="govuk-table__header" scope="col">
+                Type
+              </th>
+              <th className="govuk-table__header" scope="col">
+                Plan
+              </th>
+              <th className="govuk-table__header" scope="col">
+                State
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="govuk-table__body">
+            {props.services.map(service => (
+              <tr key={service.metadata.guid} className="govuk-table__row">
+                <td className="govuk-table__cell name">
+                  <a
+                    href={props.linkTo(
+                      'admin.organizations.spaces.services.view',
+                      {
+                        organizationGUID: props.organizationGUID,
+                        serviceGUID: service.metadata.guid,
+                        spaceGUID: props.space.metadata.guid,
+                      },
+                    )}
+                    className="govuk-link"
+                  >
+                    {service.entity.name}
+                  </a>
+                </td>
+                <td className="govuk-table__cell label">
+                  {service.definition?.entity.label || 'User Provided Service'}
+                </td>
+                <td className="govuk-table__cell plan">
+                  {service.plan?.entity.name || 'N/A'}
+                </td>
+                <td className="govuk-table__cell status">
+                  {service.entity.last_operation?.state || 'N/A'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        ) : (
+          <></>
+        )
+      }
     </SpaceTab>
   );
 }
