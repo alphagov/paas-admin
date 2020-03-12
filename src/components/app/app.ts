@@ -15,9 +15,9 @@ import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
 import { termsCheckerMiddleware } from '../terms';
 
-import csp from './app.csp';
+import { csp } from './app.csp';
 import { initContext } from './context';
-import router from './router';
+import { router } from './router';
 import { routerMiddleware } from './router-middleware';
 
 export interface IAppConfig {
@@ -62,11 +62,11 @@ export default function(config: IAppConfig): express.Express {
     pinoMiddleware({
       logger: config.logger,
       serializers: {
-        req: (req: IncomingMessage) => ({
+        req: (req: IncomingMessage): object => ({
           method: req.method,
           url: req.url,
         }),
-        res: /* istanbul ignore next */ (res: ServerResponse) => ({
+        res: /* istanbul ignore next */ (res: ServerResponse): object => ({
           status: res.statusCode,
         }),
       },
@@ -85,19 +85,10 @@ export default function(config: IAppConfig): express.Express {
   );
 
   app.use('/assets', staticGzip('dist/assets', { immutable: true }));
-  app.use(
-    '/assets',
-    staticGzip('node_modules/govuk-frontend/govuk', { immutable: true }),
-  );
-  app.use(
-    '/assets',
-    staticGzip('node_modules/govuk-frontend/govuk/assets', { immutable: true }),
-  );
+  app.use('/assets', staticGzip('node_modules/govuk-frontend/govuk', { immutable: true }));
+  app.use('/assets', staticGzip('node_modules/govuk-frontend/govuk/assets', { immutable: true }));
   app.use('/assets', staticGzip('node_modules/d3/dist', { immutable: true }));
-  app.use(
-    '/assets',
-    staticGzip('node_modules/d3-sankey/dist', { immutable: true }),
-  );
+  app.use('/assets', staticGzip('node_modules/d3-sankey/dist', { immutable: true }));
   app.use(compression());
 
   app.use(helmet());
@@ -114,13 +105,7 @@ export default function(config: IAppConfig): express.Express {
     throw new NotAuthorisedError('Forbidden');
   });
 
-  app.get(
-    '/calculator',
-    (
-      req: express.Request,
-      res: express.Response,
-      next: express.NextFunction,
-    ) => {
+  app.get('/calculator', (req: express.Request, res: express.Response, next: express.NextFunction) => {
       const route = router.findByName('admin.home');
       const ctx = initContext(req, router, route, config);
 
