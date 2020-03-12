@@ -155,6 +155,22 @@ describe(ApplicationsPage, () => {
     const $ = cheerio.load(markup.html());
     expect($('p').text()).toContain('This space contains 2 applications');
   });
+
+  it('should not display a table of applications if there no applications', () => {
+    const markup = shallow(
+      <ApplicationsPage
+        linkTo={route => `__LINKS_TO__${route}`}
+        routePartOf={route =>
+          route === 'admin.organizations.spaces.applications.events.view'
+        }
+        organizationGUID="ORG_GUID"
+        space={space}
+        applications={[]}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('.govuk-table')).toHaveLength(0);
+  });
 });
 
 describe(BackingServicePage, () => {
