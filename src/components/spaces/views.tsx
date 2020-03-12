@@ -429,85 +429,89 @@ export function ApplicationsPage(
         This space contains {props.applications.length}{' '}
         {props.applications.length === 1 ? 'application' : 'applications'}
       </p>
-
-      <table className="govuk-table">
-        <thead className="govuk-table__head">
-          <tr className="govuk-table__row">
-            <th className="govuk-table__header name" scope="col">
-              Application name
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Instances
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Memory
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Disk
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Status
-            </th>
-            <th className="govuk-table__header" scope="col">
-              URLs
-            </th>
-          </tr>
-        </thead>
-        <tbody className="govuk-table__body">
-          {props.applications.map(application => (
-            <tr key={application.metadata.guid} className="govuk-table__row">
-              <td className="govuk-table__cell">
-                <a
-                  href={props.linkTo(
-                    'admin.organizations.spaces.applications.view',
-                    {
-                      applicationGUID: application.metadata.guid,
-                      organizationGUID: props.organizationGUID,
-                      spaceGUID: props.space.metadata.guid,
-                    },
-                  )}
-                  className="govuk-link"
-                >
-                  {application.entity.name}
-                </a>
-              </td>
-              <td
-                className="govuk-table__cell"
-                title={`${application.summary.running_instances} running / ${application.summary.instances} desired`}
-              >
-                {application.summary.running_instances} /{' '}
-                {application.summary.instances}
-              </td>
-              <td
-                className="govuk-table__cell"
-                title={`Total: ${(application.summary.memory *
-                  application.summary.instances) /
-                  KIBIBYTE}GiB`}
-              >
-                {application.summary.instances} &times;{' '}
-                {help.bytesToHuman(application.summary.memory * MEBIBYTE)}
-              </td>
-              <td
-                className="govuk-table__cell"
-                title={`Total: ${(application.summary.disk_quota *
-                  application.summary.instances) /
-                  KIBIBYTE}GiB`}
-              >
-                {application.summary.instances} &times;{' '}
-                {help.bytesToHuman(application.summary.disk_quota * MEBIBYTE)}
-              </td>
-              <td className="govuk-table__cell">
-                {application.summary.state.toLowerCase()}
-              </td>
-              <td className="govuk-table__cell">
-                {application.urls.map((url, index) => (
-                  <AppLink key={index} href={url} />
-                ))}
-              </td>
+      {props.applications.length > 0 ? (
+        <table className="govuk-table">
+          <thead className="govuk-table__head">
+            <tr className="govuk-table__row">
+              <th className="govuk-table__header name" scope="col">
+                Application name
+              </th>
+              <th className="govuk-table__header" scope="col">
+                Instances
+              </th>
+              <th className="govuk-table__header" scope="col">
+                Memory
+              </th>
+              <th className="govuk-table__header" scope="col">
+                Disk
+              </th>
+              <th className="govuk-table__header" scope="col">
+                Status
+              </th>
+              <th className="govuk-table__header" scope="col">
+                URLs
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="govuk-table__body">
+            {props.applications.map(application => (
+              <tr key={application.metadata.guid} className="govuk-table__row">
+                <td className="govuk-table__cell">
+                  <a
+                    href={props.linkTo(
+                      'admin.organizations.spaces.applications.view',
+                      {
+                        applicationGUID: application.metadata.guid,
+                        organizationGUID: props.organizationGUID,
+                        spaceGUID: props.space.metadata.guid,
+                      },
+                    )}
+                    className="govuk-link"
+                  >
+                    {application.entity.name}
+                  </a>
+                </td>
+                <td
+                  className="govuk-table__cell"
+                  title={`${application.summary.running_instances} running / ${application.summary.instances} desired`}
+                >
+                  {application.summary.running_instances} /{' '}
+                  {application.summary.instances}
+                </td>
+                <td
+                  className="govuk-table__cell"
+                  title={`Total: ${(application.summary.memory *
+                    application.summary.instances) /
+                    KIBIBYTE}GiB`}
+                >
+                  {application.summary.instances} &times;{' '}
+                  {help.bytesToHuman(application.summary.memory * MEBIBYTE)}
+                </td>
+                <td
+                  className="govuk-table__cell"
+                  title={`Total: ${(application.summary.disk_quota *
+                    application.summary.instances) /
+                    KIBIBYTE}GiB`}
+                >
+                  {application.summary.instances} &times;{' '}
+                  {help.bytesToHuman(application.summary.disk_quota * MEBIBYTE)}
+                </td>
+                <td className="govuk-table__cell">
+                  {application.summary.state.toLowerCase()}
+                </td>
+                <td className="govuk-table__cell">
+                  {application.urls.map((url, index) => (
+                    <AppLink key={index} href={url} />
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        ) : (
+          <></>
+        )
+      }
     </SpaceTab>
   );
 }
