@@ -601,7 +601,11 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
         <form method="post" className="govuk-!-mt-r6">
           <input type="hidden" name="_csrf" value={props.csrf} />
 
-          <div className="govuk-form-group">
+          <div className={`govuk-form-group ${
+                props.errors?.some(e => e.field === 'email')
+                  ? 'govuk-form-group--error'
+                  : ''
+              }`}>
             <label className="govuk-label" htmlFor="email">
               Email address
             </label>
