@@ -740,6 +740,8 @@ export function OrganizationUsersPage(
         </div>
       </div>
 
+      <h2 className="govuk-heading-m">Current team members</h2>
+
       <table className="govuk-table user-list">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
