@@ -631,7 +631,11 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
               name="email"
               type="text"
               defaultValue={props.values.email}
-              aria-describedby="email-hint email-error"
+              aria-describedby={
+                props.errors?.some(e => e.field === 'email')
+                  ? 'email-error'
+                  : ''
+              }
             />
           </div>
 
