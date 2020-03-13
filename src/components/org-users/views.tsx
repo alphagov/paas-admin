@@ -128,7 +128,7 @@ export function Permission(props: IPermissionProperties): ReactElement {
               className="govuk-label govuk-checkboxes__label"
               htmlFor={props.namespace}
             >
-              <span>{props.name}</span>
+              <span className="govuk-visually-hidden">{props.name}</span>
             </label>
           </div>
         </div>
