@@ -142,8 +142,8 @@ export function PermissionTable(
 ): ReactElement {
   return (
     <>
-      <h2 className="govuk-heading-l">Set org and space roles</h2>
-      <h4 className="govuk-heading-s">Organisation level roles</h4>
+      <h2 className="govuk-heading-m">Set org and space roles</h2>
+      <h3 className="govuk-heading-s">Organisation level roles</h3>
 
       <details className="govuk-details" role="group">
         <summary
@@ -257,7 +257,7 @@ export function PermissionTable(
           </tr>
         </tbody>
       </table>
-      <h4 className="govuk-heading-s">Space level roles</h4>
+      <h3 className="govuk-heading-s">Space level roles</h3>
       <details className="govuk-details" role="group">
         <summary
           className="govuk-details__summary"
@@ -570,7 +570,7 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
           See all team members
         </a>
 
-        <h2 className="govuk-heading-l">Invite a new team member</h2>
+        <h1 className="govuk-heading-l">Invite a new team member</h1>
 
         {props.errors && props.errors.length > 0 ? (
           <div
