@@ -219,9 +219,7 @@ function validatePermissions({
   return errors;
 }
 
-function validateEmail({
-  email,
-}: IUserPostBody): ReadonlyArray<IValidationError> {
+function validateEmail({ email }: IUserPostBody): ReadonlyArray<IValidationError> {
   const errors: Array<IValidationError> = [];
 
   if (!email || !VALID_EMAIL.test(email)) {
@@ -472,17 +470,17 @@ export async function inviteUser(
       throw new ValidationError(errors);
     }
 
-    const uaaUser = await uaa.findUser(userBody.email!);
+    const email = userBody.email!.replace(/\s/g, '');
+    const uaaUser = await uaa.findUser(email);
+
     let userGUID = uaaUser && uaaUser.id;
     let invitation: IUaaInvitation | undefined;
 
     if (!userGUID) {
       invitation = await uaa.inviteUser(
-        userBody.email!,
+        email,
         'user_invitation',
-        encodeURIComponent(
-          'https://www.cloud.service.gov.uk/next-steps?success',
-        ),
+        encodeURIComponent('https://www.cloud.service.gov.uk/next-steps?success'),
       );
 
       /* istanbul ignore next */
@@ -494,7 +492,7 @@ export async function inviteUser(
 
       userGUID = invitation.userId;
 
-      await accounts.createUser(userGUID, userBody.email!, userBody.email!);
+      await accounts.createUser(userGUID, email, email);
     }
 
     const users = await cf.usersForOrganization(params.organizationGUID);
@@ -536,7 +534,7 @@ export async function inviteUser(
           },
         });
 
-        await notify.sendWelcomeEmail(userBody.email!, {
+        await notify.sendWelcomeEmail(email, {
           location: ctx.app.location,
           organisation: organization.entity.name,
           url: invitation.inviteLink,
