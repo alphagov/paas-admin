@@ -815,6 +815,65 @@ describe('org-users test suite', () => {
     ).toHaveLength(0);
   });
 
+  it('should invite the user, when email address contains spaces', async () => {
+    nockCF
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(2)
+      .reply(200, cfData.userRolesForOrg)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
+      .times(2)
+      .reply(200, cfData.spaces)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
+      .reply(200, JSON.stringify(defaultOrg()))
+
+      .put('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
+      .reply(201, '{"metadata": {"guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20"}}')
+
+      .put('/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/auditors/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8')
+      .reply(200, '{}');
+
+    nockUAA
+      .get('/Users?filter=email+eq+%22jeff@jeff.com%22')
+      .reply(200, uaaData.noFoundUsersByEmail)
+
+      .post('/invite_users?redirect_uri=https://www.cloud.service.gov.uk/next-steps%3Fsuccess&client_id=user_invitation')
+      .reply(200, uaaData.invite)
+
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
+
+    nockAccounts.post('/users/').reply(201);
+
+    const response = await orgUsers.inviteUser(
+      ctx,
+      {
+        organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      },
+      {
+        email: ' jeff @jeff.com ',
+        org_roles: {
+          'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({}),
+        },
+        space_roles: {
+          '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({
+            auditors: {
+              current: '0',
+              desired: '1',
+            },
+          }),
+          'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
+        },
+      },
+    );
+
+    expect(response.body).toContain('Invited a new team member');
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
+  });
+
   it('should invite the user, and add them to accounts', async () => {
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
