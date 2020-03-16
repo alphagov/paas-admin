@@ -128,7 +128,7 @@ export function Permission(props: IPermissionProperties): ReactElement {
               className="govuk-label govuk-checkboxes__label"
               htmlFor={props.namespace}
             >
-              <span>{props.name}</span>
+              <span className="govuk-visually-hidden">{props.name}</span>
             </label>
           </div>
         </div>
@@ -142,8 +142,8 @@ export function PermissionTable(
 ): ReactElement {
   return (
     <>
-      <h2 className="govuk-heading-l">Set org and space roles</h2>
-      <h4 className="govuk-heading-s">Organisation level roles</h4>
+      <h2 className="govuk-heading-m">Set org and space roles</h2>
+      <h3 className="govuk-heading-s">Organisation level roles</h3>
 
       <details className="govuk-details" role="group">
         <summary
@@ -257,7 +257,7 @@ export function PermissionTable(
           </tr>
         </tbody>
       </table>
-      <h4 className="govuk-heading-s">Space level roles</h4>
+      <h3 className="govuk-heading-s">Space level roles</h3>
       <details className="govuk-details" role="group">
         <summary
           className="govuk-details__summary"
@@ -570,7 +570,7 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
           See all team members
         </a>
 
-        <h2 className="govuk-heading-l">Invite a new team member</h2>
+        <h1 className="govuk-heading-l">Invite a new team member</h1>
 
         {props.errors && props.errors.length > 0 ? (
           <div
@@ -601,7 +601,11 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
         <form method="post" className="govuk-!-mt-r6">
           <input type="hidden" name="_csrf" value={props.csrf} />
 
-          <div className="govuk-form-group">
+          <div className={`govuk-form-group ${
+                props.errors?.some(e => e.field === 'email')
+                  ? 'govuk-form-group--error'
+                  : ''
+              }`}>
             <label className="govuk-label" htmlFor="email">
               Email address
             </label>
@@ -627,7 +631,11 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
               name="email"
               type="text"
               defaultValue={props.values.email}
-              aria-describedby="email-hint email-error"
+              aria-describedby={
+                props.errors?.some(e => e.field === 'email')
+                  ? 'email-error'
+                  : ''
+              }
             />
           </div>
 
