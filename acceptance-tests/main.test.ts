@@ -141,7 +141,7 @@ describe('paas-admin', function () {
 
       it('should invite a user', async () => {
         await <any>browser.visit(`${PAAS_ADMIN_BASE_URL}/organisations/${orgGuid}/users/invite`);
-        browser.assert.text('h2', /Invite a new team member/);
+        browser.assert.text('h1', /Invite a new team member/);
         await <any>browser.fill('email', developerUserEmail);
         await <any>browser.check(`org_roles[${orgGuid}][managers][desired]`);
         await <any>browser.pressButton('Send invitation');
