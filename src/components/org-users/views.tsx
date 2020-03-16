@@ -666,17 +666,38 @@ export function OrganizationUsersPage(
   return (
     <>
       <div className="govuk-grid-row">
-        <div className="govuk-grid-column-two-thirds">
-          <h1 className="govuk-heading-l">Team members</h1>
+        <div className="govuk-grid-column-full">
+          <div className="govuk-grid-row">
+            <div className="govuk-grid-column-two-thirds">
+              <h1 className="govuk-heading-l">Team members</h1>
 
-          <p className="govuk-body">
-            Organisation level users can manage and/or view information
-            regarding user accounts, billing, resource quota for the
-            organisation and spaces. To edit a member&apos;s role go to their
-            profile page.
-          </p>
-
-          <details className="govuk-details" role="group">
+              <p className="govuk-body">
+                Organisation level users can manage and/or view information
+                regarding user accounts, billing, resource quota for the
+                organisation and spaces. To edit a member&apos;s role go to their
+                profile page.
+              </p>
+            </div>
+            {props.privileged ? (
+              <div className="govuk-grid-column-one-third text-right">
+                <a
+                  href={props.linkTo('admin.organizations.users.invite', {
+                    organizationGUID: props.organizationGUID,
+                  })}
+                  role="button"
+                  draggable="false"
+                  className="govuk-button"
+                  data-module="govuk-button"
+                >
+                  Invite a new team member
+                </a>
+              </div>
+              ) : (
+                <></>
+              )
+            }
+            <div className="govuk-grid-column-two-thirds">
+              <details className="govuk-details" role="group">
             <summary
               className="govuk-details__summary"
               role="button"
@@ -714,26 +735,12 @@ export function OrganizationUsersPage(
               </p>
             </div>
           </details>
-        </div>
-
-        <div className="govuk-grid-column-one-third text-right">
-          {props.privileged ? (
-            <a
-              href={props.linkTo('admin.organizations.users.invite', {
-                organizationGUID: props.organizationGUID,
-              })}
-              role="button"
-              draggable="false"
-              className="govuk-button"
-              data-module="govuk-button"
-            >
-              Invite a new team member
-            </a>
-          ) : (
-            <></>
-          )}
+            </div>
+          </div>
         </div>
       </div>
+
+      <h2 className="govuk-heading-m">Current team members</h2>
 
       <table className="govuk-table user-list">
         <thead className="govuk-table__head">
