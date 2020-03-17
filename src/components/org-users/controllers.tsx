@@ -685,7 +685,7 @@ export async function resendInvitation(
     url: invitation.inviteLink,
   });
 
-  const template = new Template(ctx.viewContext, 'Invited a new team member');
+  const template = new Template(ctx.viewContext, 'Team member successfully invited');
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
       href: ctx.linkTo('admin.organizations.users', {
@@ -701,8 +701,9 @@ export async function resendInvitation(
       <SuccessPage
         linkTo={ctx.linkTo}
         organizationGUID={organization.metadata.guid}
+        heading={'Team member successfully invited'}
+        text={'An email with your invitation has been sent.'}
       >
-        We have sent your invitation
       </SuccessPage>,
     ),
   };
