@@ -469,7 +469,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Invited a new team member');
+    expect(response.body).toContain('New team member successfully invited');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -537,7 +537,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Invited a new team member');
+    expect(response.body).toContain('New team member successfully invited');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -605,7 +605,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Invited a new team member');
+    expect(response.body).toContain('New team member successfully invited');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -673,7 +673,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Invited a new team member');
+    expect(response.body).toContain('New team member successfully invited');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -741,7 +741,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Invited a new team member');
+    expect(response.body).toContain('New team member successfully invited');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -809,7 +809,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Invited a new team member');
+    expect(response.body).toContain('New team member successfully invited');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -868,7 +868,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Invited a new team member');
+    expect(response.body).toContain('New team member successfully invited');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -999,7 +999,7 @@ describe('org-users test suite', () => {
       {},
     );
 
-    expect(response.body).toContain('Invited a new team member');
+    expect(response.body).toContain('Team member successfully invited');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -1062,7 +1062,7 @@ describe('org-users test suite', () => {
       {},
     );
 
-    expect(response.body).toContain('Deleted a team member');
+    expect(response.body).toContain('Team member successfully deleted');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -1368,7 +1368,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('eam member details successfully updated');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -1416,7 +1416,7 @@ describe('org-users test suite', () => {
         },
       },
     );
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('eam member details successfully updated');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -1462,7 +1462,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('eam member details successfully updated');
   });
 
   it('should update the user, remove OrgManager role and show success - User Edit', async () => {
@@ -1507,7 +1507,7 @@ describe('org-users test suite', () => {
         },
       },
     );
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('eam member details successfully updated');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -1553,7 +1553,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('eam member details successfully updated');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -1602,7 +1602,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('eam member details successfully updated');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -1648,7 +1648,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('eam member details successfully updated');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -1694,7 +1694,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('eam member details successfully updated');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -1740,7 +1740,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('eam member details successfully updated');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
