@@ -65,8 +65,7 @@ export class Template {
           <link rel="apple-touch-icon"
             href="${assetPath}/images/govuk-apple-touch-icon.png" />
 
-          <meta name="x-user-identity-origin" content="${this.ctx.origin ||
-            ''}" />
+          <meta name="x-user-identity-origin" content="${this.ctx.origin || ''}" />
 
           <!--[if !IE 8]><!-->
             <link href="${govukStyles}" media="screen" rel="stylesheet" />
@@ -83,69 +82,43 @@ export class Template {
 
           <meta property="og:image" content="${assetURL}/images/govuk-opengraph-image.png" />
         </head>
-        ${renderToStaticMarkup(
-          <body className="govuk-template__body">
-            <this.EnableClientSideJavaScript />
+          <body class="govuk-template__body">
+            <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
 
-            <a href="#main-content" className="govuk-skip-link">
+            <a href="#main-content" class="govuk-skip-link">
               Skip to main content
             </a>
 
-            <Header
-              location={this.ctx.location}
-              isPlatformAdmin={!!this.ctx.isPlatformAdmin}
-            />
+            ${renderToStaticMarkup(<>
+              <Header location={this.ctx.location} isPlatformAdmin={!!this.ctx.isPlatformAdmin} />
 
-            <div className="govuk-width-container">
-              <PhaseBanner tag={{ text: 'beta' }}>
-                <a
-                  className="govuk-link"
-                  href="https://www.cloud.service.gov.uk/support"
-                >
-                  Get support
-                </a>{' '}
-                or{' '}
-                <a
-                  className="govuk-link"
-                  href="https://www.cloud.service.gov.uk/pricing"
-                >
-                  view our pricing
-                </a>
-              </PhaseBanner>
-              {this._subnav ? (
-                <SubNavigation
-                  title={this._subnav.title}
-                  items={this._subnav.items}
-                />
-              ) : (
-                undefined
-              )}
-              {this._breadcrumbs ? (
-                <Breadcrumbs items={this._breadcrumbs} />
-              ) : (
-                undefined
-              )}
-              <Main>{page}</Main>
-            </div>
+              <div className="govuk-width-container">
+                <PhaseBanner tag={{ text: 'beta' }}>
+                  <a className="govuk-link" href="https://www.cloud.service.gov.uk/support">
+                    Get support
+                  </a>
+                  {' '}or{' '}
+                  <a className="govuk-link" href="https://www.cloud.service.gov.uk/pricing">
+                    view our pricing
+                  </a>
+                </PhaseBanner>
 
-            <Footer />
+                {this._subnav
+                  ? <SubNavigation title={this._subnav.title} items={this._subnav.items} />
+                  : undefined}
 
-            <script src={`${assetPath}/all.js`}></script>
-            <script src={`${assetPath}/init.js`}></script>
-          </body>,
-        )}
+                {this._breadcrumbs
+                  ? <Breadcrumbs items={this._breadcrumbs} />
+                  : undefined}
+
+                <Main>{page}</Main>
+              </div>
+
+              <Footer />
+            </>)}
+          <script src="${assetPath}/all.js"></script>
+          <script src="${assetPath}/init.js"></script>
+        </body>
       </html>`;
-  }
-
-  private EnableClientSideJavaScript(): ReactElement {
-    return (
-      <script
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html:
-            'document.body.className = ((document.body.className) ? document.body.className + \' js-enabled\' : \'js-enabled\');',
-        }}
-      ></script>
-    );
   }
 }
