@@ -488,7 +488,7 @@ describe('service metrics test suite', () => {
       .split('\n')
       .filter(line => line.length > 0);
 
-    expect(lines.length).toEqual(2);
+    expect(lines.length).toBeGreaterThan(2);
 
     const [{}, first, ...{}] = lines;
     const [{}, firstDate, {}] = first.split(',');
@@ -544,7 +544,7 @@ describe('service metrics test suite', () => {
 
     const lines = response.download!.data.split('\n');
 
-    expect(lines.length).toEqual(2);
+    expect(lines.length).toBeGreaterThan(2);
 
     const [{}, first, ...{}] = lines;
     const [{}, {}, firstDate, {}] = first.split(',');
@@ -604,7 +604,7 @@ describe('service metrics test suite', () => {
 
     const lines = response.download!.data.split('\n');
 
-    expect(lines.length).toEqual(2);
+    expect(lines.length).toBeGreaterThan(2);
 
     const [{}, first, ...{}] = lines;
     const [{}, firstDate, ...{}] = first.split(',');
@@ -657,7 +657,7 @@ describe('service metrics test suite', () => {
 
     const lines = response.download!.data.split('\n');
 
-    expect(lines.length).toEqual(2);
+    expect(lines.length).toBeGreaterThan(2);
 
     const [{}, first, ...{}] = lines;
     const [{}, {}, firstDate, {}] = first.split(',');

@@ -506,7 +506,7 @@ export async function downloadServiceMetrics(
     throw new Error(`Did not get metric ${params.metric} for ${serviceLabel}`);
   }
 
-  const csvData = [headers, contents];
+  const csvData = [headers, ...contents];
 
   return {
     download: {
