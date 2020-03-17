@@ -934,7 +934,7 @@ export async function updateUser(
       },
     );
 
-    const template = new Template(ctx.viewContext, 'Updated a team member');
+    const template = new Template(ctx.viewContext, 'Team member details successfully updated');
     template.breadcrumbs = fromOrg(ctx, organization, [
       {
         href: ctx.linkTo('admin.organizations.users', {
@@ -950,8 +950,9 @@ export async function updateUser(
         <SuccessPage
           linkTo={ctx.linkTo}
           organizationGUID={organization.metadata.guid}
+          heading={'Team member details successfully updated'}
+          text={'We have updated the team member details.'}
         >
-          We have updated the user
         </SuccessPage>,
       ),
     };
