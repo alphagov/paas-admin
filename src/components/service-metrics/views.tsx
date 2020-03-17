@@ -73,8 +73,8 @@ function formatValue(value: number, format?: string): ReactNode {
   }
 }
 
-function parseURL(path: string, params: object): string {
-  const u = new URL(`https://example.com/${path}`);
+export function parseURL(path: string, params: object): string {
+  const u = new URL(`https://example.com/${path.replace(/^\/+/, '')}`);
   forIn(params, (value, key) => {
     u.searchParams.set(key, value);
   });
