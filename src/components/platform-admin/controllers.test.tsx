@@ -222,7 +222,7 @@ describe(createOrganization, () => {
       expect(response.status).toBeUndefined();
       expect(response.body).toBeDefined();
       expect(response.body).not.toContain('<form');
-      expect(response.body).toContain('Success');
+      expect(response.body).toContain('New organisation successfully created');
     });
   });
 });
