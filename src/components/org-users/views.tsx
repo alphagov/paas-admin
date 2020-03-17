@@ -20,6 +20,8 @@ interface IDeleteConfirmationPageProperties {
 }
 
 interface ISuccessPageProperties {
+  readonly heading: string;
+  readonly text: string;
   readonly children: ReactNode;
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
@@ -415,9 +417,10 @@ export function SuccessPage(props: ISuccessPageProperties): ReactElement {
 
       <div className="govuk-grid-column-full">
         <div className="govuk-panel govuk-panel--confirmation">
-          <h1 className="govuk-panel__title">Success!</h1>
-          <div className="govuk-panel__body">{props.children}</div>
+          <h1 className="govuk-panel__title">{props.heading}</h1>
+          <div className="govuk-panel__body">{props.text}</div>
         </div>
+        {props.children}
       </div>
     </div>
   );
