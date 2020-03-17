@@ -65,10 +65,14 @@ export async function getUseGoogleSSO(
   }
 
   const user = await fetchLoggedInUser(ctx);
-  const template = new Template(
-    ctx.viewContext,
-    'Google Single Sign On - GOV.UK PaaS',
-  );
+  const template = new Template(ctx.viewContext, 'Use Google Single Sign-On');
+  template.breadcrumbs = [
+    {
+      href: ctx.linkTo('admin.home'),
+      text: 'Organisations',
+    },
+    { text: 'Use Google Single Sign-On' },
+  ];
 
   return {
     body: template.render(
@@ -180,10 +184,14 @@ export async function getUseMicrosoftSSO(
   }
 
   const user = await fetchLoggedInUser(ctx);
-  const template = new Template(
-    ctx.viewContext,
-    'Microsoft Single Sign On - GOV.UK PaaS',
-  );
+  const template = new Template(ctx.viewContext, 'Use Microsoft Single Sign-On');
+  template.breadcrumbs = [
+    {
+      href: ctx.linkTo('admin.home'),
+      text: 'Organisations',
+    },
+    { text: 'Use Microsoft Single Sign-On' },
+  ];
 
   return {
     body: template.render(

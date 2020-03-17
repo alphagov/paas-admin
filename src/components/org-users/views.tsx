@@ -364,18 +364,6 @@ export function DeleteConfirmationPage(
 ): ReactElement {
   return (
     <div className="govuk-grid-row">
-      <div className="govuk-grid-column-one-half">
-        <a
-          href={props.linkTo('admin.organizations.users.edit', {
-            organizationGUID: props.organizationGUID,
-            userGUID: props.user.metadata.guid,
-          })}
-          className="govuk-back-link"
-        >
-          See user view
-        </a>
-      </div>
-
       <div className="govuk-grid-column-two-thirds">
         <form method="post" className="govuk-!-mt-r6 paas-remove-user">
           <input type="hidden" name="_csrf" value={props.csrf} />
@@ -411,18 +399,7 @@ export function DeleteConfirmationPage(
 export function SuccessPage(props: ISuccessPageProperties): ReactElement {
   return (
     <div className="govuk-grid-row">
-      <div className="govuk-grid-column-one-half">
-        <a
-          href={props.linkTo('admin.organizations.users', {
-            organizationGUID: props.organizationGUID,
-          })}
-          className="govuk-back-link"
-        >
-          See all team members
-        </a>
-      </div>
-
-      <div className="govuk-grid-column-one-half govuk-!-pt-r1 text-right">
+      <div className="govuk-grid-column-full govuk-!-pt-r1 text-right">
         <a
           href={props.linkTo('admin.organizations.users.invite', {
             organizationGUID: props.organizationGUID,
@@ -450,15 +427,6 @@ export function EditPage(props: IEditPageProperties): ReactElement {
   return (
     <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
-        <a
-          href={props.linkTo('admin.organizations.users', {
-            organizationGUID: props.organization.metadata.guid,
-          })}
-          className="govuk-back-link"
-        >
-          See all team members
-        </a>
-
         <h1 className="govuk-heading-l">
           <span className="govuk-caption-l">Team member</span> {props.email}
         </h1>
@@ -561,15 +529,6 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
   return (
     <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
-        <a
-          href={props.linkTo('admin.organizations.users', {
-            organizationGUID: props.organization.metadata.guid,
-          })}
-          className="govuk-back-link"
-        >
-          See all team members
-        </a>
-
         <h1 className="govuk-heading-l">Invite a new team member</h1>
 
         {props.errors && props.errors.length > 0 ? (

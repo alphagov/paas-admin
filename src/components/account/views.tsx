@@ -26,18 +26,12 @@ function Message(props: IMessageProperties): ReactElement {
         {props.children}
 
         <p className="govuk-body">
-          If you have any queries, contact{' '}
-          <a
-            className="govuk-link"
-            href="https://www.cloud.service.gov.uk/support"
-          >
+          If you have any queries, contact
+          {' '}
+          <a className="govuk-link" href="https://www.cloud.service.gov.uk/support">
             support
-          </a>
-          .
+          </a>.
         </p>
-        <a href={props.linkTo('admin.home')} className="govuk-back-link">
-          Back to account
-        </a>
       </div>
     </div>
   );
@@ -106,9 +100,6 @@ export function UnsuccessfulUpliftPage(props: IProperties): ReactElement {
 export function SSOPage(props: ISSOPageProperties): ReactElement {
   return (
     <>
-      <a href={props.linkTo('admin.home')} className="govuk-back-link">
-        Back
-      </a>
       <div className="govuk-grid-row">
         {props.user.origin === 'uaa' ? (
           <div className="govuk-grid-column-two-thirds">

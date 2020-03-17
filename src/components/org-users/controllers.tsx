@@ -1,3 +1,10 @@
+// This module is just insane...
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable functional/no-let */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable functional/prefer-readonly-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/camelcase */
 import { isUndefined } from 'util';
 
 import lodash, { CollectionChain, mapValues, merge, values } from 'lodash';
@@ -464,6 +471,17 @@ export async function inviteUser(
     body,
   );
 
+  const template = new Template(ctx.viewContext, 'Invite a new team member');
+  template.breadcrumbs = fromOrg(ctx, organization, [
+    {
+      href: ctx.linkTo('admin.organizations.users', {
+        organizationGUID: organization.metadata.guid,
+      }),
+      text: 'Team members',
+    },
+    { text: 'Invite a new team member' },
+  ]);
+
   try {
     errors.push(...validateEmail(userBody), ...validatePermissions(userBody));
     if (errors.length > 0) {
@@ -547,7 +565,7 @@ export async function inviteUser(
       }
     }
 
-    const template = new Template(ctx.viewContext, 'Invited a new team member');
+    template.title = 'Invited a new team member';
 
     return {
       body: template.render(
@@ -562,20 +580,6 @@ export async function inviteUser(
   } catch (err) {
     /* istanbul ignore next */
     if (err instanceof ValidationError) {
-      const template = new Template(
-        ctx.viewContext,
-        'Invite a new team member',
-      );
-      template.breadcrumbs = fromOrg(ctx, organization, [
-        {
-          href: ctx.linkTo('admin.organizations.users', {
-            organizationGUID: organization.metadata.guid,
-          }),
-          text: 'Team members',
-        },
-        { text: 'Invite a new team member' },
-      ]);
-
       return {
         body: template.render(
           <InvitePage
@@ -681,6 +685,15 @@ export async function resendInvitation(
   });
 
   const template = new Template(ctx.viewContext, 'Invited a new team member');
+  template.breadcrumbs = fromOrg(ctx, organization, [
+    {
+      href: ctx.linkTo('admin.organizations.users', {
+        organizationGUID: organization.metadata.guid,
+      }),
+      text: 'Team members',
+    },
+    { text: 'Invite a new team member' },
+  ]);
 
   return {
     body: template.render(
@@ -819,7 +832,7 @@ export async function editUser(
       }),
       text: 'Team members',
     },
-    { text: accountsUser.email },
+    { text: 'Update a team member' },
   ]);
 
   /* istanbul ignore next */
@@ -920,6 +933,15 @@ export async function updateUser(
     );
 
     const template = new Template(ctx.viewContext, 'Updated a team member');
+    template.breadcrumbs = fromOrg(ctx, organization, [
+      {
+        href: ctx.linkTo('admin.organizations.users', {
+          organizationGUID: organization.metadata.guid,
+        }),
+        text: 'Team members',
+      },
+      { text: 'Update a team member' },
+    ]);
 
     return {
       body: template.render(
@@ -1024,6 +1046,15 @@ export async function confirmDeletion(
   }
 
   const template = new Template(ctx.viewContext, 'Confirm user deletion');
+  template.breadcrumbs = fromOrg(ctx, organization, [
+    {
+      href: ctx.linkTo('admin.organizations.users', {
+        organizationGUID: organization.metadata.guid,
+      }),
+      text: 'Team members',
+    },
+    { text: 'Delete a team member' },
+  ]);
 
   return {
     body: template.render(
@@ -1070,6 +1101,15 @@ export async function deleteUser(
   );
 
   const template = new Template(ctx.viewContext, 'Deleted a team member');
+  template.breadcrumbs = fromOrg(ctx, organization, [
+    {
+      href: ctx.linkTo('admin.organizations.users', {
+        organizationGUID: organization.metadata.guid,
+      }),
+      text: 'Team members',
+    },
+    { text: 'Delete a team member' },
+  ]);
 
   return {
     body: template.render(
