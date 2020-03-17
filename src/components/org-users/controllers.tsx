@@ -1103,7 +1103,7 @@ export async function deleteUser(
     false,
   );
 
-  const template = new Template(ctx.viewContext, 'Deleted a team member');
+  const template = new Template(ctx.viewContext, 'Team member successfully deleted');
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
       href: ctx.linkTo('admin.organizations.users', {
@@ -1119,8 +1119,9 @@ export async function deleteUser(
       <SuccessPage
         linkTo={ctx.linkTo}
         organizationGUID={organization.metadata.guid}
+        heading={'Team member successfully deleted'}
+        text={' We have unassigned this member from your organisation.'}
       >
-        We have unassigned this member from your organisation.
       </SuccessPage>,
     ),
   };
