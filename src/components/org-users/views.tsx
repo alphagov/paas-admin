@@ -737,116 +737,114 @@ export function OrganizationUsersPage(
           </details>
             </div>
           </div>
-        </div>
-      </div>
-
-      <h2 className="govuk-heading-m">Current team members</h2>
-
-      <table className="govuk-table user-list">
-        <thead className="govuk-table__head">
-          <tr className="govuk-table__row">
-            <th className="govuk-table__header name" scope="col">
-              Email address
-            </th>
-            <th className="govuk-table__header authentication" scope="col">
-              {props.privileged ? 'Authentication' : ''}
-            </th>
-            <th className="govuk-table__header is-org-manager" scope="col">
-              Org manager
-            </th>
-            <th className="govuk-table__header is-billing-manager" scope="col">
-              Org billing manager
-            </th>
-            <th className="govuk-table__header is-org-auditor" scope="col">
-              Org auditor
-            </th>
-            <th className="govuk-table__header spaces" scope="col">
-              Spaces assigned or can access
-            </th>
-          </tr>
-        </thead>
-        <tbody className="govuk-table__body">
-          {Object.keys(props.users).map(guid => (
-            <tr key={guid} className="govuk-table__row">
-              <td className="govuk-table__cell">
-                {props.privileged ? (
-                  <a
-                    href={props.linkTo('admin.organizations.users.edit', {
-                      organizationGUID: props.organizationGUID,
-                      userGUID: guid,
-                    })}
-                    className="govuk-link"
-                  >
-                    {props.users[guid].username}
-                  </a>
-                ) : (
-                  props.users[guid].username
-                )}
-              </td>
-              <td className="govuk-table__cell">
-                {props.privileged ? (
-                  props.userOriginMapping[guid] === 'uaa' ? (
-                    <a
-                      href={props.linkTo('admin.organizations.users.edit', {
-                        organizationGUID: props.organizationGUID,
-                        userGUID: guid,
-                      })}
-                      className="govuk-link"
-                    >
-                      Password
-                    </a>
-                  ) : (
-                    capitalize(props.userOriginMapping[guid])
-                  )
-                ) : (
-                  <NoTick />
-                )}
-              </td>
-              <td className="govuk-table__cell">
-                {props.users[guid].orgRoles.includes('org_manager') ? (
-                  <Tick />
-                ) : (
-                  <NoTick />
-                )}
-              </td>
-              <td className="govuk-table__cell">
-                {props.users[guid].orgRoles.includes('billing_manager') ? (
-                  <Tick />
-                ) : (
-                  <NoTick />
-                )}
-              </td>
-              <td className="govuk-table__cell">
-                {props.users[guid].orgRoles.includes('org_auditor') ? (
-                  <Tick />
-                ) : (
-                  <NoTick />
-                )}
-              </td>
-              <td className="govuk-table__cell">
-                <ul className="govuk-list govuk-!-margin-bottom-0">
-                  {props.users[guid].spaces.map(space => (
-                    <li key={space.metadata.guid}>
+          <h2 className="govuk-heading-m">Current team members</h2>
+          <table className="govuk-table user-list">
+            <thead className="govuk-table__head">
+              <tr className="govuk-table__row">
+                <th className="govuk-table__header name" scope="col">
+                  Email address
+                </th>
+                <th className="govuk-table__header authentication" scope="col">
+                  {props.privileged ? 'Authentication' : ''}
+                </th>
+                <th className="govuk-table__header is-org-manager" scope="col">
+                  Org manager
+                </th>
+                <th className="govuk-table__header is-billing-manager" scope="col">
+                  Org billing manager
+                </th>
+                <th className="govuk-table__header is-org-auditor" scope="col">
+                  Org auditor
+                </th>
+                <th className="govuk-table__header spaces" scope="col">
+                  Spaces assigned or can access
+                </th>
+              </tr>
+            </thead>
+            <tbody className="govuk-table__body">
+              {Object.keys(props.users).map(guid => (
+                <tr key={guid} className="govuk-table__row">
+                  <td className="govuk-table__cell">
+                    {props.privileged ? (
                       <a
-                        href={props.linkTo(
-                          'admin.organizations.spaces.applications.list',
-                          {
-                            organizationGUID: props.organizationGUID,
-                            spaceGUID: space.metadata.guid,
-                          },
-                        )}
+                        href={props.linkTo('admin.organizations.users.edit', {
+                          organizationGUID: props.organizationGUID,
+                          userGUID: guid,
+                        })}
                         className="govuk-link"
                       >
-                        {space.entity.name}
+                        {props.users[guid].username}
                       </a>
-                    </li>
-                  ))}
-                </ul>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                    ) : (
+                      props.users[guid].username
+                    )}
+                  </td>
+                  <td className="govuk-table__cell">
+                    {props.privileged ? (
+                      props.userOriginMapping[guid] === 'uaa' ? (
+                        <a
+                          href={props.linkTo('admin.organizations.users.edit', {
+                            organizationGUID: props.organizationGUID,
+                            userGUID: guid,
+                          })}
+                          className="govuk-link"
+                        >
+                          Password
+                        </a>
+                      ) : (
+                        capitalize(props.userOriginMapping[guid])
+                      )
+                    ) : (
+                      <NoTick />
+                    )}
+                  </td>
+                  <td className="govuk-table__cell">
+                    {props.users[guid].orgRoles.includes('org_manager') ? (
+                      <Tick />
+                    ) : (
+                      <NoTick />
+                    )}
+                  </td>
+                  <td className="govuk-table__cell">
+                    {props.users[guid].orgRoles.includes('billing_manager') ? (
+                      <Tick />
+                    ) : (
+                      <NoTick />
+                    )}
+                  </td>
+                  <td className="govuk-table__cell">
+                    {props.users[guid].orgRoles.includes('org_auditor') ? (
+                      <Tick />
+                    ) : (
+                      <NoTick />
+                    )}
+                  </td>
+                  <td className="govuk-table__cell">
+                    <ul className="govuk-list govuk-!-margin-bottom-0">
+                      {props.users[guid].spaces.map(space => (
+                        <li key={space.metadata.guid}>
+                          <a
+                            href={props.linkTo(
+                              'admin.organizations.spaces.applications.list',
+                              {
+                                organizationGUID: props.organizationGUID,
+                                spaceGUID: space.metadata.guid,
+                              },
+                            )}
+                            className="govuk-link"
+                          >
+                            {space.entity.name}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </>
   );
 }
