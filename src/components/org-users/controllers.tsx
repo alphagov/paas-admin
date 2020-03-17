@@ -565,15 +565,16 @@ export async function inviteUser(
       }
     }
 
-    template.title = 'Invited a new team member';
+    template.title = 'New team member successfully invited';
 
     return {
       body: template.render(
         <SuccessPage
           linkTo={ctx.linkTo}
           organizationGUID={organization.metadata.guid}
+          heading={'New team member successfully invited'}
+          text={'An email with your invitation has been sent.'}
         >
-          We have sent your invitation
         </SuccessPage>,
       ),
     };
