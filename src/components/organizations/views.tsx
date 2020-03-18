@@ -61,7 +61,8 @@ export function OrganizationsPage(
         {singleOrg ? 'organisation' : 'organisations'} which you can access.
       </p>
 
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
             <th
@@ -77,6 +78,7 @@ export function OrganizationsPage(
         </thead>
         <tbody className="govuk-table__body">{organizations}</tbody>
       </table>
+      </div>
 
       <p className="govuk-body">
         To request new GOV.UK PaaS organisations,{' '}
