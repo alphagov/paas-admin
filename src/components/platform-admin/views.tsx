@@ -267,7 +267,8 @@ export function CreateOrganizationPage(props: ICreateOrganizationPageProperties)
     </form>
 
     <div className="govuk-grid-column-one-half">
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <caption className="govuk-table__caption">Existing owners</caption>
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
@@ -282,6 +283,7 @@ export function CreateOrganizationPage(props: ICreateOrganizationPageProperties)
             </tr>)}
         </tbody>
       </table>
+      </div>
     </div>
   </div>);
 }
