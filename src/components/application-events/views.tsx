@@ -130,41 +130,42 @@ export function ApplicationEventsPage(
         spaceGUID={props.spaceGUID}
         pagination={props.pagination}
       />
-
-      <table className="govuk-table">
-        <thead className="govuk-table__head">
-          <tr className="govuk-table__row">
-            <th className="govuk-table__header">Date</th>
-            <th className="govuk-table__header">Actor</th>
-            <th className="govuk-table__header">Event</th>
-            <th className="govuk-table__header">Details</th>
-          </tr>
-        </thead>
-        <tbody className="govuk-table__body">
-          {props.events.map(event => (
-            <EventListItem
-              key={event.guid}
-              actor={
-                props.actorEmails[event.actor.guid] ||
-                event.actor.name || <code>{event.actor.guid}</code>
-              }
-              date={event.updated_at}
-              href={props.linkTo(
-                'admin.organizations.spaces.applications.event.view',
-                {
-                  applicationGUID: props.application.metadata.guid,
-                  eventGUID: event.guid,
-                  organizationGUID: props.organizationGUID,
-                  spaceGUID: props.spaceGUID,
-                },
-              )}
-              type={
-                eventTypeDescriptions[event.type] || <code>{event.type}</code>
-              }
-            />
-          ))}
-        </tbody>
-      </table>
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
+          <thead className="govuk-table__head">
+            <tr className="govuk-table__row">
+              <th className="govuk-table__header">Date</th>
+              <th className="govuk-table__header">Actor</th>
+              <th className="govuk-table__header">Event</th>
+              <th className="govuk-table__header">Details</th>
+            </tr>
+          </thead>
+          <tbody className="govuk-table__body">
+            {props.events.map(event => (
+              <EventListItem
+                key={event.guid}
+                actor={
+                  props.actorEmails[event.actor.guid] ||
+                  event.actor.name || <code>{event.actor.guid}</code>
+                }
+                date={event.updated_at}
+                href={props.linkTo(
+                  'admin.organizations.spaces.applications.event.view',
+                  {
+                    applicationGUID: props.application.metadata.guid,
+                    eventGUID: event.guid,
+                    organizationGUID: props.organizationGUID,
+                    spaceGUID: props.spaceGUID,
+                  },
+                )}
+                type={
+                  eventTypeDescriptions[event.type] || <code>{event.type}</code>
+                }
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <Pagination
         application={props.application}
