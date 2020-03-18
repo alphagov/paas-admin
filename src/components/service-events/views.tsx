@@ -110,7 +110,8 @@ export function ServiceEventsPage(
         pagination={props.pagination}
       />
 
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
             <th className="govuk-table__header">Date</th>
@@ -144,6 +145,7 @@ export function ServiceEventsPage(
           ))}
         </tbody>
       </table>
+      </div>
     </ServiceTab>
   );
 }
