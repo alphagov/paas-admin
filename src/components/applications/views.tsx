@@ -137,7 +137,8 @@ export function ApplicationPage(
             {props.application.entity.name}
           </h1>
 
-          <table className="govuk-table">
+          <div className="scrollable-table-container">
+            <table className="govuk-table">
             <caption className="govuk-table__caption">
               Application details
             </caption>
@@ -220,7 +221,7 @@ export function ApplicationPage(
               </tr>
             </tbody>
           </table>
-
+          </div>
           <CommandLineAlternative context="for all of your apps">
             cf apps
           </CommandLineAlternative>
