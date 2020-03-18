@@ -145,7 +145,7 @@ describe('paas-admin', function () {
         await <any>browser.fill('email', developerUserEmail);
         await <any>browser.check(`org_roles[${orgGuid}][managers][desired]`);
         await <any>browser.pressButton('Send invitation');
-        browser.assert.text('.govuk-panel__title', /Success!/);
+        browser.assert.text('.govuk-panel__title', /New team member successfully invited/);
       });
     });
 

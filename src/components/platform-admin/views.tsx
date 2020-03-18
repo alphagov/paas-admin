@@ -287,9 +287,12 @@ export function CreateOrganizationPage(props: ICreateOrganizationPageProperties)
 }
 
 export function CreateOrganizationSuccessPage(props: ICreateOrganizationSuccessPageProperties): ReactElement {
-  return (<SuccessPage linkTo={props.linkTo} organizationGUID={props.organizationGUID}>
-    We have created a new organisation!
-    <br />
-    You still need to invite people and assign permissions.
+  return (
+    <SuccessPage 
+    linkTo={props.linkTo} 
+    organizationGUID={props.organizationGUID}
+    heading={'New organisation successfully created'}
+    text={'You still need to invite people and assign permissions.'}
+    >
   </SuccessPage>);
 }

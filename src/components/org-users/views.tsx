@@ -20,6 +20,8 @@ interface IDeleteConfirmationPageProperties {
 }
 
 interface ISuccessPageProperties {
+  readonly heading: string;
+  readonly text: string;
   readonly children: ReactNode;
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
@@ -399,7 +401,16 @@ export function DeleteConfirmationPage(
 export function SuccessPage(props: ISuccessPageProperties): ReactElement {
   return (
     <div className="govuk-grid-row">
-      <div className="govuk-grid-column-full govuk-!-pt-r1 text-right">
+      <div className="govuk-grid-column-two-thirds">
+        <div className="govuk-panel govuk-panel--confirmation">
+          <h1 className="govuk-panel__title">{props.heading}</h1>
+          <div className="govuk-panel__body">{props.text}</div>
+        </div>
+        {props.children ?
+          <p className="govuk-body">{props.children}</p>
+          : <></>
+        }
+        <h2 className="govuk-heading-m">More actions</h2>
         <a
           href={props.linkTo('admin.organizations.users.invite', {
             organizationGUID: props.organizationGUID,
@@ -411,13 +422,6 @@ export function SuccessPage(props: ISuccessPageProperties): ReactElement {
         >
           Invite a new team member
         </a>
-      </div>
-
-      <div className="govuk-grid-column-full">
-        <div className="govuk-panel govuk-panel--confirmation">
-          <h1 className="govuk-panel__title">Success!</h1>
-          <div className="govuk-panel__body">{props.children}</div>
-        </div>
       </div>
     </div>
   );

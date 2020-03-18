@@ -565,15 +565,16 @@ export async function inviteUser(
       }
     }
 
-    template.title = 'Invited a new team member';
+    template.title = 'New team member successfully invited';
 
     return {
       body: template.render(
         <SuccessPage
           linkTo={ctx.linkTo}
           organizationGUID={organization.metadata.guid}
+          heading={'New team member successfully invited'}
+          text={'An email with your invitation has been sent.'}
         >
-          We have sent your invitation
         </SuccessPage>,
       ),
     };
@@ -684,7 +685,7 @@ export async function resendInvitation(
     url: invitation.inviteLink,
   });
 
-  const template = new Template(ctx.viewContext, 'Invited a new team member');
+  const template = new Template(ctx.viewContext, 'Team member successfully invited');
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
       href: ctx.linkTo('admin.organizations.users', {
@@ -700,8 +701,9 @@ export async function resendInvitation(
       <SuccessPage
         linkTo={ctx.linkTo}
         organizationGUID={organization.metadata.guid}
+        heading={'Team member successfully invited'}
+        text={'An email with your invitation has been sent.'}
       >
-        We have sent your invitation
       </SuccessPage>,
     ),
   };
@@ -932,7 +934,7 @@ export async function updateUser(
       },
     );
 
-    const template = new Template(ctx.viewContext, 'Updated a team member');
+    const template = new Template(ctx.viewContext, 'Team member details successfully updated');
     template.breadcrumbs = fromOrg(ctx, organization, [
       {
         href: ctx.linkTo('admin.organizations.users', {
@@ -948,8 +950,9 @@ export async function updateUser(
         <SuccessPage
           linkTo={ctx.linkTo}
           organizationGUID={organization.metadata.guid}
+          heading={'Team member details successfully updated'}
+          text={'We have updated the team member details.'}
         >
-          We have updated the user
         </SuccessPage>,
       ),
     };
@@ -1100,7 +1103,7 @@ export async function deleteUser(
     false,
   );
 
-  const template = new Template(ctx.viewContext, 'Deleted a team member');
+  const template = new Template(ctx.viewContext, 'Team member successfully deleted');
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
       href: ctx.linkTo('admin.organizations.users', {
@@ -1116,8 +1119,9 @@ export async function deleteUser(
       <SuccessPage
         linkTo={ctx.linkTo}
         organizationGUID={organization.metadata.guid}
+        heading={'Team member successfully deleted'}
+        text={' We have unassigned this member from your organisation.'}
       >
-        We have unassigned this member from your organisation.
       </SuccessPage>,
     ),
   };

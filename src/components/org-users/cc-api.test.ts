@@ -96,7 +96,7 @@ describe('permissions calling cc api', () => {
     );
 
     // expect(scope.isDone()).toBeTruthy();
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('Team member details successfully updated');
   });
 
   it('should make no requests when permission has been previously and still is set', async () => {
@@ -139,7 +139,7 @@ describe('permissions calling cc api', () => {
     );
 
     // expect(scope.isDone()).toBeTruthy();
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('Team member details successfully updated');
   });
 
   it('should make no requests when permission has been previously and still is unset', async () => {
@@ -185,6 +185,6 @@ describe('permissions calling cc api', () => {
       },
     );
 
-    expect(response.body).toContain('Updated a team member');
+    expect(response.body).toContain('Team member details successfully updated');
   });
 });
