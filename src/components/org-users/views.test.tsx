@@ -15,6 +15,7 @@ import {
   OrganizationUsersPage,
   Permission,
   PermissionTable,
+  SuccessPage,
 } from './views';
 
 describe(Permission, () => {
@@ -358,5 +359,33 @@ describe(OrganizationUsersPage, () => {
     expect($('td:first-of-type a').length).toEqual(2);
     expect($('td').text()).toContain('Origin-name');
     expect($('td').text()).toContain('Password');
+  });
+});
+
+describe(SuccessPage, () => {
+  const markup = shallow(
+    <SuccessPage
+        linkTo={route => `__LINKS_TO__${route}`}
+        organizationGUID="ORG_GUID"
+        heading={'confirmation panel heading'}
+        text={'confirmation panel text'}
+      >
+        children text
+      </SuccessPage>,
+  );
+
+  it('should have a confirmation panel title', () => {
+    const $ = cheerio.load(markup.html());
+    expect($('.govuk-panel__title').text()).toContain('confirmation panel heading');
+  });
+
+  it('should have a confirmation panel text', () => {
+    const $ = cheerio.load(markup.html());
+    expect($('.govuk-panel__body').text()).toContain('confirmation panel text');
+  });
+
+  it('should have props children text if provided', () => {
+    const $ = cheerio.load(markup.html());
+    expect($('.govuk-body').text()).toContain('children text');
   });
 });
