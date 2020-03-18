@@ -109,7 +109,8 @@ export function ServicePage(props: IServicePageProperties): ReactElement {
     <ServiceTab {...props}>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <table className="govuk-table">
+          <div className="scrollable-table-container">
+            <table className="govuk-table">
             <caption className="govuk-table__caption">Service details</caption>
             <tbody className="govuk-table__body">
               <tr className="govuk-table__row">
@@ -155,6 +156,7 @@ export function ServicePage(props: IServicePageProperties): ReactElement {
               </tr>
             </tbody>
           </table>
+          </div>
 
           <CommandLineAlternative context="for all of your services">
             cf services

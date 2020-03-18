@@ -299,8 +299,8 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
           </a>
         </div>
       </details>
-
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
             <th
@@ -361,6 +361,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
           ))}
         </tbody>
       </table>
+      </div>
     </>
   );
 }
@@ -430,7 +431,8 @@ export function ApplicationsPage(
         {props.applications.length === 1 ? 'application' : 'applications'}
       </p>
       {props.applications.length > 0 ? (
-        <table className="govuk-table">
+        <div className="scrollable-table-container">
+          <table className="govuk-table">
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
               <th className="govuk-table__header name" scope="col">
@@ -508,6 +510,7 @@ export function ApplicationsPage(
             ))}
           </tbody>
         </table>
+        </div>
         ) : (
           <></>
         )
@@ -532,7 +535,8 @@ export function BackingServicePage(
       </p>
 
       {props.services.length > 0 ? (
-        <table className="govuk-table">
+        <div className="scrollable-table-container">
+          <table className="govuk-table">
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
               <th className="govuk-table__header name" scope="col">
@@ -580,6 +584,7 @@ export function BackingServicePage(
             ))}
           </tbody>
         </table>
+        </div>
         ) : (
           <></>
         )
@@ -619,7 +624,8 @@ export function EventsPage(props: IEventsPageProperties): ReactElement {
         pagination={props.pagination}
       />
 
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
             <th className="govuk-table__header">Date</th>
@@ -654,6 +660,7 @@ export function EventsPage(props: IEventsPageProperties): ReactElement {
           ))}
         </tbody>
       </table>
+      </div>
 
       <Pagination
         space={props.space}

@@ -130,7 +130,8 @@ export function OrganizationsReport(
 
       <p className="govuk-body">Sorted by age; oldest first.</p>
 
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
             <th className="govuk-table__header">Organisation</th>
@@ -178,6 +179,7 @@ export function OrganizationsReport(
           ))}
         </tbody>
       </table>
+      </div>
 
       <h2 className="govuk-heading-m">Billable accounts</h2>
 
@@ -189,7 +191,8 @@ export function OrganizationsReport(
 
       <p className="govuk-body">Sorted by age; newest first.</p>
 
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
             <th className="govuk-table__header">Organisation</th>
@@ -234,6 +237,7 @@ export function OrganizationsReport(
           ))}
         </tbody>
       </table>
+      </div>
     </>
   );
 }
@@ -274,7 +278,8 @@ export function CostReport(props: ICostReportProperties): ReactElement {
         Billables by organisation for {props.date}
       </h1>
 
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
             <th className="govuk-table__header" scope="col">
@@ -324,10 +329,12 @@ export function CostReport(props: ICostReportProperties): ReactElement {
         </tbody>
         <tfoot />
       </table>
+      </div>
 
       <h1 className="govuk-heading-l">Billables by quota for {props.date}</h1>
 
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
             <th className="govuk-table__header" scope="col">
@@ -372,6 +379,7 @@ export function CostReport(props: ICostReportProperties): ReactElement {
           ))}
         </tbody>
       </table>
+      </div>
     </>
   );
 }
@@ -381,7 +389,8 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
     <>
       <h1 className="govuk-heading-l">Billables by service for {props.date}</h1>
 
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
             <th className="govuk-table__header" scope="col">
@@ -425,12 +434,14 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
         </tbody>
         <tfoot />
       </table>
+      </div>
 
       <h1 className="govuk-heading-l">
         Billables by organisation and service for {props.date}
       </h1>
 
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
             <th className="govuk-table__header" scope="col">
@@ -480,12 +491,14 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
         </tbody>
         <tfoot />
       </table>
+      </div>
 
       <h1 className="govuk-heading-l">
         Billables by organisation and space and service for {props.date}
       </h1>
 
-      <table className="govuk-table">
+      <div className="scrollable-table-container">
+        <table className="govuk-table">
         <thead className="govuk-table__head">
           <tr className="govuk-table__row">
             <th className="govuk-table__header" scope="col">
@@ -539,6 +552,7 @@ export function CostByServiceReport(props: ICostByServiceReport): ReactElement {
         </tbody>
         <tfoot />
       </table>
+      </div>
     </>
   );
 }

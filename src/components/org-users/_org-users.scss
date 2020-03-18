@@ -8,30 +8,32 @@
  }
 }
 
-table.user-list {
-  .name {
-    min-width: 280px;
-    width: 20%;
-  }
+.user-list-table {
+  @include govuk-media-query($from:desktop) {
+    .name {
+      min-width: 280px;
+      width: 20%;
+    }
 
-  .authentication {
-    width: 15%;
-  }
+    .authentication {
+      width: 15%;
+    }
 
-  th.is-billing-manager {
-    width: 15%;
-  }
+    th.is-billing-manager {
+      width: 15%;
+    }
 
-  th.is-org-manager {
-    width: 15%;
-  }
+    th.is-org-manager {
+      width: 15%;
+    }
 
-  th.is-org-auditor {
-    width: 15%;
-  }
+    th.is-org-auditor {
+      width: 15%;
+    }
 
-  th.spaces {
-    width: 20%;
+    th.spaces {
+      width: 20%;
+    }
   }
 }
 

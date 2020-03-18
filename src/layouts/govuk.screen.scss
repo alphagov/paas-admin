@@ -68,3 +68,10 @@ abbr {
 .govuk-link:not([href*="//"]) {
   @include govuk-link-style-no-visited-state;
 }
+
+.scrollable-table-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+}

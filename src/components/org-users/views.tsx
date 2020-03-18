@@ -701,7 +701,8 @@ export function OrganizationUsersPage(
             </div>
           </div>
           <h2 className="govuk-heading-m">Current team members</h2>
-          <table className="govuk-table user-list">
+          <div className="scrollable-table-container">
+            <table className="govuk-table user-list-table">
             <thead className="govuk-table__head">
               <tr className="govuk-table__row">
                 <th className="govuk-table__header name" scope="col">
@@ -806,6 +807,7 @@ export function OrganizationUsersPage(
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </>
