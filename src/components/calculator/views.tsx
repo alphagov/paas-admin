@@ -250,7 +250,8 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds paas-service-list">
-          <table className="govuk-table">
+          <div className="scrollable-table-container">
+            <table className="govuk-table">
             <thead>
               <th>Service</th>
               <th>Select options</th>
@@ -271,6 +272,7 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
         <div className="govuk-grid-column-one-third paas-summary-section">
