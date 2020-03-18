@@ -75,7 +75,8 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
             className="paas-statement-range"
           >
             <input type="hidden" name="_csrf" value={props.csrf} />
-            <table className="govuk-table paas-statement-filters">
+            <div className="scrollable-table-container">
+              <table className="govuk-table paas-statement-filters">
               <tbody className="govuk-table__body">
                 <tr className="govuk-table__row">
                   <th className="govuk-table__header" scope="column">
@@ -160,6 +161,7 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
                 </tr>
               </tbody>
             </table>
+            </div>
 
             <input type="hidden" name="sort" value={props.orderBy} />
             <input type="hidden" name="order" value={props.orderDirection} />
@@ -167,7 +169,8 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
         </div>
 
         <div className="govuk-grid-column-full">
-          <table className="govuk-table paas-exchange-rate">
+          <div className="scrollable-table-container">
+            <table className="govuk-table paas-exchange-rate">
             <tr className="govuk-table__row">
               <th className="govuk-table__header" scope="row">
                 Total cost for {props.currentMonth}{' '}
@@ -245,7 +248,7 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
               <td className="paas-month-price">inc VAT at 20%</td>
             </tr>
           </table>
-
+          </div>
           <p>
             <a
               href={props.linkTo('admin.statement.download', {
@@ -294,7 +297,8 @@ function Statement(props: IStatementProps): ReactElement {
         <input type="hidden" name="space" value={props.filterSpace?.guid} />
         <input type="hidden" name="service" value={props.filterService?.guid} />
 
-        <table className="govuk-table paas-table-billing-statement">
+        <div className="scrollable-table-container">
+          <table className="govuk-table paas-table-billing-statement">
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
               <th className="govuk-table__header" scope="col">
@@ -412,6 +416,7 @@ function Statement(props: IStatementProps): ReactElement {
             ))}
           </tbody>
         </table>
+        </div>
       </form>
     </>
   );
