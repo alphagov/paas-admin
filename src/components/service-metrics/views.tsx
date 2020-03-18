@@ -73,8 +73,8 @@ function formatValue(value: number, format?: string): ReactNode {
   }
 }
 
-function parseURL(path: string, params: object): string {
-  const u = new URL(`https://example.com/${path}`);
+export function parseURL(path: string, params: object): string {
+  const u = new URL(`https://example.com/${path.replace(/^\/+/, '')}`);
   forIn(params, (value, key) => {
     u.searchParams.set(key, value);
   });
@@ -141,7 +141,7 @@ function Metric(props: IMetricProperties): ReactElement {
 
         <MetricChart chart={props.chart.outerHTML} />
 
-        <a href={downloadLink.toString()} className="govuk-link">
+        <a href={downloadLink.toString()} className="govuk-link" download>
           Download &quot;{props.titleText || props.title}&quot; as a CSV
         </a>
       </div>
