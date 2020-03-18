@@ -141,7 +141,7 @@ function Metric(props: IMetricProperties): ReactElement {
 
         <MetricChart chart={props.chart.outerHTML} />
 
-        <a href={downloadLink.toString()} className="govuk-link">
+        <a href={downloadLink.toString()} className="govuk-link" download>
           Download &quot;{props.titleText || props.title}&quot; as a CSV
         </a>
       </div>
