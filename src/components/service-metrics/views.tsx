@@ -146,7 +146,8 @@ function Metric(props: IMetricProperties): ReactElement {
         </a>
       </div>
       <div className="govuk-grid-column-one-third-from-desktop">
-        <table className="govuk-table">
+        <div className="scrollable-table-container">
+          <table className="govuk-table">
           <caption className="govuk-table__caption govuk-visually-hidden">
             Summary
           </caption>
@@ -208,6 +209,7 @@ function Metric(props: IMetricProperties): ReactElement {
             />
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
