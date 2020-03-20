@@ -14,7 +14,7 @@ import {
   IUserRoles,
   OrganizationUsersPage,
   Permission,
-  PermissionTable,
+  PermissionBlock,
   SuccessPage,
 } from './views';
 
@@ -52,7 +52,7 @@ describe(Permission, () => {
   });
 });
 
-describe(PermissionTable, () => {
+describe(PermissionBlock, () => {
   const organization = ({
     entity: { name: 'org-name' },
     metadata: { guid: 'ORG_GUID' },
@@ -63,9 +63,9 @@ describe(PermissionTable, () => {
     { entity: { name: 'space-name-3' }, metadata: { guid: 'SPACE_GUID_3' } },
   ] as unknown) as ReadonlyArray<ISpace>;
 
-  it('should display correctly permissions table element', () => {
+  it('should display correctly permissions block element', () => {
     const markup = shallow(
-      <PermissionTable
+      <PermissionBlock
         billingManagers={2}
         managers={2}
         organization={organization}
@@ -177,7 +177,7 @@ describe(PermissionTable, () => {
 
   it('should display correctly with disabled checked manager boxes when not enough managers', () => {
     const markup = shallow(
-      <PermissionTable
+      <PermissionBlock
         billingManagers={1}
         managers={1}
         organization={organization}
@@ -236,7 +236,7 @@ describe(PermissionTable, () => {
 
   it('should display correctly with enabled unchecked manager boxes when not enough managers', () => {
     const markup = shallow(
-      <PermissionTable
+      <PermissionBlock
         billingManagers={1}
         managers={1}
         organization={organization}
