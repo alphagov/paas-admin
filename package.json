@@ -133,7 +133,7 @@
     "nanoid": "^2.1.11",
     "node-jose": "^1.1.3",
     "notifications-node-client": "^4.7.2",
-    "openid-client": "^3.14.0",
+    "openid-client": "^3.14.1",
     "p-limit": "^2.2.2",
     "passport": "^0.4.1",
     "passport-oauth2": "^1.5.0",
