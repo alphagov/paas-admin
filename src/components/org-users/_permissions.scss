@@ -4,3 +4,15 @@ table.permissions {
     width: 35%;
   }
 }
+
+.user-permission-block {
+  margin-bottom: govuk-spacing(3);
+}
+
+.user-permission-block--shaded {
+  background-color: $app-super-light-grey;
+}
+
+.user-permission-block--padded {
+  padding: govuk-spacing(3);
+}
