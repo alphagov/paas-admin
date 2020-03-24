@@ -99,7 +99,7 @@ describe(PermissionBlock, () => {
       />,
     );
     const $ = cheerio.load(markup.html());
-    expect($('table tbody tr')).toHaveLength(4);
+    expect($('.user-permission-block')).toHaveLength(4);
 
     expect(
       $('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked')
@@ -195,7 +195,7 @@ describe(PermissionBlock, () => {
       />,
     );
     const $ = cheerio.load(markup.html());
-    expect($('table tbody tr')).toHaveLength(1);
+    expect($('.user-permission-block')).toHaveLength(1);
 
     expect(
       $('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked')
@@ -254,7 +254,7 @@ describe(PermissionBlock, () => {
       />,
     );
     const $ = cheerio.load(markup.html());
-    expect($('table tbody tr')).toHaveLength(1);
+    expect($('.user-permission-block')).toHaveLength(1);
 
     expect(
       $('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked')
