@@ -52,7 +52,7 @@ interface IPermissionProperties {
   readonly state: IPermissionState;
 }
 
-interface IPermissionTableProperties {
+interface IPermissionBlockProperties {
   readonly billingManagers: number;
   readonly managers: number;
   readonly organization: IOrganization;
@@ -60,7 +60,7 @@ interface IPermissionTableProperties {
   readonly values: IRoleValues;
 }
 
-interface IEditPageProperties extends IPermissionTableProperties {
+interface IEditPageProperties extends IPermissionBlockProperties {
   readonly csrf: string;
   readonly email: string;
   readonly errors: ReadonlyArray<IValidationError>;
@@ -114,37 +114,33 @@ export function Permission(props: IPermissionProperties): ReactElement {
         <></>
       )}
 
-      <div className="govuk-form-group">
-        <div className="govuk-checkboxes">
-          <div className="govuk-checkboxes__item">
-            <input
-              className="govuk-checkboxes__input"
-              id={props.namespace}
-              name={`${props.namespace}[desired]`}
-              type="checkbox"
-              disabled={props.disabled}
-              defaultChecked={props.checked}
-              value="1"
-            />
-            <label
-              className="govuk-label govuk-checkboxes__label"
-              htmlFor={props.namespace}
-            >
-              <span className="govuk-visually-hidden">{props.name}</span>
-            </label>
-          </div>
-        </div>
+      <div className="govuk-checkboxes__item">
+        <input
+          className="govuk-checkboxes__input"
+          id={props.namespace}
+          name={`${props.namespace}[desired]`}
+          type="checkbox"
+          disabled={props.disabled}
+          defaultChecked={props.checked}
+          value="1"
+        />
+        <label
+          className="govuk-label govuk-checkboxes__label"
+          htmlFor={props.namespace}
+        >
+        {props.name}
+        </label>
       </div>
     </>
   );
 }
 
-export function PermissionTable(
-  props: IPermissionTableProperties,
+export function PermissionBlock(
+  props: IPermissionBlockProperties,
 ): ReactElement {
   return (
     <>
-      <h2 className="govuk-heading-m">Set org and space roles</h2>
+      <h2 className="govuk-heading-m">Set organisation and space roles</h2>
       <h3 className="govuk-heading-s">Organisation level roles</h3>
 
       <details className="govuk-details" role="group">
@@ -179,32 +175,22 @@ export function PermissionTable(
           </p>
         </div>
       </details>
-      <table id="roles" className="govuk-table permissions">
-        <thead className="govuk-table__head">
-          <tr className="govuk-table__row">
-            <th className="govuk-table__header name" scope="col">
-              Org name
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Org manager
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Org billing manager
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Org auditor
-            </th>
-          </tr>
-        </thead>
-        <tbody className="govuk-table__body">
-          <tr
-            className="govuk-table__row"
-            data-org-guid={props.organization.metadata.guid}
-          >
-            <th className="govuk-table__header" scope="row">
-              {props.organization.entity.name}
-            </th>
-            <td className="govuk-table__cell ">
+
+      <div className="user-permission-block govuk-!-margin-bottom-6"
+        data-org-guid={props.organization.metadata.guid}
+        >
+        <h4 className="govuk-heading-s">
+          <span className="govuk-caption-m">Roles for organisation</span>{' '}
+          {props.organization.entity.name}
+        </h4>
+        <fieldset className="govuk-fieldset" aria-describedby="org-roles-hint">
+          <legend className="govuk-fieldset__legend">
+            <span className="govuk-visually-hidden">Which roles for organisation{' '}{props.organization.entity.name}{' '}roles would you like to assign to this user?</span>
+          </legend>
+          <span id="org-roles-hint" className="govuk-hint">
+            Select all that apply.
+          </span>
+          <div className="govuk-checkboxes">
               <Permission
                 name="Org manager"
                 checked={
@@ -222,8 +208,6 @@ export function PermissionTable(
                     .managers.current
                 }
               />
-            </td>
-            <td className="govuk-table__cell ">
               <Permission
                 name="Billing manager"
                 checked={
@@ -241,8 +225,6 @@ export function PermissionTable(
                     .billing_managers.current
                 }
               />
-            </td>
-            <td className="govuk-table__cell ">
               <Permission
                 name="Org auditor"
                 checked={
@@ -255,11 +237,12 @@ export function PermissionTable(
                     .auditors
                 }
               />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+        </fieldset>
+      </div>
+
       <h3 className="govuk-heading-s">Space level roles</h3>
+
       <details className="govuk-details" role="group">
         <summary
           className="govuk-details__summary"
@@ -291,72 +274,62 @@ export function PermissionTable(
           </p>
         </div>
       </details>
-      <table className="govuk-table permissions">
-        <thead className="govuk-table__head">
-          <tr className="govuk-table__row">
-            <th className="govuk-table__header name" scope="col">
-              Space name
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Space manager
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Space developer
-            </th>
-            <th className="govuk-table__header" scope="col">
-              Space auditor
-            </th>
-          </tr>
-        </thead>
-        <tbody className="govuk-table__body">
-          {props.spaces.map(space => (
-            <tr
-              key={space.metadata.guid}
-              className="govuk-table__row"
-              data-space-guid={space.metadata.guid}
-            >
-              <th className="govuk-table__header" scope="row">
-                {space.entity.name}
-              </th>
-              <td className="govuk-table__cell ">
-                <Permission
-                  name="Space manager"
-                  checked={
-                    !!props.values.space_roles[space.metadata.guid].managers
-                      .desired
-                  }
-                  namespace={`space_roles[${space.metadata.guid}][managers]`}
-                  state={props.values.space_roles[space.metadata.guid].managers}
-                />
-              </td>
-              <td className="govuk-table__cell ">
-                <Permission
-                  name="Space developer"
-                  checked={
-                    !!props.values.space_roles[space.metadata.guid].developers
-                      .desired
-                  }
-                  namespace={`space_roles[${space.metadata.guid}][developers]`}
-                  state={
-                    props.values.space_roles[space.metadata.guid].developers
-                  }
-                />
-              </td>
-              <td className="govuk-table__cell ">
-                <Permission
-                  name="Space auditor"
-                  checked={
-                    !!props.values.space_roles[space.metadata.guid].auditors
-                      .desired
-                  }
-                  namespace={`space_roles[${space.metadata.guid}][auditors]`}
-                  state={props.values.space_roles[space.metadata.guid].auditors}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+      {props.spaces.map((space, index) => (
+        <div
+          className={
+            `user-permission-block 
+            user-permission-block--padded
+            ${!(index % 2) ? 'user-permission-block--shaded' : ''}`
+          }
+          data-space-guid={space.metadata.guid}
+          key={space.metadata.guid}
+        >
+          <h4 className="govuk-heading-s">
+            <span className="govuk-caption-m">Roles for space</span>{' '}
+            {space.entity.name}
+          </h4>
+          <fieldset className="govuk-fieldset" aria-describedby="space-roles-hint">
+            <legend className="govuk-fieldset__legend">
+              <span className="govuk-visually-hidden">Which roles for space{' '}{space.entity.name}{' '}would you like to assign to this user?</span>
+            </legend>
+            <span id="space-roles-hint" className="govuk-hint">
+              Select all that apply.
+            </span>
+            <div className="govuk-checkboxes">
+              <Permission
+                name="Space manager"
+                checked={
+                  !!props.values.space_roles[space.metadata.guid].managers
+                    .desired
+                }
+                namespace={`space_roles[${space.metadata.guid}][managers]`}
+                state={props.values.space_roles[space.metadata.guid].managers}
+              />
+              <Permission
+                name="Space developer"
+                checked={
+                  !!props.values.space_roles[space.metadata.guid].developers
+                    .desired
+                }
+                namespace={`space_roles[${space.metadata.guid}][developers]`}
+                state={
+                  props.values.space_roles[space.metadata.guid].developers
+                }
+              />
+              <Permission
+                name="Space auditor"
+                checked={
+                  !!props.values.space_roles[space.metadata.guid].auditors
+                    .desired
+                }
+                namespace={`space_roles[${space.metadata.guid}][auditors]`}
+                state={props.values.space_roles[space.metadata.guid].auditors}
+              />
+            </div>
+          </fieldset>
+        </div>
+      ))}
     </>
   );
 }
@@ -435,16 +408,16 @@ export function EditPage(props: IEditPageProperties): ReactElement {
           <span className="govuk-caption-l">Team member</span> {props.email}
         </h1>
 
-        <table className="govuk-table">
-          <tbody className="govuk-table__body">
-            <tr className="govuk-table__row">
-              <th scope="row" className="govuk-table__header">
-                Email
-              </th>
-              <td className="govuk-table__cell">{props.email}</td>
-            </tr>
-          </tbody>
-        </table>
+        <dl className="govuk-summary-list">
+          <div className="govuk-summary-list__row">
+            <dt className="govuk-summary-list__key">
+              Email
+            </dt>
+            <dd className="govuk-summary-list__value">
+              {props.email}
+            </dd>
+          </div>
+        </dl>
 
         {props.errors.length > 0 ? (
           <div
@@ -498,7 +471,7 @@ export function EditPage(props: IEditPageProperties): ReactElement {
 
         <form method="post" className="govuk-!-mt-r6">
           <input type="hidden" name="_csrf" value={props.csrf} />
-          <PermissionTable
+          <PermissionBlock
             organization={props.organization}
             spaces={props.spaces}
             values={props.values}
@@ -602,7 +575,7 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
             />
           </div>
 
-          <PermissionTable
+          <PermissionBlock
             organization={props.organization}
             spaces={props.spaces}
             values={props.values}

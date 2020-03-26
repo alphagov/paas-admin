@@ -14,7 +14,7 @@ import {
   IUserRoles,
   OrganizationUsersPage,
   Permission,
-  PermissionTable,
+  PermissionBlock,
   SuccessPage,
 } from './views';
 
@@ -52,7 +52,7 @@ describe(Permission, () => {
   });
 });
 
-describe(PermissionTable, () => {
+describe(PermissionBlock, () => {
   const organization = ({
     entity: { name: 'org-name' },
     metadata: { guid: 'ORG_GUID' },
@@ -63,9 +63,9 @@ describe(PermissionTable, () => {
     { entity: { name: 'space-name-3' }, metadata: { guid: 'SPACE_GUID_3' } },
   ] as unknown) as ReadonlyArray<ISpace>;
 
-  it('should display correctly permissions table element', () => {
+  it('should display correctly permissions block element', () => {
     const markup = shallow(
-      <PermissionTable
+      <PermissionBlock
         billingManagers={2}
         managers={2}
         organization={organization}
@@ -99,7 +99,7 @@ describe(PermissionTable, () => {
       />,
     );
     const $ = cheerio.load(markup.html());
-    expect($('table tbody tr')).toHaveLength(4);
+    expect($('.user-permission-block')).toHaveLength(4);
 
     expect(
       $('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked')
@@ -177,7 +177,7 @@ describe(PermissionTable, () => {
 
   it('should display correctly with disabled checked manager boxes when not enough managers', () => {
     const markup = shallow(
-      <PermissionTable
+      <PermissionBlock
         billingManagers={1}
         managers={1}
         organization={organization}
@@ -195,7 +195,7 @@ describe(PermissionTable, () => {
       />,
     );
     const $ = cheerio.load(markup.html());
-    expect($('table tbody tr')).toHaveLength(1);
+    expect($('.user-permission-block')).toHaveLength(1);
 
     expect(
       $('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked')
@@ -236,7 +236,7 @@ describe(PermissionTable, () => {
 
   it('should display correctly with enabled unchecked manager boxes when not enough managers', () => {
     const markup = shallow(
-      <PermissionTable
+      <PermissionBlock
         billingManagers={1}
         managers={1}
         organization={organization}
@@ -254,7 +254,7 @@ describe(PermissionTable, () => {
       />,
     );
     const $ = cheerio.load(markup.html());
-    expect($('table tbody tr')).toHaveLength(1);
+    expect($('.user-permission-block')).toHaveLength(1);
 
     expect(
       $('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked')
