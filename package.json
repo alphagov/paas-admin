@@ -140,7 +140,7 @@
     "pino": "^5.17.0",
     "qs": "^6.9.2",
     "react": "^16.13.1",
-    "react-dom": "^16.13.0",
+    "react-dom": "^16.13.1",
     "react-markdown": "^4.3.1",
     "route-parser": "^0.0.5",
     "source-map-support": "^0.5.16",
