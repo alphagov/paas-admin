@@ -63,7 +63,7 @@
     "@types/source-map-support": "^0.5.1",
     "@types/supertest": "^2.0.8",
     "@types/uuid": "^7.0.2",
-    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.25.0",
     "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.3",
