@@ -334,7 +334,7 @@ export function MarketplaceItemPage(props: IMarketplaceItemPageProperties): Reac
     <div className="govuk-grid-row service-details">
       <div className="govuk-grid-column-two-thirds">
         <h1 className="govuk-heading-xl">
-          <span className="govuk-caption-xl">GOV.UK PaaS marketplace</span>
+          <span className="govuk-caption-xl">Marketplace</span>
           {props.service.broker_catalog.metadata.displayName || props.service.name}
         </h1>
 
@@ -420,7 +420,7 @@ export function MarketplacePage(props: IMarketplacePageProperties): ReactElement
   return (
     <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
-        <h1 className="govuk-heading-xl">GOV.UK PaaS marketplace</h1>
+        <h1 className="govuk-heading-xl">Marketplace</h1>
 
         <p className="govuk-body">
           Many applications rely on backing services such as database, an email delivery service or monitoring system.
@@ -434,7 +434,7 @@ export function MarketplacePage(props: IMarketplacePageProperties): ReactElement
         </p>
 
         <p className="govuk-body">
-          The services that are currently offered through GOV.UK PaaS marketplace are:
+          The services that are currently offered through marketplace are:
         </p>
 
         <ul className="govuk-list marketplace-list">

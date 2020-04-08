@@ -17,7 +17,7 @@ export async function listServices(ctx: IContext, _params: IParameters): Promise
 
   const services = await cf.services<IPaaSServiceMetadata>();
 
-  const template = new Template(ctx.viewContext, 'GOV.UK PaaS marketplace');
+  const template = new Template(ctx.viewContext, 'Marketplace');
 
   return {
     body: template.render(<MarketplacePage
@@ -48,13 +48,13 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
 
   const template = new Template(
     ctx.viewContext,
-    `GOV.UK PaaS marketplace - Service - ${service.broker_catalog.metadata.displayName}`,
+    `Marketplace - Service - ${service.broker_catalog.metadata.displayName}`,
   );
 
   template.breadcrumbs = [
     {
       href: ctx.linkTo('marketplace.view'),
-      text: 'GOV.UK PaaS marketplace',
+      text: 'Marketplace',
     },
     {
       text: service.broker_catalog.metadata.displayName,
