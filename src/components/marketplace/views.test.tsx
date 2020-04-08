@@ -48,12 +48,14 @@ const minimalService = {
 
 const plans = [
   {
+    free: true,
     broker_catalog: {
       metadata: {},
     },
     name: 'free',
   },
   {
+    free: false,
     broker_catalog: {
       metadata: {
         AdditionalMetadata: {
@@ -167,11 +169,9 @@ describe(PlanTab, () => {
     expect(render.find('thead tr').text()).toContain('Memory');
     expect(render.find('thead tr').text()).toContain('Space');
     expect(render.find('thead tr').text()).toContain('Available in trial');
-    expect(render.find('thead tr').text()).toContain('Price');
 
     expect(render.find('tbody tr')).toHaveLength(2);
     expect(render.find('tbody tr').text()).toContain('free');
-    expect(render.find('tbody tr').text()).toContain('$0.20');
   });
 
   it('should list out minimal plans correctly', () => {
@@ -190,7 +190,6 @@ describe(PlanTab, () => {
     expect(render.find('thead tr').text()).not.toContain('Connections');
     expect(render.find('thead tr').text()).not.toContain('Memory');
     expect(render.find('thead tr').text()).not.toContain('Space');
-    expect(render.find('thead tr').text()).toContain('Price');
 
     expect(render.find('tbody tr')).toHaveLength(1);
     expect(render.find('tbody tr').text()).toContain('free');

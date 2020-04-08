@@ -354,6 +354,7 @@ export interface IV3ServicePlan<T> {
   readonly available: boolean;
   readonly created_at: Date;
   readonly updated_at: Date;
+  readonly free: boolean;
   readonly broker_catalog: {
     readonly id: string;
     readonly metadata: T;

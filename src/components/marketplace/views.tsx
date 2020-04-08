@@ -27,7 +27,6 @@ export interface IPaaSServiceMetadata {
 
 export interface IPaaSServicePlanMetadata {
   readonly displayName: string;
-  readonly costs?: ReadonlyArray<{ readonly amount: { readonly usd: number }; readonly unit: string }>;
   readonly AdditionalMetadata?: {
     readonly backups?: boolean;
     readonly concurrentConnections: number;
@@ -48,12 +47,6 @@ interface ICustomMetadata {
   readonly backups?: boolean;
   readonly bullets?: ReadonlyArray<string>;
   readonly concurrentConnections?: number;
-  readonly costs?: ReadonlyArray<{
-    readonly amount: {
-      readonly usd: number;
-    };
-    readonly unit: string;
-  }>;
   readonly displayName?: string;
   readonly encrypted?: boolean;
   readonly highlyAvailable?: boolean;
@@ -116,12 +109,6 @@ interface ITableRowProperties {
   readonly canBeHighIOPS: boolean;
   readonly canBeHighlyAvailable: boolean;
   readonly data: ICustomMetadata;
-  readonly costs?: ReadonlyArray<{
-    readonly amount: {
-      readonly usd: number;
-    };
-    readonly unit: string;
-  }>;
   readonly limitsConcurrentConnections: boolean;
   readonly limitsMemory: boolean;
   readonly limitsStorage: boolean;
@@ -176,8 +163,6 @@ export function Tab(props: ITabProperties): ReactElement {
 }
 
 function TableRow(props: ITableRowProperties): ReactElement {
-  const costs = props.costs || [];
-
   return (
     <tr className="govuk-table__row">
       <th scope="row" className="govuk-table__header">{props.name}</th>
@@ -222,11 +207,6 @@ function TableRow(props: ITableRowProperties): ReactElement {
       <td className="govuk-table__cell">
         {props.availableInTrial ? <Tick /> : <NoTick />}
       </td>
-      <td className="govuk-table__cell govuk-table__cell--numeric">
-        {costs[0]?.amount.usd
-          ? <abbr title={`per ${costs[0].unit.toLowerCase()}`}>${costs[0].amount.usd.toFixed(2)}</abbr>
-          : 'free'}
-      </td>
     </tr>
   );
 }
@@ -235,7 +215,6 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
   const canBeEncrypted = props.plans.some(plan => !!plan.broker_catalog.metadata.AdditionalMetadata?.encrypted);
   const canBeHA = props.plans.some(plan => !!plan.broker_catalog.metadata.AdditionalMetadata?.highlyAvailable);
   const canBeHighIOPS = props.plans.some(plan => !!plan.broker_catalog.metadata.AdditionalMetadata?.highIOPS);
-  const hasCosts = props.plans.some(plan => !!plan.broker_catalog.metadata.costs);
   const limitsCC = props.plans.some(plan => !!plan.broker_catalog.metadata.AdditionalMetadata?.concurrentConnections);
   const limitsMemory = props.plans.some(plan => !!plan.broker_catalog.metadata.AdditionalMetadata?.memory);
   const limitsStorage = props.plans.some(plan => !!plan.broker_catalog.metadata.AdditionalMetadata?.storage);
@@ -289,18 +268,16 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
                 : null}
 
               <th scope="col" className="govuk-table__header">Available in trial</th>
-              <th scope="col" className="govuk-table__header govuk-table__header--numeric">Price</th>
             </tr>
           </thead>
           <tbody className="govuk-table__body">
             {props.plans.map((plan, index) => (
               <TableRow key={index}
-                availableInTrial={!!plan.broker_catalog.metadata.AdditionalMetadata?.trial}
+                availableInTrial={plan.free}
                 canBeEncrypted={canBeEncrypted}
                 canBeHighIOPS={canBeHighIOPS}
                 canBeHighlyAvailable={canBeHA}
                 data={plan.broker_catalog.metadata.AdditionalMetadata || {}}
-                costs={hasCosts ? plan.broker_catalog.metadata.costs : undefined}
                 limitsConcurrentConnections={limitsCC}
                 limitsMemory={limitsMemory}
                 limitsStorage={limitsStorage}
