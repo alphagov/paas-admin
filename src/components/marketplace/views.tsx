@@ -166,7 +166,7 @@ function TableRow(props: ITableRowProperties): ReactElement {
   return (
     <tr className="govuk-table__row">
       <th scope="row" className="govuk-table__header">{props.name}</th>
-
+      <td className="govuk-table__cell">{props.availableInTrial ? <Tick /> : <NoTick />}</td>
       {props.canBeHighlyAvailable
         ? <td className="govuk-table__cell">
             {props.data.highlyAvailable ? <Tick /> : <NoTick />}
@@ -204,9 +204,6 @@ function TableRow(props: ITableRowProperties): ReactElement {
             {props.data.storage?.unit}
           </td>
         : null}
-      <td className="govuk-table__cell">
-        {props.availableInTrial ? <Tick /> : <NoTick />}
-      </td>
     </tr>
   );
 }
@@ -241,6 +238,7 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
               <th scope="col" className="govuk-table__header">Plan</th>
+              <th scope="col" className="govuk-table__header">Available in trial</th>
               {canBeHA
                 ? <th scope="col" className="govuk-table__header"><abbr title="Highly Available">HA</abbr></th>
                 : null}
@@ -266,8 +264,6 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
               {limitsStorage
                 ? <th scope="col" className="govuk-table__header govuk-table__header--numeric">Space</th>
                 : null}
-
-              <th scope="col" className="govuk-table__header">Available in trial</th>
             </tr>
           </thead>
           <tbody className="govuk-table__body">
