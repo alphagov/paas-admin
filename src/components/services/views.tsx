@@ -1,5 +1,9 @@
+import { DescribeDBLogFilesDetails } from 'aws-sdk/clients/rds';
+import moment from 'moment';
 import React, { ReactElement, ReactNode } from 'react';
 
+import { DATE_TIME } from '../../layouts/constants';
+import { bytesToHuman } from '../../layouts/helpers';
 import { CommandLineAlternative } from '../../layouts/partials';
 import { IService, IServiceInstance, IServicePlan } from '../../lib/cf/types';
 import { RouteActiveChecker, RouteLinker } from '../app';
@@ -25,6 +29,23 @@ interface ITabProperties {
   readonly active: boolean;
   readonly href: string;
   readonly children: string;
+}
+
+export interface IServiceLogItem extends DescribeDBLogFilesDetails {
+  readonly LogFileName: string;
+  readonly LastWritten: number;
+  readonly Size: number;
+}
+
+interface IServiceLogsPageProperties extends IServicePageProperties {
+  readonly files: ReadonlyArray<IServiceLogItem>;
+}
+
+interface IFileListingItemProperties {
+  readonly date: Date;
+  readonly link: string;
+  readonly name: string;
+  readonly size: number;
 }
 
 export function Tab(props: ITabProperties): ReactElement {
@@ -96,6 +117,21 @@ export function ServiceTab(props: IServiceTabProperties): ReactElement {
           >
             Events
           </Tab>
+          <Tab
+            active={props.routePartOf(
+              'admin.organizations.spaces.services.logs.view',
+            )}
+            href={props.linkTo(
+              'admin.organizations.spaces.services.logs.view',
+              {
+                organizationGUID: props.organizationGUID,
+                serviceGUID: props.service.metadata.guid,
+                spaceGUID: props.spaceGUID,
+              },
+            )}
+          >
+            Logs
+          </Tab>
         </ul>
 
         <section className="govuk-tabs__panel">{props.children}</section>
@@ -165,4 +201,52 @@ export function ServicePage(props: IServicePageProperties): ReactElement {
       </div>
     </ServiceTab>
   );
+}
+
+function FileListingItem(props: IFileListingItemProperties): ReactElement {
+  return <li className="service-log-list-item">
+    <a className="govuk-link" download href={props.link}>{props.name}</a>
+    <p className="govuk-body">
+      <span className="govuk-visually-hidden">file type </span>
+      <span className="service-log-list-item__attribute"><abbr title="record of events">LOG</abbr></span>,
+      {' '}
+      <span className="govuk-visually-hidden">file size </span>
+      <span className="service-log-list-item__attribute">{bytesToHuman(props.size)}</span>
+      <span className="service-log-list-item__attribute">Last written: {moment(props.date).format(DATE_TIME)}</span>
+    </p>
+  </li>;
+}
+
+export function ServiceLogsPage(props: IServiceLogsPageProperties): ReactElement {
+  return <>
+  <ServiceTab {...props}>
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-two-thirds">
+          <p className="govuk-body">
+            The following are hourly chunks of downloadable logs for this service.
+          </p>
+          <p className="govuk-body">
+            At the moment, we only provide up to 72 hours of logs. Get in touch if you need a larger range of data.
+          </p>
+          <p className="govuk-body">
+            Log timestamps are in UTC format.
+          </p>
+          <ul className="govuk-list service-log-list">
+            {props.files.map(file => <FileListingItem
+              date={new Date(file.LastWritten)}
+              key={file.LogFileName}
+              link={props.linkTo('admin.organizations.spaces.services.logs.download', {
+                filename: file.LogFileName,
+                organizationGUID: props.organizationGUID,
+                serviceGUID: props.service.metadata.guid,
+                spaceGUID: props.spaceGUID,
+              })}
+              name={file.LogFileName}
+              size={file.Size}
+            />)}
+          </ul>
+        </div>
+      </div>
+    </ServiceTab>
+  </>;
 }

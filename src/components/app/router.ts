@@ -108,6 +108,16 @@ export const router = new Router([
       '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/events/:eventGUID',
   },
   {
+    action: services.listServiceLogs,
+    name: 'admin.organizations.spaces.services.logs.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/logs',
+  },
+  {
+    action: services.downloadServiceLogs,
+    name: 'admin.organizations.spaces.services.logs.download',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/logs/download',
+  },
+  {
     action: orgUsers.listUsers,
     name: 'admin.organizations.users',
     path: '/organisations/:organizationGUID/users',
