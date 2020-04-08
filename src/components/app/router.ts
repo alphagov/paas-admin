@@ -75,8 +75,7 @@ export const router = new Router([
   {
     action: services.viewService,
     name: 'admin.organizations.spaces.services.view',
-    path:
-      '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID',
   },
   {
     action: serviceMetrics.viewServiceMetrics,

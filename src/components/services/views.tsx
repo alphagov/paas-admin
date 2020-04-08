@@ -27,7 +27,7 @@ interface ITabProperties {
   readonly children: string;
 }
 
-export function Tab(props: ITabProperties) {
+export function Tab(props: ITabProperties): ReactElement {
   const classess = ['govuk-tabs__list-item'];
   if (props.active) {
     classess.push('govuk-tabs__list-item--selected');
@@ -60,8 +60,8 @@ export function ServiceTab(props: IServiceTabProperties): ReactElement {
             )}
             href={props.linkTo('admin.organizations.spaces.services.view', {
               organizationGUID: props.organizationGUID,
-              spaceGUID: props.spaceGUID,
               serviceGUID: props.service.metadata.guid,
+              spaceGUID: props.spaceGUID,
             })}
           >
             Overview
@@ -74,8 +74,8 @@ export function ServiceTab(props: IServiceTabProperties): ReactElement {
               'admin.organizations.spaces.services.metrics.view',
               {
                 organizationGUID: props.organizationGUID,
-                spaceGUID: props.spaceGUID,
                 serviceGUID: props.service.metadata.guid,
+                spaceGUID: props.spaceGUID,
               },
             )}
           >
@@ -89,8 +89,8 @@ export function ServiceTab(props: IServiceTabProperties): ReactElement {
               'admin.organizations.spaces.services.events.view',
               {
                 organizationGUID: props.organizationGUID,
-                spaceGUID: props.spaceGUID,
                 serviceGUID: props.service.metadata.guid,
+                spaceGUID: props.spaceGUID,
               },
             )}
           >

@@ -39,10 +39,10 @@ export async function viewService(
   const summarisedService = {
     entity: service.entity,
     metadata: service.metadata,
-    service_plan: servicePlan,
     service: servicePlan
       ? await cf.service(servicePlan.entity.service_guid)
       : undefined,
+    service_plan: servicePlan,
   };
 
   const template = new Template(
@@ -51,11 +51,11 @@ export async function viewService(
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
-      text: space.entity.name,
       href: ctx.linkTo('admin.organizations.spaces.services.list', {
         organizationGUID: organization.metadata.guid,
         spaceGUID: space.metadata.guid,
       }),
+      text: space.entity.name,
     },
     { text: summarisedService.entity.name },
   ]);
