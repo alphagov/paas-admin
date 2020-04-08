@@ -205,8 +205,11 @@ export function ServicePage(props: IServicePageProperties): ReactElement {
 
 function FileListingItem(props: IFileListingItemProperties): ReactElement {
   return <li className="service-log-list-item">
-    <a className="govuk-link" download href={props.link}>{props.name}</a>
-    <p className="govuk-body">
+    <a className="govuk-link" download href={props.link} aria-describedby={`download-${props.date.getTime()}`}>
+      {props.name}
+    </a>
+
+    <p className="govuk-body" id={`download-${props.date.getTime()}`}>
       <span className="govuk-visually-hidden">file type </span>
       <span className="service-log-list-item__attribute"><abbr title="record of events">LOG</abbr></span>,
       {' '}
