@@ -233,56 +233,58 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
       </ul>
 
       <section className="govuk-tabs__panel" id="service-plans">
-        <table className="govuk-table">
-          <caption className="govuk-table__caption">Version {props.version}</caption>
-          <thead className="govuk-table__head">
-            <tr className="govuk-table__row">
-              <th scope="col" className="govuk-table__header">Plan</th>
-              <th scope="col" className="govuk-table__header">Available in trial</th>
-              {canBeHA
-                ? <th scope="col" className="govuk-table__header"><abbr title="Highly Available">HA</abbr></th>
-                : null}
-              {canBeHighIOPS
-                ? <th scope="col" className="govuk-table__header">
-                    High <abbr title="Input/Output Operations Per Second">IOPS</abbr>
-                  </th>
-                : null}
-              {providesBackups
-                ? <th scope="col" className="govuk-table__header">Backups</th>
-                : null}
-              {canBeEncrypted
-                ? <th scope="col" className="govuk-table__header">Encrypted</th>
-                : null}
-              {limitsCC
-                ? <th scope="col" className="govuk-table__header govuk-table__header--numeric">
-                    <abbr title="Concurrent Connections">Connections</abbr>
-                  </th>
-                : null}
-              {limitsMemory
-                ? <th scope="col" className="govuk-table__header govuk-table__header--numeric">Memory</th>
-                : null}
-              {limitsStorage
-                ? <th scope="col" className="govuk-table__header govuk-table__header--numeric">Space</th>
-                : null}
-            </tr>
-          </thead>
-          <tbody className="govuk-table__body">
-            {props.plans.map((plan, index) => (
-              <TableRow key={index}
-                availableInTrial={plan.free}
-                canBeEncrypted={canBeEncrypted}
-                canBeHighIOPS={canBeHighIOPS}
-                canBeHighlyAvailable={canBeHA}
-                data={plan.broker_catalog.metadata.AdditionalMetadata || {}}
-                limitsConcurrentConnections={limitsCC}
-                limitsMemory={limitsMemory}
-                limitsStorage={limitsStorage}
-                name={plan.name}
-                providesBackups={providesBackups}
-              />
-            ))}
-          </tbody>
-        </table>
+        <div className="scrollable-table-container">
+          <table className="govuk-table">
+            <caption className="govuk-table__caption">Version {props.version}</caption>
+            <thead className="govuk-table__head">
+              <tr className="govuk-table__row">
+                <th scope="col" className="govuk-table__header">Plan</th>
+                <th scope="col" className="govuk-table__header">Available in trial</th>
+                {canBeHA
+                  ? <th scope="col" className="govuk-table__header"><abbr title="Highly Available">HA</abbr></th>
+                  : null}
+                {canBeHighIOPS
+                  ? <th scope="col" className="govuk-table__header">
+                      High <abbr title="Input/Output Operations Per Second">IOPS</abbr>
+                    </th>
+                  : null}
+                {providesBackups
+                  ? <th scope="col" className="govuk-table__header">Backups</th>
+                  : null}
+                {canBeEncrypted
+                  ? <th scope="col" className="govuk-table__header">Encrypted</th>
+                  : null}
+                {limitsCC
+                  ? <th scope="col" className="govuk-table__header govuk-table__header--numeric">
+                      <abbr title="Concurrent Connections">Connections</abbr>
+                    </th>
+                  : null}
+                {limitsMemory
+                  ? <th scope="col" className="govuk-table__header govuk-table__header--numeric">Memory</th>
+                  : null}
+                {limitsStorage
+                  ? <th scope="col" className="govuk-table__header govuk-table__header--numeric">Space</th>
+                  : null}
+              </tr>
+            </thead>
+            <tbody className="govuk-table__body">
+              {props.plans.map((plan, index) => (
+                <TableRow key={index}
+                  availableInTrial={plan.free}
+                  canBeEncrypted={canBeEncrypted}
+                  canBeHighIOPS={canBeHighIOPS}
+                  canBeHighlyAvailable={canBeHA}
+                  data={plan.broker_catalog.metadata.AdditionalMetadata || {}}
+                  limitsConcurrentConnections={limitsCC}
+                  limitsMemory={limitsMemory}
+                  limitsStorage={limitsStorage}
+                  name={plan.name}
+                  providesBackups={providesBackups}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );
