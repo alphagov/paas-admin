@@ -136,4 +136,20 @@ describe(ServiceLogsPage, () => {
     expect(markup.render().find('li.service-log-list-item').text()).toContain('0 B');
     expect(markup.render().find('li.service-log-list-item').text()).toContain('3:59pm, 12 January 2020');
   });
+
+  it('should mention that there are no files available for download', () => {
+    const markup = shallow(<ServiceLogsPage
+      files={[]}
+      service={service}
+      linkTo={route => `__LINKS_TO__${route}`}
+      routePartOf={route => route === 'admin.organizations.spaces.services.logs.view'}
+      organizationGUID="ORG_GUID"
+      spaceGUID="SPACE_GUID"
+    />);
+
+    expect(markup.render().find('li.service-log-list-item').length).toEqual(0);
+
+    expect(markup.render().find('p').text())
+      .toContain('There are no log files available at this time.');
+  });
 });

@@ -136,7 +136,7 @@ export async function listServiceLogs(ctx: IContext, params: IParameters): Promi
 
   return {
     body: template.render(<ServiceLogsPage
-      files={fileList.DescribeDBLogFiles as ReadonlyArray<IServiceLogItem>}
+      files={(fileList.DescribeDBLogFiles || []).reverse() as ReadonlyArray<IServiceLogItem>}
       linkTo={ctx.linkTo}
       organizationGUID={organization.metadata.guid}
       routePartOf={ctx.routePartOf}

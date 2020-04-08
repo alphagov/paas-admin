@@ -73,6 +73,27 @@ describe(listServiceLogs, () => {
     expect(response.body).toContain('mydb - Service Logs');
     expect(response.body).toContain('file-one');
   });
+
+  it('should display info about lack of logs', async () => {
+    CFClient.prototype.userServices.mockReturnValueOnce(Promise.resolve([ mockCustomService ]));
+    CFClient.prototype.space.mockReturnValueOnce(Promise.resolve(mockSpace));
+    CFClient.prototype.organization.mockReturnValueOnce(Promise.resolve(mockOrganization));
+    CFClient.prototype.serviceInstance.mockReturnValueOnce(Promise.resolve(mockServiceInstance));
+    CFClient.prototype.service.mockReturnValueOnce(Promise.resolve(mockServicePostgres));
+    // @ts-ignore
+    RDS.mockReturnValueOnce({
+      describeDBLogFiles: () => ({
+        promise: async () => await Promise.resolve({}),
+      }),
+    });
+
+    const response = await listServiceLogs(ctx, {
+      organizationGUID: 'ORG_GUID', serviceGUID: 'SERVICE_INSTANCE_GUID', spaceGUID: 'SPACE_GUID',
+    });
+
+    expect(response.body).toContain('mydb - Service Logs');
+    expect(response.body).toContain('There are no log files available at this time.');
+  });
 });
 
 describe(downloadServiceLogs, () => {

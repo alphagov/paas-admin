@@ -231,20 +231,26 @@ export function ServiceLogsPage(props: IServiceLogsPageProperties): ReactElement
           <p className="govuk-body">
             Log timestamps are in UTC format.
           </p>
-          <ul className="govuk-list service-log-list">
-            {props.files.map(file => <FileListingItem
-              date={new Date(file.LastWritten)}
-              key={file.LogFileName}
-              link={props.linkTo('admin.organizations.spaces.services.logs.download', {
-                filename: file.LogFileName,
-                organizationGUID: props.organizationGUID,
-                serviceGUID: props.service.metadata.guid,
-                spaceGUID: props.spaceGUID,
-              })}
-              name={file.LogFileName}
-              size={file.Size}
-            />)}
-          </ul>
+
+          <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
+
+          {props.files.length > 0
+            ? <ul className="govuk-list service-log-list">
+                {props.files.map(file => <FileListingItem
+                  date={new Date(file.LastWritten)}
+                  key={file.LogFileName}
+                  link={props.linkTo('admin.organizations.spaces.services.logs.download', {
+                    filename: file.LogFileName,
+                    organizationGUID: props.organizationGUID,
+                    serviceGUID: props.service.metadata.guid,
+                    spaceGUID: props.spaceGUID,
+                  })}
+                  name={file.LogFileName}
+                  size={file.Size}
+                />)}
+              </ul>
+            : <p className="govuk-body">There are no log files available at this time.</p>
+          }
         </div>
       </div>
     </ServiceTab>
