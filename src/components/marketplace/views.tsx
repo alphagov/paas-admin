@@ -281,7 +281,7 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
                 limitsConcurrentConnections={limitsCC}
                 limitsMemory={limitsMemory}
                 limitsStorage={limitsStorage}
-                name={plan.broker_catalog.metadata.displayName || plan.name}
+                name={plan.name}
                 providesBackups={providesBackups}
               />
             ))}
