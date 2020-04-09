@@ -229,7 +229,8 @@ export function ServiceLogsPage(props: IServiceLogsPageProperties): ReactElement
             The following are hourly chunks of downloadable logs for this service.
           </p>
           <p className="govuk-body">
-            At the moment, we only provide up to 72 hours of logs. Get in touch if you need a larger range of data.
+            At the moment, we provide only the 72 most recent log files.
+            Please get in touch if you need a larger range of data.
           </p>
           <p className="govuk-body">
             Log timestamps are in UTC format.
