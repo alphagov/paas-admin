@@ -465,7 +465,7 @@ describe('lib/cf test suite', () => {
       .reply(200, data.services);
 
     const client = new CloudFoundryClient(config);
-    const services = await client.services(
+    const services = await client.spaceServices(
       'f858c6b3-f6b1-4ae8-81dd-8e8747657fbe',
     );
 
@@ -510,6 +510,56 @@ describe('lib/cf test suite', () => {
     );
 
     expect(service.entity.label).toEqual('postgres');
+  });
+
+  it('should obtain all v2 service plans', async () => {
+    nockCF
+      .get('/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5/service_plans')
+      .reply(200, { resources: [ data.servicePlan ] });
+
+    const client = new CloudFoundryClient(config);
+    const plans = await client.servicePlans(
+      '53f52780-e93c-4af7-a96c-6958311c40e5',
+    );
+
+    expect(plans).toHaveLength(1);
+  });
+
+  it('should obtain all v3 service plans', async () => {
+    nockCF
+      .get('/v3/service_plans?service_offering_guids=53f52780-e93c-4af7-a96c-6958311c40e5')
+      .reply(200, { pagination: { next: null }, resources: [ data.servicePlan ] });
+
+    const client = new CloudFoundryClient(config);
+    const plans = await client.v3ServicePlans(
+      '53f52780-e93c-4af7-a96c-6958311c40e5',
+    );
+
+    expect(plans).toHaveLength(1);
+  });
+
+  it('should obtain v3 service', async () => {
+    nockCF
+      .get('/v3/service_offerings/53f52780-e93c-4af7-a96c-6958311c40e5')
+      .reply(200, { name: 'postgres' });
+
+    const client = new CloudFoundryClient(config);
+    const service = await client.v3Service(
+      '53f52780-e93c-4af7-a96c-6958311c40e5',
+    );
+
+    expect(service).toHaveProperty('name');
+  });
+
+  it('should obtain all v3 services', async () => {
+    nockCF
+      .get('/v3/service_offerings')
+      .reply(200, { pagination: { next: null }, resources: [ data.serviceObj ] });
+
+    const client = new CloudFoundryClient(config);
+    const services = await client.services();
+
+    expect(services).toHaveLength(1);
   });
 
   it('should create a user', async () => {

@@ -13,6 +13,7 @@ import { IResponse, NotAuthorisedError } from '../../lib/router';
 import auth from '../auth';
 import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
+import { listServices, viewService } from '../marketplace';
 import { termsCheckerMiddleware } from '../terms';
 
 import { csp } from './app.csp';
@@ -118,6 +119,30 @@ export default function(config: IAppConfig): express.Express {
           res.status(response.status || 200).send(response.body);
         })
         .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/marketplace', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('marketplace.view');
+    const ctx = initContext(req, router, route, config);
+
+    listServices(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/marketplace/:serviceGUID', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('marketplace.service');
+    const ctx = initContext(req, router, route, config);
+
+    viewService(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
 
