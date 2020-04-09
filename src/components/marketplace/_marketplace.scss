@@ -18,8 +18,12 @@
 
 .marketplace-list {
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: repeat(2, auto);
   grid-gap: .5rem;
+
+  @include govuk-media-query($from: tablet) {
+    grid-template-columns: repeat(3, auto);
+  }
 
   li {
     box-sizing: border-box;
