@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import { RDS } from 'aws-sdk';
 import React from 'react';
 
@@ -108,7 +109,7 @@ export async function listServiceLogs(ctx: IContext, params: IParameters): Promi
   const rds = new RDS();
   const fileList = await rds.describeDBLogFiles({
     DBInstanceIdentifier: `rdsbroker-${serviceInstance.metadata.guid}`,
-    MaxRecords: 72,
+    MaxRecords: 10080,
   }).promise();
 
   const template = new Template(
@@ -134,9 +135,16 @@ export async function listServiceLogs(ctx: IContext, params: IParameters): Promi
     { text: 'Logs' },
   ]);
 
+  const orderedLogFiles: ReadonlyArray<IServiceLogItem> = lodash
+    .chain((fileList.DescribeDBLogFiles || []) as ReadonlyArray<IServiceLogItem>)
+    .orderBy(['LastWritten'], ['desc'])
+    .take(72)
+    .value()
+  ;
+
   return {
     body: template.render(<ServiceLogsPage
-      files={(fileList.DescribeDBLogFiles || []).reverse() as ReadonlyArray<IServiceLogItem>}
+      files={orderedLogFiles}
       linkTo={ctx.linkTo}
       organizationGUID={organization.metadata.guid}
       routePartOf={ctx.routePartOf}
