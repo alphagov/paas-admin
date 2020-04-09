@@ -76,8 +76,7 @@ export const router = new Router([
   {
     action: services.viewService,
     name: 'admin.organizations.spaces.services.view',
-    path:
-      '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID',
   },
   {
     action: serviceMetrics.viewServiceMetrics,
@@ -108,6 +107,16 @@ export const router = new Router([
     name: 'admin.organizations.spaces.services.event.view',
     path:
       '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/events/:eventGUID',
+  },
+  {
+    action: services.listServiceLogs,
+    name: 'admin.organizations.spaces.services.logs.view',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/logs',
+  },
+  {
+    action: services.downloadServiceLogs,
+    name: 'admin.organizations.spaces.services.logs.download',
+    path: '/organisations/:organizationGUID/spaces/:spaceGUID/services/:serviceGUID/logs/download',
   },
   {
     action: orgUsers.listUsers,
