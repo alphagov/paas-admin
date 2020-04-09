@@ -133,7 +133,7 @@
     "node-jose": "^1.1.4",
     "notifications-node-client": "^4.7.2",
     "openid-client": "^3.14.1",
-    "p-limit": "^2.2.2",
+    "p-limit": "^2.3.0",
     "passport": "^0.4.1",
     "passport-oauth2": "^1.5.0",
     "pino": "^6.0.0",
