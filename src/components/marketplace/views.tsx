@@ -167,11 +167,6 @@ function TableRow(props: ITableRowProperties): ReactElement {
     <tr className="govuk-table__row">
       <th scope="row" className="govuk-table__header">{props.name}</th>
       <td className="govuk-table__cell">{props.availableInTrial ? <Tick /> : <NoTick />}</td>
-      {props.canBeHighlyAvailable
-        ? <td className="govuk-table__cell">
-            {props.data.highlyAvailable ? <Tick /> : <NoTick />}
-          </td>
-        : null}
       {props.canBeHighIOPS
         ? <td className="govuk-table__cell">
             {props.data.highIOPS ? <Tick /> : <NoTick />}
@@ -185,6 +180,11 @@ function TableRow(props: ITableRowProperties): ReactElement {
       {props.canBeEncrypted
         ? <td className="govuk-table__cell">
             {props.data.encrypted ? <Tick /> : <NoTick />}
+          </td>
+        : null}
+      {props.canBeHighlyAvailable
+        ? <td className="govuk-table__cell">
+            {props.data.highlyAvailable ? <Tick /> : <NoTick />}
           </td>
         : null}
       {props.limitsConcurrentConnections
@@ -240,9 +240,6 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
               <tr className="govuk-table__row">
                 <th scope="col" className="govuk-table__header">Plan</th>
                 <th scope="col" className="govuk-table__header">Available in trial</th>
-                {canBeHA
-                  ? <th scope="col" className="govuk-table__header"><abbr title="Highly Available">HA</abbr></th>
-                  : null}
                 {canBeHighIOPS
                   ? <th scope="col" className="govuk-table__header">
                       High <abbr title="Input/Output Operations Per Second">IOPS</abbr>
@@ -253,6 +250,9 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
                   : null}
                 {canBeEncrypted
                   ? <th scope="col" className="govuk-table__header">Encrypted</th>
+                  : null}
+                {canBeHA
+                  ? <th scope="col" className="govuk-table__header"><abbr title="Highly Available">HA</abbr></th>
                   : null}
                 {limitsCC
                   ? <th scope="col" className="govuk-table__header govuk-table__header--numeric">
