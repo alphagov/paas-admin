@@ -196,6 +196,14 @@ export function Footer(): ReactElement {
                   Cookies
                 </a>
               </li>
+              <li className="govuk-footer__inline-list-item">
+                <a
+                  className="govuk-footer__link"
+                  href="https://www.cloud.service.gov.uk/terms-of-use"
+                >
+                  Terms of use
+                </a>
+              </li>
             </ul>
 
             <svg
