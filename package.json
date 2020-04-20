@@ -108,7 +108,7 @@
   "dependencies": {
     "@aws-sdk/client-cloudwatch-node": "^0.1.0-preview.2",
     "@aws-sdk/client-resource-groups-tagging-api-node": "0.1.0-preview.2",
-    "aws-sdk": "^2.656.0",
+    "aws-sdk": "^2.658.0",
     "axios": "^0.19.2",
     "base32-encode": "^1.1.1",
     "compression": "^1.7.4",
