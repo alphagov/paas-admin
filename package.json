@@ -144,7 +144,7 @@
     "react-dom": "^16.13.1",
     "react-markdown": "^4.3.1",
     "route-parser": "^0.0.5",
-    "source-map-support": "^0.5.16",
+    "source-map-support": "^0.5.19",
     "tslib": "^1.11.1",
     "uuid": "^7.0.3"
   },
