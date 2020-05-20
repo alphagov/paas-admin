@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
-import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { userSummary } from '../../lib/cf/cf.test.data';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 import { createTestContext } from '../app/app.test-helpers';
@@ -101,29 +100,7 @@ describe('users test suite', () => {
     expect(response.body).toContain('cloud_controller.read');
   });
 
-  it('should show the users pages for a valid email when global auditor', async () => {
-    nockAccounts.get('/users?email=one@user.in.database').reply(
-      200,
-      `{
-        "users": [{
-          "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-          "user_email": "one@user.in.database",
-          "username": "one@user.in.database"
-        }]
-      }`,
-    );
-
-    nockCF
-      .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary')
-      .reply(200, userSummary);
-
-    nockUAA
-      .post('/oauth/token?grant_type=client_credentials')
-      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
-
-      .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
-      .reply(200, uaaData.user);
-
+  it('should not show the user page for a valid email when global auditor', async () => {
     const rawGlobalAuditorAccessToken = {
       user_id: 'uaa-id-253',
       scope: [CLOUD_CONTROLLER_GLOBAL_AUDITOR],
@@ -138,14 +115,11 @@ describe('users test suite', () => {
       token: new Token(globalAuditorAccessToken, [tokenKey]),
     });
 
-    const response = await users.getUser(globalAuditorCtx, {
-      emailOrUserGUID: 'one@user.in.database',
-    });
-
-    expect(response.body).toContain('the-system_domain-org-name');
-    expect(
-      spacesMissingAroundInlineElements(response.body as string),
-    ).toHaveLength(0);
+    await expect(
+      users.getUser(globalAuditorCtx, {
+        emailOrUserGUID: 'one@user.in.database',
+      }),
+    ).rejects.toThrowError('your "global auditor" permissions do not allow viewing users. sorry. please ask someone who will have more permissions, such as an engineer.');
   });
 
   it('should show the users pages for a valid email when read only admin', async () => {

@@ -5,6 +5,7 @@ import { AccountsClient } from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse } from '../../lib/router';
 import { NotFoundError } from '../../lib/router/errors';
+import { UserFriendlyError } from '../errors';
 import UAAClient from '../../lib/uaa';
 import { IContext } from '../app/context';
 import {
@@ -26,15 +27,20 @@ export async function getUser(
     throw new NotFoundError('not found');
   }
 
-  const isAdmin = ctx.token.hasAnyScope(
+  const isAdminAndNotGlobalAuditor = ctx.token.hasAnyScope(
     CLOUD_CONTROLLER_ADMIN,
-    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
   );
 
   /* istanbul ignore next */
-  if (!isAdmin) {
-    throw new NotFoundError('not found');
+  if (!isAdminAndNotGlobalAuditor) {
+    const isGlobalAuditor = ctx.token.hasScope(CLOUD_CONTROLLER_GLOBAL_AUDITOR);
+    if (isGlobalAuditor) {
+      /* istanbul ignore next */
+      throw new UserFriendlyError('your "global auditor" permissions do not allow viewing users. sorry. please ask someone who will have more permissions, such as an engineer.');
+    } else {
+      throw new NotFoundError('not found');
+    }
   }
 
   const accountsClient = new AccountsClient({
