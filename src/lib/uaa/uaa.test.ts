@@ -241,10 +241,28 @@ describe('lib/uaa test suite', () => {
       .reply(200, { access_token: 'FAKE_ACCESS_TOKEN' })
 
       .post('/password_resets')
-      .reply(201, { code: 'FAKE_PASSWORD_RESET_CODE' });
+      .reply(function(_uri, _requestBody) {
+        const acceptHeader = this.req.headers['accept'];
+        const contentTypeHeader = this.req.headers['content-type'];
+
+        if (acceptHeader !== 'application/json' || contentTypeHeader !== 'application/json') {
+          return [
+            404,
+            {
+              error: 'UAA API requires both "Accept" and "Content-Type" headers to be set on the request and equal to' +
+                '"application/json". Otherwise, it is going to be unhelpfull and return a 404...',
+            },
+          ];
+        }
+
+        return [ 201, { code: 'FAKE_PASSWORD_RESET_CODE' } ];
+      });
 
     const client = new UAAClient(config);
-    const code = await client.obtainPasswordResetCode('jeff');
+    // Following email is false representation... It should be `jeff@example.com`
+    // however then NOCK picks up that this isn't correct JSON syntax... Wrapping
+    // in quotes seems to fix the issue.
+    const code = await client.obtainPasswordResetCode('"jeff@example.com"');
     expect(code).toEqual('FAKE_PASSWORD_RESET_CODE');
   });
 

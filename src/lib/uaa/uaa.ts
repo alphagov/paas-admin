@@ -310,7 +310,13 @@ export default class UAAClient {
   }
 
   public async obtainPasswordResetCode(username: string): Promise<string> {
-    const response = await this.request('post', '/password_resets', { data: username });
+    const response = await this.request('post', '/password_resets', {
+      data: username,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
 
     return response.data.code;
   }
