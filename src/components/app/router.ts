@@ -271,6 +271,28 @@ export const router = new Router([
     name: 'marketplace.service',
     path: '/marketplace/:serviceGUID',
   },
+  {
+    action: users.resetPasswordRequestToken,
+    name: 'users.password.request.form',
+    path: '/password/request',
+  },
+  {
+    action: users.resetPasswordObtainToken,
+    method: 'post',
+    name: 'users.password.request',
+    path: '/password/request',
+  },
+  {
+    action: users.resetPasswordProvideNew,
+    name: 'users.password.reset.form',
+    path: '/password/reset',
+  },
+  {
+    action: users.resetPassword,
+    method: 'post',
+    name: 'users.password.reset',
+    path: '/password/reset',
+  },
 ]);
 
 export default router;
