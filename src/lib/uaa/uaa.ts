@@ -308,4 +308,16 @@ export default class UAAClient {
 
     return response.data as types.IUaaUser;
   }
+
+  public async obtainPasswordResetCode(username: string): Promise<string> {
+    const response = await this.request('post', '/password_resets', { data: username });
+
+    return response.data.code;
+  }
+
+  public async resetPassword(code: string, password: string): Promise<types.IUaaUser> {
+    const response = await this.request('post', '/password_change', { data: { code, new_password: password } });
+
+    return response.data;
+  }
 }

@@ -233,4 +233,32 @@ describe('lib/uaa test suite', () => {
     const updatedUser = await client.setUserOrigin(data.userId, 'google');
     expect(updatedUser.id).toEqual(data.userId);
   });
+
+  it('should successfully call /password_resets', async () => {
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .reply(200, { access_token: 'FAKE_ACCESS_TOKEN' })
+
+      .post('/password_resets')
+      .reply(201, { code: 'FAKE_PASSWORD_RESET_CODE' });
+
+    const client = new UAAClient(config);
+    const code = await client.obtainPasswordResetCode('jeff');
+    expect(code).toEqual('FAKE_PASSWORD_RESET_CODE');
+  });
+
+  it('should successfully call /password_change', async () => {
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .reply(200, { access_token: 'FAKE_ACCESS_TOKEN' })
+
+      .post('/password_change')
+      .reply(200, { id: 'FAKE_USER_GUID' });
+
+    const client = new UAAClient(config);
+    const user = await client.resetPassword('FAKE_PASSWORD_RESET_CODE', 'myNewPassword123!');
+    expect(user.id).toEqual('FAKE_USER_GUID');
+  });
 });
