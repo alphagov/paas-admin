@@ -17,6 +17,26 @@ interface IUserPageProps {
   readonly user: IAccountsUser;
 }
 
+interface IPasswordResetFormProperties {
+  readonly csrf: string;
+  readonly invalidEmail?: boolean;
+  readonly values?: {
+    readonly email: string;
+  };
+}
+
+interface IPasswordResetSetPasswordFormProperties {
+  readonly code: string;
+  readonly csrf: string;
+  readonly passwordMissmatch?: boolean;
+}
+
+interface IPasswordResetSuccessProperties {
+  readonly footnote?: string;
+  readonly message?: string;
+  readonly title: string;
+}
+
 export function UserPage(props: IUserPageProps): ReactElement {
   const listOrgs = (orgs: ReadonlyArray<IUserSummaryOrganization>) =>
     orgs.map(org => (
@@ -100,4 +120,169 @@ export function UserPage(props: IUserPageProps): ReactElement {
       </ul>
     </>
   );
+}
+
+export function PasswordResetRequest(props: IPasswordResetFormProperties): ReactElement {
+  return <div className="govuk-grid-row">
+    <div className="govuk-grid-column-two-thirds">
+      {props.invalidEmail ? <div
+        className="govuk-error-summary"
+        aria-labelledby="error-summary-title"
+        role="alert"
+        tabIndex={-1}
+        data-module="govuk-error-summary"
+      >
+        <h2 className="govuk-error-summary__title" id="error-summary-title">
+          There is a problem
+        </h2>
+
+        <div className="govuk-error-summary__body">
+          <ul className="govuk-list govuk-error-summary__list">
+            <li>
+              <a href="#email">Enter an email address in the correct format, like name@example.com</a>
+            </li>
+          </ul>
+        </div>
+      </div> : <></>}
+
+      <h1 className="govuk-heading-l">Request password reset</h1>
+      <p className="govuk-body">
+        We will send you an activation link via email. If you do not receive an
+        email in the next 24 hours, your account may not exist in the system or
+        you could have setup authentication with Google or Microsoft Single
+        Sign-on.
+      </p>
+
+      <form method="post" className="govuk-!-mt-r6">
+        <input type="hidden" name="_csrf" value={props.csrf} />
+
+        <div className={`govuk-form-group ${props.invalidEmail ? 'govuk-form-group--error' : ''}`}>
+          <label className="govuk-label" htmlFor="email">
+            Email address
+          </label>
+
+          {props.invalidEmail ? <span id="email-error" className="govuk-error-message">
+            <span className="govuk-visually-hidden">Error:</span>{' '}
+            Enter an email address in the correct format, like name@example.com
+          </span> : <></>}
+
+          <input
+            className={`govuk-input ${props.invalidEmail ? 'govuk-input--error' : ''}`}
+            id="email"
+            name="email"
+            type="text"
+            defaultValue={props.values?.email}
+            aria-describedby={props.invalidEmail ? 'email-error' : ''}
+          />
+        </div>
+
+        <button
+          className="govuk-button"
+          data-module="govuk-button"
+          data-prevent-double-click="true"
+        >
+          Request password reset
+        </button>
+      </form>
+    </div>
+  </div>;
+}
+
+export function PasswordResetSuccess(props: IPasswordResetSuccessProperties): ReactElement {
+  return <div className="govuk-grid-row">
+    <div className="govuk-grid-column-two-thirds">
+      <div className="govuk-panel govuk-panel--confirmation">
+        <h1 className="govuk-panel__title">{props.title}</h1>
+        <div className="govuk-panel__body">{props.message}</div>
+      </div>
+
+      <p className="govuk-body">
+        {props.footnote}
+      </p>
+    </div>
+  </div>;
+}
+
+export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFormProperties): ReactElement {
+  return <div className="govuk-grid-row">
+    <div className="govuk-grid-column-two-thirds">
+      {props.passwordMissmatch ? <div
+        className="govuk-error-summary"
+        aria-labelledby="error-summary-title"
+        role="alert"
+        tabIndex={-1}
+        data-module="govuk-error-summary"
+      >
+        <h2 className="govuk-error-summary__title" id="error-summary-title">
+          There is a problem
+        </h2>
+
+        <div className="govuk-error-summary__body">
+          <ul className="govuk-list govuk-error-summary__list">
+            <li>
+              <a href="#password">You need to type in the same password twice</a>
+            </li>
+          </ul>
+        </div>
+      </div> : <></>}
+
+      <h1 className="govuk-heading-l">Password reset</h1>
+      <p className="govuk-body">
+        We will send you an activation link via email. If you do not receive an
+        email in the next 24 hours, your account may not exist in the system or
+        you could have setup authentication with Google or Microsoft Single
+        Sign-on.
+      </p>
+
+      <form method="post" className="govuk-!-mt-r6">
+        <input type="hidden" name="_csrf" value={props.csrf} />
+
+        <div className={`govuk-form-group ${props.passwordMissmatch ? 'govuk-form-group--error' : ''}`}>
+          <input type="hidden" name="code" value={props.code} />
+
+          <label className="govuk-label" htmlFor="password">
+            New Password
+          </label>
+
+          {props.passwordMissmatch ? <span id="password-error" className="govuk-error-message">
+            <span className="govuk-visually-hidden">Error:</span>{' '}
+            You need to type in the same password twice
+          </span> : <></>}
+
+          <input
+            className={`govuk-input ${props.passwordMissmatch ? 'govuk-input--error' : ''}`}
+            id="password"
+            name="password"
+            type="password"
+            aria-describedby={props.passwordMissmatch ? 'password-error' : ''}
+          />
+
+          <label className="govuk-label" htmlFor="password-confirmation">
+            Confirm your new password
+          </label>
+
+          {props.passwordMissmatch ? <span id="password-confirmation-error" className="govuk-error-message">
+            <span className="govuk-visually-hidden">Error:</span>{' '}
+            You need to type in the same password twice
+          </span> : <></>}
+
+          <input
+            className={`govuk-input ${props.passwordMissmatch ? 'govuk-input--error' : ''}`}
+            id="password-confirmation"
+            name="passwordConfirmation"
+            type="password"
+            aria-describedby={props.passwordMissmatch ? 'password-error' : ''}
+          />
+        </div>
+
+        <button
+          className="govuk-button"
+          data-module="govuk-button"
+          data-prevent-double-click="true"
+        >
+          Reset password
+        </button>
+      </form>
+    </div>
+  </div>;
 }
