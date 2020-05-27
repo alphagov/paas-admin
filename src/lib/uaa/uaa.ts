@@ -227,7 +227,7 @@ export default class UAAClient {
   }
 
   public async findUser(email: string): Promise<types.IUaaUser> {
-    const params = { filter: `email eq ${JSON.stringify(email)}` };
+    const params = { filter: `email eq "${email}"` };
     const response = await this.request('get', '/Users', { params });
 
     return response.data.resources[0] as types.IUaaUser;
