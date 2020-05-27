@@ -19,10 +19,10 @@ const tokenKey = 'secret';
 
 const time = Math.floor(Date.now() / 1000);
 const rawToken = {
-  user_id: 'uaa-id-253',
-  scope: [CLOUD_CONTROLLER_ADMIN],
   exp: time + 24 * 60 * 60,
   origin: 'uaa',
+  scope: [CLOUD_CONTROLLER_ADMIN],
+  user_id: 'uaa-id-253',
 };
 const accessToken = jwt.sign(rawToken, tokenKey);
 
@@ -31,10 +31,10 @@ const ctx: IContext = createTestContext({
 });
 
 const rawNonAdminAccessToken = {
-  user_id: 'uaa-id-253',
-  scope: [],
   exp: time + 24 * 60 * 60,
   origin: 'uaa',
+  scope: [],
+  user_id: 'uaa-id-253',
 };
 const nonAdminAccessToken = jwt.sign(rawNonAdminAccessToken, tokenKey);
 const nonAdminCtx: IContext = createTestContext({
@@ -102,10 +102,10 @@ describe('users test suite', () => {
 
   it('should not show the user page for a valid email when global auditor', async () => {
     const rawGlobalAuditorAccessToken = {
-      user_id: 'uaa-id-253',
-      scope: [CLOUD_CONTROLLER_GLOBAL_AUDITOR],
       exp: time + 24 * 60 * 60,
       origin: 'uaa',
+      scope: [CLOUD_CONTROLLER_GLOBAL_AUDITOR],
+      user_id: 'uaa-id-253',
     };
     const globalAuditorAccessToken = jwt.sign(
       rawGlobalAuditorAccessToken,
@@ -146,10 +146,10 @@ describe('users test suite', () => {
       .reply(200, uaaData.user);
 
     const rawReadOnlyAdminAccessToken = {
-      user_id: 'uaa-id-253',
-      scope: [CLOUD_CONTROLLER_READ_ONLY_ADMIN],
       exp: time + 24 * 60 * 60,
       origin: 'uaa',
+      scope: [CLOUD_CONTROLLER_READ_ONLY_ADMIN],
+      user_id: 'uaa-id-253',
     };
     const readOnlyAdminAccessToken = jwt.sign(
       rawReadOnlyAdminAccessToken,
@@ -250,5 +250,142 @@ describe('users test suite', () => {
         emailOrUserGUID: '',
       }),
     ).rejects.toThrowError('Could not find user');
+  });
+});
+
+describe(users.resetPasswordRequestToken, () => {
+  it('should display spacing correctly', async () => {
+    const response = await users.resetPasswordRequestToken(ctx, {});
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+  });
+});
+
+describe(users.resetPasswordObtainToken, () => {
+  let nockUAA: nock.Scope;
+  let nockNotify: nock.Scope;
+
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockUAA = nock(ctx.app.uaaAPI);
+    nockNotify = nock(/api.notifications.service.gov.uk/);
+  });
+
+  afterEach(() => {
+    nockUAA.done();
+    nockNotify.done();
+
+    nock.cleanAll();
+  });
+
+  it('should display spacing correctly', async () => {
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
+
+      .get('/Users?filter=email+eq+%22jeff@example.com%22')
+      .reply(200, { resources: [{ origin: 'uaa', userName: 'jeff@example.com' }] })
+
+      .post('/password_resets')
+      .reply(201, { code: '1234567890' });
+
+    nockNotify
+      .post('/v2/notifications/email')
+      .reply(200);
+
+    const response = await users.resetPasswordObtainToken(ctx, {}, { email: 'jeff@example.com' });
+    expect(response.status).toBeUndefined();
+    expect(response.body).not.toContain('Error');
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+  });
+
+  it('should stop action when user is using SSO', async () => {
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
+
+      .get('/Users?filter=email+eq+%22jeff@example.com%22')
+      .reply(200, { resources: [{ origin: 'google', userName: 'jeff@example.com' }] });
+
+    const response = await users.resetPasswordObtainToken(ctx, {}, { email: 'jeff@example.com' });
+    expect(response.status).toBeUndefined();
+    expect(response.body).not.toContain('Error');
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+  });
+
+  it('should throw an error if email is not provided', async () => {
+    const response = await users.resetPasswordObtainToken(ctx, {}, {});
+    expect(response.status).toEqual(400);
+    expect(response.body).toContain('Error');
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+  });
+
+  it('should throw an error if email is invalid', async () => {
+    const response = await users.resetPasswordObtainToken(ctx, {}, { email: 'jeff' });
+    expect(response.status).toEqual(400);
+    expect(response.body).toContain('Error');
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+  });
+});
+
+describe(users.resetPasswordProvideNew, () => {
+  it('should display spacing correctly', async () => {
+    const response = await users.resetPasswordProvideNew(ctx, { code: 'FAKE_PASSWORD_RESET_CODE' });
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+  });
+
+  it('should throw an error if code is not provided', async () => {
+    await expect(users.resetPasswordProvideNew(ctx, {})).rejects.toThrowError(/Invalid password reset token/);
+  });
+});
+
+describe(users.resetPassword, () => {
+  let nockUAA: nock.Scope;
+
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockUAA = nock(ctx.app.uaaAPI);
+  });
+
+  afterEach(() => {
+    nockUAA.done();
+
+    nock.cleanAll();
+  });
+
+  it('should display spacing correctly', async () => {
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
+
+      .post('/password_change')
+      .reply(200);
+
+    const response = await users.resetPassword(ctx, {}, {
+      code: 'FAKE_PASSWORD_RESET_CODE',
+      password: '123',
+      passwordConfirmation: '123',
+    });
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+  });
+
+  it('should throw an error if code is not provided', async () => {
+    await expect(users.resetPassword(ctx, {}, {
+      code: '',
+      password: '',
+      passwordConfirmation: '',
+    })).rejects.toThrowError(/Invalid password reset token/);
+  });
+
+  it('should throw an error if passwords missmatch', async () => {
+    const response = await users.resetPassword(ctx, {}, {
+      code: '1234567890',
+      password: 'poiuytrewq',
+      passwordConfirmation: 'qwertyuiop',
+    });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toContain('Error');
   });
 });

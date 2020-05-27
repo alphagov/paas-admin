@@ -14,13 +14,20 @@ import {
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
 
-import { UserPage } from './views';
+import { PasswordResetSuccess, PasswordResetRequest, UserPage, PasswordResetSetPasswordForm } from './views';
+import NotificationClient from '../../lib/notify';
 
+interface IPasswordResetBody {
+  readonly email?: string;
+}
 
-export async function getUser(
-  ctx: IContext,
-  params: IParameters,
-): Promise<IResponse> {
+interface INewPasswordBody {
+  readonly code: string;
+  readonly password: string;
+  readonly passwordConfirmation: string;
+}
+
+export async function getUser(ctx: IContext, params: IParameters): Promise<IResponse> {
   const emailOrUserGUID = params.emailOrUserGUID;
 
   if (typeof emailOrUserGUID !== 'string') {
@@ -45,8 +52,8 @@ export async function getUser(
 
   const accountsClient = new AccountsClient({
     apiEndpoint: ctx.app.accountsAPI,
-    secret: ctx.app.accountsSecret,
     logger: ctx.app.logger,
+    secret: ctx.app.accountsSecret,
   });
 
   const accountsUser =
@@ -93,5 +100,121 @@ export async function getUser(
         user={accountsUser}
       />,
     ),
+  };
+}
+
+export async function resetPasswordRequestToken(ctx: IContext, _params: IParameters): Promise<IResponse> {
+  const template = new Template(ctx.viewContext, 'Request password reset');
+
+  return await Promise.resolve({
+    body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} />),
+  });
+}
+
+export async function resetPasswordObtainToken(
+  ctx: IContext, params: IParameters, body: IPasswordResetBody,
+): Promise<IResponse> {
+  const VALID_EMAIL = /[^.]@[^.]/;
+  const email = body.email;
+  const template = new Template(ctx.viewContext, 'Request password reset');
+
+  if (!email || !VALID_EMAIL.test(email)) {
+    template.title = 'Error: Request password reset';
+
+    return {
+      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} invalidEmail={true} />),
+      status: 400,
+    };
+  }
+
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
+  template.title = 'Password reset successfully requested';
+  const successPage = <PasswordResetSuccess
+    title="Password reset successfully requested"
+    message="You should receive an email shortly with further instructions."
+    footnote="If you do not receive an email in the next 24 hours, your account may not exist in the system or you could have setup authentication with Google or Microsoft Single Sign-on."
+  />;
+
+  const user = await uaa.findUser(email);
+  if (!user || user.origin !== 'uaa') {
+    return {
+      body: template.render(successPage),
+    };
+  }
+
+  const notify = new NotificationClient({
+    apiKey: ctx.app.notifyAPIKey,
+    templates: {
+      passwordReset: ctx.app.notifyPasswordResetTemplateID,
+    },
+  });
+  // POTENTIAL: Wrap the next line in try catch, and if UAA returns 409, send user email saying they're using SSO.
+  const code = await uaa.obtainPasswordResetCode(user.userName);
+
+  const url = new URL(ctx.app.domainName);
+  url.pathname = '/password/reset';
+  url.searchParams.set('code', code);
+
+  await notify.sendPasswordReminder(email, url.toString());
+
+  return {
+    body: template.render(successPage),
+  };
+}
+
+export async function resetPasswordProvideNew(ctx: IContext, params: IParameters): Promise<IResponse> {
+  if (!params.code) {
+    throw new NotFoundError('Invalid password reset token.');
+  }
+
+  const template = new Template(ctx.viewContext, 'Password reset');
+
+  return await Promise.resolve({
+    body: template.render(<PasswordResetSetPasswordForm csrf={ctx.viewContext.csrf} code={params.code} />),
+  });
+}
+
+export async function resetPassword(ctx: IContext, _params: IParameters, body: INewPasswordBody): Promise<IResponse> {
+  if (!body.code) {
+    throw new NotFoundError('Invalid password reset token.');
+  }
+
+  const template = new Template(ctx.viewContext, 'Password reset');
+
+  if (body.password !== body.passwordConfirmation) {
+    template.title = 'Error: Password reset';
+
+    return {
+      body: template.render(<PasswordResetSetPasswordForm
+        csrf={ctx.viewContext.csrf}
+        code={body.code}
+        passwordMissmatch={true}
+      />),
+      status: 400,
+    };
+  }
+
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
+  await uaa.resetPassword(body.code, body.password);
+
+  return {
+    body: template.render(<PasswordResetSuccess
+      title="Password successfully reset"
+      message="You may now log in with the use of your email and password."
+    />),
   };
 }
