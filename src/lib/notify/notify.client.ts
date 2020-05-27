@@ -1,7 +1,8 @@
 import { NotifyClient } from 'notifications-node-client';
 
 interface ITemplates {
-  readonly [name: string]: string | null;
+  readonly welcome?: string;
+  readonly passwordReset?: string;
 }
 
 interface IConfig {
