@@ -14,6 +14,7 @@ export interface IRawToken {
 }
 
 export interface IViewContext {
+  readonly authenticated: boolean;
   readonly csrf: string;
   readonly location: string;
   readonly origin?: string;
@@ -56,6 +57,7 @@ export function initContext(
     session: req.session,
     token: req.token,
     viewContext: {
+      authenticated: !!req.user,
       csrf: req.csrfToken(),
       isPlatformAdmin,
       location: config.location,

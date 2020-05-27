@@ -1,6 +1,7 @@
 import React, { Fragment, ReactElement, ReactNode } from 'react';
 
 interface IHeaderProperties {
+  readonly authenticated?: boolean;
   readonly assetPath?: string;
   readonly location: string;
   readonly isPlatformAdmin: boolean;
@@ -39,7 +40,7 @@ interface ICommandLineAlternativeProperties {
   readonly context?: string;
 }
 
-export function Header(params: IHeaderProperties): ReactElement {
+export function Header(props: IHeaderProperties): ReactElement {
   const platformLink = (
     <li className="govuk-header__navigation-item admin">
       <a className="govuk-header__link" href="/platform-admin">
@@ -48,7 +49,7 @@ export function Header(params: IHeaderProperties): ReactElement {
     </li>
   );
 
-  const assetPath = params.assetPath || '/assets';
+  const assetPath = props.assetPath || '/assets';
 
   return (
     <header className="govuk-header" role="banner" data-module="govuk-header">
@@ -106,11 +107,11 @@ export function Header(params: IHeaderProperties): ReactElement {
                   Marketplace
                 </a>
               </li>
-                <li className="govuk-header__navigation-item">
-                  <a className="govuk-header__link" href="/">
-                    Organisations
-                  </a>
-                </li>
+              {props.authenticated ? <li className="govuk-header__navigation-item">
+                <a className="govuk-header__link" href="/">
+                  Organisations
+                </a>
+              </li> : undefined}
               <li className="govuk-header__navigation-item">
                 <a
                   className="govuk-header__link"
@@ -119,20 +120,26 @@ export function Header(params: IHeaderProperties): ReactElement {
                   Documentation
                 </a>
               </li>
-              {params.isPlatformAdmin ? platformLink : undefined}
-              <li className="govuk-header__navigation-item">
-                <a className="govuk-header__link" href="/auth/logout">
-                  Sign out
-                </a>
-              </li>
+              {props.isPlatformAdmin ? platformLink : undefined}
+              {props.authenticated
+                ? <li className="govuk-header__navigation-item">
+                    <a className="govuk-header__link" href="/auth/logout">
+                      Sign out
+                    </a>
+                  </li>
+                : <li className="govuk-header__navigation-item">
+                    <a className="govuk-header__link" href="/">
+                      Sign In
+                    </a>
+                  </li>}
               <li className="govuk-header__navigation-item">
                 <a
                   href="https://www.cloud.service.gov.uk/sign-in"
                   title="Switch to a different region"
-                  className={`govuk-header__link govuk-tag app-region-tag app-region-tag--${params.location.toLowerCase()}`}
-                  aria-label={`Current region: ${params.location.toLowerCase()}. Switch to a different region.`}
+                  className={`govuk-header__link govuk-tag app-region-tag app-region-tag--${props.location.toLowerCase()}`}
+                  aria-label={`Current region: ${props.location.toLowerCase()}. Switch to a different region.`}
                 >
-                  <span className="app-region-tag__text">Region:</span> {params.location}
+                  <span className="app-region-tag__text">Region:</span> {props.location}
                 </a>
               </li>
             </ul>

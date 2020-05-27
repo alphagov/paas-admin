@@ -90,7 +90,11 @@ export class Template {
             </a>
 
             ${renderToStaticMarkup(<>
-              <Header location={this.ctx.location} isPlatformAdmin={!!this.ctx.isPlatformAdmin} />
+              <Header
+                location={this.ctx.location}
+                isPlatformAdmin={!!this.ctx.isPlatformAdmin}
+                authenticated={this.ctx.authenticated}
+              />
 
               <div className="govuk-width-container">
                 <PhaseBanner tag={{ text: 'beta' }}>
