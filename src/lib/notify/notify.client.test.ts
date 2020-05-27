@@ -20,11 +20,12 @@ describe('lib/notify test suite', () => {
   it('notify middleware should include NotifyClient on req', async () => {
     nockNotify
       .post('/v2/notifications/email')
+      .times(2)
       .reply(200, { content: { body: 'FAKE_NOTIFY_RESPONSE' } });
 
     const notify = new NotificationClient({
       apiKey: 'test-key-1234',
-      templates: { welcome: 'WELCOME_ID' },
+      templates: { passwordReset:'PASSWORD_RESET_ID', welcome: 'WELCOME_ID' },
     });
 
     const personalisation = {
@@ -33,11 +34,17 @@ describe('lib/notify test suite', () => {
       url: 'https://default.url',
     };
 
-    const notifyResponse = await notify.sendWelcomeEmail(
+    const notifyWelcomeResponse = await notify.sendWelcomeEmail(
       'jeff@jeff.com',
       personalisation,
     );
 
-    expect(notifyResponse.body.content.body).toContain('FAKE_NOTIFY_RESPONSE');
+    const notifyPasswordResetResponse = await notify.sendPasswordReminder(
+      'jeff@jeff.com',
+      'https://example.com/reset?code=1234567890',
+    );
+
+    expect(notifyWelcomeResponse.body.content.body).toContain('FAKE_NOTIFY_RESPONSE');
+    expect(notifyPasswordResetResponse.body.content.body).toContain('FAKE_NOTIFY_RESPONSE');
   });
 });
