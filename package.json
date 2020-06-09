@@ -146,7 +146,7 @@
     "route-parser": "^0.0.5",
     "source-map-support": "^0.5.19",
     "tslib": "^1.11.1",
-    "uuid": "^8.0.0"
+    "uuid": "^8.1.0"
   },
   "engines": {
     "node": "12.x.x",
