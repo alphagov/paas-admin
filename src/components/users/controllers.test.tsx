@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { userSummary } from '../../lib/cf/cf.test.data';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 import { createTestContext } from '../app/app.test-helpers';
@@ -261,53 +262,148 @@ describe(users.resetPasswordRequestToken, () => {
 });
 
 describe(users.resetPasswordObtainToken, () => {
+  let nockAccounts: nock.Scope;
   let nockUAA: nock.Scope;
   let nockNotify: nock.Scope;
 
   beforeEach(() => {
     nock.cleanAll();
 
-    nockUAA = nock(ctx.app.uaaAPI);
+    nockAccounts = nock(ctx.app.accountsAPI);
     nockNotify = nock(/api.notifications.service.gov.uk/);
+    nockUAA = nock(ctx.app.uaaAPI);
   });
 
   afterEach(() => {
-    nockUAA.done();
+    nockAccounts.done();
     nockNotify.done();
+    nockUAA.done();
 
     nock.cleanAll();
   });
 
-  it('should display spacing correctly', async () => {
+  it('should 404 when the user is not found in paas-accounts', async () => {
+    const userEmail = 'jeff@example.com';
+
+    nockAccounts
+      .get(`/users?email=${userEmail}`).reply(200, '{"users": []}')
+    ;
+
+    const response = await users.resetPasswordObtainToken(ctx, {}, {
+      email: userEmail,
+    });
+
+    expect(response.status).toBe(404);
+    expect(response.body).toContain('Error');
+    expect(response.body).toContain('User not found');
+  });
+
+  it('should 404 when the user is not found in UAA', async () => {
+    const userEmail = 'jeff@example.com'
+    const userGuid = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+
+    nockAccounts
+      .get(`/users?email=${userEmail}`).reply(
+        200,
+        JSON.stringify({
+          users: [{
+            user_uuid: userGuid,
+            user_email: userEmail,
+          }],
+        }),
+      )
+    ;
+
     nockUAA
       .post('/oauth/token?grant_type=client_credentials')
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
 
-      .get('/Users?filter=email+eq+%22jeff@example.com%22')
-      .reply(200, { resources: [{ origin: 'uaa', userName: 'jeff@example.com' }] })
+      .get(`/Users/${userGuid}`)
+      .reply(404, {})
+    ;
 
-      .post('/password_resets')
-      .reply(201, { code: '1234567890' });
+    const response = await users.resetPasswordObtainToken(ctx, {}, {
+      email: userEmail,
+    });
+
+    expect(response.status).toBe(404);
+    expect(response.body).toContain('Error');
+    expect(response.body).toContain('User not found');
+  });
+
+  it('should stop action when user is using SSO', async () => {
+    const userEmail = 'jeff@example.com'
+    const userGuid = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+
+    nockAccounts
+      .get(`/users?email=${userEmail}`).reply(
+        200,
+        JSON.stringify({
+          users: [{
+            user_uuid: userGuid,
+            user_email: userEmail,
+          }],
+        }),
+      )
+    ;
+
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
+
+      .get(`/Users/${userGuid}`)
+      .reply(200, {
+        origin: 'google',
+        userName: userEmail,
+      })
+    ;
+
+    const response = await users.resetPasswordObtainToken(ctx, {}, {
+      email: userEmail,
+    });
+
+    expect(response.status).toBeUndefined();
+    expect(response.body).toContain('Error');
+    expect(response.body).toContain('You have enabled Google single sign-on');
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+  });
+
+  it('should display spacing correctly', async () => {
+    const userEmail = 'jeff@example.com'
+    const userGuid = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+
+    nockAccounts
+      .get(`/users?email=${userEmail}`).reply(
+        200,
+        JSON.stringify({
+          users: [{
+            user_uuid: userGuid,
+            user_email: userEmail,
+          }],
+        }),
+      );
 
     nockNotify
       .post('/v2/notifications/email')
       .reply(200);
 
-    const response = await users.resetPasswordObtainToken(ctx, {}, { email: 'jeff@example.com' });
-    expect(response.status).toBeUndefined();
-    expect(response.body).not.toContain('Error');
-    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
-  });
-
-  it('should stop action when user is using SSO', async () => {
     nockUAA
       .post('/oauth/token?grant_type=client_credentials')
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
 
-      .get('/Users?filter=email+eq+%22jeff@example.com%22')
-      .reply(200, { resources: [{ origin: 'google', userName: 'jeff@example.com' }] });
+      .get(`/Users/${userGuid}`)
+      .reply(200, {
+        origin: 'uaa',
+        userName: userEmail,
+      })
 
-    const response = await users.resetPasswordObtainToken(ctx, {}, { email: 'jeff@example.com' });
+      .post('/password_resets')
+      .reply(201, { code: '1234567890' });
+
+    const response = await users.resetPasswordObtainToken(ctx, {}, {
+      email: userEmail,
+    });
+
     expect(response.status).toBeUndefined();
     expect(response.body).not.toContain('Error');
     expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);

@@ -43,10 +43,14 @@ async function request(endpoint: string, method: string, url: string, opts: any)
   });
   if (response.status < 200 || response.status >= 300) {
     const msg = `UAAClient: ${method} ${url} failed with status ${response.status}`;
+    let err: any;
     if (typeof response.data === 'object') {
-      throw new Error(`${msg} and data ${JSON.stringify(response.data)}`);
+      err = new Error(`${msg} and data ${JSON.stringify(response.data)}`);
+    } else {
+      err = new Error(msg);
     }
-    throw new Error(msg);
+    err.response = { status: response.status };
+    throw err;
   }
 
   return response;
@@ -185,10 +189,16 @@ export default class UAAClient {
     });
   }
 
-  public async getUser(userGUID: string): Promise<types.IUaaUser> {
-    const response = await this.request('get', `/Users/${userGUID}`);
-
-    return response.data as types.IUaaUser;
+  public async getUser(userGUID: string): Promise<types.IUaaUser | null> {
+    try {
+      const response = await this.request('get', `/Users/${userGUID}`);
+      return response.data as types.IUaaUser;
+    } catch (err) {
+      if (err.response.status === 404) {
+        return null;
+      }
+      /* istanbul ignore next */ throw err;
+    }
   }
 
   public async getUsers(userGUIDs: ReadonlyArray<string>): Promise<ReadonlyArray<types.IUaaUser | null>> {
@@ -198,9 +208,7 @@ export default class UAAClient {
       userGUIDs.map(async guid =>
         await pool(async () => {
           try {
-            const user = await this.getUser(guid);
-
-            return user;
+            return await this.getUser(guid);
           } catch {
             return new Promise(resolve =>
               resolve(null),

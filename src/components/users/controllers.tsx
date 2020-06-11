@@ -1,3 +1,4 @@
+import { capitalize } from 'lodash';
 import React from 'react';
 
 import { Template } from '../../layouts';
@@ -115,7 +116,7 @@ export async function resetPasswordObtainToken(
   ctx: IContext, params: IParameters, body: IPasswordResetBody,
 ): Promise<IResponse> {
   const VALID_EMAIL = /[^.]@[^.]/;
-  const email = body.email;
+  const email = (/* istanbul ignore next */ body.email || '').toLowerCase();
   const template = new Template(ctx.viewContext, 'Request password reset');
 
   if (!email || !VALID_EMAIL.test(email)) {
@@ -135,17 +136,51 @@ export async function resetPasswordObtainToken(
     },
   });
 
-  template.title = 'Password reset successfully requested';
-  const successPage = <PasswordResetSuccess
-    title="Password reset successfully requested"
-    message="You should receive an email shortly with further instructions."
-    footnote="If you do not receive an email in the next 24 hours, your account may not exist in the system or you could have setup authentication with Google or Microsoft Single Sign-on."
-  />;
+  const accounts = new AccountsClient({
+    apiEndpoint: ctx.app.accountsAPI,
+    logger: ctx.app.logger,
+    secret: ctx.app.accountsSecret,
+  });
 
-  const user = await uaa.findUser(email);
-  if (!user || user.origin !== 'uaa') {
+  const accountsUser = await accounts.getUserByEmail(email);
+  if (!accountsUser) {
+    // 100ms delay to stop people iterating through users
+    await new Promise(finish => setTimeout(finish, 100));
+
+    template.title = 'Error: User not found';
+
     return {
-      body: template.render(successPage),
+      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} invalidEmail={true} />),
+      status: 404,
+    };
+  }
+
+  const uaaUser = await uaa.getUser(accountsUser.uuid)
+  if (!uaaUser) {
+    // 100ms delay to stop people iterating through users
+    await new Promise(finish => setTimeout(finish, 100));
+
+    template.title = 'Error: User not found';
+
+    return {
+      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} invalidEmail={true} />),
+      status: 404,
+    };
+  }
+
+  if (uaaUser.origin != 'uaa') {
+    // 100ms delay to stop people iterating through users
+    await new Promise(finish => setTimeout(finish, 100));
+
+    const idpNice = capitalize(uaaUser.origin);
+    template.title = `Error: You have enabled ${idpNice} single sign-on`;
+
+    return {
+      body: template.render(
+        <PasswordResetRequest
+          csrf={ctx.viewContext.csrf}
+          invalidEmail={true} />,
+      ),
     };
   }
 
@@ -155,14 +190,19 @@ export async function resetPasswordObtainToken(
       passwordReset: ctx.app.notifyPasswordResetTemplateID,
     },
   });
-  // POTENTIAL: Wrap the next line in try catch, and if UAA returns 409, send user email saying they're using SSO.
-  const code = await uaa.obtainPasswordResetCode(user.userName);
+  const resetCode = await uaa.obtainPasswordResetCode(uaaUser.userName);
 
   const url = new URL(ctx.app.domainName);
   url.pathname = '/password/reset';
-  url.searchParams.set('code', code);
+  url.searchParams.set('code', resetCode);
 
   await notify.sendPasswordReminder(email, url.toString());
+
+  template.title = 'Password reset successfully requested';
+  const successPage = <PasswordResetSuccess
+    title="Password reset successfully requested"
+    message="You should receive an email shortly with further instructions."
+  />;
 
   return {
     body: template.render(successPage),

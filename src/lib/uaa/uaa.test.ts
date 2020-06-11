@@ -180,6 +180,22 @@ describe('lib/uaa test suite', () => {
     expect(user.id).toEqual(id);
   });
 
+  it('should return null when retrieiving a user not found', async () => {
+    const client = new UAAClient(config);
+    const id = 'uaa-id-123';
+
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
+
+      .get(`/Users/${id}`)
+      .reply(404);
+
+    const user = await client.getUser(id);
+    expect(user).toEqual(null);
+  });
+
   it('should retrieve multiple users successfully', async () => {
     const client = new UAAClient(config);
 
@@ -200,6 +216,28 @@ describe('lib/uaa test suite', () => {
     expect(users.length).toEqual(2);
     expect(users[0].id).toEqual('user-a');
     expect(users[1].id).toEqual('user-b');
+  });
+
+  it('should retrieve multiple users gracefully if one errors', async () => {
+    const client = new UAAClient(config);
+
+    nockUAA
+      .post('/oauth/token')
+      .query((x: any) => x.grant_type === 'client_credentials')
+      .times(2)
+      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
+
+      .get('/Users/user-a')
+      .reply(200, { id: 'user-a' })
+
+      .get('/Users/user-b')
+      .reply(400);
+
+    const users = await client.getUsers([ 'user-a', 'user-b' ]) as ReadonlyArray<IUaaUser>;
+
+    expect(users.length).toEqual(2);
+    expect(users[0].id).toEqual('user-a');
+    expect(users[1]).toEqual(null);
   });
 
   it('should authenticate a user', async () => {
