@@ -115,7 +115,7 @@ export async function resetPasswordRequestToken(ctx: IContext, _params: IParamet
 export async function resetPasswordObtainToken(
   ctx: IContext, params: IParameters, body: IPasswordResetBody,
 ): Promise<IResponse> {
-  const VALID_EMAIL = /[^.]@[^.]/;
+  const VALID_EMAIL = /^[^@]*@[^@]*$/;
   const email = (/* istanbul ignore next */ body.email || '').toLowerCase();
   const template = new Template(ctx.viewContext, 'Request password reset');
 
