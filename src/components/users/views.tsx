@@ -20,6 +20,8 @@ interface IUserPageProps {
 interface IPasswordResetFormProperties {
   readonly csrf: string;
   readonly invalidEmail?: boolean;
+  readonly userEnabledSSO?: boolean;
+  readonly userNotFound?: boolean;
   readonly values?: {
     readonly email: string;
   };
@@ -125,7 +127,7 @@ export function UserPage(props: IUserPageProps): ReactElement {
 export function PasswordResetRequest(props: IPasswordResetFormProperties): ReactElement {
   return <div className="govuk-grid-row">
     <div className="govuk-grid-column-two-thirds">
-      {props.invalidEmail ? <div
+      {props.invalidEmail || props.userEnabledSSO || props.userNotFound ? <div
         className="govuk-error-summary"
         aria-labelledby="error-summary-title"
         role="alert"
@@ -136,21 +138,34 @@ export function PasswordResetRequest(props: IPasswordResetFormProperties): React
           There is a problem
         </h2>
 
-        <div className="govuk-error-summary__body">
+        {props.invalidEmail ?  <div className="govuk-error-summary__body">
           <ul className="govuk-list govuk-error-summary__list">
             <li>
               <a href="#email">Enter an email address in the correct format, like name@example.com</a>
             </li>
           </ul>
-        </div>
+          </div> : <></>}
+
+        {props.userEnabledSSO ?  <div className="govuk-error-summary__body">
+          <ul className="govuk-list govuk-error-summary__list">
+            <li>
+              <a href="#email">You have enabled single sign-on</a>
+            </li>
+          </ul>
+        </div> : <></>}
+
+        {props.userNotFound ?  <div className="govuk-error-summary__body">
+          <ul className="govuk-list govuk-error-summary__list">
+            <li>
+              <a href="#email">User not found</a>
+            </li>
+          </ul>
+        </div> : <></>}
       </div> : <></>}
 
       <h1 className="govuk-heading-l">Request password reset</h1>
       <p className="govuk-body">
-        We will send you an activation link via email. If you do not receive an
-        email in the next 24 hours, your account may not exist in the system or
-        you could have setup authentication with Google or Microsoft Single
-        Sign-on.
+        We will send you an activation link via email.
       </p>
 
       <form method="post" className="govuk-!-mt-r6">

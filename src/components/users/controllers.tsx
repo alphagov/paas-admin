@@ -153,7 +153,7 @@ export async function resetPasswordObtainToken(
     template.title = 'Error: User not found';
 
     return {
-      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} invalidEmail={true} />),
+      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} userNotFound={true} />),
       status: 404,
     };
   }
@@ -166,7 +166,7 @@ export async function resetPasswordObtainToken(
     template.title = 'Error: User not found';
 
     return {
-      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} invalidEmail={true} />),
+      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} userNotFound={true} />),
       status: 404,
     };
   }
@@ -179,11 +179,7 @@ export async function resetPasswordObtainToken(
     template.title = `Error: You have enabled ${idpNice} single sign-on`;
 
     return {
-      body: template.render(
-        <PasswordResetRequest
-          csrf={ctx.viewContext.csrf}
-          invalidEmail={true} />,
-      ),
+      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} userEnabledSSO={true} />),
     };
   }
 
