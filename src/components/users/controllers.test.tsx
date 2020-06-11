@@ -225,6 +225,36 @@ describe('users test suite', () => {
     expect(response.body).toContain('cloud_controller.read');
   });
 
+  it('should return an error when the user is not in UAA', async () => {
+    nockAccounts.get('/users?email=one@user.in.database').reply(
+      200,
+      `{
+        "users": [{
+          "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+          "user_email": "one@user.in.database",
+          "username": "one@user.in.database"
+        }]
+      }`,
+    );
+
+    nockCF
+      .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary')
+      .reply(200, userSummary);
+
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
+
+      .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+      .reply(404);
+
+    await expect(
+      users.getUser(ctx, {
+        emailOrUserGUID: 'one@user.in.database',
+      }),
+    ).rejects.toThrowError('not found');
+  });
+
   it('should show return an error for an invalid guid', async () => {
     nockAccounts.get('/users/aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee').reply(404);
 

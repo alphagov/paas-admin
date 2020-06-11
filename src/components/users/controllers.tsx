@@ -85,6 +85,9 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
   });
 
   const uaaUser = await uaa.getUser(accountsUser.uuid);
+  if (!uaaUser) {
+    throw new NotFoundError('User not found');
+  }
   const origin = uaaUser.origin;
 
   const template = new Template(ctx.viewContext, 'User');
