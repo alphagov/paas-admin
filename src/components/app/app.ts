@@ -125,7 +125,7 @@ export default function(config: IAppConfig): express.Express {
   );
 
   /* istanbul ignore next */
-  app.get('/password/request', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  app.get('/password/request-reset', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('users.password.request.form');
     const ctx = initContext(req, router, route, config);
 
@@ -138,7 +138,7 @@ export default function(config: IAppConfig): express.Express {
   );
 
   /* istanbul ignore next */
-  app.post('/password/request', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  app.post('/password/request-reset', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('users.password.request');
     const ctx = initContext(req, router, route, config);
 
@@ -151,7 +151,7 @@ export default function(config: IAppConfig): express.Express {
   );
 
   /* istanbul ignore next */
-  app.get('/password/reset', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  app.get('/password/confirm-reset', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('users.password.reset.form');
     const ctx = initContext(req, router, route, config);
 
@@ -164,7 +164,7 @@ export default function(config: IAppConfig): express.Express {
   );
 
   /* istanbul ignore next */
-  app.post('/password/reset', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  app.post('/password/confirm-reset', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('users.password.reset');
     const ctx = initContext(req, router, route, config);
 

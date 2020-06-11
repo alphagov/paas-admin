@@ -193,14 +193,14 @@ describe('app test suite', () => {
 
   it('should be able to access password reset request page without login', async () => {
     const app = init(config);
-    const response = await request(app).get('/password/request');
+    const response = await request(app).get('/password/request-reset');
 
     expect(response.status).toEqual(200);
   });
 
   it('should be able to access password reset page without login', async () => {
     const app = init(config);
-    const response = await request(app).get('/password/reset?code=1234567890');
+    const response = await request(app).get('/password/confirm-reset?code=1234567890');
 
     expect(response.status).toEqual(200);
   });

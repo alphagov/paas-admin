@@ -193,7 +193,7 @@ export async function resetPasswordObtainToken(
   const resetCode = await uaa.obtainPasswordResetCode(uaaUser.userName);
 
   const url = new URL(ctx.app.domainName);
-  url.pathname = '/password/reset';
+  url.pathname = '/password/confirm-reset';
   url.searchParams.set('code', resetCode);
 
   await notify.sendPasswordReminder(email, url.toString());
