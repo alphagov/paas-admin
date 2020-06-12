@@ -504,7 +504,7 @@ describe(users.resetPassword, () => {
     })).rejects.toThrowError(/Invalid password reset token/);
   });
 
-  it('should throw an error if passwords missmatch', async () => {
+  it('should throw an error if passwords mismatch', async () => {
     const response = await users.resetPassword(ctx, {}, {
       code: '1234567890',
       password: 'poiuytrewq',

@@ -31,7 +31,7 @@ interface IPasswordResetFormProperties {
 interface IPasswordResetSetPasswordFormProperties {
   readonly code: string;
   readonly csrf: string;
-  readonly passwordMissmatch?: boolean;
+  readonly passwordMismatch?: boolean;
 }
 
 interface IPasswordResetSuccessProperties {
@@ -222,7 +222,7 @@ export function PasswordResetSuccess(props: IPasswordResetSuccessProperties): Re
 export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFormProperties): ReactElement {
   return <div className="govuk-grid-row">
     <div className="govuk-grid-column-two-thirds">
-      {props.passwordMissmatch ? <div
+      {props.passwordMismatch ? <div
         className="govuk-error-summary"
         aria-labelledby="error-summary-title"
         role="alert"
@@ -253,41 +253,41 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
       <form method="post" className="govuk-!-mt-r6">
         <input type="hidden" name="_csrf" value={props.csrf} />
 
-        <div className={`govuk-form-group ${props.passwordMissmatch ? 'govuk-form-group--error' : ''}`}>
+        <div className={`govuk-form-group ${props.passwordMismatch ? 'govuk-form-group--error' : ''}`}>
           <input type="hidden" name="code" value={props.code} />
 
           <label className="govuk-label" htmlFor="password">
             New Password
           </label>
 
-          {props.passwordMissmatch ? <span id="password-error" className="govuk-error-message">
+          {props.passwordMismatch ? <span id="password-error" className="govuk-error-message">
             <span className="govuk-visually-hidden">Error:</span>{' '}
             You need to type in the same password twice
           </span> : <></>}
 
           <input
-            className={`govuk-input ${props.passwordMissmatch ? 'govuk-input--error' : ''}`}
+            className={`govuk-input ${props.passwordMismatch ? 'govuk-input--error' : ''}`}
             id="password"
             name="password"
             type="password"
-            aria-describedby={props.passwordMissmatch ? 'password-error' : ''}
+            aria-describedby={props.passwordMismatch ? 'password-error' : ''}
           />
 
           <label className="govuk-label" htmlFor="password-confirmation">
             Confirm your new password
           </label>
 
-          {props.passwordMissmatch ? <span id="password-confirmation-error" className="govuk-error-message">
+          {props.passwordMismatch ? <span id="password-confirmation-error" className="govuk-error-message">
             <span className="govuk-visually-hidden">Error:</span>{' '}
             You need to type in the same password twice
           </span> : <></>}
 
           <input
-            className={`govuk-input ${props.passwordMissmatch ? 'govuk-input--error' : ''}`}
+            className={`govuk-input ${props.passwordMismatch ? 'govuk-input--error' : ''}`}
             id="password-confirmation"
             name="passwordConfirmation"
             type="password"
-            aria-describedby={props.passwordMissmatch ? 'password-error' : ''}
+            aria-describedby={props.passwordMismatch ? 'password-error' : ''}
           />
         </div>
 

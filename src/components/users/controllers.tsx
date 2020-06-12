@@ -234,7 +234,7 @@ export async function resetPassword(ctx: IContext, _params: IParameters, body: I
       body: template.render(<PasswordResetSetPasswordForm
         csrf={ctx.viewContext.csrf}
         code={body.code}
-        passwordMissmatch={true}
+        passwordMismatch={true}
       />),
       status: 400,
     };

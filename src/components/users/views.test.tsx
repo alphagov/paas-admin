@@ -117,11 +117,11 @@ describe(PasswordResetSetPasswordForm, () => {
     expect(markup.text()).not.toContain('You need to type in the same password twice');
   });
 
-  it('should correctly throw an error when passwordMissmatch flag on', () => {
+  it('should correctly throw an error when passwordMismatch flag on', () => {
     const markup = shallow(<PasswordResetSetPasswordForm
       code="PASSWORD_RESET_CODE"
       csrf="CSRF_TOKEN"
-      passwordMissmatch={true}
+      passwordMismatch={true}
     />);
     expect(markup.render().find('input[name=_csrf]').val()).toEqual('CSRF_TOKEN');
     expect(markup.render().find('input[name=code]').val()).toEqual('PASSWORD_RESET_CODE');
