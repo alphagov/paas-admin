@@ -490,9 +490,12 @@ describe(users.resetPassword, () => {
 
     const response = await users.resetPassword(ctx, {}, {
       code: 'FAKE_PASSWORD_RESET_CODE',
-      password: '123',
-      passwordConfirmation: '123',
+      password: 'password-STR0NG-like-j3nk1n$',
+      passwordConfirmation: 'password-STR0NG-like-j3nk1n$',
     });
+
+    expect(response.body).not.toContain('Error');
+    expect(response.status).toBeUndefined();
     expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
   });
 
@@ -513,5 +516,73 @@ describe(users.resetPassword, () => {
 
     expect(response.status).toEqual(400);
     expect(response.body).toContain('Error');
+  });
+
+  it('should throw an error if the password does not meet the policy', async () => {
+    const response = await users.resetPassword(ctx, {}, {
+      code: '1234567890',
+      password: 'weakP4SSWORD',
+      passwordConfirmation: 'weakP4SSWORD',
+    });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toContain('should contain a special character');
+  });
+});
+
+describe(users.checkPasswordAgainstPolicy, () => {
+  describe('validating good passwords', () => {
+    const good = [
+      'ieZ]ae6uit,ugaqu,eiYeiv2Ue?th_oo',
+      'lahgh]ie,xi-z7eed5asaivooH|ohrai',
+      'eGhuWi%o1wai^woo!shohpeiF=ahci',
+      't[ei3ajeeGh1Mit(ieBohLaica1Oo',
+      'aeQuoofielai2oodu&s+isae@Gae',
+      'ph2iexei0hoonue9ohM]ai6Aic',
+      'ei.nue4aiyeephai7Aeb/ooN8o',
+      'eloh\r&aiM_ak~o0Eer4Tid*',
+      'ipheephaa1Ziebie@geuSaij',
+      'Jeek0chohngah8iphohw<i',
+      'mei5Iox1kuo2Foh;vie6th',
+      'aLai4Ooghahth#o.c8ai',
+      'o+quaePhaeth6eivoo',
+    ];
+
+    good.forEach(pw => {
+      it(`should validate that ${pw} is a good password`, ()  => {
+        const {valid} = users.checkPasswordAgainstPolicy(pw);
+        expect(valid).toEqual(true);
+      });
+    });
+  });
+
+  it('should reject a password without a lowercase character', () => {
+    const {valid, message} = users.checkPasswordAgainstPolicy('AAAAAAAAAAAA$_14');
+    expect(valid).toEqual(false);
+    expect(message).toMatch(/lowercase/);
+  });
+
+  it('should reject a password without an uppercase character', () => {
+    const {valid, message} = users.checkPasswordAgainstPolicy('aaaaaaaaaaaa$_14');
+    expect(valid).toEqual(false);
+    expect(message).toMatch(/uppercase/);
+  });
+
+  it('should reject a password without a number', () => {
+    const {valid, message} = users.checkPasswordAgainstPolicy('aaAAAaaaaaaa$_aa');
+    expect(valid).toEqual(false);
+    expect(message).toMatch(/number/);
+  });
+
+  it('should reject a password without a special character', () => {
+    const {valid, message} = users.checkPasswordAgainstPolicy('aaAAAaaaaaaa14');
+    expect(valid).toEqual(false);
+    expect(message).toMatch(/special/);
+  });
+
+  it('should reject a password that is too short', () => {
+    const {valid, message} = users.checkPasswordAgainstPolicy('aB1$');
+    expect(valid).toEqual(false);
+    expect(message).toMatch(/12 characters or more/);
   });
 });

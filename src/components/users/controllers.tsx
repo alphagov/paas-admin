@@ -220,6 +220,45 @@ export async function resetPasswordProvideNew(ctx: IContext, params: IParameters
   });
 }
 
+export function checkPasswordAgainstPolicy(pw: string): { valid: boolean; message?: string } {
+  if (pw.length < 12) {
+    return {
+      valid: false,
+      message: 'Your password should be 12 characters or more',
+    }
+  }
+
+  if (!pw.match(/[a-z]/)) {
+    return {
+      valid: false,
+      message: 'Your password should contain a lowercase character',
+    }
+  }
+
+  if (!pw.match(/[A-Z]/)) {
+    return {
+      valid: false,
+      message: 'Your password should contain an uppercase character',
+    }
+  }
+
+  if (!pw.match(/[0-9]/)) {
+    return {
+      valid: false,
+      message: 'Your password should contain a number',
+    }
+  }
+
+  if (!pw.match(/[-_+:;<>[\]()#@£%^&!/]/)) {
+    return {
+      valid: false,
+      message: 'Your password should contain a special character',
+    }
+  }
+
+  return { valid: true };
+}
+
 export async function resetPassword(ctx: IContext, _params: IParameters, body: INewPasswordBody): Promise<IResponse> {
   if (!body.code) {
     throw new NotFoundError('Invalid password reset token.');
@@ -235,6 +274,21 @@ export async function resetPassword(ctx: IContext, _params: IParameters, body: I
         csrf={ctx.viewContext.csrf}
         code={body.code}
         passwordMismatch={true}
+      />),
+      status: 400,
+    };
+  }
+
+  const { valid, message } = checkPasswordAgainstPolicy(body.password);
+  if (!valid) {
+    template.title = 'Error: Password reset';
+
+    return {
+      body: template.render(<PasswordResetSetPasswordForm
+        csrf={ctx.viewContext.csrf}
+        code={body.code}
+        passwordDoesNotMeetPolicy={true}
+        passwordDoesNotMeetPolicyMessage={message}
       />),
       status: 400,
     };

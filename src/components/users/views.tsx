@@ -32,6 +32,8 @@ interface IPasswordResetSetPasswordFormProperties {
   readonly code: string;
   readonly csrf: string;
   readonly passwordMismatch?: boolean;
+  readonly passwordDoesNotMeetPolicy?: boolean;
+  readonly passwordDoesNotMeetPolicyMessage?: string;
 }
 
 interface IPasswordResetSuccessProperties {
@@ -222,7 +224,7 @@ export function PasswordResetSuccess(props: IPasswordResetSuccessProperties): Re
 export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFormProperties): ReactElement {
   return <div className="govuk-grid-row">
     <div className="govuk-grid-column-two-thirds">
-      {props.passwordMismatch ? <div
+      {props.passwordMismatch || props.passwordDoesNotMeetPolicy ? <div
         className="govuk-error-summary"
         aria-labelledby="error-summary-title"
         role="alert"
@@ -235,20 +237,29 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
 
         <div className="govuk-error-summary__body">
           <ul className="govuk-list govuk-error-summary__list">
-            <li>
-              <a href="#password">You need to type in the same password twice</a>
-            </li>
+            {props.passwordMismatch
+              ?  <li><a href="#password">You need to type in the same password twice</a></li>
+              : <></>
+            }
+            {props.passwordDoesNotMeetPolicy
+              ?  <li><a href="#password">Your password should meet our password policy</a></li>
+              : <></>
+            }
           </ul>
         </div>
       </div> : <></>}
 
       <h1 className="govuk-heading-l">Password reset</h1>
-      <p className="govuk-body">
-        We will send you an activation link via email. If you do not receive an
-        email in the next 24 hours, your account may not exist in the system or
-        you could have setup authentication with Google or Microsoft Single
-        Sign-on.
-      </p>
+      <p className="govuk-body">You should set a secure password which:</p>
+      <ul className="govuk-list govuk-list--bullet">
+        <li>is at least 12 characters long</li>
+        <li>includes both an uppercase and lowercase character</li>
+        <li>includes a number</li>
+        <li>
+          includes one of <code>-_+:;&lt;&gt;[]()#@£$%^&amp;!</code>
+        </li>
+        <li>you do not use anywhere else (eg for another website)</li>
+      </ul>
 
       <form method="post" className="govuk-!-mt-r6">
         <input type="hidden" name="_csrf" value={props.csrf} />
@@ -263,6 +274,11 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
           {props.passwordMismatch ? <span id="password-error" className="govuk-error-message">
             <span className="govuk-visually-hidden">Error:</span>{' '}
             You need to type in the same password twice
+            </span> : <></>}
+
+          {props.passwordDoesNotMeetPolicy ? <span id="password-error" className="govuk-error-message">
+            <span className="govuk-visually-hidden">Error:</span>{' '}
+            {props.passwordDoesNotMeetPolicyMessage!}
           </span> : <></>}
 
           <input
@@ -270,7 +286,7 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
             id="password"
             name="password"
             type="password"
-            aria-describedby={props.passwordMismatch ? 'password-error' : ''}
+            aria-describedby={props.passwordMismatch || props.passwordDoesNotMeetPolicy ? 'password-error' : ''}
           />
 
           <label className="govuk-label" htmlFor="password-confirmation">
@@ -287,7 +303,7 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
             id="password-confirmation"
             name="passwordConfirmation"
             type="password"
-            aria-describedby={props.passwordMismatch ? 'password-error' : ''}
+            aria-describedby={props.passwordMismatch || props.passwordDoesNotMeetPolicy ? 'password-error' : ''}
           />
         </div>
 
