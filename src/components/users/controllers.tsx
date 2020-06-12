@@ -179,7 +179,7 @@ export async function resetPasswordObtainToken(
     template.title = `Error: You have enabled ${idpNice} single sign-on`;
 
     return {
-      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} userEnabledSSO={true} />),
+      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} userEnabledSSO={true} idpNice={idpNice}/>),
     };
   }
 

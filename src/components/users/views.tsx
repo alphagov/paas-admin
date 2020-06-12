@@ -21,6 +21,7 @@ interface IPasswordResetFormProperties {
   readonly csrf: string;
   readonly invalidEmail?: boolean;
   readonly userEnabledSSO?: boolean;
+  readonly idpNice?: string;
   readonly userNotFound?: boolean;
   readonly values?: {
     readonly email: string;
@@ -149,7 +150,7 @@ export function PasswordResetRequest(props: IPasswordResetFormProperties): React
         {props.userEnabledSSO ?  <div className="govuk-error-summary__body">
           <ul className="govuk-list govuk-error-summary__list">
             <li>
-              <a href="#email">You have enabled single sign-on</a>
+              <a href="#email">You have enabled single sign-on, please sign in using {props.idpNice!}</a>
             </li>
           </ul>
         </div> : <></>}
