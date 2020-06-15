@@ -44,7 +44,7 @@ export function termsCheckerMiddleware(
           csrf: req.csrfToken(),
           location,
         },
-        'Terms',
+        'Terms of Use for GOV.UK Platform as a Service',
       );
       res.send(
         template.render(
