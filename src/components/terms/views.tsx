@@ -74,7 +74,7 @@ export function TermsPage(props: ITermsPageProperties): ReactElement {
       <input type="hidden" name="document_name" value={props.name} />
 
       <button className="govuk-button" data-module="govuk-button" type="submit">
-        Agree
+        I agree to these Terms of Use
       </button>
     </form>
   );
