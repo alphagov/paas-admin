@@ -263,9 +263,9 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
 
       <form method="post" className="govuk-!-mt-r6">
         <input type="hidden" name="_csrf" value={props.csrf} />
+        <input type="hidden" name="code" value={props.code} />
 
-        <div className={`govuk-form-group ${props.passwordMismatch ? 'govuk-form-group--error' : ''}`}>
-          <input type="hidden" name="code" value={props.code} />
+        <div className={`govuk-form-group ${props.passwordMismatch || props.passwordDoesNotMeetPolicy ? 'govuk-form-group--error' : ''}`}>
 
           <label className="govuk-label" htmlFor="password">
             New Password
@@ -282,12 +282,14 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
           </span> : <></>}
 
           <input
-            className={`govuk-input ${props.passwordMismatch ? 'govuk-input--error' : ''}`}
+            className={`govuk-input ${props.passwordMismatch || props.passwordDoesNotMeetPolicy ? 'govuk-input--error' : ''}`}
             id="password"
             name="password"
             type="password"
             aria-describedby={props.passwordMismatch || props.passwordDoesNotMeetPolicy ? 'password-error' : ''}
           />
+        </div>
+        <div className={`govuk-form-group ${props.passwordMismatch ? 'govuk-form-group--error' : ''}`}>
 
           <label className="govuk-label" htmlFor="password-confirmation">
             Confirm your new password
@@ -303,7 +305,7 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
             id="password-confirmation"
             name="passwordConfirmation"
             type="password"
-            aria-describedby={props.passwordMismatch || props.passwordDoesNotMeetPolicy ? 'password-error' : ''}
+            aria-describedby={props.passwordMismatch ? 'password-error' : ''}
           />
         </div>
 
