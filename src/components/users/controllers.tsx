@@ -147,8 +147,8 @@ export async function resetPasswordObtainToken(
 
   const accountsUser = await accounts.getUserByEmail(email);
   if (!accountsUser) {
-    // 100ms delay to stop people iterating through users
-    await new Promise(finish => setTimeout(finish, 100));
+    // 400ms delay to stop people iterating through users
+    await new Promise(finish => setTimeout(finish, 400));
 
     template.title = 'Error: User not found';
 
@@ -160,8 +160,8 @@ export async function resetPasswordObtainToken(
 
   const uaaUser = await uaa.getUser(accountsUser.uuid)
   if (!uaaUser) {
-    // 100ms delay to stop people iterating through users
-    await new Promise(finish => setTimeout(finish, 100));
+    // 400ms delay to stop people iterating through users
+    await new Promise(finish => setTimeout(finish, 400));
 
     template.title = 'Error: User not found';
 
@@ -172,8 +172,8 @@ export async function resetPasswordObtainToken(
   }
 
   if (uaaUser.origin != 'uaa') {
-    // 100ms delay to stop people iterating through users
-    await new Promise(finish => setTimeout(finish, 100));
+    // 400ms delay to stop people iterating through users
+    await new Promise(finish => setTimeout(finish, 400));
 
     const idpNice = capitalize(uaaUser.origin);
     template.title = `Error: You have enabled ${idpNice} single sign-on`;
