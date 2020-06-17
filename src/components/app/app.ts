@@ -15,6 +15,7 @@ import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
 import { listServices, viewService } from '../marketplace';
 import { termsCheckerMiddleware } from '../terms';
+import { resetPassword, resetPasswordObtainToken, resetPasswordProvideNew, resetPasswordRequestToken } from '../users';
 
 import { csp } from './app.csp';
 import { initContext } from './context';
@@ -30,7 +31,8 @@ export interface IAppConfig {
   readonly location: string;
   readonly logger: BaseLogger;
   readonly notifyAPIKey: string;
-  readonly notifyWelcomeTemplateID: string | null;
+  readonly notifyPasswordResetTemplateID?: string;
+  readonly notifyWelcomeTemplateID?: string;
   readonly oauthClientID: string;
   readonly oauthClientSecret: string;
   readonly sessionSecret: string;
@@ -119,6 +121,58 @@ export default function(config: IAppConfig): express.Express {
           res.status(response.status || 200).send(response.body);
         })
         .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  /* istanbul ignore next */
+  app.get('/password/request-reset', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('users.password.request.form');
+    const ctx = initContext(req, router, route, config);
+
+    resetPasswordRequestToken(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  /* istanbul ignore next */
+  app.post('/password/request-reset', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('users.password.request');
+    const ctx = initContext(req, router, route, config);
+
+    resetPasswordObtainToken(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  /* istanbul ignore next */
+  app.get('/password/confirm-reset', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('users.password.reset.form');
+    const ctx = initContext(req, router, route, config);
+
+    resetPasswordProvideNew(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  /* istanbul ignore next */
+  app.post('/password/confirm-reset', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('users.password.reset');
+    const ctx = initContext(req, router, route, config);
+
+    resetPassword(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
 

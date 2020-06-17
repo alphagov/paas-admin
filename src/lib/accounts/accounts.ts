@@ -271,7 +271,8 @@ export class AccountsClient {
   ): Promise<IAccountsUser | undefined> {
     const response = await this.request({
       method: 'get',
-      url: `/users?email=${email}`,
+      url: '/users',
+      params: { email },
     });
 
     const parsedResponse: IAccountsUsersResponse = response.data;

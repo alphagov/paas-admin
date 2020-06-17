@@ -86,6 +86,7 @@ OAUTH_CLIENT_ID="my-client-id" \
 OAUTH_CLIENT_SECRET="my-secret" \
 ACCOUNTS_SECRET="my-accounts-secret" \
 NOTIFY_API_KEY="qwerty123456" \
+NOTIFY_PASSWORD_RESET_TEMPLATE_ID="qwerty123456" \
 NOTIFY_WELCOME_TEMPLATE_ID="qwerty123456" \
 AWS_REGION="eu-west-2" \
 npm start

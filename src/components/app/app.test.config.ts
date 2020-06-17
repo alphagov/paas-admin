@@ -37,6 +37,7 @@ export const config: IAppConfig = {
   location: 'Ireland',
   logger,
   notifyAPIKey: 'test-123456-qwerty',
+  notifyPasswordResetTemplateID: 'qwerty-123456',
   notifyWelcomeTemplateID: 'qwerty-123456',
   oauthClientID: 'key',
   oauthClientSecret: 'secret',

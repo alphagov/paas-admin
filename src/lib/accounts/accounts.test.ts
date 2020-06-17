@@ -103,6 +103,17 @@ describe('lib/accounts test suite', () => {
     }]
   }`,
       )
+      .get('/users?email=url%2bencoded@user.in.database')
+      .reply(
+        200,
+        `{
+    "users": [{
+      "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "user_email": "url+encoded@user.in.database",
+      "username": "url+encoded@user.in.database"
+    }]
+  }`,
+      )
       .get('/users?email=no@user.in.database')
       .reply(
         200,
@@ -273,6 +284,15 @@ describe('lib/accounts test suite', () => {
     expect(user).not.toBeUndefined();
     expect(user!.email).toEqual('one@user.in.database');
     expect(user!.username).toEqual('one@user.in.database');
+  });
+
+  it('should get a user by email when the email includes a plus', async () => {
+    // the mock only expects a URL encoded email address
+    const ac = new AccountsClient(cfg);
+    const user = await ac.getUserByEmail('url+encoded@user.in.database');
+    expect(user).not.toBeUndefined();
+    expect(user!.email).toEqual('url+encoded@user.in.database');
+    expect(user!.username).toEqual('url+encoded@user.in.database');
   });
 
   it('should return undefined for a user which does not exist', async () => {

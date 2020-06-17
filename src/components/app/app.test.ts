@@ -152,7 +152,7 @@ describe('app test suite', () => {
     expect(response.status).toEqual(200);
   });
 
-  it('should throw error when accessing marketplace without', async () => {
+  it('should throw error when accessing marketplace without services', async () => {
     nockCF
       .get('/v3/service_offerings').reply(404);
 
@@ -189,6 +189,20 @@ describe('app test suite', () => {
     const response = await request(app).get('/marketplace/SERVICE_GUID');
 
     expect(response.status).toEqual(500);
+  });
+
+  it('should be able to access password reset request page without login', async () => {
+    const app = init(config);
+    const response = await request(app).get('/password/request-reset');
+
+    expect(response.status).toEqual(200);
+  });
+
+  it('should be able to access password reset page without login', async () => {
+    const app = init(config);
+    const response = await request(app).get('/password/confirm-reset?code=1234567890');
+
+    expect(response.status).toEqual(200);
   });
 
   it('should return a 403 when accessing /forbidden', async () => {

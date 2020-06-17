@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import pLimit from 'p-limit';
 
 import * as types from './uaa.types';
@@ -30,12 +30,7 @@ export interface IUaaInvitation {
   readonly inviteLink: string;
 }
 
-async function request(
-  endpoint: string,
-  method: string,
-  url: string,
-  opts: any,
-) {
+async function request(endpoint: string, method: string, url: string, opts: any): Promise<AxiosResponse> {
   const response = await axios.request({
     baseURL: endpoint,
     data: opts.data,
@@ -48,19 +43,20 @@ async function request(
   });
   if (response.status < 200 || response.status >= 300) {
     const msg = `UAAClient: ${method} ${url} failed with status ${response.status}`;
+    let err: any;
     if (typeof response.data === 'object') {
-      throw new Error(`${msg} and data ${JSON.stringify(response.data)}`);
+      err = new Error(`${msg} and data ${JSON.stringify(response.data)}`);
+    } else {
+      err = new Error(msg);
     }
-    throw new Error(msg);
+    err.response = { status: response.status };
+    throw err;
   }
 
   return response;
 }
 
-export async function authenticate(
-  endpoint: string,
-  clientCredentials: IClientCredentials,
-) {
+export async function authenticate(endpoint: string, clientCredentials: IClientCredentials): Promise<string> {
   /* istanbul ignore next */
   if (!clientCredentials.clientID) {
     throw new TypeError('UAAClient: authenticate: clientID is required');
@@ -86,10 +82,7 @@ export async function authenticate(
   return response.data.access_token;
 }
 
-export async function authenticateUser(
-  endpoint: string,
-  userCredentials: IUserCredentials,
-) {
+export async function authenticateUser(endpoint: string, userCredentials: IUserCredentials): Promise<string> {
   /* istanbul ignore next */
   if (!userCredentials.username) {
     throw new TypeError('UAAClient: authenticateUser: username is required');
@@ -134,7 +127,7 @@ export default class UAAClient {
     this.signingKeys = config.signingKeys || [];
   }
 
-  public async getAccessToken() {
+  public async getAccessToken(): Promise<string> {
     if (this.accessToken) {
       return this.accessToken;
     }
@@ -185,7 +178,7 @@ export default class UAAClient {
     return this.signingKeys;
   }
 
-  public async request(method: string, url: string, opts: any = {}) {
+  public async request(method: string, url: string, opts: any = {}): Promise<AxiosResponse> {
     const token = await this.getAccessToken();
     const requiredHeaders = { Authorization: `Bearer ${token}` };
 
@@ -196,24 +189,26 @@ export default class UAAClient {
     });
   }
 
-  public async getUser(userGUID: string): Promise<types.IUaaUser> {
-    const response = await this.request('get', `/Users/${userGUID}`);
-
-    return response.data as types.IUaaUser;
+  public async getUser(userGUID: string): Promise<types.IUaaUser | null> {
+    try {
+      const response = await this.request('get', `/Users/${userGUID}`);
+      return response.data as types.IUaaUser;
+    } catch (err) {
+      if (err.response.status === 404) {
+        return null;
+      }
+      /* istanbul ignore next */ throw err;
+    }
   }
 
-  public async getUsers(
-    userGUIDs: ReadonlyArray<string>,
-  ): Promise<ReadonlyArray<types.IUaaUser | null>> {
+  public async getUsers(userGUIDs: ReadonlyArray<string>): Promise<ReadonlyArray<types.IUaaUser | null>> {
     // Limit number of users fetched from UAA concurrently
     const pool = pLimit(CONCURRENCY_LIMIT);
     const uaaUsers = await Promise.all(
       userGUIDs.map(async guid =>
         await pool(async () => {
           try {
-            const user = await this.getUser(guid);
-
-            return user;
+            return await this.getUser(guid);
           } catch {
             return new Promise(resolve =>
               resolve(null),
@@ -227,17 +222,13 @@ export default class UAAClient {
   }
 
   public async findUser(email: string): Promise<types.IUaaUser> {
-    const params = { filter: `email eq ${JSON.stringify(email)}` };
+    const params = { filter: `email eq "${email}"` };
     const response = await this.request('get', '/Users', { params });
 
     return response.data.resources[0] as types.IUaaUser;
   }
 
-  public async inviteUser(
-    email: string,
-    clientID: string,
-    redirectURI: string,
-  ): Promise<IUaaInvitation> {
+  public async inviteUser(email: string, clientID: string, redirectURI: string): Promise<IUaaInvitation> {
     const data = { emails: [email] };
     const response = await this.request(
       'post',
@@ -265,10 +256,10 @@ export default class UAAClient {
     return responseWithUpdatedLink;
   }
 
-  public async createUser(email: string, password: string) {
+  public async createUser(email: string, password: string): Promise<types.IUaaUser> {
     const data = {
       active: true,
-      emails: [{ value: email, primary: true }],
+      emails: [{ primary: true, value: email }],
       name: {},
       password,
       userName: email,
@@ -279,19 +270,18 @@ export default class UAAClient {
     return response.data;
   }
 
-  public async deleteUser(userId: string) {
+  public async deleteUser(userId: string): Promise<types.IUaaUser> {
     const response = await this.request('delete', `/Users/${userId}`);
 
     return response.data;
   }
 
-  public async setUserOrigin(
-    userId: string,
-    origin: UaaOrigin,
-    originIdentifier?: string,
-  ): Promise<types.IUaaUser> {
-    const user = await this.getUser(userId);
-    user.origin = origin;
+  public async setUserOrigin(userId: string, origin: UaaOrigin, originIdentifier?: string): Promise<types.IUaaUser> {
+    const user = {
+      ...(await this.getUser(userId)),
+
+      origin,
+    };
 
     /* istanbul ignore if */
     if (originIdentifier) {
@@ -307,5 +297,23 @@ export default class UAAClient {
     const response = await this.request('put', `/Users/${userId}`, reqOpts);
 
     return response.data as types.IUaaUser;
+  }
+
+  public async obtainPasswordResetCode(username: string): Promise<string> {
+    const response = await this.request('post', '/password_resets', {
+      data: username,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.data.code;
+  }
+
+  public async resetPassword(code: string, password: string): Promise<types.IUaaUser> {
+    const response = await this.request('post', '/password_change', { data: { code, new_password: password } });
+
+    return response.data;
   }
 }

@@ -1,7 +1,8 @@
-import { NotifyClient } from 'notifications-node-client';
+import { IResponse, NotifyClient } from 'notifications-node-client';
 
 interface ITemplates {
-  readonly [name: string]: string | null;
+  readonly welcome?: string;
+  readonly passwordReset?: string;
 }
 
 interface IConfig {
@@ -25,10 +26,7 @@ export default class NotificationClient {
     this.templates = config.templates || {};
   }
 
-  public async sendWelcomeEmail(
-    emailAddress: string,
-    personalisation: IWelcomeEmailParameters,
-  ) {
+  public async sendWelcomeEmail(emailAddress: string, personalisation: IWelcomeEmailParameters): Promise<IResponse> {
     /* istanbul ignore next */
     if (!this.templates.welcome) {
       throw new Error('NotifyClient: templates.welcome: id is required');
@@ -38,6 +36,17 @@ export default class NotificationClient {
 
     return await this.client.sendEmail(templateID, emailAddress, {
       personalisation,
+    });
+  }
+
+  public async sendPasswordReminder(emailAddress: string, url: string): Promise<IResponse> {
+    /* istanbul ignore next */
+    if (!this.templates.passwordReset) {
+      throw new Error('NotifyClient: templates.passwordReset: id is required');
+    }
+
+    return await this.client.sendEmail(this.templates.passwordReset, emailAddress, {
+      personalisation: { url },
     });
   }
 }
