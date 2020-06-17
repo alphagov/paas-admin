@@ -249,7 +249,7 @@ export function checkPasswordAgainstPolicy(pw: string): { valid: boolean; messag
     }
   }
 
-  if (!pw.match(/[-_+:;<>[\]()#@£%^&!/]/)) {
+  if (!pw.match(/[-_+:;<>[\]()#@£%^&!$/]/)) {
     return {
       valid: false,
       message: 'Your password should contain a special character',
