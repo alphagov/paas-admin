@@ -5,7 +5,7 @@ import { eventTypeDescriptions } from '../../lib/cf';
 import { IApplication, IAuditEvent } from '../../lib/cf/types';
 import { RouteActiveChecker, RouteLinker } from '../app/context';
 import { ApplicationTab } from '../applications/views';
-import { Details, Event, EventListItem, Totals } from '../events';
+import { Details, Event, EventListItem, Totals, EventTimestamps } from '../events';
 
 interface IApplicationEventDetailPageProperties {
   readonly actor?: IAccountsUser;
@@ -120,6 +120,8 @@ export function ApplicationEventsPage(
         page={props.pagination.page}
         pages={props.pagination.total_pages}
       />
+
+      <EventTimestamps />
 
       <Details />
 

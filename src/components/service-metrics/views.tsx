@@ -237,6 +237,10 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
       </p>
 
       <p className="govuk-body">
+        Metrics timestamps are in UTC format.
+      </p>
+
+      <p className="govuk-body">
         Each point on a graph is aggregated over
         {' '}
         <strong className="non-breaking">{props.period.humanize()}</strong>

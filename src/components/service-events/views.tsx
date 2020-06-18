@@ -4,7 +4,7 @@ import { IAccountsUser } from '../../lib/accounts';
 import { eventTypeDescriptions } from '../../lib/cf';
 import { IAuditEvent, IServiceInstance } from '../../lib/cf/types';
 import { RouteActiveChecker, RouteLinker } from '../app';
-import { Details, Event, EventListItem, Totals } from '../events';
+import { Details, Event, EventListItem, Totals, EventTimestamps } from '../events';
 import { ServiceTab } from '../services/views';
 
 interface ILinkProperties {
@@ -99,6 +99,8 @@ export function ServiceEventsPage(
         page={props.pagination.page}
         pages={props.pagination.total_pages}
       />
+
+      <EventTimestamps />
 
       <Details />
 

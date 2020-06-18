@@ -177,3 +177,11 @@ export function Totals(props: ITotalsProperties): ReactElement {
     </p>
   );
 }
+
+export function EventTimestamps(): ReactElement {
+  return (
+    <p className="govuk-body">
+      Event timestamps are in UTC format.
+    </p>
+  );
+}
