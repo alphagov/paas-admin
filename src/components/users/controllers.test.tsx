@@ -546,6 +546,7 @@ describe(users.checkPasswordAgainstPolicy, () => {
       'mei5Iox1kuo2Foh;vie6th',
       'aLai4Ooghahth#o.c8ai',
       'o+quaePhaeth6eivoo',
+      'o+aaaaPhaeth6eivo$',
     ];
 
     good.forEach(pw => {
