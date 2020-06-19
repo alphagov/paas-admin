@@ -24,6 +24,7 @@ import {
   TargetedEvent,
   TargetedEventListItem,
   Totals,
+  EventTimestamps,
 } from '../events';
 
 export interface IEnchancedApplication extends IApplication {
@@ -614,6 +615,8 @@ export function EventsPage(props: IEventsPageProperties): ReactElement {
         page={props.pagination.page}
         pages={props.pagination.total_pages}
       />
+
+      <EventTimestamps />
 
       <Details />
 
