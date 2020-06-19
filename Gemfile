@@ -1,3 +1,3 @@
 source "https://rubygems.org"
 
-gem 'github_merge_sign', '1.0.0'
+gem 'github_merge_sign', '1.1.0'
