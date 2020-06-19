@@ -1,5 +1,11 @@
 # GOV.UK PaaS Admin
 
+⚠️
+When merging pull requests,
+please use the [gds-cli](https://github.com/alphagov/gds-cli)
+or [github_merge_sign](https://rubygems.org/gems/github_merge_sign)
+⚠️
+
 ## Overview
 
 A web UI for interacting with GOV.UK PaaS (CloudFoundry).
