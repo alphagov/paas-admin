@@ -10,7 +10,7 @@ import helmet from 'helmet';
 import { BaseLogger } from 'pino';
 
 import { IResponse, NotAuthorisedError } from '../../lib/router';
-import auth from '../auth';
+import { requireAuthentication, handleSession } from '../auth';
 import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
 import { listServices, viewService } from '../marketplace';
@@ -102,6 +102,19 @@ export default function(config: IAppConfig): express.Express {
 
   app.get('/healthcheck', (_req: express.Request, res: express.Response) =>
     res.send({ message: 'OK' }),
+  );
+
+  const sessionConfig = {
+    authorizationURL: `${config.authorizationAPI}/oauth/authorize`,
+    clientID: config.oauthClientID,
+    clientSecret: config.oauthClientSecret,
+    logoutURL: `${config.authorizationAPI}/logout.do`,
+    tokenURL: `${config.uaaAPI}/oauth/token`,
+    uaaAPI: config.uaaAPI,
+  };
+
+  app.use(
+    handleSession(sessionConfig),
   );
 
   app.get('/forbidden', () => {
@@ -202,14 +215,7 @@ export default function(config: IAppConfig): express.Express {
 
   // Authenticated endpoints follow
   app.use(
-    auth({
-      authorizationURL: `${config.authorizationAPI}/oauth/authorize`,
-      clientID: config.oauthClientID,
-      clientSecret: config.oauthClientSecret,
-      logoutURL: `${config.authorizationAPI}/logout.do`,
-      tokenURL: `${config.uaaAPI}/oauth/token`,
-      uaaAPI: config.uaaAPI,
-    }),
+    requireAuthentication(sessionConfig),
   );
 
   app.use(

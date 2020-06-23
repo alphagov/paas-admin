@@ -6,7 +6,7 @@ import nock from 'nock';
 import pino from 'pino';
 import request from 'supertest';
 
-import auth from '.';
+import { handleSession, requireAuthentication } from './auth';
 
 describe('auth test suite', () => {
   const app = express();
@@ -31,16 +31,16 @@ describe('auth test suite', () => {
 
   app.use(cookieSession({ keys: ['mysecret'], name: 'auth-test' }));
 
-  app.use(
-    auth({
-      authorizationURL: 'https://example.com/login/oauth/authorize',
-      clientID: 'key',
-      clientSecret: 'secret',
-      logoutURL: 'https://example.com/login/logout.do',
-      tokenURL: 'https://example.com/uaa/oauth/token',
-      uaaAPI: 'https://example.com/uaa',
-    }),
-  );
+  const sessionConfig = {
+    authorizationURL: 'https://example.com/login/oauth/authorize',
+    clientID: 'key',
+    clientSecret: 'secret',
+    logoutURL: 'https://example.com/login/logout.do',
+    tokenURL: 'https://example.com/uaa/oauth/token',
+    uaaAPI: 'https://example.com/uaa',
+  };
+  app.use(handleSession(sessionConfig));
+  app.use(requireAuthentication(sessionConfig));
 
   app.get('/test', (_req, res) => {
     res.status(200);
