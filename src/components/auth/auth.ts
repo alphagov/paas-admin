@@ -35,7 +35,7 @@ function syncMiddleware(f: MiddlewareFunction) {
   };
 }
 
-export default function authentication(config: IConfig) {
+export function handleSession(config: IConfig) {
   const app = express();
 
   const options: StrategyOptions = {
@@ -87,6 +87,12 @@ export default function authentication(config: IConfig) {
     req.logout();
     res.redirect(config.logoutURL);
   });
+
+  return app;
+}
+
+export function requireAuthentication(config: IConfig) {
+  const app = express();
 
   app.use(
     syncMiddleware(async (req: any, res, next) => {
