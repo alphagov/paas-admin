@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from 'axios';
-import pLimit from 'p-limit';
 
 import * as types from './uaa.types';
 
@@ -203,6 +202,8 @@ export default class UAAClient {
 
   public async getUsers(userGUIDs: ReadonlyArray<string>): Promise<ReadonlyArray<types.IUaaUser | null>> {
     // Limit number of users fetched from UAA concurrently
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const pLimit = require('p-limit');
     const pool = pLimit(CONCURRENCY_LIMIT);
     const uaaUsers = await Promise.all(
       userGUIDs.map(async guid =>
