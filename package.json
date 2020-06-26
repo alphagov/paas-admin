@@ -100,7 +100,7 @@
     "ts-mocha": "^7.0.0",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5",
-    "webpack": "^4.42.1",
+    "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-node-externals": "^1.7.2",
     "zombie": "^6.1.4"
