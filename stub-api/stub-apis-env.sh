@@ -16,7 +16,9 @@ export API_URL=http://0:${STUB_CF_PORT}
 export UAA_URL=http://0:${STUB_UAA_PORT}
 export AUTHORIZATION_URL=http://0:${STUB_UAA_PORT}
 export AWS_CLOUDWATCH_ENDPOINT=http://0:${STUB_AWS_PORT}
-export PROMETHEUS_URL=http://0:${STUB_PROMETHEUS_PORT}
+export PROMETHEUS_ENDPOINT=http://0:${STUB_PROMETHEUS_PORT}
+export PROMETHEUS_USERNAME=not-used
+export PROMETHEUS_PASSWORD=not-used
 
 export OAUTH_CLIENT_ID=my-client-id
 export OAUTH_CLIENT_SECRET=my-secret
