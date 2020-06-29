@@ -49,7 +49,7 @@ export interface IAppConfig {
   readonly prometheusPassword: string;
 }
 
-export type OIDCProviderName = 'microsoft' | 'google';
+export type OIDCProviderName = 'google';
 
 export interface IOIDCConfig {
   readonly providerName: string;

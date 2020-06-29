@@ -67,14 +67,6 @@ async function main() {
   }
 
   const providers = new Map<OIDCProviderName, IOIDCConfig>();
-  providers.set('microsoft', {
-    providerName: 'microsoft',
-    clientID: expectEnvVariable('MS_CLIENT_ID'),
-    clientSecret: expectEnvVariable('MS_CLIENT_SECRET'),
-    discoveryURL:
-      'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration',
-  });
-
   providers.set('google', {
     providerName: 'google',
     clientID: expectEnvVariable('GOOGLE_CLIENT_ID'),

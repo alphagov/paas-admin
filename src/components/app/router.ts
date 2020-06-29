@@ -219,22 +219,6 @@ export const router = new Router([
     path: '/my-account/use-google-sso/callback',
   },
   {
-    action: account.getUseMicrosoftSSO,
-    name: 'account.use-microsoft-sso.view',
-    path: '/my-account/use-microsoft-sso',
-  },
-  {
-    action: account.postUseMicrosoftSSO,
-    method: 'post',
-    name: 'account.use-microsoft-sso.post',
-    path: '/my-account/use-microsoft-sso',
-  },
-  {
-    action: account.getMicrosoftOIDCCallback,
-    name: 'account.use-microsoft-sso-callback.get',
-    path: '/my-account/use-microsoft-sso/callback',
-  },
-  {
     action: users.getUser,
     name: 'users.get',
     path: '/users/:emailOrUserGUID',

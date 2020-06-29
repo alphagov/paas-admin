@@ -7,7 +7,6 @@ import { UaaOrigin } from '../../lib/uaa/uaa';
 import { IContext } from '../app';
 
 export const KEY_STATE = 'oidc_flow_state';
-const KEY_OID = 'oid';
 const KEY_SUB = 'sub';
 
 export default class OIDC {
@@ -59,10 +58,6 @@ export default class OIDC {
       let newUsername;
       const claims = tokenSet.claims();
       switch (providerName) {
-        case 'microsoft': {
-          newUsername = claims[KEY_OID] as string;
-          break;
-        }
         case 'google': {
           newUsername = claims[KEY_SUB] as string;
           break;
