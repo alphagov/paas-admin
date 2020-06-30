@@ -22,7 +22,7 @@ interface IClientConfig {
   readonly signingKeys?: ReadonlyArray<string>;
 }
 
-export type UaaOrigin = 'uaa' | 'google' | 'microsoft';
+export type UaaOrigin = 'uaa' | 'google';
 
 export interface IUaaInvitation {
   readonly userId: string;

@@ -8,13 +8,6 @@ const sessionSecret = 'mysecret';
 
 const providers = new Map<OIDCProviderName, IOIDCConfig>();
 
-providers.set('microsoft', {
-  clientID: 'CLIENTID',
-  clientSecret: 'CLIENTSECRET',
-  discoveryURL: 'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration',
-  providerName: 'microsoft',
-});
-
 providers.set('google', {
   clientID: 'CLIENTID',
   clientSecret: 'CLIENTSECRET',

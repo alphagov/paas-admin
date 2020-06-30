@@ -144,7 +144,7 @@ export function SSOPage(props: ISSOPageProperties): ReactElement {
           <></>
         )}
 
-        {['google', 'microsoft'].includes(props.user.origin) ? (
+        {props.user.origin === 'google' ? (
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">
               Using {capitalize(props.provider)} single sign-on (SSO)
@@ -185,16 +185,6 @@ export function SSOPage(props: ISSOPageProperties): ReactElement {
                   className="govuk-link"
                 >
                   use single sign-on on at the command line
-                </a>
-                .
-              </p>
-              <p>
-                If you would like begin using Microsoft single sign-on, contact{' '}
-                <a
-                  href="https://www.cloud.service.gov.uk/support"
-                  className="govuk-link"
-                >
-                  support
                 </a>
                 .
               </p>

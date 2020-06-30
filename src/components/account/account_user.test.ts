@@ -41,13 +41,6 @@ describe('AccountUser', () => {
       expect(acctUser.authenticationMethod).toEqual('Google');
     });
 
-    it('returns microsoft if the user\'s origin is microsoft', () => {
-      const uaaUser: any = { origin: 'microsoft' };
-
-      const acctUser = new AccountUser(uaaUser);
-      expect(acctUser.authenticationMethod).toEqual('Microsoft');
-    });
-
     it('returns unknown if the user\'s origin is not uaa or google', () => {
       const uaaUser: any = { origin: null };
 

@@ -17,8 +17,6 @@ export class AccountUser {
         return 'Username & password';
       case 'google':
         return 'Google';
-      case 'microsoft':
-        return 'Microsoft';
     }
 
     return 'Unknown';

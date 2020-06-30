@@ -241,24 +241,6 @@ export function OrganizationsPage(
             </a>
           </p>
         </div>
-
-        <div className="govuk-grid-column-one-half">
-          <h2 className="govuk-heading-m">Set up Microsoft single sign-on</h2>
-
-          <p className="govuk-body">
-            GOV.UK PaaS supports Microsoft single sign-on as an authentication
-            method.
-          </p>
-
-          <p className="govuk-body">
-            <a
-              href={props.linkTo('account.use-microsoft-sso.view')}
-              className="govuk-link"
-            >
-              Set up Microsoft single sign-on
-            </a>
-          </p>
-        </div>
       </div>
     </>
   );
