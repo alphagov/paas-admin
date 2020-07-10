@@ -4,14 +4,14 @@ import React from 'react';
 import { Template } from '../../layouts';
 import { BillingClient } from '../../lib/billing';
 import CloudFoundryClient from '../../lib/cf';
-import { IParameters, IResponse, NotFoundError } from '../../lib/router';
+import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app/context';
 import {
   CLOUD_CONTROLLER_ADMIN,
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
-import { fromOrg } from '../breadcrumbs';
+import { IOrganizationSkeleton, fromOrg } from '../breadcrumbs';
 import { UserFriendlyError } from '../errors';
 
 import { IFilterResource, StatementsPage } from './views';
@@ -215,25 +215,42 @@ export async function viewStatement(
     CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   );
 
-  const [isManager, isBillingManager] = await Promise.all([
-    cf.hasOrganizationRole(
-      params.organizationGUID,
-      ctx.token.userID,
-      'org_manager',
-    ),
-    cf.hasOrganizationRole(
-      params.organizationGUID,
-      ctx.token.userID,
-      'billing_manager',
-    ),
-  ]);
+  let organization: IOrganizationSkeleton = {
+    metadata: { guid: params.organizationGUID },
+    entity: { name: 'deleted-org' },
+  };
 
-  /* istanbul ignore next */
-  if (!isAdmin && !isManager && !isBillingManager) {
-    throw new NotFoundError('not found');
+  // we still want to check bills for deleted orgs
+  try {
+    organization = await cf.organization(params.organizationGUID);
+  } catch(e) {
+    /* istanbul ignore next */
+    if (e.code != 404 && !isAdmin) {
+      throw e;
+    }
   }
 
-  const organization = await cf.organization(params.organizationGUID);
+  if (!isAdmin) {
+    const [isManager, isBillingManager] = await Promise.all([
+      cf.hasOrganizationRole(
+        params.organizationGUID,
+        ctx.token.userID,
+        'org_manager',
+      ),
+      cf.hasOrganizationRole(
+        params.organizationGUID,
+        ctx.token.userID,
+        'billing_manager',
+      ),
+    ]);
+
+    /* istanbul ignore next */
+    if (!isManager && !isBillingManager) {
+      throw new UserFriendlyError(
+        'Billing is currently unavailable, please try again later.',
+      );
+    }
+  }
 
   const billingClient = new BillingClient({
     accessToken: ctx.token.accessToken,
