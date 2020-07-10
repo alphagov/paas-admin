@@ -51,9 +51,10 @@ async function request(
     }
 
     const err = new Error(msg);
+
     /* istanbul ignore next */
-    if (typeof response.data === 'object' && response.data.error_code) {
-      // err.code = response.data.error_code;
+    if (response && response.status) {
+      (err as any).code = response.status;
     }
 
     throw err;

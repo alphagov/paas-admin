@@ -9,7 +9,7 @@ import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import { createTestContext } from '../app/app.test-helpers';
 import { config } from '../app/app.test.config';
 import { IContext } from '../app/context';
-import { Token } from '../auth';
+import { CLOUD_CONTROLLER_ADMIN, Token } from '../auth';
 
 import {
   composeCSV,
@@ -51,6 +51,21 @@ const ctx: IContext = createTestContext({
   linkTo: (name: any, params: any) =>
     `${name}/${params ? params.rangeStart : ''}`,
   token: new Token(token, [tokenKey]),
+});
+
+const adminToken = jwt.sign(
+  {
+    exp: 2535018460,
+    origin: 'uaa',
+    scope: [CLOUD_CONTROLLER_ADMIN],
+    user_id: 'uaa-id-253',
+  },
+  tokenKey,
+);
+const adminCtx: IContext = createTestContext({
+  linkTo: (name: any, params: any) =>
+    `${name}/${params ? params.rangeStart : ''}`,
+  token: new Token(adminToken, [tokenKey]),
 });
 
 describe('statements test suite', () => {
@@ -104,6 +119,47 @@ describe('statements test suite', () => {
     });
 
     expect(response.body).toContain('Statement');
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
+  });
+
+  it('should error for non-admins when the org is deleted', async () => {
+    nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .reply(404)
+    ;
+
+    await expect(
+      statement.viewStatement(ctx, {
+        organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+        rangeStart: '2018-01-01',
+      }),
+    ).rejects.toThrow(/status 404/);
+  });
+
+  it('should show the statement page to admins for a deleted org', async () => {
+    nockBilling
+      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .reply(200, '[]')
+
+      .get(
+        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      )
+      .reply(200, billingData.billableEvents);
+
+    nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .reply(404)
+    ;
+
+    const response = await statement.viewStatement(adminCtx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: '2018-01-01',
+    });
+
+    expect(response.body).toContain('Statement');
+    expect(response.body).toContain('deleted-org');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
