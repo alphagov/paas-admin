@@ -284,7 +284,7 @@ export const router = new Router([
     path: '/support',
   },
   {
-    action: support.SupportSelectionFormPost,
+    action: support.HandleSupportSelectionFormPost,
     method: 'post',
     name: 'support.selection.post',
     path: '/support',
@@ -342,6 +342,17 @@ export const router = new Router([
     action: support.JoiningExistingOrganisationNotice,
     name: 'support.existing-organisation',
     path: '/support/request-an-account/existing-organisation',
+  },
+  {
+    action: support.SignupForm,
+    name: 'support.sign-up',
+    path: '/support/sign-up',
+  },
+  {
+    action: support.HandleSignupFormPost,
+    method: 'post',
+    name: 'support.sign-up.post',
+    path: '/support/sign-up',
   },
 ]);
 

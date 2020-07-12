@@ -20,11 +20,13 @@ import {
   HandleContactUsFormPost,
   HandleFindOutMoreFormPost,
   HandleHelpUsingPaasFormPost,
+  HandleSignupFormPost,
   HandleSomethingWrongWithServiceFormPost,
   HandleSupportSelectionFormPost,
   HelpUsingPaasForm,
   JoiningExistingOrganisationNotice,
   RequestAnAccountForm,
+  SignupForm,
   SomethingWrongWithServiceForm,
   SupportSelectionForm,
 } from '../support';
@@ -346,6 +348,30 @@ export default function(config: IAppConfig): express.Express {
     const ctx = initContext(req, router, route, config);
 
     HandleContactUsFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/sign-up', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.sign-up');
+    const ctx = initContext(req, router, route, config);
+
+    SignupForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.post('/support/sign-up', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.sign-up.post');
+    const ctx = initContext(req, router, route, config);
+
+    HandleSignupFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })

@@ -3,15 +3,17 @@ import React from 'react';
 import { Template } from '../../layouts';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
-import { IValidationError } from '../errors/types';
+import { IDualValidationError, IValidationError } from '../errors/types';
 
 import {
   ContactUsPage,
   FindOutMorePage,
   HelpUsingPaasPage,
+  ISignupFormValues,
   ISupportSelectionFormProperties,
   JoiningExistingOrganisationPage,
   RequestAnAccountPage,
+  SignUpPage,
   SomethingWrongWithServicePage,
   SupportConfirmationPage,
   SupportSelectionPage,
@@ -80,6 +82,12 @@ interface IContactUsForm extends
     readonly department_agency?: string;
     readonly service_team?: string;
   };
+}
+
+interface ISignupForm extends ISupportFormName, ISupportFormEmail, ISupportFormDeptAgency, ISupportFormServiceTeam {
+  readonly person_is_manager?: string;
+  readonly invite_users?: string;
+  readonly values? : ISignupFormValues;
 }
 
 const VALID_EMAIL = /[^.]@[^.]/;
@@ -195,6 +203,61 @@ function validateServiceTeam({ service_team }: ISupportFormServiceTeam): Readonl
     errors.push({
       field: 'service_team',
       message: 'Enter your service or team',
+    });
+  }
+
+  return errors;
+}
+
+function validateSignupEmail({ email }: ISignupForm): ReadonlyArray<IDualValidationError> {
+  const errors: Array<IDualValidationError> = [];
+
+  const allowedEmailAddresses = /(.+\.gov\.uk|.+nhs\.(net|uk)|.+mod\.uk|.+\.police\.uk|police\.uk)$/;
+
+  if (!email || !VALID_EMAIL.test(email)) {
+    errors.push({
+      field: 'email',
+      message: 'Enter an email address in the correct format, like name@example.com',
+    });
+  }
+
+  if (email && VALID_EMAIL.test(email) && !allowedEmailAddresses.test(email)) {
+    errors.push({
+      field: 'email',
+      message: 'We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, .police.uk or police.uk email addresses',
+      messageExtra: `
+        If you work for a government organisation or public body with a different email address, please contact us on 
+        <a class="govuk-link" 
+          href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk"
+        >
+          gov-uk-paas-support@digital.cabinet-office.gov.uk
+        </a>`,
+    });
+  }
+
+  return errors;
+}
+
+function validatePersonIsManager({ person_is_manager }: ISignupForm): ReadonlyArray<IValidationError> {
+  const errors: Array<IValidationError> = [];
+
+  if (!person_is_manager) {
+    errors.push({
+      field: 'person_is_manager',
+      message: 'Select the appropriate option for an org manager',
+    });
+  }
+
+  return errors;
+}
+
+function validateInviteUsers({ invite_users }: ISignupForm): ReadonlyArray<IValidationError> {
+  const errors: Array<IValidationError> = [];
+
+  if (!invite_users) {
+    errors.push({
+      field: 'invite_users',
+      message: 'Select "Yes" if you would like to invite users to your organisation',
     });
   }
 
@@ -477,4 +540,60 @@ export async function JoiningExistingOrganisationNotice (ctx: IContext): Promise
   return {
     body: template.render(<JoiningExistingOrganisationPage/>),
   };
+}
+
+export async function SignupForm (ctx: IContext): Promise<IResponse> {
+
+  const template = new Template(ctx.viewContext, 'Request a GOV.UK PaaS account');
+
+  return {
+    body: template.render(<SignUpPage
+      csrf={ctx.viewContext.csrf}
+      linkTo={ctx.linkTo}
+      errors={[]}
+      values={[]}
+    />),
+  };
+}
+
+export async function HandleSignupFormPost (ctx: IContext, params: IParameters,  body: ISignupForm): Promise<IResponse> {
+  const errors: Array<IValidationError> = [];
+  const template = new Template(ctx.viewContext);
+  errors.push(
+    ...validateName(body),
+    ...validateSignupEmail(body),
+    ...validateDepartmentAgency(body),
+    ...validateServiceTeam(body),
+    ...validatePersonIsManager(body),
+    ...validateInviteUsers(body),
+  );
+  if (errors.length > 0) {
+    template.title = 'Request a GOV.UK PaaS account';
+
+    return {
+      body: template.render(<SignUpPage
+        csrf={ctx.viewContext.csrf}
+        linkTo={ctx.linkTo}
+        errors={errors}
+        values={body}
+      />),
+    };
+  } else {
+    template.title = 'We have received your request';
+
+    return {
+      body: template.render(
+        <SupportConfirmationPage
+          linkTo={ctx.linkTo}
+          heading={'We have received your request'}
+          text={'We will email you with your organisation account details in th next working day.'}
+        >
+          <a className="govuk-link" 
+            href="https://www.cloud.service.gov.uk/get-started">
+              See the next steps to get started
+          </a>.
+        </SupportConfirmationPage>,
+      ),
+    };
+  }
 }

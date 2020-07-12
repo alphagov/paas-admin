@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 
 import { RouteLinker } from '../app';
-import { IValidationError } from '../errors/types';
+import { IDualValidationError, IValidationError } from '../errors/types';
 
 interface IProperties {
   readonly linkTo: RouteLinker;
@@ -74,6 +74,19 @@ interface IContactUsFormProperties extends IFormProperties {
   };
 }
 
+export interface ISignupFormValues {
+  readonly email: string;
+  readonly name: string;
+  readonly department_agency: string;
+  readonly service_team: string;
+  readonly person_is_manager: string;
+  readonly invite_users: string;
+}
+
+interface ISignupFormProperties extends IFormProperties {
+  readonly errors?: ReadonlyArray<IDualValidationError>;
+  readonly values: ISignupFormValues;
+}
 
 interface ISupportConfirmationPageProperties {
   readonly heading: string;
@@ -1212,6 +1225,340 @@ export function JoiningExistingOrganisationPage(): ReactElement {
       <p className="govuk-body">Users with non-government email addresses can be added to an account at the request of an org manager.</p>
       <p className="govuk-body">If you don&apos;t know who the org manager is please contact support.</p>
       <a className="govuk-button" href="/support/contact-us">Contact support</a>
+      </div>
+    </div>
+  );
+}
+
+export function SignUpPage(props: ISignupFormProperties): ReactElement {
+  return (
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-two-thirds">
+        {props.errors && props.errors.length > 0 ? (
+          <div
+            className="govuk-error-summary"
+            aria-labelledby="error-summary-title"
+            role="alert"
+            tabIndex={-1}
+            data-module="govuk-error-summary"
+          >
+            <h2 className="govuk-error-summary__title" id="error-summary-title">
+              There is a problem
+            </h2>
+
+            <div className="govuk-error-summary__body">
+              <ul className="govuk-list govuk-error-summary__list">
+                {props.errors.map((error, index) => (
+                  <li key={index}>
+                    <a href={`#${error.field}`}>{error.message}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ) : (
+          <></>
+        )}
+        <h1 className="govuk-heading-l">Request a GOV.UK PaaS account</h1>
+        <form noValidate method="post">
+          <input type="hidden" name="_csrf" value={props.csrf} />
+          <h2 className="govuk-heading-m">Your details</h2>
+          <div className={`govuk-form-group ${
+                props.errors?.some(e => e.field === 'name')
+                  ? 'govuk-form-group--error'
+                  : ''
+              }`}>
+            <label className="govuk-label" htmlFor="name">
+              Full name
+            </label>
+            {props.errors
+              ?.filter(error => error.field === 'name')
+              .map((error, index) => (
+                <span
+                  key={index}
+                  id="name-error"
+                  className="govuk-error-message"
+                >
+                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                  {error.message}
+                </span>
+              ))}
+            <input
+            className={`govuk-input ${
+            props.errors?.some(e => e.field === 'name')
+                ? 'govuk-input--error'
+                : ''
+            }`}
+            id="name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            spellCheck="false"
+            defaultValue={props.values?.name}
+            aria-describedby={
+              props.errors?.some(e => e.field === 'name')
+                ? 'name-error'
+                : ''
+            }
+            />
+          </div>
+          <div className={`govuk-form-group ${
+                props.errors?.some(e => e.field === 'email')
+                  ? 'govuk-form-group--error'
+                  : ''
+              }`}>
+            <label className="govuk-label" htmlFor="email">
+              Email address
+            </label>
+            <span id="email-hint" className="govuk-hint">
+              Must be from a government organisation or public body
+            </span>
+            {props.errors
+              ?.filter(error => error.field === 'email')
+              .map((error, index) => (
+                <span
+                  key={index}
+                  id="email-error"
+                  className="govuk-error-message"
+                >
+                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                  {error.message}
+                  {error.messageExtra ?
+                  <span
+                    className="govuk-!-display-block"
+                  // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{ __html: error.messageExtra }} /> : ''
+                  }
+                </span>
+              ))}
+            <input className={`govuk-input ${
+              props.errors?.some(e => e.field === 'email')
+                  ? 'govuk-input--error'
+                  : ''
+              }`}
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              spellCheck="false"
+              defaultValue={props.values?.email}
+              aria-describedby={
+                props.errors?.some(e => e.field === 'email')
+                  ? 'email-hint email-error'
+                  : 'email-hint'
+              }
+            />
+          </div>
+
+          <h2 className="govuk-heading-m">Your organisation</h2>
+          <div className={`govuk-form-group ${
+              props.errors?.some(e => e.field === 'department_agency')
+                ? 'govuk-form-group--error'
+                : ''
+            }`}>
+            <label className="govuk-label" htmlFor="department_agency">
+              Department or agency
+            </label>
+            {props.errors
+              ?.filter(error => error.field === 'department_agency')
+              .map((error, index) => (
+                <span
+                  key={index}
+                  id="department_agency-error"
+                  className="govuk-error-message"
+                >
+                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                  {error.message}
+                </span>
+              ))}
+            <input
+              className={`govuk-input ${
+                props.errors?.some(e => e.field === 'department_agency')
+                    ? 'govuk-input--error'
+                    : ''
+                }`}
+              id="department_agency"
+              name="department_agency"
+              type="text"
+              spellCheck="false"
+              defaultValue={props.values?.department_agency}
+              aria-describedby={
+                props.errors?.some(e => e.field === 'department_agency')
+                  ? 'department_agency-error'
+                  : ''
+              }
+            />
+          </div>
+          <div className={`govuk-form-group ${
+              props.errors?.some(e => e.field === 'service_team')
+                ? 'govuk-form-group--error'
+                : ''
+            }`}>
+            <label className="govuk-label" htmlFor="service_team">
+              Service or team you work on
+            </label>
+            {props.errors
+              ?.filter(error => error.field === 'service_team')
+              .map((error, index) => (
+                <span
+                  key={index}
+                  id="service_team-error"
+                  className="govuk-error-message"
+                >
+                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                  {error.message}
+                </span>
+              ))}
+            <input
+              className={`govuk-input ${
+                props.errors?.some(e => e.field === 'service_team')
+                  ? 'govuk-input--error'
+                  : ''
+              }`}
+              id="service_team"
+              name="service_team"
+              type="text"
+              spellCheck="false"
+              defaultValue={props.values?.service_team}
+              aria-describedby={
+                props.errors?.some(e => e.field === 'service_team')
+                  ? 'service_team-error'
+                  : ''
+              }
+            />
+          </div>
+          <div className={`govuk-form-group ${
+              props.errors?.some(e => e.field === 'person_is_manager')
+                ? 'govuk-form-group--error'
+                : ''
+            }`}>
+            <fieldset className="govuk-fieldset"
+              aria-describedby={
+                props.errors?.some(e => e.field === 'person_is_manager')
+                  ? 'person_is_manager-error'
+                  : 'person_is_manager-hint'
+              }
+            >
+              <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+                Will you be a manager of this organisation?
+              </legend>
+              <span id="person_is_manager-hint" className="govuk-hint">
+              Organisations are controlled by ‘org managers’ who are responsible for administering the account and assigning roles and permissions to users within the organisation
+              </span>
+              {props.errors
+              ?.filter(error => error.field === 'person_is_manager')
+              .map((error, index) => (
+                <span
+                  key={index}
+                  id="person_is_manager-error"
+                  className="govuk-error-message"
+                >
+                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                  {error.message}
+                </span>
+              ))}
+              <div className="govuk-radios">
+                <div className="govuk-radios__item">
+                  <input
+                    className="govuk-radios__input"
+                    id="person_is_manager"
+                    name="person_is_manager"
+                    type="radio"
+                    value="yes"
+                    defaultChecked={props.values?.person_is_manager === 'yes'}
+                  />
+                  <label className="govuk-label govuk-radios__label" htmlFor="person_is_manager">
+                    Yes, I will be an org manager for this organisation
+                  </label>
+                </div>
+                <div className="govuk-radios__item">
+                  <input
+                    className="govuk-radios__input"
+                    id="person_is_manager-1"
+                    name="person_is_manager"
+                    type="radio"
+                    value="no"
+                    aria-describedby="person_is_manager-1-item-hint"
+                    defaultChecked={props.values?.person_is_manager === 'no'}
+                  />
+                  <label className="govuk-label govuk-radios__label" htmlFor="person_is_manager-1">
+                    No, I will nominate someone else to be an org manager
+                  </label>
+                  <div id="person_is_manager-1-item-hint" className="govuk-hint govuk-radios__hint">
+                    You will need to specify at least one ‘org manager’ in order for us to set up your organisation. If you do not intend to manage the organisation yourself you can invite your nominated manager in the following section.
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <h2>Invite users to your organisation</h2>
+          <p className="govuk-body">Users who aren&apos;t org managers can deploy code but won&apos;t be able to administer the account.</p>
+          <div className={`govuk-form-group ${
+              props.errors?.some(e => e.field === 'invite_users')
+                ? 'govuk-form-group--error'
+                : ''
+            }`}>
+            <fieldset className="govuk-fieldset"
+              aria-describedby={
+                props.errors?.some(e => e.field === 'invite_users')
+                  ? 'invite_users-error'
+                  : 'invite_users-hint'
+              }
+            >
+              <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+                Would you like to invite additional users now?
+              </legend>
+              <span id="invite_users-hint" className="govuk-hint">
+                We recommend each &apos;organisation&apos; has at least two &apos;org managers&apos;
+              </span>
+              {props.errors
+              ?.filter(error => error.field === 'invite_users')
+              .map((error, index) => (
+                <span
+                  key={index}
+                  id="invite_users-error"
+                  className="govuk-error-message"
+                >
+                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                  {error.message}
+                </span>
+              ))}
+              <div className="govuk-radios">
+                <div className="govuk-radios__item">
+                  <input
+                    className="govuk-radios__input"
+                    id="invite_users"
+                    name="invite_users"
+                    type="radio"
+                    value="yes"
+                    defaultChecked={props.values?.invite_users === 'yes'}
+                  />
+                  <label className="govuk-label govuk-radios__label" htmlFor="invite_users">
+                    Yes, I&apos;d like to invite users to my organisation
+                  </label>
+                </div>
+                <div className="govuk-radios__item">
+                  <input
+                    className="govuk-radios__input"
+                    id="invite_users-1"
+                    name="invite_users"
+                    type="radio"
+                    value="no"
+                    defaultChecked={props.values?.invite_users === 'no'}
+                  />
+                  <label className="govuk-label govuk-radios__label" htmlFor="invite_users-1">
+                    No, I&apos;ll do this later
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <button data-prevent-double-click="true" className="govuk-button" data-module="govuk-button">
+            Submit request
+          </button>
+        </form>
       </div>
     </div>
   );
