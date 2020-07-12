@@ -15,7 +15,9 @@ import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
 import { listServices, viewService } from '../marketplace';
 import {
+  ContactUsForm,
   FindOutMoreForm,
+  HandleContactUsFormPost,
   HandleFindOutMoreFormPost,
   HandleHelpUsingPaasFormPost,
   HandleSomethingWrongWithServiceFormPost,
@@ -318,6 +320,30 @@ export default function(config: IAppConfig): express.Express {
     const ctx = initContext(req, router, route, config);
 
     HandleFindOutMoreFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/contact-us', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.contact-us');
+    const ctx = initContext(req, router, route, config);
+
+    ContactUsForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.post('/support/contact-us', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.contact-us.post');
+    const ctx = initContext(req, router, route, config);
+
+    HandleContactUsFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })

@@ -322,6 +322,17 @@ export const router = new Router([
     name: 'support.find-out-more.post',
     path: '/support/find-out-more',
   },
+  {
+    action: support.ContactUsForm,
+    name: 'support.contact-us',
+    path: '/support/contact-us',
+  },
+  {
+    action: support.HandleContactUsFormPost,
+    method: 'post',
+    name: 'support.contact-us.post',
+    path: '/support/contact-us',
+  },
 ]);
 
 export default router;

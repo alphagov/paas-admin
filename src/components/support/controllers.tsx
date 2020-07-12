@@ -6,6 +6,7 @@ import { IContext } from '../app';
 import { IValidationError } from '../errors/types';
 
 import {
+  ContactUsPage,
   FindOutMorePage,
   HelpUsingPaasPage,
   ISupportSelectionFormProperties,
@@ -25,8 +26,16 @@ interface ISupportFormEmail {
 interface ISupportFormMessage {
   readonly message?: string;
 }
+
 interface ISupportFormGovOrgName {
   readonly gov_organisation_name?: string;
+}
+
+interface ISupportFormDeptAgency {
+  readonly department_agency?: string;
+}
+interface ISupportFormServiceTeam {
+  readonly service_team?: string;
 }
 
 interface ISomethingWrongWithServiceForm extends ISupportFormName, ISupportFormEmail, ISupportFormMessage {
@@ -57,6 +66,17 @@ interface IFindOutMoreForm extends ISupportFormName, ISupportFormEmail, ISupport
     readonly email: string;
     readonly message: string;
     readonly gov_organisation_name: string;
+  };
+}
+
+interface IContactUsForm extends
+  ISupportFormName, ISupportFormEmail, ISupportFormMessage, ISupportFormDeptAgency, ISupportFormServiceTeam {
+  readonly values?: {
+    readonly name: string;
+    readonly email: string;
+    readonly message: string;
+    readonly department_agency?: string;
+    readonly service_team?: string;
   };
 }
 
@@ -147,6 +167,32 @@ function validateGovOrg({ gov_organisation_name }: ISupportFormGovOrgName): Read
     errors.push({
       field: 'gov_organisation_name',
       message: 'Enter your government organisation’s name',
+    });
+  }
+
+  return errors;
+}
+
+function validateDepartmentAgency({ department_agency }: ISupportFormDeptAgency): ReadonlyArray<IValidationError> {
+  const errors: Array<IValidationError> = [];
+
+  if (!department_agency) {
+    errors.push({
+      field: 'department_agency',
+      message: 'Enter your department or agency',
+    });
+  }
+
+  return errors;
+}
+
+function validateServiceTeam({ service_team }: ISupportFormServiceTeam): ReadonlyArray<IValidationError> {
+  const errors: Array<IValidationError> = [];
+
+  if (!service_team) {
+    errors.push({
+      field: 'service_team',
+      message: 'Enter your service or team',
     });
   }
 
@@ -347,6 +393,62 @@ export async function HandleFindOutMoreFormPost (ctx: IContext, params: IParamet
           <a className="govuk-link" 
             href="https://www.cloud.service.gov.uk/roadmap">
               roadmap and features
+          </a>.
+        </SupportConfirmationPage>,
+      ),
+    };
+  }
+}
+
+export async function ContactUsForm (ctx: IContext, _params: IParameters): Promise<IResponse> {
+
+  const template = new Template(ctx.viewContext, 'Contact us');
+
+  return {
+    body: template.render(<ContactUsPage
+      csrf={ctx.viewContext.csrf}
+      linkTo={ctx.linkTo}
+      errors={[]}
+      values={[]}
+    />),
+  };
+}
+
+export async function HandleContactUsFormPost (ctx: IContext, params: IParameters,  body: IContactUsForm): Promise<IResponse> {
+  const errors: Array<IValidationError> = [];
+  const template = new Template(ctx.viewContext);
+
+  errors.push(
+    ...validateName(body),
+    ...validateEmail(body),
+    ...validateMessage(body),
+    ...validateDepartmentAgency(body),
+    ...validateServiceTeam(body),
+    );
+  if (errors.length > 0) {
+    template.title = 'Error: Contact us';
+
+    return {
+      body: template.render(<ContactUsPage
+        csrf={ctx.viewContext.csrf}
+        linkTo={ctx.linkTo}
+        errors={errors}
+        values={body}
+      />),
+    };
+  } else {
+    template.title = 'We have received your message';
+
+    return {
+      body: template.render(
+        <SupportConfirmationPage
+          linkTo={ctx.linkTo}
+          heading={'We have received your message'}
+          text={'We will contact you on the next working day.'}
+        >
+          <a className="govuk-link" 
+            href="https://www.cloud.service.gov.uk/get-started">
+              See the next steps to get started
           </a>.
         </SupportConfirmationPage>,
       ),
