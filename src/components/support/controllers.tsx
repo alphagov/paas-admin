@@ -9,6 +9,7 @@ import {
   ISupportSelectionFormProperties,
   SomethingWrongWithServicePage,
   SupportSelectionPage,
+  SupportConfirmationPage,
 } from './views';
 
 interface ISupportFormName {
@@ -191,7 +192,7 @@ export async function HandleSomethingWrongWithServiceFormPost (ctx: IContext, pa
 
     return {
       body: template.render(
-        <SupportConfirmation
+        <SupportConfirmationPage
           linkTo={ctx.linkTo}
           heading={'We have received your message'}
           text={'We deal with the most critical issues first. During working hours we will start investigating critical issues within 20 minutes.'}
@@ -203,7 +204,7 @@ export async function HandleSomethingWrongWithServiceFormPost (ctx: IContext, pa
             href="https://www.cloud.service.gov.uk/support-and-response-times">
               support and resolution times
           </a>.
-        </SupportConfirmation>,
+        </SupportConfirmationPage>,
       ),
     };
   }

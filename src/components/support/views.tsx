@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { RouteLinker } from '../app';
 import { IValidationError } from '../errors/types';
@@ -31,6 +31,13 @@ export interface ISomethingWrongWithServiceForm extends IFormProperties {
     readonly affected_paas_organisation: string;
     readonly impact_severity: string;
   };
+}
+
+interface ISupportConfirmationPageProperties {
+  readonly heading: string;
+  readonly text: string;
+  readonly children: ReactNode;
+  readonly linkTo: RouteLinker;
 }
 
 export function SupportSelectionPage(props: ISupportSelectionFormProperties): ReactElement {
@@ -472,6 +479,27 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
         <h2 className="govuk-heading-m">Escalate a request</h2>
         <p className="govuk-body">If you have already sent your request for support and you think we’re not handling it in the way you would expect, please contact a member of the product team, who will reply during working hours.</p>
         <p className="govuk-body">To escalate an issue about a production service in or outside working hours, please use the emergency contact details you have been sent.</p>
+      </div>
+    </div>
+  );
+}
+
+export function SupportConfirmationPage(props: ISupportConfirmationPageProperties): ReactElement {
+  return (
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-two-thirds">
+        <div className="govuk-panel govuk-panel--confirmation">
+          <h1 className="govuk-panel__title">
+            {props.heading}
+          </h1>
+          <div className="govuk-panel__body">
+            {props.text}
+          </div>
+        </div>
+        {props.children ?
+          <p className="govuk-body">{props.children}</p>
+          : <></>
+        }
       </div>
     </div>
   );
