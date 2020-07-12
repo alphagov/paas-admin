@@ -311,6 +311,17 @@ export const router = new Router([
     name: 'support.help-using-paas.post',
     path: 'support/help-using-paas',
   },
+  {
+    action: support.FindOutMoreForm,
+    name: 'support.find-out-more',
+    path: '/support/find-out-more',
+  },
+  {
+    action: support.HandleFindOutMoreFormPost,
+    method: 'post',
+    name: 'support.find-out-more.post',
+    path: '/support/find-out-more',
+  },
 ]);
 
 export default router;

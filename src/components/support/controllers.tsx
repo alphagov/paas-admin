@@ -6,6 +6,7 @@ import { IContext } from '../app';
 import { IValidationError } from '../errors/types';
 
 import {
+  FindOutMorePage,
   HelpUsingPaasPage,
   ISupportSelectionFormProperties,
   SomethingWrongWithServicePage,
@@ -15,9 +16,6 @@ import {
 
 interface ISupportFormName {
   readonly name?: string;
-  readonly values?: {
-    readonly name: string;
-  };
 }
 
 interface ISupportFormEmail {
@@ -26,6 +24,9 @@ interface ISupportFormEmail {
 
 interface ISupportFormMessage {
   readonly message?: string;
+}
+interface ISupportFormGovOrgName {
+  readonly gov_organisation_name?: string;
 }
 
 interface ISomethingWrongWithServiceForm extends ISupportFormName, ISupportFormEmail, ISupportFormMessage {
@@ -47,6 +48,15 @@ interface IHelpUsingPaasForm extends ISupportFormName, ISupportFormEmail, ISuppo
     readonly email: string;
     readonly message: string;
     readonly paas_organisation_name: string;
+  };
+}
+
+interface IFindOutMoreForm extends ISupportFormName, ISupportFormEmail, ISupportFormMessage, ISupportFormGovOrgName {
+  readonly values?: {
+    readonly name: string;
+    readonly email: string;
+    readonly message: string;
+    readonly gov_organisation_name: string;
   };
 }
 
@@ -124,6 +134,19 @@ function validateImpactSeverity({ impact_severity }: ISomethingWrongWithServiceF
     errors.push({
       field: 'impact_severity',
       message: 'Select the severity of the impact',
+    });
+  }
+
+  return errors;
+}
+
+function validateGovOrg({ gov_organisation_name }: ISupportFormGovOrgName): ReadonlyArray<IValidationError> {
+  const errors: Array<IValidationError> = [];
+
+  if (!gov_organisation_name) {
+    errors.push({
+      field: 'gov_organisation_name',
+      message: 'Enter your government organisation’s name',
     });
   }
 
@@ -268,6 +291,62 @@ export async function HandleHelpUsingPaasFormPost (ctx: IContext, params: IParam
           <a className="govuk-link" 
             href="https://www.cloud.service.gov.uk/support-and-response-times">
               support and resolution times
+          </a>.
+        </SupportConfirmationPage>,
+      ),
+    };
+  }
+}
+
+export async function FindOutMoreForm (ctx: IContext): Promise<IResponse> {
+
+  const template = new Template(ctx.viewContext, 'I’d like to find out more about GOV.UK PaaS');
+
+  return {
+    body: template.render(<FindOutMorePage
+      csrf={ctx.viewContext.csrf}
+      linkTo={ctx.linkTo}
+      errors={[]}
+      values={[]}
+    />),
+  };
+}
+
+export async function HandleFindOutMoreFormPost (ctx: IContext, params: IParameters,  body: IFindOutMoreForm): Promise<IResponse> {
+  const errors: Array<IValidationError> = [];
+  const template = new Template(ctx.viewContext);
+  errors.push(
+    ...validateName(body),
+    ...validateEmail(body),
+    ...validateGovOrg(body),
+    ...validateMessage(body),
+  );
+
+  if (errors.length > 0) {
+    template.title = 'Error: I’d like to find out more about GOV.UK PaaS';
+
+    return {
+      body: template.render(<FindOutMorePage
+        csrf={ctx.viewContext.csrf}
+        linkTo={ctx.linkTo}
+        errors={errors}
+        values={body}
+      />),
+    };
+  } else {
+    template.title = 'We have received your message';
+
+    return {
+      body: template.render(
+        <SupportConfirmationPage
+          linkTo={ctx.linkTo}
+          heading={'We have received your message'}
+          text={'A member of our product team will be in touch. We try to reply to all queries by the end of the next working day.'}
+        >
+          Read more about our{' '}
+          <a className="govuk-link" 
+            href="https://www.cloud.service.gov.uk/roadmap">
+              roadmap and features
           </a>.
         </SupportConfirmationPage>,
       ),
