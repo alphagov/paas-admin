@@ -14,6 +14,10 @@ import { requireAuthentication, handleSession } from '../auth';
 import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
 import { listServices, viewService } from '../marketplace';
+import {
+  HandleSupportSelectionFormPost,
+  SupportSelectionForm,
+} from '../support';
 import { termsCheckerMiddleware } from '../terms';
 import { resetPassword, resetPasswordObtainToken, resetPasswordProvideNew, resetPasswordRequestToken } from '../users';
 
@@ -208,6 +212,36 @@ export default function(config: IAppConfig): express.Express {
     viewService(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  //support forms routes here
+  app.get('/support', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.selection');
+    const ctx = initContext(req, router, route, config);
+
+    SupportSelectionForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.post('/support', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.selection.post');
+    const ctx = initContext(req, router, route, config);
+
+    HandleSupportSelectionFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        const selectedOption = req.body && req.body['support_type'];
+        if (selectedOption === undefined) {
+          res.status(response.status || 200).send(response.body);
+        } else {
+          res.redirect(`/support/${selectedOption}`);
+        }
       })
       .catch(err => internalServerErrorMiddleware(err, req, res, next));
     },

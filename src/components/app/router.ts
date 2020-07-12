@@ -12,6 +12,7 @@ import * as serviceMetrics from '../service-metrics';
 import * as services from '../services';
 import * as spaces from '../spaces';
 import * as statements from '../statements';
+import * as support from '../support';
 import * as users from '../users';
 
 import { IContext } from './context';
@@ -276,6 +277,17 @@ export const router = new Router([
     method: 'post',
     name: 'users.password.reset',
     path: '/password/confirm-reset',
+  },
+  {
+    action: support.SupportSelectionForm,
+    name: 'support.selection',
+    path: '/support',
+  },
+  {
+    action: support.SupportSelectionFormPost,
+    method: 'post',
+    name: 'support.selection.post',
+    path: '/support',
   },
 ]);
 
