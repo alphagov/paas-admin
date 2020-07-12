@@ -15,8 +15,10 @@ import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
 import { listServices, viewService } from '../marketplace';
 import {
+  HandleHelpUsingPaasFormPost,
   HandleSomethingWrongWithServiceFormPost,
   HandleSupportSelectionFormPost,
+  HelpUsingPaasForm,
   SomethingWrongWithServiceForm,
   SupportSelectionForm,
 } from '../support';
@@ -266,6 +268,30 @@ export default function(config: IAppConfig): express.Express {
     const ctx = initContext(req, router, route, config);
 
     HandleSomethingWrongWithServiceFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/help-using-paas', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.help-using-paas');
+    const ctx = initContext(req, router, route, config);
+
+    HelpUsingPaasForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.post('/support/help-using-paas', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.help-using-paas.post');
+    const ctx = initContext(req, router, route, config);
+
+    HandleHelpUsingPaasFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })

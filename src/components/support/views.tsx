@@ -18,7 +18,7 @@ export interface ISupportSelectionFormProperties extends IFormProperties {
   };
 }
 
-export interface ISomethingWrongWithServiceForm extends IFormProperties {
+export interface ISomethingWrongWithServiceFormProperties extends IFormProperties {
   readonly name: string;
   readonly email: string;
   readonly message: string;
@@ -30,6 +30,19 @@ export interface ISomethingWrongWithServiceForm extends IFormProperties {
     readonly message: string;
     readonly affected_paas_organisation: string;
     readonly impact_severity: string;
+  };
+}
+
+interface IHelpUsingPaasFormProperties extends IFormProperties {
+  readonly name: string;
+  readonly email: string;
+  readonly message: string;
+  readonly paas_organisation_name: string;
+  readonly values?: {
+    readonly name: string;
+    readonly email: string;
+    readonly message: string;
+    readonly paas_organisation_name: string;
   };
 }
 
@@ -186,7 +199,7 @@ export function SupportSelectionPage(props: ISupportSelectionFormProperties): Re
   );
 }
 
-export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceForm): ReactElement {
+export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceFormProperties): ReactElement {
   return (
     <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
@@ -500,6 +513,179 @@ export function SupportConfirmationPage(props: ISupportConfirmationPagePropertie
           <p className="govuk-body">{props.children}</p>
           : <></>
         }
+      </div>
+    </div>
+  );
+}
+
+export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactElement {
+  return (
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-two-thirds">
+      {props.errors && props.errors.length > 0 ? (
+          <div
+            className="govuk-error-summary"
+            aria-labelledby="error-summary-title"
+            role="alert"
+            tabIndex={-1}
+            data-module="govuk-error-summary"
+          >
+            <h2 className="govuk-error-summary__title" id="error-summary-title">
+              There is a problem
+            </h2>
+
+            <div className="govuk-error-summary__body">
+              <ul className="govuk-list govuk-error-summary__list">
+                {props.errors.map((error, index) => (
+                  <li key={index}>
+                    <a href={`#${error.field}`}>{error.message}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ) : (
+          <></>
+        )}
+        <h1 className="govuk-heading-l">I need some help using GOV.UK PaaS</h1>
+        <form noValidate method="post">
+          <input type="hidden" name="_csrf" value={props.csrf} />
+          <div className={`govuk-form-group ${
+                props.errors?.some(e => e.field === 'name')
+                  ? 'govuk-form-group--error'
+                  : ''
+              }`}>
+            <label className="govuk-label" htmlFor="name">
+              Full name
+            </label>
+            {props.errors
+              ?.filter(error => error.field === 'name')
+              .map((error, index) => (
+                <span
+                  key={index}
+                  id="name-error"
+                  className="govuk-error-message"
+                >
+                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                  {error.message}
+                </span>
+              ))}
+            <input 
+           className={`govuk-input ${
+            props.errors?.some(e => e.field === 'name')
+                ? 'govuk-input--error'
+                : ''
+            }`}
+            id="name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            spellCheck="false"
+            defaultValue={props.values?.name}
+            aria-describedby={
+              props.errors?.some(e => e.field === 'name')
+                ? 'name-error'
+                : ''
+            }
+            />
+          </div>
+          <div className={`govuk-form-group ${
+                props.errors?.some(e => e.field === 'email')
+                  ? 'govuk-form-group--error'
+                  : ''
+              }`}>
+            <label className="govuk-label" htmlFor="email">
+              Email address
+            </label>
+            {props.errors
+              ?.filter(error => error.field === 'email')
+              .map((error, index) => (
+                <span
+                  key={index}
+                  id="email-error"
+                  className="govuk-error-message"
+                >
+                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                  {error.message}
+                </span>
+              ))}
+            <input className={`govuk-input ${
+              props.errors?.some(e => e.field === 'email')
+                  ? 'govuk-input--error'
+                  : ''
+              }`}
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              spellCheck="false"
+              defaultValue={props.values?.email}
+              aria-describedby={
+                props.errors?.some(e => e.field === 'email')
+                  ? 'email-error'
+                  : ''
+              }
+               />
+          </div>
+          <div className="govuk-form-group">
+            <label className="govuk-label" htmlFor="paas_organisation_name">
+              Your GOV.UK PaaS organisation name (optional)
+            </label>
+            <input 
+            className="govuk-input"
+            id="paas_organisation_name"
+            name="paas_organisation_name"
+            type="text"
+            defaultValue={props.values?.paas_organisation_name}
+            spellCheck="false"
+            />
+          </div>
+          <div className={`govuk-form-group ${
+                props.errors?.some(e => e.field === 'message')
+                  ? 'govuk-form-group--error'
+                  : ''
+              }`}>
+            <label className="govuk-label" htmlFor="message">
+            Tell us a bit more about what you’re trying to do
+            </label>
+            {props.errors
+              ?.filter(error => error.field === 'message')
+              .map((error, index) => (
+                <span
+                  key={index}
+                  id="message-error"
+                  className="govuk-error-message"
+                >
+                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                  {error.message}
+                </span>
+              ))}
+            <textarea
+              className={`govuk-textarea ${
+                props.errors?.some(e => e.field === 'message')
+                    ? 'govuk-textarea--error'
+                    : ''
+                }`}
+              id="message"
+              name="message"
+              rows={5}
+              aria-describedby={
+                props.errors?.some(e => e.field === 'message')
+                  ? 'message-error'
+                  : ''
+              }
+              defaultValue={props.values?.message}
+              >
+
+            </textarea>
+          </div>
+          <button data-prevent-double-click="true" className="govuk-button" data-module="govuk-button">
+            Submit
+          </button>
+        </form>
+        <h2 className="govuk-heading-m">Other help you can get</h2>
+        <p className="govuk-body">We publish our guidance on how to use the platform in our <a className="govuk-link" href="https://docs.cloud.service.gov.uk">documentation</a>.</p>
+        <p className="govuk-body">You can also talk to us via the cross-government Slack channel <span className="govuk-!-font-weight-bold">#govuk-paas</span> on the UK Government Digital workspace, or the <span className="govuk-!-font-weight-bold">#paas</span> channel on the GDS workspace.</p>
       </div>
     </div>
   );

@@ -300,6 +300,17 @@ export const router = new Router([
     name: 'support.something-wrong-with-service.post',
     path: '/support/something-wrong-with-service',
   },
+  {
+    action: support.HelpUsingPaasForm,
+    name: 'support.help-using-paas',
+    path: '/support/help-using-paas',
+  },
+  {
+    action: support.HandleHelpUsingPaasFormPost,
+    method: 'post',
+    name: 'support.help-using-paas.post',
+    path: 'support/help-using-paas',
+  },
 ]);
 
 export default router;

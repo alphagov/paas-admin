@@ -6,10 +6,11 @@ import { IContext } from '../app';
 import { IValidationError } from '../errors/types';
 
 import {
+  HelpUsingPaasPage,
   ISupportSelectionFormProperties,
   SomethingWrongWithServicePage,
-  SupportSelectionPage,
   SupportConfirmationPage,
+  SupportSelectionPage,
 } from './views';
 
 interface ISupportFormName {
@@ -36,6 +37,16 @@ interface ISomethingWrongWithServiceForm extends ISupportFormName, ISupportFormE
     readonly message: string;
     readonly affected_paas_organisation: string;
     readonly impact_severity: string;
+  };
+}
+
+interface IHelpUsingPaasForm extends ISupportFormName, ISupportFormEmail, ISupportFormMessage {
+  readonly paas_organisation_name: string;
+  readonly values?: {
+    readonly name: string;
+    readonly email: string;
+    readonly message: string;
+    readonly paas_organisation_name: string;
   };
 }
 
@@ -210,3 +221,56 @@ export async function HandleSomethingWrongWithServiceFormPost (ctx: IContext, pa
   }
 }
 
+export async function HelpUsingPaasForm (ctx: IContext): Promise<IResponse> {
+
+  const template = new Template(ctx.viewContext, 'I need some help using GOV.UK PaaS');
+
+  return {
+    body: template.render(<HelpUsingPaasPage
+      csrf={ctx.viewContext.csrf}
+      linkTo={ctx.linkTo}
+      errors={[]}
+      values={[]}
+    />),
+  };
+}
+
+export async function HandleHelpUsingPaasFormPost (ctx: IContext, params: IParameters,  body: IHelpUsingPaasForm): Promise<IResponse> {
+  const errors: Array<IValidationError> = [];
+  const template = new Template(ctx.viewContext);
+
+  errors.push(
+    ...validateName(body),
+    ...validateEmail(body),
+    ...validateMessage(body));
+  if (errors.length > 0) {
+    template.title = 'Error: I need some help using GOV.UK PaaS';
+
+    return {
+      body: template.render(<HelpUsingPaasPage
+        csrf={ctx.viewContext.csrf}
+        linkTo={ctx.linkTo}
+        errors={errors}
+        values={body}
+      />),
+    };
+  } else {
+    template.title = 'We have received your message';
+
+    return {
+      body: template.render(
+        <SupportConfirmationPage
+          linkTo={ctx.linkTo}
+          heading={'We have received your message'}
+          text={'We try to reply to all queries by the end of the next working day.'}
+        >
+          Read more about our{' '}
+          <a className="govuk-link" 
+            href="https://www.cloud.service.gov.uk/support-and-response-times">
+              support and resolution times
+          </a>.
+        </SupportConfirmationPage>,
+      ),
+    };
+  }
+}
