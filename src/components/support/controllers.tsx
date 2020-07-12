@@ -10,6 +10,8 @@ import {
   FindOutMorePage,
   HelpUsingPaasPage,
   ISupportSelectionFormProperties,
+  JoiningExistingOrganisationPage,
+  RequestAnAccountPage,
   SomethingWrongWithServicePage,
   SupportConfirmationPage,
   SupportSelectionPage,
@@ -454,4 +456,25 @@ export async function HandleContactUsFormPost (ctx: IContext, params: IParameter
       ),
     };
   }
+}
+
+export async function RequestAnAccountForm(ctx: IContext): Promise<IResponse> {
+
+  const template = new Template(ctx.viewContext, 'Request a GOV.UK PaaS account');
+
+  return {
+    body: template.render(<RequestAnAccountPage
+      csrf={ctx.viewContext.csrf}
+      linkTo={ctx.linkTo}
+      />),
+  };
+}
+
+export async function JoiningExistingOrganisationNotice (ctx: IContext): Promise<IResponse> {
+
+  const template = new Template(ctx.viewContext, 'Joining an existing organisation');
+
+  return {
+    body: template.render(<JoiningExistingOrganisationPage/>),
+  };
 }

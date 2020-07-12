@@ -333,6 +333,16 @@ export const router = new Router([
     name: 'support.contact-us.post',
     path: '/support/contact-us',
   },
+  {
+    action: support.RequestAnAccountForm,
+    name: 'support.request-an-account',
+    path: '/support/request-an-account',
+  },
+  {
+    action: support.JoiningExistingOrganisationNotice,
+    name: 'support.existing-organisation',
+    path: '/support/request-an-account/existing-organisation',
+  },
 ]);
 
 export default router;

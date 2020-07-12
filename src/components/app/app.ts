@@ -23,6 +23,8 @@ import {
   HandleSomethingWrongWithServiceFormPost,
   HandleSupportSelectionFormPost,
   HelpUsingPaasForm,
+  JoiningExistingOrganisationNotice,
+  RequestAnAccountForm,
   SomethingWrongWithServiceForm,
   SupportSelectionForm,
 } from '../support';
@@ -344,6 +346,47 @@ export default function(config: IAppConfig): express.Express {
     const ctx = initContext(req, router, route, config);
 
     HandleContactUsFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/request-an-account', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.request-an-account');
+    const ctx = initContext(req, router, route, config);
+
+    RequestAnAccountForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.post('/support/request-an-account', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.request-an-account');
+    const ctx = initContext(req, router, route, config);
+
+    RequestAnAccountForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then(() => {
+        const selectedOption = req.body && req.body['create-an-org'];
+        if (selectedOption === 'yes') {
+          res.redirect('/support/sign-up');
+        } else {
+          res.redirect('/support/existing-organisation');
+        }
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/existing-organisation', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.existing-organisation');
+    const ctx = initContext(req, router, route, config);
+
+    JoiningExistingOrganisationNotice(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })

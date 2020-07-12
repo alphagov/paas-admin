@@ -74,6 +74,7 @@ interface IContactUsFormProperties extends IFormProperties {
   };
 }
 
+
 interface ISupportConfirmationPageProperties {
   readonly heading: string;
   readonly text: string;
@@ -1148,6 +1149,69 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
             Submit enquiry
           </button>
         </form>
+      </div>
+    </div>
+  );
+}
+
+export function RequestAnAccountPage(props: IFormProperties): ReactElement {
+  return (
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-two-thirds">
+        <h1 className="govuk-heading-l">Request a GOV.UK PaaS account</h1>
+
+        <p className="govuk-body">
+          Service teams on GOV.UK PaaS own and use an account called an `organisation.`
+        </p>
+
+        <p className="govuk-body">New accounts are created on our London platform. If you require hosting in Ireland please <a className="govuk-link" href="/support/contact-us">get in contact</a>.</p>
+        <form noValidate method="post">
+          <input type="hidden" name="_csrf" value={props.csrf} />
+          <div className="govuk-form-group">
+            <fieldset className="govuk-fieldset" aria-describedby="create-an-org-hint">
+              <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                <h1 className="govuk-fieldset__heading">
+                  Do you want to create an organisation?
+                </h1>
+              </legend>
+              <span id="create-an-org-hint" className="govuk-hint">
+                An organisation typically represents the government department, agency or team you work for.
+              </span>
+              <div className="govuk-radios">
+                <div className="govuk-radios__item">
+                  <input className="govuk-radios__input" id="create-an-org" name="create-an-org" type="radio" defaultChecked={true} value="yes" />
+                  <label className="govuk-label govuk-radios__label" htmlFor="create-an-org">
+                    Yes, I&apos;m new to PaaS and want to create an organisation
+                  </label>
+                </div>
+                <div className="govuk-radios__item">
+                  <input className="govuk-radios__input" id="create-an-org-1" name="create-an-org" type="radio" value="no" />
+                  <label className="govuk-label govuk-radios__label" htmlFor="create-an-org-1">
+                    No, I&apos;d like to join an existing organisation
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <button data-prevent-double-click="true" className="govuk-button" data-module="govuk-button">
+            Continue
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export function JoiningExistingOrganisationPage(): ReactElement {
+  return (
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-two-thirds">
+      <h1 className="govuk-heading-l">Joining an existing organisation</h1>
+      <p className="govuk-body">If your team is already using GOV.UK PaaS and you would like a user account, ask your org manager to <a href="https://docs.cloud.service.gov.uk/orgs_spaces_users.html#managing-organisations-spaces-and-users">send you an account invitation</a>.</p>
+      <p className="govuk-body">Org managers administer the account and assign roles and permissions.</p>
+      <p className="govuk-body">Users with non-government email addresses can be added to an account at the request of an org manager.</p>
+      <p className="govuk-body">If you don&apos;t know who the org manager is please contact support.</p>
+      <a className="govuk-button" href="/support/contact-us">Contact support</a>
       </div>
     </div>
   );
