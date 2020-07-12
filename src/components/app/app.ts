@@ -15,7 +15,9 @@ import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
 import { listServices, viewService } from '../marketplace';
 import {
+  HandleSomethingWrongWithServiceFormPost,
   HandleSupportSelectionFormPost,
+  SomethingWrongWithServiceForm,
   SupportSelectionForm,
 } from '../support';
 import { termsCheckerMiddleware } from '../terms';
@@ -242,6 +244,30 @@ export default function(config: IAppConfig): express.Express {
         } else {
           res.redirect(`/support/${selectedOption}`);
         }
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/something-wrong-with-service', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.something-wrong-with-service');
+    const ctx = initContext(req, router, route, config);
+
+    SomethingWrongWithServiceForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.post('/support/something-wrong-with-service', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.something-wrong-with-service.post');
+    const ctx = initContext(req, router, route, config);
+
+    HandleSomethingWrongWithServiceFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
       })
       .catch(err => internalServerErrorMiddleware(err, req, res, next));
     },

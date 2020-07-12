@@ -289,6 +289,17 @@ export const router = new Router([
     name: 'support.selection.post',
     path: '/support',
   },
+  {
+    action: support.SomethingWrongWithServiceForm,
+    name: 'support.something-wrong-with-service',
+    path: '/support/something-wrong-with-service',
+  },
+  {
+    action: support.HandleSomethingWrongWithServiceFormPost,
+    method: 'post',
+    name: 'support.something-wrong-with-service.post',
+    path: '/support/something-wrong-with-service',
+  },
 ]);
 
 export default router;
