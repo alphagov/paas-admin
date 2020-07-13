@@ -319,7 +319,7 @@ describe('service metrics test suite', () => {
     ).toHaveLength(0);
   });
 
-  it('should throw an error when encountering an unknown service', async () => {
+  it('should not return metrics when encountering an unknown service', async () => {
     mockService({
       ...data.serviceObj,
       entity: {
@@ -328,17 +328,19 @@ describe('service metrics test suite', () => {
       },
     });
 
-    await expect(
-      viewServiceMetrics(ctx, {
-        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        rangeStart: moment()
-          .subtract(1, 'hour')
-          .format('YYYY-MM-DD[T]HH:mm'),
-        rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
-        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
-        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
-      }),
-    ).rejects.toThrow(/Unrecognised service label unknown-service-label/);
+    const response = await viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      rangeStart: moment()
+      .subtract(1, 'hour')
+      .format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+    });
+
+    expect(response.body).toContain(
+      'Metrics are not available for this service yet.',
+    );
   });
 
   it('should redirect if no range provided', async () => {

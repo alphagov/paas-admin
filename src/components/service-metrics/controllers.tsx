@@ -209,14 +209,6 @@ export async function viewServiceMetrics(
     spaceGUID: space.metadata.guid,
   };
 
-  if (serviceLabel === 'User Provided Service') {
-    return {
-      body: template.render(
-        <UnsupportedServiceMetricsPage {...defaultTemplateParams} />,
-      ),
-    };
-  }
-
   const downloadLink = ctx.linkTo(
     'admin.organizations.spaces.services.metrics.download',
     {
@@ -320,7 +312,11 @@ export async function viewServiceMetrics(
       );
       break;
     default:
-      throw new Error(`Unrecognised service label ${serviceLabel}`);
+      return {
+        body: template.render(
+          <UnsupportedServiceMetricsPage {...defaultTemplateParams} />,
+        ),
+      };
   }
 
   return {
