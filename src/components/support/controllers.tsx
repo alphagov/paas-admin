@@ -9,8 +9,12 @@ import {
   ContactUsPage,
   FindOutMorePage,
   HelpUsingPaasPage,
+  IContactUsFormValues,
+  IFindOutMoreFormValues,
+  IHelpUsingPaasFormValues,
   ISignupFormValues,
-  ISupportSelectionFormProperties,
+  ISomethingWrongWithServiceFormValues,
+  ISupportSelectionFormValues,
   JoiningExistingOrganisationPage,
   RequestAnAccountPage,
   SignUpPage,
@@ -42,57 +46,29 @@ interface ISupportFormServiceTeam {
   readonly service_team?: string;
 }
 
-interface ISomethingWrongWithServiceForm extends ISupportFormName, ISupportFormEmail, ISupportFormMessage {
-  readonly affected_paas_organisation: string;
-  readonly impact_severity: string;
-  readonly values?: {
-    readonly name: string;
-    readonly email: string;
-    readonly message: string;
-    readonly affected_paas_organisation: string;
-    readonly impact_severity: string;
-  };
+interface ISomethingWrongWithServiceForm extends ISomethingWrongWithServiceFormValues {
+  readonly values?: ISomethingWrongWithServiceFormValues;
 }
 
-interface IHelpUsingPaasForm extends ISupportFormName, ISupportFormEmail, ISupportFormMessage {
-  readonly paas_organisation_name: string;
-  readonly values?: {
-    readonly name: string;
-    readonly email: string;
-    readonly message: string;
-    readonly paas_organisation_name: string;
-  };
+interface IHelpUsingPaasForm extends IHelpUsingPaasFormValues {
+  readonly values?: IHelpUsingPaasFormValues;
 }
 
-interface IFindOutMoreForm extends ISupportFormName, ISupportFormEmail, ISupportFormMessage, ISupportFormGovOrgName {
-  readonly values?: {
-    readonly name: string;
-    readonly email: string;
-    readonly message: string;
-    readonly gov_organisation_name: string;
-  };
+interface IFindOutMoreForm extends IFindOutMoreFormValues {
+  readonly values?: IFindOutMoreFormValues;
 }
 
-interface IContactUsForm extends
-  ISupportFormName, ISupportFormEmail, ISupportFormMessage, ISupportFormDeptAgency, ISupportFormServiceTeam {
-  readonly values?: {
-    readonly name: string;
-    readonly email: string;
-    readonly message: string;
-    readonly department_agency?: string;
-    readonly service_team?: string;
-  };
+interface IContactUsForm extends IContactUsFormValues {
+  readonly values?: IContactUsFormValues;
 }
 
-interface ISignupForm extends ISupportFormName, ISupportFormEmail, ISupportFormDeptAgency, ISupportFormServiceTeam {
-  readonly person_is_manager?: string;
-  readonly invite_users?: string;
+interface ISignupForm extends ISignupFormValues {
   readonly values? : ISignupFormValues;
 }
 
 const VALID_EMAIL = /[^.]@[^.]/;
 
-function validateSupportSelection({ support_type }: ISupportSelectionFormProperties): ReadonlyArray<IValidationError> {
+function validateSupportSelection({ support_type }: ISupportSelectionFormValues): ReadonlyArray<IValidationError> {
   const errors: Array<IValidationError> = [];
 
   if (!support_type) {
@@ -277,7 +253,7 @@ export async function SupportSelectionForm (ctx: IContext, _params: IParameters)
   };
 }
 
-export async function HandleSupportSelectionFormPost (ctx: IContext, body: ISupportSelectionFormProperties): Promise<IResponse> {
+export async function HandleSupportSelectionFormPost (ctx: IContext, body: ISupportSelectionFormValues): Promise<IResponse> {
   const errors: Array<IValidationError> = [];
   const template = new Template(ctx.viewContext);
 

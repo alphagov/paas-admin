@@ -11,67 +11,59 @@ interface IFormProperties extends IProperties {
   readonly errors?: ReadonlyArray<IValidationError>;
 }
 
-export interface ISupportSelectionFormProperties extends IFormProperties {
+export interface ISupportSelectionFormValues {
   readonly support_type: string;
-  readonly values?: {
-    readonly support_type: string;
-  };
 }
 
-export interface ISomethingWrongWithServiceFormProperties extends IFormProperties {
+interface ISupportSelectionFormProperties extends ISupportSelectionFormValues, IFormProperties {
+  readonly values?: ISupportSelectionFormValues;
+}
+
+export interface ISomethingWrongWithServiceFormValues {
   readonly name: string;
   readonly email: string;
   readonly message: string;
   readonly affected_paas_organisation: string;
   readonly impact_severity: string;
-  readonly values?: {
-    readonly name: string;
-    readonly email: string;
-    readonly message: string;
-    readonly affected_paas_organisation: string;
-    readonly impact_severity: string;
-  };
 }
 
-interface IHelpUsingPaasFormProperties extends IFormProperties {
+interface ISomethingWrongWithServiceFormProperties extends
+  IFormProperties, ISomethingWrongWithServiceFormValues {
+  readonly values?: ISomethingWrongWithServiceFormValues;
+}
+
+export interface IHelpUsingPaasFormValues {
   readonly name: string;
   readonly email: string;
   readonly message: string;
   readonly paas_organisation_name: string;
-  readonly values?: {
-    readonly name: string;
-    readonly email: string;
-    readonly message: string;
-    readonly paas_organisation_name: string;
-  };
 }
 
-interface IFindOutMoreFormProperties extends IFormProperties {
+interface IHelpUsingPaasFormProperties extends IFormProperties, IHelpUsingPaasFormValues {
+  readonly values?: IHelpUsingPaasFormValues;
+}
+
+export interface IFindOutMoreFormValues {
   readonly name: string;
   readonly email: string;
   readonly message: string;
   readonly gov_organisation_name: string;
-  readonly values?: {
-    readonly name: string;
-    readonly email: string;
-    readonly message: string;
-    readonly gov_organisation_name: string;
-  };
 }
 
-interface IContactUsFormProperties extends IFormProperties {
+interface IFindOutMoreFormProperties extends IFormProperties, IFindOutMoreFormValues {
+  readonly values?: IFindOutMoreFormValues;
+}
+
+export interface IContactUsFormValues {
   readonly name: string;
   readonly email: string;
   readonly message: string;
   readonly department_agency: string;
   readonly service_team: string;
-  readonly values?: {
-    readonly name: string;
-    readonly email: string;
-    readonly message: string;
-    readonly department_agency: string;
-    readonly service_team: string;
-  };
+}
+
+interface IContactUsFormProperties extends IFormProperties, IContactUsFormValues {
+  readonly values?: IContactUsFormValues;
 }
 
 export interface ISignupFormValues {
