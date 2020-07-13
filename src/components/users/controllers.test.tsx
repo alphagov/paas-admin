@@ -7,9 +7,7 @@ import * as uaaData from '../../lib/uaa/uaa.test.data';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
 import {
-  CLOUD_CONTROLLER_ADMIN,
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-  CLOUD_CONTROLLER_READ_ONLY_ADMIN,
   Token,
 } from '../auth';
 
@@ -22,7 +20,7 @@ const time = Math.floor(Date.now() / 1000);
 const rawToken = {
   exp: time + 24 * 60 * 60,
   origin: 'uaa',
-  scope: [CLOUD_CONTROLLER_ADMIN],
+  scope: [CLOUD_CONTROLLER_GLOBAL_AUDITOR],
   user_id: 'uaa-id-253',
 };
 const accessToken = jwt.sign(rawToken, tokenKey);
@@ -101,73 +99,7 @@ describe('users test suite', () => {
     expect(response.body).toContain('cloud_controller.read');
   });
 
-  it('should not show the user page for a valid email when global auditor', async () => {
-    const rawGlobalAuditorAccessToken = {
-      exp: time + 24 * 60 * 60,
-      origin: 'uaa',
-      scope: [CLOUD_CONTROLLER_GLOBAL_AUDITOR],
-      user_id: 'uaa-id-253',
-    };
-    const globalAuditorAccessToken = jwt.sign(
-      rawGlobalAuditorAccessToken,
-      tokenKey,
-    );
-    const globalAuditorCtx: IContext = createTestContext({
-      token: new Token(globalAuditorAccessToken, [tokenKey]),
-    });
-
-    await expect(
-      users.getUser(globalAuditorCtx, {
-        emailOrUserGUID: 'one@user.in.database',
-      }),
-    ).rejects.toThrowError('your "global auditor" permissions do not allow viewing users. sorry. please ask someone who will have more permissions, such as an engineer.');
-  });
-
-  it('should show the users pages for a valid email when read only admin', async () => {
-    nockAccounts.get('/users?email=one@user.in.database').reply(
-      200,
-      `{
-        "users": [{
-          "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-          "user_email": "one@user.in.database",
-          "username": "one@user.in.database"
-        }]
-      }`,
-    );
-
-    nockCF
-      .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary')
-      .reply(200, userSummary);
-
-    nockUAA
-      .post('/oauth/token?grant_type=client_credentials')
-      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
-
-      .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
-      .reply(200, uaaData.user);
-
-    const rawReadOnlyAdminAccessToken = {
-      exp: time + 24 * 60 * 60,
-      origin: 'uaa',
-      scope: [CLOUD_CONTROLLER_READ_ONLY_ADMIN],
-      user_id: 'uaa-id-253',
-    };
-    const readOnlyAdminAccessToken = jwt.sign(
-      rawReadOnlyAdminAccessToken,
-      tokenKey,
-    );
-    const readOnlyAdminCtx: IContext = createTestContext({
-      token: new Token(readOnlyAdminAccessToken, [tokenKey]),
-    });
-
-    const response = await users.getUser(readOnlyAdminCtx, {
-      emailOrUserGUID: 'one@user.in.database',
-    });
-
-    expect(response.body).toContain('the-system_domain-org-name');
-  });
-
-  it('should return not found for the users pages when not admin', async () => {
+  it('should return not found for the users pages when not authorised', async () => {
     await expect(
       users.getUser(nonAdminCtx, {
         emailOrUserGUID: 'one@user.in.database',
