@@ -73,6 +73,10 @@ export interface ISignupFormValues {
   readonly service_team: string;
   readonly person_is_manager: string;
   readonly invite_users: string;
+  readonly additional_users?: ReadonlyArray<{
+    readonly email: string;
+    readonly person_is_manager: string;
+  }>;
 }
 
 interface ISignupFormProperties extends IFormProperties {
@@ -850,7 +854,7 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
               .map((error, index) => (
                 <span
                   key={index}
-                  id="govuk_organisation_name-error"
+                  id="gov_organisation_name-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
@@ -1427,7 +1431,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
             <fieldset className="govuk-fieldset"
               aria-describedby={
                 props.errors?.some(e => e.field === 'person_is_manager')
-                  ? 'person_is_manager-error'
+                  ? 'person_is_manager-error person_is_manager-hint'
                   : 'person_is_manager-hint'
               }
             >
@@ -1487,15 +1491,23 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
           <h2>Invite users to your organisation</h2>
           <p className="govuk-body">Users who aren&apos;t org managers can deploy code but won&apos;t be able to administer the account.</p>
           <div className={`govuk-form-group ${
-              props.errors?.some(e => e.field === 'invite_users')
+              props.errors?.some(e =>
+                  e.field === 'invite_users' ||
+                  e.field === 'additional_users-0' ||
+                  e.field === 'additional_users-1' ||
+                  e.field === 'additional_users-2'
+                )
                 ? 'govuk-form-group--error'
                 : ''
             }`}>
+
             <fieldset className="govuk-fieldset"
               aria-describedby={
-                props.errors?.some(e => e.field === 'invite_users')
-                  ? 'invite_users-error'
-                  : 'invite_users-hint'
+                ['invite_users-hint',
+                  (props.errors?.some(e => e.field === 'invite_users') ? 'invite_users-error' : ''),
+                ].concat(
+                  (props.errors || []).filter(e => e.field.includes('additional_users')).map(e =>`${e.field}-error`),
+                ).filter(x => x).join(' ')
               }
             >
               <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
@@ -1516,7 +1528,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                   {error.message}
                 </span>
               ))}
-              <div className="govuk-radios">
+              <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
                 <div className="govuk-radios__item">
                   <input
                     className="govuk-radios__input"
@@ -1525,10 +1537,182 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                     type="radio"
                     value="yes"
                     defaultChecked={props.values?.invite_users === 'yes'}
+                    data-aria-controls="invite_users-conditional"
                   />
                   <label className="govuk-label govuk-radios__label" htmlFor="invite_users">
                     Yes, I&apos;d like to invite users to my organisation
                   </label>
+                </div>
+                <div className="govuk-radios__conditional" id="invite_users-conditional">
+                  <table className="govuk-table">
+                    <thead className="govuk-table__head">
+                      <tr className="govuk-table__row">
+                        <th scope="col" className="govuk-table__header">Email address</th>
+                        <th scope="col" className="govuk-table__header">Org manager?</th>
+                      </tr>
+                    </thead>
+                    <tbody className="govuk-table__body">
+                      <tr className="govuk-table__row">
+                            <td className="govuk-table__cell">
+                              <div className="govuk-form-group">
+                                <label className="govuk-label govuk-visually-hidden" htmlFor="additional_users-0">
+                                  User 1 email address
+                                </label>
+                                {props.errors
+                                  ?.filter(error => error.field === 'additional_users-0')
+                                  .map((error, index) => (
+                                    <span
+                                      key={index}
+                                      id="additional_users-0-error"
+                                      className="govuk-error-message"
+                                    >
+                                      <span className="govuk-visually-hidden">Error:</span>{' '}
+                                      {error.message}
+                                    </span>
+                                  ))}
+                                <input
+                                  className={`govuk-input ${
+                                    props.errors?.some(e => e.field === 'additional_users-0')
+                                      ? 'govuk-input--error'
+                                      : ''
+                                    }`
+                                  }
+                                  id="additional_users-0"
+                                  name="additional_users[0][email]"
+                                  type="text"
+                                  defaultValue={props.values?.additional_users && props.values?.additional_users[0].email}
+                                  aria-describedby={
+                                    props.errors?.some(e => e.field === 'additional_users-0')
+                                      ? 'additional_users-0-error' : ''
+                                  }
+                              />
+                              </div>
+                            </td>
+                            <td className="govuk-table__cell">
+                              <div className="govuk-checkboxes">
+                                <div className="govuk-checkboxes__item">
+                                  <input className="govuk-checkboxes__input"
+                                    id="additional_users-is-manager" 
+                                    name="additional_users[0][person_is_manager]"
+                                    type="checkbox"
+                                    value="yes"
+                                    defaultChecked={props.values?.additional_users && props.values?.additional_users[0].person_is_manager === 'yes'}
+                                  />
+                                  <label className="govuk-label govuk-checkboxes__label" htmlFor="additional_users-1">
+                                    <span className="govuk-visually-hidden">Assign org manager role?</span>
+                                  </label>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                      <tr className="govuk-table__row">
+                        <td className="govuk-table__cell">
+                          <div className="govuk-form-group">
+                            <label className="govuk-label govuk-visually-hidden" htmlFor="additional_users-1">
+                              User 2 email address
+                            </label>
+                            {props.errors
+                              ?.filter(error => error.field === 'additional_users-1')
+                              .map((error, index) => (
+                                <span
+                                  key={index}
+                                  id="additional_users-1-error"
+                                  className="govuk-error-message"
+                                >
+                                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                                  {error.message}
+                                </span>
+                              ))}
+                            <input
+                              className={`govuk-input ${
+                                props.errors?.some(e => e.field === 'additional_users-1')
+                                  ? 'govuk-input--error'
+                                  : ''
+                                }`
+                              }
+                              id="additional_users-1"
+                              name="additional_users[1][email]"
+                              type="text"
+                              defaultValue={ props.values?.additional_users && props.values?.additional_users[1].email}
+                              aria-describedby={
+                                props.errors?.some(e => e.field === 'additional_users-1')
+                                  ? 'additional_users-1-error' : ''
+                              }
+                            />
+                          </div>
+                        </td>
+                        <td className="govuk-table__cell">
+                          <div className="govuk-checkboxes">
+                            <div className="govuk-checkboxes__item">
+                              <input className="govuk-checkboxes__input"
+                                id="additional_users-1-is-manager"
+                                name="additional_users[1][person_is_manager]"
+                                type="checkbox"
+                                value="yes"
+                                defaultChecked={props.values?.additional_users && props.values?.additional_users[1].person_is_manager === 'yes'}
+                              />
+                              <label className="govuk-label govuk-checkboxes__label" htmlFor="additional_users-1-is-manager">
+                                <span className="govuk-visually-hidden">Assign org manager role?</span>
+                              </label>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr className="govuk-table__row">
+                        <td className="govuk-table__cell">
+                        <div className="govuk-form-group">
+                            <label className="govuk-label govuk-visually-hidden" htmlFor="additional_users-2">
+                              User 3 email address
+                            </label>
+                            {props.errors
+                              ?.filter(error => error.field === 'additional_users-2')
+                              .map((error, index) => (
+                                <span
+                                  key={index}
+                                  id="additional_users-2-error"
+                                  className="govuk-error-message"
+                                >
+                                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                                  {error.message}
+                                </span>
+                              ))}
+                            <input
+                              className={`govuk-input ${
+                                props.errors?.some(e => e.field === 'additional_users-2')
+                                  ? 'govuk-input--error'
+                                  : ''
+                                }`
+                              }
+                              id="additional_users-2"
+                              name="additional_users[2][email]"
+                              type="text"
+                              defaultValue={ props.values?.additional_users && props.values?.additional_users[2].email}
+                              aria-describedby={
+                                props.errors?.some(e => e.field === 'additional_users-2')
+                                  ? 'additional_users-2-error' : ''
+                              }
+                            />
+                          </div>
+                        </td>
+                        <td className="govuk-table__cell">
+                          <div className="govuk-checkboxes">
+                            <div className="govuk-checkboxes__item">
+                              <input className="govuk-checkboxes__input"
+                                id="additional_users-2-is-manager"
+                                name="additional_users[2][person_is_manager]"
+                                type="checkbox"
+                                value="yes"
+                                defaultChecked={props.values?.additional_users && props.values?.additional_users[2].person_is_manager === 'yes'}
+                              />
+                              <label className="govuk-label govuk-checkboxes__label" htmlFor="additional_users-2-is-manager">
+                                <span className="govuk-visually-hidden">Assign org manager role?</span>
+                              </label>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
                 <div className="govuk-radios__item">
                   <input

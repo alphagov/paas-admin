@@ -69,6 +69,72 @@ interface ISignupForm extends ISignupFormValues {
 
 const VALID_EMAIL = /[^.]@[^.]/;
 
+const TODAY_DATE = new Date();
+
+function signUpContent(variables: ISignupFormValues): string {
+  const additionalUsers = `They would also like to invite:
+  ${variables.additional_users ?
+    variables.additional_users.map(user => (
+      `- ${user.email} ${user.person_is_manager && user.person_is_manager === 'yes' ? '(org manager)' : ''}`
+    )).join('\n') : ''}
+  `;
+
+  return `New organisation/account signup request from website
+
+  From: ${variables.name}
+  Email: ${variables.email} ${variables.person_is_manager === 'yes' ? '(org manager)' : ''}
+  Department: ${variables.department_agency}
+  Team/Service: ${variables.service_team}
+
+  ${variables.additional_users && variables.additional_users.length > 0 ? additionalUsers : ''}`;
+}
+
+function findoutMoreContent(variables: IFindOutMoreFormValues): string {
+
+  return `
+    From: ${variables.name}
+    Email: ${variables.email}
+    Organisation name: ${variables.gov_organisation_name}
+    ---
+    ${variables.message}
+  `;
+}
+
+function somethingWrongWithServiceContent(variables: ISomethingWrongWithServiceFormValues): string {
+
+  return `
+    From: ${variables.name}
+    Email: ${variables.email}
+    Organisation name: ${variables.affected_paas_organisation}
+    Severity: ${variables.impact_severity}
+    ---
+    ${variables.message}
+  `;
+}
+
+function helpUsingPaasContent(variables: IHelpUsingPaasFormValues): string {
+
+  return `
+    From: ${variables.name}
+    Email: ${variables.email}
+    Organisation name: ${variables.paas_organisation_name ? variables.paas_organisation_name : 'not provided'}
+    ---
+    ${variables.message}
+  `;
+}
+
+function contactUsContent(variables: IContactUsFormValues): string {
+
+  return `
+    From: ${variables.name}
+    Email: ${variables.email}
+    Department or agency name: ${variables.department_agency}
+    Service or team name: ${variables.service_team}
+    ---
+    ${variables.message}
+  `;
+}
+
 function validateSupportSelection({ support_type }: ISupportSelectionFormValues): ReadonlyArray<IValidationError> {
   const errors: Array<IValidationError> = [];
 
@@ -241,6 +307,22 @@ function validateInviteUsers({ invite_users }: ISignupForm): ReadonlyArray<IVali
   return errors;
 }
 
+function validateAdditionalUserEmail({ additional_users }: ISignupForm): ReadonlyArray<IValidationError> {
+  const errors = [];
+  if (additional_users) {
+    for (let i = 0; i < additional_users.length; i++) {
+      if (additional_users[i].email && !VALID_EMAIL.test(additional_users[i].email)) {
+        errors.push({
+          field: `additional_users-${i}`,
+          message: `Enter additional user ${i+1} email address in the correct format, like name@example.com`,
+        });
+      }
+    }
+  }
+
+  return errors;
+}
+
 export async function SupportSelectionForm (ctx: IContext, _params: IParameters): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Get support');
@@ -309,27 +391,43 @@ export async function HandleSomethingWrongWithServiceFormPost (ctx: IContext, pa
         values={body}
       />),
     };
-  } else {
-    template.title = 'We have received your message';
-
-    return {
-      body: template.render(
-        <SupportConfirmationPage
-          linkTo={ctx.linkTo}
-          heading={'We have received your message'}
-          text={'We deal with the most critical issues first. During working hours we will start investigating critical issues within 20 minutes.'}
-        >
-        Outside of working hours we support critical issues only, and we aim to start working on the issue within 40 minutes.<br />
-        If the issue is not impacting your service, we aim to start working on your request within 1 business day.<br />
-        Read more about our{' '}
-          <a className="govuk-link" 
-            href="https://www.cloud.service.gov.uk/support-and-response-times">
-              support and resolution times
-          </a>.
-        </SupportConfirmationPage>,
-      ),
-    };
   }
+
+  const client = zendesk.createClient(ctx.app.zendeskConfig);
+
+  await client.tickets.create({
+    ticket: {
+      comment: {
+        body: somethingWrongWithServiceContent({
+          affected_paas_organisation: body.affected_paas_organisation,
+          email: body.email,
+          impact_severity: body.impact_severity,
+          message: body.message,
+          name: body.name,
+        }),
+      },
+      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} something wrong in ${body.affected_paas_organisation} live service`,
+    },
+  });
+  template.title = 'We have received your message';
+
+  return {
+    body: template.render(
+      <SupportConfirmationPage
+        linkTo={ctx.linkTo}
+        heading={'We have received your message'}
+        text={'We deal with the most critical issues first. During working hours we will start investigating critical issues within 20 minutes.'}
+      >
+      Outside of working hours we support critical issues only, and we aim to start working on the issue within 40 minutes.<br />
+      If the issue is not impacting your service, we aim to start working on your request within 1 business day.<br />
+      Read more about our{' '}
+        <a className="govuk-link" 
+          href="https://www.cloud.service.gov.uk/support-and-response-times">
+            support and resolution times
+        </a>.
+      </SupportConfirmationPage>,
+    ),
+  };
 }
 
 export async function HelpUsingPaasForm (ctx: IContext): Promise<IResponse> {
@@ -365,25 +463,41 @@ export async function HandleHelpUsingPaasFormPost (ctx: IContext, params: IParam
         values={body}
       />),
     };
-  } else {
-    template.title = 'We have received your message';
-
-    return {
-      body: template.render(
-        <SupportConfirmationPage
-          linkTo={ctx.linkTo}
-          heading={'We have received your message'}
-          text={'We try to reply to all queries by the end of the next working day.'}
-        >
-          Read more about our{' '}
-          <a className="govuk-link" 
-            href="https://www.cloud.service.gov.uk/support-and-response-times">
-              support and resolution times
-          </a>.
-        </SupportConfirmationPage>,
-      ),
-    };
   }
+
+  const client = zendesk.createClient(ctx.app.zendeskConfig);
+
+  await client.tickets.create({
+    ticket: {
+      comment: {
+        body: helpUsingPaasContent({
+          email: body.email,
+          message: body.message,
+          name: body.name,
+          paas_organisation_name: body.paas_organisation_name,
+        }),
+      },
+      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} request for help`,
+    },
+  });
+
+  template.title = 'We have received your message';
+
+  return {
+    body: template.render(
+      <SupportConfirmationPage
+        linkTo={ctx.linkTo}
+        heading={'We have received your message'}
+        text={'We try to reply to all queries by the end of the next working day.'}
+      >
+        Read more about our{' '}
+        <a className="govuk-link" 
+          href="https://www.cloud.service.gov.uk/support-and-response-times">
+            support and resolution times
+        </a>.
+      </SupportConfirmationPage>,
+    ),
+  };
 }
 
 export async function FindOutMoreForm (ctx: IContext): Promise<IResponse> {
@@ -421,25 +535,42 @@ export async function HandleFindOutMoreFormPost (ctx: IContext, params: IParamet
         values={body}
       />),
     };
-  } else {
-    template.title = 'We have received your message';
-
-    return {
-      body: template.render(
-        <SupportConfirmationPage
-          linkTo={ctx.linkTo}
-          heading={'We have received your message'}
-          text={'A member of our product team will be in touch. We try to reply to all queries by the end of the next working day.'}
-        >
-          Read more about our{' '}
-          <a className="govuk-link" 
-            href="https://www.cloud.service.gov.uk/roadmap">
-              roadmap and features
-          </a>.
-        </SupportConfirmationPage>,
-      ),
-    };
   }
+
+
+  const client = zendesk.createClient(ctx.app.zendeskConfig);
+
+  await client.tickets.create({
+    ticket: {
+      comment: {
+        body: findoutMoreContent({
+          email: body.email,
+          gov_organisation_name: body.gov_organisation_name,
+          message: body.message,
+          name: body.name,
+        }),
+      },
+      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} request for information`,
+    },
+  });
+
+  template.title = 'We have received your message';
+
+  return {
+    body: template.render(
+      <SupportConfirmationPage
+        linkTo={ctx.linkTo}
+        heading={'We have received your message'}
+        text={'A member of our product team will be in touch. We try to reply to all queries by the end of the next working day.'}
+      >
+        Read more about our{' '}
+        <a className="govuk-link" 
+          href="https://www.cloud.service.gov.uk/roadmap">
+            roadmap and features
+        </a>.
+      </SupportConfirmationPage>,
+    ),
+  };
 }
 
 export async function ContactUsForm (ctx: IContext, _params: IParameters): Promise<IResponse> {
@@ -478,24 +609,41 @@ export async function HandleContactUsFormPost (ctx: IContext, params: IParameter
         values={body}
       />),
     };
-  } else {
-    template.title = 'We have received your message';
-
-    return {
-      body: template.render(
-        <SupportConfirmationPage
-          linkTo={ctx.linkTo}
-          heading={'We have received your message'}
-          text={'We will contact you on the next working day.'}
-        >
-          <a className="govuk-link" 
-            href="https://www.cloud.service.gov.uk/get-started">
-              See the next steps to get started
-          </a>.
-        </SupportConfirmationPage>,
-      ),
-    };
   }
+
+  const client = zendesk.createClient(ctx.app.zendeskConfig);
+
+  await client.tickets.create({
+    ticket: {
+      comment: {
+        body: contactUsContent({
+          email: body.email,
+          department_agency: body.department_agency,
+          message: body.message,
+          name: body.name,
+          service_team: body.service_team,
+        }),
+      },
+      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} support request from website`,
+    },
+  });
+
+  template.title = 'We have received your message';
+
+  return {
+    body: template.render(
+      <SupportConfirmationPage
+        linkTo={ctx.linkTo}
+        heading={'We have received your message'}
+        text={'We will contact you on the next working day.'}
+      >
+        <a className="govuk-link" 
+          href="https://www.cloud.service.gov.uk/get-started">
+            See the next steps to get started
+        </a>.
+      </SupportConfirmationPage>,
+    ),
+  };
 }
 
 export async function RequestAnAccountForm(ctx: IContext): Promise<IResponse> {
@@ -533,7 +681,7 @@ export async function SignupForm (ctx: IContext): Promise<IResponse> {
   };
 }
 
-export async function HandleSignupFormPost (ctx: IContext, params: IParameters,  body: ISignupForm): Promise<IResponse> {
+export async function HandleSignupFormPost (ctx: IContext, params: IParameters,  body: ISignupFormValues): Promise<IResponse> {
   const errors: Array<IValidationError> = [];
   const template = new Template(ctx.viewContext);
   errors.push(
@@ -543,7 +691,9 @@ export async function HandleSignupFormPost (ctx: IContext, params: IParameters, 
     ...validateServiceTeam(body),
     ...validatePersonIsManager(body),
     ...validateInviteUsers(body),
+    ...validateAdditionalUserEmail(body),
   );
+
   if (errors.length > 0) {
     template.title = 'Request a GOV.UK PaaS account';
 
@@ -555,22 +705,41 @@ export async function HandleSignupFormPost (ctx: IContext, params: IParameters, 
         values={body}
       />),
     };
-  } else {
-    template.title = 'We have received your request';
-
-    return {
-      body: template.render(
-        <SupportConfirmationPage
-          linkTo={ctx.linkTo}
-          heading={'We have received your request'}
-          text={'We will email you with your organisation account details in th next working day.'}
-        >
-          <a className="govuk-link" 
-            href="https://www.cloud.service.gov.uk/get-started">
-              See the next steps to get started
-          </a>.
-        </SupportConfirmationPage>,
-      ),
-    };
   }
+
+  const client = zendesk.createClient(ctx.app.zendeskConfig);
+
+  await client.tickets.create({
+    ticket: {
+      comment: {
+        body: signUpContent({
+          additional_users: body.additional_users,
+          department_agency: body.department_agency,
+          email: body.email,
+          invite_users:body.invite_users,
+          name: body.name,
+          person_is_manager:body.person_is_manager,
+          service_team: body.service_team,
+        }),
+      },
+      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} Registration Request`,
+    },
+  });
+
+  template.title = 'We have received your request';
+
+  return {
+    body: template.render(
+      <SupportConfirmationPage
+        linkTo={ctx.linkTo}
+        heading={'We have received your request'}
+        text={'We will email you with your organisation account details in th next working day.'}
+      >
+        <a className="govuk-link" 
+          href="https://www.cloud.service.gov.uk/get-started">
+            See the next steps to get started
+        </a>.
+      </SupportConfirmationPage>,
+    ),
+  };
 }

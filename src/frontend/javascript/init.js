@@ -27,3 +27,11 @@ var GOVUKErrorSummary = window.GOVUKFrontend.ErrorSummary;
 if ($errorSummary) {
   new GOVUKErrorSummary($errorSummary).init();
 }
+
+var $radios = document.querySelectorAll('[data-module="govuk-radios"]');
+var GOVUKRadios = window.GOVUKFrontend.Radios;
+if ($radios) {
+  for (var i = 0; i < $radios.length; i++) {
+    new GOVUKRadios($radios[i]).init();
+  };
+}
