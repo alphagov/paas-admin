@@ -63,6 +63,11 @@ export interface IAppConfig {
   readonly prometheusEndpoint: string;
   readonly prometheusUsername: string;
   readonly prometheusPassword: string;
+  readonly zendeskConfig: {
+    readonly token: string;
+    readonly remoteUri: string;
+    readonly username: string;
+  };
 }
 
 export type OIDCProviderName = 'google';
