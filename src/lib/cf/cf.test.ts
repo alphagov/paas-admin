@@ -6,6 +6,7 @@ import * as data from './cf.test.data';
 import { app as defaultApp } from './test-data/app';
 import { auditEvent as defaultAuditEvent } from './test-data/audit-event';
 import { org as defaultOrg } from './test-data/org';
+import { orgRole, spaceRole } from './test-data/roles';
 import { wrapResources, wrapV3Resources } from './test-data/wrap-resources';
 
 import CloudFoundryClient from '.';
@@ -840,5 +841,25 @@ describe('lib/cf test suite', () => {
 
     expect(space).toHaveProperty('guid');
     expect(space.guid).toEqual('SPACE_GUID');
+  });
+
+  it('should retrieve roles for a user', async () => {
+    const orgGUID = 'an-org-guid';
+    const spaceGUID = 'a-space-guid';
+    const userGUID = 'a-user-guid';
+
+    const roles = [
+      orgRole('organization_manager', orgGUID, userGUID),
+      spaceRole('space_developer', orgGUID, spaceGUID, userGUID),
+    ];
+
+    nockCF
+      .get(`/v3/roles?user_guids=${userGUID}`)
+      .reply(200, JSON.stringify(wrapV3Resources(...roles)));
+
+    const client = new CloudFoundryClient(config);
+    const actualRoles = await client.userRoles(userGUID);
+
+    expect(actualRoles).toEqual(roles)
   });
 });

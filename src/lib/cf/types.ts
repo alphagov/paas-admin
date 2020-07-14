@@ -600,3 +600,27 @@ export interface IAuditEvent extends IV3Metadata {
 
   readonly data: any;
 }
+
+export interface IRole extends IV3Metadata {
+  readonly type: string;
+
+  readonly relationships: {
+    readonly organization: {
+      readonly data: {
+        readonly guid: string | null;
+      };
+    };
+
+    readonly space: {
+      readonly data: {
+        readonly guid: string | null;
+      };
+    };
+
+    readonly user: {
+      readonly data: {
+        readonly guid: string;
+      };
+    };
+  };
+}
