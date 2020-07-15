@@ -1,4 +1,4 @@
-import { capitalize } from 'lodash';
+import { capitalize, uniq } from 'lodash';
 import React from 'react';
 
 import { Template } from '../../layouts';
@@ -16,6 +16,8 @@ import {
 
 import { PasswordResetSuccess, PasswordResetRequest, UserPage, PasswordResetSetPasswordForm } from './views';
 import NotificationClient from '../../lib/notify';
+
+const CONCURRENCY_LIMIT = 5;
 
 interface IPasswordResetBody {
   readonly email?: string;
@@ -67,7 +69,28 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
     logger: ctx.app.logger,
   });
 
-  const cfUserSummary = await cf.userSummary(accountsUser.uuid);
+  const roles = await cf.userRoles(accountsUser.uuid);
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const pLimit = require('p-limit');
+  const pool = pLimit(CONCURRENCY_LIMIT);
+
+  const spaceGUIDs = uniq(
+    roles
+      .filter(r => r.relationships.space.data)
+      .map(r => r.relationships.space.data.guid)
+    ,
+  );
+  const spaces = await Promise.all(spaceGUIDs.map(s => pool(async () => await cf.space(s!))));
+
+  const orgGUIDs = uniq(
+    roles
+      .filter(r => r.relationships.organization.data)
+      .map(r => r.relationships.organization.data.guid)
+      .concat(spaces.map(s => s.entity.organization_guid))
+    ,
+  );
+  const organizations = await Promise.all(orgGUIDs .map(o => pool(async () => await cf.organization(o!))));
 
   const uaa = new UAAClient({
     apiEndpoint: ctx.app.uaaAPI,
@@ -91,8 +114,7 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
         groups={uaaUser.groups}
         lastLogon={new Date(uaaUser.lastLogonTime)}
         linkTo={ctx.linkTo}
-        managedOrganizations={cfUserSummary.entity.managed_organizations}
-        organizations={cfUserSummary.entity.organizations}
+        organizations={organizations}
         origin={origin}
         user={accountsUser}
       />,

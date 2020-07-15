@@ -1,8 +1,12 @@
+import { merge } from 'lodash';
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
-import { userSummary } from '../../lib/cf/cf.test.data';
+import { org as defaultOrg } from '../../lib/cf/test-data/org';
+import { orgRole, spaceRole } from '../../lib/cf/test-data/roles';
+import { wrapV3Resources } from '../../lib/cf/test-data/wrap-resources';
+import { space as defaultSpace } from '../../lib/cf/cf.test.data';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
@@ -62,11 +66,16 @@ describe('users test suite', () => {
   });
 
   it('should show the users pages for a valid email', async () => {
+    const orgGUID1 = 'org-guid-1';
+    const orgGUID2 = 'org-guid-2';
+    const spaceGUID = 'space-guid';
+    const userGUID = 'user-guid';
+
     nockAccounts.get('/users?email=one@user.in.database').reply(
       200,
       `{
         "users": [{
-          "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+          "user_uuid": "${userGUID}",
           "user_email": "one@user.in.database",
           "username": "one@user.in.database"
         }]
@@ -74,14 +83,37 @@ describe('users test suite', () => {
     );
 
     nockCF
-      .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary')
-      .reply(200, userSummary);
+      .get('/v3/roles')
+      .query(true)
+      .reply(200, JSON.stringify(wrapV3Resources(
+        orgRole('organization_manager', orgGUID1, userGUID),
+        spaceRole('space_developer', orgGUID2, spaceGUID, userGUID),
+      )))
+
+      .get(`/v2/organizations/${orgGUID1}`)
+      .reply(200, JSON.stringify(merge(
+        defaultOrg(),
+        { metadata: { guid: orgGUID1 }, entity: { name: 'org-1' } },
+      )))
+
+      .get(`/v2/organizations/${orgGUID2}`)
+      .reply(200, JSON.stringify(merge(
+        defaultOrg(),
+        { metadata: { guid: orgGUID2 }, entity: { name: 'org-2' } },
+      )))
+
+      .get(`/v2/spaces/${spaceGUID}`)
+      .reply(200, JSON.stringify(merge(
+        JSON.parse(defaultSpace),
+        { metadata: { guid: spaceGUID }, entity: { organization_guid: orgGUID2 } },
+      )))
+    ;
 
     nockUAA
       .post('/oauth/token?grant_type=client_credentials')
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
 
-      .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+      .get(`/Users/${userGUID}`)
       .reply(200, uaaData.user);
 
     const response = await users.getUser(ctx, {
@@ -90,10 +122,11 @@ describe('users test suite', () => {
 
     expect(response.body).toContain('User');
     expect(response.body).toContain('one@user.in.database');
-    expect(response.body).toContain('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+    expect(response.body).toContain(userGUID);
     expect(response.body).toContain('uaa');
 
-    expect(response.body).toContain('the-system_domain-org-name');
+    expect(response.body).toContain('org-1');
+    expect(response.body).toContain('org-2');
 
     expect(response.body).toContain('2018');
     expect(response.body).toContain('cloud_controller.read');
@@ -120,69 +153,106 @@ describe('users test suite', () => {
   });
 
   it('should show the users pages a valid guid', async () => {
-    nockAccounts.get('/users?email=one@user.in.database').reply(
+    const orgGUID1 = 'org-guid-1';
+    const userGUID = 'user-guid';
+
+    nockAccounts.get(`/users/${userGUID}`).reply(
       200,
       `{
-        "users": [{
-          "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-          "user_email": "one@user.in.database",
-          "username": "one@user.in.database"
-        }]
+        "user_uuid": "${userGUID}",
+        "user_email": "one@user.in.database",
+        "username": "one@user.in.database"
       }`,
     );
 
     nockCF
-      .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary')
-      .reply(200, userSummary);
+      .get('/v3/roles')
+      .query(true)
+      .reply(200, JSON.stringify(wrapV3Resources(
+        orgRole('organization_manager', orgGUID1, userGUID),
+      )))
+
+      .get(`/v2/organizations/${orgGUID1}`)
+      .reply(200, JSON.stringify(merge(
+        defaultOrg(),
+        { metadata: { guid: orgGUID1 }, entity: { name: 'org-1' } },
+      )))
+    ;
 
     nockUAA
       .post('/oauth/token?grant_type=client_credentials')
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
 
-      .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+      .get(`/Users/${userGUID}`)
       .reply(200, uaaData.user);
 
     const response = await users.getUser(ctx, {
-      emailOrUserGUID: 'one@user.in.database',
+      emailOrUserGUID: userGUID,
     });
 
     expect(response.body).toContain('User');
     expect(response.body).toContain('one@user.in.database');
-    expect(response.body).toContain('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+    expect(response.body).toContain(userGUID);
     expect(response.body).toContain('uaa');
 
-    expect(response.body).toContain('the-system_domain-org-name');
+    expect(response.body).toContain('org-1');
 
     expect(response.body).toContain('2018');
     expect(response.body).toContain('cloud_controller.read');
   });
 
   it('should return an error when the user is not in UAA', async () => {
-    nockAccounts.get('/users?email=one@user.in.database').reply(
+    const orgGUID1 = 'org-guid-1';
+    const orgGUID2 = 'org-guid-2';
+    const spaceGUID = 'space-guid';
+    const userGUID = 'user-guid';
+
+    nockAccounts.get(`/users/${userGUID}`).reply(
       200,
       `{
-        "users": [{
-          "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-          "user_email": "one@user.in.database",
-          "username": "one@user.in.database"
-        }]
+        "user_uuid": "${userGUID}",
+        "user_email": "one@user.in.database",
+        "username": "one@user.in.database"
       }`,
     );
 
     nockCF
-      .get('/v2/users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/summary')
-      .reply(200, userSummary);
+      .get('/v3/roles')
+      .query(true)
+      .reply(200, JSON.stringify(wrapV3Resources(
+        orgRole('organization_manager', orgGUID1, userGUID),
+        spaceRole('space_developer', orgGUID2, spaceGUID, userGUID),
+      )))
+
+      .get(`/v2/organizations/${orgGUID1}`)
+      .reply(200, JSON.stringify(merge(
+        defaultOrg(),
+        { metadata: { guid: orgGUID1 }, entity: { name: 'org-1' } },
+      )))
+
+      .get(`/v2/organizations/${orgGUID2}`)
+      .reply(200, JSON.stringify(merge(
+        defaultOrg(),
+        { metadata: { guid: orgGUID2 }, entity: { name: 'org-2' } },
+      )))
+
+      .get(`/v2/spaces/${spaceGUID}`)
+      .reply(200, JSON.stringify(merge(
+        JSON.parse(defaultSpace),
+        { metadata: { guid: spaceGUID }, entity: { organization_guid: orgGUID2 } },
+      )))
+    ;
 
     nockUAA
       .post('/oauth/token?grant_type=client_credentials')
       .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
 
-      .get('/Users/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+      .get(`/Users/${userGUID}`)
       .reply(404);
 
     await expect(
       users.getUser(ctx, {
-        emailOrUserGUID: 'one@user.in.database',
+        emailOrUserGUID: userGUID,
       }),
     ).rejects.toThrowError('not found');
   });

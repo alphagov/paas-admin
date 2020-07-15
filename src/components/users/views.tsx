@@ -3,7 +3,7 @@ import React, { ReactElement } from 'react';
 
 import { DATE_TIME } from '../../layouts';
 import { IAccountsUser } from '../../lib/accounts';
-import { IUserSummaryOrganization } from '../../lib/cf/types';
+import { IOrganization } from '../../lib/cf/types';
 import { IUaaGroup } from '../../lib/uaa';
 import { RouteLinker } from '../app';
 
@@ -11,8 +11,7 @@ interface IUserPageProps {
   readonly groups: ReadonlyArray<IUaaGroup>;
   readonly lastLogon: Date;
   readonly linkTo: RouteLinker;
-  readonly managedOrganizations: ReadonlyArray<IUserSummaryOrganization>;
-  readonly organizations: ReadonlyArray<IUserSummaryOrganization>;
+  readonly organizations: ReadonlyArray<IOrganization>;
   readonly origin: string;
   readonly user: IAccountsUser;
 }
@@ -43,7 +42,7 @@ interface IPasswordResetSuccessProperties {
 }
 
 export function UserPage(props: IUserPageProps): ReactElement {
-  const listOrgs = (orgs: ReadonlyArray<IUserSummaryOrganization>) =>
+  const listOrgs = (orgs: ReadonlyArray<IOrganization>) =>
     orgs.map(org => (
       <li key={org.metadata.guid}>
         <a
@@ -103,15 +102,6 @@ export function UserPage(props: IUserPageProps): ReactElement {
       </p>
       <ul className="govuk-list govuk-list--bullet">
         {listOrgs(props.organizations)}
-      </ul>
-
-      <h3 className="govuk-heading-m">Managed Orgs</h3>
-      <p className="govuk-body">
-        This user manages {props.managedOrganizations.length}{' '}
-        {props.managedOrganizations.length === 1 ? 'org' : 'orgs'}.
-      </p>
-      <ul className="govuk-list govuk-list--bullet">
-        {listOrgs(props.managedOrganizations)}
       </ul>
 
       <h3 className="govuk-heading-m">UAA Groups</h3>
