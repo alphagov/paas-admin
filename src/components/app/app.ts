@@ -243,10 +243,13 @@ export default function(config: IAppConfig): express.Express {
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
 
+  /* istanbul ignore next */
   app.post('/support', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('support.selection.post');
     const ctx = initContext(req, router, route, config);
@@ -272,10 +275,13 @@ export default function(config: IAppConfig): express.Express {
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
 
+  /* istanbul ignore next */
   app.post('/support/something-wrong-with-service', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('support.something-wrong-with-service.post');
     const ctx = initContext(req, router, route, config);
@@ -296,10 +302,12 @@ export default function(config: IAppConfig): express.Express {
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
-
+  /* istanbul ignore next */
   app.post('/support/help-using-paas', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('support.help-using-paas.post');
     const ctx = initContext(req, router, route, config);
@@ -320,10 +328,12 @@ export default function(config: IAppConfig): express.Express {
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
-
+  /* istanbul ignore next */
   app.post('/support/find-out-more', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('support.find-out-more.post');
     const ctx = initContext(req, router, route, config);
@@ -344,10 +354,12 @@ export default function(config: IAppConfig): express.Express {
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
-
+  /* istanbul ignore next */
   app.post('/support/contact-us', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('support.contact-us.post');
     const ctx = initContext(req, router, route, config);
@@ -368,10 +380,12 @@ export default function(config: IAppConfig): express.Express {
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
-
+  /* istanbul ignore next */
   app.post('/support/sign-up', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('support.sign-up.post');
     const ctx = initContext(req, router, route, config);
@@ -392,10 +406,13 @@ export default function(config: IAppConfig): express.Express {
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
 
+  /* istanbul ignore next */
   app.post('/support/request-an-account', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const route = router.findByName('support.request-an-account');
     const ctx = initContext(req, router, route, config);
@@ -421,7 +438,9 @@ export default function(config: IAppConfig): express.Express {
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
       })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
 
