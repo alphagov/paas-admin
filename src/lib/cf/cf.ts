@@ -576,4 +576,17 @@ export default class CloudFoundryClient {
 
     return resp.data;
   }
+
+  public async userRoles(userGUID: string): Promise<ReadonlyArray<cf.IRole>> {
+    const resp = await this.request(
+      'get',
+      '/v3/roles',
+      /* data */ undefined,
+      /* params */ {
+        user_guids: userGUID,
+      },
+    );
+
+    return this.allV3Resources(resp);
+  }
 }
