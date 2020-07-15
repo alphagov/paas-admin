@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import * as zendesk from 'node-zendesk';
 import React from 'react';
 
@@ -136,7 +137,7 @@ function contactUsContent(variables: IContactUsFormValues): string {
 }
 
 function validateSupportSelection({ support_type }: ISupportSelectionFormValues): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
+  const errors = [];
 
   if (!support_type) {
     errors.push({
@@ -149,7 +150,7 @@ function validateSupportSelection({ support_type }: ISupportSelectionFormValues)
 }
 
 function validateName({ name }: ISupportFormName): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
+  const errors = [];
 
   if (!name) {
     errors.push({
@@ -162,7 +163,7 @@ function validateName({ name }: ISupportFormName): ReadonlyArray<IValidationErro
 }
 
 function validateEmail({ email }: ISupportFormEmail): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
+  const errors = [];
 
   if (!email || !VALID_EMAIL.test(email)) {
     errors.push({
@@ -175,7 +176,7 @@ function validateEmail({ email }: ISupportFormEmail): ReadonlyArray<IValidationE
 }
 
 function validateMessage({ message }: ISupportFormMessage): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
+  const errors = [];
 
   if (!message) {
     errors.push({
@@ -187,8 +188,10 @@ function validateMessage({ message }: ISupportFormMessage): ReadonlyArray<IValid
   return errors;
 }
 
-function validateAffectedOrg({ affected_paas_organisation }: ISomethingWrongWithServiceForm): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
+function validateAffectedOrg(
+  { affected_paas_organisation }: ISomethingWrongWithServiceForm,
+): ReadonlyArray<IValidationError> {
+  const errors = [];
 
   if (!affected_paas_organisation) {
     errors.push({
@@ -201,7 +204,7 @@ function validateAffectedOrg({ affected_paas_organisation }: ISomethingWrongWith
 }
 
 function validateImpactSeverity({ impact_severity }: ISomethingWrongWithServiceForm): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
+  const errors = [];
 
   if (!impact_severity) {
     errors.push({
@@ -214,7 +217,7 @@ function validateImpactSeverity({ impact_severity }: ISomethingWrongWithServiceF
 }
 
 function validateGovOrg({ gov_organisation_name }: ISupportFormGovOrgName): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
+  const errors = [];
 
   if (!gov_organisation_name) {
     errors.push({
@@ -227,7 +230,7 @@ function validateGovOrg({ gov_organisation_name }: ISupportFormGovOrgName): Read
 }
 
 function validateDepartmentAgency({ department_agency }: ISupportFormDeptAgency): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
+  const errors = [];
 
   if (!department_agency) {
     errors.push({
@@ -240,7 +243,7 @@ function validateDepartmentAgency({ department_agency }: ISupportFormDeptAgency)
 }
 
 function validateServiceTeam({ service_team }: ISupportFormServiceTeam): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
+  const errors = [];
 
   if (!service_team) {
     errors.push({
@@ -253,7 +256,7 @@ function validateServiceTeam({ service_team }: ISupportFormServiceTeam): Readonl
 }
 
 function validateSignupEmail({ email }: ISignupForm): ReadonlyArray<IDualValidationError> {
-  const errors: Array<IDualValidationError> = [];
+  const errors = [];
 
   const allowedEmailAddresses = /(.+\.gov\.uk|.+nhs\.(net|uk)|.+mod\.uk|.+\.police\.uk|police\.uk)$/;
 
@@ -269,8 +272,8 @@ function validateSignupEmail({ email }: ISignupForm): ReadonlyArray<IDualValidat
       field: 'email',
       message: 'We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, .police.uk or police.uk email addresses',
       messageExtra: `
-        If you work for a government organisation or public body with a different email address, please contact us on 
-        <a class="govuk-link" 
+        If you work for a government organisation or public body with a different email address, please contact us on
+        <a class="govuk-link"
           href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk"
         >
           gov-uk-paas-support@digital.cabinet-office.gov.uk
@@ -282,7 +285,7 @@ function validateSignupEmail({ email }: ISignupForm): ReadonlyArray<IDualValidat
 }
 
 function validatePersonIsManager({ person_is_manager }: ISignupForm): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
+  const errors = [];
 
   if (!person_is_manager) {
     errors.push({
@@ -295,7 +298,7 @@ function validatePersonIsManager({ person_is_manager }: ISignupForm): ReadonlyAr
 }
 
 function validateInviteUsers({ invite_users }: ISignupForm): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
+  const errors = [];
 
   if (!invite_users) {
     errors.push({
@@ -327,17 +330,20 @@ export async function SupportSelectionForm (ctx: IContext, _params: IParameters)
 
   const template = new Template(ctx.viewContext, 'Get support');
 
-  return {
+  return await Promise.resolve({
     body: template.render(<SupportSelectionPage
       csrf={ctx.viewContext.csrf}
-      errors={[]}
-      values={[]}
+      linkTo={ctx.linkTo}
     />),
-  };
+  });
 }
 
-export async function HandleSupportSelectionFormPost (ctx: IContext, body: ISupportSelectionFormValues): Promise<IResponse> {
-  const errors: Array<IValidationError> = [];
+export async function HandleSupportSelectionFormPost (
+  ctx: IContext,
+  _params: IParameters,
+  body: ISupportSelectionFormValues,
+): Promise<IResponse> {
+  const errors = [];
   const template = new Template(ctx.viewContext);
 
   errors.push(
@@ -347,31 +353,43 @@ export async function HandleSupportSelectionFormPost (ctx: IContext, body: ISupp
   if (errors.length > 0) {
     template.title = 'Error: Get support';
 
-    return {
+    return await Promise.resolve({
       body: template.render(<SupportSelectionPage
         csrf={ctx.viewContext.csrf}
         errors={errors}
+        linkTo={ctx.linkTo}
         values={body}
       />),
-    };
+    });
   }
+
+  return await Promise.resolve({
+    body: template.render(<SupportSelectionPage
+      csrf={ctx.viewContext.csrf}
+      linkTo={ctx.linkTo}
+      values={body}
+    />),
+  });
 }
 
 export async function SomethingWrongWithServiceForm (ctx: IContext): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Something’s wrong with my live service');
 
-  return {
+  return await Promise.resolve({
     body: template.render(<SomethingWrongWithServicePage
       csrf={ctx.viewContext.csrf}
-      errors={[]}
-      values={[]}
+      linkTo={ctx.linkTo}
     />),
-  };
+  });
 }
 
-export async function HandleSomethingWrongWithServiceFormPost (ctx: IContext, params: IParameters, body: ISomethingWrongWithServiceForm): Promise<IResponse> {
-  const errors: Array<IValidationError> = [];
+export async function HandleSomethingWrongWithServiceFormPost(
+  ctx: IContext,
+  _params: IParameters,
+  body: ISomethingWrongWithServiceForm,
+): Promise<IResponse> {
+  const errors = [];
   const template = new Template(ctx.viewContext);
 
   errors.push(
@@ -387,6 +405,7 @@ export async function HandleSomethingWrongWithServiceFormPost (ctx: IContext, pa
     return {
       body: template.render(<SomethingWrongWithServicePage
         csrf={ctx.viewContext.csrf}
+        linkTo={ctx.linkTo}
         errors={errors}
         values={body}
       />),
@@ -416,12 +435,14 @@ export async function HandleSomethingWrongWithServiceFormPost (ctx: IContext, pa
       <SupportConfirmationPage
         linkTo={ctx.linkTo}
         heading={'We have received your message'}
-        text={'We deal with the most critical issues first. During working hours we will start investigating critical issues within 20 minutes.'}
+        text={`We deal with the most critical issues first. During working hours we will start investigating critical
+          issues within 20 minutes.`}
       >
-      Outside of working hours we support critical issues only, and we aim to start working on the issue within 40 minutes.<br />
+      Outside of working hours we support critical issues only, and we aim to start working on the issue within
+      40 minutes.<br />
       If the issue is not impacting your service, we aim to start working on your request within 1 business day.<br />
       Read more about our{' '}
-        <a className="govuk-link" 
+        <a className="govuk-link"
           href="https://www.cloud.service.gov.uk/support-and-response-times">
             support and resolution times
         </a>.
@@ -434,18 +455,20 @@ export async function HelpUsingPaasForm (ctx: IContext): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'I need some help using GOV.UK PaaS');
 
-  return {
+  return await Promise.resolve({
     body: template.render(<HelpUsingPaasPage
       csrf={ctx.viewContext.csrf}
       linkTo={ctx.linkTo}
-      errors={[]}
-      values={[]}
     />),
-  };
+  });
 }
 
-export async function HandleHelpUsingPaasFormPost (ctx: IContext, params: IParameters,  body: IHelpUsingPaasForm): Promise<IResponse> {
-  const errors: Array<IValidationError> = [];
+export async function HandleHelpUsingPaasFormPost(
+  ctx: IContext,
+  _params: IParameters,
+  body: IHelpUsingPaasForm,
+): Promise<IResponse> {
+  const errors = [];
   const template = new Template(ctx.viewContext);
 
   errors.push(
@@ -491,7 +514,7 @@ export async function HandleHelpUsingPaasFormPost (ctx: IContext, params: IParam
         text={'We try to reply to all queries by the end of the next working day.'}
       >
         Read more about our{' '}
-        <a className="govuk-link" 
+        <a className="govuk-link"
           href="https://www.cloud.service.gov.uk/support-and-response-times">
             support and resolution times
         </a>.
@@ -504,18 +527,20 @@ export async function FindOutMoreForm (ctx: IContext): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'I’d like to find out more about GOV.UK PaaS');
 
-  return {
+  return await Promise.resolve({
     body: template.render(<FindOutMorePage
       csrf={ctx.viewContext.csrf}
       linkTo={ctx.linkTo}
-      errors={[]}
-      values={[]}
     />),
-  };
+  });
 }
 
-export async function HandleFindOutMoreFormPost (ctx: IContext, params: IParameters,  body: IFindOutMoreForm): Promise<IResponse> {
-  const errors: Array<IValidationError> = [];
+export async function HandleFindOutMoreFormPost (
+  ctx: IContext,
+  _params: IParameters,
+  body: IFindOutMoreForm,
+): Promise<IResponse> {
+  const errors = [];
   const template = new Template(ctx.viewContext);
   errors.push(
     ...validateName(body),
@@ -561,10 +586,11 @@ export async function HandleFindOutMoreFormPost (ctx: IContext, params: IParamet
       <SupportConfirmationPage
         linkTo={ctx.linkTo}
         heading={'We have received your message'}
-        text={'A member of our product team will be in touch. We try to reply to all queries by the end of the next working day.'}
+        text={`A member of our product team will be in touch. We try to reply to all queries by the end of the next
+          working day.`}
       >
         Read more about our{' '}
-        <a className="govuk-link" 
+        <a className="govuk-link"
           href="https://www.cloud.service.gov.uk/roadmap">
             roadmap and features
         </a>.
@@ -577,18 +603,20 @@ export async function ContactUsForm (ctx: IContext, _params: IParameters): Promi
 
   const template = new Template(ctx.viewContext, 'Contact us');
 
-  return {
+  return await Promise.resolve({
     body: template.render(<ContactUsPage
       csrf={ctx.viewContext.csrf}
       linkTo={ctx.linkTo}
-      errors={[]}
-      values={[]}
     />),
-  };
+  });
 }
 
-export async function HandleContactUsFormPost (ctx: IContext, params: IParameters,  body: IContactUsForm): Promise<IResponse> {
-  const errors: Array<IValidationError> = [];
+export async function HandleContactUsFormPost(
+  ctx: IContext,
+  _params: IParameters,
+  body: IContactUsForm,
+): Promise<IResponse> {
+  const errors = [];
   const template = new Template(ctx.viewContext);
 
   errors.push(
@@ -597,7 +625,8 @@ export async function HandleContactUsFormPost (ctx: IContext, params: IParameter
     ...validateMessage(body),
     ...validateDepartmentAgency(body),
     ...validateServiceTeam(body),
-    );
+  );
+
   if (errors.length > 0) {
     template.title = 'Error: Contact us';
 
@@ -617,8 +646,8 @@ export async function HandleContactUsFormPost (ctx: IContext, params: IParameter
     ticket: {
       comment: {
         body: contactUsContent({
-          email: body.email,
           department_agency: body.department_agency,
+          email: body.email,
           message: body.message,
           name: body.name,
           service_team: body.service_team,
@@ -637,7 +666,7 @@ export async function HandleContactUsFormPost (ctx: IContext, params: IParameter
         heading={'We have received your message'}
         text={'We will contact you on the next working day.'}
       >
-        <a className="govuk-link" 
+        <a className="govuk-link"
           href="https://www.cloud.service.gov.uk/get-started">
             See the next steps to get started
         </a>.
@@ -650,39 +679,41 @@ export async function RequestAnAccountForm(ctx: IContext): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Request a GOV.UK PaaS account');
 
-  return {
+  return await Promise.resolve({
     body: template.render(<RequestAnAccountPage
       csrf={ctx.viewContext.csrf}
       linkTo={ctx.linkTo}
       />),
-  };
+  });
 }
 
 export async function JoiningExistingOrganisationNotice (ctx: IContext): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Joining an existing organisation');
 
-  return {
+  return await Promise.resolve({
     body: template.render(<JoiningExistingOrganisationPage/>),
-  };
+  });
 }
 
 export async function SignupForm (ctx: IContext): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Request a GOV.UK PaaS account');
 
-  return {
+  return await Promise.resolve({
     body: template.render(<SignUpPage
       csrf={ctx.viewContext.csrf}
       linkTo={ctx.linkTo}
-      errors={[]}
-      values={[]}
     />),
-  };
+  });
 }
 
-export async function HandleSignupFormPost (ctx: IContext, params: IParameters,  body: ISignupFormValues): Promise<IResponse> {
-  const errors: Array<IValidationError> = [];
+export async function HandleSignupFormPost(
+  ctx: IContext,
+  _params: IParameters,
+  body: ISignupFormValues,
+): Promise<IResponse> {
+  const errors = [];
   const template = new Template(ctx.viewContext);
   errors.push(
     ...validateName(body),
@@ -735,7 +766,7 @@ export async function HandleSignupFormPost (ctx: IContext, params: IParameters, 
         heading={'We have received your request'}
         text={'We will email you with your organisation account details in th next working day.'}
       >
-        <a className="govuk-link" 
+        <a className="govuk-link"
           href="https://www.cloud.service.gov.uk/get-started">
             See the next steps to get started
         </a>.

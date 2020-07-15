@@ -15,7 +15,7 @@ export interface ISupportSelectionFormValues {
   readonly support_type: string;
 }
 
-interface ISupportSelectionFormProperties extends ISupportSelectionFormValues, IFormProperties {
+interface ISupportSelectionFormProperties extends IFormProperties {
   readonly values?: ISupportSelectionFormValues;
 }
 
@@ -27,8 +27,7 @@ export interface ISomethingWrongWithServiceFormValues {
   readonly impact_severity: string;
 }
 
-interface ISomethingWrongWithServiceFormProperties extends
-  IFormProperties, ISomethingWrongWithServiceFormValues {
+interface ISomethingWrongWithServiceFormProperties extends IFormProperties {
   readonly values?: ISomethingWrongWithServiceFormValues;
 }
 
@@ -39,7 +38,7 @@ export interface IHelpUsingPaasFormValues {
   readonly paas_organisation_name: string;
 }
 
-interface IHelpUsingPaasFormProperties extends IFormProperties, IHelpUsingPaasFormValues {
+interface IHelpUsingPaasFormProperties extends IFormProperties {
   readonly values?: IHelpUsingPaasFormValues;
 }
 
@@ -50,7 +49,7 @@ export interface IFindOutMoreFormValues {
   readonly gov_organisation_name: string;
 }
 
-interface IFindOutMoreFormProperties extends IFormProperties, IFindOutMoreFormValues {
+interface IFindOutMoreFormProperties extends IFormProperties {
   readonly values?: IFindOutMoreFormValues;
 }
 
@@ -62,7 +61,7 @@ export interface IContactUsFormValues {
   readonly service_team: string;
 }
 
-interface IContactUsFormProperties extends IFormProperties, IContactUsFormValues {
+interface IContactUsFormProperties extends IFormProperties {
   readonly values?: IContactUsFormValues;
 }
 
@@ -81,7 +80,7 @@ export interface ISignupFormValues {
 
 interface ISignupFormProperties extends IFormProperties {
   readonly errors?: ReadonlyArray<IDualValidationError>;
-  readonly values: ISignupFormValues;
+  readonly values?: ISignupFormValues;
 }
 
 interface ISupportConfirmationPageProperties {
@@ -128,7 +127,7 @@ export function SupportSelectionPage(props: ISupportSelectionFormProperties): Re
                 ? 'govuk-form-group--error'
                 : ''
             }`}>
-          <fieldset 
+          <fieldset
             className="govuk-fieldset"
             aria-describedby={
               props.errors?.some(e => e.field === 'support_type')
@@ -153,7 +152,7 @@ export function SupportSelectionPage(props: ISupportSelectionFormProperties): Re
               ))}
             <div className="govuk-radios">
               <div className="govuk-radios__item">
-                <input 
+                <input
                   className="govuk-radios__input"
                   id="support_type"
                   name="support_type" type="radio"
@@ -209,7 +208,7 @@ export function SupportSelectionPage(props: ISupportSelectionFormProperties): Re
               <div className="govuk-radios__divider">or</div>
 
               <div className="govuk-radios__item">
-                <input 
+                <input
                   className="govuk-radios__input"
                   id="support_type-4"
                   name="support_type"
@@ -268,7 +267,11 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
         )}
         <h1 className="govuk-heading-l">Something&apos;s wrong with my live service</h1>
         <div className="govuk-inset-text">
-          <p className="govuk-body">If you have a critical issue, <a className="govuk-link" href="https://status.cloud.service.gov.uk/">start by checking the system status page</a>: if it&apos;s a known issue with the platform, it will show there and we&apos;ll keep our users updated on the progression of the incident.</p>
+          <p className="govuk-body">
+            If you have a critical issue, <a className="govuk-link" href="https://status.cloud.service.gov.uk/">start by
+            checking the system status page</a>: if it&apos;s a known issue with the platform, it will show there and
+            we&apos;ll keep our users updated on the progression of the incident.
+          </p>
         </div>
         <form noValidate method="post">
           <input type="hidden" name="_csrf" value={props.csrf} />
@@ -292,7 +295,7 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
                   {error.message}
                 </span>
               ))}
-            <input 
+            <input
            className={`govuk-input ${
             props.errors?.some(e => e.field === 'name')
                 ? 'govuk-input--error'
@@ -528,8 +531,14 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
           </button>
         </form>
         <h2 className="govuk-heading-m">Escalate a request</h2>
-        <p className="govuk-body">If you have already sent your request for support and you think we’re not handling it in the way you would expect, please contact a member of the product team, who will reply during working hours.</p>
-        <p className="govuk-body">To escalate an issue about a production service in or outside working hours, please use the emergency contact details you have been sent.</p>
+        <p className="govuk-body">
+          If you have already sent your request for support and you think we’re not handling it in the way you would
+          expect, please contact a member of the product team, who will reply during working hours.
+        </p>
+        <p className="govuk-body">
+          To escalate an issue about a production service in or outside working hours, please use the emergency contact
+          details you have been sent.
+        </p>
       </div>
     </div>
   );
@@ -608,7 +617,7 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
                   {error.message}
                 </span>
               ))}
-            <input 
+            <input
            className={`govuk-input ${
             props.errors?.some(e => e.field === 'name')
                 ? 'govuk-input--error'
@@ -669,7 +678,7 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
             <label className="govuk-label" htmlFor="paas_organisation_name">
               Your GOV.UK PaaS organisation name (optional)
             </label>
-            <input 
+            <input
             className="govuk-input"
             id="paas_organisation_name"
             name="paas_organisation_name"
@@ -722,8 +731,15 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
           </button>
         </form>
         <h2 className="govuk-heading-m">Other help you can get</h2>
-        <p className="govuk-body">We publish our guidance on how to use the platform in our <a className="govuk-link" href="https://docs.cloud.service.gov.uk">documentation</a>.</p>
-        <p className="govuk-body">You can also talk to us via the cross-government Slack channel <span className="govuk-!-font-weight-bold">#govuk-paas</span> on the UK Government Digital workspace, or the <span className="govuk-!-font-weight-bold">#paas</span> channel on the GDS workspace.</p>
+        <p className="govuk-body">
+          We publish our guidance on how to use the platform in
+          our <a className="govuk-link" href="https://docs.cloud.service.gov.uk">documentation</a>.
+        </p>
+        <p className="govuk-body">
+          You can also talk to us via the cross-government Slack
+          channel <span className="govuk-!-font-weight-bold">#govuk-paas</span> on the UK Government Digital workspace,
+          or the <span className="govuk-!-font-weight-bold">#paas</span> channel on the GDS workspace.
+        </p>
       </div>
     </div>
   );
@@ -760,7 +776,10 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
         )}
         <h1 className="govuk-heading-l">I&apos;d like to find out more about GOV.UK PaaS</h1>
         <div className="govuk-inset-text">
-          <p className="govuk-body">Contact us if you have a question about GOV.UK PaaS or you want to find out whether it's the right solution for your service.</p>
+          <p className="govuk-body">
+            Contact us if you have a question about GOV.UK PaaS or you want to find out whether it&apos;s the right
+            solution for your service.
+          </p>
         </div>
         <form noValidate method="post">
           <input type="hidden" name="_csrf" value={props.csrf} />
@@ -784,7 +803,7 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
                   {error.message}
                 </span>
               ))}
-            <input 
+            <input
            className={`govuk-input ${
             props.errors?.some(e => e.field === 'name')
                 ? 'govuk-input--error'
@@ -924,8 +943,15 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
           </button>
         </form>
         <h2 className="govuk-heading-m">More information</h2>
-        <p className="govuk-body">Our documentation lists the <a className="govuk-link" href="https://docs.cloud.service.gov.uk/#before-you-start">requirements for an app to run on GOV.UK PaaS</a>.</p>
-        <p className="govuk-body">Read more about our <a className="govuk-link" href="https://www.cloud.service.gov.uk/features">features and roadmap</a>.</p>
+        <p className="govuk-body">
+          Our documentation lists
+          the <a className="govuk-link" href="https://docs.cloud.service.gov.uk/#before-you-start">requirements for an
+          app to run on GOV.UK PaaS</a>.
+        </p>
+        <p className="govuk-body">
+          Read more about our <a className="govuk-link" href="https://www.cloud.service.gov.uk/features">features and
+          roadmap</a>.
+        </p>
       </div>
     </div>
   );
@@ -983,7 +1009,7 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
                   {error.message}
                 </span>
               ))}
-            <input 
+            <input
            className={`govuk-input ${
             props.errors?.some(e => e.field === 'name')
                 ? 'govuk-input--error'
@@ -1173,7 +1199,10 @@ export function RequestAnAccountPage(props: IFormProperties): ReactElement {
           Service teams on GOV.UK PaaS own and use an account called an `organisation.`
         </p>
 
-        <p className="govuk-body">New accounts are created on our London platform. If you require hosting in Ireland please <a className="govuk-link" href="/support/contact-us">get in contact</a>.</p>
+        <p className="govuk-body">
+          New accounts are created on our London platform. If you require hosting in Ireland
+          please <a className="govuk-link" href="/support/contact-us">get in contact</a>.
+        </p>
         <form noValidate method="post">
           <input type="hidden" name="_csrf" value={props.csrf} />
           <div className="govuk-form-group">
@@ -1188,13 +1217,26 @@ export function RequestAnAccountPage(props: IFormProperties): ReactElement {
               </span>
               <div className="govuk-radios">
                 <div className="govuk-radios__item">
-                  <input className="govuk-radios__input" id="create-an-org" name="create-an-org" type="radio" defaultChecked={true} value="yes" />
+                  <input
+                    className="govuk-radios__input"
+                    id="create-an-org"
+                    name="create-an-org"
+                    type="radio"
+                    defaultChecked={true}
+                    value="yes"
+                  />
                   <label className="govuk-label govuk-radios__label" htmlFor="create-an-org">
                     Yes, I&apos;m new to PaaS and want to create an organisation
                   </label>
                 </div>
                 <div className="govuk-radios__item">
-                  <input className="govuk-radios__input" id="create-an-org-1" name="create-an-org" type="radio" value="no" />
+                  <input
+                    className="govuk-radios__input"
+                    id="create-an-org-1"
+                    name="create-an-org"
+                    type="radio"
+                    value="no"
+                  />
                   <label className="govuk-label govuk-radios__label" htmlFor="create-an-org-1">
                     No, I&apos;d like to join an existing organisation
                   </label>
@@ -1216,10 +1258,21 @@ export function JoiningExistingOrganisationPage(): ReactElement {
     <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
       <h1 className="govuk-heading-l">Joining an existing organisation</h1>
-      <p className="govuk-body">If your team is already using GOV.UK PaaS and you would like a user account, ask your org manager to <a href="https://docs.cloud.service.gov.uk/orgs_spaces_users.html#managing-organisations-spaces-and-users">send you an account invitation</a>.</p>
-      <p className="govuk-body">Org managers administer the account and assign roles and permissions.</p>
-      <p className="govuk-body">Users with non-government email addresses can be added to an account at the request of an org manager.</p>
-      <p className="govuk-body">If you don&apos;t know who the org manager is please contact support.</p>
+      <p className="govuk-body">
+        If your team is already using GOV.UK PaaS and you would like a user account, ask your org manager
+        to <a href="https://docs.cloud.service.gov.uk/orgs_spaces_users.html#managing-organisations-spaces-and-users">
+          send you an account invitation
+        </a>.
+      </p>
+      <p className="govuk-body">
+        Org managers administer the account and assign roles and permissions.
+      </p>
+      <p className="govuk-body">
+        Users with non-government email addresses can be added to an account at the request of an org manager.
+      </p>
+      <p className="govuk-body">
+        If you don&apos;t know who the org manager is please contact support.
+      </p>
       <a className="govuk-button" href="/support/contact-us">Contact support</a>
       </div>
     </div>
@@ -1439,7 +1492,8 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                 Will you be a manager of this organisation?
               </legend>
               <span id="person_is_manager-hint" className="govuk-hint">
-              Organisations are controlled by ‘org managers’ who are responsible for administering the account and assigning roles and permissions to users within the organisation
+                Organisations are controlled by ‘org managers’ who are responsible for administering the account and
+                assigning roles and permissions to users within the organisation
               </span>
               {props.errors
               ?.filter(error => error.field === 'person_is_manager')
@@ -1481,7 +1535,9 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                     No, I will nominate someone else to be an org manager
                   </label>
                   <div id="person_is_manager-1-item-hint" className="govuk-hint govuk-radios__hint">
-                    You will need to specify at least one ‘org manager’ in order for us to set up your organisation. If you do not intend to manage the organisation yourself you can invite your nominated manager in the following section.
+                    You will need to specify at least one ‘org manager’ in order for us to set up your organisation.
+                    If you do not intend to manage the organisation yourself you can invite your nominated manager in
+                    the following section.
                   </div>
                 </div>
               </div>
@@ -1489,7 +1545,9 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
           </div>
 
           <h2>Invite users to your organisation</h2>
-          <p className="govuk-body">Users who aren&apos;t org managers can deploy code but won&apos;t be able to administer the account.</p>
+          <p className="govuk-body">
+            Users who aren&apos;t org managers can deploy code but won&apos;t be able to administer the account.
+          </p>
           <div className={`govuk-form-group ${
               props.errors?.some(e =>
                   e.field === 'invite_users' ||
