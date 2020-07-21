@@ -87,7 +87,7 @@ function signUpContent(variables: ISignupFormValues): string {
   Department: ${variables.department_agency}
   Team/Service: ${variables.service_team}
 
-  ${variables.additional_users && variables.additional_users.length > 0 ? additionalUsers : ''}`;
+  ${variables.additional_users && variables.additional_users.length > 0 && variables.invite_users === 'yes' ? additionalUsers : ''}`;
 }
 
 function findoutMoreContent(variables: IFindOutMoreFormValues): string {
@@ -626,9 +626,9 @@ export async function HandleContactUsFormPost(
   errors.push(
     ...validateName(body),
     ...validateEmail(body),
-    ...validateMessage(body),
     ...validateDepartmentAgency(body),
     ...validateServiceTeam(body),
+    ...validateMessage(body),
   );
 
   if (errors.length > 0) {
