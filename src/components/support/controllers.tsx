@@ -360,6 +360,7 @@ export async function HandleSupportSelectionFormPost (
         linkTo={ctx.linkTo}
         values={body}
       />),
+      status: 400,
     });
   }
 
@@ -409,6 +410,7 @@ export async function HandleSomethingWrongWithServiceFormPost(
         errors={errors}
         values={body}
       />),
+      status: 400,
     };
   }
 
@@ -485,6 +487,7 @@ export async function HandleHelpUsingPaasFormPost(
         errors={errors}
         values={body}
       />),
+      status: 400,
     };
   }
 
@@ -559,6 +562,7 @@ export async function HandleFindOutMoreFormPost (
         errors={errors}
         values={body}
       />),
+      status: 400,
     };
   }
 
@@ -637,6 +641,7 @@ export async function HandleContactUsFormPost(
         errors={errors}
         values={body}
       />),
+      status: 400,
     };
   }
 
@@ -735,6 +740,7 @@ export async function HandleSignupFormPost(
         errors={errors}
         values={body}
       />),
+      status: 400,
     };
   }
 
