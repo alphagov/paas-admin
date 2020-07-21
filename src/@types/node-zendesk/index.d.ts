@@ -16,63 +16,63 @@ declare module 'node-zendesk' {
   ) => void;
 
   export interface Client {
-      accountsettings: unknown;
-      activitystream: unknown;
-      attachments: Attachments.Methods;
-      brand: unknown;
-      categories: unknown;
-      customagentroles: unknown;
-      dynamiccontent: unknown;
-      forums: unknown;
-      forumsubscriptions: unknown;
-      groupmemberships: unknown;
-      groups: unknown;
-      helpers: unknown;
-      imports: unknown;
-      installations: unknown;
-      jobstatuses: JobStatuses.Methods;
-      locales: unknown;
-      macros: Macros.Methods;
-      oauthtokens: unknown;
-      organizationfields: unknown;
-      organizationmemberships: unknown;
-      organizations: unknown;
-      policies: unknown;
-      requests: Requests.Methods;
-      satisfactionratings: unknown;
-      search: unknown;
-      sessions: unknown;
-      sharingagreement: unknown;
-      suspendedtickets: unknown;
-      tags: unknown;
-      targets: unknown;
-      ticketaudits: unknown;
-      ticketevents: unknown;
-      ticketexport: unknown;
-      ticketfields: unknown;
-      ticketforms: unknown;
-      ticketimport: unknown;
-      ticketmetrics: unknown;
-      tickets: Tickets.Methods;
-      topiccomments: unknown;
-      topics: unknown;
-      topicsubscriptions: unknown;
-      topicvotes: unknown;
-      triggers: unknown;
-      userfields: Users.Fields.Methods;
-      useridentities: Users.Identities.Methods;
-      users: Users.Methods;
-      views: unknown;
+      readonly accountsettings: unknown;
+      readonly activitystream: unknown;
+      readonly attachments: Attachments.Methods;
+      readonly brand: unknown;
+      readonly categories: unknown;
+      readonly customagentroles: unknown;
+      readonly dynamiccontent: unknown;
+      readonly forums: unknown;
+      readonly forumsubscriptions: unknown;
+      readonly groupmemberships: unknown;
+      readonly groups: unknown;
+      readonly helpers: unknown;
+      readonly imports: unknown;
+      readonly installations: unknown;
+      readonly jobstatuses: JobStatuses.Methods;
+      readonly locales: unknown;
+      readonly macros: Macros.Methods;
+      readonly oauthtokens: unknown;
+      readonly organizationfields: unknown;
+      readonly organizationmemberships: unknown;
+      readonly organizations: unknown;
+      readonly policies: unknown;
+      readonly requests: Requests.Methods;
+      readonly satisfactionratings: unknown;
+      readonly search: unknown;
+      readonly sessions: unknown;
+      readonly sharingagreement: unknown;
+      readonly suspendedtickets: unknown;
+      readonly tags: unknown;
+      readonly targets: unknown;
+      readonly ticketaudits: unknown;
+      readonly ticketevents: unknown;
+      readonly ticketexport: unknown;
+      readonly ticketfields: unknown;
+      readonly ticketforms: unknown;
+      readonly ticketimport: unknown;
+      readonly ticketmetrics: unknown;
+      readonly tickets: Tickets.Methods;
+      readonly topiccomments: unknown;
+      readonly topics: unknown;
+      readonly topicsubscriptions: unknown;
+      readonly topicvotes: unknown;
+      readonly triggers: unknown;
+      readonly userfields: Users.Fields.Methods;
+      readonly useridentities: Users.Identities.Methods;
+      readonly users: Users.Methods;
+      readonly views: unknown;
   }
 
   export interface ClientOptions {
-      username: string;
-      token: string;
-      remoteUri: string;
-      oauth?: boolean;
-      debug?: boolean;
-      disableGlobalState?: boolean;
-      asUser?: string;
+      readonly username: string;
+      readonly token: string;
+      readonly remoteUri: string;
+      readonly oauth?: boolean;
+      readonly debug?: boolean;
+      readonly disableGlobalState?: boolean;
+      readonly asUser?: string;
   }
 
   export function createClient(config: ClientOptions): Client;
@@ -85,33 +85,33 @@ declare module 'node-zendesk' {
           upload(
               file: PathLike,
               fileOptions: {
-                  filename: string;
-                  token?: string;
+                  readonly filename: string;
+                  readonly token?: string;
               },
               cb: ZendeskCallback<unknown, unknown>
           ): void;
           upload(
               file: PathLike,
               fileOptions: {
-                  filename: string;
-                  token?: string;
+                  readonly filename: string;
+                  readonly token?: string;
               }
           ): Promise<void>;
       }
 
       interface Photo extends PersistableModel {
-          url: string;
-          file_name: string;
-          content_url: string;
-          content_type: string;
-          size: number;
-          width: number;
-          height: number;
-          inline: boolean;
+          readonly url: string;
+          readonly file_name: string;
+          readonly content_url: string;
+          readonly content_type: string;
+          readonly size: number;
+          readonly width: number;
+          readonly height: number;
+          readonly inline: boolean;
       }
 
       interface Model extends Photo {
-          thumbnails: ReadonlyArray<Photo>;
+          readonly thumbnails: ReadonlyArray<Photo>;
       }
   }
 
@@ -174,13 +174,13 @@ declare module 'node-zendesk' {
       }
 
       interface ApplyTicketResponsePayload {
-          result: {
-              ticket: Tickets.CreateModel;
-              comment: {
-                  body: string;
-                  html_body: string;
-                  scoped_body?: unknown;
-                  public?: boolean;
+          readonly result: {
+              readonly ticket: Tickets.CreateModel;
+              readonly comment: {
+                  readonly body: string;
+                  readonly html_body: string;
+                  readonly scoped_body?: unknown;
+                  readonly public?: boolean;
               };
           };
       }
@@ -192,16 +192,16 @@ declare module 'node-zendesk' {
   export namespace Organizations {
       interface Model extends AuditableModel {
           readonly url?: string;
-          external_id?: string | null;
-          name: string;
-          domain_names?: ReadonlyArray<string>;
-          details?: string | null;
-          notes?: string | null;
-          group_id?: number | null;
-          shared_tickets?: boolean;
-          shared_comments?: boolean;
-          tags?: ReadonlyArray<string>;
-          organization_fields?: object | null;
+          readonly external_id?: string | null;
+          readonly name: string;
+          readonly domain_names?: ReadonlyArray<string>;
+          readonly details?: string | null;
+          readonly notes?: string | null;
+          readonly group_id?: number | null;
+          readonly shared_tickets?: boolean;
+          readonly shared_comments?: boolean;
+          readonly tags?: ReadonlyArray<string>;
+          readonly organization_fields?: object | null;
       }
   }
 
@@ -260,26 +260,26 @@ declare module 'node-zendesk' {
        * @see {@link https://developer.zendesk.com/rest_api/docs/support/requests#create-request|Zendesk Requests Create}
        */
       interface CreateModel {
-          requester?: RequesterAnonymous; // Required for anonymous requests
-          subject: string;
-          comment: Comments.CreateModel;
-          priority?: Tickets.Priority | null; // Anonymous requests can set priority, Authenticated requests cannot
-          type?: Tickets.TicketType | null; // Anonymous requests can set type, Authenticated requests cannot
-          custom_fields?: Tickets.Field[] | null;
-          fields?: Tickets.Field[] | null;
-          due_at?: string | null; // Anonymous requests can set due date as long as type == task. Authenticated requests cannot
-          ticket_form_id?: number | null;
-          recipient?: string | null;
-          collaborators?: ZendeskID[] | string[] | Collaborator[];
+          readonly requester?: RequesterAnonymous; // Required for anonymous requests
+          readonly subject: string;
+          readonly comment: Comments.CreateModel;
+          readonly priority?: Tickets.Priority | null; // Anonymous requests can set priority, Authenticated requests cannot
+          readonly type?: Tickets.TicketType | null; // Anonymous requests can set type, Authenticated requests cannot
+          readonly custom_fields?: ReadonlyArray<Tickets.Field> | null;
+          readonly fields?: ReadonlyArray<Tickets.Field> | null;
+          readonly due_at?: string | null; // Anonymous requests can set due date as long as type == task. Authenticated requests cannot
+          readonly ticket_form_id?: number | null;
+          readonly recipient?: string | null;
+          readonly collaborators?: ReadonlyArray<ZendeskID> | ReadonlyArray<string> | ReadonlyArray<Collaborator>;
       }
 
       /**
        * @see {@link https://developer.zendesk.com/rest_api/docs/support/requests#update-request|Zendesk Requests Update}
        */
       interface UpdateModel {
-          comment?: Comments.CreateModel;
-          solved?: boolean;
-          additional_collaborators?: ZendeskID[] | string[] | Collaborator[];
+          readonly comment?: Comments.CreateModel;
+          readonly solved?: boolean;
+          readonly additional_collaborators?: ReadonlyArray<ZendeskID> | ReadonlyArray<string> | ReadonlyArray<Collaborator>;
       }
 
       /**
@@ -292,14 +292,14 @@ declare module 'node-zendesk' {
           readonly status: Tickets.Status;
           readonly priority: Tickets.Priority | null;
           readonly type: Tickets.TicketType | null;
-          readonly custom_fields: Tickets.Field[] | null;
-          readonly fields: Tickets.Field[] | null;
+          readonly custom_fields: ReadonlyArray<Tickets.Field> | null;
+          readonly fields: ReadonlyArray<Tickets.Field> | null;
           readonly organization_id: ZendeskID | null;
           readonly requester_id: ZendeskID;
           readonly assignee_id: ZendeskID | null;
           readonly group_id?: ZendeskID | null;
-          readonly collaborator_ids: ZendeskID[];
-          readonly email_cc_ids: ZendeskID[];
+          readonly collaborator_ids: ReadonlyArray<ZendeskID>;
+          readonly email_cc_ids: ReadonlyArray<ZendeskID>;
           readonly via: Tickets.Via;
           readonly is_public: boolean;
           readonly due_at: string | null;
@@ -311,14 +311,14 @@ declare module 'node-zendesk' {
       }
 
       interface RequesterAnonymous {
-          name: string;
-          email?: string;
-          locale_id?: ZendeskID;
+          readonly name: string;
+          readonly email?: string;
+          readonly locale_id?: ZendeskID;
       }
 
       interface Collaborator {
-          name?: string;
-          email: string;
+          readonly name?: string;
+          readonly email: string;
       }
 
       interface CreatePayload {
@@ -339,13 +339,13 @@ declare module 'node-zendesk' {
 
       namespace Comments {
           interface CreateModel {
-              url?: string;
-              request_id?: number;
-              body?: string;
-              html_body?: string;
-              public?: boolean;
-              author_id?: ZendeskID;
-              uploads?: ReadonlyArray<string>;
+              readonly url?: string;
+              readonly request_id?: number;
+              readonly body?: string;
+              readonly html_body?: string;
+              readonly public?: boolean;
+              readonly author_id?: ZendeskID;
+              readonly uploads?: ReadonlyArray<string>;
           }
 
           interface ResponseModel extends TemporalModel {
@@ -374,9 +374,9 @@ declare module 'node-zendesk' {
           }
 
           interface ListPayload extends PaginablePayload {
-              comments: ReadonlyArray<ResponseModel>;
-              users: ReadonlyArray<CommentsUsers.ResponseModel>;
-              organizations: ReadonlyArray<Tickets.Comments.Organizations.ResponseModel>;
+              readonly comments: ReadonlyArray<ResponseModel>;
+              readonly users: ReadonlyArray<CommentsUsers.ResponseModel>;
+              readonly organizations: ReadonlyArray<Tickets.Comments.Organizations.ResponseModel>;
           }
 
           interface ResponsePayload {
@@ -475,63 +475,63 @@ declare module 'node-zendesk' {
        * @see {@link https://developer.zendesk.com/rest_api/docs/support/tickets#create-ticket|Zendesk Tickets Create}
        */
       interface CreateModel {
-          comment: Requests.Comments.CreateModel;
-          external_id?: string | null;
-          type?: TicketType | null;
-          subject?: string | null;
-          raw_subject?: string | null;
-          priority?: Priority | null;
-          status?: Status | null;
-          recipient?: string | null;
-          requester_id?: ZendeskID;
-          submitter_id?: ZendeskID | null;
-          assignee_id?: ZendeskID | null;
-          organization_id?: number | null;
-          group_id?: number | null;
-          collaborator_ids?: ReadonlyArray<number> | null;
-          collaborators?: ReadonlyArray<any> | null;
-          follower_ids?: ReadonlyArray<number> | null;
-          email_cc_ids?: ReadonlyArray<number> | null;
-          forum_topic_id?: number | null;
-          problem_id?: number | null;
-          due_at?: string | null;
-          tags?: ReadonlyArray<string> | null;
-          custom_fields?: Field[] | null;
-          fields?: Field[] | null;
-          via_followup_source_id?: number | null;
-          macro_ids?: ReadonlyArray<number> | null;
-          ticket_form_id?: number | null;
-          brand_id?: number | null;
+          readonly comment: Requests.Comments.CreateModel;
+          readonly external_id?: string | null;
+          readonly type?: TicketType | null;
+          readonly subject?: string | null;
+          readonly raw_subject?: string | null;
+          readonly priority?: Priority | null;
+          readonly status?: Status | null;
+          readonly recipient?: string | null;
+          readonly requester_id?: ZendeskID;
+          readonly submitter_id?: ZendeskID | null;
+          readonly assignee_id?: ZendeskID | null;
+          readonly organization_id?: number | null;
+          readonly group_id?: number | null;
+          readonly collaborator_ids?: ReadonlyArray<number> | null;
+          readonly collaborators?: ReadonlyArray<any> | null;
+          readonly follower_ids?: ReadonlyArray<number> | null;
+          readonly email_cc_ids?: ReadonlyArray<number> | null;
+          readonly forum_topic_id?: number | null;
+          readonly problem_id?: number | null;
+          readonly due_at?: string | null;
+          readonly tags?: ReadonlyArray<string> | null;
+          readonly custom_fields?: ReadonlyArray<Field> | null;
+          readonly fields?: ReadonlyArray<Field> | null;
+          readonly via_followup_source_id?: number | null;
+          readonly macro_ids?: ReadonlyArray<number> | null;
+          readonly ticket_form_id?: number | null;
+          readonly brand_id?: number | null;
       }
 
       /**
        * @see {@link https://developer.zendesk.com/rest_api/docs/support/tickets#update-ticket|Zendesk Tickets Update}
        */
       interface UpdateModel {
-          subject?: string | null;
-          comment?: Requests.Comments.CreateModel;
-          requester_id?: ZendeskID;
-          assignee_id?: ZendeskID | null;
-          assignee_email?: string | null;
-          group_id?: number | null;
-          organization_id?: number | null;
-          collaborator_ids?: ReadonlyArray<number> | null;
-          additional_collaborators?: ReadonlyArray<any> | null;
-          followers?: ReadonlyArray<Follower> | null;
-          email_ccs?: ReadonlyArray<EmailCC> | null;
-          type?: TicketType | null;
-          priority?: Priority | null;
-          status?: Status | null;
-          tags?: ReadonlyArray<string> | null;
-          external_id?: string | null;
-          problem_id?: number | null;
-          due_at?: string | null;
-          custom_fields?: Field[] | null;
-          updated_stamp?: string | null;
-          safe_update?: boolean;
-          sharing_agreement_ids?: ReadonlyArray<number> | null;
-          macro_ids?: ReadonlyArray<number> | null;
-          attribute_value_ids?: ReadonlyArray<number> | null;
+          readonly subject?: string | null;
+          readonly comment?: Requests.Comments.CreateModel;
+          readonly requester_id?: ZendeskID;
+          readonly assignee_id?: ZendeskID | null;
+          readonly assignee_email?: string | null;
+          readonly group_id?: number | null;
+          readonly organization_id?: number | null;
+          readonly collaborator_ids?: ReadonlyArray<number> | null;
+          readonly additional_collaborators?: ReadonlyArray<any> | null;
+          readonly followers?: ReadonlyArray<Follower> | null;
+          readonly email_ccs?: ReadonlyArray<EmailCC> | null;
+          readonly type?: TicketType | null;
+          readonly priority?: Priority | null;
+          readonly status?: Status | null;
+          readonly tags?: ReadonlyArray<string> | null;
+          readonly external_id?: string | null;
+          readonly problem_id?: number | null;
+          readonly due_at?: string | null;
+          readonly custom_fields?: ReadonlyArray<Field> | null;
+          readonly updated_stamp?: string | null;
+          readonly safe_update?: boolean;
+          readonly sharing_agreement_ids?: ReadonlyArray<number> | null;
+          readonly macro_ids?: ReadonlyArray<number> | null;
+          readonly attribute_value_ids?: ReadonlyArray<number> | null;
       }
 
       /**
@@ -561,8 +561,8 @@ declare module 'node-zendesk' {
           readonly due_at: string | null;
           readonly tags: ReadonlyArray<string>;
           readonly via: Via;
-          readonly custom_fields: Field[];
-          readonly fields: Field[];
+          readonly custom_fields: ReadonlyArray<Field>;
+          readonly fields: ReadonlyArray<Field>;
           readonly satisfaction_rating: object | string | null;
           readonly sharing_agreement_ids: ReadonlyArray<number>;
           readonly followup_ids: ReadonlyArray<number>;
@@ -585,20 +585,20 @@ declare module 'node-zendesk' {
       }
 
       interface EmailCC {
-          user_id?: ZendeskID;
-          user_email?: string;
-          action: string;
+          readonly user_id?: ZendeskID;
+          readonly user_email?: string;
+          readonly action: string;
       }
 
       interface Field {
-          id: number;
-          value: any;
+          readonly id: number;
+          readonly value: any;
       }
 
       interface Follower {
-          user_id?: ZendeskID;
-          user_email?: string;
-          action: string;
+          readonly user_id?: ZendeskID;
+          readonly user_email?: string;
+          readonly action: string;
       }
 
       type Priority = 'urgent' | 'high' | 'normal' | 'low';
@@ -608,16 +608,16 @@ declare module 'node-zendesk' {
       type TicketType = 'problem' | 'incident' | 'question' | 'task';
 
       interface Via {
-          channel: ViaChannel;
-          source: ViaSource;
+          readonly channel: ViaChannel;
+          readonly source: ViaSource;
       }
 
       type ViaChannel = 'api' | 'web' | 'mobile' | 'rule' | 'system';
 
       interface ViaSource {
-          to: object;
-          from: object;
-          rel: string | null;
+          readonly to: object;
+          readonly from: object;
+          readonly rel: string | null;
       }
 
       interface CreatePayload {
@@ -666,12 +666,12 @@ declare module 'node-zendesk' {
           }
 
           interface Metadata {
-              flags?: ReadonlyArray<number>;
-              flag_options: unknown;
+              readonly flags?: ReadonlyArray<number>;
+              readonly flag_options: unknown;
           }
 
           interface ListPayload extends PaginablePayload {
-              comments: ReadonlyArray<ResponseModel>;
+              readonly comments: ReadonlyArray<ResponseModel>;
           }
 
           namespace CommentsUsers {
@@ -689,8 +689,8 @@ declare module 'node-zendesk' {
 
       namespace Metrics {
           interface MinutesObject {
-              calendar: number;
-              business: number;
+              readonly calendar: number;
+              readonly business: number;
           }
 
           interface ResponseModel extends AuditableModel {
@@ -819,42 +819,42 @@ declare module 'node-zendesk' {
       }
 
       interface BaseModel {
-          email?: string | null;
-          alias?: string | null;
-          custom_role_id?: number | null;
-          details?: string | null;
-          external_id?: string | null;
-          locale_id?: number | null;
-          moderator?: boolean | null;
-          notes?: string | null;
-          only_private_comments?: boolean | null;
-          organization_id?: number | null;
-          default_group_id?: number | null;
-          phone?: string | null;
-          photo?: Attachments.Model | null;
-          restricted_agent?: boolean | null;
-          role?: Role | null;
-          signature?: string | null;
-          suspended?: boolean | null;
-          tags?: ReadonlyArray<unknown> | null;
-          ticket_restriction?: TicketRestriction | null;
-          time_zone?: string | null;
-          user_fields?: object | null;
-          verified?: boolean | null;
+          readonly email?: string | null;
+          readonly alias?: string | null;
+          readonly custom_role_id?: number | null;
+          readonly details?: string | null;
+          readonly external_id?: string | null;
+          readonly locale_id?: number | null;
+          readonly moderator?: boolean | null;
+          readonly notes?: string | null;
+          readonly only_private_comments?: boolean | null;
+          readonly organization_id?: number | null;
+          readonly default_group_id?: number | null;
+          readonly phone?: string | null;
+          readonly photo?: Attachments.Model | null;
+          readonly restricted_agent?: boolean | null;
+          readonly role?: Role | null;
+          readonly signature?: string | null;
+          readonly suspended?: boolean | null;
+          readonly tags?: ReadonlyArray<unknown> | null;
+          readonly ticket_restriction?: TicketRestriction | null;
+          readonly time_zone?: string | null;
+          readonly user_fields?: object | null;
+          readonly verified?: boolean | null;
       }
 
       /**
        * @see {@link https://developer.zendesk.com/rest_api/docs/support/users#create-user|Zendesk Users Create}
        */
       interface CreateModel extends BaseModel {
-          name: string;
+          readonly name: string;
       }
 
       /**
        * @see {@link https://developer.zendesk.com/rest_api/docs/support/users#update-user|Zendesk Users Update}
        */
       interface UpdateModel extends BaseModel {
-          name?: string;
+          readonly name?: string;
       }
 
       /**
@@ -900,31 +900,31 @@ declare module 'node-zendesk' {
       type UpdateIdPayload =
           | string
           | ReadonlyArray<ZendeskID>
-          | { ids: ReadonlyArray<ZendeskID> }
-          | { external_ids: ReadonlyArray<ZendeskID> };
+          | { readonly ids: ReadonlyArray<ZendeskID> }
+          | { readonly external_ids: ReadonlyArray<ZendeskID> };
 
       interface CreatePayload {
-          user: CreateModel;
+          readonly user: CreateModel;
       }
 
       interface CreateManyPayload {
-          users: ReadonlyArray<CreateModel>;
+          readonly users: ReadonlyArray<CreateModel>;
       }
 
       interface UpdatePayload {
-          user: UpdateModel;
+          readonly user: UpdateModel;
       }
 
       interface UpdateManyPayload {
-          users: ReadonlyArray<UpdateModel>;
+          readonly users: ReadonlyArray<UpdateModel>;
       }
 
       interface ResponsePayload {
-          user: ResponseModel;
+          readonly user: ResponseModel;
       }
 
       interface ListPayload extends PaginablePayload {
-          users: ReadonlyArray<ResponseModel>;
+          readonly users: ReadonlyArray<ResponseModel>;
       }
 
       type Role = 'admin' | 'agent' | 'end-user';
@@ -988,15 +988,15 @@ declare module 'node-zendesk' {
           }
 
           interface CreateModel {
-              type: IdentityType;
-              value: string;
-              verified?: boolean;
-              primary?: boolean;
+              readonly type: IdentityType;
+              readonly value: string;
+              readonly verified?: boolean;
+              readonly primary?: boolean;
           }
 
           interface UpdateModel {
-              value?: string;
-              verified?: boolean;
+              readonly value?: string;
+              readonly verified?: boolean;
           }
 
           interface ResponseModel extends AuditableModel {
@@ -1048,9 +1048,9 @@ declare module 'node-zendesk' {
   }
 
   export interface PaginablePayload {
-      next_page: number | null;
-      previous_page: number | null;
-      count: number;
+      readonly next_page: number | null;
+      readonly previous_page: number | null;
+      readonly count: number;
   }
 
   export interface PersistableModel {
