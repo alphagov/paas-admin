@@ -328,7 +328,7 @@ describe(SignUpPage, () => {
         field: 'email',
         message: 'We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, .police.uk or police.uk email addresses',
         messageExtra: 'If you work for a government organisation or public body with a different email address, please contact us on <a class="govuk-link" href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">gov-uk-paas-support@digital.cabinet-office.gov.uk</a>',
-      }
+      },
     ]}
     />);
     const $ = cheerio.load(markup.html());
