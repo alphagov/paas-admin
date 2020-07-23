@@ -103,11 +103,6 @@ export function Header(props: IHeaderProperties): ReactElement {
               aria-label="Top Level Navigation"
             >
               <li className="govuk-header__navigation-item">
-                <a className="govuk-header__link" href="/support">
-                  Support
-                </a>
-              </li>
-              <li className="govuk-header__navigation-item">
                 <a className="govuk-header__link" href="/marketplace">
                   Marketplace
                 </a>
