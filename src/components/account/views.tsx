@@ -28,7 +28,7 @@ function Message(props: IMessageProperties): ReactElement {
         <p className="govuk-body">
           If you have any queries, contact
           {' '}
-          <a className="govuk-link" href="https://www.cloud.service.gov.uk/support">
+          <a className="govuk-link" href="/support">
             support
           </a>.
         </p>
@@ -164,7 +164,7 @@ export function SSOPage(props: ISSOPageProperties): ReactElement {
               <p className="govuk-body">
                 If you would like to switch sign-on method, contact{' '}
                 <a
-                  href="https://www.cloud.service.gov.uk/support"
+                  href="/support"
                   className="govuk-link"
                 >
                   support

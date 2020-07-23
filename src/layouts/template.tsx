@@ -98,7 +98,7 @@ export class Template {
 
               <div className="govuk-width-container">
                 <PhaseBanner tag={{ text: 'beta' }}>
-                  <a className="govuk-link" href="https://www.cloud.service.gov.uk/support">
+                  <a className="govuk-link" href="/support">
                     Get support
                   </a>
                   {' '}or{' '}

@@ -12,6 +12,7 @@ import * as serviceMetrics from '../service-metrics';
 import * as services from '../services';
 import * as spaces from '../spaces';
 import * as statements from '../statements';
+import * as support from '../support';
 import * as users from '../users';
 
 import { IContext } from './context';
@@ -276,6 +277,82 @@ export const router = new Router([
     method: 'post',
     name: 'users.password.reset',
     path: '/password/confirm-reset',
+  },
+  {
+    action: support.SupportSelectionForm,
+    name: 'support.selection',
+    path: '/support',
+  },
+  {
+    action: support.HandleSupportSelectionFormPost,
+    method: 'post',
+    name: 'support.selection.post',
+    path: '/support',
+  },
+  {
+    action: support.SomethingWrongWithServiceForm,
+    name: 'support.something-wrong-with-service',
+    path: '/support/something-wrong-with-service',
+  },
+  {
+    action: support.HandleSomethingWrongWithServiceFormPost,
+    method: 'post',
+    name: 'support.something-wrong-with-service.post',
+    path: '/support/something-wrong-with-service',
+  },
+  {
+    action: support.HelpUsingPaasForm,
+    name: 'support.help-using-paas',
+    path: '/support/help-using-paas',
+  },
+  {
+    action: support.HandleHelpUsingPaasFormPost,
+    method: 'post',
+    name: 'support.help-using-paas.post',
+    path: 'support/help-using-paas',
+  },
+  {
+    action: support.FindOutMoreForm,
+    name: 'support.find-out-more',
+    path: '/support/find-out-more',
+  },
+  {
+    action: support.HandleFindOutMoreFormPost,
+    method: 'post',
+    name: 'support.find-out-more.post',
+    path: '/support/find-out-more',
+  },
+  {
+    action: support.ContactUsForm,
+    name: 'support.contact-us',
+    path: '/support/contact-us',
+  },
+  {
+    action: support.HandleContactUsFormPost,
+    method: 'post',
+    name: 'support.contact-us.post',
+    path: '/support/contact-us',
+  },
+  {
+    action: support.RequestAnAccountForm,
+    name: 'support.request-an-account',
+    path: '/support/request-an-account',
+  },
+  {
+    action: support.JoiningExistingOrganisationNotice,
+    name: 'support.existing-organisation',
+    path: '/support/request-an-account/existing-organisation',
+  },
+  {
+    action: support.SignupForm,
+    name: 'support.sign-up',
+    path: '/support/sign-up',
+  },
+  {
+    action: support.HandleSignupFormPost,
+    method: 'post',
+    name: 'support.sign-up.post',
+    path: '/support/sign-up',
   },
 ]);
 

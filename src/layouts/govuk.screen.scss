@@ -2,6 +2,13 @@ $govuk-global-styles: true;
 $govuk-page-width: 1200px;
 $app-super-light-grey: #f8f8f8;
 
+$govuk-breakpoints: (
+  mobile:  320px,
+  tablet:  641px,
+  desktop: 769px,
+  wideDesktop: 1156px
+);
+
 @import '~govuk-frontend/govuk/all';
 
 @import 'elements';

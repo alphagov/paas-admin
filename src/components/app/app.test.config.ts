@@ -40,4 +40,9 @@ export const config: IAppConfig = {
   prometheusUsername: 'prometheusUsername',
   sessionSecret,
   uaaAPI: 'https://example.com/uaa',
+  zendeskConfig: {
+    remoteUri: 'https://example.com/zendesk',
+    token: 'qwerty-1234567890',
+    username: 'poiuytrewq',
+  },
 };

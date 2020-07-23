@@ -21,16 +21,24 @@
 @include govuk-media-query(tablet) {
   /* GOV.UK Platform-as-a-Service is too long */
   .govuk-header__logo {
-    width: 50%;
+    width: auto;
   }
 
   .govuk-header__content {
-    width: 50%;
+    width: auto;
+    padding-left: 0;
     text-align: right;
   }
 
   /* Link to pricing on right edge of phase banner */
   .govuk-phase-banner__text {
     width: 100%;
+  }
+}
+
+@include govuk-media-query($from: wideDesktop) {
+  .govuk-header__content {
+    float: right;
+    padding-left: govuk-spacing(3);
   }
 }

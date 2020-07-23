@@ -504,4 +504,60 @@ describe('app test suite', () => {
       expect(response.status).toEqual(302);
     });
   });
+
+  describe('support pages', () => {
+    it('should be able to access support page without login', async () => {
+      const app = init(config);
+      const response = await request(app).get('/support');
+      expect(response.status).toEqual(200);
+    });
+
+    it('should be able to access /support/find-out-more page without login', async () => {
+      const app = init(config);
+      const response = await request(app).get('/support/find-out-more');
+      expect(response.status).toEqual(200);
+    });
+
+    it('should be able to access /support/contact-us page without login', async () => {
+      const app = init(config);
+      const response = await request(app).get('/support/contact-us');
+      expect(response.status).toEqual(200);
+    });
+
+    it('should be able to access /support/something-wrong-with-service page without login', async () => {
+      const app = init(config);
+      const response = await request(app).get('/support/something-wrong-with-service');
+      expect(response.status).toEqual(200);
+    });
+
+    it('should be able to access /support/help-using-paas page without login', async () => {
+      const app = init(config);
+      const response = await request(app).get('/support/help-using-paas');
+      expect(response.status).toEqual(200);
+    });
+
+    it('should be able to access /support/sign-up page without login', async () => {
+      const app = init(config);
+      const response = await request(app).get('/support/sign-up');
+      expect(response.status).toEqual(200);
+    });
+
+    it('should be able to access /support/request-an-account page without login', async () => {
+      const app = init(config);
+      const response = await request(app).get('/support/request-an-account');
+      expect(response.status).toEqual(200);
+    });
+
+    it('should be able to access /support/existing-organisation page without login', async () => {
+      const app = init(config);
+      const response = await request(app).get('/support/existing-organisation');
+      expect(response.status).toEqual(200);
+    });
+
+    it('should be able to access /support/existing-organisation page without login', async () => {
+      const app = init(config);
+      const response = await request(app).get('/support/existing-organisation');
+      expect(response.status).toEqual(200);
+    });
+  });
 });

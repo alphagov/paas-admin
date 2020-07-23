@@ -14,6 +14,22 @@ import { requireAuthentication, handleSession } from '../auth';
 import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
 import { listServices, viewService } from '../marketplace';
+import {
+  ContactUsForm,
+  FindOutMoreForm,
+  HandleContactUsFormPost,
+  HandleFindOutMoreFormPost,
+  HandleHelpUsingPaasFormPost,
+  HandleSignupFormPost,
+  HandleSomethingWrongWithServiceFormPost,
+  HandleSupportSelectionFormPost,
+  HelpUsingPaasForm,
+  JoiningExistingOrganisationNotice,
+  RequestAnAccountForm,
+  SignupForm,
+  SomethingWrongWithServiceForm,
+  SupportSelectionForm,
+} from '../support';
 import { termsCheckerMiddleware } from '../terms';
 import { resetPassword, resetPasswordObtainToken, resetPasswordProvideNew, resetPasswordRequestToken } from '../users';
 
@@ -47,6 +63,11 @@ export interface IAppConfig {
   readonly prometheusEndpoint: string;
   readonly prometheusUsername: string;
   readonly prometheusPassword: string;
+  readonly zendeskConfig: {
+    readonly token: string;
+    readonly remoteUri: string;
+    readonly username: string;
+  };
 }
 
 export type OIDCProviderName = 'google';
@@ -210,6 +231,216 @@ export default function(config: IAppConfig): express.Express {
         res.status(response.status || 200).send(response.body);
       })
       .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  //support forms routes here
+  app.get('/support', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.selection');
+    const ctx = initContext(req, router, route, config);
+
+    SupportSelectionForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  /* istanbul ignore next */
+  app.post('/support', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.selection.post');
+    const ctx = initContext(req, router, route, config);
+
+    HandleSupportSelectionFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        const selectedOption = req.body && req.body['support_type'];
+        if (selectedOption === undefined) {
+          res.status(response.status || 200).send(response.body);
+        } else {
+          res.redirect(`/support/${selectedOption}`);
+        }
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/something-wrong-with-service', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.something-wrong-with-service');
+    const ctx = initContext(req, router, route, config);
+
+    SomethingWrongWithServiceForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  /* istanbul ignore next */
+  app.post('/support/something-wrong-with-service', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.something-wrong-with-service.post');
+    const ctx = initContext(req, router, route, config);
+
+    HandleSomethingWrongWithServiceFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/help-using-paas', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.help-using-paas');
+    const ctx = initContext(req, router, route, config);
+
+    HelpUsingPaasForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+  /* istanbul ignore next */
+  app.post('/support/help-using-paas', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.help-using-paas.post');
+    const ctx = initContext(req, router, route, config);
+
+    HandleHelpUsingPaasFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/find-out-more', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.find-out-more');
+    const ctx = initContext(req, router, route, config);
+
+    FindOutMoreForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+  /* istanbul ignore next */
+  app.post('/support/find-out-more', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.find-out-more.post');
+    const ctx = initContext(req, router, route, config);
+
+    HandleFindOutMoreFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/contact-us', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.contact-us');
+    const ctx = initContext(req, router, route, config);
+
+    ContactUsForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+  /* istanbul ignore next */
+  app.post('/support/contact-us', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.contact-us.post');
+    const ctx = initContext(req, router, route, config);
+
+    HandleContactUsFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/sign-up', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.sign-up');
+    const ctx = initContext(req, router, route, config);
+
+    SignupForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+  /* istanbul ignore next */
+  app.post('/support/sign-up', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.sign-up.post');
+    const ctx = initContext(req, router, route, config);
+
+    HandleSignupFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/request-an-account', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.request-an-account');
+    const ctx = initContext(req, router, route, config);
+
+    RequestAnAccountForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  /* istanbul ignore next */
+  app.post('/support/request-an-account', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.request-an-account');
+    const ctx = initContext(req, router, route, config);
+
+    RequestAnAccountForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then(() => {
+        const selectedOption = req.body && req.body['create-an-org'];
+        if (selectedOption === 'yes') {
+          res.redirect('/support/sign-up');
+        } else {
+          res.redirect('/support/existing-organisation');
+        }
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  app.get('/support/existing-organisation', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('support.existing-organisation');
+    const ctx = initContext(req, router, route, config);
+
+    JoiningExistingOrganisationNotice(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(
+        /* istanbul ignore next */
+        err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
 

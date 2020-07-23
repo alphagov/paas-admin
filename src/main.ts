@@ -100,6 +100,11 @@ async function main() {
     prometheusUsername: expectEnvVariable('PROMETHEUS_USERNAME'),
     sessionSecret: process.env.SESSION_SECRET || 'mysecret',
     uaaAPI,
+    zendeskConfig: {
+      token: process.env.ZENDESK_API_TOKEN || '__ZENDESK_API_TOKEN__',
+      remoteUri: 'https://govuk.zendesk.com/api/v2',
+      username:  process.env.ZENDESK_USERNAME || '__ZENDESK_USERNAME__',
+    },
   };
 
   const server = new Server(app(config), {
