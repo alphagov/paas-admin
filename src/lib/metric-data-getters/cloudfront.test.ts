@@ -35,6 +35,7 @@ describe('Cloudfront', () => {
               Values: ['a-service-guid'],
             },
           ],
+          ResourceTypeFilters: ['cloudfront:distribution'],
         }),
       );
 
@@ -63,6 +64,7 @@ describe('Cloudfront', () => {
               Values: ['a-service-guid'],
             },
           ],
+          ResourceTypeFilters: ['cloudfront:distribution'],
         }),
       );
     });
@@ -89,6 +91,7 @@ describe('Cloudfront', () => {
               Values: ['a-service-guid'],
             },
           ],
+          ResourceTypeFilters: ['cloudfront:distribution'],
         }),
       );
     });
@@ -115,6 +118,7 @@ describe('Cloudfront', () => {
               Values: ['a-service-guid'],
             },
           ],
+          ResourceTypeFilters: ['cloudfront:distribution'],
         }),
       );
     });
@@ -149,6 +153,7 @@ describe('Cloudfront', () => {
               Values: ['a-service-guid'],
             },
           ],
+          ResourceTypeFilters: ['cloudfront:distribution'],
         }),
       );
     });

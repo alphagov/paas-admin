@@ -63,6 +63,9 @@ export class CloudFrontMetricDataGetter extends CloudWatchMetricDataGetter
               Values: [serviceGUID],
             },
           ],
+          ResourceTypeFilters: [
+            'cloudfront:distribution',
+          ],
         }),
       )
       .then((d: rg.GetResourcesOutput) => {
