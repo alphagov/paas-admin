@@ -77,7 +77,7 @@ describe(controller.HandleSignupFormPost, () => {
     expect(response.status).toEqual(400);
     expect(response.body).not.toContain('We have received your request');
     expect(response.body).toContain('Error');
-    expect(response.body).toContain('We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, .police.uk or police.uk email addresses');
+    expect(response.body).toContain('We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, digitalaccessibilitycentre.org, .police.uk or police.uk email addresses');
   });
 
   it('should create a zendesk ticket correctly', async () => {
