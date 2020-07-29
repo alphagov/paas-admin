@@ -149,7 +149,7 @@ function Metric(props: IMetricProperties): ReactElement {
         <div className="scrollable-table-container">
           <table className="govuk-table">
           <caption className="govuk-table__caption govuk-visually-hidden">
-            Summary
+            Summary of &quot;{props.titleText || props.title}&quot; data
           </caption>
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
