@@ -56,36 +56,40 @@ function Link(props: ILinkProperties): ReactElement {
 
 function Pagination(props: IPaginationProperties): ReactElement {
   return (
-    <p className="govuk-body">
-      <Link
-        href={props.linkTo(
-          'admin.organizations.spaces.applications.events.view',
-          {
-            applicationGUID: props.application.metadata.guid,
-            organizationGUID: props.organizationGUID,
-            page: props.pagination.page - 1,
-            spaceGUID: props.spaceGUID,
-          },
-        )}
-        disabled={props.pagination.page <= 1}
-      >
-        Previous page
-      </Link>{' '}
-      <Link
-        href={props.linkTo(
-          'admin.organizations.spaces.applications.events.view',
-          {
-            applicationGUID: props.application.metadata.guid,
-            organizationGUID: props.organizationGUID,
-            page: props.pagination.page + 1,
-            spaceGUID: props.spaceGUID,
-          },
-        )}
-        disabled={props.pagination.page >= props.pagination.total_pages}
-      >
-        Next page
-      </Link>
-    </p>
+    <>
+    {props.pagination.total_pages > 1 ?
+      <p className="govuk-body">
+        <Link
+          href={props.linkTo(
+            'admin.organizations.spaces.applications.events.view',
+            {
+              applicationGUID: props.application.metadata.guid,
+              organizationGUID: props.organizationGUID,
+              page: props.pagination.page - 1,
+              spaceGUID: props.spaceGUID,
+            },
+          )}
+          disabled={props.pagination.page <= 1}
+        >
+          Previous page
+        </Link>{' '}
+        <Link
+          href={props.linkTo(
+            'admin.organizations.spaces.applications.events.view',
+            {
+              applicationGUID: props.application.metadata.guid,
+              organizationGUID: props.organizationGUID,
+              page: props.pagination.page + 1,
+              spaceGUID: props.spaceGUID,
+            },
+          )}
+          disabled={props.pagination.page >= props.pagination.total_pages}
+        >
+          Next page
+        </Link>
+      </p>
+    : <></> }
+    </>
   );
 }
 
@@ -120,8 +124,11 @@ export function ApplicationEventsPage(
         page={props.pagination.page}
         pages={props.pagination.total_pages}
       />
-
-      <EventTimestamps />
+      
+      {props.pagination.total_results > 0 ? 
+        <EventTimestamps /> : 
+        <></>
+      }
 
       <Details />
 
@@ -132,42 +139,45 @@ export function ApplicationEventsPage(
         spaceGUID={props.spaceGUID}
         pagination={props.pagination}
       />
-      <div className="scrollable-table-container">
-        <table className="govuk-table">
-          <thead className="govuk-table__head">
-            <tr className="govuk-table__row">
-              <th className="govuk-table__header">Date</th>
-              <th className="govuk-table__header">Actor</th>
-              <th className="govuk-table__header">Event</th>
-              <th className="govuk-table__header">Details</th>
-            </tr>
-          </thead>
-          <tbody className="govuk-table__body">
-            {props.events.map(event => (
-              <EventListItem
-                key={event.guid}
-                actor={
-                  props.actorEmails[event.actor.guid] ||
-                  event.actor.name || <code>{event.actor.guid}</code>
-                }
-                date={event.updated_at}
-                href={props.linkTo(
-                  'admin.organizations.spaces.applications.event.view',
-                  {
-                    applicationGUID: props.application.metadata.guid,
-                    eventGUID: event.guid,
-                    organizationGUID: props.organizationGUID,
-                    spaceGUID: props.spaceGUID,
-                  },
-                )}
-                type={
-                  eventTypeDescriptions[event.type] || <code>{event.type}</code>
-                }
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {props.events.length > 0 ?
+        <div className="scrollable-table-container">
+          <table className="govuk-table">
+            <thead className="govuk-table__head">
+              <tr className="govuk-table__row">
+                <th className="govuk-table__header">Date</th>
+                <th className="govuk-table__header">Actor</th>
+                <th className="govuk-table__header">Event</th>
+                <th className="govuk-table__header">Details</th>
+              </tr>
+            </thead>
+            <tbody className="govuk-table__body">
+              {props.events.map(event => (
+                <EventListItem
+                  key={event.guid}
+                  actor={
+                    props.actorEmails[event.actor.guid] ||
+                    event.actor.name || <code>{event.actor.guid}</code>
+                  }
+                  date={event.updated_at}
+                  href={props.linkTo(
+                    'admin.organizations.spaces.applications.event.view',
+                    {
+                      applicationGUID: props.application.metadata.guid,
+                      eventGUID: event.guid,
+                      organizationGUID: props.organizationGUID,
+                      spaceGUID: props.spaceGUID,
+                    },
+                  )}
+                  type={
+                    eventTypeDescriptions[event.type] || <code>{event.type}</code>
+                  }
+                />
+              ))}
+            </tbody>
+          </table>
+        </div> 
+        : <></> 
+      }
 
       <Pagination
         application={props.application}
