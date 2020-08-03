@@ -104,6 +104,91 @@ describe(EventsPage, () => {
       actorEmails.ACCOUNTS_USER_GUID_1,
     );
   });
+
+  it('should not show the spaces events table if there are no events', () => {
+    const markup = shallow(
+      <EventsPage
+        actorEmails={actorEmails}
+        events={[]}
+        linkTo={route => `__LINKS_TO__${route}`}
+        routePartOf={route =>
+          route === 'admin.organizations.spaces.applications.events.view'
+        }
+        organizationGUID="ORG_GUID"
+        space={space}
+        pagination={{ total_results: 0, total_pages: 1, page: 1 }}
+      />,
+    );
+
+    const $ = cheerio.load(markup.html());
+    expect($('table')).toHaveLength(0);
+  });
+
+  it('should not show the spaces events table if there are no events', () => {
+    const markup = shallow(
+      <EventsPage
+        actorEmails={actorEmails}
+        events={[]}
+        linkTo={route => `__LINKS_TO__${route}`}
+        routePartOf={route =>
+          route === 'admin.organizations.spaces.applications.events.view'
+        }
+        organizationGUID="ORG_GUID"
+        space={space}
+        pagination={{ total_results: 0, total_pages: 1, page: 1 }}
+      />,
+    );
+
+    const $ = cheerio.load(markup.html());
+    expect($('.govuk-tabs__panel').text()).not.toContain('Event timestamps are in UTC format');
+  });
+
+  it('should not show pagination text/links if there is only 1 page of events', () => {
+    const markup = shallow(
+      <EventsPage
+        actorEmails={actorEmails}
+        events={[
+          event,
+          {
+            ...event,
+            type: 'tester.testing',
+            actor: {
+              ...event.actor,
+              guid: 'ACCOUNTS_USER_GUID_2',
+              name: 'Charlie Chaplin',
+            },
+            target: ({
+              guid: 'ACCOUNTS_USER_GUID_3',
+            } as unknown) as IAuditEventActorTarget,
+          },
+          {
+            ...event,
+            type: 'tester.testing',
+            actor: {
+              ...event.actor,
+              guid: 'ACCOUNTS_USER_GUID_3',
+              name: undefined,
+            },
+            target: ({
+              guid: 'ACCOUNTS_USER_GUID_1',
+              name: 'Jeff Jefferson',
+            } as unknown) as IAuditEventActorTarget,
+          },
+        ]}
+        linkTo={route => `__LINKS_TO__${route}`}
+        routePartOf={route =>
+          route === 'admin.organizations.spaces.applications.events.view'
+        }
+        organizationGUID="ORG_GUID"
+        space={space}
+        pagination={{ total_results: 5, total_pages: 1, page: 1 }}
+      />,
+    );
+
+    const $ = cheerio.load(markup.html());
+    expect($('.govuk-tabs__panel').text()).not.toContain('Previous page');
+    expect($('.govuk-tabs__panel').text()).not.toContain('Next page');
+  });
 });
 
 describe(ApplicationsPage, () => {
