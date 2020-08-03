@@ -141,10 +141,19 @@ describe(TargetedEvent, () => {
 
 describe(Totals, () => {
   it('should display totals element', () => {
-    const markup = shallow(<Totals results={5} page={1} pages={1} />);
+    const markup = shallow(<Totals results={5} page={1} pages={2} />);
     const $ = cheerio.load(markup.html());
     expect($('p').text()).toContain(
-      'There are 5 total events. Displaying page 1 of 1.',
+      'There are 5 total events. Displaying page 1 of 2.',
+    );
+    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+  });
+
+  it('should not display "Displaying page 1 of 1" totals text if there is only 1 page', () => {
+    const markup = shallow(<Totals results={5} page={1} pages={1} />);
+    const $ = cheerio.load(markup.html());
+    expect($('p').text()).not.toContain(
+      'Displaying page 1 of 1.',
     );
     expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
   });

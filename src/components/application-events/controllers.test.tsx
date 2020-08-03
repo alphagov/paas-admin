@@ -187,7 +187,6 @@ describe('application events', () => {
       expect(response.body).toContain(
         `${defaultApp().entity.name} - Application Events`,
       );
-      expect(response.body).toContain('Displaying page 1 of 1');
       expect(response.body).toContain('0 total events');
     });
   });

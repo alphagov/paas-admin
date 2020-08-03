@@ -312,7 +312,6 @@ describe('spaces test suite', () => {
         });
 
         expect(response.body).toContain('name-2064 - Space Events');
-        expect(response.body).toContain('Displaying page 1 of 1');
         expect(response.body).toContain('0 total events');
         expect(
           spacesMissingAroundInlineElements(response.body as string),

@@ -172,8 +172,11 @@ export function TargetedEventListItem(
 export function Totals(props: ITotalsProperties): ReactElement {
   return (
     <p className="govuk-body">
-      There are {props.results} total events. Displaying page {props.page} of{' '}
-      {props.pages}.
+      There are {props.results} total events. 
+      {props.pages > 1 ? 
+        `${' '}Displaying page ${props.page} of${' '}${props.pages}.`
+        : <></> 
+      }
     </p>
   );
 }
