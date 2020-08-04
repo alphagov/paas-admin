@@ -65,4 +65,83 @@ describe(ApplicationEventsPage, () => {
     expect($('table tbody').text()).toContain('tester.testing');
     expect($('table tbody').text()).toContain('ACCOUNTS_USER_GUID_3');
   });
+
+  it('should not show the application events table if there are no events', () => {
+    const markup = shallow(
+      <ApplicationEventsPage
+        actorEmails={actorEmails}
+        application={application}
+        events={[]}
+        linkTo={route => `__LINKS_TO__${route}`}
+        routePartOf={route =>
+          route === 'admin.organizations.spaces.applications.events.view'
+        }
+        organizationGUID="ORG_GUID"
+        spaceGUID="SPACE_GUID"
+        pagination={{ total_results: 0, total_pages: 1, page: 1 }}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('table')).toHaveLength(0);
+  });
+
+  it('should not show the timestamp text if there are no events', () => {
+    const markup = shallow(
+      <ApplicationEventsPage
+        actorEmails={actorEmails}
+        application={application}
+        events={[]}
+        linkTo={route => `__LINKS_TO__${route}`}
+        routePartOf={route =>
+          route === 'admin.organizations.spaces.applications.events.view'
+        }
+        organizationGUID="ORG_GUID"
+        spaceGUID="SPACE_GUID"
+        pagination={{ total_results: 0, total_pages: 1, page: 1 }}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('.govuk-tabs__panel').text()).not.toContain('Event timestamps are in UTC format');
+  });
+
+  it('should not show pagination text/links if there is only 1 page of events', () => {
+    const markup = shallow(
+      <ApplicationEventsPage
+        actorEmails={actorEmails}
+        application={application}
+        events={[
+          event,
+          {
+            ...event,
+            type: 'tester.testing',
+            actor: {
+              ...event.actor,
+              guid: 'ACCOUNTS_USER_GUID_2',
+              name: 'Charlie Chaplin',
+            },
+          },
+          {
+            ...event,
+            type: 'tester.testing',
+            actor: {
+              ...event.actor,
+              guid: 'ACCOUNTS_USER_GUID_3',
+              name: undefined,
+            },
+          },
+        ]}
+        linkTo={route => `__LINKS_TO__${route}`}
+        routePartOf={route =>
+          route === 'admin.organizations.spaces.applications.events.view'
+        }
+        organizationGUID="ORG_GUID"
+        spaceGUID="SPACE_GUID"
+        pagination={{ total_results: 5, total_pages: 1, page: 1 }}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('.govuk-tabs__panel').text()).not.toContain('Previous page');
+    expect($('.govuk-tabs__panel').text()).not.toContain('Next page');
+  });
+
 });

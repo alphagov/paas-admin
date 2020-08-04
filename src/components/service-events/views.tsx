@@ -47,6 +47,8 @@ function Link(props: ILinkProperties): ReactElement {
 
 function Pagination(props: IPaginationProperties): ReactElement {
   return (
+    <>
+    {props.pagination.total_pages > 1 ?
     <p className="govuk-body">
       <Link
         href={props.linkTo('admin.organizations.spaces.services.events.view', {
@@ -71,6 +73,8 @@ function Pagination(props: IPaginationProperties): ReactElement {
         Next page
       </Link>
     </p>
+    : <></> }
+    </>
   );
 }
 
@@ -100,7 +104,10 @@ export function ServiceEventsPage(
         pages={props.pagination.total_pages}
       />
 
-      <EventTimestamps />
+      {props.pagination.total_results > 0 ? 
+        <EventTimestamps /> : 
+        <></>
+      }
 
       <Details />
 
@@ -112,42 +119,45 @@ export function ServiceEventsPage(
         pagination={props.pagination}
       />
 
-      <div className="scrollable-table-container">
-        <table className="govuk-table">
-        <thead className="govuk-table__head">
-          <tr className="govuk-table__row">
-            <th className="govuk-table__header">Date</th>
-            <th className="govuk-table__header">Actor</th>
-            <th className="govuk-table__header">Event</th>
-            <th className="govuk-table__header">Details</th>
-          </tr>
-        </thead>
-        <tbody className="govuk-table__body">
-          {props.events.map(event => (
-            <EventListItem
-              key={event.guid}
-              actor={
-                props.actorEmails[event.actor.guid] ||
-                event.actor.name || <code>{event.actor.guid}</code>
-              }
-              date={event.updated_at}
-              href={props.linkTo(
-                'admin.organizations.spaces.services.event.view',
-                {
-                  eventGUID: event.guid,
-                  organizationGUID: props.organizationGUID,
-                  serviceGUID: props.service.metadata.guid,
-                  spaceGUID: props.spaceGUID,
-                },
-              )}
-              type={
-                eventTypeDescriptions[event.type] || <code>{event.type}</code>
-              }
-            />
-          ))}
-        </tbody>
-      </table>
-      </div>
+      {props.events.length > 0 ?
+        <div className="scrollable-table-container">
+          <table className="govuk-table">
+          <thead className="govuk-table__head">
+            <tr className="govuk-table__row">
+              <th className="govuk-table__header">Date</th>
+              <th className="govuk-table__header">Actor</th>
+              <th className="govuk-table__header">Event</th>
+              <th className="govuk-table__header">Details</th>
+            </tr>
+          </thead>
+          <tbody className="govuk-table__body">
+            {props.events.map(event => (
+              <EventListItem
+                key={event.guid}
+                actor={
+                  props.actorEmails[event.actor.guid] ||
+                  event.actor.name || <code>{event.actor.guid}</code>
+                }
+                date={event.updated_at}
+                href={props.linkTo(
+                  'admin.organizations.spaces.services.event.view',
+                  {
+                    eventGUID: event.guid,
+                    organizationGUID: props.organizationGUID,
+                    serviceGUID: props.service.metadata.guid,
+                    spaceGUID: props.spaceGUID,
+                  },
+                )}
+                type={
+                  eventTypeDescriptions[event.type] || <code>{event.type}</code>
+                }
+              />
+            ))}
+          </tbody>
+        </table>
+        </div>
+        : <></> 
+      }
     </ServiceTab>
   );
 }

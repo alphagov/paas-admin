@@ -190,7 +190,6 @@ describe('service events', () => {
       });
 
       expect(response.body).toContain('name-1508 - Service Events');
-      expect(response.body).toContain('Displaying page 1 of 1');
       expect(response.body).toContain('0 total events');
       expect(
         spacesMissingAroundInlineElements(response.body as string),
