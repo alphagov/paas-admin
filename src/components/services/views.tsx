@@ -48,6 +48,8 @@ interface IFileListingItemProperties {
   readonly size: number;
 }
 
+export const servicesWithLogs = ['postgres', 'mysql'];
+
 export function Tab(props: ITabProperties): ReactElement {
   const classess = ['govuk-tabs__list-item'];
   if (props.active) {
@@ -117,21 +119,24 @@ export function ServiceTab(props: IServiceTabProperties): ReactElement {
           >
             Events
           </Tab>
-          <Tab
-            active={props.routePartOf(
-              'admin.organizations.spaces.services.logs.view',
-            )}
-            href={props.linkTo(
-              'admin.organizations.spaces.services.logs.view',
-              {
-                organizationGUID: props.organizationGUID,
-                serviceGUID: props.service.metadata.guid,
-                spaceGUID: props.spaceGUID,
-              },
-            )}
-          >
-            Logs
-          </Tab>
+          {servicesWithLogs.includes(props.service.service?.entity.label || 'not-supported') ?
+            <Tab
+              active={props.routePartOf(
+                'admin.organizations.spaces.services.logs.view',
+              )}
+              href={props.linkTo(
+                'admin.organizations.spaces.services.logs.view',
+                {
+                  organizationGUID: props.organizationGUID,
+                  serviceGUID: props.service.metadata.guid,
+                  spaceGUID: props.spaceGUID,
+                },
+              )}
+            >
+              Logs
+            </Tab> :
+            <></>
+          }
         </ul>
 
         <section className="govuk-tabs__panel">{props.children}</section>

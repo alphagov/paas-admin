@@ -177,6 +177,19 @@ export async function viewServiceMetrics(
     ? await cf.userServiceInstance(params.serviceGUID)
     : await cf.serviceInstance(params.serviceGUID);
 
+  const servicePlan = !isUserProvidedService
+    ? await cf.servicePlan(service.entity.service_plan_guid)
+    : undefined;
+
+  const summarisedService = {
+    entity: service.entity,
+    metadata: service.metadata,
+    service: servicePlan
+      ? await cf.service(servicePlan.entity.service_guid)
+      : undefined,
+    service_plan: servicePlan,
+  };
+
   const serviceLabel = isUserProvidedService
     ? 'User Provided Service'
     : (await cf.service(service.entity.service_guid)).entity.label;
@@ -204,7 +217,7 @@ export async function viewServiceMetrics(
     rangeStart: rangeStart.toDate(),
     rangeStop: rangeStop.toDate(),
     routePartOf: ctx.routePartOf,
-    service,
+    service: summarisedService,
     serviceLabel,
     spaceGUID: space.metadata.guid,
   };

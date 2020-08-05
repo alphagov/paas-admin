@@ -9,7 +9,7 @@ import { IContext } from '../app/context';
 import { fromOrg } from '../breadcrumbs';
 import { UserFriendlyError } from '../errors';
 
-import { IServiceLogItem, ServiceLogsPage, ServicePage } from './views';
+import { IServiceLogItem, ServiceLogsPage, ServicePage, servicesWithLogs } from './views';
 
 const UNSUPPORTED_SERVICE_LOGS_REQUEST = 'Service Logs are only available for Postgres and MySQL instances.';
 
@@ -102,9 +102,18 @@ export async function listServiceLogs(ctx: IContext, params: IParameters): Promi
   const serviceInstance = await cf.serviceInstance(params.serviceGUID);
   const service = await cf.service(serviceInstance.entity.service_guid);
 
-  if (!['postgres', 'mysql'].includes(service.entity.label)) {
+  if (!servicesWithLogs.includes(service.entity.label)) {
     throw new UserFriendlyError(UNSUPPORTED_SERVICE_LOGS_REQUEST);
   }
+
+  const servicePlan = await cf.servicePlan(serviceInstance.entity.service_plan_guid);
+
+  const summarisedService = {
+    entity: serviceInstance.entity,
+    metadata: serviceInstance.metadata,
+    service: await cf.service(servicePlan.entity.service_guid),
+    service_plan: servicePlan,
+  };
 
   const rds = new RDS();
   const fileList = await rds.describeDBLogFiles({
@@ -148,7 +157,7 @@ export async function listServiceLogs(ctx: IContext, params: IParameters): Promi
       linkTo={ctx.linkTo}
       organizationGUID={organization.metadata.guid}
       routePartOf={ctx.routePartOf}
-      service={serviceInstance}
+      service={summarisedService}
       spaceGUID={space.metadata.guid}
     />),
   };
@@ -178,7 +187,7 @@ export async function downloadServiceLogs(ctx: IContext, params: IParameters): P
   const serviceInstance = await cf.serviceInstance(params.serviceGUID);
   const service = await cf.service(serviceInstance.entity.service_guid);
 
-  if (!['postgres', 'mysql'].includes(service.entity.label)) {
+  if (!servicesWithLogs.includes(service.entity.label)) {
     throw new UserFriendlyError(UNSUPPORTED_SERVICE_LOGS_REQUEST);
   }
 

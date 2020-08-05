@@ -11,6 +11,7 @@ describe(ServiceTab, () => {
     const service = ({
       metadata: { guid: 'SERVICE_GUID' },
       entity: { name: 'service-name' },
+      service: { entity: { label: 'postgres' } },
     } as unknown) as IServiceInstance;
     const markup = shallow(
       <ServiceTab
@@ -40,6 +41,36 @@ describe(ServiceTab, () => {
     expect(
       $('ul li:last-of-type').hasClass('govuk-tabs__list-item--selected'),
     ).toBe(false);
+  });
+
+
+  it('should produce service tab without logs tab', () => {
+    const service = ({
+      metadata: { guid: 'SERVICE_GUID' },
+      entity: { name: 'service-name', type: 'not-approved' },
+    } as unknown) as IServiceInstance;
+
+    const markup = shallow(
+      <ServiceTab
+        service={service}
+        linkTo={route => `__LINKS_TO__${route}`}
+        routePartOf={route =>
+          route === 'admin.organizations.spaces.services.view'
+        }
+        organizationGUID="ORG_GUID"
+        spaceGUID="SPACE_GUID"
+      >
+        <p>TEST</p>
+      </ServiceTab>,
+    );
+
+    const $ = cheerio.load(markup.html());
+    expect($('h1').text()).toContain('service-name');
+    expect($('section.govuk-tabs__panel').text()).toEqual('TEST');
+    expect($('ul li:first-of-type a').prop('href')).toEqual('__LINKS_TO__admin.organizations.spaces.services.view');
+    expect($('ul li:first-of-type').hasClass('govuk-tabs__list-item--selected')).toBe(true);
+    expect($('ul li:last-of-type a').prop('href')).not.toEqual('__LINKS_TO__admin.organizations.spaces.services.logs.view');
+    expect($('ul li:last-of-type').hasClass('govuk-tabs__list-item--selected')).toBe(false);
   });
 });
 

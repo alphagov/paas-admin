@@ -12,6 +12,7 @@ jest.mock('../../lib/cf');
 
 const mockCustomService = { metadata: { guid: 'CUSTOM_SERVICE' } };
 const mockServiceInstance = { entity: { name: 'mydb' }, metadata: { guid: 'SERVICE_INSTANCE_GUID' } };
+const mockServicePlan = { entity: { service_guid: 'SERVICE_GUID' } };
 const mockServiceRedis = { entity: { label: 'redis' } };
 const mockServicePostgres = { entity: { label: 'postgres' } };
 const mockOrganization = { entity: { name: 'org-name' }, metadata: { guid: 'ORG_GUID' } };
@@ -57,6 +58,7 @@ describe(listServiceLogs, () => {
     CFClient.prototype.organization.mockReturnValueOnce(Promise.resolve(mockOrganization));
     CFClient.prototype.serviceInstance.mockReturnValueOnce(Promise.resolve(mockServiceInstance));
     CFClient.prototype.service.mockReturnValueOnce(Promise.resolve(mockServicePostgres));
+    CFClient.prototype.servicePlan.mockReturnValueOnce(Promise.resolve(mockServicePlan));
     // @ts-ignore
     RDS.mockReturnValueOnce({
       describeDBLogFiles: () => ({
@@ -80,6 +82,7 @@ describe(listServiceLogs, () => {
     CFClient.prototype.organization.mockReturnValueOnce(Promise.resolve(mockOrganization));
     CFClient.prototype.serviceInstance.mockReturnValueOnce(Promise.resolve(mockServiceInstance));
     CFClient.prototype.service.mockReturnValueOnce(Promise.resolve(mockServicePostgres));
+    CFClient.prototype.servicePlan.mockReturnValueOnce(Promise.resolve(mockServicePlan));
     // @ts-ignore
     RDS.mockReturnValueOnce({
       describeDBLogFiles: () => ({
