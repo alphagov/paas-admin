@@ -790,7 +790,7 @@ export async function HandleSignupFormPost(
       <SupportConfirmationPage
         linkTo={ctx.linkTo}
         heading={'We have received your request'}
-        text={'We will email you with your organisation account details in th next working day.'}
+G        text={'We will email you with your organisation account details in the next working day.'}
       >
         <a className="govuk-link"
           href="https://www.cloud.service.gov.uk/get-started">
