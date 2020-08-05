@@ -34,6 +34,9 @@ describe('service event', () => {
       .get(`/v2/service_instances/${serviceGUID}`)
       .reply(200, data.serviceInstance)
 
+      .get(`/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`)
+      .reply(200, data.userServices)
+
       .get(`/v2/spaces/${spaceGUID}`)
       .reply(200, data.space)
 
@@ -51,6 +54,12 @@ describe('service event', () => {
   it('should show an event', async () => {
     const event = defaultAuditEvent();
     nockCF
+      .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+      .reply(200, data.serviceInstance)
+
+      .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+      .reply(200, data.serviceString)
+
       .get(`/v3/audit_events/${event.guid}`)
       .reply(200, JSON.stringify(event));
 
@@ -77,6 +86,12 @@ describe('service event', () => {
   it('should show the email of the event actor if it is a user with an email', async () => {
     const event = defaultAuditEvent();
     nockCF
+      .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+      .reply(200, data.serviceInstance)
+
+      .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+      .reply(200, data.serviceString)
+
       .get(`/v3/audit_events/${event.guid}`)
       .reply(200, JSON.stringify(event));
 
@@ -111,14 +126,22 @@ describe('service event', () => {
 
   it('should show the name event actor if it is not a user', async () => {
     const event = defaultAuditEvent();
-    nockCF.get(`/v3/audit_events/${event.guid}`).reply(
-      200,
-      JSON.stringify(
-        lodash.merge(event, {
-          actor: { name: 'unknown-actor', type: 'unknown' },
-        }),
-      ),
-    );
+      nockCF
+        .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+        .reply(200, data.serviceInstance)
+
+        .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+        .reply(200, data.serviceString)
+
+        .get(`/v3/audit_events/${event.guid}`)
+        .reply(
+          200,
+          JSON.stringify(
+            lodash.merge(event, {
+              actor: { name: 'unknown-actor', type: 'unknown' },
+            }),
+          ),
+        );
 
     const response = await viewServiceEvent(ctx, {
       eventGUID: event.guid,
@@ -172,6 +195,15 @@ describe('service events', () => {
   describe('when there are no audit events to display', () => {
     beforeEach(() => {
       nockCF
+        .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+        .reply(200, data.serviceInstance)
+
+        .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+        .reply(200, data.serviceString)
+
+        .get(`/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`)
+        .reply(200, data.userServices)
+
         .get('/v3/audit_events')
         .query({
           order_by: '-updated_at',
@@ -200,6 +232,15 @@ describe('service events', () => {
   describe('when there are some audit events to display', () => {
     beforeEach(() => {
       nockCF
+        .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+        .reply(200, data.serviceInstance)
+
+        .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+        .reply(200, data.serviceString)
+
+        .get(`/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`)
+        .reply(200, data.userServices)
+
         .get('/v3/audit_events')
         .query({
           order_by: '-updated_at',
@@ -283,5 +324,93 @@ describe('service events', () => {
         spacesMissingAroundInlineElements(response.body as string),
       ).toHaveLength(0);
     });
+  });
+});
+
+describe('service event - CUPS', () => {
+  const customSpaceGUID = '38511660-89d9-4a6e-a889-c32c7e94f139';
+  const customServiceGUID = '54e4c645-7d20-4271-8c27-8cc904e1e7ee';
+
+  let nockAccounts: nock.Scope;
+  let nockCF: nock.Scope;
+
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockAccounts = nock(ctx.app.accountsAPI);
+    nockCF = nock(ctx.app.cloudFoundryAPI);
+
+    nockCF
+      .get(`/v2/spaces/${spaceGUID}`)
+      .reply(200, data.space)
+
+      .get(`/v2/organizations/${organizationGUID}`)
+      .reply(200, defaultOrg())
+
+      .get(`/v2/user_provided_service_instances?q=space_guid:${customSpaceGUID}`)
+      .reply(200, data.userServices)
+
+      .get(`/v2/service_instances/${customServiceGUID}`)
+      .reply(200, data.serviceInstance);
+  });
+
+  afterEach(() => {
+    nockAccounts.done();
+    nockCF.done();
+
+    nock.cleanAll();
+  });
+
+  describe('when there are no audit events to display', () => {
+    it('should show a helpful message on the service events page', async () => {
+      nockCF
+        .get('/v3/audit_events')
+        .query({
+          order_by: '-updated_at',
+          page: 1,
+          per_page: 25,
+          target_guids: customServiceGUID,
+        })
+        .reply(200, JSON.stringify(wrapV3Resources()));
+
+      const response = await viewServiceEvents(ctx, {
+        organizationGUID,
+        serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+        spaceGUID,
+      });
+
+      expect(response.body).toContain('name-1508 - Service Events');
+      expect(response.body).not.toContain('Displaying page 1 of 1');
+      expect(response.body).toContain('0 total events');
+      expect(
+        spacesMissingAroundInlineElements(response.body as string),
+      ).toHaveLength(0);
+    });
+  });
+
+  it('should show an event for CUPS', async () => {
+    const event = defaultAuditEvent();
+    nockCF
+      .get(`/v3/audit_events/a595fe2f-01ff-4965-a50c-290258ab8582`)
+      .reply(200, JSON.stringify(event));
+
+    const response = await viewServiceEvent(ctx, {
+      eventGUID: event.guid,
+      organizationGUID,
+      serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
+      spaceGUID,
+    });
+
+    expect(response.body).toContain('name-1508 - Service Event');
+
+    expect(response.body).toContain(
+      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+    );
+    expect(response.body).toContain(/* Actor       */ 'admin');
+    expect(response.body).toContain(/* Description */ 'Updated application');
+    expect(response.body).toContain(/* Metadata    */ 'CRASHED');
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
   });
 });

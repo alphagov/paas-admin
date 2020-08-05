@@ -28,12 +28,30 @@ export async function viewServiceEvent(
 
   const eventGUID = params.eventGUID;
 
-  const [organization, space, service, event] = await Promise.all([
+  const [organization, space, service, event, userProvidedServices] = await Promise.all([
     cf.organization(params.organizationGUID),
     cf.space(params.spaceGUID),
     cf.serviceInstance(params.serviceGUID),
     cf.auditEvent(eventGUID),
+    cf.userServices(params.spaceGUID),
   ]);
+
+  const isUserProvidedService = userProvidedServices.some(
+    s => s.metadata.guid === params.serviceGUID,
+  );
+
+  const servicePlan = !isUserProvidedService
+    ? await cf.servicePlan(service.entity.service_plan_guid)
+    : undefined;
+
+  const summarisedService = {
+    entity: service.entity,
+    metadata: service.metadata,
+    service: servicePlan
+      ? await cf.service(servicePlan.entity.service_guid)
+      : undefined,
+    service_plan: servicePlan,
+  };
 
   const eventActorGUID: string | undefined =
     event.actor.type === 'user' ? event.actor.guid : undefined;
@@ -72,7 +90,7 @@ export async function viewServiceEvent(
       <ServiceEventDetailPage
         actor={eventActor}
         event={event}
-        service={service}
+        service={summarisedService}
       />,
     ),
   };
@@ -97,12 +115,30 @@ export async function viewServiceEvents(
   const page: number =
     params.page === undefined ? 1 : parseInt(params.page, 10);
 
-  const [organization, space, service, pageOfEvents] = await Promise.all([
+  const [organization, space, service, pageOfEvents, userProvidedServices] = await Promise.all([
     cf.organization(params.organizationGUID),
     cf.space(params.spaceGUID),
     cf.serviceInstance(params.serviceGUID),
     cf.auditEvents(page, /* targetGUIDs */ [params.serviceGUID]),
+    cf.userServices(params.spaceGUID),
   ]);
+
+  const isUserProvidedService = userProvidedServices.some(
+    s => s.metadata.guid === params.serviceGUID,
+  );
+
+  const servicePlan = !isUserProvidedService
+    ? await cf.servicePlan(service.entity.service_plan_guid)
+    : undefined;
+
+  const summarisedService = {
+    entity: service.entity,
+    metadata: service.metadata,
+    service: servicePlan
+      ? await cf.service(servicePlan.entity.service_guid)
+      : undefined,
+    service_plan: servicePlan,
+  };
 
   const { resources: events, pagination } = pageOfEvents;
 
@@ -150,7 +186,7 @@ export async function viewServiceEvents(
         organizationGUID={organization.metadata.guid}
         pagination={{ ...pagination, page }}
         routePartOf={ctx.routePartOf}
-        service={service}
+        service={summarisedService}
         spaceGUID={space.metadata.guid}
       />,
     ),

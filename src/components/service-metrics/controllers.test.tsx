@@ -63,7 +63,10 @@ describe('service metrics test suite', () => {
         '/v2/user_provided_service_instances/54e4c645-7d20-4271-8c27-8cc904e1e7ee',
       )
       .times(1)
-      .reply(200, data.userServiceInstance);
+      .reply(200, data.userServiceInstance)
+      .get('/v2/services/a00cacc0-0ca6-422e-91d3-6b22bcd33450')
+      .times(1)
+      .reply(200, data.serviceString);
   });
 
   function mockService(service: object) {
