@@ -99,7 +99,7 @@ describe('paas-admin', function () {
 
       await <any>browser.fill('username', managerUserEmail);
       await <any>browser.fill('password', managerUserPassword);
-      await <any>browser.pressButton('Continue');
+      await <any>browser.pressButton('Continue  with email and password sign in'); // two spaces important because of DOM textContent
       browser.assert.text('a', /Sign out/);
     });
 
