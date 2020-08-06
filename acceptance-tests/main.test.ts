@@ -95,7 +95,7 @@ describe('paas-admin', function () {
 
     before(async () => {
       await <any>browser.visit(PAAS_ADMIN_BASE_URL);
-      browser.assert.text('button', 'Continue');
+      browser.assert.text('button', 'Continue with email and password sign in');
 
       await <any>browser.fill('username', managerUserEmail);
       await <any>browser.fill('password', managerUserPassword);
