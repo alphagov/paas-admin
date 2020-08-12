@@ -36,6 +36,17 @@ export const router = new Router([
     path: '/organisations/:organizationGUID',
   },
   {
+    action: organizations.editOrgQuota,
+    name: 'admin.organizations.quota.edit',
+    path: '/organisations/:organizationGUID/quota',
+  },
+  {
+    action: organizations.updateOrgQuota,
+    method: 'post',
+    name: 'admin.organizations.quota.update',
+    path: '/organisations/:organizationGUID/quota',
+  },
+  {
     action: spaces.listApplications,
     name: 'admin.organizations.spaces.applications.list',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications',

@@ -14,6 +14,7 @@ import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
 
 import { listOrganizations } from '.';
+import { editOrgQuota, updateOrgQuota } from './controllers';
 
 const organizations = JSON.stringify(
   wrapResources(
@@ -99,5 +100,91 @@ describe('organizations test suite', () => {
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
+  });
+});
+
+describe(editOrgQuota, () => {
+  let nockCF: nock.Scope;
+  const organization = {
+    entity: { name: 'org-name' },
+    metadata: { guid: '__ORG_GUID__' },
+  };
+  const quota = {
+    guid: '__QUOTA_1_GUID__',
+    name: 'quota-1',
+    apps: { total_memory_in_mb: 2 },
+    routes: { total_routes: 2 },
+    services: { total_service_instances: 2 },
+  };
+
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockCF = nock(ctx.app.cloudFoundryAPI);
+
+    nockCF
+      .get(`/v2/organizations/${organization.metadata.guid}`)
+      .reply(200, organization)
+
+      .get(`/v3/organization_quotas`)
+      .reply(200, {
+        pagination: {
+          total_results: 3,
+          total_pages: 1,
+        },
+        resources: [
+          quota,
+          { ...quota, guid: '__QUOTA_3_GUID__', name: 'CATS-qwertyuiop' },
+          { ...quota, guid: '__QUOTA_2_GUID__', name: 'quota-2' },
+        ],
+      });
+  });
+
+  afterEach(() => {
+    nockCF.done();
+
+    nock.cleanAll();
+  });
+
+  it('should correctly parse data into a form', async () => {
+    const response = await editOrgQuota(ctx, { organizationGUID: organization.metadata.guid });
+
+    expect(response.status).toBeUndefined();
+    expect(response.body).toContain(`Organisation ${organization.entity.name}`);
+  });
+});
+
+describe(updateOrgQuota, () => {
+  let nockCF: nock.Scope;
+  const organization = {
+    entity: { name: 'org-name' },
+    metadata: { guid: '__ORG_GUID__' },
+  };
+  const quotaGUID = '__QUOTA_GUID__';
+
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockCF = nock(ctx.app.cloudFoundryAPI);
+
+    nockCF
+      .get(`/v2/organizations/${organization.metadata.guid}`)
+      .reply(200, organization)
+
+      .post(`/v3/organization_quotas/${quotaGUID}/relationships/organizations`)
+      .reply(201, { data: [{ guid: organization.metadata.guid }] });
+  });
+
+  afterEach(() => {
+    nockCF.done();
+
+    nock.cleanAll();
+  });
+
+  it('should parse the success message correctly', async () => {
+    const response = await updateOrgQuota(ctx, { organizationGUID: organization.metadata.guid }, { quota: quotaGUID });
+
+    expect(response.status).toBeUndefined();
+    expect(response.body).toContain('Quota successfully set');
   });
 });

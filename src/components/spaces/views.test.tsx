@@ -397,7 +397,7 @@ describe(SpacesPage, () => {
     const markup = shallow(
       <SpacesPage
         linkTo={route => `__LINKS_TO__${route}`}
-        isAdmin={false}
+        isAdmin={true}
         isManager={true}
         isBillingManager={false}
         organization={organization}
@@ -407,6 +407,7 @@ describe(SpacesPage, () => {
     );
     const $ = cheerio.load(markup.html());
     expect($('table tbody tr')).toHaveLength(1);
+    expect($('p').text()).toContain('Manage quota for this organization');
     expect($('p').text()).toContain(
       `There is 1 space in ${organization.entity.name}.`,
     );

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-import { IOrganization, IOrganizationQuota } from '../../lib/cf/types';
+import { IOrganization, IOrganizationQuota, IV3OrganizationQuota } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
 
 interface IOrganizationProperties {
@@ -14,6 +14,12 @@ interface IOrganizationPageProperties {
   readonly organizations: ReadonlyArray<IOrganization>;
   readonly linkTo: RouteLinker;
   readonly quotas: { readonly [guid: string]: IOrganizationQuota };
+}
+
+interface IEditOrganizationQuotaProperties {
+  readonly csrf: string;
+  readonly organization: IOrganization;
+  readonly quotas: ReadonlyArray<IV3OrganizationQuota>;
 }
 
 export function Organization(props: IOrganizationProperties): ReactElement {
@@ -244,4 +250,65 @@ export function OrganizationsPage(
       </div>
     </>
   );
+}
+
+export function EditOrganizationQuota(props: IEditOrganizationQuotaProperties): ReactElement {
+  return <div className="govuk-grid-row">
+    <div className="govuk-grid-column-full">
+      <h1 className="govuk-heading-l">
+        <span className="govuk-caption-l">Organisation</span>{' '}
+        {props.organization.entity.name}
+      </h1>
+    </div>
+
+    <div className="govuk-grid-column-one-half">
+      <form method="post">
+        <input type="hidden" name="_csrf" value={props.csrf} />
+
+        <div className="govuk-form-group">
+          <label className="govuk-label" htmlFor="quota">
+            Quota
+          </label>
+          <span id="quota-hint" className="govuk-hint">
+            The <code>default</code> quota represents a trial account for specific organisation and will not be billed
+            for.
+          </span>
+          <select className="govuk-select" id="quota" name="quota">
+            {props.quotas.map(quota => <option
+              key={quota.guid}
+              selected={props.organization.entity.quota_definition_guid === quota.guid}
+              value={quota.guid}>
+                {quota.name}
+              </option>)}
+          </select>
+        </div>
+
+        <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
+          Set Organisation Quota
+        </button>
+      </form>
+    </div>
+
+    <div className="govuk-grid-column-one-half">
+      <table className="govuk-table">
+        <caption className="govuk-table__caption">Existing quotas</caption>
+        <thead className="govuk-table__head">
+          <tr className="govuk-table__row">
+            <th scope="col" className="govuk-table__header">Name</th>
+            <th scope="col" className="govuk-table__header">Memory</th>
+            <th scope="col" className="govuk-table__header">Routes</th>
+            <th scope="col" className="govuk-table__header">Services</th>
+          </tr>
+        </thead>
+        <tbody className="govuk-table__body">
+          {props.quotas.map(quota => <tr className="govuk-table__row" key={quota.guid}>
+            <th scope="row" className="govuk-table__header">{quota.name}</th>
+            <td className="govuk-table__cell">{quota.apps.total_memory_in_mb}</td>
+            <td className="govuk-table__cell">{quota.routes.total_routes}</td>
+            <td className="govuk-table__cell">{quota.services.total_service_instances}</td>
+          </tr>)}
+        </tbody>
+      </table>
+    </div>
+  </div>;
 }

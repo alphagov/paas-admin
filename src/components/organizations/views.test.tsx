@@ -2,9 +2,10 @@ import cheerio from 'cheerio';
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import { IOrganization, IOrganizationQuota } from '../../lib/cf/types';
+import { IOrganization, IOrganizationQuota, IV3OrganizationQuota } from '../../lib/cf/types';
 
-import { OrganizationsPage } from './views';
+import { OrganizationsPage, EditOrganizationQuota } from './views';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 
 function linker(_route: string, params: any): string {
   return params?.organizationGUID ? `/org/${params.organizationGUID}` : '/test';
@@ -67,5 +68,38 @@ describe(OrganizationsPage, () => {
       'There is 1 organisation which you can access.',
     );
     expect($('table tbody tr')).toHaveLength(1);
+  });
+});
+
+describe(EditOrganizationQuota, () => {
+  it('should parse the page correctly', () => {
+    const quota = {
+      guid: '__QUOTA_1_GUID__',
+      name: 'quota-1',
+      apps: { total_memory_in_mb: 2 },
+      routes: { total_routes: 2 },
+      services: { total_service_instances: 2 },
+    };
+
+    const markup = shallow(<EditOrganizationQuota
+      csrf="__CSRF_TOKEN__"
+      organization={{
+        entity: { name: 'org-name', quota_definition_guid: '__QUOTA_2_GUID__' },
+        metadata: { guid: '__ORG_GUID__' },
+      } as IOrganization}
+      quotas={[
+        quota as IV3OrganizationQuota,
+        { ...quota, guid: '__QUOTA_2_GUID__', name: 'quota-2' } as IV3OrganizationQuota,
+      ]}
+    />);
+
+    expect(markup.render().find('table').text()).toContain('quota-1');
+    expect(markup.render().find('table').text()).toContain('quota-2');
+
+    expect(markup.render().find('select option').text()).toContain('quota-1');
+    expect(markup.render().find('select option').text()).toContain('quota-2');
+    expect(markup.render().find('select option[selected]').text()).toEqual('quota-2');
+
+    expect(spacesMissingAroundInlineElements(markup.render().html()!)).toHaveLength(0);
   });
 });
