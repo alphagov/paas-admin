@@ -6,7 +6,6 @@
   },
   "extends": [
     "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:import/errors",
     "plugin:import/typescript",
@@ -46,10 +45,10 @@
   "rules": {
     "@typescript-eslint/array-type": ["error", {"default": "generic", "readonly": "generic"}],
     "@typescript-eslint/await-thenable": "error",
-    "@typescript-eslint/ban-ts-ignore": "warn",
-    "@typescript-eslint/camelcase": "warn",
+    "@typescript-eslint/ban-types": ["error", {"types": {"{}": false, "object": false}}],
+    "@typescript-eslint/ban-ts-comment": "warn",
     "@typescript-eslint/explicit-function-return-type": "warn",
-    "@typescript-eslint/interface-name-prefix": ["warn", {"prefixWithI": "always"}],
+    "@typescript-eslint/naming-convention": ["warn", {"selector": "interface", "format": ["PascalCase"], "custom": {"regex": "^I[A-Z]", "match": true}}],
     "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/no-for-in-array": "error",
     "@typescript-eslint/no-unused-vars": ["error", {"argsIgnorePattern": "^_"}],
@@ -96,7 +95,6 @@
         "stub-api/**/*.{ts,tsx,js,jsx}"
       ],
       "rules": {
-        "@typescript-eslint/camelcase": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-non-null-assertion": "off",

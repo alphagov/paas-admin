@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import { RDS } from 'aws-sdk';
 
 import CloudFoundryClient from '../../lib/cf';

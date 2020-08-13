@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import CloudFoundryClient from '../../lib/cf';
 import { createTestContext } from '../app/app.test-helpers';
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import cheerio from 'cheerio';
 import jwt from 'jsonwebtoken';
 
