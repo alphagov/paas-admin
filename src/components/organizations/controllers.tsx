@@ -4,7 +4,7 @@ import React from 'react';
 import { Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import { IOrganization } from '../../lib/cf/types';
-import { IParameters, IResponse } from '../../lib/router';
+import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import { IContext } from '../app/context';
 
 import { OrganizationsPage, EditOrganizationQuota } from './views';
@@ -58,6 +58,10 @@ export async function listOrganizations(
 }
 
 export async function editOrgQuota(ctx: IContext, params: IParameters): Promise<IResponse> {
+  if (!ctx.token.hasAdminScopes()) {
+    throw new NotAuthorisedError('Not a platform admin');
+  }
+
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
@@ -91,6 +95,10 @@ export async function editOrgQuota(ctx: IContext, params: IParameters): Promise<
 }
 
 export async function updateOrgQuota(ctx: IContext, params: IParameters, body: IUpdateOrgQuotaBody): Promise<IResponse> {
+  if (!ctx.token.hasAdminScopes()) {
+    throw new NotAuthorisedError('Not a platform admin');
+  }
+
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,

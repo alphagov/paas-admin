@@ -1,5 +1,8 @@
+import jwt from 'jsonwebtoken';
 import lodash from 'lodash';
 import nock from 'nock';
+
+import { Token, CLOUD_CONTROLLER_ADMIN } from '../auth';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
@@ -32,7 +35,7 @@ const organizations = JSON.stringify(
   ),
 );
 
-const ctx: IContext = createTestContext();
+const tokenKey = 'secret';
 
 function extractOrganizations(responseBody: string): ReadonlyArray<string> {
   const re = /(.-(trial-)?org-name(-\d)?)/g;
@@ -50,6 +53,7 @@ function extractOrganizations(responseBody: string): ReadonlyArray<string> {
 }
 
 describe('organizations test suite', () => {
+  const ctx: IContext = createTestContext();
   let nockCF: nock.Scope;
 
   beforeEach(() => {
@@ -117,40 +121,74 @@ describe(editOrgQuota, () => {
     services: { total_service_instances: 2 },
   };
 
-  beforeEach(() => {
-    nock.cleanAll();
+  describe('when not a platform admin', () => {
+    const time = Math.floor(Date.now() / 1000);
+    const rawToken = {
+      exp: time + 24 * 60 * 60,
+      origin: 'uaa',
+      scope: [],
+      user_id: 'uaa-id-253',
+    };
+    const accessToken = jwt.sign(rawToken, tokenKey);
 
-    nockCF = nock(ctx.app.cloudFoundryAPI);
+    const token = new Token(accessToken, [tokenKey]);
+    const ctx: IContext = createTestContext({ token });
 
-    nockCF
-      .get(`/v2/organizations/${organization.metadata.guid}`)
-      .reply(200, organization)
-
-      .get(`/v3/organization_quotas`)
-      .reply(200, {
-        pagination: {
-          total_results: 3,
-          total_pages: 1,
-        },
-        resources: [
-          quota,
-          { ...quota, guid: '__QUOTA_3_GUID__', name: 'CATS-qwertyuiop' },
-          { ...quota, guid: '__QUOTA_2_GUID__', name: 'quota-2' },
-        ],
-      });
+    it('should return an error', async () => {
+      await expect(editOrgQuota(ctx, {})).rejects.toThrow(
+        /Not a platform admin/,
+      );
+    });
   });
 
-  afterEach(() => {
-    nockCF.done();
+  describe('when platform admin', () => {
+    const time = Math.floor(Date.now() / 1000);
+    const rawToken = {
+      exp: time + 24 * 60 * 60,
+      origin: 'uaa',
+      scope: [CLOUD_CONTROLLER_ADMIN],
+      user_id: 'uaa-id-253',
+    };
+    const accessToken = jwt.sign(rawToken, tokenKey);
 
-    nock.cleanAll();
-  });
+    const token = new Token(accessToken, [tokenKey]);
+    const ctx: IContext = createTestContext({ token });
 
-  it('should correctly parse data into a form', async () => {
-    const response = await editOrgQuota(ctx, { organizationGUID: organization.metadata.guid });
+    beforeEach(() => {
+      nock.cleanAll();
 
-    expect(response.status).toBeUndefined();
-    expect(response.body).toContain(`Organisation ${organization.entity.name}`);
+      nockCF = nock(ctx.app.cloudFoundryAPI);
+
+      nockCF
+        .get(`/v2/organizations/${organization.metadata.guid}`)
+        .reply(200, organization)
+
+        .get(`/v3/organization_quotas`)
+        .reply(200, {
+          pagination: {
+            total_results: 3,
+            total_pages: 1,
+          },
+          resources: [
+            quota,
+            { ...quota, guid: '__QUOTA_3_GUID__', name: 'CATS-qwertyuiop' },
+            { ...quota, guid: '__QUOTA_2_GUID__', name: 'quota-2' },
+          ],
+        });
+    });
+
+    afterEach(() => {
+      nockCF.done();
+
+      nock.cleanAll();
+    });
+
+    it('should correctly parse data into a form', async () => {
+      const response = await editOrgQuota(ctx, { organizationGUID: organization.metadata.guid });
+
+      expect(response.status).toBeUndefined();
+      expect(response.body).toContain(`Organisation ${organization.entity.name}`);
+    });
   });
 });
 
@@ -162,29 +200,67 @@ describe(updateOrgQuota, () => {
   };
   const quotaGUID = '__QUOTA_GUID__';
 
-  beforeEach(() => {
-    nock.cleanAll();
+  const params = { organizationGUID: organization.metadata.guid };
+  const body = { quota: quotaGUID };
 
-    nockCF = nock(ctx.app.cloudFoundryAPI);
 
-    nockCF
-      .get(`/v2/organizations/${organization.metadata.guid}`)
-      .reply(200, organization)
+  describe('when not a platform admin', () => {
+    const time = Math.floor(Date.now() / 1000);
+    const rawToken = {
+      exp: time + 24 * 60 * 60,
+      origin: 'uaa',
+      scope: [],
+      user_id: 'uaa-id-253',
+    };
+    const accessToken = jwt.sign(rawToken, tokenKey);
 
-      .post(`/v3/organization_quotas/${quotaGUID}/relationships/organizations`)
-      .reply(201, { data: [{ guid: organization.metadata.guid }] });
+    const token = new Token(accessToken, [tokenKey]);
+    const ctx: IContext = createTestContext({ token });
+
+    it('should return an error', async () => {
+      await expect(updateOrgQuota(ctx, params, body)).rejects.toThrow(
+        /Not a platform admin/,
+      );
+    });
   });
 
-  afterEach(() => {
-    nockCF.done();
+  describe('when platform admin', () => {
+    const time = Math.floor(Date.now() / 1000);
+    const rawToken = {
+      exp: time + 24 * 60 * 60,
+      origin: 'uaa',
+      scope: [CLOUD_CONTROLLER_ADMIN],
+      user_id: 'uaa-id-253',
+    };
+    const accessToken = jwt.sign(rawToken, tokenKey);
 
-    nock.cleanAll();
-  });
+    const token = new Token(accessToken, [tokenKey]);
+    const ctx: IContext = createTestContext({ token });
 
-  it('should parse the success message correctly', async () => {
-    const response = await updateOrgQuota(ctx, { organizationGUID: organization.metadata.guid }, { quota: quotaGUID });
+    beforeEach(() => {
+      nock.cleanAll();
 
-    expect(response.status).toBeUndefined();
-    expect(response.body).toContain('Quota successfully set');
+      nockCF = nock(ctx.app.cloudFoundryAPI);
+
+      nockCF
+        .get(`/v2/organizations/${organization.metadata.guid}`)
+        .reply(200, organization)
+
+        .post(`/v3/organization_quotas/${quotaGUID}/relationships/organizations`)
+        .reply(201, { data: [{ guid: organization.metadata.guid }] });
+    });
+
+    afterEach(() => {
+      nockCF.done();
+
+      nock.cleanAll();
+    });
+
+    it('should parse the success message correctly', async () => {
+      const response = await updateOrgQuota(ctx, params, body);
+
+      expect(response.status).toBeUndefined();
+      expect(response.body).toContain('Quota successfully set');
+    });
   });
 });
