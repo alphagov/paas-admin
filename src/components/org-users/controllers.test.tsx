@@ -1099,7 +1099,7 @@ describe('org-users test suite', () => {
       .reply(200, JSON.stringify(defaultOrg()))
 
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
-      .times(3)
+      .times(2)
       .reply(200, cfData.userRolesForOrg);
 
     const response = await orgUsers.editUser(ctx, {
@@ -1157,7 +1157,7 @@ describe('org-users test suite', () => {
       .reply(200, JSON.stringify(defaultOrg()))
 
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
-      .times(3)
+      .times(2)
       .reply(200, cfData.userRolesForOrgWithOneManager);
 
     const response = await orgUsers.editUser(ctx, {
@@ -1197,7 +1197,7 @@ describe('org-users test suite', () => {
   it('should fail to show the user edit page due to not existing user', async () => {
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
-      .times(3)
+      .times(2)
       .reply(200, cfData.userRolesForOrg)
 
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
@@ -1210,35 +1210,6 @@ describe('org-users test suite', () => {
       orgUsers.editUser(ctx, {
         organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
         userGUID: 'not-existing-user',
-      }),
-    ).rejects.toThrow(/user not found/);
-  });
-
-  it('should fail to show the user edit page due to not existing paas-accounts user', async () => {
-    nockUAA
-      .get('/Users/uaa-user-edit-123456')
-      .reply(200, uaaData.usersByEmail)
-
-      .post('/oauth/token?grant_type=client_credentials')
-      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
-
-    nockAccounts.get('/users/uaa-user-edit-123456').reply(404, '{}');
-
-    nockCF
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
-      .reply(200, cfData.spaces)
-
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
-      .reply(200, JSON.stringify(defaultOrg()))
-
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
-      .times(3)
-      .reply(200, cfData.userRolesForOrg);
-
-    await expect(
-      orgUsers.editUser(ctx, {
-        organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-        userGUID: 'uaa-user-edit-123456',
       }),
     ).rejects.toThrow(/user not found/);
   });

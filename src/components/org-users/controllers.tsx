@@ -752,13 +752,12 @@ export async function editUser(
     throw new NotFoundError('not found');
   }
 
-  const [organization, spaces, orgUsers] = await Promise.all([
+  const [organization, spaces] = await Promise.all([
     cf.organization(params.organizationGUID),
     cf.orgSpaces(params.organizationGUID),
-    cf.usersForOrganization(params.organizationGUID),
   ]);
 
-  const user = orgUsers.find(
+  const user = users.find(
     (u: IOrganizationUserRoles) => u.metadata.guid === params.userGUID,
   );
 
@@ -767,15 +766,19 @@ export async function editUser(
   }
 
   const uaaUser = await uaa.getUser(user.metadata.guid);
+  /* istanbul ignore next */
+  if (!uaaUser) {
+    throw new NotFoundError('user not found');
+  }
 
   const accountsUser = await accountsClient.getUser(params.userGUID);
 
+  /* istanbul ignore next */
   if (!accountsUser) {
     ctx.app.logger.warn(
       `user ${uaaUser.id} was found in UAA and CF, but not in paas-accounts. ` +
         'Was the user created incorrectly? They should be invited via paas-admin',
     );
-    throw new NotFoundError('user not found in paas-accounts');
   }
 
   /* istanbul ignore next */
@@ -842,7 +845,7 @@ export async function editUser(
       <EditPage
         billingManagers={billingManagers.length}
         csrf={ctx.viewContext.csrf}
-        email={accountsUser.email}
+        email={accountsUser?.email || user.entity.username}
         errors={[]}
         isActive={uaaUser.active && uaaUser.verified}
         linkTo={ctx.linkTo}
@@ -969,6 +972,10 @@ export async function updateUser(
       );
 
       const uaaUser = await uaa.getUser(user.metadata.guid);
+      if (!uaaUser) {
+        throw new NotFoundError('user not found');
+      }
+
       const accountsUser = await accountsClient.getUser(params.userGUID);
       if (!accountsUser) {
         ctx.app.logger.warn(
