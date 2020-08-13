@@ -87,6 +87,7 @@ let cfg = {
             loader: 'css-loader',
             options: {
               sourceMap: true,
+              url: false,
             },
           },
           {
