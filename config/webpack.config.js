@@ -156,6 +156,6 @@ if (NODE_ENV === 'production') {
   }));
 }
 
-cfg.externals.push(nodeModules({ whitelist: [] }));
+cfg.externals.push(nodeModules({ allowlist: [] }));
 
 module.exports = cfg;

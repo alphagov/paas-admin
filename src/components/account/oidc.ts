@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { nanoid } from 'nanoid';
 import * as oidc from 'openid-client';
 

@@ -4,7 +4,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable functional/prefer-readonly-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/camelcase */
 import { isUndefined } from 'util';
 
 import lodash, { CollectionChain, mapValues, merge, values } from 'lodash';

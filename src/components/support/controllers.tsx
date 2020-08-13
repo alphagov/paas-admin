@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import * as zendesk from 'node-zendesk';
 import React from 'react';
 

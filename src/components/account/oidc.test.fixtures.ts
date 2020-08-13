@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 export const microsoftDiscoveryDoc = {
   authorization_endpoint: 'https://login.microsoftonline.com/tenant_id/oauth2/v2.0/authorize',
   claims_supported: [
