@@ -202,6 +202,15 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
             .
           </p>
 
+          {props.isAdmin ? <p className="govuk-body">
+            <a
+              href={props.linkTo('admin.organizations.quota.edit', { organizationGUID: props.organization.metadata.guid })}
+              className="govuk-link"
+            >
+              Manage quota for this organization
+            </a>
+          </p> : <></>}
+
           <p className="govuk-body">
             <a
               href="https://docs.cloud.service.gov.uk/managing_apps.html#quotas"

@@ -4,10 +4,15 @@ import React from 'react';
 import { Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import { IOrganization } from '../../lib/cf/types';
-import { IParameters, IResponse } from '../../lib/router';
+import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import { IContext } from '../app/context';
 
-import { OrganizationsPage } from './views';
+import { OrganizationsPage, EditOrganizationQuota } from './views';
+import { SuccessPage } from '../shared';
+
+interface IUpdateOrgQuotaBody {
+  readonly quota: string;
+}
 
 function sortOrganizationsByName(
   organizations: ReadonlyArray<IOrganization>,
@@ -49,5 +54,78 @@ export async function listOrganizations(
         quotas={orgQuotasByGUID}
       />,
     ),
+  };
+}
+
+export async function editOrgQuota(ctx: IContext, params: IParameters): Promise<IResponse> {
+  if (!ctx.token.hasAdminScopes()) {
+    throw new NotAuthorisedError('Not a platform admin');
+  }
+
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+
+  const [organization, quotas] = await Promise.all([
+    cf.organization(params.organizationGUID),
+    cf.organizationQuotas(),
+  ]);
+
+  const realQuotas = quotas.filter(quota => !quota.name.match(/^(CATS|ACC|BACC|SMOKE|PERF|AIVENBACC)-/));
+  const template = new Template(ctx.viewContext, `Organisation ${organization.entity.name}`);
+
+  template.breadcrumbs = [
+    { href: ctx.linkTo('admin.organizations'), text: 'Organisations' },
+    {
+      href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.metadata.guid }),
+      text: organization.entity.name,
+    },
+    { text: 'Manage Quota' },
+  ];
+
+  return {
+    body: template.render(<EditOrganizationQuota
+      organization={organization}
+      quotas={realQuotas.sort((qA, qB) => qA.apps.total_memory_in_mb - qB.apps.total_memory_in_mb)}
+      csrf={ctx.viewContext.csrf}
+    />),
+  };
+}
+
+export async function updateOrgQuota(ctx: IContext, params: IParameters, body: IUpdateOrgQuotaBody): Promise<IResponse> {
+  if (!ctx.token.hasAdminScopes()) {
+    throw new NotAuthorisedError('Not a platform admin');
+  }
+
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+
+  const organization = await cf.organization(params.organizationGUID);
+
+  await cf.applyOrganizationQuota(body.quota, params.organizationGUID);
+
+  const template = new Template(ctx.viewContext, `Quota successfully set`);
+
+  template.breadcrumbs = [
+    { href: ctx.linkTo('admin.organizations'), text: 'Organisations' },
+    {
+      href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.metadata.guid }),
+      text: organization.entity.name,
+    },
+    {
+      href: ctx.linkTo('admin.organizations.quota.edit', { organizationGUID: organization.metadata.guid }),
+      text: 'Manage Quota',
+    },
+  ];
+
+  return {
+    body: template.render(<SuccessPage
+      heading="Quota successfully set"
+    />),
   };
 }

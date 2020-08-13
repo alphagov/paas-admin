@@ -252,6 +252,34 @@ export interface IOrganizationQuota {
   readonly metadata: IMetadata;
 }
 
+export interface IV3OrganizationQuota {
+  readonly guid: string;
+  readonly created_at: string;
+  readonly updated_at: string;
+  readonly name: string;
+  readonly links: {
+    readonly self: IV3Link;
+  };
+  readonly apps: {
+    readonly per_process_memory_in_mb: number;
+    readonly total_memory_in_mb: number;
+    readonly total_instances: number;
+    readonly per_app_tasks: number;
+  };
+  readonly domains: {
+    readonly total_domains: number;
+  };
+  readonly routes: {
+    readonly total_routes: number;
+    readonly total_reserved_ports: number;
+  };
+  readonly services: {
+    readonly paid_services_allowed: number;
+    readonly total_service_instances: number;
+    readonly total_service_keys: number;
+  };
+}
+
 export interface IOrganizationUserRoles {
   readonly entity: {
     readonly active: boolean;

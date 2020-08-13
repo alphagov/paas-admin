@@ -862,4 +862,29 @@ describe('lib/cf test suite', () => {
 
     expect(actualRoles).toEqual(roles)
   });
+
+  it('should retreive organization quotas', async () => {
+    const orgQuotas = [
+      { guid: 'org-quota-1', name: 'small' },
+      { guid: 'org-quota-2', name: 'medium' },
+    ];
+
+    nockCF
+      .get('/v3/organization_quotas')
+      .reply(200, JSON.stringify(wrapV3Resources(...orgQuotas)));
+
+    const client = new CloudFoundryClient(config);
+    const quotas = await client.organizationQuotas();
+
+    expect(quotas).toHaveLength(2);
+  });
+
+  it('should apply quota to all organizations', async () => {
+    nockCF
+      .post('/v3/organization_quotas/org-quota-1/relationships/organizations')
+      .reply(201, JSON.stringify(wrapV3Resources(...[{ guid: 'org-guid' }])));
+
+    const client = new CloudFoundryClient(config);
+    await expect(client.applyOrganizationQuota('org-quota-1', 'org-guid')).resolves.toBeDefined();
+  });
 });
