@@ -34,6 +34,7 @@ export function drawLineGraph(
   const { document } = window;
   const { body } = document;
 
+  const itemID = title.replace(/\s/g, '');
   const svg = select(body)
     .append('svg')
     .attr('class', 'govuk-paas-line-graph')
@@ -42,8 +43,8 @@ export function drawLineGraph(
       `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`,
     )
     .attr('preserveAspectRatio', 'xMinYMin meet')
-    .attr('role', 'figure')
-    .attr('aria-labelledby', 'title');
+    .attr('role', 'img')
+    .attr('aria-labelledby', itemID);
 
   const xAxisExtent = extent(
     flatMap(series, s => s.metrics),
@@ -56,6 +57,7 @@ export function drawLineGraph(
 
   svg
     .append('title')
+    .attr('id', itemID)
     .text(
       `Line graph showing ${title} from ${start.format(
         dateFormat,
