@@ -1648,13 +1648,13 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                               <div className="govuk-checkboxes">
                                 <div className="govuk-checkboxes__item">
                                   <input className="govuk-checkboxes__input"
-                                    id="additional_users-is-manager"
+                                    id="additional_users-0-is-manager"
                                     name="additional_users[0][person_is_manager]"
                                     type="checkbox"
                                     value="yes"
                                     defaultChecked={props.values?.additional_users && props.values!.additional_users[0].person_is_manager === 'yes'}
                                   />
-                                  <label className="govuk-label govuk-checkboxes__label" htmlFor="additional_users-1">
+                                  <label className="govuk-label govuk-checkboxes__label" htmlFor="additional_users-0-is-manager">
                                     <span className="govuk-visually-hidden">Assign org manager role?</span>
                                   </label>
                                 </div>
