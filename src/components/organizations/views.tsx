@@ -101,16 +101,16 @@ export function OrganizationsPage(
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-full">
-          <h1 className="govuk-heading-l">Get started with the command line</h1>
+          <h2 className="govuk-heading-l">Get started with the command line</h2>
 
           <p className="govuk-body">
             Installing the Cloud Foundry command line will let you operate
             GOV.UK PaaS from your computer terminal.
           </p>
 
-          <h2 className="govuk-heading-m">
+          <h3 className="govuk-heading-m">
             Download the Cloud Foundry command line tool
-          </h2>
+          </h3>
         </div>
 
         <div className="govuk-grid-column-one-third">
@@ -170,11 +170,11 @@ export function OrganizationsPage(
         .
       </p>
 
-      <h1 className="govuk-heading-l">Once you’ve installed the CF CLI</h1>
+      <h2 className="govuk-heading-l">Once you’ve installed the CF CLI</h2>
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-half">
-          <h2 className="govuk-heading-m">Set up and deploy your first app</h2>
+          <h3 className="govuk-heading-m">Set up and deploy your first app</h3>
 
           <p className="govuk-body">
             <a
@@ -188,7 +188,7 @@ export function OrganizationsPage(
         </div>
 
         <div className="govuk-grid-column-one-half">
-          <h2 className="govuk-heading-m">Learn more about orgs and spaces</h2>
+          <h3 className="govuk-heading-m">Learn more about orgs and spaces</h3>
 
           <p className="govuk-body">
             <a
@@ -203,11 +203,11 @@ export function OrganizationsPage(
         </div>
       </div>
 
-      <h1 className="govuk-heading-l">Stay up to date</h1>
+      <h2 className="govuk-heading-l">Stay up to date</h2>
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-half">
-          <h2 className="govuk-heading-m">Get GOV.UK PaaS status updates</h2>
+          <h3 className="govuk-heading-m">Get GOV.UK PaaS status updates</h3>
 
           <p className="govuk-body">
             <a
@@ -227,11 +227,11 @@ export function OrganizationsPage(
         </div>
       </div>
 
-      <h1 className="govuk-heading-l">Increase the security of your account</h1>
+      <h2 className="govuk-heading-l">Increase the security of your account</h2>
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-half">
-          <h2 className="govuk-heading-m">Set up Google single sign-on</h2>
+          <h3 className="govuk-heading-m">Set up Google single sign-on</h3>
 
           <p className="govuk-body">
             GOV.UK PaaS supports Google single sign-on as an authentication
