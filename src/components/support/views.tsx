@@ -1655,7 +1655,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                                     defaultChecked={props.values?.additional_users && props.values!.additional_users[0].person_is_manager === 'yes'}
                                   />
                                   <label className="govuk-label govuk-checkboxes__label" htmlFor="additional_users-0-is-manager">
-                                    <span className="govuk-visually-hidden">Assign org manager role?</span>
+                                    <span className="govuk-visually-hidden">Assign org manager role to User 1?</span>
                                   </label>
                                 </div>
                               </div>
@@ -1708,7 +1708,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                                 defaultChecked={props.values?.additional_users && props.values!.additional_users[1].person_is_manager === 'yes'}
                               />
                               <label className="govuk-label govuk-checkboxes__label" htmlFor="additional_users-1-is-manager">
-                                <span className="govuk-visually-hidden">Assign org manager role?</span>
+                                <span className="govuk-visually-hidden">Assign org manager role to User 2?</span>
                               </label>
                             </div>
                           </div>
@@ -1761,7 +1761,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                                 defaultChecked={props.values?.additional_users && props.values!.additional_users[2].person_is_manager === 'yes'}
                               />
                               <label className="govuk-label govuk-checkboxes__label" htmlFor="additional_users-2-is-manager">
-                                <span className="govuk-visually-hidden">Assign org manager role?</span>
+                                <span className="govuk-visually-hidden">Assign org manager role to User 3?</span>
                               </label>
                             </div>
                           </div>
