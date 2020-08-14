@@ -131,9 +131,9 @@ function Metric(props: IMetricProperties): ReactElement {
   return (
     <div className="govuk-grid-row govuk-!-padding-bottom-9">
       <div className="govuk-grid-column-full">
-        <h3 className="govuk-heading-m" id={props.id}>
+        <h2 className="govuk-heading-m" id={props.id}>
           {props.title}
-        </h3>
+        </h2>
       </div>
 
       <div className="govuk-grid-column-two-thirds-from-desktop">
@@ -307,7 +307,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
         >
           <input type="hidden" name="_csrf" value={props.csrf} />
 
-          <h3 className="govuk-heading-s">Or provide custom date</h3>
+          <h2 className="govuk-heading-s">Or provide custom date <span className="govuk-visually-hidden">for showing metrics</span></h2>
           <div className="govuk-form-group">
             <label className="govuk-label" htmlFor="rangeStart">
               Start time
