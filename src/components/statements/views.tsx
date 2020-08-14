@@ -255,9 +255,10 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
                 organizationGUID: props.organizationGUID,
                 rangeStart: props.filterMonth,
               })}
-              className="govuk-link download"
+              className="govuk-link"
+              download
             >
-              Download a spreadsheet of these items
+              Download a spreadsheet of these items <span className="govuk-visually-hidden">as a comma-separated values [CSV] file</span>
             </a>
           </p>
         </div>
