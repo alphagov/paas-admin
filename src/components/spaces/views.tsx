@@ -288,17 +288,12 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
         {props.organization.entity.name}.
       </p>
 
-      <details className="govuk-details" role="group">
-        <summary
-          className="govuk-details__summary"
-          role="button"
-          aria-controls="details-content-0"
-          aria-expanded="false"
-        >
+      <details className="govuk-details"  data-module="govuk-details">
+        <summary className="govuk-details__summary">
           <span className="govuk-details__summary-text">What are spaces?</span>
         </summary>
 
-        <div className="govuk-details__text" aria-hidden="true">
+        <div className="govuk-details__text">
           <p>
             Each organisation contains one or more spaces, which are used to
             organise app development, deployment, and maintenance. Organisation

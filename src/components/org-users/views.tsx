@@ -143,7 +143,7 @@ export function PermissionBlock(
       <h2 className="govuk-heading-m">Set organisation and space roles</h2>
       <h3 className="govuk-heading-s">Organisation level roles</h3>
 
-      <details className="govuk-details" role="group">
+      <details className="govuk-details"  data-module="govuk-details">
         <summary
           className="govuk-details__summary"
           role="button"
@@ -243,18 +243,13 @@ export function PermissionBlock(
 
       <h3 className="govuk-heading-s">Space level roles</h3>
 
-      <details className="govuk-details" role="group">
-        <summary
-          className="govuk-details__summary"
-          role="button"
-          aria-controls="details-content-0"
-          aria-expanded="false"
-        >
+      <details className="govuk-details"  data-module="govuk-details">
+        <summary className="govuk-details__summary">
           <span className="govuk-details__summary-text">
             What can these roles do?
           </span>
         </summary>
-        <div className="govuk-details__text" aria-hidden="true">
+        <div className="govuk-details__text">
           <p className="govuk-body">
             <span className="govuk-!-font-weight-bold">Space managers</span> can
             grant user roles within the space, and change properties of the
@@ -633,44 +628,39 @@ export function OrganizationUsersPage(
               )
             }
             <div className="govuk-grid-column-two-thirds">
-              <details className="govuk-details" role="group">
-            <summary
-              className="govuk-details__summary"
-              role="button"
-              aria-controls="details-content-0"
-              aria-expanded="false"
-            >
-              <span className="govuk-details__summary-text">
-                What can these roles do?
-              </span>
-            </summary>
+              <details className="govuk-details" data-module="govuk-details">
+                <summary className="govuk-details__summary">
+                  <span className="govuk-details__summary-text">
+                    What can these roles do?
+                  </span>
+                </summary>
 
-            <div className="govuk-details__text" aria-hidden="true">
-              <p className="govuk-body">
-                <span className="govuk-!-font-weight-bold">Org managers</span>{' '}
-                are users who can create and delete spaces within an org, and
-                administer user roles, both within the org and its spaces. We
-                recommend to have at least two org managers.
-              </p>
+                <div className="govuk-details__text">
+                  <p className="govuk-body">
+                    <span className="govuk-!-font-weight-bold">Org managers</span>{' '}
+                    are users who can create and delete spaces within an org, and
+                    administer user roles, both within the org and its spaces. We
+                    recommend to have at least two org managers.
+                  </p>
 
-              <p className="govuk-body">
-                <span className="govuk-!-font-weight-bold">Org auditors</span>{' '}
-                are users who can view quota allocation and user roles across
-                the org. Auditors can&apos;t change any of these configurations.
-              </p>
+                  <p className="govuk-body">
+                    <span className="govuk-!-font-weight-bold">Org auditors</span>{' '}
+                    are users who can view quota allocation and user roles across
+                    the org. Auditors can&apos;t change any of these configurations.
+                  </p>
 
-              <p className="govuk-body">
-                <span className="govuk-!-font-weight-bold">
-                  Org billing managers
-                </span>{' '}
-                are users who can see billing, costs and quota information.
-              </p>
+                  <p className="govuk-body">
+                    <span className="govuk-!-font-weight-bold">
+                      Org billing managers
+                    </span>{' '}
+                    are users who can see billing, costs and quota information.
+                  </p>
 
-              <p className="govuk-body">
-                Tasks related to spaces are associated with space-level roles.
-              </p>
-            </div>
-          </details>
+                  <p className="govuk-body">
+                    Tasks related to spaces are associated with space-level roles.
+                  </p>
+                </div>
+              </details>
             </div>
           </div>
           <h2 className="govuk-heading-m">Current team members</h2>
