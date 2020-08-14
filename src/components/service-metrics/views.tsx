@@ -258,7 +258,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
         <></>
       )}
 
-      <details className="govuk-details" data-module="govuk-details" role="group">
+      <details className="govuk-details" data-module="govuk-details">
         <summary className="govuk-details__summary">
           <span className="govuk-details__summary-text">
             Change time period

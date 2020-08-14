@@ -339,7 +339,7 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
           </p>
           <p className="paas-month">per month</p>
 
-          <details className="govuk-details" role="group">
+          <details className="govuk-details" data-module="govuk-details">
             <summary className="govuk-details__summary">
               <span className="govuk-details__summary-text">
                 Why costs may vary
