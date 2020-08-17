@@ -12,6 +12,24 @@ describe('line graphs', () => {
     expect(result.nodeName).toBe('svg');
   });
 
+  it('should render an a title id attribute whose value matches a spaceless defaultTitle', () => {
+    const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, []);
+    const titleID = result.querySelector('title')?.getAttribute('id');
+    expect(titleID).toBe('sometitle');
+  });
+
+  it('should render an aria-labelledby attribute whose value that matches spaceless defaultTitle', () => {
+    const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, []);
+    const ariaAttr = result.getAttribute('aria-labelledby');
+    expect(ariaAttr).toBe('sometitle');
+  });
+
+  it('should an SVG with a role of img', () => {
+    const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, []);
+    const ariaAttr = result.getAttribute('role');
+    expect(ariaAttr).toBe('img');
+  });
+
   it('should render a single series as a path and not show a legend', () => {
     const series = [
       { date: new Date(2019, 1, 1), value: 58 },
