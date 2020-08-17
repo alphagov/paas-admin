@@ -283,7 +283,7 @@ export function SubNavigation(props: ISubNavigationProperties): ReactElement {
 export function CommandLineAlternative(props: ICommandLineAlternativeProperties): ReactElement {
   return (
     <>
-      <h4 className="govuk-heading-s">In the command line</h4>
+      <h2 className="govuk-heading-s">In the command line</h2>
 
       <p>
         You can also view this information in the Cloud Foundry command line interface by running:
