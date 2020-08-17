@@ -125,9 +125,9 @@ describe(MarketplaceItemPage, () => {
       .toContain(detailedService.broker_catalog.metadata.AdditionalMetadata.usecase[0]);
     expect(markup.find('#service-documentation').text()).toContain('Documentation');
     expect(markup.find('#service-documentation li')).toHaveLength(2);
-    expect(markup.find('#service-documentation li').at(0).text())
+    expect(markup.find('#service-documentation li a').at(0).prop('href'))
       .toContain(detailedService.broker_catalog.metadata.documentationUrl);
-    expect(markup.find('#service-documentation li').at(1).text())
+    expect(markup.find('#service-documentation li a').at(1).prop('href'))
       .toContain(detailedService.broker_catalog.metadata.AdditionalMetadata.otherDocumentation[0]);
     expect(markup.find('#service-tags').text()).toContain('Tags');
     expect(markup.find('#service-tags li').at(0).text()).toContain(detailedService.tags[0]);
