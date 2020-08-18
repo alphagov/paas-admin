@@ -335,8 +335,8 @@ describe(OrganizationUsersPage, () => {
       />,
     );
     const $ = cheerio.load(markup.html());
-    expect($('td:first-of-type').text()).toContain('user-name');
-    expect($('td:first-of-type a').length).toEqual(0);
+    expect($('tbody th:first-of-type').text()).toContain('user-name');
+    expect($('tbody th:first-of-type a').length).toEqual(0);
     expect($('td').text()).not.toContain('Origin-name');
     expect($('td').text()).not.toContain('Password');
     expect($('li').text()).toContain(space.entity.name);
@@ -355,8 +355,8 @@ describe(OrganizationUsersPage, () => {
       />,
     );
     const $ = cheerio.load(markup.html());
-    expect($('td:first-of-type').text()).toContain('user-name');
-    expect($('td:first-of-type a').length).toEqual(2);
+    expect($('tbody th:first-of-type').text()).toContain('user-name');
+    expect($('tbody th:first-of-type a').length).toEqual(2);
     expect($('td').text()).toContain('Origin-name');
     expect($('td').text()).toContain('Password');
   });

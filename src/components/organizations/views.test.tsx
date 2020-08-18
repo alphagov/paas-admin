@@ -42,16 +42,16 @@ describe(OrganizationsPage, () => {
     );
     expect($('table tbody tr')).toHaveLength(2);
 
-    expect($('table tbody tr:first-of-type a.govuk-link').text()).toBe('A');
-    expect($('table tbody tr:first-of-type a.govuk-link').prop('href')).toBe(
+    expect($('table tbody tr:first-of-type th a.govuk-link').text()).toBe('A');
+    expect($('table tbody tr:first-of-type th a.govuk-link').prop('href')).toBe(
       '/org/a',
     );
     expect($('table tbody tr:first-of-type td:last-of-type').text()).toBe(
       'Trial',
     );
 
-    expect($('table tr:last-of-type a.govuk-link').text()).toBe('B');
-    expect($('table tr:last-of-type a.govuk-link').prop('href')).toBe('/org/b');
+    expect($('table tr:last-of-type th a.govuk-link').text()).toBe('B');
+    expect($('table tr:last-of-type th a.govuk-link').prop('href')).toBe('/org/b');
     expect($('table tr:last-of-type td:last-of-type').text()).toBe('Billable');
   });
 
