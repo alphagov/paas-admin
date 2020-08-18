@@ -25,7 +25,7 @@ interface IEditOrganizationQuotaProperties {
 export function Organization(props: IOrganizationProperties): ReactElement {
   return (
     <tr className="govuk-table__row">
-      <td className="govuk-table__cell">
+      <th scope="row" className="govuk-table__header govuk-table__header--non-bold">
         <a
           href={props.linkTo('admin.organizations.view', {
             organizationGUID: props.guid,
@@ -34,7 +34,7 @@ export function Organization(props: IOrganizationProperties): ReactElement {
         >
           {props.name}
         </a>
-      </td>
+      </th>
       <td className="govuk-table__cell">
         {props.billable ? 'Billable' : 'Trial'}
       </td>

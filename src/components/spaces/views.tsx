@@ -338,7 +338,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
         <tbody className="govuk-table__body">
           {props.spaces.map(space => (
             <tr key={space.metadata.guid} className="govuk-table__row">
-              <td className="govuk-table__cell">
+              <th scope="row" className="govuk-table__header govuk-table__header--non-bold">
                 <a
                   href={props.linkTo(
                     'admin.organizations.spaces.applications.list',
@@ -351,7 +351,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
                 >
                   {space.entity.name}
                 </a>
-              </td>
+              </th>
               <td className="govuk-table__cell">
                 {help.bytesToHuman(space.memory_allocated * MEBIBYTE)} of{' '}
                 {space.quota
@@ -467,7 +467,7 @@ export function ApplicationsPage(
           <tbody className="govuk-table__body">
             {props.applications.map(application => (
               <tr key={application.metadata.guid} className="govuk-table__row">
-                <td className="govuk-table__cell">
+                <th scope="row" className="govuk-table__header govuk-table__header--non-bold">
                   <a
                     href={props.linkTo(
                       'admin.organizations.spaces.applications.view',
@@ -481,7 +481,7 @@ export function ApplicationsPage(
                   >
                     {application.entity.name}
                   </a>
-                </td>
+                </th>
                 <td
                   className="govuk-table__cell"
                   title={`${application.summary.running_instances} running / ${application.summary.instances} desired`}
@@ -565,7 +565,7 @@ export function BackingServicePage(
           <tbody className="govuk-table__body">
             {props.services.map(service => (
               <tr key={service.metadata.guid} className="govuk-table__row">
-                <td className="govuk-table__cell name">
+                <th scope="row" className="govuk-table__header govuk-table__header--non-bold name">
                   <a
                     href={props.linkTo(
                       'admin.organizations.spaces.services.view',
@@ -579,7 +579,7 @@ export function BackingServicePage(
                   >
                     {service.entity.name}
                   </a>
-                </td>
+                </th>
                 <td className="govuk-table__cell label">
                   {service.definition?.entity.label || 'User Provided Service'}
                 </td>

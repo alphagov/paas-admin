@@ -290,8 +290,8 @@ describe(BackingServicePage, () => {
     const $ = cheerio.load(markup.html());
     expect($('p').text()).toContain('This space contains 2 backing services');
     expect($('table tbody tr')).toHaveLength(2);
-    expect($('table tbody .name').text()).toContain(services[0].entity.name);
-    expect($('table tbody .name').text()).toContain(services[1].entity.name);
+    expect($('table tbody th.name').text()).toContain(services[0].entity.name);
+    expect($('table tbody th.name').text()).toContain(services[1].entity.name);
     expect($('table tbody .label').text()).toContain(
       services[0].definition.entity.label,
     );

@@ -85,3 +85,10 @@ abbr {
   -webkit-overflow-scrolling: touch;
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
+
+// tables where first cell is the row header come
+// embolden from govuk-frontend. For large, text-heavy tables
+// that's useful, but for an admin interface not necessary
+.govuk-table__header--non-bold {
+  font-weight: 400;
+}
