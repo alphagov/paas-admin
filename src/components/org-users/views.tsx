@@ -691,7 +691,7 @@ export function OrganizationUsersPage(
             <tbody className="govuk-table__body">
               {Object.keys(props.users).map(guid => (
                 <tr key={guid} className="govuk-table__row">
-                  <td className="govuk-table__cell">
+                  <th scope="row" className="govuk-table__header govuk-table__header--non-bold">
                     {props.privileged ? (
                       <a
                         href={props.linkTo('admin.organizations.users.edit', {
@@ -705,7 +705,7 @@ export function OrganizationUsersPage(
                     ) : (
                       props.users[guid].username
                     )}
-                  </td>
+                  </th>
                   <td className="govuk-table__cell">
                     {props.privileged ? (
                       props.userOriginMapping[guid] === 'uaa' ? (
