@@ -309,6 +309,19 @@ function validateInviteUsers({ invite_users }: ISignupForm): ReadonlyArray<IVali
   return errors;
 }
 
+function validateAdditionalUserYesButEmpty({ invite_users, additional_users }: ISignupForm): ReadonlyArray<IValidationError> {
+  const errors = [];
+
+  if (invite_users === 'yes' && additional_users?.every(user => user.email === '')) {
+    errors.push({
+        field: 'additional_users-0',
+        message: 'Enter at least one additional user email address',
+      });
+  }
+
+  return errors;
+}
+
 function validateAdditionalUserEmail({ additional_users }: ISignupForm): ReadonlyArray<IValidationError> {
   const errors = [];
   if (additional_users) {
@@ -742,6 +755,7 @@ export async function HandleSignupFormPost(
     ...validateServiceTeam(body),
     ...validatePersonIsManager(body),
     ...validateInviteUsers(body),
+    ...validateAdditionalUserYesButEmpty(body),
     ...validateAdditionalUserEmail(body),
   );
 
