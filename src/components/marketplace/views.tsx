@@ -79,6 +79,7 @@ interface IServiceDetails {
     readonly description?: string;
     readonly image: string;
     readonly imageTitle: string;
+    readonly name: string;
     readonly usecase?: ReadonlyArray<string>;
   };
 }
@@ -120,32 +121,56 @@ const serviceDetails: IServiceDetails = {
   'aws-s3-bucket': {
     image: s3Logo,
     imageTitle: 'Amazon Web Services - S3 Bucket - Official Logo',
+    name: 'S3',
   },
   'cdn-route': {
     image: cdnLogo,
     imageTitle: 'Amazon Web Services - CloudFront - Official Logo',
+    name: 'CloudFront',
   },
   'elasticsearch': {
     image: elasticsearchLogo,
-    imageTitle: 'ElasticSearch - Official Logo',
+    imageTitle: 'Elasticsearch - Official Logo',
+    name: 'Elasticsearch',
   },
   'influxdb': {
     image: influxdbLogo,
     imageTitle: 'InfluxDB - Official Logo',
+    name: 'InfluxDB',
   },
   'mysql': {
     image: mysqlLogo,
     imageTitle: 'MySQL - Official Logo',
+    name: 'MySQL',
   },
   'postgres': {
     image: postgresLogo,
     imageTitle: 'PostgreSQL - Official Logo',
+    name: 'Postgres',
   },
   'redis': {
     image: redisLogo,
     imageTitle: 'Redis - Official Logo',
+    name: 'Redis',
   },
 };
+
+/* istanbul ignore next */
+function documentationTitle(service: string, url: string): string {
+  const u = new URL(url);
+
+  switch (u.hostname) {
+    case 'docs.cloud.service.gov.uk':
+      return `GOV.UK PaaS ${service} documentation`;
+    case 'aws.amazon.com':
+    case 'docs.aws.amazon.com':
+      return `AWS RDS ${service} documentation`;
+    case 'help.aiven.io':
+      return `Aiven ${service} documentation`;
+    default:
+      return `${service} documentation`;
+  }
+}
 
 export function Tab(props: ITabProperties): ReactElement {
   const classess = ['govuk-tabs__list-item'];
@@ -303,7 +328,7 @@ function Logo(props: ILogoProperties): ReactElement {
 }
 
 export function MarketplaceItemPage(props: IMarketplaceItemPageProperties): ReactElement {
-  const details = serviceDetails[props.service.name] || {};
+  const details = serviceDetails[props.service.name] || { name: props.service.name };
 
   return (
     <div className="govuk-grid-row service-details">
@@ -342,13 +367,13 @@ export function MarketplaceItemPage(props: IMarketplaceItemPageProperties): Reac
                   <ul className="govuk-list">
                     <li>
                       <a href={props.service.broker_catalog.metadata.documentationUrl} className="govuk-link">
-                        {props.service.broker_catalog.metadata.documentationUrl}
+                        {documentationTitle(details.name, props.service.broker_catalog.metadata.documentationUrl)}
                       </a>
                     </li>
                     {props.service.broker_catalog.metadata.AdditionalMetadata?.otherDocumentation?.map(
                       (docs: string, index: number) => (
                         <li key={index}>
-                          <a href={docs} className="govuk-link">{docs}</a>
+                          <a href={docs} className="govuk-link">{documentationTitle(details.name, docs)}</a>
                         </li>
                       ))}
                   </ul>
