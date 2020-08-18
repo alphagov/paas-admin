@@ -228,7 +228,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
           })}
           className="govuk-link non-breaking"
         >
-          {props.service.entity.name}
+          <span className="govuk-visually-hidden">Service name:</span> {props.service.entity.name}
         </a>{' '}
         between <br />
         <strong>{moment(props.rangeStart).format(DATE_TIME)}</strong>
@@ -286,9 +286,8 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                   },
                 )}
                 className="govuk-link"
-                title={`last ${last.long}`}
               >
-                Last {last.long}
+                <span className="govuk-visually-hidden">Change time period to:</span> Last {last.long}
               </a>
             </li>
           ))}
@@ -404,7 +403,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
               {props.metrics.map(metric => (
                 <li key={metric.id}>
                   <a href={`#${metric.id}`} className="govuk-link">
-                    {metric.title}
+                    {metric.title} <span className="govuk-visually-hidden">metric</span>
                   </a>
                 </li>
               ))}

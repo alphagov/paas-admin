@@ -142,7 +142,7 @@ export function EventListItem(props: IEventListItemProperties): ReactElement {
       <td className="govuk-table__cell description">{props.type}</td>
       <td className="govuk-table__cell details">
         <a className="govuk-link" href={props.href}>
-          Details
+          <span className="govuk-visually-hidden">Event</span> Details
         </a>
       </td>
     </tr>
@@ -162,7 +162,7 @@ export function TargetedEventListItem(
       <td className="govuk-table__cell description">{props.type}</td>
       <td className="govuk-table__cell details">
         <a className="govuk-link" href={props.href}>
-          Details
+          <span className="govuk-visually-hidden">Event</span> Details
         </a>
       </td>
     </tr>

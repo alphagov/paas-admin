@@ -32,7 +32,7 @@ export function Organization(props: IOrganizationProperties): ReactElement {
           })}
           className="govuk-link"
         >
-          {props.name}
+          <span className="govuk-visually-hidden">Organisation name:</span> {props.name}
         </a>
       </th>
       <td className="govuk-table__cell">
@@ -89,7 +89,7 @@ export function OrganizationsPage(
       <p className="govuk-body">
         To request new GOV.UK PaaS organisations,{' '}
         <a
-          href="https://www.cloud.service.gov.uk/signup"
+          href="/support/sign-up"
           className="govuk-link"
         >
           visit our signup page
@@ -165,7 +165,7 @@ export function OrganizationsPage(
           href="https://github.com/cloudfoundry/cli#downloads"
           className="govuk-link"
         >
-          visit the GitHub page
+          visit the <span className="govuk-visually-hidden">Cloud Foundry</span> GitHub page
         </a>
         .
       </p>
@@ -181,9 +181,9 @@ export function OrganizationsPage(
               href="https://docs.cloud.service.gov.uk/get_started.html#set-up-the-cloud-foundry-command-line"
               className="govuk-link"
             >
-              View our guide
+              View our guide on logging in and deploying your first app
             </a>{' '}
-            on logging in and deploying your first app to GOV.UK PaaS.
+            to GOV.UK PaaS.
           </p>
         </div>
 
@@ -195,10 +195,9 @@ export function OrganizationsPage(
               href="https://docs.cloud.service.gov.uk/orgs_spaces_users.html"
               className="govuk-link"
             >
-              Get familiar
-            </a>{' '}
-            with the basic concepts of Cloud Foundry-based platforms, and what
-            setting up environments looks like.
+              Get familiar with the basic concepts of Cloud Foundry-based platforms
+            </a>,{' '}
+            and what setting up environments looks like.
           </p>
         </div>
       </div>
@@ -214,9 +213,9 @@ export function OrganizationsPage(
               href="https://status.cloud.service.gov.uk/"
               className="govuk-link"
             >
-              Check the status
+              Check the status of GOV.UK PaaS
             </a>{' '}
-            of GOV.UK PaaS, and see the availability of live applications and
+            , and see the availability of live applications and
             database connectivity.
           </p>
 
