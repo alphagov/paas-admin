@@ -1,7 +1,7 @@
 import { groupBy, mapValues, values } from 'lodash';
 import React, { Fragment, ReactElement } from 'react';
 
-import { bytesToHuman } from '../../layouts/helpers';
+import { bytesConvert, bytesToHuman } from '../../layouts/helpers';
 import { KIBIBYTE } from '../../layouts/constants';
 
 export interface IQuote {
@@ -101,6 +101,14 @@ export function appInstanceDescription(memoryInMB: number, instances: number): R
     {' '}
     {bytesToHuman(memoryInMB * 1024 * 1024, precisionDigits)} of memory
   </>;
+}
+
+export function appInstanceDescriptionText(memoryInMB: number, instances: number) {
+  const precisionDigits = memoryInMB > KIBIBYTE && memoryInMB < KIBIBYTE * 2 ? 1 : 0;
+  const converted = bytesConvert((memoryInMB * 1024 * 1024), precisionDigits);
+  return (
+    `${instances.toFixed(0)} app instance${instances === 1 ? '' : 's'}${' '}with${' '}${converted.value} ${converted.long} of memory`
+  )
 }
 
 function StateFields(props: IStateFieldsProperties): ReactElement {
@@ -224,8 +232,14 @@ function Plans(props: IPlansProperties): ReactElement {
                     )}
                   </>
                 )}
-                <button type="submit" className="paas-link-button">
-                  + Add
+                <button type="submit" className="paas-add-button">
+                  Add{' '}
+                  <span className="govuk-visually-hidden">
+                  {props.serviceName === 'app' ? 
+                    'compute instance with selected configuration' : 
+                    `selected ${props.serviceName} service plan`
+                  }
+                  </span>
                 </button>
               </form>
             </td>
@@ -299,7 +313,11 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
                       <button
                         className="paas-remove-button"
                         type="submit"
-                        arria-label="Remove"
+                        aria-label={`Remove 
+                          ${event.resourceType === 'app'
+                          ? `compute configuration of ${appInstanceDescriptionText(event.memoryInMB, event.numberOfNodes)}`
+                          : `${event.resourceType} ${event.resourceName} service plan`}
+                        `}
                       >
                         &times;
                       </button>
