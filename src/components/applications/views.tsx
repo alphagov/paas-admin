@@ -112,7 +112,7 @@ export function AppLink(props: IAppLinkProperties): ReactElement {
   return (
     <>
       <a href={protocolOrEmpty + props.href} className="govuk-link">
-        {props.href}
+      <span className="govuk-visually-hidden">Application URL:</span>{' '} {props.href}
       </a>
       <br />
     </>

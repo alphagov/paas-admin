@@ -349,7 +349,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
                   )}
                   className="govuk-link"
                 >
-                  {space.entity.name}
+                  <span className="govuk-visually-hidden">Space name:</span> {space.entity.name}
                 </a>
               </th>
               <td className="govuk-table__cell">
@@ -479,7 +479,7 @@ export function ApplicationsPage(
                     )}
                     className="govuk-link"
                   >
-                    {application.entity.name}
+                    <span className="govuk-visually-hidden">Application name:</span> {application.entity.name}
                   </a>
                 </th>
                 <td
@@ -577,7 +577,7 @@ export function BackingServicePage(
                     )}
                     className="govuk-link"
                   >
-                    {service.entity.name}
+                    <span className="govuk-visually-hidden">Service name:</span> {service.entity.name}
                   </a>
                 </th>
                 <td className="govuk-table__cell label">

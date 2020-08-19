@@ -700,7 +700,7 @@ export function OrganizationUsersPage(
                         })}
                         className="govuk-link"
                       >
-                        {props.users[guid].username}
+                        <span className="govuk-visually-hidden">user email address:</span> {props.users[guid].username}
                       </a>
                     ) : (
                       props.users[guid].username
@@ -716,7 +716,7 @@ export function OrganizationUsersPage(
                           })}
                           className="govuk-link"
                         >
-                          Password
+                          <span className="govuk-visually-hidden">Authentication method:</span> Password
                         </a>
                       ) : (
                         capitalize(props.userOriginMapping[guid])
@@ -760,7 +760,7 @@ export function OrganizationUsersPage(
                             )}
                             className="govuk-link"
                           >
-                            {space.entity.name}
+                            <span className="govuk-visually-hidden">Space assigned or can access:</span> {space.entity.name}
                           </a>
                         </li>
                       ))}
