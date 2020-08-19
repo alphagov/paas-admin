@@ -147,3 +147,12 @@
     @include govuk-focused-text;
   }
 }
+
+.paas-add-button {
+  position: relative;
+  &:before {
+    position: absolute;
+    left: 4px;
+    content: "\002B" / "";
+  }
+}
