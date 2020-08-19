@@ -52,7 +52,7 @@ export async function viewService(
 
   const template = new Template(
     ctx.viewContext,
-    `${service.entity.name} - Service Overview`,
+    `Service ${service.entity.name} Overview`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
@@ -73,6 +73,7 @@ export async function viewService(
         service={summarisedService}
         organizationGUID={organization.metadata.guid}
         spaceGUID={space.metadata.guid}
+        pageTitle="Overview"
       />,
     ),
   };
@@ -123,7 +124,7 @@ export async function listServiceLogs(ctx: IContext, params: IParameters): Promi
 
   const template = new Template(
     ctx.viewContext,
-    `${serviceInstance.entity.name} - Service Logs`,
+    `Service ${serviceInstance.entity.name} Logs`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
@@ -159,6 +160,7 @@ export async function listServiceLogs(ctx: IContext, params: IParameters): Promi
       routePartOf={ctx.routePartOf}
       service={summarisedService}
       spaceGUID={space.metadata.guid}
+      pageTitle="Logs"
     />),
   };
 }

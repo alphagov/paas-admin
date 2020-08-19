@@ -9,6 +9,7 @@ interface IApplicationTabProperties {
   readonly application: IApplication;
   readonly children: ReactNode;
   readonly linkTo: RouteLinker;
+  readonly pageTitle?: string;
   readonly organizationGUID: string;
   readonly routePartOf: RouteActiveChecker;
   readonly spaceGUID: string;
@@ -54,8 +55,11 @@ export function ApplicationTab(props: IApplicationTabProperties): ReactElement {
   return (
     <>
       <h1 className="govuk-heading-l">
-        <span className="govuk-caption-l">Application</span>{' '}
-        {props.application.entity.name}
+        <span className="govuk-caption-l">
+          <span className="govuk-visually-hidden">Application</span>{' '}
+          {props.application.entity.name}
+        </span>{' '}
+        {props.pageTitle}
       </h1>
 
       <div className="govuk-tabs">
@@ -129,14 +133,10 @@ export function ApplicationPage(
       routePartOf={props.routePartOf}
       organizationGUID={props.organizationGUID}
       spaceGUID={props.spaceGUID}
+      pageTitle="Overview"
     >
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <h1 className="govuk-heading-l">
-            <span className="govuk-caption-l">Application</span>{' '}
-            {props.application.entity.name}
-          </h1>
-
           <div className="scrollable-table-container">
             <table className="govuk-table">
             <caption className="govuk-table__caption">

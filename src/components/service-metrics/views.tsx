@@ -380,7 +380,7 @@ export function UnsupportedServiceMetricsPage(
   props: IPageProperties,
 ): ReactElement {
   return (
-    <ServiceTab {...props}>
+    <ServiceTab {...props} pageTitle="Metrics">
       <ExperimentalWarning />
 
       <p>Metrics are not available for this service yet.</p>
@@ -390,7 +390,7 @@ export function UnsupportedServiceMetricsPage(
 
 export function MetricPage(props: IMetricPageProperties): ReactElement {
   return (
-    <ServiceTab {...props}>
+    <ServiceTab {...props} pageTitle="Metrics">
       <ExperimentalWarning />
 
       <div className="govuk-width-container">

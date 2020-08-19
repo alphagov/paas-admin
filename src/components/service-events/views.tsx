@@ -84,8 +84,11 @@ export function ServiceEventDetailPage(
   return (
     <>
       <h1 className="govuk-heading-l">
-        <span className="govuk-caption-l">Service Event</span>{' '}
-        {props.service.entity.name}
+        <span className="govuk-caption-l">
+          <span className="govuk-visually-hidden">Service</span>{' '}
+          {props.service.entity.name}
+        </span>{' '}
+        Event details
       </h1>
 
       <Event event={props.event} actor={props.actor} />
@@ -97,7 +100,7 @@ export function ServiceEventsPage(
   props: IServiceEventsPageProperties,
 ): ReactElement {
   return (
-    <ServiceTab {...props}>
+    <ServiceTab {...props} pageTitle="Events">
       <Totals
         results={props.pagination.total_results}
         page={props.pagination.page}

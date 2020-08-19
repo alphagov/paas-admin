@@ -62,7 +62,7 @@ export async function viewServiceEvent(
 
   const template = new Template(
     ctx.viewContext,
-    `${service.entity.name} - Service Event`,
+    `Service ${service.entity.name} Event details`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
@@ -164,7 +164,7 @@ export async function viewServiceEvents(
 
   const template = new Template(
     ctx.viewContext,
-    `${service.entity.name} - Service Events`,
+    `Service ${service.entity.name} Events`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {

@@ -66,6 +66,7 @@ interface ISpaceTabProperties {
   readonly children: ReactNode;
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
+  readonly pageTitle?: string;
   readonly routePartOf: RouteActiveChecker;
   readonly space: ISpace;
 }
@@ -175,8 +176,10 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
   return (
     <>
       <h1 className="govuk-heading-l">
-        <span className="govuk-caption-l">Organisation</span>{' '}
-        {props.organization.entity.name}
+        <span className="govuk-caption-l">
+          <span className="govuk-visually-hidden">Organisation</span>{' '}
+          {props.organization.entity.name}</span>{' '}
+          Overview
       </h1>
 
       <div className="govuk-grid-row">
@@ -379,7 +382,11 @@ export function SpaceTab(props: ISpaceTabProperties): ReactElement {
   return (
     <>
       <h1 className="govuk-heading-l">
-        <span className="govuk-caption-l">Space</span> {props.space.entity.name}
+        <span className="govuk-caption-l">
+          <span className="govuk-visually-hidden">Space</span>{' '}
+          {props.space.entity.name}
+        </span>{' '}
+        {props.pageTitle}
       </h1>
 
       <div className="govuk-tabs">
@@ -432,6 +439,7 @@ export function ApplicationsPage(
     <SpaceTab
       linkTo={props.linkTo}
       organizationGUID={props.organizationGUID}
+      pageTitle="Applications"
       routePartOf={props.routePartOf}
       space={props.space}
     >
@@ -535,6 +543,7 @@ export function BackingServicePage(
     <SpaceTab
       linkTo={props.linkTo}
       organizationGUID={props.organizationGUID}
+      pageTitle="Backing services"
       routePartOf={props.routePartOf}
       space={props.space}
     >
@@ -606,8 +615,11 @@ export function EventPage(props: IEventPageProperties): ReactElement {
   return (
     <>
       <h1 className="govuk-heading-l">
-        <span className="govuk-caption-l">Space Event</span>{' '}
-        {props.space.entity.name}
+        <span className="govuk-caption-l">
+          <span className="govuk-visually-hidden">Space</span>{' '}
+          {props.space.entity.name}
+        </span>{' '}
+        Event details
       </h1>
 
       <TargetedEvent actor={props.actor} event={props.event} />
@@ -617,7 +629,7 @@ export function EventPage(props: IEventPageProperties): ReactElement {
 
 export function EventsPage(props: IEventsPageProperties): ReactElement {
   return (
-    <SpaceTab {...props}>
+    <SpaceTab {...props} pageTitle="Events">
       <Totals
         results={props.pagination.total_results}
         page={props.pagination.page}

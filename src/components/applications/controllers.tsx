@@ -62,7 +62,7 @@ export async function viewApplication(
 
   const template = new Template(
     ctx.viewContext,
-    `${application.entity.name} - Application Overview`,
+    `Application ${application.entity.name} Overview`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {

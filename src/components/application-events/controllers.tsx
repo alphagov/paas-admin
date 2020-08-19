@@ -44,7 +44,7 @@ export async function viewApplicationEvent(
 
   const template = new Template(
     ctx.viewContext,
-    `${application.entity.name} - Application Event`,
+    `Application ${application.entity.name} Event details`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
@@ -128,7 +128,7 @@ export async function viewApplicationEvents(
 
   const template = new Template(
     ctx.viewContext,
-    `${application.entity.name} - Application Events`,
+    `Application ${application.entity.name} Events`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {

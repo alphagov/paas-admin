@@ -196,7 +196,7 @@ export async function viewServiceMetrics(
 
   const template = new Template(
     ctx.viewContext,
-    `${service.entity.name} - Service Metrics`,
+    `Service ${service.entity.name} Metrics`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {

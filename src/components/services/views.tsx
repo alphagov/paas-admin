@@ -16,6 +16,7 @@ interface IEnchancedServiceInstance extends IServiceInstance {
 interface IServicePageProperties {
   readonly service: IEnchancedServiceInstance;
   readonly linkTo: RouteLinker;
+  readonly pageTitle: string;
   readonly organizationGUID: string;
   readonly routePartOf: RouteActiveChecker;
   readonly spaceGUID: string;
@@ -69,8 +70,11 @@ export function ServiceTab(props: IServiceTabProperties): ReactElement {
   return (
     <>
       <h1 className="govuk-heading-l">
-        <span className="govuk-caption-l">Service</span>{' '}
-        {props.service.entity.name}
+        <span className="govuk-caption-l">
+          <span className="govuk-visually-hidden">Service</span>{' '}
+          {props.service.entity.name}
+        </span>{' '}
+        {props.pageTitle}
       </h1>
 
       <div className="govuk-tabs" data-module="govuk-tabs">
