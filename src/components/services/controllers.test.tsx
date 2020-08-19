@@ -48,7 +48,7 @@ describe('services test suite', () => {
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
-    expect(response.body).toContain('name-1508 - Service Overview');
+    expect(response.body).toContain('Service name-1508 Overview');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -61,7 +61,7 @@ describe('services test suite', () => {
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
-    expect(response.body).toContain('name-1700 - Service Overview');
+    expect(response.body).toContain('Service name-1700 Overview');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);

@@ -62,7 +62,7 @@ describe('applications test suite', () => {
       spaceGUID,
     });
 
-    expect(response.body).toMatch(new RegExp(`${name} - Application Overview`));
+    expect(response.body).toMatch(new RegExp(`Application ${name} Overview`));
   });
 
   it('should say the name of the stack being used', async () => {

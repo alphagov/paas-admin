@@ -104,7 +104,7 @@ describe('service metrics test suite', () => {
     });
 
     expect(response.status).not.toEqual(302);
-    expect(response.body).toContain('name-1508 - Service Metrics');
+    expect(response.body).toContain('Service name-1508 Metrics');
 
     expect(
       spacesMissingAroundInlineElements(response.body as string),
@@ -136,7 +136,7 @@ describe('service metrics test suite', () => {
     });
 
     expect(response.status).not.toEqual(302);
-    expect(response.body).toContain('name-1508 - Service Metrics');
+    expect(response.body).toContain('Service name-1508 Metrics');
 
     expect(
       spacesMissingAroundInlineElements(response.body as string),

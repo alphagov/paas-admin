@@ -60,7 +60,7 @@ describe('application event', () => {
     });
 
     expect(response.body).toContain(
-      `${defaultApp().entity.name} - Application Event`,
+      `Application ${defaultApp().entity.name} Event details`,
     );
 
     expect(response.body).toContain(
@@ -94,7 +94,7 @@ describe('application event', () => {
     });
 
     expect(response.body).toContain(
-      `${defaultApp().entity.name} - Application Event`,
+      `Application ${defaultApp().entity.name} Event`,
     );
 
     expect(response.body).toContain(
@@ -124,7 +124,7 @@ describe('application event', () => {
     });
 
     expect(response.body).toContain(
-      `${defaultApp().entity.name} - Application Event`,
+      `Application ${defaultApp().entity.name} Event details`,
     );
 
     expect(response.body).toContain(
@@ -185,7 +185,7 @@ describe('application events', () => {
       });
 
       expect(response.body).toContain(
-        `${defaultApp().entity.name} - Application Events`,
+        `Application ${defaultApp().entity.name} Events`,
       );
       expect(response.body).toContain('0 total events');
     });
@@ -258,7 +258,7 @@ describe('application events', () => {
       });
 
       expect(response.body).toContain(
-        `${defaultApp().entity.name} - Application Events`,
+        `Application ${defaultApp().entity.name} Events`,
       );
 
       expect(response.body).toContain('Displaying page 1 of 2702');
