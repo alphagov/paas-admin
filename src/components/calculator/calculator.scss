@@ -117,16 +117,9 @@
   }
 
   select {
-    @include govuk-font($size: 16);;
+    @include govuk-font($size: 16);
   }
 
-  /*Gov.Uk select macros do not allow you to exclude the label element even
-  though it should be optional and just leaves a blank label, so we are hiding
-  it with CSS.*/
-  label {
-    margin-bottom: 0;
-    visibility: hidden;
-  }
 
   button {
     @include govuk-font($size: 16);;

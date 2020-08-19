@@ -226,7 +226,7 @@ export async function getCalculator(
     quote = await getQuote(billing, state);
   }
 
-  const template = new Template(ctx.viewContext, 'Pricing calculator');
+  const template = new Template(ctx.viewContext, 'Estimate your monthly costs');
 
   return {
     body: template.render(<CalculatorPage state={state} quote={quote} />),
