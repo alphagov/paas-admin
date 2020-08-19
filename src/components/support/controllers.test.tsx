@@ -80,6 +80,23 @@ describe(controller.HandleSignupFormPost, () => {
     expect(response.body).toContain('We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, digitalaccessibilitycentre.org, .police.uk or police.uk email addresses');
   });
 
+  it('should throw a validation error when option to add additional users was selected but no email addresses entered', async () => {
+    const response = await controller.HandleSignupFormPost(ctx, {}, {
+      name: 'Jeff',
+      email: 'jeff@example.gov.uk',
+      department_agency: 'Naming Authority',
+      service_team: 'Digital',
+      person_is_manager: 'yes',
+      invite_users: 'yes',
+      additional_users: [ { email: '' }, { email: '' }, { email: '' } ],
+    } as any);
+
+    expect(response.status).toEqual(400);
+    expect(response.body).not.toContain('We have received your request');
+    expect(response.body).toContain('Error');
+    expect(response.body).toContain('Enter at least one additional user email address');
+  });
+
   it('should create a zendesk ticket correctly', async () => {
     nockZD
       .post('/requests.json')
