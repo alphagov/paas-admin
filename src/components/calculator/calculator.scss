@@ -142,5 +142,15 @@
     padding: 0;
     padding-left: 10px;
     min-width: 43px;
+    
+    &:focus {
+      @include govuk-focused-text;
+    }
+  }
+}
+
+.paas-remove-button {
+  &:focus {
+    @include govuk-focused-text;
   }
 }
