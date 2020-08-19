@@ -153,6 +153,9 @@ function Plans(props: IPlansProperties): ReactElement {
                 />
                 {plans.length > 1 ? (
                   <div className="govuk-form-group">
+                    <label className="govuk-label govuk-visually-hidden" htmlFor={`service-${props.serviceName}`}>
+                      Select a {props.serviceName} service plan
+                    </label>
                     <select
                       className="govuk-select govuk-!-width-full"
                       id={`service-${props.serviceName}`}
@@ -176,6 +179,9 @@ function Plans(props: IPlansProperties): ReactElement {
                       <>
                         <div style={{ width: '46%' }}>
                           <div className="govuk-form-group">
+                            <label className="govuk-label govuk-visually-hidden" htmlFor={'nodes-app'}>
+                              Select number of app instances
+                            </label>
                             <select
                               className="govuk-select govuk-!-width-full"
                               id={'nodes-app'}
@@ -201,6 +207,9 @@ function Plans(props: IPlansProperties): ReactElement {
                           }}
                         >
                           <div className="govuk-form-group">
+                            <label className="govuk-label govuk-visually-hidden" htmlFor={'mem-app'}>
+                              Select the amount of memory per instance
+                            </label>
                             <select
                               className="govuk-select govuk-!-width-full"
                               id={'mem-app'}

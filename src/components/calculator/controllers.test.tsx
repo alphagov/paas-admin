@@ -94,7 +94,7 @@ describe('calculator test suite', () => {
 
     const response = await getCalculator(ctx, {});
 
-    expect(response.body).toContain('Pricing calculator');
+    expect(response.body).toContain('Estimate your monthly cost');
     expect(response.body).toMatch(/\bCompute\b/);
     expect(response.body).toMatch(/\bPostgres\b/);
     expect(response.body).toMatch(/\bMySQL\b/);
@@ -122,7 +122,7 @@ describe('calculator test suite', () => {
       items: [],
     });
 
-    expect(response.body).toContain('Pricing calculator');
+    expect(response.body).toContain('Estimate your monthly cost');
     expect(response.body).toContain('<p class="paas-price">£0.00</p>');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
@@ -412,7 +412,7 @@ describe('calculator test suite', () => {
       ],
     });
 
-    expect(response.body).toContain('Pricing calculator');
+    expect(response.body).toContain('Estimate your monthly cost');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
