@@ -151,7 +151,7 @@ export function PermissionBlock(
           aria-expanded="false"
         >
           <span className="govuk-details__summary-text">
-            What can these roles do?
+            What can these <span className="govuk-visually-hidden">organisation level</span> roles do?
           </span>
         </summary>
         <div className="govuk-details__text" aria-hidden="true">
@@ -246,7 +246,7 @@ export function PermissionBlock(
       <details className="govuk-details"  data-module="govuk-details">
         <summary className="govuk-details__summary">
           <span className="govuk-details__summary-text">
-            What can these roles do?
+            What can these <span className="govuk-visually-hidden">space level</span> roles do?
           </span>
         </summary>
         <div className="govuk-details__text">
@@ -631,7 +631,7 @@ export function OrganizationUsersPage(
               <details className="govuk-details" data-module="govuk-details">
                 <summary className="govuk-details__summary">
                   <span className="govuk-details__summary-text">
-                    What can these roles do?
+                    What can these <span className="govuk-visually-hidden">organisation level</span> roles do?
                   </span>
                 </summary>
 
