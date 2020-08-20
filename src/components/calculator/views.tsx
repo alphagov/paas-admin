@@ -293,10 +293,17 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
 
           <table>
             <caption>Services added</caption>
+            <thead className="govuk-visually-hidden">
+              <tr>
+                <th scope="col">Service</th>
+                <th scope="col">Cost or action</th>
+              </tr>
+            </thead>
+            <tbody>
             {props.quote.events.map((event, index) => (
               <Fragment key={index}>
                 <tr>
-                  <td className="paas-service-heading">{niceServiceName(event.resourceType)}</td>
+                  <th scope="row" className="paas-service-heading">{niceServiceName(event.resourceType)}</th>
                   <td>
                     <form method="get">
                       <StateFields
@@ -340,9 +347,11 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
                   £{((props.quote.exVAT / 100) * 10).toFixed(2)}
                 </td>
               </tr>
+            
             ) : (
               <></>
             )}
+            </tbody>
           </table>
 
           <p className="paas-total">Estimated monthly cost</p>
