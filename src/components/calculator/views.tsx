@@ -148,44 +148,44 @@ function Plans(props: IPlansProperties): ReactElement {
     <>
       {values(
         mapValues(groupBy(props.plans, 'serviceName'), (plans, serviceName) => (
-          <tr key={serviceName} className="govuk-table__row">
-            <td className="govuk-table__cell">
-              {niceServiceName(props.serviceName)}
-            </td>
-            <td className="govuk-table__cell ">
+          
+            <div key={serviceName} className="govuk-summary-list__row">
               <form className="paas-service-selection" method="get">
-                <StateFields
-                  items={props.state.items}
-                  rangeStart={props.state.rangeStart}
-                  rangeStop={props.state.rangeStop}
-                />
-                {plans.length > 1 ? (
-                  <div className="govuk-form-group">
-                    <label className="govuk-label govuk-visually-hidden" htmlFor={`service-${props.serviceName}`}>
-                      Select a {props.serviceName} service plan
-                    </label>
-                    <select
-                      className="govuk-select govuk-!-width-full"
-                      id={`service-${props.serviceName}`}
-                      name={`items[${props.state.items.length}][planGUID]`}
-                    >
-                      {plans.slice().sort(orderPlans).map(plan => (
-                        <option key={plan.planGUID} value={plan.planGUID}>
-                          {niceServiceName(plan.planName)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ) : (
-                  <>
-                    <input
-                      type="hidden"
-                      name={`items[${props.state.items.length}][planGUID]`}
-                      value={plans[0].planGUID}
-                    />
-                    {props.serviceName === 'app' ? (
-                      <>
-                        <div style={{ width: '46%' }}>
+                <dt className="govuk-summary-list__key">
+                {niceServiceName(props.serviceName)}
+              </dt>
+                <dd className="govuk-summary-list__value">
+                  <StateFields
+                    items={props.state.items}
+                    rangeStart={props.state.rangeStart}
+                    rangeStop={props.state.rangeStop}
+                  />
+                  {plans.length > 1 ? (
+                    <div className="govuk-form-group">
+                      <label className="govuk-label govuk-visually-hidden" htmlFor={`service-${props.serviceName}`}>
+                        Select a {props.serviceName} service plan
+                      </label>
+                      <select
+                        className="govuk-select govuk-!-width-full"
+                        id={`service-${props.serviceName}`}
+                        name={`items[${props.state.items.length}][planGUID]`}
+                      >
+                        {plans.slice().sort(orderPlans).map(plan => (
+                          <option key={plan.planGUID} value={plan.planGUID}>
+                            {niceServiceName(plan.planName)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <>
+                      <input
+                        type="hidden"
+                        name={`items[${props.state.items.length}][planGUID]`}
+                        value={plans[0].planGUID}
+                      />
+                      {props.serviceName === 'app' ? (
+                        <>
                           <div className="govuk-form-group">
                             <label className="govuk-label govuk-visually-hidden" htmlFor={'nodes-app'}>
                               Select number of app instances
@@ -206,14 +206,6 @@ function Plans(props: IPlansProperties): ReactElement {
                               <option value="128">128 app instances</option>
                             </select>
                           </div>
-                        </div>
-                        <div
-                          style={{
-                            float: 'left',
-                            marginLeft: '14px',
-                            width: '46%',
-                          }}
-                        >
                           <div className="govuk-form-group">
                             <label className="govuk-label govuk-visually-hidden" htmlFor={'mem-app'}>
                               Select the amount of memory per instance
@@ -234,25 +226,26 @@ function Plans(props: IPlansProperties): ReactElement {
                               <option value="16384">16.0 GiB of memory</option>
                             </select>
                           </div>
-                        </div>
-                      </>
-                    ) : (
-                      <></>
-                    )}
-                  </>
-                )}
-                <button type="submit" className="paas-add-button">
-                  Add{' '}
-                  <span className="govuk-visually-hidden">
-                  {props.serviceName === 'app' ? 
-                    'compute instance with selected configuration' : 
-                    `selected ${props.serviceName} service plan`
-                  }
-                  </span>
-                </button>
+                        </>
+                      ) : (
+                        <></>
+                      )}
+                    </>
+                  )}
+                </dd>
+                <dd className="govuk-summary-list__actions">
+                  <button type="submit" className="paas-add-button">
+                    Add{' '}
+                    <span className="govuk-visually-hidden">
+                    {props.serviceName === 'app' ? 
+                      'compute instance with selected configuration' : 
+                      `selected ${props.serviceName} service plan`
+                    }
+                    </span>
+                  </button>
+                </dd>
               </form>
-            </td>
-          </tr>
+            </div>
         )),
       )}
     </>
@@ -275,13 +268,8 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds paas-service-list">
-          <div className="scrollable-table-container">
-            <table className="govuk-table">
-            <thead>
-              <th>Service</th>
-              <th>Select options</th>
-            </thead>
-            <tbody className="govuk-table__body">
+          <h2 className="govuk-heading-m">Select a service and options to estimate costs</h2>
+          <dl className="govuk-summary-list">
               {values(
                 mapValues(
                   groupBy(props.state.plans, 'serviceName'),
@@ -295,9 +283,7 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
                   ),
                 ),
               )}
-            </tbody>
-          </table>
-          </div>
+          </dl>
         </div>
 
         <div className="govuk-grid-column-one-third paas-summary-section">
