@@ -97,6 +97,9 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
                 </tr>
                 <tr>
                   <td className="govuk-table__cell">
+                    <label className="govuk-label govuk-visually-hidden" htmlFor="rangeStart">
+                      Select month to filter by
+                    </label>
                     <select
                       className="govuk-select govuk-!-width-full"
                       id="rangeStart"
@@ -116,6 +119,9 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
                     </select>
                   </td>
                   <td className="govuk-table__cell">
+                    <label className="govuk-label govuk-visually-hidden" htmlFor="space">
+                      Select a space to filter by
+                    </label>
                     <select
                       className="govuk-select govuk-!-width-full"
                       id="space"
@@ -133,6 +139,9 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
                     </select>
                   </td>
                   <td className="govuk-table__cell">
+                    <label className="govuk-label govuk-visually-hidden" htmlFor="service">
+                      Select services and apps to filter by
+                    </label>
                     <select
                       className="govuk-select govuk-!-width-full"
                       id="service"
@@ -155,7 +164,7 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
                       data-module="govuk-button"
                       data-prevent-double-click="true"
                     >
-                      Filter
+                      Filter <span className="govuk-visually-hidden">with selected options</span>
                     </button>
                   </td>
                 </tr>
