@@ -58,6 +58,7 @@ interface IPermissionBlockProperties {
   readonly organization: IOrganization;
   readonly spaces: ReadonlyArray<ISpace>;
   readonly values: IRoleValues;
+  readonly errors?: ReadonlyArray<IValidationError>;
 }
 
 interface IEditPageProperties extends IPermissionBlockProperties {
@@ -140,7 +141,33 @@ export function PermissionBlock(
 ): ReactElement {
   return (
     <>
+    <div 
+      id="roles"
+      className={
+        props.errors?.some(e => e.field === 'roles')
+          ? 'govuk-form-group--error'
+          : ''
+      }
+      aria-describedby={
+        props.errors?.some(e => e.field === 'roles')
+          ? 'roles-error'
+          : ''
+      }
+      >
       <h2 className="govuk-heading-m">Set organisation and space roles</h2>
+      {props.errors
+        ?.filter(error => error.field === 'roles')
+        .map((error, index) => (
+          <span
+            key={index}
+            id="roles-error"
+            className="govuk-error-message"
+          >
+            <span className="govuk-visually-hidden">Error:</span>{' '}
+            {error.message}
+          </span>
+        ))
+      }
       <h3 className="govuk-heading-s">Organisation level roles</h3>
 
       <details className="govuk-details"  data-module="govuk-details">
@@ -325,6 +352,7 @@ export function PermissionBlock(
           </fieldset>
         </div>
       ))}
+    </div>
     </>
   );
 }
@@ -472,6 +500,7 @@ export function EditPage(props: IEditPageProperties): ReactElement {
             values={props.values}
             managers={props.managers}
             billingManagers={props.billingManagers}
+            errors={props.errors}
           />
 
           <button
@@ -512,7 +541,7 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
             data-module="govuk-error-summary"
           >
             <h2 className="govuk-error-summary__title" id="error-summary-title">
-              Error validating the update
+              There is a problem
             </h2>
 
             <div className="govuk-error-summary__body">
@@ -576,6 +605,7 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
             values={props.values}
             managers={10}
             billingManagers={10}
+            errors={props.errors}
           />
 
           <button
