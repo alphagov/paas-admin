@@ -255,3 +255,98 @@ export async function create(ctx: IContext, params: IParameters, body: ICreateUs
     ),
   };
 }
+
+export async function confirmRotation(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
+  const organization = await cf.organization(params.organizationGUID);
+
+  await checkIfAuthorised(ctx, cf, organization.metadata.guid);
+
+  const token = await uaa.getUser(params.tokenGUID);
+  if (!token || !isTokenUser(organization.entity.name, token.userName)) {
+    throw new NotFoundError('token not found');
+  }
+
+  const template = new Template(ctx.viewContext, 'Are you sure you\'d like to rotate the following API Token?');
+  template.breadcrumbs = fromOrg(ctx, organization, [
+    {
+      href: ctx.linkTo('admin.organizations.tokens.list', { organizationGUID: organization.metadata.guid }),
+      text: 'API Tokens',
+    },
+    { text: tokenName(organization.entity.name, token.userName) },
+  ]);
+
+  return {
+    body: template.render(
+      <ConfirmAction
+        action="rotate"
+        csrf={ctx.viewContext.csrf}
+        linkTo={ctx.linkTo}
+        organization={organization}
+        token={token}
+      />,
+    ),
+  };
+}
+
+export async function rotate(ctx: IContext, params: IParameters): Promise<IResponse> {
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
+  const organization = await cf.organization(params.organizationGUID);
+
+  await checkIfAuthorised(ctx, cf, organization.metadata.guid);
+
+  const token = await uaa.getUser(params.tokenGUID);
+  if (!token || !isTokenUser(organization.entity.name, token.userName)) {
+    throw new NotFoundError('token not found');
+  }
+
+  const tokenSecret = generateSecret();
+  await uaa.forceSetPassword(token.id, tokenSecret);
+
+  const template = new Template(ctx.viewContext, 'Successfully generted token secret');
+  template.breadcrumbs = fromOrg(ctx, organization, [
+    {
+      href: ctx.linkTo('admin.organizations.tokens.list', { organizationGUID: organization.metadata.guid }),
+      text: 'API Tokens',
+    },
+    { text: tokenName(organization.entity.name, token.userName) },
+  ]);
+
+  return {
+    body: template.render(
+      <ExposeSecret
+        linkTo={ctx.linkTo}
+        organization={organization}
+        tokenKey={token.userName}
+        tokenSecret={tokenSecret}
+        userGUID={token.id}
+      />,
+    ),
+  };
+}

@@ -383,6 +383,17 @@ export const router = new Router([
     path: '/organisations/:organizationGUID/tokens/new',
   },
   {
+    action: apiTokens.confirmRotation,
+    name: 'admin.organizations.tokens.rotate.confirm',
+    path: '/organisations/:organizationGUID/tokens/:tokenGUID',
+  },
+  {
+    action: apiTokens.rotate,
+    method: 'post',
+    name: 'admin.organizations.tokens.rotate',
+    path: '/organisations/:organizationGUID/tokens/:tokenGUID',
+  },
+  {
     action: apiTokens.confirmRevocation,
     name: 'admin.organizations.tokens.revoke.confirm',
     path: '/organisations/:organizationGUID/tokens/:tokenGUID/revoke',

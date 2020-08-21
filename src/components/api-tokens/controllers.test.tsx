@@ -4,7 +4,7 @@ import UAAClient from '../../lib/uaa';
 import { IContext } from '../app';
 import { createTestContext } from '../app/app.test-helpers';
 
-import { compose, confirmRevocation, create, isTokenUser, list, revoke } from './controllers';
+import { compose, confirmRevocation, confirmRotation, create, isTokenUser, list, revoke, rotate } from './controllers';
 import { DEFAULT_KEY_LENGTH, DEFAULT_SECRET_LENGTH } from './token';
 
 jest.mock('../../lib/cf');
@@ -234,6 +234,97 @@ describe(create, () => {
     MockCFClient.prototype.assignUserToOrganization.mockReturnValueOnce(null);
 
     const response = await create(ctx, {}, { name: tokenName });
+
+    expect(response.status).toBeUndefined();
+    expect(response.body).toContain('Successfully generted token secret');
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+  });
+});
+
+describe(confirmRotation, () => {
+  beforeEach(() => {
+    MockCFClient.mockClear();
+    MockUAAClient.mockClear();
+  });
+
+  it('should throw a 404 error if user has not enough permissions', async () => {
+    MockCFClient.prototype.organization.mockReturnValueOnce(mockOrganization);
+    MockCFClient.prototype.hasOrganizationRole.mockReturnValueOnce(false);
+
+    await expect(confirmRotation(ctx, {})).rejects.toThrowError(/not found/);
+  });
+
+  it('should throw a 404 error if uaa user is not found', async () => {
+    MockCFClient.prototype.organization.mockReturnValueOnce(mockOrganization);
+    MockCFClient.prototype.hasOrganizationRole.mockReturnValueOnce(true);
+    MockUAAClient.prototype.getUser.mockReturnValueOnce(null);
+
+    await expect(confirmRotation(ctx, {})).rejects.toThrowError(/token not found/);
+  });
+
+  it('should throw a 404 error if uaa user is not a token', async () => {
+    MockCFClient.prototype.organization.mockReturnValueOnce(mockOrganization);
+    MockCFClient.prototype.hasOrganizationRole.mockReturnValueOnce(true);
+    MockUAAClient.prototype.getUser.mockReturnValueOnce(mockUAAUser);
+
+    await expect(confirmRotation(ctx, {})).rejects.toThrowError(/token not found/);
+  });
+
+  it('should be able to print out form requiring user confirmation on revoke action', async () => {
+    MockCFClient.prototype.organization.mockReturnValueOnce(mockOrganization);
+    MockCFClient.prototype.hasOrganizationRole.mockReturnValueOnce(true);
+    MockUAAClient.prototype.getUser.mockReturnValueOnce(mockUAAUserToken);
+
+    const response = await confirmRotation(ctx, {});
+
+    expect(response.status).toBeUndefined();
+    expect(response.body).toContain('Are you sure you\'d like to rotate the following API Token?');
+    expect(spacesMissingAroundInlineElements(response.body as string)).toHaveLength(0);
+  });
+});
+
+describe(rotate, () => {
+  beforeEach(() => {
+    MockCFClient.mockClear();
+  });
+
+  it('should throw a 404 error if user has not enough permissions', async () => {
+    MockCFClient.prototype.organization.mockReturnValueOnce(mockOrganization);
+    MockCFClient.prototype.hasOrganizationRole.mockReturnValueOnce(false);
+
+    await expect(rotate(ctx, {})).rejects.toThrowError(/not found/);
+  });
+
+  it('should throw a 404 error if uaa user is not found', async () => {
+    MockCFClient.prototype.organization.mockReturnValueOnce(mockOrganization);
+    MockCFClient.prototype.hasOrganizationRole.mockReturnValueOnce(true);
+    MockUAAClient.prototype.getUser.mockReturnValueOnce(null);
+
+    await expect(rotate(ctx, {})).rejects.toThrowError(/token not found/);
+  });
+
+  it('should throw a 404 error if uaa user is not a token', async () => {
+    MockCFClient.prototype.organization.mockReturnValueOnce(mockOrganization);
+    MockCFClient.prototype.hasOrganizationRole.mockReturnValueOnce(true);
+    MockUAAClient.prototype.getUser.mockReturnValueOnce(mockUAAUser);
+
+    await expect(rotate(ctx, {})).rejects.toThrowError(/token not found/);
+  });
+
+  it('should rotate the token after confirmation', async () => {
+    MockCFClient.prototype.organization.mockReturnValueOnce(mockOrganization);
+    MockCFClient.prototype.hasOrganizationRole.mockReturnValueOnce(true);
+    MockUAAClient.prototype.getUser.mockReturnValueOnce(mockUAAUserToken);
+    MockUAAClient.prototype.forceSetPassword.mockImplementation((id: string, password: string) => {
+      if (password.length !== DEFAULT_SECRET_LENGTH) {
+        throw new Error(`Secret were incorrectly generated. Got:
+        Secret: "${password}" <${password.length} / ${DEFAULT_SECRET_LENGTH}>`);
+      }
+
+      return mockUAAUserToken;
+    });
+
+    const response = await rotate(ctx, {});
 
     expect(response.status).toBeUndefined();
     expect(response.body).toContain('Successfully generted token secret');

@@ -317,4 +317,10 @@ export default class UAAClient {
 
     return response.data;
   }
+
+  public async forceSetPassword(userGUID: string, password: string): Promise<object> {
+    const response = await this.request('put', `/Users/${userGUID}/password`, { data: { password } });
+
+    return response.data;
+  }
 }

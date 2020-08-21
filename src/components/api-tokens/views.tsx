@@ -21,7 +21,7 @@ interface IExposeSecretProperties {
 }
 
 interface IConfirmActionProperties {
-  readonly action: 'revoke';
+  readonly action: 'rotate' | 'revoke';
   readonly csrf: string;
   readonly linkTo: RouteLinker;
   readonly organization: IOrganization;
@@ -105,7 +105,18 @@ export function ListTokens(props: IListTokensProperties): ReactElement {
                     <td className="govuk-table__cell">
                       <span className="govuk-visually-hidden">API Token:</span>
                       {' '}
-                      Not retreivable
+                      Not retreivable -
+                      {' '}
+                      <a
+                        href={props.linkTo('admin.organizations.tokens.rotate.confirm', {
+                          organizationGUID: props.organization.metadata.guid,
+                          tokenGUID: token.metadata.guid,
+                        })}
+                        title="Rotate the API Token Secret"
+                        className="govuk-link"
+                      >
+                        Rotate
+                      </a>
                     </td>
                     <td className="govuk-table__cell">
                       <span className="govuk-visually-hidden">API Token created at:</span>
@@ -145,6 +156,7 @@ export function ExposeSecret(props: IExposeSecretProperties): ReactElement {
         <h2 className="govuk-heading-m">API Token</h2>
 
         <p className="govuk-body">Please take a note of the secret as it will only be exposed once.</p>
+        <p className="govuk-body">If you happen to lose your secret, you will be able to rotate the secret later.</p>
 
         <div className="govuk-summary-list__row">
           <dt className="govuk-summary-list__key"><span className="govuk-visually-hidden">API Token</span> Key</dt>
