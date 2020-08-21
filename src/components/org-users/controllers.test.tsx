@@ -265,7 +265,7 @@ describe('org-users test suite', () => {
 
     const $ = cheerio.load(response.body as string);
 
-    expect(response.body).toContain('a valid email address is required');
+    expect(response.body).toContain('Enter an email address in the correct format, like name@example.com');
     expect(
       $(
         'input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers]"]:disabled',
@@ -316,7 +316,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('a valid email address is required');
+    expect(response.body).toContain('Enter an email address in the correct format, like name@example.com');
     expect(response.status).toEqual(400);
     expect(
       spacesMissingAroundInlineElements(response.body as string),
@@ -399,8 +399,11 @@ describe('org-users test suite', () => {
         },
       },
     );
-
-    expect(response.body).toContain('at least one role should be selected');
+    const $ = cheerio.load(response.body as string);
+    expect(response.body).toContain('At least one organisation or space level role should be selected');
+    expect($('#roles').hasClass('govuk-form-group--error')).toBeTruthy();
+    expect($('#roles').find('#roles-error').length).toBe(1);
+    expect($('#roles').attr('aria-describedby')).toBe('roles-error');
     expect(response.status).toEqual(400);
     expect(
       spacesMissingAroundInlineElements(response.body as string),
@@ -1321,7 +1324,7 @@ describe('org-users test suite', () => {
       },
     );
 
-    expect(response.body).toContain('at least one role should be selected');
+    expect(response.body).toContain('At least one organisation or space level role should be selected');
     expect(response.status).toEqual(400);
     expect(
       spacesMissingAroundInlineElements(response.body as string),
