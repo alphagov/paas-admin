@@ -1,5 +1,6 @@
 import Router, { IParameters, IResponse } from '../../lib/router';
 import * as account from '../account';
+import * as apiTokens from '../api-tokens';
 import * as applicationEvents from '../application-events';
 import * as applications from '../applications';
 import * as marketplace from '../marketplace';
@@ -364,6 +365,33 @@ export const router = new Router([
     method: 'post',
     name: 'support.sign-up.post',
     path: '/support/sign-up',
+  },
+  {
+    action: apiTokens.list,
+    name: 'admin.organizations.tokens.list',
+    path: '/organisations/:organizationGUID/tokens',
+  },
+  {
+    action: apiTokens.compose,
+    name: 'admin.organizations.tokens.compose',
+    path: '/organisations/:organizationGUID/tokens/new',
+  },
+  {
+    action: apiTokens.create,
+    method: 'post',
+    name: 'admin.organizations.tokens.create',
+    path: '/organisations/:organizationGUID/tokens/new',
+  },
+  {
+    action: apiTokens.confirmRevocation,
+    name: 'admin.organizations.tokens.revoke.confirm',
+    path: '/organisations/:organizationGUID/tokens/:tokenGUID/revoke',
+  },
+  {
+    action: apiTokens.revoke,
+    method: 'post',
+    name: 'admin.organizations.tokens.revoke',
+    path: '/organisations/:organizationGUID/tokens/:tokenGUID/revoke',
   },
 ]);
 
