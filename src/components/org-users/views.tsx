@@ -170,18 +170,13 @@ export function PermissionBlock(
       }
       <h3 className="govuk-heading-s">Organisation level roles</h3>
 
-      <details className="govuk-details"  data-module="govuk-details">
-        <summary
-          className="govuk-details__summary"
-          role="button"
-          aria-controls="details-content-0"
-          aria-expanded="false"
-        >
+      <details className="govuk-details" data-module="govuk-details">
+        <summary className="govuk-details__summary">
           <span className="govuk-details__summary-text">
             What can these <span className="govuk-visually-hidden">organisation level</span> roles do?
           </span>
         </summary>
-        <div className="govuk-details__text" aria-hidden="true">
+        <div className="govuk-details__text">
           <p className="govuk-body">
             <span className="govuk-!-font-weight-bold">Org managers</span> can
             create/delete spaces and edit user roles. The Org Managers would
