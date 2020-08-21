@@ -245,6 +245,19 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
               members
             </a>
           </p>
+
+          {props.isAdmin || props.isManager
+            ? <p className="govuk-body">
+                <a
+                  href={props.linkTo('admin.organizations.tokens.list', {
+                    organizationGUID: props.organization.metadata.guid,
+                  })}
+                  className="govuk-link"
+                >
+                  View and manage API Tokens
+                </a>
+              </p>
+            : <></>}
         </div>
 
         <div className="govuk-grid-column-one-third">
