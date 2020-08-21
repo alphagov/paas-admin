@@ -28,6 +28,7 @@ import {
   IStripedUserServices,
   SpacesPage,
 } from './views';
+import { isTokenUser } from '../api-tokens';
 
 function buildURL(route: IRoute): string {
   return [route.host, route.domain.name].filter(x => x).join('.') + route.path;
@@ -418,7 +419,7 @@ export async function listSpaces(
         linkTo={ctx.linkTo}
         organization={summarisedOrganization}
         spaces={summarisedSpaces}
-        users={users}
+        users={users.filter(u => !isTokenUser(organization.entity.name, u.entity.username))}
       />,
     ),
   };

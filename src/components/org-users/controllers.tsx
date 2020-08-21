@@ -44,6 +44,7 @@ import {
   OrganizationUsersPage,
   SuccessPage,
 } from './views';
+import { isTokenUser } from '../api-tokens/controllers';
 
 interface IPostPermissions {
   readonly [guid: string]: {
@@ -313,7 +314,8 @@ export async function listUsers(
     accountsClient,
   );
 
-  const uaaUsers = await uaa.getUsers(userOrgRoles.map(u => u.metadata.guid));
+  const notRobotUsers = userOrgRoles.filter(u => !isTokenUser(organization.entity.name, u.entity.username));
+  const uaaUsers = await uaa.getUsers(notRobotUsers.map(u => u.metadata.guid));
   const users = _excludeUsersWithoutUaaRecord(
     userRolesByGuid,
     uaaUsers,
