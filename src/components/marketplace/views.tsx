@@ -333,9 +333,12 @@ export function MarketplaceItemPage(props: IMarketplaceItemPageProperties): Reac
   return (
     <div className="govuk-grid-row service-details">
       <div className="govuk-grid-column-two-thirds">
-        <h1 className="govuk-heading-xl">
-          <span className="govuk-caption-xl">Marketplace</span>
-          {props.service.broker_catalog.metadata.displayName || props.service.name}
+        <h1 className="govuk-heading-l">
+          <span className="govuk-caption-l">
+            <span className="govuk-visually-hidden">Service</span>{' '}
+            {props.service.broker_catalog.metadata.displayName || props.service.name}
+          </span>{' '}
+          {props.version}
         </h1>
 
         <p className="govuk-body">{props.service.broker_catalog.metadata.longDescription}</p>
@@ -420,7 +423,7 @@ export function MarketplacePage(props: IMarketplacePageProperties): ReactElement
   return (
     <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
-        <h1 className="govuk-heading-xl">Marketplace</h1>
+        <h1 className="govuk-heading-l">Marketplace</h1>
 
         <p className="govuk-body">
           Many applications rely on backing services such as database, an email delivery service or monitoring system.
