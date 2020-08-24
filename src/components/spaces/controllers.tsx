@@ -102,7 +102,7 @@ export async function viewSpaceEvent(
 
   const template = new Template(
     ctx.viewContext,
-    `${space.entity.name} - Space Event`,
+    ` Space ${space.entity.name} Event details`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
@@ -182,7 +182,7 @@ export async function viewSpaceEvents(
 
   const template = new Template(
     ctx.viewContext,
-    `${space.entity.name} - Space Events`,
+    `Space ${space.entity.name} Events`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     { text: space.entity.name },
@@ -234,7 +234,7 @@ export async function listApplications(
 
   const template = new Template(
     ctx.viewContext,
-    `${space.entity.name} - Overview`,
+    `Space ${space.entity.name} Applications`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     { text: space.entity.name },
@@ -288,7 +288,7 @@ export async function listBackingServices(
 
   const template = new Template(
     ctx.viewContext,
-    `${space.entity.name} - Overview`,
+    `Space ${space.entity.name} Backing services`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     { text: space.entity.name },
@@ -402,7 +402,7 @@ export async function listSpaces(
 
   const template = new Template(
     ctx.viewContext,
-    `${summarisedOrganization.entity.name} – Spaces`,
+    `Organisation ${summarisedOrganization.entity.name} Overview`,
   );
   template.breadcrumbs = [
     { href: ctx.linkTo('admin.organizations'), text: 'Organisations' },

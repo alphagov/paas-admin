@@ -59,7 +59,7 @@ describe('space event', () => {
       eventGUID: event.guid,
     });
 
-    expect(response.body).toContain('name-2064 - Space Event');
+    expect(response.body).toContain('Space name-2064 Event details');
 
     expect(response.body).toContain(
       /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
@@ -93,7 +93,7 @@ describe('space event', () => {
       eventGUID: event.guid,
     });
 
-    expect(response.body).toContain('name-2064 - Space Event');
+    expect(response.body).toContain('Space name-2064 Event details');
 
     expect(response.body).toContain(
       /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
@@ -123,7 +123,7 @@ describe('space event', () => {
       eventGUID: event.guid,
     });
 
-    expect(response.body).toContain('name-2064 - Space Event');
+    expect(response.body).toContain('Space name-2064 Event details');
 
     expect(response.body).toContain(
       /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
@@ -252,7 +252,7 @@ describe('spaces test suite', () => {
       spaceGUID,
     });
 
-    expect(response.body).toContain(`${appName} - Overview`);
+    expect(response.body).toContain(`Space ${appName} Applications`);
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -280,7 +280,7 @@ describe('spaces test suite', () => {
       spaceGUID,
     });
 
-    expect(response.body).toContain('name-2064 - Overview');
+    expect(response.body).toContain('Space name-2064 Backing services');
     expect(response.body).toContain('name-2104');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
@@ -311,7 +311,7 @@ describe('spaces test suite', () => {
           spaceGUID,
         });
 
-        expect(response.body).toContain('name-2064 - Space Events');
+        expect(response.body).toContain('Space name-2064 Events');
         expect(response.body).toContain('0 total events');
         expect(
           spacesMissingAroundInlineElements(response.body as string),
@@ -398,7 +398,7 @@ describe('spaces test suite', () => {
           page: 1,
         });
 
-        expect(response.body).toContain('name-2064 - Space Events');
+        expect(response.body).toContain('Space name-2064 Events');
         expect(response.body).toContain('1337 total events');
         expect(response.body).toContain('<span>Previous page</span>');
         expect(response.body).not.toContain('<span>Next page</span>');

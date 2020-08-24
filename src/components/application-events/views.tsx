@@ -99,8 +99,11 @@ export function ApplicationEventDetailPage(
   return (
     <>
       <h1 className="govuk-heading-l">
-        <span className="govuk-caption-l">Application Event</span>{' '}
-        {props.application.entity.name}
+        <span className="govuk-caption-l">
+          <span className="govuk-visually-hidden">Application</span>{' '}
+          {props.application.entity.name}
+        </span>{' '}
+        Event details
       </h1>
 
       <Event event={props.event} actor={props.actor} />
@@ -118,6 +121,7 @@ export function ApplicationEventsPage(
       spaceGUID={props.spaceGUID}
       linkTo={props.linkTo}
       routePartOf={props.routePartOf}
+      pageTitle="Events"
     >
       <Totals
         results={props.pagination.total_results}

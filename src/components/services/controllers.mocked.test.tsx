@@ -71,7 +71,7 @@ describe(listServiceLogs, () => {
       organizationGUID: 'ORG_GUID', serviceGUID: 'SERVICE_INSTANCE_GUID', spaceGUID: 'SPACE_GUID',
     });
 
-    expect(response.body).toContain('mydb - Service Logs');
+    expect(response.body).toContain('Service mydb Logs');
     expect(response.body).toContain('file-one');
   });
 
@@ -93,7 +93,7 @@ describe(listServiceLogs, () => {
       organizationGUID: 'ORG_GUID', serviceGUID: 'SERVICE_INSTANCE_GUID', spaceGUID: 'SPACE_GUID',
     });
 
-    expect(response.body).toContain('mydb - Service Logs');
+    expect(response.body).toContain('Service mydb Logs');
     expect(response.body).toContain('There are no log files available at this time.');
   });
 });

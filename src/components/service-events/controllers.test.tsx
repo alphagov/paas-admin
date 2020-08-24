@@ -70,7 +70,7 @@ describe('service event', () => {
       spaceGUID,
     });
 
-    expect(response.body).toContain('name-1508 - Service Event');
+    expect(response.body).toContain('Service name-1508 Event details');
 
     expect(response.body).toContain(
       /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
@@ -111,7 +111,7 @@ describe('service event', () => {
       spaceGUID,
     });
 
-    expect(response.body).toContain('name-1508 - Service Event');
+    expect(response.body).toContain('Service name-1508 Event details');
 
     expect(response.body).toContain(
       /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
@@ -150,7 +150,7 @@ describe('service event', () => {
       spaceGUID,
     });
 
-    expect(response.body).toContain('name-1508 - Service Event');
+    expect(response.body).toContain('Service name-1508 Event details');
 
     expect(response.body).toContain(
       /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
@@ -221,7 +221,7 @@ describe('service events', () => {
         spaceGUID,
       });
 
-      expect(response.body).toContain('name-1508 - Service Events');
+      expect(response.body).toContain('Service name-1508 Events');
       expect(response.body).toContain('0 total events');
       expect(
         spacesMissingAroundInlineElements(response.body as string),
@@ -305,7 +305,7 @@ describe('service events', () => {
         spaceGUID,
       });
 
-      expect(response.body).toContain('name-1508 - Service Events');
+      expect(response.body).toContain('Service name-1508 Events');
 
       expect(response.body).toContain('Displaying page 1 of 2702');
       expect(response.body).toContain('1337 total events');
@@ -379,7 +379,7 @@ describe('service event - CUPS', () => {
         spaceGUID,
       });
 
-      expect(response.body).toContain('name-1508 - Service Events');
+      expect(response.body).toContain('Service name-1508 Events');
       expect(response.body).not.toContain('Displaying page 1 of 1');
       expect(response.body).toContain('0 total events');
       expect(
@@ -401,7 +401,7 @@ describe('service event - CUPS', () => {
       spaceGUID,
     });
 
-    expect(response.body).toContain('name-1508 - Service Event');
+    expect(response.body).toContain('Service name-1508 Event details');
 
     expect(response.body).toContain(
       /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
