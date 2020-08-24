@@ -218,7 +218,7 @@ function validatePermissions({
   if (!orgRolesSelected && !spaceRolesSelected) {
     errors.push({
       field: 'roles',
-      message: 'at least one role should be selected',
+      message: 'At least one organisation or space level role should be selected',
     });
   }
 
@@ -231,7 +231,7 @@ function validateEmail({ email }: IUserPostBody): ReadonlyArray<IValidationError
   if (!email || !VALID_EMAIL.test(email)) {
     errors.push({
       field: 'email',
-      message: 'a valid email address is required',
+      message: 'Enter an email address in the correct format, like name@example.com',
     });
   }
 
@@ -470,7 +470,7 @@ export async function inviteUser(
     body,
   );
 
-  const template = new Template(ctx.viewContext, 'Invite a new team member');
+  const template = new Template(ctx.viewContext, 'Error: Invite a new team member');
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
       href: ctx.linkTo('admin.organizations.users', {
@@ -503,7 +503,7 @@ export async function inviteUser(
       /* istanbul ignore next */
       if (!invitation) {
         throw new ValidationError([
-          { field: 'email', message: 'a valid email address is required' },
+          { field: 'email', message: 'Enter an email address in the correct format, like name@example.com' },
         ]);
       }
 
@@ -521,7 +521,7 @@ export async function inviteUser(
       throw new ValidationError([
         {
           field: 'email',
-          message: 'user is already a member of the organisation',
+          message: 'User is already a member of the organisation',
         },
       ]);
     }
@@ -637,7 +637,7 @@ export async function resendInvitation(
 
   /* istanbul ignore next */
   if (!VALID_EMAIL.test(user.entity.username)) {
-    throw new Error('User: a valid email address is required.');
+    throw new Error('Enter an email address in the correct format, like name@example.com');
   }
 
   const uaa = new UAAClient({
@@ -665,7 +665,7 @@ export async function resendInvitation(
   /* istanbul ignore next */
   if (!invitation) {
     throw new ValidationError([
-      { field: 'email', message: 'a valid email address is required' },
+      { field: 'email', message: 'Enter an email address in the correct format, like name@example.com' },
     ]);
   }
 

@@ -58,6 +58,7 @@ interface IPermissionBlockProperties {
   readonly organization: IOrganization;
   readonly spaces: ReadonlyArray<ISpace>;
   readonly values: IRoleValues;
+  readonly errors?: ReadonlyArray<IValidationError>;
 }
 
 interface IEditPageProperties extends IPermissionBlockProperties {
@@ -140,21 +141,42 @@ export function PermissionBlock(
 ): ReactElement {
   return (
     <>
+    <div 
+      id="roles"
+      className={
+        props.errors?.some(e => e.field === 'roles')
+          ? 'govuk-form-group--error'
+          : ''
+      }
+      aria-describedby={
+        props.errors?.some(e => e.field === 'roles')
+          ? 'roles-error'
+          : ''
+      }
+      >
       <h2 className="govuk-heading-m">Set organisation and space roles</h2>
+      {props.errors
+        ?.filter(error => error.field === 'roles')
+        .map((error, index) => (
+          <span
+            key={index}
+            id="roles-error"
+            className="govuk-error-message"
+          >
+            <span className="govuk-visually-hidden">Error:</span>{' '}
+            {error.message}
+          </span>
+        ))
+      }
       <h3 className="govuk-heading-s">Organisation level roles</h3>
 
-      <details className="govuk-details"  data-module="govuk-details">
-        <summary
-          className="govuk-details__summary"
-          role="button"
-          aria-controls="details-content-0"
-          aria-expanded="false"
-        >
+      <details className="govuk-details" data-module="govuk-details">
+        <summary className="govuk-details__summary">
           <span className="govuk-details__summary-text">
             What can these <span className="govuk-visually-hidden">organisation level</span> roles do?
           </span>
         </summary>
-        <div className="govuk-details__text" aria-hidden="true">
+        <div className="govuk-details__text">
           <p className="govuk-body">
             <span className="govuk-!-font-weight-bold">Org managers</span> can
             create/delete spaces and edit user roles. The Org Managers would
@@ -325,6 +347,7 @@ export function PermissionBlock(
           </fieldset>
         </div>
       ))}
+    </div>
     </>
   );
 }
@@ -472,6 +495,7 @@ export function EditPage(props: IEditPageProperties): ReactElement {
             values={props.values}
             managers={props.managers}
             billingManagers={props.billingManagers}
+            errors={props.errors}
           />
 
           <button
@@ -512,7 +536,7 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
             data-module="govuk-error-summary"
           >
             <h2 className="govuk-error-summary__title" id="error-summary-title">
-              Error validating the update
+              There is a problem
             </h2>
 
             <div className="govuk-error-summary__body">
@@ -576,6 +600,7 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
             values={props.values}
             managers={10}
             billingManagers={10}
+            errors={props.errors}
           />
 
           <button

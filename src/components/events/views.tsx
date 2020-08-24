@@ -36,16 +36,11 @@ interface ITargetedEventListItemProperties extends IEventListItemProperties {
 export function Details(): ReactElement {
   return (
     <details className="govuk-details" data-module="govuk-details">
-      <summary
-        className="govuk-details__summary"
-        role="button"
-        aria-controls="details-content-0"
-        aria-expanded="false"
-      >
+      <summary className="govuk-details__summary">
         <span className="govuk-details__summary-text">What are events?</span>
       </summary>
 
-      <div className="govuk-details__text" aria-hidden="true">
+      <div className="govuk-details__text">
         <p className="govuk-body">
           Events are a log of actions made by actors against targets.
         </p>
