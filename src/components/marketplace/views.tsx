@@ -338,7 +338,7 @@ export function MarketplaceItemPage(props: IMarketplaceItemPageProperties): Reac
             <span className="govuk-visually-hidden">Service</span>{' '}
             {props.service.broker_catalog.metadata.displayName || props.service.name}
           </span>{' '}
-          {props.version}
+          Version {props.version}
         </h1>
 
         <p className="govuk-body">{props.service.broker_catalog.metadata.longDescription}</p>

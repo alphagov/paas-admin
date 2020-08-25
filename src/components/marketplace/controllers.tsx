@@ -48,7 +48,7 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
 
   const template = new Template(
     ctx.viewContext,
-    `Service ${service.broker_catalog.metadata.displayName} ${version}`,
+    `Service ${service.broker_catalog.metadata.displayName} Version ${version}`,
   );
 
   template.breadcrumbs = [
