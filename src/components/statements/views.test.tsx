@@ -79,6 +79,10 @@ describe(StatementsPage, () => {
     expect($('td').text()).toContain('£27.51');
     expect($('td').text()).toContain('£33.01');
     expect($('tr').text()).toContain('Exchange rate: £1 to $1.25');
+    expect($('.paas-table-billing-statement caption').text()).toContain(
+      'Cost itemisation for January in space-name space with service-name services sorted by name column, ascending'
+    );
+    expect($('.paas-table-billing-statement th:first-child').attr('aria-sort')).toEqual('ascending');
   });
 
   it('should parse statements page when ordering by space', () => {
@@ -109,6 +113,11 @@ describe(StatementsPage, () => {
     const $ = cheerio.load(markup.html());
     expect($('input[name="sort"]').prop('value')).toEqual('space');
     expect($('input[name="order"]').prop('value')).toEqual('desc');
+
+    expect($('.paas-table-billing-statement caption').text()).toContain(
+      'Cost itemisation for January in space-name space with service-name services sorted by space column, descending'
+    );
+    expect($('.paas-table-billing-statement th:nth-child(2)').attr('aria-sort')).toEqual('descending');
   });
 
   it('should parse statements page when ordering by amount', () => {
@@ -139,6 +148,11 @@ describe(StatementsPage, () => {
     const $ = cheerio.load(markup.html());
     expect($('input[name="sort"]').prop('value')).toEqual('amount');
     expect($('input[name="order"]').prop('value')).toEqual('desc');
+
+    expect($('.paas-table-billing-statement caption').text()).toContain(
+      'Cost itemisation for January in space-name space with service-name services sorted by Inc VAT column, descending'
+    );
+    expect($('.paas-table-billing-statement th:nth-child(5)').attr('aria-sort')).toEqual('descending');
   });
 
   it('should parse statements page when ordering by plan', () => {
@@ -167,6 +181,11 @@ describe(StatementsPage, () => {
     const $ = cheerio.load(markup.html());
     expect($('input[name="sort"]').prop('value')).toEqual('plan');
     expect($('input[name="order"]').prop('value')).toEqual('desc');
+
+    expect($('.paas-table-billing-statement caption').text()).toContain(
+      'Cost itemisation for January sorted by plan column, ascending'
+    );
+    expect($('.paas-table-billing-statement th:nth-child(3)').attr('aria-sort')).toEqual('descending');
   });
 
   it('should parse statements page and notify tenant that there\'s no information for this month', () => {

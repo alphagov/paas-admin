@@ -330,7 +330,14 @@ function Statement(props: IStatementProps): ReactElement {
           </caption>
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
-              <th className="govuk-table__header" scope="col">
+              <th className="govuk-table__header" 
+                scope="col"
+                aria-sort={
+                  props.orderBy === 'name' ?
+                  orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'
+                  : undefined
+                }
+              >
                 {props.orderBy === 'name' ? (
                   <input
                     type="hidden"
@@ -353,7 +360,15 @@ function Statement(props: IStatementProps): ReactElement {
                   <span className="govuk-visually-hidden">Sort by</span>{' '}Name
                 </button>
               </th>
-              <th className="govuk-table__header" scope="col">
+              <th 
+                className="govuk-table__header" 
+                scope="col"
+                aria-sort={
+                  props.orderBy === 'space' ?
+                  orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'
+                  : undefined
+                }
+                >
                 {props.orderBy === 'space' ? (
                   <input
                     type="hidden"
@@ -376,7 +391,15 @@ function Statement(props: IStatementProps): ReactElement {
                   <span className="govuk-visually-hidden">Sort by</span>{' '}Space
                 </button>
               </th>
-              <th className="govuk-table__header" scope="col">
+              <th 
+                className="govuk-table__header" 
+                scope="col"
+                aria-sort={
+                  props.orderBy === 'plan' ?
+                  orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'
+                  : undefined
+                }
+                >
                 {props.orderBy === 'plan' ? (
                   <input
                     type="hidden"
@@ -402,7 +425,15 @@ function Statement(props: IStatementProps): ReactElement {
               <th className="govuk-table__header text-right" scope="col">
                 Ex VAT
               </th>
-              <th className="govuk-table__header text-right" scope="col">
+              <th 
+                className="govuk-table__header text-right" 
+                scope="col"
+                aria-sort={
+                  props.orderBy === 'amount' ?
+                  orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'
+                  : undefined
+                }
+                >
                 {props.orderBy === 'amount' ? (
                   <input
                     type="hidden"
