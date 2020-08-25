@@ -337,7 +337,7 @@ function Statement(props: IStatementProps): ReactElement {
                       : ''
                   }`}
                 >
-                  Name
+                  <span className="govuk-visually-hidden">Sort by</span>{' '}Name
                 </button>
               </th>
               <th className="govuk-table__header" scope="col">
@@ -360,7 +360,7 @@ function Statement(props: IStatementProps): ReactElement {
                       : ''
                   }`}
                 >
-                  Space
+                  <span className="govuk-visually-hidden">Sort by</span>{' '}Space
                 </button>
               </th>
               <th className="govuk-table__header" scope="col">
@@ -383,7 +383,7 @@ function Statement(props: IStatementProps): ReactElement {
                       : ''
                   }`}
                 >
-                  Plan
+                  <span className="govuk-visually-hidden">Sort by</span>{' '}Plan
                 </button>
               </th>
               <th className="govuk-table__header text-right" scope="col">
@@ -409,7 +409,7 @@ function Statement(props: IStatementProps): ReactElement {
                       : ''
                   }`}
                 >
-                  Inc VAT
+                  <span className="govuk-visually-hidden">Sort by</span>{' '}Inc VAT
                 </button>
               </th>
             </tr>
