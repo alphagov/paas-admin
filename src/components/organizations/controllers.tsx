@@ -74,7 +74,7 @@ export async function editOrgQuota(ctx: IContext, params: IParameters): Promise<
   ]);
 
   const realQuotas = quotas.filter(quota => !quota.name.match(/^(CATS|ACC|BACC|SMOKE|PERF|AIVENBACC)-/));
-  const template = new Template(ctx.viewContext, `Organisation ${organization.entity.name}`);
+  const template = new Template(ctx.viewContext, `Organisation ${organization.entity.name} Manage Quota`);
 
   template.breadcrumbs = [
     { href: ctx.linkTo('admin.organizations'), text: 'Organisations' },

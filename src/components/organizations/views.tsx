@@ -255,8 +255,11 @@ export function EditOrganizationQuota(props: IEditOrganizationQuotaProperties): 
   return <div className="govuk-grid-row">
     <div className="govuk-grid-column-full">
       <h1 className="govuk-heading-l">
-        <span className="govuk-caption-l">Organisation</span>{' '}
-        {props.organization.entity.name}
+        <span className="govuk-caption-l">
+          <span className="govuk-visually-hidden">Organisation</span>{' '}
+          {props.organization.entity.name}
+        </span>{' '}
+        Manage Quota
       </h1>
     </div>
 
@@ -266,7 +269,7 @@ export function EditOrganizationQuota(props: IEditOrganizationQuotaProperties): 
 
         <div className="govuk-form-group">
           <label className="govuk-label" htmlFor="quota">
-            Quota
+            Select a Quota
           </label>
           <span id="quota-hint" className="govuk-hint">
             The <code>default</code> quota represents a trial account for specific organisation and will not be billed
@@ -276,7 +279,9 @@ export function EditOrganizationQuota(props: IEditOrganizationQuotaProperties): 
             {props.quotas.map(quota => <option
               key={quota.guid}
               selected={props.organization.entity.quota_definition_guid === quota.guid}
-              value={quota.guid}>
+              value={quota.guid}
+              aria-describedby="quota-hint"
+              >
                 {quota.name}
               </option>)}
           </select>
