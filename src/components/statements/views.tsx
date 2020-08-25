@@ -58,6 +58,12 @@ function orderDirection(value: string): string {
   return value === 'asc' ? 'asc' : 'desc';
 }
 
+function convertDateToMonthLong(dateString: string): string {
+  const date = new Date(dateString)
+  const month = date.toLocaleString('default', { month: 'long' });
+  return month
+}
+
 export function StatementsPage(props: IStatementsPageProperties): ReactElement {
   return (
     <>
@@ -314,7 +320,14 @@ function Statement(props: IStatementProps): ReactElement {
         <input type="hidden" name="service" value={props.filterService?.guid} />
 
         <div className="scrollable-table-container">
-          <table className="govuk-table paas-table-billing-statement">
+          <table className="govuk-table paas-table-billing-statement" aria-readonly="true">
+          <caption className="govuk-visually-hidden">
+            Cost itemisation for {convertDateToMonthLong(props.filterMonth)}
+            {props.filterSpace?.guid !== 'none' ? ` in ${props.filterSpace?.name.toLowerCase()} space` : ''}
+            {props.filterService?.guid !== 'none' ? ` with ${props.filterService?.name.toLowerCase()} services` : ''}{' '}sorted by{' '} 
+            {props.orderBy === 'amount' ? 'Inc VAT' : props.orderBy} column,{' '} 
+            {orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'}
+          </caption>
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
               <th className="govuk-table__header" scope="col">
