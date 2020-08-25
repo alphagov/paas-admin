@@ -264,7 +264,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
             Change time period
           </span>
         </summary>
-
+        <div className="govuk-details__text">
         <ol className="govuk-list">
           {[
             { long: '1 hour', short: '1h' },
@@ -345,6 +345,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
             Update
           </button>
         </form>
+        </div>
       </details>
     </div>
   );
