@@ -118,7 +118,7 @@ describe('statements test suite', () => {
       rangeStart: '2018-01-01',
     });
 
-    expect(response.body).toContain('Statement');
+    expect(response.body).toContain('Organisation the-system_domain-org-name Monthly billing statement');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -158,7 +158,7 @@ describe('statements test suite', () => {
       rangeStart: '2018-01-01',
     });
 
-    expect(response.body).toContain('Statement');
+    expect(response.body).toContain('Organisation deleted-org Monthly billing statement');
     expect(response.body).toContain('deleted-org');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
@@ -218,7 +218,7 @@ describe('statements test suite', () => {
       space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
     });
 
-    expect(response.body).toContain('Statement');
+    expect(response.body).toContain('Organisation the-system_domain-org-name Monthly billing statement');
     expect(response.body).toContain('batman');
   });
 

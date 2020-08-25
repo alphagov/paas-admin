@@ -37,6 +37,7 @@ interface IStatementProps {
   readonly filterService?: IFilterResource;
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
+  readonly organisationName: string;
   readonly orderDirection: string;
   readonly orderBy: string;
   readonly items: ReadonlyArray<IResourceUsage>;
@@ -50,6 +51,7 @@ interface IStatementsPageProperties extends IStatementProps {
   readonly adminFee: number;
   readonly totals: ITotals;
   readonly usdCurrencyRates: ReadonlyArray<any>;
+  
 }
 
 function orderDirection(value: string): string {
@@ -61,8 +63,12 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
     <>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-full">
-          <h1 className="govuk-heading-l paas-billing-heading">
-            Monthly billing statement
+          <h1 className="govuk-heading-l">
+            <span className="govuk-caption-l">
+              <span className="govuk-visually-hidden">Organisation</span>{' '}
+                {props.organisationName}
+              </span>{' '}
+              Monthly billing statement
           </h1>
         </div>
 

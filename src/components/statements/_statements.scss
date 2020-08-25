@@ -78,10 +78,6 @@
   @include hidden;
 }
 
-.paas-billing-heading {
-  margin-bottom: 20px;
-}
-
 .paas-table-notification {
   @include govuk-font($size: 24);
   padding: 25px 0;

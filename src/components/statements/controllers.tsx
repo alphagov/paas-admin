@@ -385,7 +385,7 @@ export async function viewStatement(
     incVAT: filteredItems.reduce((sum, event) => sum + event.price.incVAT, 0),
   };
 
-  const template = new Template(ctx.viewContext, 'Statement');
+  const template = new Template(ctx.viewContext, `Organisation ${organization.entity.name} Monthly billing statement`);
   template.breadcrumbs = fromOrg(ctx, organization, [
     { text: 'Monthly billing statement' },
   ]);
@@ -411,6 +411,7 @@ export async function viewStatement(
         filterSpace={listSpaces.find(i => i.guid === (params.space || 'none'))}
         linkTo={ctx.linkTo}
         organizationGUID={organization.metadata.guid}
+        organisationName={organization.entity.name}
         orderBy={orderBy}
         orderDirection={orderDirection}
         items={filteredItems}
