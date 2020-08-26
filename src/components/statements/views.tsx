@@ -206,6 +206,9 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
         <div className="govuk-grid-column-full">
           <div className="scrollable-table-container">
             <table className="govuk-table paas-exchange-rate">
+            <caption className="govuk-visually-hidden">
+              Summary of total cost inclusive of 10% admin fee, shown with and without VAT
+            </caption>
             <tr className="govuk-table__row">
               <th className="govuk-table__header" scope="row">
                 Total cost for {props.currentMonth}{' '}
