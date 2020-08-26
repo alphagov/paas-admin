@@ -80,7 +80,7 @@ describe(StatementsPage, () => {
     expect($('td').text()).toContain('£33.01');
     expect($('tr').text()).toContain('Exchange rate: £1 to $1.25');
     expect($('.paas-table-billing-statement caption').text()).toContain(
-      'Cost itemisation for January in space-name space with service-name services sorted by name column, ascending',
+      'Cost itemisation for January in space-name space with service-name services sorted by name column in ascending order',
     );
     expect($('.paas-table-billing-statement th:first-child').attr('aria-sort')).toEqual('ascending');
   });
@@ -115,7 +115,7 @@ describe(StatementsPage, () => {
     expect($('input[name="order"]').prop('value')).toEqual('desc');
 
     expect($('.paas-table-billing-statement caption').text()).toContain(
-      'Cost itemisation for January in space-name space with service-name services sorted by space column, descending',
+      'Cost itemisation for January in space-name space with service-name services sorted by space column in descending order',
     );
     expect($('.paas-table-billing-statement th:nth-child(2)').attr('aria-sort')).toEqual('descending');
   });
@@ -150,7 +150,7 @@ describe(StatementsPage, () => {
     expect($('input[name="order"]').prop('value')).toEqual('desc');
 
     expect($('.paas-table-billing-statement caption').text()).toContain(
-      'Cost itemisation for January in space-name space with service-name services sorted by Inc VAT column, descending',
+      'Cost itemisation for January in space-name space with service-name services sorted by Inc VAT column in descending order',
     );
     expect($('.paas-table-billing-statement th:nth-child(5)').attr('aria-sort')).toEqual('descending');
   });

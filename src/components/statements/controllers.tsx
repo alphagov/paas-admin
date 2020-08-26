@@ -385,7 +385,21 @@ export async function viewStatement(
     incVAT: filteredItems.reduce((sum, event) => sum + event.price.incVAT, 0),
   };
 
-  const template = new Template(ctx.viewContext, `Organisation ${organization.entity.name} Monthly billing statement`);
+  const updatedTitle = `Organisation ${organization.entity.name} Monthly billing statement\
+    for ${currentMonth}\
+    ${listSpaces
+      .filter(space => space.guid === (params.space || 'none'))
+      .map(space => (space.guid === 'none' ? '' : `in ${space.name.toLowerCase()} space`))
+    }
+    ${listPlans
+      .filter(service => service.guid === (params.service || 'none'))
+      .map(service => (service.guid === 'none' ? '' : `with ${service.name.toLowerCase()} services`))
+    }\
+    ordered by ${orderBy === 'amount' ? 'Inc VAT' : orderBy} column
+    in ${orderDirection === 'asc' ? 'ascending' : 'descending'} order
+  `;
+
+  const template = new Template(ctx.viewContext, updatedTitle);
   template.breadcrumbs = fromOrg(ctx, organization, [
     { text: 'Monthly billing statement' },
   ]);

@@ -74,7 +74,21 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
               <span className="govuk-visually-hidden">Organisation</span>{' '}
                 {props.organisationName}
               </span>{' '}
-              Monthly billing statement
+              Monthly billing statement{' '}
+              <span className="govuk-visually-hidden">
+                for {props.currentMonth}
+                {props.filterSpace?.guid !== 'none' ?
+                  ` in ${props.filterSpace?.name.toLowerCase()} space`
+                : ''
+                }
+                {props.filterService?.guid !== 'none' ?
+                  ` with ${props.filterService?.name.toLowerCase()} services`
+                  : ''
+                }{' '}
+                sorted by{' '} 
+                {props.orderBy === 'amount' ? 'Inc VAT' : props.orderBy} column{' '}
+                in{' '}{orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'}{' '}order
+              </span>
           </h1>
         </div>
 
@@ -325,8 +339,8 @@ function Statement(props: IStatementProps): ReactElement {
             Cost itemisation for {convertDateToMonthLong(props.filterMonth)}
             {props.filterSpace?.guid !== 'none' ? ` in ${props.filterSpace?.name.toLowerCase()} space` : ''}
             {props.filterService?.guid !== 'none' ? ` with ${props.filterService?.name.toLowerCase()} services` : ''}{' '}sorted by{' '} 
-            {props.orderBy === 'amount' ? 'Inc VAT' : props.orderBy} column,{' '} 
-            {orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'}
+            {props.orderBy === 'amount' ? 'Inc VAT' : props.orderBy} column{' '}in{' '} 
+            {orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'}{' '}order
           </caption>
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">

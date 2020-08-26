@@ -222,6 +222,37 @@ describe('statements test suite', () => {
     expect(response.body).toContain('batman');
   });
 
+  it('should be reflect the selected filters in the main heading', async () => {
+    nockBilling
+      .get(
+        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+      )
+      .reply(200, billingData.billableEvents)
+
+      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .reply(200, billingData.currencyRates);
+
+    nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .times(2)
+      .reply(200, data.userRolesForOrg)
+
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .reply(200, JSON.stringify(defaultOrg()));
+
+    const response = await statement.viewStatement(ctx, {
+      organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+      rangeStart: '2018-01-01',
+      service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
+      sort: 'amount',
+      order: 'desc',
+    });
+
+    expect(response.body).toContain('sorted by Inc VAT column');
+    expect(response.body).toContain('in descending order');
+  });
+
   it('populates filter dropdowns with all spaces / services', async () => {
     nockBilling
       .get(
