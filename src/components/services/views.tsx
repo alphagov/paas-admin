@@ -3,7 +3,7 @@ import moment from 'moment';
 import React, { ReactElement, ReactNode } from 'react';
 
 import { DATE_TIME } from '../../layouts/constants';
-import { bytesToHuman } from '../../layouts/helpers';
+import { bytesToHuman, Abbreviation } from '../../layouts/helpers';
 import { CommandLineAlternative } from '../../layouts/partials';
 import { IService, IServiceInstance, IServicePlan } from '../../lib/cf/types';
 import { RouteActiveChecker, RouteLinker } from '../app';
@@ -220,7 +220,7 @@ function FileListingItem(props: IFileListingItemProperties): ReactElement {
 
     <p className="govuk-body" id={`download-${props.date.getTime()}`}>
       <span className="govuk-visually-hidden">file type </span>
-      <span className="service-log-list-item__attribute"><abbr title="record of events">LOG</abbr></span>,
+      <span className="service-log-list-item__attribute"><Abbreviation description="record of events">LOG</Abbreviation></span>,
       {' '}
       <span className="govuk-visually-hidden">file size </span>
       <span className="service-log-list-item__attribute">{bytesToHuman(props.size)}</span>

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { bytesConvert } from '../../layouts';
+import { Abbreviation } from '../../layouts/helpers';
 import { IMetricSerie, IMetricSerieSummary } from '../../lib/metrics';
 import { drawLineGraph } from '../charts/line-graph';
 
@@ -231,8 +232,8 @@ export function rdsMetrics(
       title: 'Freeable Memory',
       description: (
         <>
-          How much <abbr title="Random Access Memory">RAM</abbr> the{' '}
-          <abbr title="Virtual Machine">VM</abbr> your database is running on
+          How much <Abbreviation description="Random Access Memory">RAM</Abbreviation> the{' '}
+          <Abbreviation description="Virtual Machine">VM</Abbreviation> your database is running on
           has remaining. Values near zero may indicate you need to optimise your
           database queries or{' '}
           <a
@@ -259,7 +260,7 @@ export function rdsMetrics(
       id: 'read-iops',
       title: (
         <>
-          Read <abbr title="Input / Output Operations per Second">IOPS</abbr>
+          Read <Abbreviation description="Input / Output Operations per Second">IOPS</Abbreviation>
         </>
       ),
       titleText: 'Read Input / Output Operations per Second',
@@ -267,10 +268,10 @@ export function rdsMetrics(
         <>
           How many read operations your database is performing per second.
           Databases are limited to a number of{' '}
-          <abbr title="Input / Output Operations per Second">IOPS</abbr> (read +
+          <Abbreviation description="Input / Output Operations per Second">IOPS</Abbreviation> (read +
           write) based on how big their hard disk is. You get 3{' '}
-          <abbr title="Input / Output Operations per Second">IOPS</abbr> per{' '}
-          <abbr title="GibiByte">GiB</abbr>, so a 100 GiB database would be
+          <Abbreviation description="Input / Output Operations per Second">IOPS</Abbreviation> per{' '}
+          <Abbreviation description="GibiByte">GiB</Abbreviation>, so a 100 GiB database would be
           limited to 300 IOPS. If it looks like your database is hitting its
           IOPS limit you may need to{' '}
           <a
@@ -297,7 +298,7 @@ export function rdsMetrics(
       id: 'write-iops',
       title: (
         <>
-          Write <abbr title="Input / Output Operations per Second">IOPS</abbr>
+          Write <Abbreviation description="Input / Output Operations per Second">IOPS</Abbreviation>
         </>
       ),
       titleText: 'Write Input / Output Operations per Second',
@@ -305,10 +306,10 @@ export function rdsMetrics(
         <>
           How many write operations your database is performing per second.
           Databases are limited to a number of{' '}
-          <abbr title="Input / Output Operations per Second">IOPS</abbr> (read +
+          <Abbreviation description="Input / Output Operations per Second">IOPS</Abbreviation> (read +
           write) based on how big their hard disk is. You get 3{' '}
-          <abbr title="Input / Output Operations per Second">IOPS</abbr> per{' '}
-          <abbr title="GibiByte">GiB</abbr>, so a 100 GiB database would be
+          <Abbreviation description="Input / Output Operations per Second">IOPS</Abbreviation> per{' '}
+          <Abbreviation description="GibiByte">GiB</Abbreviation>, so a 100 GiB database would be
           limited to 300 IOPS. If it looks like your database is hitting its
           IOPS limit you may need to{' '}
           <a
@@ -395,7 +396,7 @@ export function elastiCacheMetrics(
         <>
           If redis is running low on memory it will start to swap memory onto
           the hard disk. If redis is using more than 50{' '}
-          <abbr title="MegaBytes">MB</abbr> of swap memory you may need to
+          <Abbreviation description="MegaBytes">MB</Abbreviation> of swap memory you may need to
           reduce your usage or{' '}
           <a
             href="https://docs.cloud.service.gov.uk/deploying_services/redis/#redis-service-plans"

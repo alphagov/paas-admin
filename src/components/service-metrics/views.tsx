@@ -3,6 +3,7 @@ import moment from 'moment';
 import React, { ReactElement, ReactNode } from 'react';
 
 import { bytesToHuman, DATE_TIME } from '../../layouts';
+import { Abbreviation } from '../../layouts/helpers';
 import { IServiceInstance } from '../../lib/cf/types';
 import { IMetricSerieSummary } from '../../lib/metrics';
 import { RouteActiveChecker, RouteLinker } from '../app';
@@ -171,9 +172,7 @@ function Metric(props: IMetricProperties): ReactElement {
                 >
                   <small>
                     {series.label.length > 3 ? (
-                      <abbr title={series.label}>
-                        {String(index).padStart(3, '0')}
-                      </abbr>
+                      <Abbreviation description={series.label}>{String(index).padStart(3, '0')}</Abbreviation>
                     ) : (
                       series.label
                     )}
