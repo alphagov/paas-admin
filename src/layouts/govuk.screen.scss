@@ -51,10 +51,6 @@ $govuk-breakpoints: (
   }
 }
 
-abbr {
-  text-underline-position: under;
-}
-
 .govuk-summary-list__key {
   vertical-align: top;
 }
@@ -91,4 +87,50 @@ abbr {
 // that's useful, but for an admin interface not necessary
 .govuk-table__header--non-bold {
   font-weight: 400;
+}
+
+//abbreviation tooltip
+
+[data-module="tooltip"] {
+  position: relative;
+}
+
+[data-module="tooltip"]:focus {
+  @include govuk-focused-text;
+}
+
+[data-module="tooltip"]:after { 
+  color: govuk-colour("white");
+  background-color: govuk-colour("black");
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  -webkit-clip-path: inset(50%);
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+  content: attr(aria-label);
+}
+
+.js-enabled [data-module="tooltip"] {
+  text-decoration: underline dotted;
+  text-underline-position: under;
+  cursor: help;
+}
+
+[data-module="tooltip"][tooltip=active]:after,
+[data-module="tooltip"]:hover:after {
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    -webkit-clip-path: none;
+    clip-path: none;
+    white-space: inherit;
+    z-index: 99;
+    margin-top: -(govuk-spacing(5));
+    padding: 2px 3px;  
 }
