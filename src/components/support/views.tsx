@@ -272,6 +272,10 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
             checking the system status page</a>: if it&apos;s a known issue with the platform, it will show there and
             we&apos;ll keep our users updated on the progression of the incident.
           </p>
+          <p className="govuk-body">
+            If you are having a critical issue with a live service outside working hours, please use the emergency
+            contact details you have been sent.
+          </p>
         </div>
         <form noValidate method="post">
           <input type="hidden" name="_csrf" value={props.csrf} />
