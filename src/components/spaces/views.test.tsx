@@ -13,10 +13,10 @@ import {
   ApplicationsPage,
   BackingServicePage,
   EventsPage,
-  IEnchancedApplication,
-  IEnchancedOrganization,
-  IEnchancedServiceInstance,
-  IEnchancedSpace,
+  IEnhancedApplication,
+  IEnhancedOrganization,
+  IEnhancedServiceInstance,
+  IEnhancedSpace,
   IStripedUserServices,
   SpacesPage,
 } from './views';
@@ -207,7 +207,7 @@ describe(ApplicationsPage, () => {
       state: 'running',
     },
     urls: ['test.example.com'],
-  } as unknown) as IEnchancedApplication;
+  } as unknown) as IEnhancedApplication;
 
   it('should print correct phrasing when single service listed', () => {
     const markup = shallow(
@@ -272,7 +272,7 @@ describe(BackingServicePage, () => {
     },
     { metadata: { guid: 'SERVICE_GUID_2' }, entity: { name: 'service-2' } },
   ] as unknown) as ReadonlyArray<
-    IEnchancedServiceInstance | IStripedUserServices
+    IEnhancedServiceInstance | IStripedUserServices
   >;
 
   it('should correctly print the backing service page', () => {
@@ -324,7 +324,7 @@ describe(BackingServicePage, () => {
 
   it('should not display a table of backing service if there no backing services', () => {
     const noServices = ([] as unknown) as ReadonlyArray<
-      IEnchancedServiceInstance | IStripedUserServices
+      IEnhancedServiceInstance | IStripedUserServices
     >;
     const markup = shallow(
       <BackingServicePage
@@ -350,7 +350,7 @@ describe(SpacesPage, () => {
     quota: {
       entity: { name: 'default', memory_limit: (5 * GIBIBYTE) / MEBIBYTE },
     },
-  } as unknown) as IEnchancedOrganization;
+  } as unknown) as IEnhancedOrganization;
   const space = ({
     metadata: { guid: 'SPACE_GUID_1' },
     entity: { name: 'space-name' },
@@ -359,7 +359,7 @@ describe(SpacesPage, () => {
     running_apps: [null],
     stopped_apps: [null],
     serviceInstances: [null],
-  } as unknown) as IEnchancedSpace;
+  } as unknown) as IEnhancedSpace;
 
   it('should correctly render the spaces page', () => {
     const markup = shallow(

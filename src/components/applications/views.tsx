@@ -3,7 +3,7 @@ import React, { ReactElement, ReactNode } from 'react';
 import { CommandLineAlternative } from '../../layouts/partials';
 import { IApplication } from '../../lib/cf/types';
 import { RouteActiveChecker, RouteLinker } from '../app';
-import { IEnchancedApplication } from '../spaces/views';
+import { IEnhancedApplication } from '../spaces/views';
 
 interface IApplicationTabProperties {
   readonly application: IApplication;
@@ -19,7 +19,7 @@ interface IApplicationPageProperties {
   readonly additionalRuntimeInfo: ReadonlyArray<
     ReadonlyArray<{ readonly text: string | null }>
   >;
-  readonly application: IEnchancedApplication;
+  readonly application: IEnhancedApplication;
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
   readonly routePartOf: RouteActiveChecker;

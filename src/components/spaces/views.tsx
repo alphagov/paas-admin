@@ -27,17 +27,17 @@ import {
   EventTimestamps,
 } from '../events';
 
-export interface IEnchancedApplication extends IApplication {
+export interface IEnhancedApplication extends IApplication {
   readonly summary: IApplicationSummary;
   readonly urls: ReadonlyArray<string>;
 }
 
-export interface IEnchancedOrganization extends IOrganization {
+export interface IEnhancedOrganization extends IOrganization {
   readonly memory_allocated: number;
   readonly quota: IOrganizationQuota;
 }
 
-export interface IEnchancedSpace extends ISpace {
+export interface IEnhancedSpace extends ISpace {
   readonly memory_allocated: number;
   readonly quota?: ISpaceQuota;
   readonly running_apps: ReadonlyArray<IApplication>;
@@ -50,13 +50,13 @@ interface ISpacesPageProperties {
   readonly isAdmin: boolean;
   readonly isManager: boolean;
   readonly isBillingManager: boolean;
-  readonly organization: IEnchancedOrganization;
-  readonly spaces: ReadonlyArray<IEnchancedSpace>;
+  readonly organization: IEnhancedOrganization;
+  readonly spaces: ReadonlyArray<IEnhancedSpace>;
   readonly users: ReadonlyArray<IUser>;
 }
 
 interface IApplicationPageProperties {
-  readonly applications: ReadonlyArray<IEnchancedApplication>;
+  readonly applications: ReadonlyArray<IEnhancedApplication>;
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
   readonly routePartOf: RouteActiveChecker;
@@ -72,7 +72,7 @@ interface ISpaceTabProperties {
   readonly space: ISpace;
 }
 
-export interface IEnchancedServiceInstance extends IServiceInstance {
+export interface IEnhancedServiceInstance extends IServiceInstance {
   readonly definition: IService;
   readonly plan: IServicePlan;
 }
@@ -93,7 +93,7 @@ interface IBackingServicePageProperties {
   readonly routePartOf: RouteActiveChecker;
   readonly space: ISpace;
   readonly services: ReadonlyArray<
-    IEnchancedServiceInstance | IStripedUserServices
+    IEnhancedServiceInstance | IStripedUserServices
   >;
 }
 
@@ -646,8 +646,8 @@ export function EventsPage(props: IEventsPageProperties): ReactElement {
         pages={props.pagination.total_pages}
       />
 
-      {props.pagination.total_results > 0 ? 
-        <EventTimestamps /> : 
+      {props.pagination.total_results > 0 ?
+        <EventTimestamps /> :
         <></>
       }
 
@@ -659,7 +659,7 @@ export function EventsPage(props: IEventsPageProperties): ReactElement {
         organizationGUID={props.organizationGUID}
         pagination={props.pagination}
       />
-      
+
       {props.events.length > 0 ?
         <div className="scrollable-table-container">
           <table className="govuk-table">
@@ -698,7 +698,7 @@ export function EventsPage(props: IEventsPageProperties): ReactElement {
             </tbody>
           </table>
         </div>
-        : <></> 
+        : <></>
       }
 
       <Pagination
