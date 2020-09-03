@@ -42,6 +42,7 @@ export interface IEnchancedSpace extends ISpace {
   readonly quota?: ISpaceQuota;
   readonly running_apps: ReadonlyArray<IApplication>;
   readonly stopped_apps: ReadonlyArray<IApplication>;
+  readonly serviceInstances: ReadonlyArray<IServiceInstance>;
 }
 
 interface ISpacesPageProperties {
@@ -336,6 +337,12 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
             >
               Stopped apps
             </th>
+            <th
+              scope="col"
+              className="govuk-table__header govuk-table__header--numeric"
+            >
+              Backing services
+            </th>
           </tr>
         </thead>
         <tbody className="govuk-table__body">
@@ -368,6 +375,9 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
               </td>
               <td className="govuk-table__cell govuk-table__cell--numeric">
                 {space.stopped_apps.length}
+              </td>
+              <td className="govuk-table__cell govuk-table__cell--numeric">
+                {space.serviceInstances.length}
               </td>
             </tr>
           ))}

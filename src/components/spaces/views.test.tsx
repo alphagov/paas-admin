@@ -358,6 +358,7 @@ describe(SpacesPage, () => {
     quota: { entity: { memory_limit: (5 * GIBIBYTE) / MEBIBYTE } },
     running_apps: [null],
     stopped_apps: [null],
+    serviceInstances: [null],
   } as unknown) as IEnchancedSpace;
 
   it('should correctly render the spaces page', () => {

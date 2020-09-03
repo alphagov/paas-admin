@@ -358,8 +358,9 @@ export async function listSpaces(
 
   const summarisedSpaces = await Promise.all(
     spaces.map(async (space: ISpace) => {
-      const [applications, quota] = await Promise.all([
+      const [applications, serviceInstances, quota] = await Promise.all([
         await cf.applications(space.metadata.guid),
+        await cf.spaceServices(space.metadata.guid),
         space.entity.space_quota_definition_guid
           ? await cf.spaceQuota(space.entity.space_quota_definition_guid)
           : await Promise.resolve(undefined),
@@ -376,6 +377,7 @@ export async function listSpaces(
 
       return {
         apps: applications,
+        serviceInstances: serviceInstances,
         entity: space.entity,
         memory_allocated: spaceMemoryAllocated,
         metadata: space.metadata,

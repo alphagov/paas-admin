@@ -195,6 +195,9 @@ describe('spaces test suite', () => {
         ),
       )
 
+      .get(`/v2/spaces/${spaceGUID}/service_instances`)
+      .reply(200, data.services)
+
       .get('/v2/quota_definitions/ORG-QUOTA-GUID')
       .reply(200, data.organizationQuota)
 
@@ -208,7 +211,10 @@ describe('spaces test suite', () => {
             }),
           ),
         ),
-      );
+      )
+
+      .get(`/v2/spaces/${secondSpace}/service_instances`)
+      .reply(200, data.services);
     const response = await spaces.listSpaces(ctx, { organizationGUID });
 
     expect(response.body).toContain('Quota usage');
