@@ -8,13 +8,13 @@ import { CommandLineAlternative } from '../../layouts/partials';
 import { IService, IServiceInstance, IServicePlan } from '../../lib/cf/types';
 import { RouteActiveChecker, RouteLinker } from '../app';
 
-interface IEnchancedServiceInstance extends IServiceInstance {
+interface IEnhancedServiceInstance extends IServiceInstance {
   readonly service?: IService;
   readonly service_plan?: IServicePlan;
 }
 
 interface IServicePageProperties {
-  readonly service: IEnchancedServiceInstance;
+  readonly service: IEnhancedServiceInstance;
   readonly linkTo: RouteLinker;
   readonly pageTitle: string;
   readonly organizationGUID: string;
