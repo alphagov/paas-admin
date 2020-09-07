@@ -91,7 +91,7 @@ export function Header(props: IHeaderProperties): ReactElement {
             type="button"
             className="govuk-header__menu-button govuk-js-header-toggle"
             aria-controls="navigation"
-            aria-label="Show or hide Top Level Navigation"
+            aria-label="Show or hide Top Level Navigation Menu"
           >
             Menu
           </button>
