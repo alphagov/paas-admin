@@ -37,6 +37,7 @@ interface IStatementProps {
   readonly filterService?: IFilterResource;
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
+  readonly organisationName: string;
   readonly orderDirection: string;
   readonly orderBy: string;
   readonly items: ReadonlyArray<IResourceUsage>;
@@ -50,10 +51,17 @@ interface IStatementsPageProperties extends IStatementProps {
   readonly adminFee: number;
   readonly totals: ITotals;
   readonly usdCurrencyRates: ReadonlyArray<any>;
+  
 }
 
 function orderDirection(value: string): string {
   return value === 'asc' ? 'asc' : 'desc';
+}
+
+function convertDateToMonthLong(dateString: string): string {
+  const date = new Date(dateString)
+  const month = date.toLocaleString('default', { month: 'long' });
+  return month
 }
 
 export function StatementsPage(props: IStatementsPageProperties): ReactElement {
@@ -61,8 +69,26 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
     <>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-full">
-          <h1 className="govuk-heading-l paas-billing-heading">
-            Monthly billing statement
+          <h1 className="govuk-heading-l">
+            <span className="govuk-caption-l">
+              <span className="govuk-visually-hidden">Organisation</span>{' '}
+                {props.organisationName}
+              </span>{' '}
+              Monthly billing statement{' '}
+              <span className="govuk-visually-hidden">
+                for {props.currentMonth}
+                {props.filterSpace?.guid !== 'none' ?
+                  ` in ${props.filterSpace?.name.toLowerCase()} space`
+                : ''
+                }
+                {props.filterService?.guid !== 'none' ?
+                  ` with ${props.filterService?.name.toLowerCase()} services`
+                  : ''
+                }{' '}
+                sorted by{' '} 
+                {props.orderBy === 'amount' ? 'Inc VAT' : props.orderBy} column{' '}
+                in{' '}{orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'}{' '}order
+              </span>
           </h1>
         </div>
 
@@ -180,6 +206,9 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
         <div className="govuk-grid-column-full">
           <div className="scrollable-table-container">
             <table className="govuk-table paas-exchange-rate">
+            <caption className="govuk-visually-hidden">
+              Summary of total cost inclusive of 10% admin fee, shown with and without VAT
+            </caption>
             <tr className="govuk-table__row">
               <th className="govuk-table__header" scope="row">
                 Total cost for {props.currentMonth}{' '}
@@ -308,10 +337,24 @@ function Statement(props: IStatementProps): ReactElement {
         <input type="hidden" name="service" value={props.filterService?.guid} />
 
         <div className="scrollable-table-container">
-          <table className="govuk-table paas-table-billing-statement">
+          <table className="govuk-table paas-table-billing-statement" aria-readonly="true">
+          <caption className="govuk-visually-hidden">
+            Cost itemisation for {convertDateToMonthLong(props.filterMonth)}
+            {props.filterSpace?.guid !== 'none' ? ` in ${props.filterSpace?.name.toLowerCase()} space` : ''}
+            {props.filterService?.guid !== 'none' ? ` with ${props.filterService?.name.toLowerCase()} services` : ''}{' '}sorted by{' '} 
+            {props.orderBy === 'amount' ? 'Inc VAT' : props.orderBy} column{' '}in{' '} 
+            {orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'}{' '}order
+          </caption>
           <thead className="govuk-table__head">
             <tr className="govuk-table__row">
-              <th className="govuk-table__header" scope="col">
+              <th className="govuk-table__header" 
+                scope="col"
+                aria-sort={
+                  props.orderBy === 'name' ?
+                  orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'
+                  : undefined
+                }
+              >
                 {props.orderBy === 'name' ? (
                   <input
                     type="hidden"
@@ -331,10 +374,18 @@ function Statement(props: IStatementProps): ReactElement {
                       : ''
                   }`}
                 >
-                  Name
+                  <span className="govuk-visually-hidden">Sort by</span>{' '}Name
                 </button>
               </th>
-              <th className="govuk-table__header" scope="col">
+              <th 
+                className="govuk-table__header" 
+                scope="col"
+                aria-sort={
+                  props.orderBy === 'space' ?
+                  orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'
+                  : undefined
+                }
+                >
                 {props.orderBy === 'space' ? (
                   <input
                     type="hidden"
@@ -354,10 +405,18 @@ function Statement(props: IStatementProps): ReactElement {
                       : ''
                   }`}
                 >
-                  Space
+                  <span className="govuk-visually-hidden">Sort by</span>{' '}Space
                 </button>
               </th>
-              <th className="govuk-table__header" scope="col">
+              <th 
+                className="govuk-table__header" 
+                scope="col"
+                aria-sort={
+                  props.orderBy === 'plan' ?
+                  orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'
+                  : undefined
+                }
+                >
                 {props.orderBy === 'plan' ? (
                   <input
                     type="hidden"
@@ -377,13 +436,21 @@ function Statement(props: IStatementProps): ReactElement {
                       : ''
                   }`}
                 >
-                  Plan
+                  <span className="govuk-visually-hidden">Sort by</span>{' '}Plan
                 </button>
               </th>
               <th className="govuk-table__header text-right" scope="col">
                 Ex VAT
               </th>
-              <th className="govuk-table__header text-right" scope="col">
+              <th 
+                className="govuk-table__header text-right" 
+                scope="col"
+                aria-sort={
+                  props.orderBy === 'amount' ?
+                  orderDirection(props.orderDirection) === 'asc' ? 'ascending': 'descending'
+                  : undefined
+                }
+                >
                 {props.orderBy === 'amount' ? (
                   <input
                     type="hidden"
@@ -403,7 +470,7 @@ function Statement(props: IStatementProps): ReactElement {
                       : ''
                   }`}
                 >
-                  Inc VAT
+                  <span className="govuk-visually-hidden">Sort by</span>{' '}Inc VAT
                 </button>
               </th>
             </tr>

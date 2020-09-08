@@ -53,14 +53,20 @@
     &::after {
       display: inline-block;
       margin-left: .5rem;
+      content: "";
     }
 
-    &.asc::after {
-      content: "\25b2";
+    // use border for trianglr shape instead of content
+    // as content get's read by screenreaders
+
+    &.asc:after {
+      @include govuk-shape-arrow($direction: up, $base: 12px, $display: inline-block);
+      border-bottom-color: currentColor;
     }
 
-    &.desc::after {
-      content: "\25bc";
+    &.desc:after {
+      @include govuk-shape-arrow($direction: down, $base: 12px, $display: inline-block);
+      border-top-color: currentColor;
     }
   }
 }
@@ -76,10 +82,6 @@
 
 .paas-hidden-table-header {
   @include hidden;
-}
-
-.paas-billing-heading {
-  margin-bottom: 20px;
 }
 
 .paas-table-notification {
