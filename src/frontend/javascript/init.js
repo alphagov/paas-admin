@@ -1,3 +1,5 @@
+import Tooltip from './tooltip';
+
 // there is ever only one header per page
 var $headerMenuButton = document.querySelector('[data-module="govuk-header"]');
 var GOVUKHeader = window.GOVUKFrontend.Header;
@@ -33,5 +35,12 @@ var GOVUKRadios = window.GOVUKFrontend.Radios;
 if ($radios) {
   for (var i = 0; i < $radios.length; i++) {
     new GOVUKRadios($radios[i]).init();
+  };
+}
+
+var $tooltips = document.querySelectorAll('[data-module="tooltip"]');
+if ($tooltips) {
+  for (var i = 0; i < $tooltips.length; i++) {
+    new Tooltip($tooltips[i]).init();
   };
 }

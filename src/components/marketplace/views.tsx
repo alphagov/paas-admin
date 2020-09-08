@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 
 import { CommandLineAlternative, NoTick, Tick } from '../../layouts/partials';
+import { Abbreviation } from '../../layouts/helpers';
 import { IV3Service, IV3ServicePlan } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
 
@@ -267,7 +268,7 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
                 <th scope="col" className="govuk-table__header">Available in trial</th>
                 {canBeHighIOPS
                   ? <th scope="col" className="govuk-table__header">
-                      High <abbr title="Input/Output Operations Per Second">IOPS</abbr>
+                      High <Abbreviation description="Input/Output Operations Per Second">IOPS</Abbreviation>
                     </th>
                   : null}
                 {providesBackups
@@ -277,11 +278,11 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
                   ? <th scope="col" className="govuk-table__header">Encrypted</th>
                   : null}
                 {canBeHA
-                  ? <th scope="col" className="govuk-table__header"><abbr title="Highly Available">HA</abbr></th>
+                  ? <th scope="col" className="govuk-table__header"><Abbreviation description="Highly Available">HA</Abbreviation></th>
                   : null}
                 {limitsCC
                   ? <th scope="col" className="govuk-table__header govuk-table__header--numeric">
-                      <abbr title="Concurrent Connections">Connections</abbr>
+                      <Abbreviation description="Concurrent Connections">Connections</Abbreviation>
                     </th>
                   : null}
                 {limitsMemory

@@ -8,6 +8,11 @@ interface IConvertedBytes {
   readonly value: string;
 }
 
+interface IAbbreviationProperties {
+  readonly children: string;
+  readonly description: string;
+}
+
 const longUnits: { readonly [key: string]: string } = {
   KiB: 'kibibytes',
   MiB: 'mebibytes',
@@ -42,14 +47,19 @@ export function bytesConvert(startingBytes: number, precision = 2): IConvertedBy
   };
 }
 
-export function bytesToHuman(startingBytes: number, precision = 2): ReactElement {
-  const converted = bytesConvert(startingBytes, precision);
+export function Abbreviation(props: IAbbreviationProperties): ReactElement {
+  return (
+    <abbr role="tooltip" tabIndex={0} data-module="tooltip" aria-label={props.description}>{props.children}</abbr>
+  );
+}
 
+export function bytesToHuman(startingBytes: number, precision = 2) {
+  const converted = bytesConvert(startingBytes, precision);
   return (
     <>
-      {converted.value} <abbr title={converted.long}>{converted.short}</abbr>
+     {converted.value} <Abbreviation description={converted.long}>{converted.short}</Abbreviation> 
     </>
-  );
+  )
 }
 
 export function conditionallyDisplay(

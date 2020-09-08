@@ -63,6 +63,7 @@
     "import/no-commonjs": "error",
     "import/order": ["warn", {"alphabetize": {"order": "asc", "caseInsensitive": true}, "newlines-between": "always"}],
     "jsx-quotes": ["error", "prefer-double"],
+    "jsx-a11y/no-noninteractive-tabindex": "warn",
     "jsx-a11y/no-redundant-roles": ["error", {"details": ["group"]}],
     "linebreak-style": ["error", "unix"],
     "max-len": ["warn", {"code": 120}],

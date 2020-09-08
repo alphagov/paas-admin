@@ -220,7 +220,7 @@ describe('spaces test suite', () => {
     expect(response.body).toContain('Quota usage');
     expect(response.body).toContain('5.0%');
     expect(response.body).toMatch(
-      /Using\s+1[.]00\s<abbr title="gibibytes">GiB<\/abbr>\s+of memory/m,
+      /Using\s+1[.]00\s<abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="gibibytes">GiB<\/abbr>\s+of memory/m,
     );
 
     expect(response.body).toContain('Spaces');
