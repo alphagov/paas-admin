@@ -7,6 +7,7 @@ interface IOrganizationProperties {
   readonly guid: string;
   readonly name: string;
   readonly billable: boolean;
+  readonly suspended: boolean;
   readonly linkTo: RouteLinker;
 }
 
@@ -23,6 +24,14 @@ interface IEditOrganizationQuotaProperties {
 }
 
 export function Organization(props: IOrganizationProperties): ReactElement {
+  let linkAriaLabel: string;
+
+  if(props.suspended) {
+    linkAriaLabel = `Organisation name: ${props.name}, status: suspended`
+  } else {
+    linkAriaLabel = `Organisation name: ${props.name}`
+  }
+
   return (
     <tr className="govuk-table__row">
       <th scope="row" className="govuk-table__header govuk-table__header--non-bold">
@@ -30,10 +39,14 @@ export function Organization(props: IOrganizationProperties): ReactElement {
           href={props.linkTo('admin.organizations.view', {
             organizationGUID: props.guid,
           })}
+          aria-label={linkAriaLabel}
           className="govuk-link"
         >
           <span className="govuk-visually-hidden">Organisation name:</span> {props.name}
         </a>
+        {props.suspended &&
+          <span className="govuk-tag govuk-tag--grey pull-right">Suspended</span>
+        }
       </th>
       <td className="govuk-table__cell">
         {props.billable ? 'Billable' : 'Trial'}
@@ -50,6 +63,7 @@ export function OrganizationsPage(
       key={org.metadata.guid}
       guid={org.metadata.guid}
       name={org.entity.name}
+      suspended={org.entity.status == 'suspended'}
       linkTo={props.linkTo}
       billable={
         props.quotas[org.entity.quota_definition_guid].entity.name !== 'default'

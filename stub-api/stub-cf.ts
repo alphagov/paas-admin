@@ -39,6 +39,7 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
   app.get('/v2/organizations', (_, res) => res.send(JSON.stringify(
     wrapResources(
       lodash.merge(defaultOrg(), { entity: { name: 'an-org' } }),
+      lodash.merge(defaultOrg(), { entity: { name: 'a-suspended-org', status: 'suspended' }})
     ),
   )));
   app.get('/v3/organizations', (_, res) => res.send(JSON.stringify(
