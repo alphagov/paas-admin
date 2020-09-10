@@ -13,6 +13,7 @@ import mysqlLogo from './icons/mysql.png';
 import postgresLogo from './icons/postgres.png';
 import redisLogo from './icons/redis.png';
 import s3Logo from './icons/s3.png';
+import sqsLogo from './icons/sqs.png';
 
 export interface IPaaSServiceMetadata {
   readonly displayName: string;
@@ -123,6 +124,11 @@ const serviceDetails: IServiceDetails = {
     image: s3Logo,
     imageTitle: 'Amazon Web Services - S3 Bucket - Official Logo',
     name: 'S3',
+  },
+  'aws-sqs-queue': {
+    image: sqsLogo,
+    imageTitle: 'Amazon Web Services - SQS Queue - Official Logo',
+    name: 'SQS',
   },
   'cdn-route': {
     image: cdnLogo,
