@@ -33,12 +33,18 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
 
   app.get('/v2/info', (_, res) => res.send(info));
 
-  app.get('/v2/organizations/:guid',        (_, res) => res.send(JSON.stringify(defaultOrg())));
+  app.get('/v2/organizations/suspended-guid', (_, res) => res.send(
+    JSON.stringify(
+      lodash.merge(defaultOrg(), { metadata: { guid: 'suspended-guid' }, entity: { name: 'a-suspended-org', status: 'suspended' }})
+    )
+  ));
+  app.get('/v2/organizations/:guid', (_, res) => res.send(JSON.stringify(defaultOrg())));
   app.get('/v2/organizations/:guid/spaces', (_, res) => res.send(testData.spaces));
 
   app.get('/v2/organizations', (_, res) => res.send(JSON.stringify(
     wrapResources(
       lodash.merge(defaultOrg(), { entity: { name: 'an-org' } }),
+      lodash.merge(defaultOrg(), { metadata: { guid: 'suspended-guid' }, entity: { name: 'a-suspended-org', status: 'suspended' }})
     ),
   )));
   app.get('/v3/organizations', (_, res) => res.send(JSON.stringify(

@@ -20,6 +20,10 @@ describe(OrganizationsPage, () => {
     metadata: { guid: 'b' },
     entity: { name: 'B', quota_definition_guid: 'billable' },
   } as unknown) as IOrganization;
+  const suspendedOrg = ({
+    metadata: { guid: 'c' },
+    entity: { name: 'Suspended', quota_definition_guid: 'billable', status: 'suspended' },
+  } as unknown) as IOrganization;
   const quotaBillable = ({
     entity: { name: 'not-default' },
   } as unknown) as IOrganizationQuota;
@@ -54,6 +58,27 @@ describe(OrganizationsPage, () => {
     expect($('table tr:last-of-type th a.govuk-link').prop('href')).toBe('/org/b');
     expect($('table tr:last-of-type td:last-of-type').text()).toBe('Billable');
   });
+
+  it('should highlight suspended organizations', () => {
+    const markup = shallow(
+      <OrganizationsPage
+        organizations={[orgA, suspendedOrg]}
+        linkTo={linker}
+        quotas={quotas}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+
+    expect($('table tbody tr')).toHaveLength(2);
+
+    expect($('table tbody tr:first-of-type th a.govuk-link').text()).toBe('Organisation name: A');
+    expect($('table tbody tr:first-of-type th span.govuk-tag--grey').length).toEqual(0);
+
+    expect($('table tbody tr:nth-of-type(2) th a.govuk-link').text()).toBe('Organisation name: Suspended');
+    expect($('table tbody tr:nth-of-type(2) th span.govuk-tag--grey').text()).toBe(
+      'Suspended',
+    );
+  })
 
   it('should display list of organizations with single item', () => {
     const markup = shallow(

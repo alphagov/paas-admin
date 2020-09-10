@@ -177,10 +177,16 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
   return (
     <>
       <h1 className="govuk-heading-l">
+        {props.organization.entity.status == "suspended" &&
+          <strong className="govuk-tag govuk-tag--grey">
+            <span className="govuk-visually-hidden">Status: </span>Suspended
+          </strong>
+        }
         <span className="govuk-caption-l">
           <span className="govuk-visually-hidden">Organisation</span>{' '}
-          {props.organization.entity.name}</span>{' '}
-          Overview
+          {props.organization.entity.name}
+        </span>{' '}
+        Overview
       </h1>
 
       <div className="govuk-grid-row">

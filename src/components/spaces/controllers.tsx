@@ -402,9 +402,16 @@ export async function listSpaces(
     ),
   };
 
+  let title: string;
+  if (summarisedOrganization.entity.status == "suspended") {
+    title = `Suspended Organisation ${summarisedOrganization.entity.name} Overview`
+  } else {
+    title = `Organisation ${summarisedOrganization.entity.name} Overview`
+  }
+
   const template = new Template(
     ctx.viewContext,
-    `Organisation ${summarisedOrganization.entity.name} Overview`,
+    title,
   );
   template.breadcrumbs = [
     { href: ctx.linkTo('admin.organizations'), text: 'Organisations' },

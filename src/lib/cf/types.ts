@@ -148,6 +148,10 @@ export type OrganizationUserRoleEndpoints =
   | 'auditors'
   | 'billing_managers';
 
+export type OrganizationStatus =
+  | 'active'
+  | 'suspended'
+
 export interface IOrganizationRequest {
   readonly name: string;
   readonly quota_definition_guid: string;
@@ -176,7 +180,7 @@ export interface IOrganization {
     readonly quota_definition_url: string;
     readonly space_quota_definitions_url: string;
     readonly spaces_url: string;
-    readonly status: string;
+    readonly status: OrganizationStatus;
     readonly users_url: string;
   };
   readonly metadata: IMetadata;
