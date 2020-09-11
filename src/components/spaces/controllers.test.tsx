@@ -428,3 +428,91 @@ describe('spaces test suite', () => {
     });
   });
 });
+
+describe('suspended organisation spaces', () => {
+  let nockAccounts: nock.Scope;
+  let nockCF: nock.Scope;
+
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockCF = nock('https://example.com/api');
+    nockAccounts = nock('https://example.com/accounts');
+
+    nockCF
+      .get(`/v2/organizations/${organizationGUID}`)
+      .reply(200, 
+        JSON.stringify(
+          lodash.merge(defaultOrg(), { metadata: { guid: 'suspended-guid' }, entity: { name: 'a-suspended-org', status: 'suspended' }}),
+        ),
+      );
+  });
+
+  afterEach(() => {
+    nockAccounts.done();
+    nockCF.done();
+
+    nock.cleanAll();
+  });
+
+  it('should show on the spaces pages that the organisation is suspended', async () => {
+    const secondSpace = '5489e195-c42b-4e61-bf30-323c331ecc01';
+
+    nockAccounts.get('/users/uaa-id-253').reply(
+      200,
+      JSON.stringify({
+        user_uuid: 'uaa-id-253',
+        username: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
+        user_email: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
+      }),
+    );
+
+    nockCF
+      .get(`/v2/organizations/${organizationGUID}/spaces`)
+      .reply(200, data.spaces)
+
+      .get(`/v2/organizations/${organizationGUID}/user_roles`)
+      .times(3)
+      .reply(200, data.users)
+
+      .get('/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019')
+      .reply(200, data.spaceQuota)
+
+      .get(`/v2/spaces/${spaceGUID}/apps`)
+      .reply(
+        200,
+        JSON.stringify(
+          wrapResources(
+            lodash.merge(defaultApp(), { entity: { name: 'first-app' } }),
+            lodash.merge(defaultApp(), {
+              entity: { name: 'second-app', state: 'RUNNING' },
+            }),
+          ),
+        ),
+      )
+
+      .get(`/v2/spaces/${spaceGUID}/service_instances`)
+      .reply(200, data.services)
+
+      .get('/v2/quota_definitions/ORG-QUOTA-GUID')
+      .reply(200, data.organizationQuota)
+
+      .get(`/v2/spaces/${secondSpace}/apps`)
+      .reply(
+        200,
+        JSON.stringify(
+          wrapResources(
+            lodash.merge(defaultApp(), {
+              entity: { name: 'second-space-app' },
+            }),
+          ),
+        ),
+      )
+
+      .get(`/v2/spaces/${secondSpace}/service_instances`)
+      .reply(200, data.services);
+    const response = await spaces.listSpaces(ctx, { organizationGUID });
+
+    expect(response.body).toContain('Suspended');
+  });
+});

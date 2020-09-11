@@ -413,4 +413,32 @@ describe(SpacesPage, () => {
       `There is 1 space in ${organization.entity.name}.`,
     );
   });
+
+  it('should highlight suspended state in main heading', () => {
+
+    const suspendedOrganization = ({
+      metadata: { guid: 'ORG_GUID' },
+      entity: { name: 'org-name', status: 'suspended' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: {
+        entity: { name: 'default', memory_limit: (5 * GIBIBYTE) / MEBIBYTE },
+      },
+    } as unknown) as IEnhancedOrganization;
+
+    const markup = shallow(
+      <SpacesPage
+        linkTo={route => `__LINKS_TO__${route}`}
+        isAdmin={false}
+        isManager={false}
+        isBillingManager={false}
+        organization={suspendedOrganization}
+        spaces={[space, { ...space, quota: undefined }]}
+        users={[null]}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+
+    expect($('h1').text()).toContain('Status: Suspended');
+  })
+
 });
