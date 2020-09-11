@@ -296,7 +296,7 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
               className="govuk-link"
               download
             >
-              Download a spreadsheet of these items <span className="govuk-visually-hidden">as a comma-separated values [CSV] file</span>
+              Download a spreadsheet of these items [CSV] <span className="govuk-visually-hidden">as a comma-separated values file</span>
             </a>
           </p>
         </div>
