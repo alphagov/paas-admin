@@ -38,7 +38,7 @@ const organizations = JSON.stringify(
 const tokenKey = 'secret';
 
 function extractOrganizations(responseBody: string): ReadonlyArray<string> {
-  const re = /(.-(trial-)?org-name(-\d)?)/g;
+  const re = /(Organisation\sname:)\s(.-(trial-)?org-name(-\d)?)/g;
   const matches = [];
   // :scream:
   // eslint-disable-next-line no-constant-condition
@@ -89,11 +89,11 @@ describe('organizations test suite', () => {
 
     const matches = extractOrganizations(response.body as string);
     expect(matches.length).toBe(5);
-    expect(matches[0]).toBe('a-org-name-4');
-    expect(matches[1]).toBe('a-trial-org-name');
-    expect(matches[2]).toBe('b-org-name-3');
-    expect(matches[3]).toBe('c-org-name-1');
-    expect(matches[4]).toBe('d-org-name-2');
+    expect(matches[0]).toContain('a-org-name-4');
+    expect(matches[1]).toContain('a-trial-org-name');
+    expect(matches[2]).toContain('b-org-name-3');
+    expect(matches[3]).toContain('c-org-name-1');
+    expect(matches[4]).toContain('d-org-name-2');
   });
 
   it('should report the org quotas for both trial and billable orgs', async () => {
