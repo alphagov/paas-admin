@@ -134,7 +134,7 @@ export function OrganizationsPage(
               href="https://packages.cloudfoundry.org/stable?release=redhat64&source=github"
               className="govuk-link"
             >
-              Download the RedHat version <span className="govuk-visually-hidden">installer [RPM] file</span>
+              Download the RedHat version [RPM] <span className="govuk-visually-hidden">installer file</span>
             </a>
           </p>
           <p className="govuk-body">
@@ -142,7 +142,7 @@ export function OrganizationsPage(
               href="https://packages.cloudfoundry.org/stable?release=debian64&source=github"
               className="govuk-link"
             >
-              Download the Debian version <span className="govuk-visually-hidden">installer [DEB] file</span>
+              Download the Debian version [DEB] <span className="govuk-visually-hidden">installer file</span>
             </a>
           </p>
         </div>
@@ -154,7 +154,7 @@ export function OrganizationsPage(
               href="https://packages.cloudfoundry.org/stable?release=macosx64&source=github"
               className="govuk-link"
             >
-              Download the macOS version <span className="govuk-visually-hidden">installer [PKG] file</span>
+              Download the macOS version [PKG] <span className="govuk-visually-hidden">installer file</span>
             </a>
           </p>
         </div>
@@ -166,7 +166,7 @@ export function OrganizationsPage(
               href="https://packages.cloudfoundry.org/stable?release=windows64&source=github"
               className="govuk-link"
             >
-              Download the Windows version <span className="govuk-visually-hidden">installer [ZIP] file</span>
+              Download the Windows version [ZIP] <span className="govuk-visually-hidden">installer file</span>
             </a>
           </p>
         </div>
