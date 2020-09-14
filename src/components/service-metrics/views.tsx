@@ -276,7 +276,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <input 
                       className="govuk-input govuk-date-input__input govuk-input--width-2" 
                       id="rangeStartDay"
-                      name="rangeStartDay"
+                      name="rangeStart[day]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
@@ -292,7 +292,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <input 
                       className="govuk-input govuk-date-input__input govuk-input--width-2" 
                       id="rangeStartMonth"
-                      name="rangeStartMonth"
+                      name="rangeStart[month]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
@@ -308,7 +308,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <input
                       className="govuk-input govuk-date-input__input govuk-input--width-4"
                       id="rangeStartYear"
-                      name="rangeStartYear"
+                      name="rangeStart[year]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
@@ -336,7 +336,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <input
                       className="govuk-input govuk-date-input__input govuk-input--width-2"
                       id="rangeStartHour"
-                      name="rangeStartHour"
+                      name="rangeStart[hour]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
@@ -352,7 +352,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <input 
                       className="govuk-input govuk-date-input__input govuk-input--width-2"
                       id="rangeStartMinute"
-                      name="rangeStartMinute"
+                      name="rangeStart[minute]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
@@ -381,7 +381,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <input
                       className="govuk-input govuk-date-input__input govuk-input--width-2"
                       id="rangeStopDay"
-                      name="rangeStopDay"
+                      name="rangeStop[day]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
@@ -397,7 +397,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <input
                     className="govuk-input govuk-date-input__input govuk-input--width-2"
                     id="rangeStopMonth"
-                    name="rangeStopMonth"
+                    name="rangeStop[month]"
                     type="text"
                     pattern="[0-9]*"
                     inputMode="numeric"
@@ -413,7 +413,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <input
                       className="govuk-input govuk-date-input__input govuk-input--width-4"
                       id="rangeStopYear"
-                      name="rangeStopYear"
+                      name="rangeStop[year]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
@@ -441,7 +441,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <input
                       className="govuk-input govuk-date-input__input govuk-input--width-2"
                       id="rangeStopHour"
-                      name="rangeStopHour"
+                      name="rangeStop[hour]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
@@ -457,7 +457,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <input
                       className="govuk-input govuk-date-input__input govuk-input--width-2"
                       id="rangeStopMinute"
-                      name="rangeStopMinute"
+                      name="rangeStop[minute]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric" 

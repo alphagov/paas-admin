@@ -46,9 +46,20 @@ interface IRange {
   readonly rangeStop: moment.Moment;
 }
 
-function parseRange(start: string, stop: string): IRange {
-  const rangeStart = moment(start);
-  const rangeStop = moment(stop);
+function sanitiseMomentInput(date: moment.MomentInputObject): moment.MomentInputObject {
+  return {
+    // if users enter something other than a number, return current date-time value
+    day: typeof date.day === 'number' ? date.day : moment().date(),
+    hour: typeof date.hour === 'number' ? date.hour : moment().hour(),
+    minute: typeof date.minute === 'number' ? date.minute : moment().minute(),
+    month: typeof date.month === 'number' ? date.month - 1 : moment().month(),
+    year: typeof date.year === 'number' ? date.year : moment().year(),
+  };
+}
+
+function parseRange(start: string | moment.MomentInputObject, stop: string | moment.MomentInputObject): IRange {
+  const rangeStart = moment(typeof start === 'object' ? sanitiseMomentInput(start) : start);
+  const rangeStop = moment(typeof stop === 'object' ? sanitiseMomentInput(stop) : stop);
   if (
     rangeStart.isBefore(
       rangeStop
