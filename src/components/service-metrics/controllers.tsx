@@ -5,7 +5,7 @@ import { mapValues, values } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 
-import { bytesConvert, Template } from '../../layouts';
+import { bytesConvert, DATE_TIME, Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import {
   CloudFrontMetricDataGetter,
@@ -207,7 +207,8 @@ export async function viewServiceMetrics(
 
   const template = new Template(
     ctx.viewContext,
-    `Service ${service.entity.name} Metrics`,
+    `Service ${service.entity.name} Metrics between 
+    ${moment(rangeStart).format(DATE_TIME)} and ${moment(rangeStop).format(DATE_TIME)}`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {

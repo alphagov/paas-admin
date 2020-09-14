@@ -520,8 +520,14 @@ export function UnsupportedServiceMetricsPage(
 }
 
 export function MetricPage(props: IMetricPageProperties): ReactElement {
+  const title = `Metrics <span class="govuk-visually-hidden">
+    between ${' '}${moment(props.rangeStart).format(DATE_TIME)}${' '}
+    and${' '}${moment(props.rangeStop).format(DATE_TIME)}
+  </span>`;
   return (
-    <ServiceTab {...props} pageTitle="Metrics">
+    <ServiceTab
+      {...props}
+      pageTitle={title}>
 
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
