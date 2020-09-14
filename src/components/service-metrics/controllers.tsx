@@ -46,7 +46,7 @@ interface IRange {
   readonly rangeStop: moment.Moment;
 }
 
-function sanitiseMomentInput(date: moment.MomentInputObject): moment.MomentInputObject {
+export function sanitiseMomentInput(date: moment.MomentInputObject): moment.MomentInputObject {
   return {
     // if users enter something other than a number, return current date-time value
     day: typeof date.day === 'number' ? date.day : moment().date(),
@@ -57,7 +57,7 @@ function sanitiseMomentInput(date: moment.MomentInputObject): moment.MomentInput
   };
 }
 
-function parseRange(start: string | moment.MomentInputObject, stop: string | moment.MomentInputObject): IRange {
+export function parseRange(start: string | moment.MomentInputObject, stop: string | moment.MomentInputObject): IRange {
   const rangeStart = moment(typeof start === 'object' ? sanitiseMomentInput(start) : start);
   const rangeStop = moment(typeof stop === 'object' ? sanitiseMomentInput(stop) : stop);
   if (

@@ -22,7 +22,9 @@ import { IContext } from '../app/context';
 import {
   composeValue,
   downloadServiceMetrics,
+  parseRange,
   resolveServiceMetrics,
+  sanitiseMomentInput,
   viewServiceMetrics,
 } from '.';
 
@@ -813,3 +815,59 @@ describe(composeValue, () => {
     expect(composeValue(128)).toEqual('128.00');
   });
 });
+
+describe(sanitiseMomentInput, () => {
+  it('should populate values with today\'s date-time if input values are missing', () => {
+    const userInput = sanitiseMomentInput(
+      { day: undefined, month: undefined, year: undefined, hour: undefined, minute: undefined },
+    )
+    const currentDay = Number(moment().format('DD'))
+    const currentMonth = Number(moment().format('MM')) - 1  // momentjs months are Zero-based
+    const currentYear = Number(moment().format('YYYY'))
+    const currentHour = Number(moment().format('HH'))
+    const currentMinute = Number(moment().format('mm'))
+    expect(userInput.day).toEqual(currentDay);
+    expect(userInput.month).toEqual(currentMonth);
+    expect(userInput.year).toEqual(currentYear);
+    expect(userInput.hour).toEqual(currentHour);
+    expect(userInput.minute).toEqual(currentMinute);
+  });
+});
+
+describe(parseRange, () => {
+  it('should do nothing if user hasn\'t submitted anything', () => {
+
+    const defaultRange = parseRange('2020-09-13T14:25', '2020-09-14T15:25')
+    expect((defaultRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment('2020-09-13T14:25').format('YYYY-MM-DD[T]HH:mm'));
+    expect((defaultRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment('2020-09-14T15:25').format('YYYY-MM-DD[T]HH:mm'));
+
+  });
+  it('should return a sanitized user input', () => {
+
+    const userStartInput = { day: 13, month: 9 , year: 2020, hour: 14, minute: 25 }
+    const userStopInput = { day: 14, month: 9 , year: 2020, hour: 15, minute: 25 }
+    
+    const userEnteredRange = parseRange(userStartInput, userStopInput)
+    expect((userEnteredRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment(userStartInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm')); 
+    expect((userEnteredRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment(userStopInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm'));
+    // momentjs months are Zero-based hence the subtraction
+  });
+
+  it('should return a sanitized user input', () => {
+
+    const userStartInput = { day: 13, month: 9 , year: 2020, hour: 14, minute: 25 }
+    const userStopInput = { day: 14, month: 9 , year: 2020, hour: 15, minute: 25 }
+    
+    const userEnteredRange = parseRange(userStartInput, userStopInput)
+    expect((userEnteredRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment(userStartInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm')); 
+    expect((userEnteredRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment(userStopInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm'));
+    // momentjs months are Zero-based hence the subtraction
+  });
+});
+
