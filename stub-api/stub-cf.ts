@@ -51,6 +51,7 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
     wrapV3Resources(
       lodash.merge(defaultV3Org(), { name: 'an-org' }),
       lodash.merge(defaultV3Org(), { name: 'a-different-org', guid: 'a-different-org' }),
+      lodash.merge(defaultV3Org(), { name: 'a-suspended-org', guid: 'a-suspended-org', suspended: true }),
     ),
   )));
 

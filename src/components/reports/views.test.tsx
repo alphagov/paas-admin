@@ -78,6 +78,40 @@ describe(OrganizationsReport, () => {
     },
   ];
 
+  const suspendedOrg = [
+    {
+      guid: 'suspended-guid',
+      created_at: '2020-01-01',
+      updated_at: '2020-01-01',
+      name: 'suspended-org',
+      suspended: true,
+      relationships: {
+        quota: {
+          data: {
+            guid: 'quota-guid',
+          },
+        },
+      },
+      links: {
+        self: {
+          href: 'self-link',
+        },
+        domains: {
+          href: 'domain-link',
+        },
+        default_domain: {
+          href: 'default-domain-link',
+        },
+      },
+      metadata: {
+        labels: {},
+        annotations: {
+          owner: 'owner',
+        },
+      },
+    },
+  ];
+
   const orgQuota = {
     entity: {
       app_instance_limit: 1,
@@ -124,7 +158,7 @@ describe(OrganizationsReport, () => {
     },
   };
 
-  it('should parse the orgainzations report', () => {
+  it('should parse the organizations report', () => {
     const markup = shallow(
       <OrganizationsReport
         linkTo={route => `__LINKS_TO__${route}`}
@@ -148,7 +182,7 @@ describe(OrganizationsReport, () => {
     expect($('td').text()).toContain('December 1st 2019');
   });
 
-  it('should parse the orgainzations report with owner undefined', () => {
+  it('should parse the organizations report with owner undefined', () => {
     org[0].metadata.annotations.owner = undefined;
     billableOrg[0].metadata.annotations.owner = undefined;
     const markup = shallow(
@@ -167,6 +201,28 @@ describe(OrganizationsReport, () => {
     const $ = cheerio.load(markup.html());
     expect($('td').text()).toContain('Unknown');
   });
+
+  it('should highlight suspended organizations', () => {
+    const markup = shallow(
+      <OrganizationsReport
+        linkTo={route => `__LINKS_TO__${route}`}
+        organizations={suspendedOrg}
+        trialOrgs={suspendedOrg}
+        billableOrgs={billableOrg}
+        orgQuotaMapping={{
+          'quota-guid': orgQuota,
+          'billable-quota-guid': billableQuota,
+        }}
+        orgTrialExpirys={{ 'org-guid': new Date('2019-01-30') }}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('table tbody tr td:first-of-type a').attr('aria-label')).toEqual(
+      'Organisation name: suspended-org, status: suspended'
+    );
+
+    expect($('table tbody tr td:first-of-type span.govuk-tag').length).toEqual(1);
+  })
 });
 
 describe(CostReport, () => {

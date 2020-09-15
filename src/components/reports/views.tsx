@@ -150,9 +150,14 @@ export function OrganizationsReport(
                     organizationGUID: organization.guid,
                   })}
                   className="govuk-link"
+                  aria-label={`Organisation name: ${organization.name}${organization.suspended? ', status: suspended':''}`}
                 >
                   {organization.name}
                 </a>
+
+                {organization.suspended &&
+                  <span className="govuk-tag govuk-tag--grey pull-right">Suspended</span>
+                }
               </td>
               <td className="govuk-table__cell">
                 {organization.metadata.annotations.owner === undefined
