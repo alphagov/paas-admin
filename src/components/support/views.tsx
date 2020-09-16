@@ -954,6 +954,9 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
           Read more about our <a className="govuk-link" href="https://www.cloud.service.gov.uk/features">features and
           roadmap</a>.
         </p>
+        <p className="govuk-body">
+          All the data we collect is processed in accordance with our <a className="govuk-link" href="https://www.cloud.service.gov.uk/privacy-notice">privacy notice</a>.
+        </p>
       </div>
     </div>
   );
