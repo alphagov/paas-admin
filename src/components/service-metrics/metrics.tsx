@@ -704,3 +704,44 @@ export function elasticSearchMetrics(
     },
   ];
 }
+
+export function sqsMetrics(
+  series: ISeries,
+  summaries: ISummaries,
+  downloadLink: string,
+): ReadonlyArray<IMetricProperties> {
+  return [
+    {
+      id: 'messages-sent',
+      format: 'number',
+      title: 'Number of messages sent',
+      description: `The number of messages added to the queue by your applications`,
+      chart: drawLineGraph(
+        'number of messages sent',
+        'Messages',
+        numberLabel,
+        series.mNumberOfMessagesSent,
+      ),
+      units: 'Number',
+      metric: 'mNumberOfMessagesSent',
+      summaries: summaries.mNumberOfMessagesSent,
+      downloadLink,
+    },
+    {
+      id: 'messages-recv',
+      format: 'number',
+      title: 'Number of messages received',
+      description: `The number of messages consumed from the queue by your applications`,
+      chart: drawLineGraph(
+        'number of messages received',
+        'Messages',
+        numberLabel,
+        series.mNumberOfMessagesReceived,
+      ),
+      units: 'Number',
+      metric: 'mNumberOfMessagesReceived',
+      summaries: summaries.mNumberOfMessagesReceived,
+      downloadLink,
+    },
+  ];
+}
