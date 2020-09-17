@@ -14,6 +14,7 @@ import {
   elasticacheMetricNames,
   elasticsearchMetricNames,
   rdsMetricNames,
+  sqsMetricNames,
 } from '../../lib/metric-data-getters';
 import { getStubPrometheusMetricsSeriesData } from '../../lib/prom/prom.test.data';
 import { createTestContext } from '../app/app.test-helpers';
@@ -137,6 +138,42 @@ describe('service metrics test suite', () => {
 
     expect(response.status).not.toEqual(302);
     expect(response.body).toContain('Service name-1508 Metrics');
+
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
+  });
+
+  it('should return cloudwatch metrics for an sqs backing service', async () => {
+    nock('https://aws-cloudwatch.example.com/')
+      .post('/')
+      .times(1)
+      .reply(
+        200,
+        getStubCloudwatchMetricsData(
+          sqsMetricNames.map(m => ({ id: m, label: m })),
+        ),
+      );
+
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'aws-sqs-queue',
+      },
+    });
+    const response = await viewServiceMetrics(ctx, {
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      rangeStart: moment()
+        .subtract(1, 'hour')
+        .format('YYYY-MM-DD[T]HH:mm'),
+      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+    });
+
+    expect(response.status).not.toEqual(302);
+    expect(response.body).toContain('Number of messages sent');
 
     expect(
       spacesMissingAroundInlineElements(response.body as string),
@@ -446,6 +483,64 @@ describe('service metrics test suite', () => {
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       }),
     ).rejects.toThrow('Cannot handle over a year old metrics');
+  });
+
+  it('should download an sqs csv', async () => {
+    nock('https://aws-cloudwatch.example.com/')
+      .post('/')
+      .times(1)
+      .reply(
+        200,
+        getStubCloudwatchMetricsData([
+          { id: 'mNumberOfMessagesReceived', label: '' },
+          { id: 'mNumberOfMessagesSent', label: '' },
+        ]),
+      );
+
+    mockService({
+      ...data.serviceObj,
+      entity: {
+        ...data.serviceObj.entity,
+        label: 'aws-sqs-queue',
+      },
+    });
+
+    const rangeStop = moment();
+    const rangeStart = rangeStop.subtract(1, 'hour');
+
+    const response = await downloadServiceMetrics(
+      {
+        ...ctx,
+        linkTo: (_name, params) => querystring.stringify(params),
+      },
+      {
+        metric: 'mNumberOfMessagesReceived',
+        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+        rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
+        rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+        serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
+        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+        units: 'Number',
+      },
+    );
+
+    expect(response.mimeType).toEqual('text/csv');
+    expect(response.download).toBeDefined();
+    expect(response.download!.name).toMatch(/aws-sqs-queue-metrics.*\.csv/);
+    expect(response.download!.data).toMatch(/Service,Time,Value/);
+    expect(response.download!.data).toMatch(
+      new RegExp(`aws-sqs-queue,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d`),
+    );
+
+    const lines = response.download!.data
+      .split('\n')
+      .filter(line => line.length > 0);
+
+    expect(lines.length).toBeGreaterThan(2);
+
+    const [{}, first, ...{}] = lines;
+    const [{}, firstDate, {}] = first.split(',');
+    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
   });
 
   it('should download a postgres csv', async () => {

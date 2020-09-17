@@ -435,12 +435,11 @@ export async function downloadServiceMetrics(
         rangeStop,
       );
 
-      headers = ['Service', 'Instance', 'Time', 'Value'];
+      headers = ['Service', 'Time', 'Value'];
       contents = values(sqsMetricSeries[params.metric])
         .map(metric =>
           metric.metrics.map(series => [
             serviceLabel,
-            metric.label,
             moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
             composeValue(series.value, params.units),
           ]),
