@@ -218,7 +218,7 @@ describe(OrganizationsReport, () => {
     );
     const $ = cheerio.load(markup.html());
     expect($('table tbody tr td:first-of-type a').attr('aria-label')).toEqual(
-      'Organisation name: suspended-org, status: suspended'
+      'Organisation name: suspended-org, status: suspended',
     );
 
     expect($('table tbody tr td:first-of-type span.govuk-tag').length).toEqual(1);
