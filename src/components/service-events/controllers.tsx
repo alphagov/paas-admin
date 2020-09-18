@@ -1,5 +1,6 @@
 import lodash from 'lodash';
 import React from 'react';
+import { validate as uuidValidate } from 'uuid';
 
 import { Template } from '../../layouts';
 import { AccountsClient, IAccountsUser } from '../../lib/accounts';
@@ -54,7 +55,9 @@ export async function viewServiceEvent(
   };
 
   const eventActorGUID: string | undefined =
-    event.actor.type === 'user' ? event.actor.guid : undefined;
+    event.actor.type === 'user' && uuidValidate(event.actor.guid)
+      ? event.actor.guid
+      : undefined;
 
   const eventActor: IAccountsUser | null | undefined = eventActorGUID
     ? await accountsClient.getUser(eventActorGUID)
@@ -148,6 +151,7 @@ export async function viewServiceEvents(
     .filter(e => e.actor.type === 'user')
     .map(e => e.actor.guid)
     .uniq()
+    .filter(guid => uuidValidate(guid))
     .value();
 
   if (userActorGUIDs.length > 0) {
