@@ -2,11 +2,10 @@ import lodash from 'lodash';
 import moment from 'moment';
 import nock from 'nock';
 
-
 import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
-import { auditEvent as defaultAuditEvent } from '../../lib/cf/test-data/audit-event';
+import { auditEvent as defaultAuditEvent, auditEventForAutoscaler } from '../../lib/cf/test-data/audit-event';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import { wrapV3Resources } from '../../lib/cf/test-data/wrap-resources';
 import { createTestContext } from '../app/app.test-helpers';
@@ -162,6 +161,36 @@ describe('service event', () => {
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
   });
+
+  it('should show the GUID of the event actor if it is not a UUID', async () => {
+    const event = defaultAuditEvent();
+      nockCF
+        .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+        .reply(200, data.serviceInstance)
+
+        .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+        .reply(200, data.serviceString)
+
+        .get(`/v3/audit_events/${event.guid}`)
+        .reply(
+          200,
+          JSON.stringify(auditEventForAutoscaler()),
+        );
+
+    const response = await viewServiceEvent(ctx, {
+      eventGUID: event.guid,
+      organizationGUID,
+      serviceGUID,
+      spaceGUID,
+    });
+
+    expect(response.body).toContain('Service name-1508 Event details');
+
+    expect(response.body).toContain(/* Actor       */ '<code>app_autoscaler</code>');
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
+  });
 });
 
 describe('service events', () => {
@@ -270,6 +299,7 @@ describe('service events', () => {
                   },
                   type: 'some unknown event type',
                 }),
+                auditEventForAutoscaler(),
               ),
               {
                 pagination: {
@@ -315,6 +345,7 @@ describe('service events', () => {
 
       expect(response.body).toContain('one@user.in.database');
       expect(response.body).toContain('some unknown actor');
+      expect(response.body).toContain('<code>app_autoscaler</code>');
 
       expect(response.body).toContain('Deleted service instance');
       expect(response.body).toContain('Updated service instance');

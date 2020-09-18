@@ -2,12 +2,11 @@ import lodash from 'lodash';
 import moment from 'moment';
 import nock from 'nock';
 
-
 import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
 import { app as defaultApp } from '../../lib/cf/test-data/app';
-import { auditEvent as defaultAuditEvent } from '../../lib/cf/test-data/audit-event';
+import { auditEvent as defaultAuditEvent, auditEventForAutoscaler } from '../../lib/cf/test-data/audit-event';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import { wrapV3Resources } from '../../lib/cf/test-data/wrap-resources';
 import { createTestContext } from '../app/app.test-helpers';
@@ -105,7 +104,7 @@ describe('application event', () => {
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
   });
 
-  it('should show the name event actor if it is not a user', async () => {
+  it('should show the name of the event actor if it is not a user', async () => {
     const event = defaultAuditEvent();
     nockCF.get(`/v3/audit_events/${event.guid}`).reply(
       200,
@@ -133,6 +132,27 @@ describe('application event', () => {
     expect(response.body).toContain(/* Actor       */ 'unknown-actor');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
+  });
+
+  it('should show the GUID of the event actor if it is not a UUID', async () => {
+    const event = defaultAuditEvent();
+    nockCF.get(`/v3/audit_events/${event.guid}`).reply(
+      200,
+      JSON.stringify(auditEventForAutoscaler()),
+    );
+
+    const response = await viewApplicationEvent(ctx, {
+      applicationGUID: defaultApp().metadata.guid,
+      eventGUID: event.guid,
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
+    });
+
+    expect(response.body).toContain(
+      `Application ${defaultApp().entity.name} Event details`,
+    );
+
+    expect(response.body).toContain(/* Actor */ '<code>app_autoscaler</code>');
   });
 });
 
@@ -222,6 +242,7 @@ describe('application events', () => {
                   },
                   type: 'some unknown event type',
                 }),
+                auditEventForAutoscaler(),
               ),
               {
                 pagination: {
@@ -269,6 +290,7 @@ describe('application events', () => {
 
       expect(response.body).toContain('one@user.in.database');
       expect(response.body).toContain('some unknown actor');
+      expect(response.body).toContain('<code>app_autoscaler</code>');
 
       expect(response.body).toContain('Requested deletion of application');
       expect(response.body).toContain('Restaged application');

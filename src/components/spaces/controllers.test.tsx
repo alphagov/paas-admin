@@ -7,7 +7,7 @@ import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
 import { app as defaultApp } from '../../lib/cf/test-data/app';
-import { auditEvent as defaultAuditEvent } from '../../lib/cf/test-data/audit-event';
+import { auditEvent as defaultAuditEvent, auditEventForAutoscaler } from '../../lib/cf/test-data/audit-event';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import {
   wrapResources,
@@ -106,7 +106,7 @@ describe('space event', () => {
     ).toHaveLength(0);
   });
 
-  it('should show the name event actor if it is not a user', async () => {
+  it('should show the name of event actor if it is not a user', async () => {
     const event = defaultAuditEvent();
     nockCF.get(`/v3/audit_events/${event.guid}`).reply(
       200,
@@ -131,6 +131,26 @@ describe('space event', () => {
     expect(response.body).toContain(/* Actor       */ 'unknown-actor');
     expect(response.body).toContain(/* Description */ 'Updated application');
     expect(response.body).toContain(/* Metadata    */ 'CRASHED');
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
+  });
+
+  it('should show the guid of the event actor if it is not a UUID', async () => {
+    const event = auditEventForAutoscaler();
+    nockCF.get(`/v3/audit_events/${event.guid}`).reply(
+      200,
+      JSON.stringify(event),
+    );
+
+    const response = await spaces.viewSpaceEvent(ctx, {
+      organizationGUID,
+      spaceGUID,
+      eventGUID: event.guid,
+    });
+
+    expect(response.body).toContain('Space name-2064 Event details');
+    expect(response.body).toContain(/* Actor       */ '<code>app_autoscaler</code>');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -325,7 +345,7 @@ describe('spaces test suite', () => {
       });
     });
 
-    describe('when there are no audit events to display', () => {
+    describe('when there are audit events to display', () => {
       beforeEach(() => {
         nockCF
           .get('/v3/audit_events')
@@ -370,6 +390,7 @@ describe('spaces test suite', () => {
                       type: 'unknown',
                     },
                   }),
+                  auditEventForAutoscaler(),
                 ),
                 {
                   pagination: {
@@ -412,6 +433,7 @@ describe('spaces test suite', () => {
 
         expect(response.body).toContain('one@user.in.database');
         expect(response.body).toContain('some unknown actor');
+        expect(response.body).toContain('<code>app_autoscaler</code>');
 
         expect(response.body).toContain('Requested deletion of application');
         expect(response.body).toContain('Restaged application');
@@ -441,7 +463,7 @@ describe('suspended organisation spaces', () => {
 
     nockCF
       .get(`/v2/organizations/${organizationGUID}`)
-      .reply(200, 
+      .reply(200,
         JSON.stringify(
           lodash.merge(defaultOrg(), { metadata: { guid: 'suspended-guid' }, entity: { name: 'a-suspended-org', status: 'suspended' }}),
         ),
