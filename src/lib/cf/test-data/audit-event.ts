@@ -1,6 +1,7 @@
 import { IAuditEvent } from '../types';
 
 export const eventGUID = 'a595fe2f-01ff-4965-a50c-290258ab8582';
+export const autoscalerEventGUID = '7252659b-cb77-4f46-bbd8-6c023fe17de2';
 
 export const actorGUID = 'd144abe3-3d7b-40d4-b63f-2584798d3ee5';
 export const actorName = 'admin';
@@ -46,6 +47,40 @@ export const auditEvent = (): IAuditEvent =>
   "links": {
     "self": {
       "href": "https://api.example.org//v3/audit_events/${eventGUID}"
+    }
+  }
+}`);
+
+export const auditEventForAutoscaler = (): IAuditEvent =>
+  JSON.parse(`{
+  "guid": "${autoscalerEventGUID}",
+  "created_at": "2020-09-18T05:12:33Z",
+  "updated_at": "2020-09-18T05:12:33Z",
+  "type": "audit.app.update",
+  "actor": {
+    "guid": "app_autoscaler",
+    "type": "user",
+    "name": ""
+  },
+  "target": {
+    "guid": "${targetGUID}",
+    "type": "app",
+    "name": "${targetName}"
+  },
+  "data": {
+    "request": {
+       "instances": 3
+    }
+  },
+  "space": {
+    "guid": "${spaceGUID}"
+  },
+  "organization": {
+    "guid": "${orgGUID}"
+  },
+  "links": {
+    "self": {
+      "href": "https://api.example.org//v3/audit_events/${autoscalerEventGUID}"
     }
   }
 }`);
