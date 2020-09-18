@@ -3,7 +3,7 @@ import lodash from 'lodash';
 
 import * as testData from '../src/lib/cf/cf.test.data';
 import { app as defaultApp } from '../src/lib/cf/test-data/app';
-import { auditEvent as defaultAuditEvent } from '../src/lib/cf/test-data/audit-event';
+import { auditEvent as defaultAuditEvent, auditEventForAutoscaler, autoscalerEventGUID } from '../src/lib/cf/test-data/audit-event';
 import { org as defaultOrg, v3Org as defaultV3Org } from '../src/lib/cf/test-data/org';
 import { wrapResources, wrapV3Resources } from '../src/lib/cf/test-data/wrap-resources';
 
@@ -79,12 +79,17 @@ function mockCF(app: express.Application, config: IStubServerPorts): express.App
   app.get('/v2/stacks'                               , (_, res) => res.send(testData.stacks));
   app.get('/v2/stacks/:guid'                         , (_, res) => res.send(testData.stack));
 
-  app.get('/v3/audit_events/:guid' , (_, res) => res.send(JSON.stringify(defaultAuditEvent())));
+  app.get(`/v3/audit_events/${autoscalerEventGUID}` , (_, res) => {
+    res.send(JSON.stringify(auditEventForAutoscaler()));
+  });
+  app.get('/v3/audit_events/:guid' , (_, res) => {
+    res.send(JSON.stringify(defaultAuditEvent()));
+  });
   app.get('/v3/audit_events'       , (req, res) => {
     const page = parseInt(req.param('page', '1'), 10);
 
     const predefinedResources = [
-      [lodash.merge(defaultAuditEvent(), { type: 'first-page' }), defaultAuditEvent()],
+      [lodash.merge(defaultAuditEvent(), { type: 'first-page' }), auditEventForAutoscaler()],
       [lodash.merge(defaultAuditEvent(), { type: 'middle-page' }), defaultAuditEvent()],
       [lodash.merge(defaultAuditEvent(), { type: 'last-page' }), defaultAuditEvent()],
     ];
