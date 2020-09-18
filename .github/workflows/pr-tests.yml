@@ -1,0 +1,25 @@
+---
+name: pr-tests
+on: pull_request
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-18.04
+
+    env:
+      NODE_ENV: development
+      TEST_TIMEOUT: 60000
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
