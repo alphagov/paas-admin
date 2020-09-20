@@ -119,129 +119,148 @@ export function OrganizationsReport(
         {props.organizations.length}{' '}
         {props.organizations.length === 1 ? 'organisation' : 'organisations'}.
       </p>
+      <div className="govuk-tabs" data-module="govuk-tabs">
+        <h2 className="govuk-tabs__title">
+          Contents
+        </h2>
+        <ul className="govuk-tabs__list">
+          <li className="govuk-tabs__list-item govuk-tabs__list-item--selected">
+            <a className="govuk-tabs__tab" href="#trial-accounts">
+              Trial accounts
+            </a>
+          </li>
+          <li className="govuk-tabs__list-item">
+            <a className="govuk-tabs__tab" href="#billable-accounts">
+              Billable accounts
+            </a>
+          </li>
+        </ul>
+        <div className="govuk-tabs__panel" id="trial-accounts">
+          <h2 className="govuk-heading-m">Trial accounts</h2>
 
-      <h2 className="govuk-heading-m">Trial accounts</h2>
+          <p className="govuk-body">
+            There {props.trialOrgs.length === 1 ? 'is' : 'are'}{' '}
+            {props.trialOrgs.length} trial{' '}
+            {props.trialOrgs.length === 1 ? 'organisation' : 'organisations'}.
+          </p>
 
-      <p className="govuk-body">
-        There {props.trialOrgs.length === 1 ? 'is' : 'are'}{' '}
-        {props.trialOrgs.length} trial{' '}
-        {props.trialOrgs.length === 1 ? 'organisation' : 'organisations'}.
-      </p>
+          <p className="govuk-body">Sorted by age; oldest first.</p>
 
-      <p className="govuk-body">Sorted by age; oldest first.</p>
+          <div className="scrollable-table-container">
+            <table className="govuk-table">
+            <thead className="govuk-table__head">
+              <tr className="govuk-table__row">
+                <th className="govuk-table__header">Organisation</th>
+                <th className="govuk-table__header">Owner</th>
+                <th className="govuk-table__header">Quota</th>
+                <th className="govuk-table__header">Creation date</th>
+                <th className="govuk-table__header">Status</th>
+              </tr>
+            </thead>
+            <tbody className="govuk-table__body">
+              {props.trialOrgs.map(organization => (
+                <tr key={organization.guid} className="govuk-table__row">
+                  <td className="govuk-table__cell">
+                    <a
+                      href={props.linkTo('admin.organizations.view', {
+                        organizationGUID: organization.guid,
+                      })}
+                      className="govuk-link"
+                      aria-label={`Organisation name: ${organization.name}${organization.suspended? ', status: suspended':''}`}
+                    >
+                      {organization.name}
+                    </a>
 
-      <div className="scrollable-table-container">
-        <table className="govuk-table">
-        <thead className="govuk-table__head">
-          <tr className="govuk-table__row">
-            <th className="govuk-table__header">Organisation</th>
-            <th className="govuk-table__header">Owner</th>
-            <th className="govuk-table__header">Quota</th>
-            <th className="govuk-table__header">Creation date</th>
-            <th className="govuk-table__header">Status</th>
-          </tr>
-        </thead>
-        <tbody className="govuk-table__body">
-          {props.trialOrgs.map(organization => (
-            <tr key={organization.guid} className="govuk-table__row">
-              <td className="govuk-table__cell">
-                <a
-                  href={props.linkTo('admin.organizations.view', {
-                    organizationGUID: organization.guid,
-                  })}
-                  className="govuk-link"
-                  aria-label={`Organisation name: ${organization.name}${organization.suspended? ', status: suspended':''}`}
-                >
-                  {organization.name}
-                </a>
+                    {organization.suspended &&
+                      <span className="govuk-tag govuk-tag--grey pull-right">Suspended</span>
+                    }
+                  </td>
+                  <td className="govuk-table__cell">
+                    {organization.metadata.annotations.owner === undefined
+                      ? 'Unknown'
+                      : organization.metadata.annotations.owner}
+                  </td>
+                  <td className="govuk-table__cell">
+                    {
+                      props.orgQuotaMapping[
+                        organization.relationships.quota.data.guid
+                      ].entity.name
+                    }
+                  </td>
+                  <td className="govuk-table__cell">
+                    {moment(organization.created_at).format(DATE)}
+                  </td>
+                  <td className="govuk-table__cell">
+                    {new Date() > props.orgTrialExpirys[organization.guid]
+                      ? 'Expired'
+                      : 'Expires'}{' '}
+                    {moment(props.orgTrialExpirys[organization.guid]).fromNow()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
+        </div>
+        <div className="govuk-tabs__panel" id="billable-accounts">
+          <h2 className="govuk-heading-m">Billable accounts</h2>
 
-                {organization.suspended &&
-                  <span className="govuk-tag govuk-tag--grey pull-right">Suspended</span>
-                }
-              </td>
-              <td className="govuk-table__cell">
-                {organization.metadata.annotations.owner === undefined
-                  ? 'Unknown'
-                  : organization.metadata.annotations.owner}
-              </td>
-              <td className="govuk-table__cell">
-                {
-                  props.orgQuotaMapping[
-                    organization.relationships.quota.data.guid
-                  ].entity.name
-                }
-              </td>
-              <td className="govuk-table__cell">
-                {moment(organization.created_at).format(DATE)}
-              </td>
-              <td className="govuk-table__cell">
-                {new Date() > props.orgTrialExpirys[organization.guid]
-                  ? 'Expired'
-                  : 'Expires'}{' '}
-                {moment(props.orgTrialExpirys[organization.guid]).fromNow()}
-              </td>
+          <p className="govuk-body">
+            There {props.billableOrgs.length === 1 ? 'is' : 'are'}{' '}
+            {props.billableOrgs.length} billable{' '}
+            {props.billableOrgs.length === 1 ? 'organisation' : 'organisations'}.
+          </p>
+
+          <p className="govuk-body">Sorted by age; newest first.</p>
+
+          <div className="scrollable-table-container">
+          <table className="govuk-table">
+          <thead className="govuk-table__head">
+            <tr className="govuk-table__row">
+              <th className="govuk-table__header">Organisation</th>
+              <th className="govuk-table__header">Owner</th>
+              <th className="govuk-table__header">Quota</th>
+              <th className="govuk-table__header">Creation date</th>
+              <th className="govuk-table__header">Time since creation</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
-
-      <h2 className="govuk-heading-m">Billable accounts</h2>
-
-      <p className="govuk-body">
-        There {props.billableOrgs.length === 1 ? 'is' : 'are'}{' '}
-        {props.billableOrgs.length} billable{' '}
-        {props.billableOrgs.length === 1 ? 'organisation' : 'organisations'}.
-      </p>
-
-      <p className="govuk-body">Sorted by age; newest first.</p>
-
-      <div className="scrollable-table-container">
-        <table className="govuk-table">
-        <thead className="govuk-table__head">
-          <tr className="govuk-table__row">
-            <th className="govuk-table__header">Organisation</th>
-            <th className="govuk-table__header">Owner</th>
-            <th className="govuk-table__header">Quota</th>
-            <th className="govuk-table__header">Creation date</th>
-            <th className="govuk-table__header">Time since creation</th>
-          </tr>
-        </thead>
-        <tbody className="govuk-table__body">
-          {props.billableOrgs.map(organization => (
-            <tr key={organization.guid} className="govuk-table__row">
-              <td className="govuk-table__cell">
-                <a
-                  href={props.linkTo('admin.organizations.view', {
-                    organizationGUID: organization.guid,
-                  })}
-                  className="govuk-link"
-                >
-                  {organization.name}
-                </a>
-              </td>
-              <td className="govuk-table__cell">
-                {organization.metadata.annotations.owner === undefined
-                  ? 'Unknown'
-                  : organization.metadata.annotations.owner}
-              </td>
-              <td className="govuk-table__cell">
-                {
-                  props.orgQuotaMapping[
-                    organization.relationships.quota.data.guid
-                  ].entity.name
-                }
-              </td>
-              <td className="govuk-table__cell">
-                {moment(organization.created_at).format(DATE)}
-              </td>
-              <td className="govuk-table__cell">
-                Created {moment(organization.created_at).fromNow()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="govuk-table__body">
+            {props.billableOrgs.map(organization => (
+              <tr key={organization.guid} className="govuk-table__row">
+                <td className="govuk-table__cell">
+                  <a
+                    href={props.linkTo('admin.organizations.view', {
+                      organizationGUID: organization.guid,
+                    })}
+                    className="govuk-link"
+                  >
+                    {organization.name}
+                  </a>
+                </td>
+                <td className="govuk-table__cell">
+                  {organization.metadata.annotations.owner === undefined
+                    ? 'Unknown'
+                    : organization.metadata.annotations.owner}
+                </td>
+                <td className="govuk-table__cell">
+                  {
+                    props.orgQuotaMapping[
+                      organization.relationships.quota.data.guid
+                    ].entity.name
+                  }
+                </td>
+                <td className="govuk-table__cell">
+                  {moment(organization.created_at).format(DATE)}
+                </td>
+                <td className="govuk-table__cell">
+                  Created {moment(organization.created_at).fromNow()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+        </div>
       </div>
     </>
   );
