@@ -44,3 +44,11 @@ if ($tooltips) {
     new Tooltip($tooltips[i]).init();
   };
 }
+
+var $tabs = document.querySelectorAll('[data-module="govuk-tabs"]');
+var GOVUKTabs = window.GOVUKFrontend.Tabs;
+if ($tabs) {
+  for (var i = 0; i < $tabs.length; i++) {
+    new GOVUKTabs($tabs[i]).init();
+  };
+}
