@@ -223,6 +223,46 @@ describe(OrganizationsReport, () => {
 
     expect($('table tbody tr td:first-of-type span.govuk-tag').length).toEqual(1);
   })
+
+  it('should not show a table of trial organisations if there are no organisations', () => {
+    const markup = shallow(
+      <OrganizationsReport
+        linkTo={route => `__LINKS_TO__${route}`}
+        organizations={org}
+        trialOrgs={[]}
+        billableOrgs={billableOrg}
+        orgQuotaMapping={{
+          'quota-guid': orgQuota,
+          'billable-quota-guid': billableQuota,
+        }}
+        orgTrialExpirys={{ 'org-guid': new Date('2019-01-30') }}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('#trial-accounts .govuk-table').length).toEqual(0);
+    expect($('#billable-accounts .govuk-table').length).toEqual(1);
+    
+  })
+
+  it('should not show a table of billable organisations if there are no organisations', () => {
+    const markup = shallow(
+      <OrganizationsReport
+        linkTo={route => `__LINKS_TO__${route}`}
+        organizations={org}
+        trialOrgs={org}
+        billableOrgs={[]}
+        orgQuotaMapping={{
+          'quota-guid': orgQuota,
+          'billable-quota-guid': billableQuota,
+        }}
+        orgTrialExpirys={{ 'org-guid': new Date('2019-01-30') }}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('#billable-accounts .govuk-table').length).toEqual(0);
+    expect($('#trial-accounts .govuk-table').length).toEqual(1);
+    
+  })
 });
 
 describe(CostReport, () => {

@@ -143,7 +143,8 @@ export function OrganizationsReport(
             {props.trialOrgs.length} trial{' '}
             {props.trialOrgs.length === 1 ? 'organisation' : 'organisations'}.
           </p>
-
+          {props.trialOrgs.length > 0 ?
+          <>
           <p className="govuk-body">Sorted by age; oldest first.</p>
 
           <div className="scrollable-table-container">
@@ -201,6 +202,8 @@ export function OrganizationsReport(
             </tbody>
           </table>
           </div>
+          </> : <></>
+          }
         </div>
         <div className="govuk-tabs__panel" id="billable-accounts">
           <h2 className="govuk-heading-m">Billable accounts</h2>
@@ -210,7 +213,8 @@ export function OrganizationsReport(
             {props.billableOrgs.length} billable{' '}
             {props.billableOrgs.length === 1 ? 'organisation' : 'organisations'}.
           </p>
-
+          {props.billableOrgs.length > 0 ?
+          <>
           <p className="govuk-body">Sorted by age; newest first.</p>
 
           <div className="scrollable-table-container">
@@ -260,6 +264,8 @@ export function OrganizationsReport(
           </tbody>
         </table>
         </div>
+          </> : <></>
+          }
         </div>
       </div>
     </>
