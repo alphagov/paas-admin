@@ -27,8 +27,13 @@ export class SQSMetricDataGetter extends CloudWatchMetricDataGetter
     super();
   }
 
-  public getSQSQueueName(guid: string): string {
-    return `paas-sqs-broker-${guid}-pri`;
+  public getSQSQueueName(guid: string, servicePlanName?: string): string {
+    /* istanbul ignore next: ext doesn't need own test */
+    const ext = servicePlanName && servicePlanName == 'fifo'
+      ? '.fifo'
+      : '';
+
+      return `paas-sqs-broker-${guid}-pri${ext}`;
   }
 
   public async getData(
@@ -37,6 +42,7 @@ export class SQSMetricDataGetter extends CloudWatchMetricDataGetter
     period: moment.Duration,
     rangeStart: moment.Moment,
     rangeStop: moment.Moment,
+    servicePlanName?: string,
   ): Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }> {
 
     const metricDataInputs = [
@@ -47,7 +53,7 @@ export class SQSMetricDataGetter extends CloudWatchMetricDataGetter
             Metric: {
               Dimensions: [{
                 Name: 'QueueName',
-                Value: this.getSQSQueueName(guid),
+                Value: this.getSQSQueueName(guid, servicePlanName),
               }],
               MetricName: sqsMetricPropertiesById[metricId].name,
               Namespace: 'AWS/SQS',

@@ -251,6 +251,7 @@ export async function viewServiceMetrics(
         period,
         rangeStart,
         rangeStop,
+        servicePlan!.entity.name,
       );
 
       metrics = sqsMetrics(
@@ -422,6 +423,7 @@ export async function downloadServiceMetrics(
 
   switch (serviceLabel) {
     case 'aws-sqs-queue':
+      const servicePlan = await cf.servicePlan(service.entity.service_plan_guid);
       const sqsMetricSeries = await new SQSMetricDataGetter(
         new cw.CloudWatchClient({
           endpoint: ctx.app.awsCloudwatchEndpoint,
@@ -433,6 +435,7 @@ export async function downloadServiceMetrics(
         period,
         rangeStart,
         rangeStop,
+        servicePlan.entity.name,
       );
 
       headers = ['Service', 'Time', 'Value'];
