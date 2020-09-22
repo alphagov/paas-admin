@@ -195,14 +195,6 @@ export function Footer(): ReactElement {
               <li className="govuk-footer__inline-list-item">
                 <a
                   className="govuk-footer__link"
-                  href="https://www.gov.uk/government/organisations/government-digital-service"
-                >
-                  Built by the Government Digital Service
-                </a>
-              </li>
-              <li className="govuk-footer__inline-list-item">
-                <a
-                  className="govuk-footer__link"
                   href="https://www.cloud.service.gov.uk/privacy-notice"
                 >
                   Privacy notice
@@ -214,6 +206,14 @@ export function Footer(): ReactElement {
                   href="https://www.cloud.service.gov.uk/terms-of-use"
                 >
                   Terms of use
+                </a>
+              </li>
+              <li className="govuk-footer__inline-list-item">
+                <a
+                  className="govuk-footer__link"
+                  href="https://www.cloud.service.gov.uk/accessibility-statement"
+                >
+                  Accessibility statement
                 </a>
               </li>
               <li className="govuk-footer__inline-list-item">
@@ -233,7 +233,9 @@ export function Footer(): ReactElement {
                 </a>
               </li>
             </ul>
-
+            <div className="govuk-footer__meta-custom">
+              Built by the <a href="https://www.gov.uk/government/organisations/government-digital-service" className="govuk-footer__link">Government Digital Service</a>
+            </div>
             <svg
               role="presentation"
               focusable="false"
