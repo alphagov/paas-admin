@@ -46,14 +46,19 @@ interface IRange {
   readonly rangeStop: moment.Moment;
 }
 
+// check if user-provided string is a number
+export function isNumeric(value: any) {
+  return /^\d+$/.test(value);
+}
+
 export function sanitiseMomentInput(date: moment.MomentInputObject): moment.MomentInputObject {
   return {
     // if users enter something other than a number, return current date-time value
-    day: typeof date.day === 'number' ? date.day : moment().date(),
-    hour: typeof date.hour === 'number' ? date.hour : moment().hour(),
-    minute: typeof date.minute === 'number' ? date.minute : moment().minute(),
-    month: typeof date.month === 'number' ? date.month - 1 : moment().month(),
-    year: typeof date.year === 'number' ? date.year : moment().year(),
+    day: isNumeric(date.day) ? date.day : moment().date(),
+    hour: isNumeric(date.hour) ? date.hour : moment().hour(),
+    minute: isNumeric(date.minute) ? date.minute : moment().minute(),
+    month: isNumeric(date.month) ? date.month - 1 : moment().month(),
+    year: isNumeric(date.year) ? date.year : moment().year(),
   };
 }
 
