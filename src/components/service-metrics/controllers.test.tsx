@@ -22,6 +22,7 @@ import { IContext } from '../app/context';
 import {
   composeValue,
   downloadServiceMetrics,
+  isNumeric,
   parseRange,
   resolveServiceMetrics,
   sanitiseMomentInput,
@@ -815,6 +816,15 @@ describe(composeValue, () => {
     expect(composeValue(128)).toEqual('128.00');
   });
 });
+describe(isNumeric, () => {
+  it('should return true if a string resembles a number', () => {
+    expect(isNumeric('01')).toBeTruthy();
+  });
+  it('should return false if a string doesn\'t resemeble a number', () => {
+    expect(isNumeric('bb')).not.toBeTruthy();
+  });
+});
+
 
 describe(sanitiseMomentInput, () => {
   it('should populate values with today\'s date-time if input values are missing', () => {
