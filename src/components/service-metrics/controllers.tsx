@@ -16,6 +16,8 @@ import {
   elasticsearchMetricNames,
   RDSMetricDataGetter,
   rdsMetricNames,
+  SQSMetricDataGetter,
+  sqsMetricNames,
 } from '../../lib/metric-data-getters';
 import roundDown from '../../lib/moment/round';
 import PromClient from '../../lib/prom';
@@ -30,6 +32,7 @@ import {
   elastiCacheMetrics,
   elasticSearchMetrics,
   rdsMetrics,
+  sqsMetrics,
 } from './metrics';
 import { getPeriod } from './utils';
 import {
@@ -236,6 +239,27 @@ export async function viewServiceMetrics(
   let persistancePeriod: string | undefined;
 
   switch (serviceLabel) {
+    case 'aws-sqs-queue':
+      const sqsMetricSeries = await new SQSMetricDataGetter(
+        new cw.CloudWatchClient({
+          endpoint: ctx.app.awsCloudwatchEndpoint,
+          region: ctx.app.awsRegion,
+        }),
+      ).getData(
+        sqsMetricNames,
+        params.serviceGUID,
+        period,
+        rangeStart,
+        rangeStop,
+        servicePlan!.entity.name,
+      );
+
+      metrics = sqsMetrics(
+        sqsMetricSeries,
+        mapValues(sqsMetricSeries, s => s.map(summariseSerie)),
+        downloadLink,
+      );
+      break;
     case 'cdn-route':
       const cloudFrontMetricSeries = await new CloudFrontMetricDataGetter(
         new cw.CloudWatchClient({
@@ -398,6 +422,33 @@ export async function downloadServiceMetrics(
   let contents: ReadonlyArray<ReadonlyArray<string>>;
 
   switch (serviceLabel) {
+    case 'aws-sqs-queue':
+      const servicePlan = await cf.servicePlan(service.entity.service_plan_guid);
+      const sqsMetricSeries = await new SQSMetricDataGetter(
+        new cw.CloudWatchClient({
+          endpoint: ctx.app.awsCloudwatchEndpoint,
+          region: ctx.app.awsRegion,
+        }),
+      ).getData(
+        [params.metric],
+        params.serviceGUID,
+        period,
+        rangeStart,
+        rangeStop,
+        servicePlan.entity.name,
+      );
+
+      headers = ['Service', 'Time', 'Value'];
+      contents = values(sqsMetricSeries[params.metric])
+        .map(metric =>
+          metric.metrics.map(series => [
+            serviceLabel,
+            moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+            composeValue(series.value, params.units),
+          ]),
+        )
+        .reduceRight((list, flatList) => [...flatList, ...list], []);
+      break;
     case 'cdn-route':
       const cloudfrontMetricSeries = await new CloudFrontMetricDataGetter(
         new cw.CloudWatchClient({
