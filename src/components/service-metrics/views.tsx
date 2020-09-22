@@ -363,7 +363,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
               </div>
             </fieldset>
           </div>
-          
+          <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
           <div className="govuk-form-group">
             <fieldset className="govuk-fieldset" role="group" aria-describedby="range-end-date-hint">
               <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
