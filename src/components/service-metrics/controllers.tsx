@@ -63,8 +63,11 @@ export function sanitiseMomentInput(date: moment.MomentInputObject): moment.Mome
 }
 
 export function parseRange(start: string | moment.MomentInputObject, stop: string | moment.MomentInputObject): IRange {
-  const rangeStart = moment(typeof start === 'object' ? sanitiseMomentInput(start) : start);
-  const rangeStop = moment(typeof stop === 'object' ? sanitiseMomentInput(stop) : stop);
+  const rangeStart = typeof start === 'object' ? moment(sanitiseMomentInput(start)).isValid() ? 
+    moment(sanitiseMomentInput(start)) : moment() : moment(start);
+  const rangeStop = typeof stop === 'object' ? moment(sanitiseMomentInput(stop)).isValid() ? 
+    moment(sanitiseMomentInput(stop)) : moment() : moment(stop);
+
   if (
     rangeStart.isBefore(
       rangeStop

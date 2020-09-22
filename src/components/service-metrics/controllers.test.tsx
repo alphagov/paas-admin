@@ -879,5 +879,19 @@ describe(parseRange, () => {
       .toEqual(moment(userStopInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm'));
     // momentjs months are Zero-based hence the subtraction
   });
+
+  it('should use current\' date-time values if user-entered values are not a valid date', () => {
+
+    const userStartInput = { day: 13, month: 13 , year: 2019, hour: 14, minute: 25 }
+    const userStopInput = { day: 14, month: 13 , year: 2020, hour: 15, minute: 25 }
+    const today = moment()
+    
+    const userEnteredRange = parseRange(userStartInput, userStopInput)
+    expect((userEnteredRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(today.format('YYYY-MM-DD[T]HH:mm')); 
+    expect((userEnteredRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(today.format('YYYY-MM-DD[T]HH:mm'));
+    // momentjs months are Zero-based hence the subtraction
+  });
 });
 
