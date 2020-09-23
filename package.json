@@ -109,7 +109,7 @@
     "@aws-sdk/client-cloudwatch-node": "^0.1.0-preview.2",
     "@aws-sdk/client-resource-groups-tagging-api-node": "0.1.0-preview.2",
     "aws-sdk": "^2.749.0",
-    "axios": "^0.19.2",
+    "axios": "^0.20.0",
     "base32-encode": "^1.1.1",
     "compression": "^1.7.4",
     "cookie-session": "^2.0.0-rc.1",
