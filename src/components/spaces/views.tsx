@@ -404,11 +404,8 @@ export function SpaceTab(props: ISpaceTabProperties): ReactElement {
         </span>{' '}
         {props.pageTitle}
       </h1>
-
-      <div className="govuk-tabs">
-        <h2 className="govuk-tabs__title">Contents</h2>
-
-        <ul className="govuk-tabs__list">
+      <nav className="app-sub-navigation" aria-label="Sub navigation">
+        <ul className="app-sub-navigation__list">
           <Tab
             active={props.routePartOf(
               'admin.organizations.spaces.applications.list',
@@ -441,9 +438,9 @@ export function SpaceTab(props: ISpaceTabProperties): ReactElement {
             Events
           </Tab>
         </ul>
+      </nav>
+      {props.children}
 
-        <section className="govuk-tabs__panel">{props.children}</section>
-      </div>
     </>
   );
 }

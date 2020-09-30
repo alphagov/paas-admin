@@ -37,14 +37,14 @@ interface ITabProperties {
 }
 
 export function Tab(props: ITabProperties): ReactElement {
-  const classess = ['govuk-tabs__list-item'];
+  let ariaCurrent = undefined;
   if (props.active) {
-    classess.push('govuk-tabs__list-item--selected');
+    ariaCurrent = 'page'
   }
 
   return (
-    <li className={classess.join(' ')}>
-      <a href={props.href} className="govuk-tabs__tab">
+    <li className="app-sub-navigation__item">
+      <a href={props.href} className="app-sub-navigation__link" aria-current={ariaCurrent}>
         {props.children}
       </a>
     </li>
