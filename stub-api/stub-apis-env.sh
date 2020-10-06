@@ -32,5 +32,4 @@ export MS_TENANT_ID=tenantid
 export GOOGLE_CLIENT_ID=googleclientid
 export GOOGLE_CLIENT_SECRET=googleclientsecret
 
-export AWS_ACCESS_KEY_ID=some-key-id
-export AWS_SECRET_ACCESS_KEY=some-secret-key
+export ENABLE_FAKE_AWS_CREDENTIALS=true
