@@ -63,9 +63,9 @@ export function sanitiseMomentInput(date: moment.MomentInputObject): moment.Mome
 }
 
 export function parseRange(start: string | moment.MomentInputObject, stop: string | moment.MomentInputObject): IRange {
-  const rangeStart = typeof start === 'object' ? moment(sanitiseMomentInput(start)).isValid() ? 
+  let rangeStart = typeof start === 'object' ? moment(sanitiseMomentInput(start)).isValid() ? 
     moment(sanitiseMomentInput(start)) : moment() : moment(start);
-  const rangeStop = typeof stop === 'object' ? moment(sanitiseMomentInput(stop)).isValid() ? 
+  let rangeStop = typeof stop === 'object' ? moment(sanitiseMomentInput(stop)).isValid() ? 
     moment(sanitiseMomentInput(stop)) : moment() : moment(stop);
 
   if (
@@ -99,7 +99,8 @@ export function parseRange(start: string | moment.MomentInputObject, stop: strin
   }
 
   if (rangeStop.isBefore(rangeStart)) {
-    throw new UserFriendlyError('Invalid time range provided');
+    rangeStart = moment().subtract(1,'hour');
+    rangeStop = moment();
   }
 
   const period = moment.duration(getPeriod(rangeStart, rangeStop), 'seconds');
