@@ -294,6 +294,7 @@ describe(DeleteConfirmationPage, () => {
       <DeleteConfirmationPage
         csrf="CSRF_TOKEN"
         linkTo={route => `__LINKS_TO__${route}`}
+        organizationName="ORG_NAME"
         organizationGUID="ORG_GUID"
         user={user}
       />,
@@ -302,7 +303,8 @@ describe(DeleteConfirmationPage, () => {
     expect($('h2').text()).toContain(
       'Are you sure you\'d like to remove the following user?',
     );
-    expect($('p').text()).toContain('user-name');
+    expect($('.govuk-summary-list').text()).toContain('user-name');
+    expect($('.govuk-summary-list').text()).toContain('ORG_NAME');
   });
 });
 
