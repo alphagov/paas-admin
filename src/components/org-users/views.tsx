@@ -16,6 +16,7 @@ interface IDeleteConfirmationPageProperties {
   readonly csrf: string;
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
+  readonly organizationName: string;
   readonly user: IOrganizationUserRoles;
 }
 
@@ -364,7 +365,24 @@ export function DeleteConfirmationPage(
             Are you sure you&apos;d like to remove the following user?
           </h2>
 
-          <p className="govuk-heading-m">{props.user.entity.username}</p>
+          <dl className="govuk-summary-list">
+            <div className="govuk-summary-list__row">
+              <dt className="govuk-summary-list__key">
+                User
+              </dt>
+              <dd className="govuk-summary-list__value">
+                {props.user.entity.username}
+              </dd>
+            </div>
+            <div className="govuk-summary-list__row">
+              <dt className="govuk-summary-list__key">
+                Organisation
+              </dt>
+              <dd className="govuk-summary-list__value">
+                {props.organizationName}
+              </dd>
+            </div>
+          </dl>
 
           <button
             className="govuk-button govuk-button--warning"
