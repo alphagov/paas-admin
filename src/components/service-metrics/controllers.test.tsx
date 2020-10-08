@@ -23,7 +23,10 @@ import { IContext } from '../app/context';
 import {
   composeValue,
   downloadServiceMetrics,
+  isNumeric,
+  parseRange,
   resolveServiceMetrics,
+  sanitiseMomentInput,
   viewServiceMetrics,
 } from '.';
 
@@ -440,20 +443,6 @@ describe('service metrics test suite', () => {
     expect(response.status).toEqual(302);
     expect(response.redirect).toContain('rangeStart');
     expect(response.redirect).toContain('rangeStop');
-  });
-
-  it('should throw an error if rangeStop is sooner than rangeStart', async () => {
-    await expect(
-      viewServiceMetrics(ctx, {
-        organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        rangeStart: moment().format('YYYY-MM-DD[T]HH:mm'),
-        rangeStop: moment()
-          .subtract(1, 'hour')
-          .format('YYYY-MM-DD[T]HH:mm'),
-        serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
-        spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
-      }),
-    ).rejects.toThrow(/Invalid time range provided/);
   });
 
   it('should throw an error if asking for more than a year of metrics', async () => {
@@ -908,3 +897,90 @@ describe(composeValue, () => {
     expect(composeValue(128)).toEqual('128.00');
   });
 });
+describe(isNumeric, () => {
+  it('should return true if a string resembles a number', () => {
+    expect(isNumeric('01')).toBeTruthy();
+  });
+  it('should return false if a string doesn\'t resemeble a number', () => {
+    expect(isNumeric('bb')).not.toBeTruthy();
+  });
+});
+
+
+describe(sanitiseMomentInput, () => {
+  it('should populate values with today\'s date-time if input values are missing', () => {
+    const userInput = sanitiseMomentInput(
+      { day: undefined, month: undefined, year: undefined, hour: undefined, minute: undefined },
+    )
+    const currentDay = Number(moment().format('DD'))
+    const currentMonth = Number(moment().format('MM')) - 1  // momentjs months are Zero-based
+    const currentYear = Number(moment().format('YYYY'))
+    const currentHour = Number(moment().format('HH'))
+    const currentMinute = Number(moment().format('mm'))
+    expect(userInput.day).toEqual(currentDay);
+    expect(userInput.month).toEqual(currentMonth);
+    expect(userInput.year).toEqual(currentYear);
+    expect(userInput.hour).toEqual(currentHour);
+    expect(userInput.minute).toEqual(currentMinute);
+  });
+});
+
+describe(parseRange, () => {
+  it('should do nothing if user hasn\'t submitted anything', () => {
+
+    const defaultRange = parseRange('2020-09-13T14:25', '2020-09-14T15:25')
+    expect((defaultRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment('2020-09-13T14:25').format('YYYY-MM-DD[T]HH:mm'));
+    expect((defaultRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment('2020-09-14T15:25').format('YYYY-MM-DD[T]HH:mm'));
+
+  });
+  it('should return a sanitized user input', () => {
+
+    const userStartInput = { day: 13, month: 9 , year: 2020, hour: 14, minute: 25 }
+    const userStopInput = { day: 14, month: 9 , year: 2020, hour: 15, minute: 25 }
+    
+    const userEnteredRange = parseRange(userStartInput, userStopInput)
+    expect((userEnteredRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment(userStartInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm')); 
+    expect((userEnteredRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment(userStopInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm'));
+    // momentjs months are Zero-based hence the subtraction
+  });
+
+  it('should return a sanitized user input', () => {
+
+    const userStartInput = { day: 13, month: 9 , year: 2020, hour: 14, minute: 25 }
+    const userStopInput = { day: 14, month: 9 , year: 2020, hour: 15, minute: 25 }
+    
+    const userEnteredRange = parseRange(userStartInput, userStopInput)
+    expect((userEnteredRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment(userStartInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm')); 
+    expect((userEnteredRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment(userStopInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm'));
+  });
+
+  it('should use current\' date-time values if user-entered values are not a valid date', () => {
+
+    const userStartInput = { day: 13, month: 13 , year: 2019, hour: 14, minute: 25 }
+    const userStopInput = { day: 14, month: 13 , year: 2020, hour: 15, minute: 25 }
+    const today = moment()
+    
+    const userEnteredRange = parseRange(userStartInput, userStopInput)
+    expect((userEnteredRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(today.format('YYYY-MM-DD[T]HH:mm')); 
+    expect((userEnteredRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(today.format('YYYY-MM-DD[T]HH:mm'));
+  });
+
+  it('should use current datetime and current datetime minus 1 hour if stop date is before start date', () => {
+    
+    const rangeStartBeforeStop = parseRange('2020-11-01T14:25', '2020-09-01T15:25')
+
+    expect((rangeStartBeforeStop.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment().subtract(1,'hour').format('YYYY-MM-DD[T]HH:mm')); 
+    expect((rangeStartBeforeStop.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
+      .toEqual(moment().format('YYYY-MM-DD[T]HH:mm')); 
+  });
+});
+

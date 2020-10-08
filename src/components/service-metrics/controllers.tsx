@@ -5,7 +5,7 @@ import { mapValues, values } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 
-import { bytesConvert, Template } from '../../layouts';
+import { bytesConvert, DATE_TIME, Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import {
   CloudFrontMetricDataGetter,
@@ -49,9 +49,28 @@ interface IRange {
   readonly rangeStop: moment.Moment;
 }
 
-function parseRange(start: string, stop: string): IRange {
-  const rangeStart = moment(start);
-  const rangeStop = moment(stop);
+// check if user-provided string is a number
+export function isNumeric(value: any) {
+  return /^\d+$/.test(value);
+}
+
+export function sanitiseMomentInput(date: moment.MomentInputObject): moment.MomentInputObject {
+  return {
+    // if users enter something other than a number, return current date-time value
+    day: isNumeric(date.day) ? date.day : moment().date(),
+    hour: isNumeric(date.hour) ? date.hour : moment().hour(),
+    minute: isNumeric(date.minute) ? date.minute : moment().minute(),
+    month: isNumeric(date.month) ? date.month - 1 : moment().month(),
+    year: isNumeric(date.year) ? date.year : moment().year(),
+  };
+}
+
+export function parseRange(start: string | moment.MomentInputObject, stop: string | moment.MomentInputObject): IRange {
+  let rangeStart = typeof start === 'object' ? moment(sanitiseMomentInput(start)).isValid() ? 
+    moment(sanitiseMomentInput(start)) : moment() : moment(start);
+  let rangeStop = typeof stop === 'object' ? moment(sanitiseMomentInput(stop)).isValid() ? 
+    moment(sanitiseMomentInput(stop)) : moment() : moment(stop);
+
   if (
     rangeStart.isBefore(
       rangeStop
@@ -83,7 +102,8 @@ function parseRange(start: string, stop: string): IRange {
   }
 
   if (rangeStop.isBefore(rangeStart)) {
-    throw new UserFriendlyError('Invalid time range provided');
+    rangeStart = moment().subtract(1,'hour');
+    rangeStop = moment();
   }
 
   const period = moment.duration(getPeriod(rangeStart, rangeStop), 'seconds');
@@ -199,7 +219,8 @@ export async function viewServiceMetrics(
 
   const template = new Template(
     ctx.viewContext,
-    `Service ${service.entity.name} Metrics`,
+    `Service ${service.entity.name} Metrics between 
+    ${moment(rangeStart).format(DATE_TIME)} and ${moment(rangeStop).format(DATE_TIME)}`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {

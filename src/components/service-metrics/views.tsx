@@ -137,16 +137,11 @@ function Metric(props: IMetricProperties): ReactElement {
         </h2>
       </div>
 
-      <div className="govuk-grid-column-two-thirds-from-desktop">
+      <div className="govuk-grid-column-full">
         <p className="govuk-body">{props.description}</p>
 
         <MetricChart chart={props.chart.outerHTML} />
 
-        <a href={downloadLink.toString()} className="govuk-link" download>
-          Download &quot;{props.titleText || props.title}&quot; as a CSV
-        </a>
-      </div>
-      <div className="govuk-grid-column-one-third-from-desktop">
         <div className="scrollable-table-container">
           <table className="govuk-table">
           <caption className="govuk-table__caption govuk-visually-hidden">
@@ -209,6 +204,9 @@ function Metric(props: IMetricProperties): ReactElement {
           </tbody>
         </table>
         </div>
+        <a href={downloadLink.toString()} className="govuk-link" download>
+          Download &quot;{props.titleText || props.title}&quot; as a CSV
+        </a>
       </div>
     </div>
   );
@@ -217,53 +215,8 @@ function Metric(props: IMetricProperties): ReactElement {
 function RangePicker(props: IRangePickerProperties): ReactElement {
   return (
     <div className="paas-statement-filters">
-      <p className="govuk-body">
-        Showing metrics for{' '}
-        <a
-          href={props.linkTo('admin.organizations.spaces.services.view', {
-            organizationGUID: props.organizationGUID,
-            serviceGUID: props.service.metadata.guid,
-            spaceGUID: props.spaceGUID,
-          })}
-          className="govuk-link non-breaking"
-        >
-          <span className="govuk-visually-hidden">Service name:</span> {props.service.entity.name}
-        </a>{' '}
-        between <br />
-        <strong>{moment(props.rangeStart).format(DATE_TIME)}</strong>
-        <br /> and <br />
-        <strong>{moment(props.rangeStop).format(DATE_TIME)}</strong>
-      </p>
-
-      <p className="govuk-body">
-        Metrics timestamps are in UTC format.
-      </p>
-
-      <p className="govuk-body">
-        Each point on a graph is aggregated over
-        {' '}
-        <strong className="non-breaking">{props.period.humanize()}</strong>
-        {' '}
-        of data.
-      </p>
-
-      {props.persistancePeriod ? (
-        <p className="govuk-body">
-          These metrics are retained for up to{' '}
-          <strong>{props.persistancePeriod}</strong>. While metrics are
-          experimental, we cannot guarantee a minimum metrics retention period.
-        </p>
-      ) : (
-        <></>
-      )}
-
-      <details className="govuk-details" data-module="govuk-details">
-        <summary className="govuk-details__summary">
-          <span className="govuk-details__summary-text">
-            Change time period
-          </span>
-        </summary>
-        <div className="govuk-details__text">
+      <h2 className="govuk-heading-m">Change time period</h2>
+      <h3 className="govuk-heading-s">Chose a predefined period</h3>
         <ol className="govuk-list">
           {[
             { long: '1 hour', short: '1h' },
@@ -291,8 +244,8 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
             </li>
           ))}
         </ol>
-
         <form
+          noValidate
           method="get"
           action={props.linkTo(
             'admin.organizations.spaces.services.metrics.view',
@@ -305,37 +258,217 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
         >
           <input type="hidden" name="_csrf" value={props.csrf} />
 
-          <h2 className="govuk-heading-s">Or provide custom date <span className="govuk-visually-hidden">for showing metrics</span></h2>
+          <h3 className="govuk-heading-s">Provide custom date and time <span className="govuk-visually-hidden">for showing metrics</span></h3>
           <div className="govuk-form-group">
-            <label className="govuk-label" htmlFor="rangeStart">
-              Start time
-            </label>
-            <input
-              type="datetime-local"
-              id="rangeStart"
-              name="rangeStart"
-              className="govuk-input"
-              defaultValue={moment(props.rangeStart).format(
-                'YYYY-MM-DD[T]HH:mm',
-              )}
-            />
+            <fieldset className="govuk-fieldset" role="group" aria-describedby="range-start-date-hint">
+              <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+                Enter start date
+              </legend>
+              <div id="range-start-date-hint" className="govuk-hint">
+                For example, 12 11 2007
+              </div>
+              <div className="govuk-date-input" id="range-start">
+                <div className="govuk-date-input__item">
+                  <div className="govuk-form-group">
+                    <label className="govuk-label govuk-date-input__label" htmlFor="rangeStartDay">
+                      Day
+                    </label>
+                    <input 
+                      className="govuk-input govuk-date-input__input govuk-input--width-2" 
+                      id="rangeStartDay"
+                      name="rangeStart[day]"
+                      type="text"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      defaultValue={moment(props.rangeStart).format('DD')}
+                    />
+                  </div>
+                </div>
+                <div className="govuk-date-input__item">
+                  <div className="govuk-form-group">
+                    <label className="govuk-label govuk-date-input__label" htmlFor="startMonth">
+                      Month
+                    </label>
+                    <input 
+                      className="govuk-input govuk-date-input__input govuk-input--width-2" 
+                      id="rangeStartMonth"
+                      name="rangeStart[month]"
+                      type="text"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      defaultValue={moment(props.rangeStart).format('MM')}
+                      />
+                  </div>
+                </div>
+                <div className="govuk-date-input__item">
+                  <div className="govuk-form-group">
+                    <label className="govuk-label govuk-date-input__label" htmlFor="rangeStartYear">
+                      Year
+                    </label>
+                    <input
+                      className="govuk-input govuk-date-input__input govuk-input--width-4"
+                      id="rangeStartYear"
+                      name="rangeStart[year]"
+                      type="text"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      defaultValue={moment(props.rangeStart).format('YYYY')}
+                      />
+                  </div>
+                </div>
+              </div>
+            </fieldset>
           </div>
-
           <div className="govuk-form-group">
-            <label className="govuk-label" htmlFor="rangeStop">
-              End time
-            </label>
-            <input
-              type="datetime-local"
-              id="rangeStop"
-              name="rangeStop"
-              className="govuk-input"
-              defaultValue={moment(props.rangeStop).format(
-                'YYYY-MM-DD[T]HH:mm',
-              )}
-            />
+            <fieldset className="govuk-fieldset" role="group" aria-describedby="range-start-time-hint">
+              <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+                Enter start time
+              </legend>
+              <div id="range-start-time-hint" className="govuk-hint">
+                For example, 08:10
+              </div>
+              <div className="govuk-date-input" id="range-start-time">
+                <div className="govuk-date-input__item">
+                  <div className="govuk-form-group">
+                    <label className="govuk-label govuk-date-input__label" htmlFor="rangeStartHour">
+                      Hours
+                    </label>
+                    <input
+                      className="govuk-input govuk-date-input__input govuk-input--width-2"
+                      id="rangeStartHour"
+                      name="rangeStart[hour]"
+                      type="text"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      defaultValue={moment(props.rangeStart).format('HH')}
+                    />
+                  </div>
+                </div>
+                <div className="govuk-date-input__item">
+                  <div className="govuk-form-group">
+                    <label className="govuk-label govuk-date-input__label" htmlFor="rangeStartMinute">
+                      Minutes
+                    </label>
+                    <input 
+                      className="govuk-input govuk-date-input__input govuk-input--width-2"
+                      id="rangeStartMinute"
+                      name="rangeStart[minute]"
+                      type="text"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      defaultValue={moment(props.rangeStart).format('mm')} 
+                    />
+                  </div>
+                </div>
+              </div>
+            </fieldset>
           </div>
-
+          <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
+          <div className="govuk-form-group">
+            <fieldset className="govuk-fieldset" role="group" aria-describedby="range-end-date-hint">
+              <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+                Enter end date
+              </legend>
+              <div id="range-end-date-hint" className="govuk-hint">
+                For example, 12 11 2007
+              </div>
+              <div className="govuk-date-input" id="range-end-date">
+                <div className="govuk-date-input__item">
+                  <div className="govuk-form-group">
+                    <label className="govuk-label govuk-date-input__label" htmlFor="rangeStopDay">
+                      Day
+                    </label>
+                    <input
+                      className="govuk-input govuk-date-input__input govuk-input--width-2"
+                      id="rangeStopDay"
+                      name="rangeStop[day]"
+                      type="text"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      defaultValue={moment(props.rangeStop).format('DD')}
+                      />
+                  </div>
+                </div>
+                <div className="govuk-date-input__item">
+                  <div className="govuk-form-group">
+                    <label className="govuk-label govuk-date-input__label" htmlFor="rangeStopMonth">
+                      Month
+                    </label>
+                    <input
+                    className="govuk-input govuk-date-input__input govuk-input--width-2"
+                    id="rangeStopMonth"
+                    name="rangeStop[month]"
+                    type="text"
+                    pattern="[0-9]*"
+                    inputMode="numeric"
+                    defaultValue={moment(props.rangeStop).format('MM')}
+                  />
+                  </div>
+                </div>
+                <div className="govuk-date-input__item">
+                  <div className="govuk-form-group">
+                    <label className="govuk-label govuk-date-input__label" htmlFor="rangeStopYear">
+                      Year
+                    </label>
+                    <input
+                      className="govuk-input govuk-date-input__input govuk-input--width-4"
+                      id="rangeStopYear"
+                      name="rangeStop[year]"
+                      type="text"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      defaultValue={moment(props.rangeStop).format('YYYY')}
+                    />
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div className="govuk-form-group">
+            <fieldset className="govuk-fieldset" role="group" aria-describedby="range-end-time-hint">
+              <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+                Enter end time
+              </legend>
+              <div id="range-end-time-hint" className="govuk-hint">
+                For example, 16:10
+              </div>
+              <div className="govuk-date-input" id="range-end-time">
+                <div className="govuk-date-input__item">
+                  <div className="govuk-form-group">
+                    <label className="govuk-label govuk-date-input__label" htmlFor="rangeStopHour">
+                      Hours
+                    </label>
+                    <input
+                      className="govuk-input govuk-date-input__input govuk-input--width-2"
+                      id="rangeStopHour"
+                      name="rangeStop[hour]"
+                      type="text"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      defaultValue={moment(props.rangeStop).format('HH')}
+                    />
+                  </div>
+                </div>
+                <div className="govuk-date-input__item">
+                  <div className="govuk-form-group">
+                  <label className="govuk-label govuk-date-input__label" htmlFor="rangeStopMinute">
+                      Minutes
+                    </label>
+                    <input
+                      className="govuk-input govuk-date-input__input govuk-input--width-2"
+                      id="rangeStopMinute"
+                      name="rangeStop[minute]"
+                      type="text"
+                      pattern="[0-9]*"
+                      inputMode="numeric" 
+                      defaultValue={moment(props.rangeStop).format('mm')}
+                      />
+                    </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          
           <button
             className="govuk-button"
             data-module="govuk-button"
@@ -344,8 +477,6 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
             Update
           </button>
         </form>
-        </div>
-      </details>
     </div>
   );
 }
@@ -389,13 +520,19 @@ export function UnsupportedServiceMetricsPage(
 }
 
 export function MetricPage(props: IMetricPageProperties): ReactElement {
+  const title = `Metrics <span class="govuk-visually-hidden">
+    between ${' '}${moment(props.rangeStart).format(DATE_TIME)}${' '}
+    and${' '}${moment(props.rangeStop).format(DATE_TIME)}
+  </span>`;
   return (
-    <ServiceTab {...props} pageTitle="Metrics">
-      <ExperimentalWarning />
+    <ServiceTab
+      {...props}
+      pageTitle={title}>
 
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds-from-desktop">
+            <ExperimentalWarning />
             <p className="govuk-body">
               Currently the available metrics for {props.serviceLabel} are:
             </p>
@@ -408,6 +545,51 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
                 </li>
               ))}
             </ul>
+            <hr className="govuk-section-break govuk-section-break--m" />
+            <p className="govuk-body">
+              Showing metrics between{' '}
+              <strong>{moment(props.rangeStart).format(DATE_TIME)}</strong>{' '}
+              and{' '}
+              <strong>{moment(props.rangeStop).format(DATE_TIME)}</strong>
+            </p>
+
+            <p className="govuk-body">
+              Metrics timestamps are in UTC format.
+            </p>
+
+            <p className="govuk-body">
+              Each point on a graph is aggregated over
+              {' '}
+              <strong className="non-breaking">{props.period.humanize()}</strong>
+              {' '}
+              of data.
+            </p>
+
+            {props.persistancePeriod ? (
+              <p className="govuk-body">
+                These metrics are retained for up to{' '}
+                <strong>{props.persistancePeriod}</strong>. While metrics are
+                experimental, we cannot guarantee a minimum metrics retention period.
+              </p>
+            ) : (
+              <></>
+            )}
+            <hr className="govuk-section-break govuk-section-break--m" />
+
+            {props.metrics.map(metric => (
+              <Metric
+                key={metric.id}
+                id={metric.id}
+                format={metric.format}
+                title={metric.title}
+                description={metric.description}
+                chart={metric.chart}
+                units={metric.units}
+                metric={metric.metric}
+                summaries={metric.summaries}
+                downloadLink={metric.downloadLink}
+              />
+            ))}
           </div>
 
           <div className="govuk-grid-column-one-third-from-desktop">
@@ -420,27 +602,9 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
               period={props.period}
               linkTo={props.linkTo}
               service={props.service}
-              persistancePeriod={props.persistancePeriod}
             />
           </div>
         </div>
-      </div>
-
-      <div className="govuk-width-container">
-        {props.metrics.map(metric => (
-          <Metric
-            key={metric.id}
-            id={metric.id}
-            format={metric.format}
-            title={metric.title}
-            description={metric.description}
-            chart={metric.chart}
-            units={metric.units}
-            metric={metric.metric}
-            summaries={metric.summaries}
-            downloadLink={metric.downloadLink}
-          />
-        ))}
       </div>
     </ServiceTab>
   );

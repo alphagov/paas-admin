@@ -74,7 +74,12 @@ export function ServiceTab(props: IServiceTabProperties): ReactElement {
           <span className="govuk-visually-hidden">Service</span>{' '}
           {props.service.entity.name}
         </span>{' '}
-        {props.pageTitle}
+        
+        <span
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+          __html: (props.pageTitle) as string,
+        }} />
       </h1>
 
       <div className="govuk-tabs" data-module="govuk-tabs">
