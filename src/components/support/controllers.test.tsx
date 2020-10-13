@@ -42,13 +42,13 @@ describe(controller.HandleSignupFormPost, () => {
 
   it('should throw validation errors when missing data has been submited', async () => {
     const response = await controller.HandleSignupFormPost(ctx, {}, {
-      name: undefined,
-      email: undefined,
-      department_agency: undefined,
-      service_team: undefined,
-      person_is_manager: undefined,
-      invite_users: undefined,
       additional_users: [{ email: 'jeff', person_is_manager: 'no' }, {}, {}],
+      department_agency: undefined,
+      email: undefined,
+      invite_users: undefined,
+      name: undefined,
+      person_is_manager: undefined,
+      service_team: undefined,
     } as any);
 
     expect(response.status).toEqual(400);
@@ -65,30 +65,32 @@ describe(controller.HandleSignupFormPost, () => {
 
   it('should throw validation errors when unsupported email address has been provided', async () => {
     const response = await controller.HandleSignupFormPost(ctx, {}, {
-      name: 'Jeff',
-      email: 'jeff@example.com',
-      department_agency: 'Naming Authority',
-      service_team: 'Digital',
-      person_is_manager: 'yes',
-      invite_users: 'no',
       additional_users: undefined,
+      department_agency: 'Naming Authority',
+      email: 'jeff@example.com',
+      invite_users: 'no',
+      name: 'Jeff',
+      person_is_manager: 'yes',
+      service_team: 'Digital',
     } as any);
 
     expect(response.status).toEqual(400);
     expect(response.body).not.toContain('We have received your request');
     expect(response.body).toContain('Error');
-    expect(response.body).toContain('We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, digitalaccessibilitycentre.org, .police.uk or police.uk email addresses');
+    expect(response.body).toContain('We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, '
+      + 'digitalaccessibilitycentre.org, .police.uk or police.uk email addresses');
   });
 
-  it('should throw a validation error when option to add additional users was selected but no email addresses entered', async () => {
+  it('should throw a validation error when option to add additional users was selected but no email addresses entered',
+  async () => {
     const response = await controller.HandleSignupFormPost(ctx, {}, {
-      name: 'Jeff',
-      email: 'jeff@example.gov.uk',
-      department_agency: 'Naming Authority',
-      service_team: 'Digital',
-      person_is_manager: 'yes',
-      invite_users: 'yes',
       additional_users: [ { email: '' }, { email: '' }, { email: '' } ],
+      department_agency: 'Naming Authority',
+      email: 'jeff@example.gov.uk',
+      invite_users: 'yes',
+      name: 'Jeff',
+      person_is_manager: 'yes',
+      service_team: 'Digital',
     } as any);
 
     expect(response.status).toEqual(400);
@@ -103,13 +105,17 @@ describe(controller.HandleSignupFormPost, () => {
       .reply(201, {});
 
     const response = await controller.HandleSignupFormPost(ctx, {}, {
-      name: 'Jeff',
-      email: 'jeff@example.gov.uk',
+      additional_users: [
+        { email: 'ann@example.gov.uk', person_is_manager: 'no' },
+        { email: 'bill@example.gov.uk', person_is_manager: 'yes' },
+        {},
+      ],
       department_agency: 'Naming Authority',
-      service_team: 'Digital',
-      person_is_manager: 'yes',
+      email: 'jeff@example.gov.uk',
       invite_users: 'yes',
-      additional_users: [{ email: 'ann@example.gov.uk', person_is_manager: 'no' }, { email: 'bill@example.gov.uk', person_is_manager: 'yes' }, {}],
+      name: 'Jeff',
+      person_is_manager: 'yes',
+      service_team: 'Digital',
     } as any);
 
     expect(response.status).toBeUndefined();
@@ -122,13 +128,13 @@ describe(controller.HandleSignupFormPost, () => {
       .reply(201, {});
 
     const response = await controller.HandleSignupFormPost(ctx, {}, {
-      name: 'Jeff',
-      email: 'jeff@example.gov.uk',
-      department_agency: 'Naming Authority',
-      service_team: 'Digital',
-      person_is_manager: 'no',
-      invite_users: 'yes',
       additional_users: undefined,
+      department_agency: 'Naming Authority',
+      email: 'jeff@example.gov.uk',
+      invite_users: 'yes',
+      name: 'Jeff',
+      person_is_manager: 'no',
+      service_team: 'Digital',
     } as any);
 
     expect(response.status).toBeUndefined();
@@ -151,10 +157,10 @@ describe(controller.HandleContactUsFormPost, () => {
 
   it('should throw validation errors when missing data has been submited', async () => {
     const response = await controller.HandleContactUsFormPost(ctx, {}, {
-      name: undefined,
+      department_agency: undefined,
       email: undefined,
       message: undefined,
-      department_agency: undefined,
+      name: undefined,
       service_team: undefined,
     } as any);
 
@@ -174,10 +180,10 @@ describe(controller.HandleContactUsFormPost, () => {
       .reply(201, {});
 
     const response = await controller.HandleContactUsFormPost(ctx, {}, {
-      name: 'Jeff',
+      department_agency: 'Naming Authority',
       email: 'jeff@example.gov.uk',
       message: 'Comment',
-      department_agency: 'Naming Authority',
+      name: 'Jeff',
       service_team: 'Digital',
     } as any);
 
@@ -201,10 +207,10 @@ describe(controller.HandleFindOutMoreFormPost, () => {
 
   it('should throw validation errors when missing data has been submited', async () => {
     const response = await controller.HandleFindOutMoreFormPost(ctx, {}, {
-      name: undefined,
       email: undefined,
-      message: undefined,
       gov_organisation_name: undefined,
+      message: undefined,
+      name: undefined,
     } as any);
 
     expect(response.status).toEqual(400);
@@ -222,10 +228,10 @@ describe(controller.HandleFindOutMoreFormPost, () => {
       .reply(201, {});
 
     const response = await controller.HandleFindOutMoreFormPost(ctx, {}, {
-      name: 'Jeff',
       email: 'jeff@example.gov.uk',
-      message: 'Comment',
       gov_organisation_name: 'Naming Authority',
+      message: 'Comment',
+      name: 'Jeff',
     } as any);
 
     expect(response.status).toBeUndefined();
@@ -248,9 +254,9 @@ describe(controller.HandleHelpUsingPaasFormPost, () => {
 
   it('should throw validation errors when missing data has been submited', async () => {
     const response = await controller.HandleHelpUsingPaasFormPost(ctx, {}, {
-      name: undefined,
       email: undefined,
       message: undefined,
+      name: undefined,
     } as any);
 
     expect(response.status).toEqual(400);
@@ -267,10 +273,10 @@ describe(controller.HandleHelpUsingPaasFormPost, () => {
       .reply(201, {});
 
     const response = await controller.HandleHelpUsingPaasFormPost(ctx, {}, {
-      name: 'Jeff',
       email: 'jeff@example.gov.uk',
-      paas_organisation_name: '__FAKE_ORG__',
       message: 'Comment',
+      name: 'Jeff',
+      paas_organisation_name: '__FAKE_ORG__',
     } as any);
 
     expect(response.status).toBeUndefined();
@@ -283,9 +289,9 @@ describe(controller.HandleHelpUsingPaasFormPost, () => {
       .reply(201, {});
 
     const response = await controller.HandleHelpUsingPaasFormPost(ctx, {}, {
-      name: 'Jeff',
       email: 'jeff@example.gov.uk',
       message: 'Comment',
+      name: 'Jeff',
     } as any);
 
     expect(response.status).toBeUndefined();
@@ -308,11 +314,11 @@ describe(controller.HandleSomethingWrongWithServiceFormPost, () => {
 
   it('should throw validation errors when missing data has been submited', async () => {
     const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
-      name: undefined,
-      email: undefined,
-      message: undefined,
       affected_paas_organisation: undefined,
+      email: undefined,
       impact_severity: undefined,
+      message: undefined,
+      name: undefined,
     } as any);
 
     expect(response.status).toEqual(400);
@@ -331,11 +337,11 @@ describe(controller.HandleSomethingWrongWithServiceFormPost, () => {
       .reply(201, {});
 
     const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
-      name: 'Jeff',
-      email: 'jeff@example.gov.uk',
-      message: 'Comment',
       affected_paas_organisation: '__fake_org__',
+      email: 'jeff@example.gov.uk',
       impact_severity: 'critical',
+      message: 'Comment',
+      name: 'Jeff',
     } as any);
 
     expect(response.status).toBeUndefined();

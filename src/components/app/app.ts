@@ -6,11 +6,11 @@ import csrf from 'csurf';
 import express from 'express';
 import pinoMiddleware from 'express-pino-logger';
 import staticGzip from 'express-static-gzip';
-import helmet from 'helmet';
+import helmet, { contentSecurityPolicy } from 'helmet';
 import { BaseLogger } from 'pino';
 
 import { IResponse, NotAuthorisedError } from '../../lib/router';
-import { requireAuthentication, handleSession } from '../auth';
+import { handleSession, requireAuthentication } from '../auth';
 import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
 import { listServices, viewService } from '../marketplace';
@@ -116,7 +116,7 @@ export default function(config: IAppConfig): express.Express {
   app.use(compression());
 
   app.use(helmet());
-  app.use(helmet.contentSecurityPolicy(csp));
+  app.use(contentSecurityPolicy(csp));
 
   app.use(express.urlencoded({ extended: true }));
   app.use(csrf());

@@ -1,3 +1,5 @@
+/* eslint-disable functional/no-let */
+/* eslint-disable no-console */
 import pino from 'pino';
 import sourceMapSupport from 'source-map-support';
 
@@ -26,12 +28,12 @@ function expectEnvVariable(variableName: string): string {
   return value;
 }
 
-function onError(err: Error) {
+function onError(err: Error): void {
   logger.error({ exit: 1 }, err.toString());
   process.exit(100);
 }
 
-function onShutdown() {
+function onShutdown(): void {
   logger.info({ exit: 0 }, 'shutdown gracefully');
   process.exit(0);
 }
@@ -48,7 +50,7 @@ function platformLocation(region: string): string {
   }
 }
 
-async function main() {
+async function main(): Promise<unknown> {
   const cloudFoundryAPI = expectEnvVariable('API_URL');
   const awsRegion = expectEnvVariable('AWS_REGION');
   const location = platformLocation(awsRegion);
@@ -68,11 +70,10 @@ async function main() {
 
   const providers = new Map<OIDCProviderName, IOIDCConfig>();
   providers.set('google', {
-    providerName: 'google',
     clientID: expectEnvVariable('GOOGLE_CLIENT_ID'),
     clientSecret: expectEnvVariable('GOOGLE_CLIENT_SECRET'),
-    discoveryURL:
-      'https://accounts.google.com/.well-known/openid-configuration',
+    discoveryURL: 'https://accounts.google.com/.well-known/openid-configuration',
+    providerName: 'google',
   });
 
   const config: IAppConfig = {
@@ -89,9 +90,10 @@ async function main() {
     domainName: expectEnvVariable('DOMAIN_NAME'),
     location,
     logger,
+    mailchimpAPIKey: expectEnvVariable('MAILCHIMP_API_KEY'),
     notifyAPIKey: expectEnvVariable('NOTIFY_API_KEY'),
-    notifyPasswordResetTemplateID: process.env.NOTIFY_PASSWORD_RESET_TEMPLATE_ID || null,
-    notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null,
+    notifyPasswordResetTemplateID: process.env.NOTIFY_PASSWORD_RESET_TEMPLATE_ID,
+    notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID,
     oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
     oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
     oidcProviders: providers,
@@ -101,8 +103,8 @@ async function main() {
     sessionSecret: process.env.SESSION_SECRET || 'mysecret',
     uaaAPI,
     zendeskConfig: {
-      token: process.env.ZENDESK_API_TOKEN || '__ZENDESK_API_TOKEN__',
       remoteUri: 'https://govuk.zendesk.com/api/v2',
+      token: process.env.ZENDESK_API_TOKEN || '__ZENDESK_API_TOKEN__',
       username:  process.env.ZENDESK_USERNAME || '__ZENDESK_USERNAME__',
     },
   };

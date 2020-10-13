@@ -955,7 +955,8 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
           roadmap</a>.
         </p>
         <p className="govuk-body">
-          All the data we collect is processed in accordance with our <a className="govuk-link" href="https://www.cloud.service.gov.uk/privacy-notice">privacy notice</a>.
+          All the data we collect is processed in accordance with our <a className="govuk-link"
+            href="https://www.cloud.service.gov.uk/privacy-notice">privacy notice</a>.
         </p>
       </div>
     </div>
@@ -1643,7 +1644,8 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                                   id="additional_users-0"
                                   name="additional_users[0][email]"
                                   type="text"
-                                  defaultValue={props.values?.additional_users && props.values!.additional_users[0].email}
+                                  defaultValue={props.values?.additional_users
+                                    && props.values.additional_users[0].email}
                                   aria-describedby={
                                     props.errors?.some(e => e.field === 'additional_users-0')
                                       ? 'additional_users-0-error' : ''
@@ -1659,9 +1661,13 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                                     name="additional_users[0][person_is_manager]"
                                     type="checkbox"
                                     value="yes"
-                                    defaultChecked={props.values?.additional_users && props.values!.additional_users[0].person_is_manager === 'yes'}
+                                    defaultChecked={props.values?.additional_users
+                                      && props.values.additional_users[0].person_is_manager === 'yes'}
                                   />
-                                  <label className="govuk-label govuk-checkboxes__label" htmlFor="additional_users-0-is-manager">
+                                  <label
+                                    className="govuk-label govuk-checkboxes__label"
+                                    htmlFor="additional_users-0-is-manager"
+                                  >
                                     <span className="govuk-visually-hidden">Assign org manager role to User 1?</span>
                                   </label>
                                 </div>
@@ -1696,7 +1702,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                               id="additional_users-1"
                               name="additional_users[1][email]"
                               type="text"
-                              defaultValue={ props.values?.additional_users && props.values!.additional_users[1].email}
+                              defaultValue={ props.values?.additional_users && props.values.additional_users[1].email}
                               aria-describedby={
                                 props.errors?.some(e => e.field === 'additional_users-1')
                                   ? 'additional_users-1-error' : ''
@@ -1712,9 +1718,13 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                                 name="additional_users[1][person_is_manager]"
                                 type="checkbox"
                                 value="yes"
-                                defaultChecked={props.values?.additional_users && props.values!.additional_users[1].person_is_manager === 'yes'}
+                                defaultChecked={props.values?.additional_users
+                                  && props.values.additional_users[1].person_is_manager === 'yes'}
                               />
-                              <label className="govuk-label govuk-checkboxes__label" htmlFor="additional_users-1-is-manager">
+                              <label
+                                className="govuk-label govuk-checkboxes__label"
+                                htmlFor="additional_users-1-is-manager"
+                              >
                                 <span className="govuk-visually-hidden">Assign org manager role to User 2?</span>
                               </label>
                             </div>
@@ -1749,7 +1759,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                               id="additional_users-2"
                               name="additional_users[2][email]"
                               type="text"
-                              defaultValue={ props.values?.additional_users && props.values!.additional_users[2].email}
+                              defaultValue={ props.values?.additional_users && props.values.additional_users[2].email}
                               aria-describedby={
                                 props.errors?.some(e => e.field === 'additional_users-2')
                                   ? 'additional_users-2-error' : ''
@@ -1765,9 +1775,13 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                                 name="additional_users[2][person_is_manager]"
                                 type="checkbox"
                                 value="yes"
-                                defaultChecked={props.values?.additional_users && props.values!.additional_users[2].person_is_manager === 'yes'}
+                                defaultChecked={props.values?.additional_users
+                                  && props.values.additional_users[2].person_is_manager === 'yes'}
                               />
-                              <label className="govuk-label govuk-checkboxes__label" htmlFor="additional_users-2-is-manager">
+                              <label
+                                className="govuk-label govuk-checkboxes__label"
+                                htmlFor="additional_users-2-is-manager"
+                              >
                                 <span className="govuk-visually-hidden">Assign org manager role to User 3?</span>
                               </label>
                             </div>

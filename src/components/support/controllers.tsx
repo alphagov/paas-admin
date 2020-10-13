@@ -86,7 +86,9 @@ function signUpContent(variables: ISignupFormValues): string {
   Department: ${variables.department_agency}
   Team/Service: ${variables.service_team}
 
-  ${variables.additional_users && variables.additional_users.length > 0 && variables.invite_users === 'yes' ? additionalUsers : ''}`;
+  ${variables.additional_users && variables.additional_users.length > 0 && variables.invite_users === 'yes'
+    ? additionalUsers
+    : ''}`;
 }
 
 function findoutMoreContent(variables: IFindOutMoreFormValues): string {
@@ -257,7 +259,8 @@ function validateServiceTeam({ service_team }: ISupportFormServiceTeam): Readonl
 function validateSignupEmail({ email }: ISignupForm): ReadonlyArray<IDualValidationError> {
   const errors = [];
 
-  const allowedEmailAddresses = /(.+\.gov\.uk|.+nhs\.(net|uk)|.+mod\.uk|.+digitalaccessibilitycentre\.org|.+\.police\.uk|police\.uk)$/;
+  const allowedEmailAddresses =
+    /(.+\.gov\.uk|.+nhs\.(net|uk)|.+mod\.uk|.+digitalaccessibilitycentre\.org|.+\.police\.uk|police\.uk)$/;
 
   if (!email || !VALID_EMAIL.test(email)) {
     errors.push({
@@ -269,7 +272,8 @@ function validateSignupEmail({ email }: ISignupForm): ReadonlyArray<IDualValidat
   if (email && VALID_EMAIL.test(email) && !allowedEmailAddresses.test(email)) {
     errors.push({
       field: 'email',
-      message: 'We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, digitalaccessibilitycentre.org, .police.uk or police.uk email addresses',
+      message: 'We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, digitalaccessibilitycentre.org, .police.uk or ' +
+        'police.uk email addresses',
       messageExtra: `
         If you work for a government organisation or public body with a different email address, please contact us on
         <a class="govuk-link"
@@ -309,7 +313,10 @@ function validateInviteUsers({ invite_users }: ISignupForm): ReadonlyArray<IVali
   return errors;
 }
 
-function validateAdditionalUserYesButEmpty({ invite_users, additional_users }: ISignupForm): ReadonlyArray<IValidationError> {
+function validateAdditionalUserYesButEmpty({
+  invite_users,
+  additional_users,
+}: ISignupForm): ReadonlyArray<IValidationError> {
   const errors = [];
 
   if (invite_users === 'yes' && additional_users?.every(user => user.email === '')) {
@@ -325,6 +332,7 @@ function validateAdditionalUserYesButEmpty({ invite_users, additional_users }: I
 function validateAdditionalUserEmail({ additional_users }: ISignupForm): ReadonlyArray<IValidationError> {
   const errors = [];
   if (additional_users) {
+    // eslint-disable-next-line functional/no-let
     for (let i = 0; i < additional_users.length; i++) {
       if (additional_users[i].email && !VALID_EMAIL.test(additional_users[i].email)) {
         errors.push({
@@ -439,11 +447,12 @@ export async function HandleSomethingWrongWithServiceFormPost(
           name: body.name,
         }),
       },
-      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} something wrong in ${body.affected_paas_organisation} live service`,
       requester: {
         email: body.email,
         name: body.name,
       },
+      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} something wrong in ${body.affected_paas_organisation} live
+        service`,
     },
   });
   template.title = 'We have received your message';
@@ -519,11 +528,11 @@ export async function HandleHelpUsingPaasFormPost(
           paas_organisation_name: body.paas_organisation_name,
         }),
       },
-      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} request for help`,
       requester: {
         email: body.email,
         name: body.name,
       },
+      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} request for help`,
     },
   });
 
@@ -599,11 +608,11 @@ export async function HandleFindOutMoreFormPost (
           name: body.name,
         }),
       },
-      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} request for information`,
       requester: {
         email: body.email,
         name: body.name,
       },
+      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} request for information`,
     },
   });
 
@@ -682,11 +691,11 @@ export async function HandleContactUsFormPost(
           service_team: body.service_team,
         }),
       },
-      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} support request from website`,
       requester: {
         email: body.email,
         name: body.name,
       },
+      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} support request from website`,
     },
   });
 
@@ -788,11 +797,11 @@ export async function HandleSignupFormPost(
           service_team: body.service_team,
         }),
       },
-      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} Registration Request`,
       requester: {
         email: body.email,
         name: body.name,
       },
+      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} Registration Request`,
     },
   });
 
