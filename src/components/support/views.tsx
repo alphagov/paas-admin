@@ -76,6 +76,7 @@ export interface ISignupFormValues {
     readonly email: string;
     readonly person_is_manager: string;
   }>;
+  readonly mailing_list?: '1';
 }
 
 interface ISignupFormProperties extends IFormProperties {
@@ -1802,6 +1803,36 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                   />
                   <label className="govuk-label govuk-radios__label" htmlFor="invite_users-1">
                     No, I&apos;ll do this later
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <h2>GOV.UK PaaS Mailing list</h2>
+          <p className="govuk-body">
+            We send out emails in regards to announcements, new features or potential problems with the platform itself.
+          </p>
+          <div className="govuk-form-group">
+            <fieldset className="govuk-fieldset">
+              <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+                Would you like to sign up for our mailing list?
+              </legend>
+              <span id="invite_users-hint" className="govuk-hint">
+                You will receive an email asking you to confirm the signup. You can opt out at any time.
+              </span>
+              <div className="govuk-checkboxes">
+                <div className="govuk-checkboxes__item">
+                  <input
+                    className="govuk-checkboxes__input"
+                    id="mailing_list"
+                    name="mailing_list"
+                    type="checkbox"
+                    value="1"
+                    defaultChecked={props.values?.mailing_list === '1'}
+                  />
+                  <label className="govuk-label govuk-checkboxes__label" htmlFor="mailing_list">
+                    Yes, sign me up to your glorious mailing list
                   </label>
                 </div>
               </div>

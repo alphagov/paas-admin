@@ -122,6 +122,34 @@ describe(controller.HandleSignupFormPost, () => {
     expect(response.body).toContain('We have received your request');
   });
 
+  it('should create a zendesk ticket correctly whilst signing user up for mailing list', async () => {
+    nockZD
+      .post('/requests.json')
+      .reply(201, {});
+
+    nock('https://us2.api.mailchimp.com')
+      .post('/3.0/lists/960634/members')
+      .reply(201, {});
+
+    const response = await controller.HandleSignupFormPost(ctx, {}, {
+      additional_users: [
+        { email: 'ann@example.gov.uk', person_is_manager: 'no' },
+        { email: 'bill@example.gov.uk', person_is_manager: 'yes' },
+        {},
+      ],
+      department_agency: 'Naming Authority',
+      email: 'jeff@example.gov.uk',
+      invite_users: 'yes',
+      mailing_list: '1',
+      name: 'Jeff',
+      person_is_manager: 'yes',
+      service_team: 'Digital',
+    } as any);
+
+    expect(response.status).toBeUndefined();
+    expect(response.body).toContain('We have received your request');
+  });
+
   it('should create a zendesk ticket correctly when no additional users provided', async () => {
     nockZD
       .post('/requests.json')

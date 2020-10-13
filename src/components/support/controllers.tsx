@@ -1,3 +1,4 @@
+import axios, { AxiosResponse } from 'axios';
 import * as zendesk from 'node-zendesk';
 import React from 'react';
 
@@ -68,8 +69,9 @@ interface ISignupForm extends ISignupFormValues {
 }
 
 const VALID_EMAIL = /[^.]@[^.]/;
-
 const TODAY_DATE = new Date();
+const MAILCHIMP_API_SERVER = 'us2';
+const MAILCHIMP_LIST_ID = 960634;
 
 function signUpContent(variables: ISignupFormValues): string {
   const additionalUsers = `They would also like to invite:
@@ -344,6 +346,40 @@ function validateAdditionalUserEmail({ additional_users }: ISignupForm): Readonl
   }
 
   return errors;
+}
+
+async function mailchimpSignUp(
+  { apiKey, apiServer, listID }: {
+    readonly apiKey: string;
+    readonly apiServer: string;
+    readonly listID: number;
+  },
+  { email, name }: {
+    readonly email: string;
+    readonly name: string;
+  },
+): Promise<AxiosResponse> {
+  const names = name.split(' ');
+
+  // Docs: https://mailchimp.com/developer/guides/create-your-first-audience/#add-a-contact-to-an-audience
+  return await axios.request({
+    auth: { password: apiKey, username: 'key' },
+    baseURL: `https://${apiServer}.api.mailchimp.com`,
+    data: {
+      email_address: email,
+      merge_fields: {
+        FNAME: names[0],
+        LNAME: names.pop(),
+      },
+      status: 'pending', // `pending` will send out an email asking to confirm signup.
+      tags: [ 'announce', 'essential' ],
+    },
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'post',
+    url: `/3.0/lists/${listID}/members`,
+  });
 }
 
 export async function SupportSelectionForm (ctx: IContext, _params: IParameters): Promise<IResponse> {
@@ -804,6 +840,14 @@ export async function HandleSignupFormPost(
       subject: `[PaaS Support] ${TODAY_DATE.toDateString()} Registration Request`,
     },
   });
+
+  if (body.mailing_list === '1') {
+    await mailchimpSignUp({
+      apiKey: ctx.app.mailchimpAPIKey,
+      apiServer: MAILCHIMP_API_SERVER,
+      listID: MAILCHIMP_LIST_ID,
+    }, body);
+  }
 
   template.title = 'We have received your request';
 

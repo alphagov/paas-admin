@@ -49,6 +49,7 @@ export interface IAppConfig {
   readonly notifyAPIKey: string;
   readonly notifyPasswordResetTemplateID?: string;
   readonly notifyWelcomeTemplateID?: string;
+  readonly mailchimpAPIKey: string;
   readonly oauthClientID: string;
   readonly oauthClientSecret: string;
   readonly sessionSecret: string;
