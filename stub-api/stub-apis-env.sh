@@ -31,6 +31,6 @@ export MS_CLIENT_SECRET=clientsecret
 export MS_TENANT_ID=tenantid
 export GOOGLE_CLIENT_ID=googleclientid
 export GOOGLE_CLIENT_SECRET=googleclientsecret
-
+export MAILCHIMP_API_KEY=mailchimpapikey
 export AWS_ACCESS_KEY_ID=some-key-id
 export AWS_SECRET_ACCESS_KEY=some-secret-key
