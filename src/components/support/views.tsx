@@ -1832,7 +1832,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                     defaultChecked={props.values?.mailing_list === '1'}
                   />
                   <label className="govuk-label govuk-checkboxes__label" htmlFor="mailing_list">
-                    Yes, sign me up to your glorious mailing list
+                    Yes, sign me up to your mailing list
                   </label>
                 </div>
               </div>
