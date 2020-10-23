@@ -128,7 +128,7 @@ describe(controller.HandleSignupFormPost, () => {
       .reply(201, {});
 
     nock('https://us2.api.mailchimp.com')
-      .post('/3.0/lists/960634/members')
+      .post('/3.0/lists/31ef176d08/members')
       .reply(201, {});
 
     const response = await controller.HandleSignupFormPost(ctx, {}, {

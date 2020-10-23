@@ -71,7 +71,7 @@ interface ISignupForm extends ISignupFormValues {
 const VALID_EMAIL = /[^.]@[^.]/;
 const TODAY_DATE = new Date();
 const MAILCHIMP_API_SERVER = 'us2';
-const MAILCHIMP_LIST_ID = 960634;
+const MAILCHIMP_LIST_ID = "31ef176d08";
 
 function signUpContent(variables: ISignupFormValues): string {
   const additionalUsers = `They would also like to invite:
@@ -352,7 +352,7 @@ async function mailchimpSignUp(
   { apiKey, apiServer, listID }: {
     readonly apiKey: string;
     readonly apiServer: string;
-    readonly listID: number;
+    readonly listID: string;
   },
   { email, name }: {
     readonly email: string;
