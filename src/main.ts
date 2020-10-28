@@ -84,6 +84,10 @@ async function main() {
     awsCloudwatchEndpoint: process.env.AWS_CLOUDWATCH_ENDPOINT,
     awsRegion,
     awsResourceTaggingAPIEndpoint: process.env.AWS_RESOURCE_TAGGING_API_ENDPOINT,
+    awsCredentials: !process.env.ENABLE_FAKE_AWS_CREDENTIALS? undefined : {
+      accessKeyId: "FAKE_ACCESS_KEY_ID",
+      secretAccessKey: "FAKE_SECRET_ACCESS_KEY",
+    },
     billingAPI: expectEnvVariable('BILLING_URL'),
     cloudFoundryAPI,
     domainName: expectEnvVariable('DOMAIN_NAME'),

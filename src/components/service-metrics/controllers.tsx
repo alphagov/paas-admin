@@ -265,6 +265,7 @@ export async function viewServiceMetrics(
         new cw.CloudWatchClient({
           endpoint: ctx.app.awsCloudwatchEndpoint,
           region: ctx.app.awsRegion,
+          credentials: ctx.app.awsCredentials,
         }),
       ).getData(
         sqsMetricNames,
@@ -286,10 +287,12 @@ export async function viewServiceMetrics(
         new cw.CloudWatchClient({
           endpoint: ctx.app.awsCloudwatchEndpoint,
           region: 'us-east-1',
+          credentials: ctx.app.awsCredentials,
         }),
         new rg.ResourceGroupsTaggingAPIClient({
           endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
           region: 'us-east-1',
+          credentials: ctx.app.awsCredentials,
         }),
       ).getData(
         cloudfrontMetricNames,
@@ -311,6 +314,7 @@ export async function viewServiceMetrics(
         new cw.CloudWatchClient({
           endpoint: ctx.app.awsCloudwatchEndpoint,
           region: ctx.app.awsRegion,
+          credentials: ctx.app.awsCredentials,
         }),
       ).getData(
         rdsMetricNames,
@@ -331,6 +335,7 @@ export async function viewServiceMetrics(
         new cw.CloudWatchClient({
           endpoint: ctx.app.awsCloudwatchEndpoint,
           region: ctx.app.awsRegion,
+          credentials: ctx.app.awsCredentials,
         }),
       ).getData(
         elasticacheMetricNames,
