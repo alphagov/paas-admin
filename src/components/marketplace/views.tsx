@@ -5,6 +5,7 @@ import { CommandLineAlternative, NoTick, Tick } from '../../layouts/partials';
 import { IV3Service, IV3ServicePlan } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
 
+import autoscalerLogo from './icons/autoscaler.png';
 import cdnLogo from './icons/cdn.png';
 import cloudLogo from './icons/cloud.png';
 import elasticsearchLogo from './icons/elasticsearch.png';
@@ -120,6 +121,11 @@ interface ITableRowProperties {
 }
 
 const serviceDetails: IServiceDetails = {
+  'autoscaler': {
+    image: autoscalerLogo,
+    imageTitle: 'Autoscaler - GOV.UK PaaS Logo',
+    name: 'Autoscaler',
+  },
   'aws-s3-bucket': {
     image: s3Logo,
     imageTitle: 'Amazon Web Services - S3 Bucket - Official Logo',
