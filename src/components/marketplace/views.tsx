@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 
-import { CommandLineAlternative, NoTick, Tick } from '../../layouts/partials';
 import { Abbreviation } from '../../layouts/helpers';
+import { CommandLineAlternative, NoTick, Tick } from '../../layouts/partials';
 import { IV3Service, IV3ServicePlan } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
 
@@ -284,7 +284,9 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
                   ? <th scope="col" className="govuk-table__header">Encrypted</th>
                   : null}
                 {canBeHA
-                  ? <th scope="col" className="govuk-table__header"><Abbreviation description="Highly Available">HA</Abbreviation></th>
+                  ? <th scope="col" className="govuk-table__header">
+                      <Abbreviation description="Highly Available">HA</Abbreviation>
+                    </th>
                   : null}
                 {limitsCC
                   ? <th scope="col" className="govuk-table__header govuk-table__header--numeric">
