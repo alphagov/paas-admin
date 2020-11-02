@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
 
-import { CommandLineAlternative, NoTick, Tick } from '../../layouts/partials';
 import { Abbreviation } from '../../layouts/helpers';
+import { CommandLineAlternative, NoTick, Tick } from '../../layouts/partials';
 import { IV3Service, IV3ServicePlan } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
 
+import autoscalerLogo from './icons/autoscaler.png';
 import cdnLogo from './icons/cdn.png';
 import cloudLogo from './icons/cloud.png';
 import elasticsearchLogo from './icons/elasticsearch.png';
@@ -120,6 +121,11 @@ interface ITableRowProperties {
 }
 
 const serviceDetails: IServiceDetails = {
+  'autoscaler': {
+    image: autoscalerLogo,
+    imageTitle: 'Autoscaler - GOV.UK PaaS Logo',
+    name: 'Autoscaler',
+  },
   'aws-s3-bucket': {
     image: s3Logo,
     imageTitle: 'Amazon Web Services - S3 Bucket - Official Logo',
@@ -284,7 +290,9 @@ export function PlanTab(props: IPlanTabProperties): ReactElement {
                   ? <th scope="col" className="govuk-table__header">Encrypted</th>
                   : null}
                 {canBeHA
-                  ? <th scope="col" className="govuk-table__header"><Abbreviation description="Highly Available">HA</Abbreviation></th>
+                  ? <th scope="col" className="govuk-table__header">
+                      <Abbreviation description="Highly Available">HA</Abbreviation>
+                    </th>
                   : null}
                 {limitsCC
                   ? <th scope="col" className="govuk-table__header govuk-table__header--numeric">
