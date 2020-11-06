@@ -177,6 +177,10 @@ function documentationTitle(service: string, url: string): string {
       return `GOV.UK PaaS ${service} documentation`;
     case 'aws.amazon.com':
     case 'docs.aws.amazon.com':
+        switch(true){
+          case u.pathname.toLowerCase().includes('elasticache'):
+            return `AWS ElastiCache ${service} documentation`;
+        }
       return `AWS RDS ${service} documentation`;
     case 'help.aiven.io':
       return `Aiven ${service} documentation`;
