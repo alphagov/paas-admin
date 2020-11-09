@@ -177,7 +177,7 @@ function documentationTitle(service: string, url: string): string {
       return `GOV.UK PaaS ${service} documentation`;
     case 'aws.amazon.com':
     case 'docs.aws.amazon.com':
-      return `AWS RDS ${service} documentation`;
+      return `AWS service documentation`;
     case 'help.aiven.io':
       return `Aiven ${service} documentation`;
     default:
