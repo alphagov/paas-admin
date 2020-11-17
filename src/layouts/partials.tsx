@@ -1,5 +1,7 @@
 import React, { Fragment, ReactElement, ReactNode } from 'react';
 
+import { RouteLinker } from '../components/app';
+
 interface IHeaderProperties {
   readonly authenticated?: boolean;
   readonly assetPath?: string;
@@ -38,6 +40,10 @@ export interface ISubNavigationProperties {
 interface ICommandLineAlternativeProperties {
   readonly children: string;
   readonly context?: string;
+}
+
+interface IFooterProperties {
+  readonly linkTo: RouteLinker;
 }
 
 export function Header(props: IHeaderProperties): ReactElement {
@@ -183,7 +189,7 @@ export function Main(params: IMainProperties): ReactElement {
   );
 }
 
-export function Footer(): ReactElement {
+export function Footer({ linkTo }: IFooterProperties): ReactElement {
   return (
     <footer className="govuk-footer " role="contentinfo">
       <div className="govuk-width-container ">

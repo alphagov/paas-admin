@@ -118,7 +118,7 @@ export class Template {
                 <Main>{page}</Main>
               </div>
 
-              <Footer />
+              <Footer linkTo={this.ctx.linkTo} />
             </>)}
           <script src="${assetPath}/all.js"></script>
           <script src="${assetPath}/init.js"></script>

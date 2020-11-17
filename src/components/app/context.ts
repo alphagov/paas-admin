@@ -19,6 +19,9 @@ export interface IViewContext {
   readonly location: string;
   readonly origin?: string;
   readonly isPlatformAdmin: boolean;
+  readonly routePartOf: RouteActiveChecker;
+  readonly linkTo: RouteLinker;
+  readonly absoluteLinkTo: RouteLinker;
 }
 
 export interface IContext {
@@ -42,26 +45,34 @@ export function initContext(
   const isPlatformAdmin =
     req.token && req.token.hasAdminScopes && req.token.hasAdminScopes();
 
+  const absoluteLinkTo = (name: string, params: IParameters = {}): string => {
+    return router
+      .findByName(name)
+      .composeAbsoluteURL(config.domainName, params);
+  };
+  const linkTo = (name: string, params: IParameters = {}): string => {
+    return router.findByName(name).composeURL(params);
+  };
+  const routePartOf = (name: string): boolean =>
+    route.definition.name === name || route.definition.name.startsWith(name);
+
   return {
-    absoluteLinkTo: (name: string, params: IParameters = {}): string => {
-      return router
-        .findByName(name)
-        .composeAbsoluteURL(config.domainName, params);
-    },
+    absoluteLinkTo,
     app: config,
-    linkTo: (name: string, params: IParameters = {}): string => {
-      return router.findByName(name).composeURL(params);
-    },
+    linkTo,
     log: req.log,
-    routePartOf: (name: string): boolean => route.definition.name === name || route.definition.name.startsWith(name),
+    routePartOf,
     session: req.session,
     token: req.token,
     viewContext: {
+      absoluteLinkTo,
       authenticated: !!req.user,
       csrf: req.csrfToken(),
       isPlatformAdmin,
+      linkTo,
       location: config.location,
       origin,
+      routePartOf,
     },
   };
 }
