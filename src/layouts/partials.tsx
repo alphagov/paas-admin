@@ -193,44 +193,11 @@ export function Footer({ linkTo }: IFooterProperties): ReactElement {
   return (
     <footer className="govuk-footer " role="contentinfo">
       <div className="govuk-width-container ">
-        <div className="govuk-footer__meta">
-          <div className="govuk-footer__meta-item govuk-footer__meta-item--grow">
-            <h2 className="govuk-visually-hidden">Support links</h2>
-
-            <ul className="govuk-footer__inline-list">
-              <li className="govuk-footer__inline-list-item">
-                <a
-                  className="govuk-footer__link"
-                  href="https://www.cloud.service.gov.uk/privacy-notice"
-                >
-                  Privacy notice
-                </a>
-              </li>
-              <li className="govuk-footer__inline-list-item">
-                <a
-                  className="govuk-footer__link"
-                  href="https://www.cloud.service.gov.uk/terms-of-use"
-                >
-                  Terms of use
-                </a>
-              </li>
-              <li className="govuk-footer__inline-list-item">
-                <a
-                  className="govuk-footer__link"
-                  href="https://www.cloud.service.gov.uk/accessibility-statement"
-                >
-                  Accessibility statement
-                </a>
-              </li>
-              <li className="govuk-footer__inline-list-item">
-                <a
-                  className="govuk-footer__link"
-                  href="https://www.cloud.service.gov.uk/cookies"
-                >
-                  Cookies
-                </a>
-              </li>
-              <li className="govuk-footer__inline-list-item">
+        <div className="govuk-footer__navigation">
+          <div className="govuk-footer__section">
+            <h2 className="govuk-footer__heading govuk-heading-m">Support</h2>
+            <ul className="govuk-footer__list">
+              <li className="govuk-footer__list-item">
                 <a
                   className="govuk-footer__link"
                   href="https://status.cloud.service.gov.uk"
@@ -238,9 +205,89 @@ export function Footer({ linkTo }: IFooterProperties): ReactElement {
                   System status
                 </a>
               </li>
+              <li className="govuk-footer__list-item">
+                <a className="govuk-footer__link" href="https://docs.cloud.service.gov.uk/">
+                  Documentation
+                </a>
+              </li>
+              <li className="govuk-footer__list-item">
+                <a className="govuk-footer__link" href={linkTo('support.selection')}>
+                  Raise an issue
+                </a>
+              </li>
+              <li className="govuk-footer__list-item">
+                <a className="govuk-footer__link" href={linkTo('support.static-ips')}>
+                  Static IPs
+                </a>
+              </li>
             </ul>
+          </div>
+          <div className="govuk-footer__section">
+            <h2 className="govuk-footer__heading govuk-heading-m">Legal terms</h2>
+            <ul className="govuk-footer__list">
+            <li className="govuk-footer__list-item">
+                <a
+                  className="govuk-footer__link"
+                  href={linkTo('support.mou.crown')}
+                >
+                  Memorandum of Understanding for Crown bodies
+                </a>
+              </li>
+              <li className="govuk-footer__list-item">
+                <a
+                  className="govuk-footer__link"
+                  href={linkTo('support.mou.non-crown')}
+                >
+                  Contract for non-Crown bodies
+                </a>
+              </li>
+              <li className="govuk-footer__list-item">
+                <a
+                  className="govuk-footer__link"
+                  href="https://www.cloud.service.gov.uk/privacy-notice"
+                >
+                  Privacy notice
+                </a>
+              </li>
+              <li className="govuk-footer__list-item">
+                <a
+                  className="govuk-footer__link"
+                  href="https://www.cloud.service.gov.uk/terms-of-use"
+                >
+                  Terms of use
+                </a>
+              </li>
+              <li className="govuk-footer__list-item">
+                <a
+                  className="govuk-footer__link"
+                  href="https://www.cloud.service.gov.uk/accessibility-statement"
+                >
+                  Accessibility statement
+                </a>
+              </li>
+              <li className="govuk-footer__list-item">
+                <a
+                  className="govuk-footer__link"
+                  href="https://www.cloud.service.gov.uk/cookies"
+                >
+                  Cookies
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <hr className="govuk-footer__section-break" />
+
+        <div className="govuk-footer__meta">
+          <div className="govuk-footer__meta-item govuk-footer__meta-item--grow">
             <div className="govuk-footer__meta-custom">
-              Built by the <a href="https://www.gov.uk/government/organisations/government-digital-service" className="govuk-footer__link">Government Digital Service</a>
+              Built by the {}
+              <a
+                href="https://www.gov.uk/government/organisations/government-digital-service"
+                className="govuk-footer__link">
+                  Government Digital Service
+                </a>
             </div>
             <svg
               role="presentation"
