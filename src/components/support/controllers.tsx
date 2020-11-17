@@ -826,7 +826,7 @@ export async function handleStaticIPs(ctx: IContext): Promise<IResponse> {
 }
 
 export async function handleCrownMoU(ctx: IContext): Promise<IResponse> {
-  const template = new Template(ctx.viewContext, 'Crown body Memorandum of Understanding');
+  const template = new Template(ctx.viewContext, 'GOV.UK PaaS memorandum of understanding for Crown bodies');
 
   return await Promise.resolve({
     body: template.render(<DocumentsCrownMoU />),
@@ -834,7 +834,7 @@ export async function handleCrownMoU(ctx: IContext): Promise<IResponse> {
 }
 
 export async function handleNonCrownMoU(ctx: IContext): Promise<IResponse> {
-  const template = new Template(ctx.viewContext, 'non-Crown Memorandum of Understanding');
+  const template = new Template(ctx.viewContext, 'GOV.UK PaaS memorandum of understanding for non-Crown bodies');
 
   return await Promise.resolve({
     body: template.render(<DocumentsNonCrownMoU />),

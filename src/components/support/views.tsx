@@ -1840,10 +1840,10 @@ export function StaticIPs(): ReactElement {
 export function DocumentsCrownMoU(): ReactElement {
   return <div className="govuk-grid-row">
     <div className="govuk-grid-column-two-thirds">
-      <h1 className="govuk-heading-xl">Crown body Memorandum of Understanding</h1>
+      <h1 className="govuk-heading-xl">GOV.UK PaaS memorandum of understanding for Crown bodies</h1>
 
       <p className="govuk-body">
-        If you&apos;re a crown body the memorandum of understanding terms apply when you use GOV.UK PaaS.
+        If you&apos;re a Crown body the memorandum of understanding terms apply when you use GOV.UK PaaS.
       </p>
 
       <p className="govuk-body">
@@ -1853,7 +1853,7 @@ export function DocumentsCrownMoU(): ReactElement {
       <ul className="govuk-list govuk-list--bullet">
         <li>
           <a href="/downloads/crown-mou.pdf" className="govuk-link" download={true}>
-            GOV.UK PaaS memorandum of understanding
+            GOV.UK PaaS memorandum of understanding for Crown bodies
           </a>
         </li>
       </ul>
@@ -1868,10 +1868,10 @@ export function DocumentsCrownMoU(): ReactElement {
 export function DocumentsNonCrownMoU(): ReactElement {
   return <div className="govuk-grid-row">
     <div className="govuk-grid-column-two-thirds">
-      <h1 className="govuk-heading-xl">non-Crown Memorandum of Understanding</h1>
+      <h1 className="govuk-heading-xl">GOV.UK PaaS memorandum of understanding for non-Crown bodies</h1>
 
       <p className="govuk-body">
-        If you&apos;re not a crown body but you use GOV.UK PaaS the memorandum of understanding terms apply to you.
+        If you&apos;re not a Crown body but you use GOV.UK PaaS the memorandum of understanding terms apply to you.
       </p>
 
       <p className="govuk-body">
@@ -1881,7 +1881,7 @@ export function DocumentsNonCrownMoU(): ReactElement {
       <ul className="govuk-list govuk-list--bullet">
         <li>
           <a href="/downloads/non-crown-mou.pdf" className="govuk-link" download={true}>
-            GOV.UK PaaS memorandum of understanding
+            GOV.UK PaaS memorandum of understanding for non-Crown bodies
           </a>
         </li>
       </ul>

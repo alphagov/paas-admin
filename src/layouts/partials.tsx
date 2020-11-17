@@ -231,7 +231,7 @@ export function Footer({ authenticated, linkTo }: IFooterProperties): ReactEleme
                   className="govuk-footer__link"
                   href={linkTo('support.mou.crown')}
                 >
-                  Memorandum of Understanding for Crown bodies
+                  Memorandum of understanding for Crown bodies
                 </a>
               </li> : null}
               {authenticated ? <li className="govuk-footer__list-item">
@@ -239,7 +239,7 @@ export function Footer({ authenticated, linkTo }: IFooterProperties): ReactEleme
                   className="govuk-footer__link"
                   href={linkTo('support.mou.non-crown')}
                 >
-                  Contract for non-Crown bodies
+                  Memorandum of understanding for non-Crown bodies
                 </a>
               </li> : null}
               <li className="govuk-footer__list-item">
