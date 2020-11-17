@@ -118,7 +118,7 @@ export class Template {
                 <Main>{page}</Main>
               </div>
 
-              <Footer linkTo={this.ctx.linkTo} />
+              <Footer linkTo={this.ctx.linkTo} authenticated={this.ctx.authenticated} />
             </>)}
           <script src="${assetPath}/all.js"></script>
           <script src="${assetPath}/init.js"></script>

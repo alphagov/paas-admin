@@ -43,6 +43,7 @@ interface ICommandLineAlternativeProperties {
 }
 
 interface IFooterProperties {
+  readonly authenticated?: boolean;
   readonly linkTo: RouteLinker;
 }
 
@@ -189,7 +190,7 @@ export function Main(params: IMainProperties): ReactElement {
   );
 }
 
-export function Footer({ linkTo }: IFooterProperties): ReactElement {
+export function Footer({ authenticated, linkTo }: IFooterProperties): ReactElement {
   return (
     <footer className="govuk-footer " role="contentinfo">
       <div className="govuk-width-container ">
@@ -215,32 +216,32 @@ export function Footer({ linkTo }: IFooterProperties): ReactElement {
                   Raise an issue
                 </a>
               </li>
-              <li className="govuk-footer__list-item">
+              {authenticated ? <li className="govuk-footer__list-item">
                 <a className="govuk-footer__link" href={linkTo('support.static-ips')}>
                   Static IPs
                 </a>
-              </li>
+              </li> : null}
             </ul>
           </div>
           <div className="govuk-footer__section">
             <h2 className="govuk-footer__heading govuk-heading-m">Legal terms</h2>
             <ul className="govuk-footer__list">
-            <li className="govuk-footer__list-item">
+              {authenticated ? <li className="govuk-footer__list-item">
                 <a
                   className="govuk-footer__link"
                   href={linkTo('support.mou.crown')}
                 >
                   Memorandum of Understanding for Crown bodies
                 </a>
-              </li>
-              <li className="govuk-footer__list-item">
+              </li> : null}
+              {authenticated ? <li className="govuk-footer__list-item">
                 <a
                   className="govuk-footer__link"
                   href={linkTo('support.mou.non-crown')}
                 >
                   Contract for non-Crown bodies
                 </a>
-              </li>
+              </li> : null}
               <li className="govuk-footer__list-item">
                 <a
                   className="govuk-footer__link"
