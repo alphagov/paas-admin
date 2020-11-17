@@ -451,6 +451,8 @@ export default function(config: IAppConfig): express.Express {
     requireAuthentication(sessionConfig),
   );
 
+  app.use('/downloads', staticGzip('dist/downloads', { immutable: true }));
+
   app.use(
     termsCheckerMiddleware(config.location, {
       apiEndpoint: config.accountsAPI,
