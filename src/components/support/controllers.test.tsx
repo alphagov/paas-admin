@@ -362,3 +362,27 @@ describe(controller.HandleSupportSelectionFormPost, () => {
     expect(response.status).toBeUndefined();
   });
 });
+
+describe(controller.handleStaticIPs, () => {
+  it('should carry on', async () => {
+    const response = await controller.handleStaticIPs(ctx);
+
+    expect(response.status).toBeUndefined();
+  });
+});
+
+describe(controller.handleCrownMoU, () => {
+  it('should carry on', async () => {
+    const response = await controller.handleCrownMoU(ctx);
+
+    expect(response.status).toBeUndefined();
+  });
+});
+
+describe(controller.handleNonCrownMoU, () => {
+  it('should carry on', async () => {
+    const response = await controller.handleNonCrownMoU(ctx);
+
+    expect(response.status).toBeUndefined();
+  });
+});
