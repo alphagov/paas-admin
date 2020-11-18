@@ -44,7 +44,7 @@ describe(Main, () => {
 
 describe(Footer, () => {
   it('should successfully display the footer element', () => {
-    const markup = shallow(<Footer linkTo={name => `__LINKED_TO_${name}`} />);
+    const markup = shallow(<Footer />);
     expect(markup.find('.govuk-footer__licence-description').html()).toContain('All content is available under the <a');
     expect(
       markup

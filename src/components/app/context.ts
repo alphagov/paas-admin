@@ -19,9 +19,6 @@ export interface IViewContext {
   readonly location: string;
   readonly origin?: string;
   readonly isPlatformAdmin: boolean;
-  readonly routePartOf: RouteActiveChecker;
-  readonly linkTo: RouteLinker;
-  readonly absoluteLinkTo: RouteLinker;
 }
 
 export interface IContext {
@@ -65,14 +62,11 @@ export function initContext(
     session: req.session,
     token: req.token,
     viewContext: {
-      absoluteLinkTo,
       authenticated: !!req.user,
       csrf: req.csrfToken(),
       isPlatformAdmin,
-      linkTo,
       location: config.location,
       origin,
-      routePartOf,
     },
   };
 }

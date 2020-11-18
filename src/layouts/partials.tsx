@@ -1,7 +1,5 @@
 import React, { Fragment, ReactElement, ReactNode } from 'react';
 
-import { RouteLinker } from '../components/app';
-
 interface IHeaderProperties {
   readonly authenticated?: boolean;
   readonly assetPath?: string;
@@ -44,7 +42,6 @@ interface ICommandLineAlternativeProperties {
 
 interface IFooterProperties {
   readonly authenticated?: boolean;
-  readonly linkTo: RouteLinker;
 }
 
 export function Header(props: IHeaderProperties): ReactElement {
@@ -190,7 +187,7 @@ export function Main(params: IMainProperties): ReactElement {
   );
 }
 
-export function Footer({ authenticated, linkTo }: IFooterProperties): ReactElement {
+export function Footer({ authenticated }: IFooterProperties): ReactElement {
   return (
     <footer className="govuk-footer " role="contentinfo">
       <div className="govuk-width-container ">
@@ -212,12 +209,12 @@ export function Footer({ authenticated, linkTo }: IFooterProperties): ReactEleme
                 </a>
               </li>
               <li className="govuk-footer__list-item">
-                <a className="govuk-footer__link" href={linkTo('support.selection')}>
+                <a className="govuk-footer__link" href="/support">
                   Raise an issue
                 </a>
               </li>
               {authenticated ? <li className="govuk-footer__list-item">
-                <a className="govuk-footer__link" href={linkTo('support.static-ips')}>
+                <a className="govuk-footer__link" href="/support/static-ip">
                   Static IPs
                 </a>
               </li> : null}
@@ -227,18 +224,12 @@ export function Footer({ authenticated, linkTo }: IFooterProperties): ReactEleme
             <h2 className="govuk-footer__heading govuk-heading-m">Legal terms</h2>
             <ul className="govuk-footer__list">
               {authenticated ? <li className="govuk-footer__list-item">
-                <a
-                  className="govuk-footer__link"
-                  href={linkTo('support.mou.crown')}
-                >
+                <a className="govuk-footer__link" href="/support/mou-crown">
                   Memorandum of understanding for Crown bodies
                 </a>
               </li> : null}
               {authenticated ? <li className="govuk-footer__list-item">
-                <a
-                  className="govuk-footer__link"
-                  href={linkTo('support.mou.non-crown')}
-                >
+                <a className="govuk-footer__link" href="/support/mou-non-crown">
                   Memorandum of understanding for non-Crown bodies
                 </a>
               </li> : null}
