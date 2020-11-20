@@ -928,17 +928,17 @@ describe(sanitiseMomentInput, () => {
 describe(parseRange, () => {
   it('should do nothing if user hasn\'t submitted anything', () => {
 
-    const defaultRange = parseRange('2020-09-13T14:25', '2020-09-14T15:25')
+    const defaultRange = parseRange('2220-09-13T14:25', '2220-09-14T15:25')
     expect((defaultRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(moment('2020-09-13T14:25').format('YYYY-MM-DD[T]HH:mm'));
+      .toEqual(moment('2220-09-13T14:25').format('YYYY-MM-DD[T]HH:mm'));
     expect((defaultRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(moment('2020-09-14T15:25').format('YYYY-MM-DD[T]HH:mm'));
+      .toEqual(moment('2220-09-14T15:25').format('YYYY-MM-DD[T]HH:mm'));
 
   });
   it('should return a sanitized user input', () => {
 
-    const userStartInput = { day: 13, month: 9 , year: 2020, hour: 14, minute: 25 }
-    const userStopInput = { day: 14, month: 9 , year: 2020, hour: 15, minute: 25 }
+    const userStartInput = { day: 13, month: 9 , year: 2220, hour: 14, minute: 25 }
+    const userStopInput = { day: 14, month: 9 , year: 2220, hour: 15, minute: 25 }
     
     const userEnteredRange = parseRange(userStartInput, userStopInput)
     expect((userEnteredRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
@@ -948,17 +948,6 @@ describe(parseRange, () => {
     // momentjs months are Zero-based hence the subtraction
   });
 
-  it('should return a sanitized user input', () => {
-
-    const userStartInput = { day: 13, month: 9 , year: 2020, hour: 14, minute: 25 }
-    const userStopInput = { day: 14, month: 9 , year: 2020, hour: 15, minute: 25 }
-    
-    const userEnteredRange = parseRange(userStartInput, userStopInput)
-    expect((userEnteredRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(moment(userStartInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm')); 
-    expect((userEnteredRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(moment(userStopInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm'));
-  });
 
   it('should use current\' date-time values if user-entered values are not a valid date', () => {
 
