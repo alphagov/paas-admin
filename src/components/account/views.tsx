@@ -116,7 +116,7 @@ export function SSOPage(props: ISSOPageProperties): ReactElement {
               <p className="govuk-body">
                 You will also need to{' '}
                 <a
-                  href="https://docs.cloud.service.gov.uk/get_started.html#use-the-single-sign-on-function"
+                  href="https://docs.cloud.service.gov.uk/get_started.html#use-single-sign-on"
                   className="govuk-link"
                 >
                   use single sign-on at the command line
