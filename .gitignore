@@ -1,5 +1,5 @@
 # App specific
-dist/
+dist/*
 
 ### Linux ###
 *~
