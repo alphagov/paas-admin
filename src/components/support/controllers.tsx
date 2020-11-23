@@ -8,6 +8,8 @@ import { IDualValidationError, IValidationError } from '../errors/types';
 
 import {
   ContactUsPage,
+  DocumentsCrownMoU,
+  DocumentsNonCrownMoU,
   FindOutMorePage,
   HelpUsingPaasPage,
   IContactUsFormValues,
@@ -20,6 +22,7 @@ import {
   RequestAnAccountPage,
   SignUpPage,
   SomethingWrongWithServicePage,
+  StaticIPs,
   SupportConfirmationPage,
   SupportSelectionPage,
 } from './views';
@@ -812,4 +815,28 @@ export async function HandleSignupFormPost(
       </SupportConfirmationPage>,
     ),
   };
+}
+
+export async function handleStaticIPs(ctx: IContext): Promise<IResponse> {
+  const template = new Template(ctx.viewContext, 'GOV.UK PaaS Static IPs');
+
+  return await Promise.resolve({
+    body: template.render(<StaticIPs />),
+  });
+}
+
+export async function handleCrownMoU(ctx: IContext): Promise<IResponse> {
+  const template = new Template(ctx.viewContext, 'GOV.UK PaaS memorandum of understanding for Crown bodies');
+
+  return await Promise.resolve({
+    body: template.render(<DocumentsCrownMoU />),
+  });
+}
+
+export async function handleNonCrownMoU(ctx: IContext): Promise<IResponse> {
+  const template = new Template(ctx.viewContext, 'GOV.UK PaaS memorandum of understanding for non-Crown bodies');
+
+  return await Promise.resolve({
+    body: template.render(<DocumentsNonCrownMoU />),
+  });
 }

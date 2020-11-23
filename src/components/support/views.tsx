@@ -1802,3 +1802,93 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
     </div>
   );
 }
+
+export function StaticIPs(): ReactElement {
+  return <div className="govuk-grid-row">
+    <div className="govuk-grid-column-two-thirds">
+      <h1 className="govuk-heading-xl">GOV.UK PaaS Static IPs</h1>
+
+      <p className="govuk-body">GOV.UK PaaS has three static IPs per region</p>
+
+      <dl className="govuk-summary-list">
+        <div className="govuk-summary-list__row">
+          <dt className="govuk-summary-list__key">London</dt>
+          <dd className="govuk-summary-list__value">
+            <ul className="govuk-list">
+              <li>35.178.62.180</li>
+              <li>18.130.41.69</li>
+              <li>35.177.73.214</li>
+            </ul>
+          </dd>
+        </div>
+
+        <div className="govuk-summary-list__row">
+          <dt className="govuk-summary-list__key">Ireland</dt>
+          <dd className="govuk-summary-list__value">
+            <ul className="govuk-list">
+              <li>52.208.24.161</li>
+              <li>52.208.1.143</li>
+              <li>52.51.250.21</li>
+            </ul>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>;
+}
+
+export function DocumentsCrownMoU(): ReactElement {
+  return <div className="govuk-grid-row">
+    <div className="govuk-grid-column-two-thirds">
+      <h1 className="govuk-heading-xl">GOV.UK PaaS memorandum of understanding for Crown bodies</h1>
+
+      <p className="govuk-body">
+        If you&apos;re a Crown body the memorandum of understanding terms apply when you use GOV.UK PaaS.
+      </p>
+
+      <p className="govuk-body">
+        Download the:
+      </p>
+
+      <ul className="govuk-list govuk-list--bullet">
+        <li>
+          <a href="/downloads/crown-mou.pdf" className="govuk-link" download={true}>
+            GOV.UK PaaS memorandum of understanding for Crown bodies [PDF]
+          </a>
+        </li>
+      </ul>
+
+      <p className="govuk-body">
+        These terms are confidential, and should not be shared outside of your organisation.
+      </p>
+    </div>
+  </div>;
+}
+
+export function DocumentsNonCrownMoU(): ReactElement {
+  return <div className="govuk-grid-row">
+    <div className="govuk-grid-column-two-thirds">
+      <h1 className="govuk-heading-xl">GOV.UK PaaS memorandum of understanding for non-Crown bodies</h1>
+
+      <p className="govuk-body">
+        If you&apos;re not a Crown body but you use GOV.UK PaaS the memorandum of understanding terms apply to you.
+      </p>
+
+      <p className="govuk-body">
+        Download the:
+      </p>
+
+      <ul className="govuk-list govuk-list--bullet">
+        <li>
+          <a href="/downloads/non-crown-mou.pdf" className="govuk-link" download={true}>
+            GOV.UK PaaS memorandum of understanding for non-Crown bodies [PDF]
+          </a>
+        </li>
+      </ul>
+
+      <p className="govuk-body">
+        These terms are confidential, and should not be shared outside of your organisation.
+      </p>
+    </div>
+  </div>;
+}

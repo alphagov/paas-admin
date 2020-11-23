@@ -365,6 +365,21 @@ export const router = new Router([
     name: 'support.sign-up.post',
     path: '/support/sign-up',
   },
+  {
+    action: support.handleStaticIPs,
+    name: 'support.static-ips',
+    path: '/support/static-ip',
+  },
+  {
+    action: support.handleCrownMoU,
+    name: 'support.mou.crown',
+    path: '/support/mou-crown',
+  },
+  {
+    action: support.handleNonCrownMoU,
+    name: 'support.mou.non-crown',
+    path: '/support/mou-non-crown',
+  },
 ]);
 
 export default router;
