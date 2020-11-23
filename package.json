@@ -26,7 +26,7 @@
     "start:with-stub-api": "source ./stub-api/stub-apis-env.sh; npm start",
     "start:production": "NODE_ENV=production ALLOW_INSECURE_SESSION=true npm run -s build && node dist/main.js",
     "push": "NODE_ENV=production npm run -s build && cf push",
-    "clean": "rm -rf dist/* || echo 'already clean'"
+    "clean": "find dist -maxdepth 1 ! -name downloads ! -name dist -exec rm -r {} \\; || echo 'already clean'"
   },
   "author": "GOV.UK PaaS Team",
   "license": "MIT",

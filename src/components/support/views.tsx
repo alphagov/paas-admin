@@ -1852,7 +1852,7 @@ export function DocumentsCrownMoU(): ReactElement {
 
       <ul className="govuk-list govuk-list--bullet">
         <li>
-          <a href="/downloads/crown-mou.pdf" className="govuk-link" download={true}>
+          <a href="/downloads/govuk-paas-crown-mou.pdf" className="govuk-link" download={true}>
             GOV.UK PaaS memorandum of understanding for Crown bodies [PDF]
           </a>
         </li>
@@ -1880,7 +1880,7 @@ export function DocumentsNonCrownMoU(): ReactElement {
 
       <ul className="govuk-list govuk-list--bullet">
         <li>
-          <a href="/downloads/non-crown-mou.pdf" className="govuk-link" download={true}>
+          <a href="/downloads/govuk-paas-noncrown-mou.pdf" className="govuk-link" download={true}>
             GOV.UK PaaS memorandum of understanding for non-Crown bodies [PDF]
           </a>
         </li>
