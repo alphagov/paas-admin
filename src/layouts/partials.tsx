@@ -218,6 +218,13 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
                   Static IPs
                 </a>
               </li> : null}
+              <li className="govuk-footer__list-item">
+                <a 
+                  className="govuk-footer__link" 
+                  href="https://ukgovernmentdigital.slack.com/app_redirect?channel=govuk-paas">
+                    Chat to us on Slack
+                </a>
+              </li>
             </ul>
           </div>
           <div className="govuk-footer__section">
