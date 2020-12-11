@@ -1,7 +1,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import { Footer, Header, Main } from './partials';
+import { CookieBanner, Footer, Header, Main } from './partials';
 
 describe(Header, () => {
   it('should successfully display the header element', () => {
@@ -56,5 +56,33 @@ describe(Footer, () => {
         ),
     ).toBe(true);
     expect(markup.text()).toContain('Crown copyright');
+  });
+});
+
+describe(CookieBanner, () => {
+  it('should successfully display the cookie banner element', () => {
+    const markup = shallow(<CookieBanner />);
+    expect(markup.find('.cookie-banner')).toHaveLength(1);
+    expect(markup.find('#cookie-banner__heading').text()).toBe('Can we store analytics cookies on your device?');
+    expect(
+      markup
+      .find('.cookie-banner p').at(0).text())
+      .toBe('Analytics cookies help us understand how our website is being used.');
+    expect(
+      markup
+      .find('.cookie-banner__button-accept').text())
+      .toMatch(/(Yes|PaaS can store analytics cookies on your device)/g);
+    expect(
+      markup
+      .find('.cookie-banner__button-reject').text())
+      .toMatch(/(No|PaaS cannot store analytics cookies on your device)/g);
+    expect(
+      markup
+      .find('.cookie-banner__link').text())
+      .toContain('How PaaS uses cookies');
+    expect(
+      markup
+      .find('.cookie-banner__link').props().href)
+      .toBe('https://www.cloud.service.gov.uk/cookies/');
   });
 });
