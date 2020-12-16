@@ -108,8 +108,11 @@
   "dependencies": {
     "@aws-sdk/client-cloudwatch-node": "^0.1.0-preview.2",
     "@aws-sdk/client-resource-groups-tagging-api-node": "0.1.0-preview.2",
+    "@babel/preset-env": "^7.12.11",
+    "@babel/preset-react": "^7.12.10",
     "aws-sdk": "^2.749.0",
     "axios": "^0.20.0",
+    "babel-jest": "^26.6.3",
     "base32-encode": "^1.1.1",
     "compression": "^1.7.4",
     "cookie-session": "^2.0.0-rc.1",
@@ -180,6 +183,7 @@
       "^.+\\.(css|scss|sass)$": "<rootDir>/config/jest/file.js"
     },
     "transform": {
+      "^.+\\.(js|jsx)$": "babel-jest",
       "^.+\\.(ts|tsx)$": "ts-jest",
       "^.+\\.(css|scss|sass)$": "identity-obj-proxy",
       "^.+\\.(pegjs)$": "<rootDir>/config/jest/pegjs.js",
