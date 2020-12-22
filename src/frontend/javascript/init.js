@@ -1,4 +1,17 @@
 import Tooltip from './tooltip';
+import Cookies from './cookie-functions'
+
+
+var cookies = new Cookies()
+
+if (cookies.hasConsentForAnalytics()) {
+  cookies.initAnalytics()
+}
+
+var $cookieBanner = document.querySelector('[data-module="cookie-banner"]')
+if ($cookieBanner) {
+  cookies.initCookieBanner($cookieBanner)
+}
 
 // there is ever only one header per page
 var $headerMenuButton = document.querySelector('[data-module="govuk-header"]');

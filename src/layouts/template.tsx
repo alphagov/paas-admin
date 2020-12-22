@@ -9,6 +9,7 @@ import govukPrintStyles from './govuk.print.scss';
 import govukIE8Styles from './govuk.screen.ie8.scss';
 import govukStyles from './govuk.screen.scss';
 import {
+  CookieBanner,
   Footer,
   Header,
   ISubNavigationProperties,
@@ -90,6 +91,7 @@ export class Template {
             </a>
 
             ${renderToStaticMarkup(<>
+              <CookieBanner />
               <Header
                 location={this.ctx.location}
                 isPlatformAdmin={!!this.ctx.isPlatformAdmin}
