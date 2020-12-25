@@ -46,12 +46,16 @@ Cookies.prototype.initCookieBanner = function ($module) {
 
   this.$acceptCookiesLink = this.$module.querySelector('button[data-accept-cookies=true]');
   if (this.$acceptCookiesLink) {
-    this.$acceptCookiesLink.addEventListener('click', () => this.$module.setBannerCookieConsent(true));
+    this.$acceptCookiesLink.addEventListener('click', function() {
+      this.$module.setBannerCookieConsent(true);
+    }.bind(this));
   }
 
   this.$rejectCookiesLink = this.$module.querySelector('button[data-accept-cookies=false]');
   if (this.$rejectCookiesLink) {
-    this.$rejectCookiesLink.addEventListener('click', () => this.$module.setBannerCookieConsent(false));
+    this.$rejectCookiesLink.addEventListener('click', function() {
+      this.$module.setBannerCookieConsent(false);
+    }.bind(this));
   }
 
   this.showCookieBanner()
