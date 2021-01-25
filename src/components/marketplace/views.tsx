@@ -428,7 +428,7 @@ export function MarketplaceItemPage(props: IMarketplaceItemPageProperties): Reac
           versions={props.versions}
         />
 
-        <CommandLineAlternative>{`cf marketplace -s ${props.service.name}`}</CommandLineAlternative>
+        <CommandLineAlternative>{`cf marketplace -e ${props.service.name}`}</CommandLineAlternative>
       </div>
     </div>
   );
