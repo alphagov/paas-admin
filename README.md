@@ -52,7 +52,7 @@ uaac client update paas-admin --redirect-uri http://localhost:3000/auth/login/ca
 
 ## Requirements
 
-* [Node.js](https://nodejs.org/en/) version `~ 8.9.0` LTS - consider using
+* [Node.js](https://nodejs.org/en/) version `~ 12` LTS - consider using
   [NVM](https://github.com/creationix/nvm) (`nvm use` in this repo) for version
 management
 * [npm](https://www.npmjs.com/) versions `> 5.5.1`
