@@ -135,7 +135,7 @@
     "lodash": "^4.17.20",
     "moment": "^2.27.0",
     "nanoid": "^3.1.12",
-    "node-jose": "^1.1.4",
+    "node-jose": "^2.0.0",
     "node-zendesk": "^2.0.1",
     "notifications-node-client": "^4.8.0",
     "openid-client": "^3.15.9",
