@@ -83,7 +83,7 @@ export function parseURL(path: string, params: object): string {
   return `${u.pathname}${u.search}`;
 }
 
-class MetricChart extends React.Component {
+export class MetricChart extends React.Component {
   constructor(public readonly props: IMetricChartProperties) {
     super(props);
   }

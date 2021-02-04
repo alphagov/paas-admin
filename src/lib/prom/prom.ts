@@ -86,11 +86,12 @@ export default class PromClient {
       step: parseInt(step.toFixed(0), 10),
       query,
     });
-    const promSeries = promResponse.data.data.result;
 
-    if (promSeries.length === 0) {
+    if (!promResponse.data || !promResponse.data.data || promResponse.data.data.result.length === 0) {
       return;
     }
+
+    const promSeries = promResponse.data.data.result;
 
     return promSeries.map(series => {
       const metrics = series.values;

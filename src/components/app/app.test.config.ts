@@ -38,6 +38,9 @@ export const config: IAppConfig = {
   prometheusEndpoint: 'https://example.com/prom',
   prometheusPassword: 'prometheusPassword',
   prometheusUsername: 'prometheusUsername',
+  platformPrometheusEndpoint: 'https://example.com/prom',
+  platformPrometheusPassword: 'prometheusPassword',
+  platformPrometheusUsername: 'prometheusUsername',
   sessionSecret,
   uaaAPI: 'https://example.com/uaa',
   zendeskConfig: {

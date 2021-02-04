@@ -204,6 +204,14 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
                 </a>
               </li>
               <li className="govuk-footer__list-item">
+                <a
+                  className="govuk-footer__link"
+                  href="/performance"
+                >
+                  Performance dashboard
+                </a>
+              </li>
+              <li className="govuk-footer__list-item">
                 <a className="govuk-footer__link" href="https://docs.cloud.service.gov.uk/">
                   Documentation
                 </a>
@@ -220,7 +228,7 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
               </li> : null}
               <li className="govuk-footer__list-item">
                 <a 
-                  className="govuk-footer__link" 
+                  className="govuk-footer__link"
                   href="https://ukgovernmentdigital.slack.com/app_redirect?channel=govuk-paas">
                     Chat to us on Slack
                 </a>
