@@ -81,7 +81,9 @@ describe('statements test suite', () => {
 
   afterEach(() => {
     nockBilling.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
 
     nock.cleanAll();
   });

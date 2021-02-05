@@ -73,7 +73,9 @@ describe('organizations test suite', () => {
   });
 
   afterEach(() => {
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
 
     nock.cleanAll();
   });
@@ -178,7 +180,9 @@ describe(editOrgQuota, () => {
     });
 
     afterEach(() => {
-      nockCF.done();
+      nockCF.on('response', () => {
+  nockCF.done()
+});
 
       nock.cleanAll();
     });
@@ -251,7 +255,9 @@ describe(updateOrgQuota, () => {
     });
 
     afterEach(() => {
-      nockCF.done();
+      nockCF.on('response', () => {
+  nockCF.done()
+});
 
       nock.cleanAll();
     });

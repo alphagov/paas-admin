@@ -42,7 +42,9 @@ describe('space event', () => {
 
   afterEach(() => {
     nockAccounts.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
 
     nock.cleanAll();
   });
@@ -174,7 +176,9 @@ describe('spaces test suite', () => {
 
   afterEach(() => {
     nockAccounts.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+  nockCF.done()
+});
 
     nock.cleanAll();
   });
@@ -472,7 +476,9 @@ describe('suspended organisation spaces', () => {
 
   afterEach(() => {
     nockAccounts.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+  nockCF.done()
+});
 
     nock.cleanAll();
   });

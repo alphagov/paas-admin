@@ -37,7 +37,9 @@ describe('permissions calling cc api', () => {
   });
 
   afterEach(() => {
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
 
     nock.cleanAll();
   });

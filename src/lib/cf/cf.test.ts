@@ -29,7 +29,9 @@ describe('lib/cf test suite', () => {
   });
 
   afterEach(() => {
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
     nockUAA.done();
 
     nock.cleanAll();
