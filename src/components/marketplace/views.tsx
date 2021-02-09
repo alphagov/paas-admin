@@ -441,7 +441,7 @@ export function MarketplacePage(props: IMarketplacePageProperties): ReactElement
         <h1 className="govuk-heading-l">Marketplace</h1>
 
         <p className="govuk-body">
-          Many applications rely on backing services such as database, an email delivery service or monitoring system.
+          Many applications rely on backing services such as a database, an email delivery service or monitoring system.
           Through the GOV.UK PaaS marketplace, you can create certain backing services and bind them to your
           application.
         </p>
