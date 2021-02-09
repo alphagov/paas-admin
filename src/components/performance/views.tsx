@@ -111,7 +111,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
                 format="number"
                 title="Number of organisations"
                 // eslint-disable-next-line max-len
-                description="The number of organisations, or orgs, represents a group of users, applications and environments. We have 2 types of organisation: 3 month trial accounts and billable accounts."
+                description="The number of organisations, or orgs, represents a group of users, applications and environments. We have 2 types of organisations: 3 month trial accounts and billable accounts."
                 chart={drawLineGraph(
                   'number of organisations',
                   'Number',
