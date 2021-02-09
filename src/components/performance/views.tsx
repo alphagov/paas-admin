@@ -70,7 +70,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
         <div className="govuk-grid-column-two-thirds-from-desktop">
           <h1 className="govuk-heading-xl">
             <span className="govuk-caption-xl">GOV.UK Platform as a Service</span> {}
-            Performance dashboard
+            {props.region} performance dashboard
           </h1>
           <p className="govuk-body">
             GOV.UK PaaS is a shared platform that public sector service teams can use to quickly host their applications
@@ -80,6 +80,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
           <p className="govuk-body">
             Each point on the charts is aggregated data over {}
             <strong className="non-breaking">{props.period.humanize()}</strong>.
+            Each chart shows 1 year of data.
           </p>
 
           <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
@@ -93,7 +94,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
 
             <div className="govuk-grid-column-full">
               <p className="govuk-body">
-                Uptime is measured as the availability of the GOV.UK PaaS API on the platform.
+                Uptime is measured as the availability of the GOV.UK PaaS API.
               </p>
             </div>
 
@@ -111,7 +112,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
                 format="number"
                 title="Number of organisations"
                 // eslint-disable-next-line max-len
-                description="The number of organisations, or orgs, represents a group of users, applications and environments. We have 2 types of organisations: 3 month trial accounts and billable accounts."
+                description="An organisation represents an account that can contain a group of users (team members), applications and environments. We have 2 types of organisation: 3 month trial accounts and billable accounts."
                 chart={drawLineGraph(
                   'number of organisations',
                   'Number',
@@ -128,13 +129,13 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
                 <div className="govuk-grid-column-one-half">
                   <p className="govuk-body">
                     <strong className="govuk-!-font-size-48">{latestValue(props.organizations[0])}</strong><br />
-                    <small className="govuk-!-font-size-27">currently billable organisations</small>
+                    <small className="govuk-!-font-size-27">number of billable organisations</small>
                   </p>
                 </div>
                 <div className="govuk-grid-column-one-half">
                   <p className="govuk-body">
                     <strong className="govuk-!-font-size-48">{latestValue(props.organizations[1])}</strong><br />
-                    <small className="govuk-!-font-size-27">currently trial organisations</small>
+                    <small className="govuk-!-font-size-27">number of trial organisations</small>
                   </p>
                 </div>
               </Metric>
@@ -145,8 +146,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
                 id="applicationCount"
                 format="number"
                 title="Number of running applications"
-                description={`The number of tenant applications running in all organisations in the ${props.region}
-                region.`}
+                description={`The number of applications running in the ${props.region} region.`}
                 chart={drawLineGraph(
                   'number of running applications',
                   'Number',
@@ -172,9 +172,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
                 format="number"
                 title="Number of backing services"
                 // eslint-disable-next-line max-len
-                description={`Applications rely on backing services such as databases, an email delivery service or a
-                monitoring system. The number of backing service instances running in all organisations in the
-                ${props.region} region.`}
+                description={`Applications may rely on backing services such as databases, caching or a monitoring system. The number of backing services running in the ${props.region} region.`}
                 chart={drawLineGraph(
                   'number of backing services',
                   'Number',
