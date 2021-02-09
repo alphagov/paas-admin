@@ -15,6 +15,7 @@ import {
   billableOrgQuotaGUID,
 } from '../../lib/cf/test-data/org-quota';
 import { wrapResources } from '../../lib/cf/test-data/wrap-resources';
+import { getStubPrometheusMetricsSeriesData } from '../../lib/prom/prom.test.data';
 import Router, { IParameters } from '../../lib/router';
 import { CLOUD_CONTROLLER_ADMIN } from '../auth';
 
@@ -137,6 +138,78 @@ describe('app test suite', () => {
 
     const app = init(config);
     const response = await request(app).get('/calculator');
+
+    expect(response.status).toEqual(500);
+  });
+
+  it('should be able to access performance dashboard without login', async () => {
+    nock('https://example.com/prom')
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(200, getStubPrometheusMetricsSeriesData(['billable', 'trial']))
+
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(200, getStubPrometheusMetricsSeriesData(['users']))
+
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(200, getStubPrometheusMetricsSeriesData(['applications']))
+
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(200, getStubPrometheusMetricsSeriesData(['services']));
+
+    const app = init(config);
+    const response = await request(app).get('/performance');
+
+    expect(response.status).toEqual(200);
+  });
+
+  it('should fail to access performance dashboard due to prometheus error', async () => {
+    nock('https://example.com/prom')
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(500)
+
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(200, getStubPrometheusMetricsSeriesData(['users']))
+
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(200, getStubPrometheusMetricsSeriesData(['applications']))
+
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(200, getStubPrometheusMetricsSeriesData(['services']));
+
+    const app = init(config);
+    const response = await request(app).get('/performance');
+
+    expect(response.status).toEqual(500);
+  });
+
+  it('should be able to download performance dashboard without login', async () => {
+    nock('https://example.com/prom')
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(200, getStubPrometheusMetricsSeriesData(['billable', 'trial']));
+
+    const app = init(config);
+    const response = await request(app).get('/performance/mOrganizations');
+
+    expect(response.status).toEqual(200);
+  });
+
+  it('should fail to download performance dashboard due to prometheus error', async () => {
+    nock('https://example.com/prom')
+      .get('/api/v1/query_range')
+      .query(true)
+      .reply(500);
+
+    const app = init(config);
+    const response = await request(app).get('/performance/mOrganizations');
 
     expect(response.status).toEqual(500);
   });

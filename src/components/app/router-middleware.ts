@@ -10,14 +10,14 @@ function handleResponse(res: express.Response) {
       return res.redirect(r.redirect);
     }
 
+    if (r.mimeType) {
+      res.contentType(r.mimeType);
+    }
+
     if (r.download) {
       res.attachment(r.download.name);
 
       return res.send(r.download.data);
-    }
-
-    if (r.mimeType) {
-      res.contentType(r.mimeType);
     }
 
     res.status(r.status || 200).send(r.body);
