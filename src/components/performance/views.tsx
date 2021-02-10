@@ -50,14 +50,14 @@ function Metric(props: IMetricProperties): ReactElement {
         <p className="govuk-body">{props.description}</p>
 
         <MetricChart chart={props.chart.outerHTML} />
+      </div>
 
-        {props.children}
+      {props.children}
 
-        <div className="govuk-grid-column-full">
-          <a href={downloadLink.toString()} className="govuk-link" download>
-            Download &quot;{props.titleText || props.title}&quot; as a CSV
-          </a>
-        </div>
+      <div className="govuk-grid-column-full">
+        <a href={downloadLink.toString()} className="govuk-link" download>
+          Download &quot;{props.titleText || props.title}&quot; as a CSV
+        </a>
       </div>
     </div>
   );
