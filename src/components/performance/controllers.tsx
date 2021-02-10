@@ -1,27 +1,14 @@
+import axios from 'axios';
 import moment from 'moment';
 import React from 'react';
 
 import { Template } from '../../layouts';
 import { IMetric, IMetricSerie } from '../../lib/metrics';
-import PromClient from '../../lib/prom';
 import { IParameters, IResponse, NotFoundError } from '../../lib/router';
 import { IContext } from '../app';
 
+import { IScrapedData, period } from './scraper';
 import { MetricPage } from './views';
-
-const queries = {
-  applicationCount: `sum (group by (organization_name,space_name,application_name) (
-    cf_application_info{organization_name!~"(AIVENBACC|BACC|ACC|ASATS|SMOKE).*",state="STARTED"}
-  ))`,
-  organizations: `sum by (type) (label_replace(
-    label_replace(
-      cf_organization_info{organization_name!~"(AIVENBACC|BACC|ACC|ASATS|SMOKE).*"},
-      "type", "billable", "quota_name", "(gds-non-chargeable|small|medium|large|xlarge|2xlarge|4xlarge|8xlarge)"
-    ),
-    "type", "trial", "quota_name", "default"
-  ))`,
-  serviceCount: 'sum (cf_service_instance_info{last_operation_type=~"create|update"})',
-};
 
 function extractData(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArray<ReadonlyArray<string>> {
   const defaultData: ReadonlyArray<{ readonly metrics: ReadonlyArray<IMetric>}> = [{ metrics: [] }];
@@ -45,29 +32,16 @@ function extractOrgData(data: ReadonlyArray<IMetricSerie> | undefined): Readonly
   ]);
 }
 
-function timeRangeConfig(): { readonly yearAgo: Date, readonly now: Date, readonly period: moment.Duration } {
-  return {
-    now: moment().subtract(1, 'hour').toDate(),
-    period: moment.duration(1, 'week'),
-    yearAgo: moment().subtract(1, 'year').toDate(),
-  };
+function objectifyMetrics(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArray<IMetricSerie> | undefined {
+  return data ? data.map(serie => ({
+    label: serie.label,
+    metrics: serie.metrics.map(metric => ({ date: new Date(metric.date), value: metric.value })),
+  })) : undefined;
 }
 
 export async function viewDashboard(ctx: IContext, _params: IParameters): Promise<IResponse> {
-  const prometheus = new PromClient(
-    ctx.app.platformPrometheusEndpoint,
-    ctx.app.platformPrometheusUsername,
-    ctx.app.platformPrometheusPassword,
-    ctx.log,
-  );
-
-  const { yearAgo, now, period } = timeRangeConfig();
-
-  const [ organizations, applicationCount, serviceCount ] = await Promise.all([
-    prometheus.getSeries(queries.organizations, period.asSeconds(), yearAgo, now),
-    prometheus.getSeries(queries.applicationCount, period.asSeconds(), yearAgo, now),
-    prometheus.getSeries(queries.serviceCount, period.asSeconds(), yearAgo, now),
-  ]);
+  const metrics = await axios.get<IScrapedData>(`${ctx.app.platformMetricsEndpoint}/metrics.json`);
+  const { applications, organizations, services } = metrics.data;
 
   const template = new Template(ctx.viewContext, 'GOV.UK Platform as a Service Performance dashboard');
   template.breadcrumbs = [
@@ -85,45 +59,40 @@ export async function viewDashboard(ctx: IContext, _params: IParameters): Promis
   return {
     body: template.render(
       <MetricPage
-        applicationCount={applicationCount}
+        applicationCount={objectifyMetrics(applications)}
         linkTo={ctx.linkTo}
-        organizations={organizations}
+        organizations={objectifyMetrics(organizations)}
         period={period}
         region={ctx.app.location}
-        serviceCount={serviceCount}
+        serviceCount={objectifyMetrics(services)}
       />,
     ),
   };
 }
 
 export async function downloadPerformanceData(ctx: IContext, params: IParameters): Promise<IResponse> {
-  const prometheus = new PromClient(
-    ctx.app.platformPrometheusEndpoint,
-    ctx.app.platformPrometheusUsername,
-    ctx.app.platformPrometheusPassword,
-    ctx.log,
-  );
+  const metrics = await axios.get<IScrapedData>(`${ctx.app.platformMetricsEndpoint}/metrics.json`);
+  const { applications, organizations, services } = metrics.data;
 
   const csvData = [];
-  const { yearAgo, now, period } = timeRangeConfig();
 
   switch (params.metric) {
     case 'mOrganizations':
       csvData.push(
         ['date', 'billable', 'trial'],
-        ...extractOrgData(await prometheus.getSeries(queries.organizations, period.asSeconds(), yearAgo, now)),
+        ...extractOrgData(organizations),
       );
       break;
     case 'mApplicationCount':
       csvData.push(
         ['date', 'applications'],
-        ...extractData(await prometheus.getSeries(queries.applicationCount, period.asSeconds(), yearAgo, now)),
+        ...extractData(applications),
       );
       break;
     case 'mServiceCount':
       csvData.push(
         ['date', 'services'],
-        ...extractData(await prometheus.getSeries(queries.serviceCount, period.asSeconds(), yearAgo, now)),
+        ...extractData(services),
       );
       break;
     default:
