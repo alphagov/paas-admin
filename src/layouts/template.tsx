@@ -99,7 +99,7 @@ export class Template {
               />
 
               <div className="govuk-width-container">
-                <PhaseBanner tag={{ text: 'beta' }}>
+                <PhaseBanner tag={{ text: 'Live' }}>
                   <a className="govuk-link" href="/support">
                     Get support
                   </a>
