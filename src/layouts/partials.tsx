@@ -1,17 +1,10 @@
-import React, { Fragment, ReactElement, ReactNode } from 'react';
+import React, { Fragment, ReactElement } from 'react';
 
 interface IHeaderProperties {
   readonly authenticated?: boolean;
   readonly assetPath?: string;
   readonly location: string;
   readonly isPlatformAdmin: boolean;
-}
-
-interface IPhaseBannerProperties {
-  readonly tag: {
-    readonly text: string;
-  };
-  readonly children?: ReactNode;
 }
 
 interface IMainProperties {
@@ -156,19 +149,6 @@ export function Header(props: IHeaderProperties): ReactElement {
         </div>
       </div>
     </header>
-  );
-}
-
-export function PhaseBanner(props: IPhaseBannerProperties): ReactElement {
-  return (
-    <div className="govuk-phase-banner">
-      <p className="govuk-phase-banner__content">
-        <strong className="govuk-tag govuk-phase-banner__content__tag">
-          {props.tag.text}
-        </strong>
-        <span className="govuk-phase-banner__text">{props.children}</span>
-      </p>
-    </div>
   );
 }
 

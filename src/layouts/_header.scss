@@ -29,11 +29,6 @@
     padding-left: 0;
     text-align: right;
   }
-
-  /* Link to pricing on right edge of phase banner */
-  .govuk-phase-banner__text {
-    width: 100%;
-  }
 }
 
 @include govuk-media-query($from: wideDesktop) {

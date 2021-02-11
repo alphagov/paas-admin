@@ -14,7 +14,6 @@ import {
   Header,
   ISubNavigationProperties,
   Main,
-  PhaseBanner,
   SubNavigation,
 } from './partials';
 
@@ -99,16 +98,6 @@ export class Template {
               />
 
               <div className="govuk-width-container">
-                <PhaseBanner tag={{ text: 'beta' }}>
-                  <a className="govuk-link" href="/support">
-                    Get support
-                  </a>
-                  {' '}or{' '}
-                  <a className="govuk-link" href="https://www.cloud.service.gov.uk/pricing">
-                    view our pricing
-                  </a>
-                </PhaseBanner>
-
                 {this._subnav
                   ? <SubNavigation title={this._subnav.title} items={this._subnav.items} />
                   : undefined}
