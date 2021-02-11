@@ -3,7 +3,6 @@ import querystring from 'querystring';
 import nock from 'nock';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
-import { getStubPrometheusMetricsSeriesData } from '../../lib/prom/prom.test.data';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
 
@@ -12,39 +11,43 @@ import {
   viewDashboard,
 } from '.';
 
-const prometheusNoData = { status: 'success', data: { resultType: 'series', result: [] } };
-
 const linker = (route: string) => `https://example.com/${route}`;
 const ctx: IContext = { ...createTestContext(), linkTo: linker };
 
+const sampleMetric = { date: new Date(), value: 1 };
+const performanceMetrics = {
+  applications: [{ label: 'applications', metrics: [sampleMetric, sampleMetric] }],
+  organizations: [
+    { label: 'billable', metrics: [sampleMetric, sampleMetric] },
+    { label: 'trial', metrics: [sampleMetric, sampleMetric] },
+  ],
+  services: [{ label: 'services', metrics: [sampleMetric, sampleMetric] }],
+};
+const performanceNoMetrics = {
+  applications: undefined,
+  organizations: undefined,
+  services: undefined,
+};
+
 describe(viewDashboard, () => {
-  let nockProm: nock.Scope;
+  let nockPerformance: nock.Scope;
 
   beforeEach(() => {
     nock.cleanAll();
 
-    nockProm = nock('https://example.com/prom');
+    nockPerformance = nock('https://example.com/performance');
   });
 
   afterEach(() => {
-    nockProm.done();
+    nockPerformance.done();
 
     nock.cleanAll();
   });
 
   it('should generate a graph representation', async () => {
-    nockProm
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['billable', 'trial']))
-
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['users']))
-
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['services']));
+    nockPerformance
+      .get('/metrics.json')
+      .reply(200, performanceMetrics);
 
       const response = await viewDashboard(
         {
@@ -61,18 +64,9 @@ describe(viewDashboard, () => {
   });
 
   it('should generate a graph representation with no data', async () => {
-    nockProm
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, prometheusNoData)
-
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, prometheusNoData)
-
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, prometheusNoData);
+    nockPerformance
+      .get('/metrics.json')
+      .reply(200, performanceNoMetrics);
 
       const response = await viewDashboard(
         {
@@ -90,25 +84,24 @@ describe(viewDashboard, () => {
 });
 
 describe(downloadPerformanceData, () => {
-  let nockProm: nock.Scope;
+  let nockPerformance: nock.Scope;
 
   beforeEach(() => {
     nock.cleanAll();
 
-    nockProm = nock('https://example.com/prom');
+    nockPerformance = nock('https://example.com/performance');
   });
 
   afterEach(() => {
-    nockProm.done();
+    nockPerformance.done();
 
     nock.cleanAll();
   });
 
   it('should return a downloadable CSV - mOrganizations', async () => {
-    nockProm
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['billable', 'trial']));
+    nockPerformance
+      .get('/metrics.json')
+      .reply(200, performanceMetrics);
 
     const response = await downloadPerformanceData(
       {
@@ -131,10 +124,9 @@ describe(downloadPerformanceData, () => {
   });
 
   it('should fail to return a downloadable CSV due to missing data - mOrganizations', async () => {
-    nockProm
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, prometheusNoData);
+    nockPerformance
+      .get('/metrics.json')
+      .reply(200, performanceNoMetrics);
 
     const response = await downloadPerformanceData(
       {
@@ -157,10 +149,9 @@ describe(downloadPerformanceData, () => {
   });
 
   it('should return a downloadable CSV - mApplicationCount', async () => {
-    nockProm
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['applications']));
+    nockPerformance
+      .get('/metrics.json')
+      .reply(200, performanceMetrics);
 
     const response = await downloadPerformanceData(
       {
@@ -183,10 +174,9 @@ describe(downloadPerformanceData, () => {
   });
 
   it('should fail to return a downloadable CSV due to missing data - mApplicationCount', async () => {
-    nockProm
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, prometheusNoData);
+    nockPerformance
+      .get('/metrics.json')
+      .reply(200, performanceNoMetrics);
 
     const response = await downloadPerformanceData(
       {
@@ -209,10 +199,9 @@ describe(downloadPerformanceData, () => {
   });
 
   it('should return a downloadable CSV - mServiceCount', async () => {
-    nockProm
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['services']));
+    nockPerformance
+      .get('/metrics.json')
+      .reply(200, performanceMetrics);
 
     const response = await downloadPerformanceData(
       {
@@ -235,6 +224,10 @@ describe(downloadPerformanceData, () => {
   });
 
   it('should fail to return a downloadable CSV due to invalid metric requested', async () => {
+    nockPerformance
+      .get('/metrics.json')
+      .reply(200, performanceNoMetrics);
+
     await expect(downloadPerformanceData(
       {
         ...ctx,

@@ -63,9 +63,7 @@ export interface IAppConfig {
   readonly awsResourceTaggingAPIEndpoint?: string;
   readonly awsCredentials?: awsTypes.Credentials;
   readonly adminFee: number;
-  readonly platformPrometheusEndpoint: string;
-  readonly platformPrometheusPassword: string;
-  readonly platformPrometheusUsername: string;
+  readonly platformMetricsEndpoint: string;
   readonly prometheusEndpoint: string;
   readonly prometheusUsername: string;
   readonly prometheusPassword: string;

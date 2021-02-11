@@ -15,7 +15,6 @@ import {
   billableOrgQuotaGUID,
 } from '../../lib/cf/test-data/org-quota';
 import { wrapResources } from '../../lib/cf/test-data/wrap-resources';
-import { getStubPrometheusMetricsSeriesData } from '../../lib/prom/prom.test.data';
 import Router, { IParameters } from '../../lib/router';
 import { CLOUD_CONTROLLER_ADMIN } from '../auth';
 
@@ -143,22 +142,19 @@ describe('app test suite', () => {
   });
 
   it('should be able to access performance dashboard without login', async () => {
-    nock('https://example.com/prom')
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['billable', 'trial']))
+    const sampleMetric = { date: new Date(), value: 1 };
+    const performanceMetrics = {
+      applications: [{ label: 'applications', metrics: [sampleMetric, sampleMetric] }],
+      organizations: [
+        { label: 'billable', metrics: [sampleMetric, sampleMetric] },
+        { label: 'trial', metrics: [sampleMetric, sampleMetric] },
+      ],
+      services: [{ label: 'services', metrics: [sampleMetric, sampleMetric] }],
+    };
 
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['users']))
-
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['applications']))
-
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['services']));
+    nock('https://example.com/performance')
+      .get('/metrics.json')
+      .reply(200, performanceMetrics);
 
     const app = init(config);
     const response = await request(app).get('/performance');
@@ -167,22 +163,9 @@ describe('app test suite', () => {
   });
 
   it('should fail to access performance dashboard due to prometheus error', async () => {
-    nock('https://example.com/prom')
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(500)
-
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['users']))
-
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['applications']))
-
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['services']));
+    nock('https://example.com/performance')
+      .get('/metrics.json')
+      .reply(500);
 
     const app = init(config);
     const response = await request(app).get('/performance');
@@ -191,10 +174,19 @@ describe('app test suite', () => {
   });
 
   it('should be able to download performance dashboard without login', async () => {
-    nock('https://example.com/prom')
-      .get('/api/v1/query_range')
-      .query(true)
-      .reply(200, getStubPrometheusMetricsSeriesData(['billable', 'trial']));
+    const sampleMetric = { date: new Date(), value: 1 };
+    const performanceMetrics = {
+      applications: [{ label: 'applications', metrics: [sampleMetric, sampleMetric] }],
+      organizations: [
+        { label: 'billable', metrics: [sampleMetric, sampleMetric] },
+        { label: 'trial', metrics: [sampleMetric, sampleMetric] },
+      ],
+      services: [{ label: 'services', metrics: [sampleMetric, sampleMetric] }],
+    };
+
+    nock('https://example.com/performance')
+      .get('/metrics.json')
+      .reply(200, performanceMetrics);
 
     const app = init(config);
     const response = await request(app).get('/performance/mOrganizations');
@@ -203,9 +195,8 @@ describe('app test suite', () => {
   });
 
   it('should fail to download performance dashboard due to prometheus error', async () => {
-    nock('https://example.com/prom')
-      .get('/api/v1/query_range')
-      .query(true)
+    nock('https://example.com/performance')
+      .get('/metrics.json')
       .reply(500);
 
     const app = init(config);
