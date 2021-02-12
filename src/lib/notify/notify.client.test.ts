@@ -44,7 +44,8 @@ describe('lib/notify test suite', () => {
       'https://example.com/reset?code=1234567890',
     );
 
-    expect(notifyWelcomeResponse.body.content.body).toContain('FAKE_NOTIFY_RESPONSE');
-    expect(notifyPasswordResetResponse.body.content.body).toContain('FAKE_NOTIFY_RESPONSE');
+
+    expect(notifyWelcomeResponse.data.content.body).toContain('FAKE_NOTIFY_RESPONSE');
+    expect(notifyPasswordResetResponse.data.content.body).toContain('FAKE_NOTIFY_RESPONSE');
   });
 });

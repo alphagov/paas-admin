@@ -1,6 +1,6 @@
 declare module 'notifications-node-client' {
   interface IResponse {
-    readonly body: {
+    readonly data: {
       readonly id: string;
       readonly reference: string | null;
       readonly content: {
