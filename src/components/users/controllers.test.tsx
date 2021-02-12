@@ -59,7 +59,9 @@ describe('users test suite', () => {
 
   afterEach(() => {
     nockAccounts.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
     nockUAA.done();
 
     nock.cleanAll();

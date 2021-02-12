@@ -45,7 +45,9 @@ describe('service event', () => {
 
   afterEach(() => {
     nockAccounts.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
 
     nock.cleanAll();
   });
@@ -216,7 +218,9 @@ describe('service events', () => {
 
   afterEach(() => {
     nockAccounts.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+  nockCF.done()
+});
 
     nock.cleanAll();
   });
@@ -387,7 +391,9 @@ describe('service event - CUPS', () => {
 
   afterEach(() => {
     nockAccounts.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+  nockCF.done()
+});
 
     nock.cleanAll();
   });

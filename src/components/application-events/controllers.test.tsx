@@ -39,7 +39,9 @@ describe('application event', () => {
 
   afterEach(() => {
     nockAccounts.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+  nockCF.done()
+});
 
     nock.cleanAll();
   });
@@ -179,7 +181,9 @@ describe('application events', () => {
 
   afterEach(() => {
     nockAccounts.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
 
     nock.cleanAll();
   });

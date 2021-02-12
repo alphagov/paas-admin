@@ -25,7 +25,9 @@ describe('applications test suite', () => {
   });
 
   afterEach(() => {
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
 
     nock.cleanAll();
   });

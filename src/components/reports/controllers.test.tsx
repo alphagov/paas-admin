@@ -48,7 +48,9 @@ describe('organisations report helpers', () => {
   });
 
   afterEach(() => {
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
 
     nock.cleanAll();
   });
@@ -303,7 +305,9 @@ describe('cost report test suite', () => {
   });
 
   afterEach(() => {
-    nockCF.done();
+    nockCF.on('response', () => {
+  nockCF.done()
+});
     nockBilling.done();
 
     nock.cleanAll();
@@ -931,7 +935,9 @@ describe('html cost report by service test suite', () => {
   });
 
   afterEach(() => {
-    nockCF.done();
+    nockCF.on('response', () => {
+  nockCF.done()
+});
     nockBilling.done();
 
     nock.cleanAll();
@@ -1906,7 +1912,9 @@ describe('html visualisation report test suite', () => {
   });
 
   afterEach(() => {
-    nockCF.done();
+    nockCF.on('response', () => {
+  nockCF.done()
+});
     nockBilling.done();
 
     nock.cleanAll();

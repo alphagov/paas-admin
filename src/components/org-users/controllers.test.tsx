@@ -51,7 +51,9 @@ describe('org-users test suite', () => {
     nockAccounts.done();
     nockNotify.done();
     nockUAA.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
 
     nock.cleanAll();
   });
@@ -1674,6 +1676,7 @@ describe('org-users test suite', () => {
         '/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/uaa-user-edit-123456',
       )
       .reply(200, '{}');
+
 
     const response = await orgUsers.updateUser(
       ctx,

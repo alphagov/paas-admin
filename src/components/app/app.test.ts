@@ -44,7 +44,9 @@ describe('app test suite', () => {
   afterEach(() => {
     nockAccounts.done();
     nockBilling.done();
-    nockCF.done();
+    nockCF.on('response', () => {
+      nockCF.done();
+    });
     nockUAA.done();
 
     nock.cleanAll();
