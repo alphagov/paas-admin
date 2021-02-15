@@ -26,14 +26,14 @@ const queries = {
   applicationCount: `sum (group by (organization_name,space_name,application_name) (
     cf_application_info{organization_name!~"(AIVENBACC|BACC|ACC|ASATS|SMOKE).*",state="STARTED"}
   ))`,
-  organizations: `sum by (type) (label_replace(
+  organizations: `sum by (type) (group by (organization_name,type) (label_replace(
     label_replace(
       cf_organization_info{organization_name!~"(AIVENBACC|BACC|ACC|ASATS|SMOKE).*"},
       "type", "billable", "quota_name", "(gds-non-chargeable|small|medium|large|xlarge|2xlarge|4xlarge|8xlarge)"
     ),
     "type", "trial", "quota_name", "default"
-  ))`,
-  serviceCount: 'sum (cf_service_instance_info{last_operation_type=~"create|update"})',
+  )))`,
+  serviceCount: 'sum(group by (service_instance_id) (cf_service_instance_info{last_operation_type=~"create|update"}))',
 };
 
 export async function scrape(promConfig: IPromConfig, logger: BaseLogger): Promise<IScrapedData> {
