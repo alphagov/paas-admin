@@ -9,7 +9,7 @@ const defaultFormat = '.1s';
 describe('line graphs', () => {
   it('should render an SVG', () => {
     const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, []);
-    expect(result.nodeName).toBe('svg');
+    expect(result.nodeName).toBe('SVG');
   });
 
   it('should render an a title id attribute whose value matches a spaceless defaultTitle', () => {

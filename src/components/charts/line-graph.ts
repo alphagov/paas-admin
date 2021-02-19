@@ -3,7 +3,7 @@ import { axisBottom, axisLeft } from 'd3-axis';
 import { scaleLinear, scaleTime } from 'd3-scale';
 import { select } from 'd3-selection';
 import { line } from 'd3-shape';
-import { JSDOM } from 'jsdom';
+import { Window } from 'happy-dom';
 import { flatMap } from 'lodash';
 import moment from 'moment';
 
@@ -29,10 +29,10 @@ export function drawLineGraph(
   formatter: (domainValue: any, index: number) => string,
   series: ReadonlyArray<IMetricSerie>,
 ): SVGElement {
-  const jsdom = new JSDOM();
-  const { window } = jsdom;
+  const { window } = new Window();
   const { document } = window;
-  const { body } = document;
+  //c onvert to correct dom element from generic IHTMLElement
+  const body = <HTMLBodyElement> <unknown> document.body;
 
   const itemID = title.replace(/\s/g, '');
   const svg = select(body)
