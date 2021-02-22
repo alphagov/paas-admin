@@ -5,15 +5,19 @@ import { IMetricSerie } from '../../lib/metrics';
 import PromClient from '../../lib/prom';
 
 export const now = moment().subtract(1, 'hour').toDate();
+const DELAY = 2000;
 export const period = moment.duration(1, 'week');
 export const timeAgo = moment().subtract(1, 'year').toDate();
 
 const delay = async (ms: number): Promise<object> => await new Promise(resolve => setTimeout(resolve, ms));
 
-interface IPromConfig {
-  readonly endpoint: string;
-  readonly password: string;
-  readonly username: string;
+interface IConfig {
+  readonly pingdom: object;
+  readonly prometheus: {
+    readonly endpoint: string;
+    readonly password: string;
+    readonly username: string;
+  };
 }
 
 export interface IScrapedData {
@@ -36,11 +40,11 @@ const queries = {
   serviceCount: 'sum(group by (service_instance_id) (cf_service_instance_info{last_operation_type=~"create|update"}))',
 };
 
-export async function scrape(promConfig: IPromConfig, logger: BaseLogger): Promise<IScrapedData> {
+export async function scrape(cfg: IConfig, logger: BaseLogger): Promise<IScrapedData> {
   const prometheus = new PromClient(
-    promConfig.endpoint,
-    promConfig.username,
-    promConfig.password,
+    cfg.prometheus.endpoint,
+    cfg.prometheus.username,
+    cfg.prometheus.password,
     logger,
   );
 
@@ -53,7 +57,7 @@ export async function scrape(promConfig: IPromConfig, logger: BaseLogger): Promi
     logger.error('Unable to obtain organizastions data...');
   }
 
-  await delay(2000);
+  await delay(DELAY);
 
   logger.info('Obtaining applications data...');
   const applicationCount = await prometheus.getSeries(queries.applicationCount, period.asSeconds(), timeAgo, now);
@@ -62,7 +66,7 @@ export async function scrape(promConfig: IPromConfig, logger: BaseLogger): Promi
     logger.error('Unable to obtain applications data...');
   }
 
-  await delay(2000);
+  await delay(DELAY);
 
   logger.info('Obtaining services data...');
   const serviceCount = await prometheus.getSeries(queries.serviceCount, period.asSeconds(), timeAgo, now);

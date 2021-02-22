@@ -41,9 +41,12 @@ describe(scrape, () => {
       .reply(200, getStubPrometheusMetricsSeriesData(['services']));
 
       const data = await scrape({
-        endpoint: ctx.app.prometheusEndpoint,
-        password: ctx.app.prometheusPassword,
-        username: ctx.app.prometheusUsername,
+        pingdom: {},
+        prometheus: {
+          endpoint: ctx.app.prometheusEndpoint,
+          password: ctx.app.prometheusPassword,
+          username: ctx.app.prometheusUsername,
+        },
       }, ctx.log);
 
       expect(data).toHaveProperty('applications');
@@ -66,9 +69,12 @@ describe(scrape, () => {
       .reply(200, prometheusNoData);
 
       const data = await scrape({
-        endpoint: ctx.app.prometheusEndpoint,
-        password: ctx.app.prometheusPassword,
-        username: ctx.app.prometheusUsername,
+        pingdom: {},
+        prometheus: {
+          endpoint: ctx.app.prometheusEndpoint,
+          password: ctx.app.prometheusPassword,
+          username: ctx.app.prometheusUsername,
+        },
       }, ctx.log);
 
       expect(data.applications).toBeUndefined();
