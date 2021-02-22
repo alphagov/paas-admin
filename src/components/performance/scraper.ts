@@ -4,10 +4,10 @@ import { BaseLogger } from 'pino';
 import { IMetricSerie } from '../../lib/metrics';
 import PromClient from '../../lib/prom';
 
-export const now = moment().subtract(1, 'hour').toDate();
 const DELAY = 2000;
+export const now = moment().subtract(1, 'hour');
 export const period = moment.duration(1, 'week');
-export const timeAgo = moment().subtract(1, 'year').toDate();
+export const timeAgo = moment().subtract(1, 'year');
 
 const delay = async (ms: number): Promise<object> => await new Promise(resolve => setTimeout(resolve, ms));
 
@@ -51,7 +51,12 @@ export async function scrape(cfg: IConfig, logger: BaseLogger): Promise<IScraped
   logger.info('Starting the scraper');
 
   logger.info('Obtaining organizations data...');
-  const organizations = await prometheus.getSeries(queries.organizations, period.asSeconds(), timeAgo, now);
+  const organizations = await prometheus.getSeries(
+    queries.organizations,
+    period.asSeconds(),
+    timeAgo.toDate(),
+    now.toDate(),
+  );
   /* istanbul ignore next */
   if (!organizations) {
     logger.error('Unable to obtain organizastions data...');
@@ -60,7 +65,12 @@ export async function scrape(cfg: IConfig, logger: BaseLogger): Promise<IScraped
   await delay(DELAY);
 
   logger.info('Obtaining applications data...');
-  const applicationCount = await prometheus.getSeries(queries.applicationCount, period.asSeconds(), timeAgo, now);
+  const applicationCount = await prometheus.getSeries(
+    queries.applicationCount,
+    period.asSeconds(),
+    timeAgo.toDate(),
+    now.toDate(),
+  );
   /* istanbul ignore next */
   if (!applicationCount) {
     logger.error('Unable to obtain applications data...');
@@ -69,7 +79,12 @@ export async function scrape(cfg: IConfig, logger: BaseLogger): Promise<IScraped
   await delay(DELAY);
 
   logger.info('Obtaining services data...');
-  const serviceCount = await prometheus.getSeries(queries.serviceCount, period.asSeconds(), timeAgo, now);
+  const serviceCount = await prometheus.getSeries(
+    queries.serviceCount,
+    period.asSeconds(),
+    timeAgo.toDate(),
+    now.toDate(),
+  );
   /* istanbul ignore next */
   if (!serviceCount) {
     logger.error('Unable to obtain services data...');
