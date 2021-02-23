@@ -136,7 +136,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "nanoid": "^3.1.12",
+    "nanoid": "^3.1.20",
     "node-jose": "^2.0.0",
     "node-zendesk": "^2.0.1",
     "notifications-node-client": "^5.1.0",
