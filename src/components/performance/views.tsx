@@ -26,6 +26,7 @@ interface IMetricPageProperties {
   readonly period: moment.Duration;
   readonly region: string;
   readonly serviceCount?: ReadonlyArray<IMetricSerie>;
+  readonly uptime?: number;
 }
 
 export function latestValue(data: IMetricSerie): number {
@@ -99,7 +100,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
 
           <div className="govuk-grid-column-one-half">
             <p className="govuk-body">
-              <strong className="govuk-!-font-size-48">99.95%</strong><br />
+              <strong className="govuk-!-font-size-48">{props.uptime || '~99.95'}%</strong><br />
               <small className="govuk-!-font-size-27">uptime in the {props.region} region over the last year</small>
             </p>
           </div>

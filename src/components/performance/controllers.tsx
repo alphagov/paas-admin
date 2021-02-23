@@ -41,7 +41,7 @@ function objectifyMetrics(data: ReadonlyArray<IMetricSerie> | undefined): Readon
 
 export async function viewDashboard(ctx: IContext, _params: IParameters): Promise<IResponse> {
   const metrics = await axios.get<IScrapedData>(`${ctx.app.platformMetricsEndpoint}/metrics.json`);
-  const { applications, organizations, services } = metrics.data;
+  const { applications, organizations, services, uptime } = metrics.data;
 
   const template = new Template(ctx.viewContext, 'GOV.UK Platform as a Service Performance dashboard');
   template.breadcrumbs = [
@@ -65,6 +65,7 @@ export async function viewDashboard(ctx: IContext, _params: IParameters): Promis
         period={period}
         region={ctx.app.location}
         serviceCount={objectifyMetrics(services)}
+        uptime={uptime}
       />,
     ),
   };
