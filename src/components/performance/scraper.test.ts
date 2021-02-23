@@ -6,7 +6,10 @@ import { IContext } from '../app/context';
 
 import { scrape } from './scraper';
 
+jest.setTimeout(30000);
+
 const prometheusNoData = { status: 'success', data: { resultType: 'series', result: [] } };
+const pingdomEndpoint = 'https://example.com/pingdom';
 
 const linker = (route: string) => `https://example.com/${route}`;
 const ctx: IContext = { ...createTestContext(), linkTo: linker };
@@ -18,8 +21,8 @@ describe(scrape, () => {
   beforeEach(() => {
     nock.cleanAll();
 
-    nockPingdom = nock('https://example.com/pingdom');
-    nockProm = nock('https://example.com/prom');
+    nockPingdom = nock(pingdomEndpoint);
+    nockProm = nock(ctx.app.platformMetricsEndpoint);
   });
 
   afterEach(() => {
@@ -55,11 +58,11 @@ describe(scrape, () => {
       const data = await scrape({
         pingdom: {
           checkID: '12345',
-          endpoint: 'https://example.com/pingdom',
+          endpoint: pingdomEndpoint,
           token: 'qwerty-123456',
         },
         prometheus: {
-          endpoint: ctx.app.prometheusEndpoint,
+          endpoint: ctx.app.platformMetricsEndpoint,
           password: ctx.app.prometheusPassword,
           username: ctx.app.prometheusUsername,
         },
@@ -94,11 +97,11 @@ describe(scrape, () => {
       const data = await scrape({
         pingdom: {
           checkID: '12345',
-          endpoint: 'https://example.com/pingdom',
+          endpoint: pingdomEndpoint,
           token: 'qwerty-123456',
         },
         prometheus: {
-          endpoint: ctx.app.prometheusEndpoint,
+          endpoint: ctx.app.platformMetricsEndpoint,
           password: ctx.app.prometheusPassword,
           username: ctx.app.prometheusUsername,
         },

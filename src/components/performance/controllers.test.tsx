@@ -39,7 +39,9 @@ describe(viewDashboard, () => {
   });
 
   afterEach(() => {
-    nockPerformance.done();
+    nockPerformance.on('response', () => {
+      nockPerformance.done();
+    });
 
     nock.cleanAll();
   });
@@ -93,7 +95,9 @@ describe(downloadPerformanceData, () => {
   });
 
   afterEach(() => {
-    nockPerformance.done();
+    nockPerformance.on('response', () => {
+      nockPerformance.done();
+    });
 
     nock.cleanAll();
   });
