@@ -56,7 +56,7 @@
     "@types/moment": "^2.13.0",
     "@types/node-jose": "^1.1.4",
     "@types/passport": "^1.0.4",
-    "@types/passport-oauth2": "^1.4.9",
+    "@types/passport-oauth2": "^1.4.10",
     "@types/pino": "^6.3.5",
     "@types/qs": "^6.9.5",
     "@types/react": "^16.9.46",
