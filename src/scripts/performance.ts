@@ -11,9 +11,16 @@ const logger = pino({
 
 async function run(): Promise<void> {
   const data = await scrape({
-    endpoint: process.env['PLATFORM_PROMETHEUS_ENDPOINT'] || '',
-    password: process.env['PLATFORM_PROMETHEUS_PASSWORD'] || '',
-    username: process.env['PLATFORM_PROMETHEUS_USERNAME'] || '',
+    pingdom: {
+      checkID: process.env['PINGDOM_CHECK_ID'] || '0',
+      endpoint: 'https://api.pingdom.com',
+      token: process.env['PINGDOM_API_TOKEN'] || 'token',
+    },
+    prometheus: {
+      endpoint: process.env['PLATFORM_PROMETHEUS_ENDPOINT'] || '',
+      password: process.env['PLATFORM_PROMETHEUS_PASSWORD'] || '',
+      username: process.env['PLATFORM_PROMETHEUS_USERNAME'] || '',
+    },
   }, logger);
 
   logger.info('All done!');

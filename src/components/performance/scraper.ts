@@ -1,25 +1,47 @@
+import axios from 'axios';
 import moment from 'moment';
-import { BaseLogger } from 'pino';
+import { Logger } from 'pino';
 
+import { intercept } from '../../lib/axios-logger/axios';
 import { IMetricSerie } from '../../lib/metrics';
 import PromClient from '../../lib/prom';
 
-export const now = moment().subtract(1, 'hour').toDate();
+const DELAY = 2000;
+
+export const now = moment().subtract(1, 'hour');
 export const period = moment.duration(1, 'week');
-export const timeAgo = moment().subtract(1, 'year').toDate();
+export const timeAgo = moment().subtract(1, 'year');
 
 const delay = async (ms: number): Promise<object> => await new Promise(resolve => setTimeout(resolve, ms));
 
-interface IPromConfig {
-  readonly endpoint: string;
-  readonly password: string;
-  readonly username: string;
+interface IConfig {
+  readonly pingdom: {
+    readonly checkID: string;
+    readonly endpoint: string;
+    readonly token: string;
+  };
+  readonly prometheus: {
+    readonly endpoint: string;
+    readonly password: string;
+    readonly username: string;
+  };
+}
+
+interface IPingdomUptimeResponse {
+  readonly summary: {
+    readonly status: {
+      readonly totalup: number;
+      readonly totaldown: number;
+      readonly totalunknown: number;
+    };
+  };
 }
 
 export interface IScrapedData {
   readonly organizations?: ReadonlyArray<IMetricSerie>;
   readonly applications?: ReadonlyArray<IMetricSerie>;
   readonly services?: ReadonlyArray<IMetricSerie>;
+  readonly uptime?: number;
 }
 
 const queries = {
@@ -36,36 +58,84 @@ const queries = {
   serviceCount: 'sum(group by (service_instance_id) (cf_service_instance_info{last_operation_type=~"create|update"}))',
 };
 
-export async function scrape(promConfig: IPromConfig, logger: BaseLogger): Promise<IScrapedData> {
+function calculateUptime(data: IPingdomUptimeResponse): number {
+  const { totalup, totaldown, totalunknown } = data.summary.status;
+  const total = totalup + totaldown + totalunknown;
+  const totalDownTime = totaldown + totalunknown;
+  const uptimePercentage = ((total - totalDownTime) / total) * 100;
+
+  return parseFloat(uptimePercentage.toFixed(2));
+}
+
+export async function scrape(cfg: IConfig, logger: Logger): Promise<IScrapedData> {
+  const pingdom = axios.create({
+    baseURL: cfg.pingdom.endpoint,
+    headers: {
+      Authorization: `Bearer ${cfg.pingdom.token}`,
+    },
+    timeout: 1000,
+  });
+  intercept(pingdom, 'pingdom', logger);
+
   const prometheus = new PromClient(
-    promConfig.endpoint,
-    promConfig.username,
-    promConfig.password,
+    cfg.prometheus.endpoint,
+    cfg.prometheus.username,
+    cfg.prometheus.password,
     logger,
   );
 
   logger.info('Starting the scraper');
 
+  logger.info('Obtaining uptime data...');
+  const uptimeResponse = await pingdom.get<IPingdomUptimeResponse>(`/api/3.1/summary.average/${cfg.pingdom.checkID}`, {
+    params: {
+      from: timeAgo.unix(),
+      to: now.unix(),
+      includeuptime: true,
+    },
+  });
+  /* istanbul ignore next */
+  if (uptimeResponse.status !== 200) {
+    logger.error('Unable to obtain uptime data...', uptimeResponse.data);
+  }
+
+  await delay(DELAY);
+
   logger.info('Obtaining organizations data...');
-  const organizations = await prometheus.getSeries(queries.organizations, period.asSeconds(), timeAgo, now);
+  const organizations = await prometheus.getSeries(
+    queries.organizations,
+    period.asSeconds(),
+    timeAgo.toDate(),
+    now.toDate(),
+  );
   /* istanbul ignore next */
   if (!organizations) {
     logger.error('Unable to obtain organizastions data...');
   }
 
-  await delay(2000);
+  await delay(DELAY);
 
   logger.info('Obtaining applications data...');
-  const applicationCount = await prometheus.getSeries(queries.applicationCount, period.asSeconds(), timeAgo, now);
+  const applicationCount = await prometheus.getSeries(
+    queries.applicationCount,
+    period.asSeconds(),
+    timeAgo.toDate(),
+    now.toDate(),
+  );
   /* istanbul ignore next */
   if (!applicationCount) {
     logger.error('Unable to obtain applications data...');
   }
 
-  await delay(2000);
+  await delay(DELAY);
 
   logger.info('Obtaining services data...');
-  const serviceCount = await prometheus.getSeries(queries.serviceCount, period.asSeconds(), timeAgo, now);
+  const serviceCount = await prometheus.getSeries(
+    queries.serviceCount,
+    period.asSeconds(),
+    timeAgo.toDate(),
+    now.toDate(),
+  );
   /* istanbul ignore next */
   if (!serviceCount) {
     logger.error('Unable to obtain services data...');
@@ -75,5 +145,6 @@ export async function scrape(promConfig: IPromConfig, logger: BaseLogger): Promi
     applications: applicationCount,
     organizations: organizations,
     services: serviceCount,
+    uptime: uptimeResponse.status === 200 ? calculateUptime(uptimeResponse.data) : undefined,
   };
 }
