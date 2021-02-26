@@ -12,9 +12,10 @@ function mockPrometheus(
   app.get(
     /query_range/,
     (req, res) => {
-      const historicTime = parseInt(req.query.start, 10);
-      const instantTime = parseInt(req.query.end, 10);
-      const step = parseInt(req.query.step, 10);
+      console.log(req.query.start)
+      const historicTime = parseInt(req.query.start as string, 10);
+      const instantTime = parseInt(req.query.end as string, 10);
+      const step = parseInt(req.query.step as string, 10);
 
       const length = Math.ceil(((instantTime - historicTime)) / step);
 
