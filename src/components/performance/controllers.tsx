@@ -10,6 +10,12 @@ import { IContext } from '../app';
 import { IScrapedData, period } from './scraper';
 import { MetricPage } from './views';
 
+export function formatDate(input:Date, options?: Record<string, unknown>): string {
+  const opts = typeof options === 'undefined' ? { month: 'long', year: 'numeric' } : options;
+
+return new Intl.DateTimeFormat('en-GB', opts).format(new Date(input));
+}
+
 function extractData(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArray<ReadonlyArray<string>> {
   const defaultData: ReadonlyArray<{ readonly metrics: ReadonlyArray<IMetric>}> = [{ metrics: [] }];
   const metrics = (data || defaultData)[0].metrics;
@@ -18,6 +24,42 @@ function extractData(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArr
     moment(metric.date).format('YYYY-MM-DD[T]HH:mm'),
     metric.value.toString(),
   ]);
+}
+
+export function exportMaxPerMonthDataValues(data: IMetricSerie  ) {
+  const metrics = data.metrics;
+
+return metrics.concat() // so that we con't modify the original array
+    // 1. sort by value property so we get highest entry in each month to the highest index in array
+    .sort((a, b) => b.value - a.value)
+    // 2. remove any duplicates for given month, as we've already brought the needed values to the top of array
+    // we're using actual month+year name as values are weekly in datetiem format
+    .reduce((acc: Array<any>, current: { readonly date: Date; }) => {
+      const entry = acc.find((item: { readonly date: Date; }) => formatDate(item.date) === formatDate(current.date));
+      // filter out current month
+      const currentMonth = formatDate(new Date());
+      if (!entry && formatDate(current.date) !== currentMonth) {
+        return acc.concat([current]);
+      } else {
+        return acc;
+      }
+    }, [])
+    // 3. once we only have one entry per month, let's sort the months back to ascending order
+    .sort((a: { date: { getTime: () => number; }; }, b: { date: { getTime: () => number; }; }) => a.date.getTime() - b.date.getTime());
+}
+
+export function combineMetrics(array1: IMetricSerie, array2: IMetricSerie ) {
+  const filteredArray1 = [...exportMaxPerMonthDataValues(array1)];
+  const filteredArray2 = [...exportMaxPerMonthDataValues(array2)];
+  // as we've already picked out the max value for each month, we're not concerned about individual datetime stamps -
+  // both of them belong to the same month
+  const combinedArray = filteredArray1.map((metric, index) => ({
+    date: formatDate(metric.date),
+    billable: metric.value,
+    trial: filteredArray2[index].value,
+  }));
+
+return combinedArray;
 }
 
 function extractOrgData(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArray<ReadonlyArray<string>> {
