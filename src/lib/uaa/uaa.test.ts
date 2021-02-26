@@ -177,7 +177,7 @@ describe('lib/uaa test suite', () => {
 
     const user = await client.getUser(id);
 
-    expect(user.id).toEqual(id);
+    expect(user!.id).toEqual(id);
   });
 
   it('should return null when retrieiving a user not found', async () => {

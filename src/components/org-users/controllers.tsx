@@ -490,7 +490,7 @@ export async function inviteUser(
     const email = userBody.email!.replace(/\s/g, '');
     const uaaUser = await uaa.findUser(email);
 
-    let userGUID = uaaUser && uaaUser.id;
+    let userGUID = uaaUser && uaaUser!.id;
     let invitation: IUaaInvitation | undefined;
 
     if (!userGUID) {
@@ -649,7 +649,7 @@ export async function resendInvitation(
   });
 
   const uaaUser = await uaa.findUser(user.entity.username);
-  let userGUID = uaaUser && uaaUser.id;
+  let userGUID = uaaUser && uaaUser!.id;
 
   /* istanbul ignore next */
   if (!userGUID) {
@@ -772,7 +772,7 @@ export async function editUser(
 
   if (!accountsUser) {
     ctx.app.logger.warn(
-      `user ${uaaUser.id} was found in UAA and CF, but not in paas-accounts. ` +
+      `user ${uaaUser!.id} was found in UAA and CF, but not in paas-accounts. ` +
         'Was the user created incorrectly? They should be invited via paas-admin',
     );
     throw new NotFoundError('user not found in paas-accounts');
@@ -844,7 +844,7 @@ export async function editUser(
         csrf={ctx.viewContext.csrf}
         email={accountsUser.email}
         errors={[]}
-        isActive={uaaUser.active && uaaUser.verified}
+        isActive={uaaUser!.active && uaaUser!.verified}
         linkTo={ctx.linkTo}
         managers={managers.length}
         organization={organization}
@@ -972,7 +972,7 @@ export async function updateUser(
       const accountsUser = await accountsClient.getUser(params.userGUID);
       if (!accountsUser) {
         ctx.app.logger.warn(
-          `user ${uaaUser.id} was found in UAA and CF, but not in paas-accounts. ` +
+          `user ${uaaUser!.id} was found in UAA and CF, but not in paas-accounts. ` +
             'Was the user created incorrectly? They should be invited via paas-admin',
         );
         throw new NotFoundError('user not found in paas-accounts');
@@ -996,7 +996,7 @@ export async function updateUser(
             csrf={ctx.viewContext.csrf}
             email={accountsUser.email}
             errors={err.errors}
-            isActive={uaaUser.active && uaaUser.verified}
+            isActive={uaaUser!.active && uaaUser!.verified}
             linkTo={ctx.linkTo}
             managers={managers.length}
             organization={organization}
