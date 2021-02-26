@@ -47,7 +47,7 @@ return;
 return;
     }
 
-    const uuidsAsList: ReadonlyArray<string> = uuids.split(',');
+    const uuidsAsList: ReadonlyArray<string> = (uuids as string).split(',');
     const uuidsThatExist = uuidsAsList.filter(id => userIds.indexOf(id) >= 0);
 
     res.send(JSON.stringify({
