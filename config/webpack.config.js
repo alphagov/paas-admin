@@ -86,7 +86,7 @@ let cfg = {
           {
             loader: 'css-loader',
             options: {
-              sourceMap: true,
+              sourceMap: NODE_ENV === 'production' ? false : true,
               url: false,
             },
           },
