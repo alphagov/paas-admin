@@ -130,8 +130,10 @@ export function drawLineGraph(
       .attr('aria-hidden', 'true');
 
     if (series.length > 1) {
-      const matches = serie.label.match(/-(\d+$)/);
-      if (matches && matches.length > 1) {
+      const serieLabel = serie.label ? serie.label : '';
+      const matches = serieLabel.match(/-(\d+$)/) ;
+      const legendLabel = matches ? `Instance ${matches[1]}` : `${serieLabel}`;
+      if (legendLabel && legendLabel.length > 1) {
         const legendGroup = svg
           .append('g')
           .attr('class', `legend legend-${i}`)
@@ -152,7 +154,7 @@ export function drawLineGraph(
           .append('text')
           .attr('x', 20)
           .attr('y', 0)
-          .text(`Instance ${matches[1]}`);
+          .text(legendLabel);
       }
     }
   });
