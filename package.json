@@ -39,7 +39,7 @@
     "@types/compression": "^1.7.0",
     "@types/cookie-session": "^2.0.42",
     "@types/csurf": "^1.11.0",
-    "@types/d3-array": "^2.0.0",
+    "@types/d3-array": "^2.9.0",
     "@types/d3-axis": "^1.0.12",
     "@types/d3-scale": "^3.2.2",
     "@types/d3-selection": "^2.0.0",
