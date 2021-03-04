@@ -7,7 +7,10 @@ import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
 
 import {
+  combineMetrics,
   downloadPerformanceData,
+  exportMaxPerMonthDataValues,
+  formatDate,
   viewDashboard,
 } from '.';
 
@@ -244,3 +247,66 @@ describe(downloadPerformanceData, () => {
   });
 });
 
+describe(exportMaxPerMonthDataValues,() => {
+ it('should only return the max value from a set of objects who have the same date month value', () => {
+   const input = {
+      'label': 'custom metric',
+      'metrics': [
+        { date: new Date('2020-02-24T16:32:03.000Z'), value: 213 },
+        { date: new Date('2020-03-02T16:32:03.000Z'), value: 220 },
+        { date: new Date('2020-03-09T16:32:03.000Z'), value: 218 },
+        { date: new Date('2020-03-16T16:32:03.000Z'), value: 216 },
+        { date: new Date('2020-04-06T16:32:03.000Z'), value: 237 },
+        { date: new Date('2020-04-13T16:32:03.000Z'), value: 242 },
+      ],
+     };
+    const expectedOutput = [
+      { date: new Date('2020-02-24T16:32:03.000Z'), value: 213 },
+      { date: new Date('2020-03-02T16:32:03.000Z'), value: 220 },
+      { date: new Date('2020-04-13T16:32:03.000Z'), value: 242 },
+    ];
+   const output = exportMaxPerMonthDataValues(input);
+   expect(output).toEqual(expectedOutput);
+ });
+});
+
+describe(formatDate,() => {
+  it('should by default output month name and year from given timestamp', () => {
+    const input = '2020-02-24T16:32:03.000Z';
+    const output = formatDate(new Date(input));
+    expect(output).toContain('February 2020');
+  });
+  it('should output date string based on provided format options from given timestamp', () => {
+    const input = '2020-02-24T16:32:03.000Z';
+    const output = formatDate(new Date(input),{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    expect(output).toContain('Monday, February 24, 2020');
+  });
+});
+
+describe(combineMetrics,() => {
+  it('should combine two array of objects into one array with trial and billable values', () => {
+    const input1 = {
+      'label': 'metric1',
+      'metrics': [
+        { 'date': new Date('2020-02-24T16:32:03.000Z'),'value': 42 },
+        { 'date': new Date('2020-03-02T16:32:03.000Z'),'value': 43 },
+        { 'date': new Date('2020-03-23T16:32:03.000Z'),'value': 42 },
+      ],
+    };
+    const input2 = {
+      'label': 'metric2',
+      'metrics': [
+        { 'date': new Date('2020-02-24T16:32:03.000Z'),'value': 14 },
+        { 'date': new Date('2020-03-09T16:32:03.000Z'),'value': 14 },
+        { 'date': new Date('2020-03-16T16:32:03.000Z'),'value': 15 },
+        { 'date': new Date('2020-03-23T16:32:03.000Z'),'value': 13 },
+      ],
+    };
+     const expectedOutput = [
+       { date: 'February 2020', billable: 42, trial: 14 },
+       { date: 'March 2020', billable: 43, trial: 15 },
+     ];
+    const output = combineMetrics(input1, input2);
+    expect(output).toEqual(expectedOutput);
+  });
+ });

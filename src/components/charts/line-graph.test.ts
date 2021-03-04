@@ -61,7 +61,7 @@ describe('line graphs', () => {
     expect(legends).toHaveLength(3);
   });
 
-  it('should render multiple series as multiple paths and not show a legend if the formats do not end with numbers', () => {
+  it('should render multiple series as multiple paths and show a legend with provided labels', () => {
     const series = [
       { date: new Date(2019, 1, 1), value: 42 },
       { date: new Date(2019, 2, 1), value: 58 },
@@ -70,6 +70,44 @@ describe('line graphs', () => {
       { metrics: series, label: 'some-label-one' },
       { metrics: series, label: 'some-label-two' },
       { metrics: series, label: 'some-label-three' },
+    ]);
+    const seriesPaths = result.querySelectorAll('path.series');
+    expect(seriesPaths).toHaveLength(3);
+    const legends = result.querySelectorAll('.legend');
+    expect(legends).toHaveLength(3);
+    expect(legends[0].innerHTML).toContain('some-label-one');
+    expect(legends[1].innerHTML).toContain('some-label-two');
+    expect(legends[2].innerHTML).toContain('some-label-three');
+  });
+
+  it('should show a graph legend with default labels', () => {
+    const series = [
+      { date: new Date(2019, 1, 1), value: 42 },
+      { date: new Date(2019, 2, 1), value: 58 },
+    ];
+    const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, [
+      { metrics: series, label: 'some-label-1' },
+      { metrics: series, label: 'some-label-2' },
+      { metrics: series, label: 'some-label-3' },
+    ]);
+    const seriesPaths = result.querySelectorAll('path.series');
+    expect(seriesPaths).toHaveLength(3);
+    const legends = result.querySelectorAll('.legend');
+    expect(legends).toHaveLength(3);
+    expect(legends[0].innerHTML).toContain('Instance 1');
+    expect(legends[1].innerHTML).toContain('Instance 2');
+    expect(legends[2].innerHTML).toContain('Instance 3');
+  });
+
+  it('should not show a graph legend when no label is provided', () => {
+    const series = [
+      { date: new Date(2019, 1, 1), value: 42 },
+      { date: new Date(2019, 2, 1), value: 58 },
+    ];
+    const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, [
+      { metrics: series },
+      { metrics: series },
+      { metrics: series },
     ]);
     const seriesPaths = result.querySelectorAll('path.series');
     expect(seriesPaths).toHaveLength(3);

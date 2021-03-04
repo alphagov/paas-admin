@@ -6,6 +6,8 @@ import { drawLineGraph } from '../charts/line-graph';
 import { numberLabel } from '../service-metrics/metrics';
 import { MetricChart, parseURL } from '../service-metrics/views';
 
+import { combineMetrics, exportMaxPerMonthDataValues, formatDate } from './controllers';
+
 export interface IMetricProperties {
   readonly id: string;
   readonly downloadLink: string;
@@ -107,7 +109,8 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
         </div>
 
         {props.organizations
-          ? <Metric
+          ? <>
+            <Metric
               id="organisations"
               format="number"
               title="Number of organisations"
@@ -129,20 +132,41 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
               <div className="govuk-grid-column-one-half">
                 <p className="govuk-body">
                   <strong className="govuk-!-font-size-48">{latestValue(props.organizations[0])}</strong><br />
-                  <small className="govuk-!-font-size-27">number of billable organisations</small>
+                  <small className="govuk-!-font-size-27">currently billable organisations</small>
                 </p>
               </div>
               <div className="govuk-grid-column-one-half">
                 <p className="govuk-body">
                   <strong className="govuk-!-font-size-48">{latestValue(props.organizations[1])}</strong><br />
-                  <small className="govuk-!-font-size-27">number of trial organisations</small>
+                  <small className="govuk-!-font-size-27">currently trial organisations</small>
                 </p>
               </div>
             </Metric>
+            <table className="govuk-table">
+              <caption className="govuk-table__caption govuk-table__caption--m govuk-visually-hidden">Maximum number of billable and trial organisations per month previously</caption>
+              <thead className="govuk-table__head">
+                <tr className="govuk-table__row">
+                  <th scope="col" className="govuk-table__header govuk-!-width-one-third">Month</th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">Maximum number of billable organisations per month</th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">Maximum number of trial organisations per month</th>
+                </tr>
+              </thead>
+              <tbody className="govuk-table__body">
+                {combineMetrics(props.organizations[0], props.organizations[1]).map((metric, index)  => (
+                  <tr key={index} className="govuk-table__row">
+                    <th scope="row" className="govuk-table__header">{metric.date}</th>
+                    <td className="govuk-table__cell govuk-table__cell--numeric">{metric.billable}</td>
+                    <td className="govuk-table__cell govuk-table__cell--numeric">{metric.trial}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            </>
           : <p className="govuk-body">The number of organisations chart is currently not available.</p> }
 
         {props.applicationCount
-          ? <Metric
+          ? <>
+            <Metric
               id="applicationCount"
               format="number"
               title="Number of running applications"
@@ -164,10 +188,29 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
                 </p>
               </div>
             </Metric>
+            <table className="govuk-table">
+              <caption className="govuk-table__caption govuk-table__caption--m govuk-visually-hidden">Maximum number of running applications per month previously</caption>
+              <thead className="govuk-table__head">
+                <tr className="govuk-table__row">
+                  <th scope="col" className="govuk-table__header">Month</th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">Maximum number of running applications per month</th>
+                </tr>
+              </thead>
+              <tbody className="govuk-table__body">
+                {exportMaxPerMonthDataValues(props.applicationCount[0]).map((metric, index)  => (
+                  <tr key={index} className="govuk-table__row">
+                    <th scope="row" className="govuk-table__header">{formatDate(metric.date)}</th>
+                    <td className="govuk-table__cell govuk-table__cell--numeric">{metric.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            </>
           : <p className="govuk-body">The number of running applications chart is currently not available.</p> }
 
         {props.serviceCount
-          ? <Metric
+          ? <>
+            <Metric
               id="serviceCount"
               format="number"
               title="Number of backing services"
@@ -190,6 +233,24 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
                 </p>
               </div>
             </Metric>
+            <table className="govuk-table">
+              <caption className="govuk-table__caption govuk-table__caption--m govuk-visually-hidden">Maximum number of backing services per month previously</caption>
+              <thead className="govuk-table__head">
+                <tr className="govuk-table__row">
+                  <th scope="col" className="govuk-table__header">Month</th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">Maximum number of backing services per month</th>
+                </tr>
+              </thead>
+              <tbody className="govuk-table__body">
+                {exportMaxPerMonthDataValues(props.serviceCount[0]).map((metric, index) => (
+                  <tr key={index} className="govuk-table__row">
+                    <th scope="row" className="govuk-table__header">{formatDate(metric.date)}</th>
+                    <td className="govuk-table__cell govuk-table__cell--numeric">{metric.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            </>
           : <p className="govuk-body">The number of backing services chart is currently not available.</p> }
       </div>
     </div>
