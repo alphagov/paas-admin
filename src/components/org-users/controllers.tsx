@@ -1046,7 +1046,6 @@ export async function confirmDeletion(
   if (!user) {
     throw new NotFoundError('User not found');
   }
-
   const template = new Template(ctx.viewContext, 'Confirm user deletion');
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
@@ -1064,6 +1063,7 @@ export async function confirmDeletion(
         csrf={ctx.viewContext.csrf}
         linkTo={ctx.linkTo}
         organizationGUID={organization.metadata.guid}
+        organizationName={organization.entity.name}
         user={user}
       />,
     ),
