@@ -208,9 +208,8 @@ export function ServicePage(props: IServicePageProperties): ReactElement {
           </table>
           </div>
 
-          <CommandLineAlternative context="for all of your services">
-            cf services
-          </CommandLineAlternative>
+          <CommandLineAlternative>{`cf service ${props.service.entity.name}`}</CommandLineAlternative>
+
         </div>
       </div>
     </ServiceTab>

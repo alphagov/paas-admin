@@ -222,9 +222,7 @@ export function ApplicationPage(
             </tbody>
           </table>
           </div>
-          <CommandLineAlternative context="for all of your apps">
-            cf apps
-          </CommandLineAlternative>
+          <CommandLineAlternative>{`cf app ${props.application.entity.name}`}</CommandLineAlternative>
         </div>
       </div>
     </ApplicationTab>
