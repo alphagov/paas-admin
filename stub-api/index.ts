@@ -4,6 +4,7 @@ import stubAccounts from './stub-accounts';
 import stubAws from './stub-aws';
 import stubBilling from './stub-billing';
 import stubCf from './stub-cf';
+import stubPlatformMetrics from './stub-platform-metrics';
 import stubPrometheus from './stub-prometheus';
 import stubUaa from './stub-uaa';
 
@@ -53,6 +54,11 @@ const apis: ReadonlyArray<IStubServerConfig> = [
     name: 'prometheus',
     ports: { adminPort, apiPort: parseInt(process.env['STUB_PROMETHEUS_PORT'] || '3005', 10) },
     factory: stubPrometheus,
+  },
+  {
+    name: 'platform-metrics',
+    ports: { adminPort, apiPort: parseInt(process.env['STUB_PLATFORM_METRICS_PORT'] || '3006', 10) },
+    factory: stubPlatformMetrics,
   },
 ];
 
