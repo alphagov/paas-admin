@@ -5,6 +5,8 @@ import qs from 'qs';
 
 import { intercept } from '../axios-logger/axios';
 
+import * as t from './types';
+
 const DEFAULT_TIMEOUT = 300000;
 
 interface IBillingClientConfig {
@@ -38,7 +40,7 @@ function parseNumber(s: string): number {
   return n;
 }
 
-function parseUsageEvent(ev: IUsageEventResponse): IUsageEvent {
+function parseUsageEvent(ev: t.IUsageEventResponse): t.IUsageEvent {
   return {
     eventGUID: ev.event_guid,
     eventStart: parseTimestamp(ev.event_start),
@@ -56,7 +58,7 @@ function parseUsageEvent(ev: IUsageEventResponse): IUsageEvent {
   };
 }
 
-function parseUsageEventResponse(ev: IUsageEvent): IUsageEventResponse {
+function parseUsageEventResponse(ev: t.IUsageEvent): t.IUsageEventResponse {
   return {
     event_guid: ev.eventGUID,
     event_start: parseDate(ev.eventStart),
@@ -74,7 +76,7 @@ function parseUsageEventResponse(ev: IUsageEvent): IUsageEventResponse {
   };
 }
 
-function parsePriceComponent(pc: IPriceComponentResponse): IPriceComponent {
+function parsePriceComponent(pc: t.IPriceComponentResponse): t.IPriceComponent {
   return {
     currencyCode: pc.currency_code,
     exVAT: parseNumber(pc.ex_vat),
@@ -88,7 +90,7 @@ function parsePriceComponent(pc: IPriceComponentResponse): IPriceComponent {
   };
 }
 
-function parseBillableEvent(ev: IBillableEventResponse): IBillableEvent {
+function parseBillableEvent(ev: t.IBillableEventResponse): t.IBillableEvent {
   return {
     ...parseUsageEvent(ev),
     price: {
@@ -100,7 +102,7 @@ function parseBillableEvent(ev: IBillableEventResponse): IBillableEvent {
   };
 }
 
-function parseComponentResponse(component: IComponentResponse): IComponent {
+function parseComponentResponse(component: t.IComponentResponse): t.IComponent {
   return {
     currencyCode: component.currency_code,
     formula: component.formula,
@@ -109,7 +111,7 @@ function parseComponentResponse(component: IComponentResponse): IComponent {
   };
 }
 
-function parsePricingPlan(plan: IPricingPlanResponse): IPricingPlan {
+function parsePricingPlan(plan: t.IPricingPlanResponse): t.IPricingPlan {
   // NOTE: extracting the serviceName from the planName is not a reliable
   // method, and we do not want to have to give paas-admin scopes to look up
   // this information if cf. A better solution is to get paas-billing should
@@ -128,7 +130,7 @@ function parsePricingPlan(plan: IPricingPlanResponse): IPricingPlan {
   };
 }
 
-function parseRate(rate: IRateResponse): IRate {
+function parseRate(rate: t.IRateResponse): t.IRate {
   return {
     code: rate.code,
     rate: parseNumber(rate.rate),
@@ -157,15 +159,15 @@ async function request(
   const response = await instance.request(reqWithDefaults);
 
   if (response.status < 200 || response.status >= 300) {
-    let msg = `BillingClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;
+    const msg = `BillingClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;
 
     /* istanbul ignore else  */
     if (typeof reqWithDefaults.params === 'object') {
-      msg += ` and params ${JSON.stringify(reqWithDefaults.params)}`;
+      throw new Error(`${msg} and params ${JSON.stringify(reqWithDefaults.params)}`);
     }
 
     if (typeof response.data === 'object') {
-      msg += ` and data ${JSON.stringify(response.data)}`;
+      throw new Error(`${msg} and data ${JSON.stringify(response.data)}`);
     }
 
     throw new Error(msg);
@@ -198,8 +200,8 @@ export default class BillingClient {
   }
 
   public async getBillableEvents(
-    params: IEventFilter,
-  ): Promise<ReadonlyArray<IBillableEvent>> {
+    params: t.IEventFilter,
+  ): Promise<ReadonlyArray<t.IBillableEvent>> {
     const response = await this.request({
       params: {
         org_guid: params.orgGUIDs,
@@ -209,12 +211,12 @@ export default class BillingClient {
       url: '/billable_events',
     });
 
-    const data: ReadonlyArray<IBillableEventResponse> = response.data;
+    const data: ReadonlyArray<t.IBillableEventResponse> = response.data;
 
     return data.map(parseBillableEvent);
   }
 
-  public async getForecastEvents(params: IForecastParameters): Promise<ReadonlyArray<IBillableEvent>> {
+  public async getForecastEvents(params: t.IForecastParameters): Promise<ReadonlyArray<t.IBillableEvent>> {
     const response = await this.request({
       params: {
         events: JSON.stringify(params.events.map(parseUsageEventResponse)),
@@ -225,14 +227,14 @@ export default class BillingClient {
       url: '/forecast_events',
     });
 
-    const data: ReadonlyArray<IBillableEventResponse> = response.data;
+    const data: ReadonlyArray<t.IBillableEventResponse> = response.data;
 
     return data.map(parseBillableEvent);
   }
 
   public async getPricingPlans(
-    params: IRangeable,
-  ): Promise<ReadonlyArray<IPricingPlan>> {
+    params: t.IRangeable,
+  ): Promise<ReadonlyArray<t.IPricingPlan>> {
     const response = await this.request({
       params: {
         range_start: parseDate(params.rangeStart),
@@ -241,14 +243,14 @@ export default class BillingClient {
       url: '/pricing_plans',
     });
 
-    const data: ReadonlyArray<IPricingPlanResponse> = response.data;
+    const data: ReadonlyArray<t.IPricingPlanResponse> = response.data;
 
     return data.map(parsePricingPlan);
   }
 
   public async getCurrencyRates(
-    params: IRangeable,
-  ): Promise<ReadonlyArray<IRate>> {
+    params: t.IRangeable,
+  ): Promise<ReadonlyArray<t.IRate>> {
     const response = await this.request({
       params: {
         range_start: parseDate(params.rangeStart),
@@ -257,12 +259,12 @@ export default class BillingClient {
       url: '/currency_rates',
     });
 
-    const data: ReadonlyArray<IRateResponse> = response.data;
+    const data: ReadonlyArray<t.IRateResponse> = response.data;
 
     return data.map(parseRate);
   }
 
-  public async getVATRates(params: IRangeable): Promise<ReadonlyArray<IRate>> {
+  public async getVATRates(params: t.IRangeable): Promise<ReadonlyArray<t.IRate>> {
     const response = await this.request({
       params: {
         range_start: parseDate(params.rangeStart),
@@ -271,7 +273,7 @@ export default class BillingClient {
       url: '/vat_rates',
     });
 
-    const data: ReadonlyArray<IRateResponse> = response.data;
+    const data: ReadonlyArray<t.IRateResponse> = response.data;
 
     return data.map(parseRate);
   }

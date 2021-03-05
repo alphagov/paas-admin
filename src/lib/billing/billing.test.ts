@@ -4,6 +4,8 @@ import pino from 'pino';
 
 import { config } from '../../components/app/app.test.config';
 
+import { IUsageEvent } from './types';
+
 import { BillingClient } from '.';
 
 describe('lib/billing test suite', () => {
