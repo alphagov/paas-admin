@@ -100,7 +100,7 @@ $govuk-breakpoints: (
   @include govuk-focused-text;
 }
 
-[data-module="tooltip"]:after { 
+[data-module="tooltip"]:after {
   color: govuk-colour("white");
   background-color: govuk-colour("black");
   position: absolute;
@@ -133,5 +133,5 @@ $govuk-breakpoints: (
     white-space: inherit;
     z-index: 99;
     margin-top: -(govuk-spacing(5));
-    padding: 2px 3px;  
+    padding: 2px 3px;
 }

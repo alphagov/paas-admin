@@ -33,7 +33,7 @@
   }
 }
 
-.paas-month-price-demphasised{
+.paas-month-price-demphasised {
   font-weight: normal;
 }
 
@@ -107,14 +107,10 @@
   .govuk-table__cell {
     border-bottom: 0;
     padding-bottom: 0;
-    padding-top: 0.32632em
+    padding-top: .32632em
   }
 
   .govuk-table__header {
     @include govuk-font($size: 16, $weight: bold);
   }
-}
-
-.paas-statement-total-summary {
-
 }

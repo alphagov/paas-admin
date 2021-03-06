@@ -7,11 +7,11 @@
       display: inline-block;
       height: 100px;
       margin-bottom: 1rem;
+    }
 
-      img {
-        max-height: 100%;
-        max-width: 100%;
-      }
+    img {
+      max-height: 100%;
+      max-width: 100%;
     }
   }
 }
@@ -52,13 +52,12 @@
   figure {
     div {
       height: auto;
+    }
+    img {
+      max-width: 150px;
 
-      img {
-        max-width: 150px;
-
-        @include govuk-media-query($from: tablet) {
-          max-width: 100%;
-        }
+      @include govuk-media-query($from: tablet) {
+        max-width: 100%;
       }
     }
   }
