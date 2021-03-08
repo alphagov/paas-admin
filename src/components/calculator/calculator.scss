@@ -1,5 +1,5 @@
 .paas-summary-section {
-  @include govuk-font($size: 16);;
+  @include govuk-font($size: 16);
   padding-top: govuk-spacing(3);
   padding-bottom: govuk-spacing(3);
   padding-left: govuk-spacing(3);
@@ -12,7 +12,7 @@
   margin-top: 25px;
 
   h2 {
-    @include govuk-font($size: 24, $weight: bold);;
+    @include govuk-font($size: 24, $weight: bold);
   }
 
   table {
@@ -29,7 +29,7 @@
   }
 
   button {
-    @include govuk-font($size: 24);;
+    @include govuk-font($size: 24);
     background: none;
     border: none;
     cursor: pointer;
@@ -60,14 +60,14 @@
   }
 
   .paas-price {
-    @include govuk-font($size: 36, $weight: bold);;
+    @include govuk-font($size: 36, $weight: bold);
     margin-bottom: 0;
     margin-top: 0;
     display: block;
   }
 
   .paas-month {
-    @include govuk-font($size: 16, $weight: bold);;
+    @include govuk-font($size: 16, $weight: bold);
     margin-top: 0;
   }
 
@@ -88,16 +88,16 @@
 
 .paas-calculator-lede {
   margin-bottom: govuk-spacing(9);
-  @include govuk-font($size: 19);;
+  @include govuk-font($size: 19);
 }
 
 .paas-example {
-  @include govuk-font($size: 24);;
+  @include govuk-font($size: 24);
 }
 
 .paas-service-list {
   caption {
-    @include govuk-font($size: 24, $weight: bold);;
+    @include govuk-font($size: 24, $weight: bold);
     margin-bottom: 20px;
   }
 
@@ -117,7 +117,7 @@
 
 
   button {
-    @include govuk-font($size: 16);;
+    @include govuk-font($size: 16);
     background: none;
     border: none;
     box-shadow: none;
@@ -130,7 +130,7 @@
     padding: 0;
     padding-left: 10px;
     min-width: 43px;
-    
+
     &:focus {
       @include govuk-focused-text;
     }

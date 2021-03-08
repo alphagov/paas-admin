@@ -46,7 +46,7 @@
   line-height: 1;
   display: block;
   width: 100%;
-  padding: 9px 0px 6px;
+  padding: 9px 0 6px;
 
   @include govuk-media-query($from: tablet) {
     display: inline;
