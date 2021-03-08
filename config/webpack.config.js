@@ -8,7 +8,7 @@ const nodeModules = require('webpack-node-externals');
 const enableServer = require('./server.config');
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const assetName = ext => `assets/[hash:base32].[name].${ext || '[ext]'}`;
+const assetName = ext => `assets/[contenthash:base32].[name].${ext || '[ext]'}`;
 
 let cfg = {
 
@@ -18,13 +18,11 @@ let cfg = {
 
   entry: {
     main: ['./src/main.ts'],
-    'assets/init': ['./src/frontend/javascript/init.js'],
-    'assets/sankey': ['./src/frontend/javascript/sankey.js'],
+    init: {import: './src/frontend/javascript/init.js', filename: 'assets/init.js'},
+    sankey: {import: './src/frontend/javascript/sankey.js', filename: 'assets/sankey.js'}
   },
 
   output: {
-    path: path.resolve(__dirname, '..', 'dist'),
-    filename: '[name].js',
     publicPath: '/',
   },
 
@@ -57,15 +55,10 @@ let cfg = {
     rules: [
       {
         test: /\.(png|jpg|ico|svg|gif)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: assetName(),
-              esModule: false,
-            },
-          },
-        ],
+        type: 'asset/resource',
+        generator: {
+          filename: assetName()
+        } 
       },
       {
         test: /\.(scss)$/,
@@ -130,7 +123,7 @@ let cfg = {
     new CompressionPlugin({
       test: /\.(js|svg|css)$/,
       include: 'assets/',
-      deleteOriginalAssets: true,
+      deleteOriginalAssets: 'keep-source-map',
     }),
   ],
 };
@@ -144,6 +137,7 @@ if (process.env.ENABLE_SERVER === 'true') {
 }
 
 if (NODE_ENV === 'production') {
+  cfg.devtool = false;
   cfg.plugins.push(new OptimizeCssnanoPlugin({
     sourceMap: false,
     cssnanoOptions: {
