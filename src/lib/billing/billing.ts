@@ -164,13 +164,9 @@ async function request(
     /* istanbul ignore else  */
     if (typeof reqWithDefaults.params === 'object') {
       throw new Error(`${msg} and params ${JSON.stringify(reqWithDefaults.params)}`);
-    }
-
-    if (typeof response.data === 'object') {
+    } else if (typeof response.data === 'object') {
       throw new Error(`${msg} and data ${JSON.stringify(response.data)}`);
     }
-
-    throw new Error(msg);
   }
 
   return response;
