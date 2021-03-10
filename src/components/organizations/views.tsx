@@ -131,7 +131,8 @@ export function OrganizationsPage(
           <h3 className="govuk-heading-s">Linux</h3>
           <p className="govuk-body">
             <a
-              href="https://packages.cloudfoundry.org/stable?release=redhat64&source=github"
+              href="https://packages.cloudfoundry.org/stable?release=redhat64&version=v7&source=github"
+              
               className="govuk-link"
             >
               Download the RedHat version [RPM] <span className="govuk-visually-hidden">installer file</span>
@@ -139,7 +140,7 @@ export function OrganizationsPage(
           </p>
           <p className="govuk-body">
             <a
-              href="https://packages.cloudfoundry.org/stable?release=debian64&source=github"
+              href="https://packages.cloudfoundry.org/stable?release=debian64&version=v7&source=github"
               className="govuk-link"
             >
               Download the Debian version [DEB] <span className="govuk-visually-hidden">installer file</span>
@@ -151,7 +152,7 @@ export function OrganizationsPage(
           <h3 className="govuk-heading-s">macOS</h3>
           <p className="govuk-body">
             <a
-              href="https://packages.cloudfoundry.org/stable?release=macosx64&source=github"
+              href="https://packages.cloudfoundry.org/stable?release=macosx64&version=v7&source=github"
               className="govuk-link"
             >
               Download the macOS version [PKG] <span className="govuk-visually-hidden">installer file</span>
@@ -163,7 +164,7 @@ export function OrganizationsPage(
           <h3 className="govuk-heading-s">Windows</h3>
           <p className="govuk-body">
             <a
-              href="https://packages.cloudfoundry.org/stable?release=windows64&source=github"
+              href="https://packages.cloudfoundry.org/stable?release=windows64&version=v7&source=github"
               className="govuk-link"
             >
               Download the Windows version [ZIP] <span className="govuk-visually-hidden">installer file</span>
@@ -176,7 +177,7 @@ export function OrganizationsPage(
         For more information about the Cloud Foundry command line tool, or to
         view the source code{' '}
         <a
-          href="https://github.com/cloudfoundry/cli#downloads"
+          href="https://github.com/cloudfoundry/cli/wiki/V7-CLI-Installation-Guide"
           className="govuk-link"
         >
           visit the <span className="govuk-visually-hidden">Cloud Foundry</span> GitHub page
