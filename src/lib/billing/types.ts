@@ -1,17 +1,17 @@
-interface IRangeable {
+export interface IRangeable {
   readonly rangeStart: Date;
   readonly rangeStop: Date;
 }
 
-interface IEventFilter extends IRangeable {
+export interface IEventFilter extends IRangeable {
   readonly orgGUIDs: ReadonlyArray<string>;
 }
 
-interface IForecastParameters extends IEventFilter {
+export interface IForecastParameters extends IEventFilter {
   readonly events: ReadonlyArray<IUsageEvent>;
 }
 
-interface IPricingPlanResponse {
+export interface IPricingPlanResponse {
   readonly name: string;
   readonly plan_guid: string;
   readonly valid_from: string;
@@ -21,7 +21,7 @@ interface IPricingPlanResponse {
   readonly storage_in_mb: number;
 }
 
-interface IPricingPlan {
+export interface IPricingPlan {
   readonly planName: string;
   readonly planGUID: string;
   readonly serviceName: string;
@@ -32,21 +32,21 @@ interface IPricingPlan {
   readonly storageInMB: number;
 }
 
-interface IComponentResponse {
+export interface IComponentResponse {
   readonly name: string;
   readonly formula: string;
   readonly vat_code: string;
   readonly currency_code: string;
 }
 
-interface IComponent {
+export interface IComponent {
   readonly name: string;
   readonly formula: string;
   readonly vatCode: string;
   readonly currencyCode: string;
 }
 
-interface IPriceComponent {
+export interface IPriceComponent {
   readonly name: string;
   readonly planName: string;
   readonly start: Date;
@@ -64,7 +64,7 @@ interface IPrice {
   readonly details: ReadonlyArray<IPriceComponent>;
 }
 
-interface IUsageEvent {
+export interface IUsageEvent {
   readonly eventGUID: string;
   readonly eventStart: Date;
   readonly eventStop: Date;
@@ -80,12 +80,12 @@ interface IUsageEvent {
   readonly storageInMB: number;
 }
 
-interface IBillableEvent extends IUsageEvent {
+export interface IBillableEvent extends IUsageEvent {
   readonly price: IPrice;
   readonly quotaGUID?: string;
 }
 
-interface IUsageEventResponse {
+export interface IUsageEventResponse {
   readonly event_guid: string;
   readonly event_start: string;
   readonly event_stop: string;
@@ -101,7 +101,7 @@ interface IUsageEventResponse {
   readonly storage_in_mb: number;
 }
 
-interface IBillableEventResponse extends IUsageEventResponse {
+export interface IBillableEventResponse extends IUsageEventResponse {
   readonly quota_definition_guid?: string;
   readonly price: {
     readonly inc_vat: string;
@@ -110,7 +110,7 @@ interface IBillableEventResponse extends IUsageEventResponse {
   };
 }
 
-interface IPriceComponentResponse {
+export interface IPriceComponentResponse {
   readonly name: string;
   readonly plan_name: string;
   readonly start: string;
@@ -123,13 +123,13 @@ interface IPriceComponentResponse {
   readonly ex_vat: string;
 }
 
-interface IRateResponse {
+export interface IRateResponse {
   readonly code: string;
   readonly valid_from: string;
   readonly rate: string;
 }
 
-interface IRate {
+export interface IRate {
   readonly code: string;
   readonly validFrom: Date;
   readonly rate: number;

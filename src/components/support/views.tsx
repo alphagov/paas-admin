@@ -1558,7 +1558,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                   e.field === 'invite_users' ||
                   e.field === 'additional_users-0' ||
                   e.field === 'additional_users-1' ||
-                  e.field === 'additional_users-2'
+                  e.field === 'additional_users-2',
                 )
                 ? 'govuk-form-group--error'
                 : ''

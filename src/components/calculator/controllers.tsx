@@ -5,6 +5,7 @@ import * as uuid from 'uuid';
 
 import { Template } from '../../layouts';
 import { BillingClient } from '../../lib/billing';
+import { IBillableEvent, IPricingPlan, IRate } from '../../lib/billing/types';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app/context';
 
@@ -140,14 +141,12 @@ async function getQuote(
 }
 
 function toVersionedPricingPlans(plan: IPricingPlan): IVersionedPricingPlan {
-  let version = 'unknown';
-
   const versions = plan.planName.match(/\d+(.[\d]+)?/);
   if (versions !== null) {
-    version = version[0];
+    return { ...plan, version: versions[0] };
   }
 
-  return { ...plan, version };
+  return { ...plan, version: 'unknown' };
 }
 
 function safelistServices(p: IPricingPlan): boolean {
@@ -215,20 +214,26 @@ export async function getCalculator(
     .map(toVersionedPricingPlans)
     .sort(bySize);
   const state = {
+    items: params.items || [],
     monthOfEstimate,
+    plans,
     rangeStart,
     rangeStop,
-    items: params.items || [],
-    plans,
   };
-  let quote: IQuote = { events: [], exVAT: 0, incVAT: 0 };
-  if (params.items && params.items.length) {
-    quote = await getQuote(billing, state);
-  }
 
   const template = new Template(ctx.viewContext, 'Estimate your monthly costs');
 
+  if (params.items && params.items.length) {
+    const quote = await getQuote(billing, state);
+
+    return {
+      body: template.render(<CalculatorPage state={state} quote={quote} />),
+    };
+  }
+
+  const defaultQuote: IQuote = { events: [], exVAT: 0, incVAT: 0 };
+
   return {
-    body: template.render(<CalculatorPage state={state} quote={quote} />),
+    body: template.render(<CalculatorPage state={state} quote={defaultQuote} />),
   };
 }
