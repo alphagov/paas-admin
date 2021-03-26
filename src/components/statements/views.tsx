@@ -101,101 +101,78 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
             className="paas-statement-range"
           >
             <input type="hidden" name="_csrf" value={props.csrf} />
-            <div className="scrollable-table-container">
-              <table className="govuk-table paas-statement-filters">
-              <tbody className="govuk-table__body">
-                <tr className="govuk-table__row">
-                  <th className="govuk-table__header" scope="column">
-                    Month
-                  </th>
-                  <th className="govuk-table__header" scope="column">
-                    Spaces
-                  </th>
-                  <th className="govuk-table__header" scope="column">
-                    Services and apps
-                  </th>
-                  <th
-                    className="govuk-table__header paas-hidden-table-header"
-                    scope="column"
-                  >
-                    Filter
-                  </th>
-                </tr>
-                <tr>
-                  <td className="govuk-table__cell">
-                    <label className="govuk-label govuk-visually-hidden" htmlFor="rangeStart">
-                      Select month to filter by
-                    </label>
-                    <select
-                      className="govuk-select govuk-!-width-full"
-                      id="rangeStart"
-                      name="rangeStart"
+            <div className="paas-statement-filters">
+              <div>
+                <label className="govuk-label govuk-label--s govuk-!-font-size-16" htmlFor="rangeStart">
+                  <span className="govuk-visually-hidden">Filter by</span> Month
+                </label>
+                <select
+                  className="govuk-select govuk-!-width-full"
+                  id="rangeStart"
+                  name="rangeStart"
+                >
+                  {Object.keys(props.listOfPastYearMonths).map(
+                    (key, index) => (
+                      <option
+                        key={index}
+                        value={key}
+                        selected={props.filterMonth === key}
+                      >
+                        {props.listOfPastYearMonths[key]}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
+              <div>
+                <label className="govuk-label govuk-label--s govuk-!-font-size-16" htmlFor="space">
+                  <span className="govuk-visually-hidden">Filter by</span> Spaces
+                </label>
+                <select
+                  className="govuk-select govuk-!-width-full"
+                  id="space"
+                  name="space"
+                >
+                  {props.spaces.map(space => (
+                    <option
+                      key={space.guid}
+                      value={space.guid}
+                      selected={props.filterSpace?.guid === space.guid}
                     >
-                      {Object.keys(props.listOfPastYearMonths).map(
-                        (key, index) => (
-                          <option
-                            key={index}
-                            value={key}
-                            selected={props.filterMonth === key}
-                          >
-                            {props.listOfPastYearMonths[key]}
-                          </option>
-                        ),
-                      )}
-                    </select>
-                  </td>
-                  <td className="govuk-table__cell">
-                    <label className="govuk-label govuk-visually-hidden" htmlFor="space">
-                      Select a space to filter by
-                    </label>
-                    <select
-                      className="govuk-select govuk-!-width-full"
-                      id="space"
-                      name="space"
+                      {space.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="govuk-label govuk-label--s govuk-!-font-size-16" htmlFor="service">
+                  <span className="govuk-visually-hidden">Filter by</span> Services and apps
+                </label>
+                <select
+                  className="govuk-select govuk-!-width-full"
+                  id="service"
+                  name="service"
+                >
+                  {props.plans.map(plan => (
+                    <option
+                      key={plan.guid}
+                      value={plan.guid}
+                      selected={props.filterService?.guid === plan.guid}
                     >
-                      {props.spaces.map(space => (
-                        <option
-                          key={space.guid}
-                          value={space.guid}
-                          selected={props.filterSpace?.guid === space.guid}
-                        >
-                          {space.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="govuk-table__cell">
-                    <label className="govuk-label govuk-visually-hidden" htmlFor="service">
-                      Select services and apps to filter by
-                    </label>
-                    <select
-                      className="govuk-select govuk-!-width-full"
-                      id="service"
-                      name="service"
-                    >
-                      {props.plans.map(plan => (
-                        <option
-                          key={plan.guid}
-                          value={plan.guid}
-                          selected={props.filterService?.guid === plan.guid}
-                        >
-                          {plan.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="govuk-table__cell paas-statement-filter">
-                    <button
-                      className="govuk-button"
-                      data-module="govuk-button"
-                      data-prevent-double-click="true"
-                    >
-                      Filter <span className="govuk-visually-hidden">with selected options</span>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                      {plan.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <button
+                  className="govuk-button"
+                  data-module="govuk-button"
+                  data-prevent-double-click="true"
+                >
+                  Filter <span className="govuk-visually-hidden">with selected options</span>
+                </button>
+              </div>
             </div>
 
             <input type="hidden" name="sort" value={props.orderBy} />
