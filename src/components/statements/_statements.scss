@@ -5,18 +5,17 @@
   }
 }
 
-.text-right {
-  text-align: right;
-}
-
-.paas-text-regular {
-  font-weight: 500;
-}
-
-.paas-exchange-rate {
-  border: 10px solid govuk-colour("light-grey");
+.cost-summary {
   background-color: govuk-colour("light-grey");
-  padding: 10px;
+  @include govuk-responsive-margin(6, "top");
+  @include govuk-responsive-margin(6, "bottom");
+  @include govuk-responsive-padding(6, "top");
+  @include govuk-responsive-padding(2, "bottom");
+  @include govuk-responsive-padding(6, "left");
+  @include govuk-responsive-padding(6, "right");
+}
+
+.cost-summary-table {
   border-collapse: separate;
   margin-bottom: govuk-spacing(4);
 
@@ -26,10 +25,6 @@
     padding-bottom: 0;
     padding-top: 0;
   }
-}
-
-.paas-month-price-demphasised {
-  font-weight: normal;
 }
 
 .paas-table-billing-statement {
@@ -64,15 +59,6 @@
       border-top-color: currentColor;
     }
   }
-}
-
-.paas-month-total-information {
-   @include govuk-font($size: 16);
-   color: govuk-colour("dark-grey");
-}
-
-.paas-month-price {
-  text-align: right;
 }
 
 .paas-table-notification {
