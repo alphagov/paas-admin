@@ -71,14 +71,14 @@ describe(StatementsPage, () => {
     expect($('input[name="_csrf"]').prop('value')).toEqual('qwert');
     expect($('input[name="sort"]').prop('value')).toEqual('name');
     expect($('input[name="order"]').prop('value')).toEqual('asc');
-    expect($('th').text()).toContain(
+    expect($('.cost-summary-table tbody tr:first-child th').text()).toContain(
       'Total cost for January in space-name space with service-name services',
     );
-    expect($('th').text()).toContain('£302.62');
-    expect($('th').text()).toContain('£363.15');
-    expect($('td').text()).toContain('£27.51');
-    expect($('td').text()).toContain('£33.01');
-    expect($('tr').text()).toContain('Exchange rate: £1 to $1.25');
+    expect($('.cost-summary-table tbody tr:first-child td').eq(0).text()).toContain('£302.62');
+    expect($('.cost-summary-table tbody tr:first-child td').eq(1).text()).toContain('£363.15');
+    expect($('.cost-summary-table tbody tr:nth-child(2) td').eq(0).text()).toContain('£27.51');
+    expect($('.cost-summary-table tbody tr:nth-child(2) td').eq(1).text()).toContain('£33.01');
+    expect($('.exchange-rate').text()).toContain('Exchange rate: £1 to $1.25');
     expect($('.paas-table-billing-statement caption').text()).toContain(
       'Cost itemisation for January in space-name space with service-name services sorted by name column in ascending order',
     );

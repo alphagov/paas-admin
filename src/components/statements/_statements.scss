@@ -1,27 +1,21 @@
-@mixin hidden {
-  position: absolute !important;
-  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
-  clip: rect(1px, 1px, 1px, 1px);
-}
-
 .paas-statement-range {
   button {
-    margin-bottom: 5px;
+    margin-bottom: 2px;
+    width: 100%;
   }
 }
 
-.text-right {
-  text-align: right;
-}
-
-.paas-text-regular {
-  font-weight: 500;
-}
-
-.paas-exchange-rate {
-  border: 10px solid govuk-colour("light-grey");
+.cost-summary {
   background-color: govuk-colour("light-grey");
-  padding: 10px;
+  @include govuk-responsive-margin(6, "top");
+  @include govuk-responsive-margin(6, "bottom");
+  @include govuk-responsive-padding(6, "top");
+  @include govuk-responsive-padding(2, "bottom");
+  @include govuk-responsive-padding(6, "left");
+  @include govuk-responsive-padding(6, "right");
+}
+
+.cost-summary-table {
   border-collapse: separate;
   margin-bottom: govuk-spacing(4);
 
@@ -31,10 +25,6 @@
     padding-bottom: 0;
     padding-top: 0;
   }
-}
-
-.paas-month-price-demphasised {
-  font-weight: normal;
 }
 
 .paas-table-billing-statement {
@@ -71,46 +61,26 @@
   }
 }
 
-.paas-month-total-information {
-   @include govuk-font($size: 16);
-   color: govuk-colour("dark-grey");
-}
-
-.paas-month-price {
-  text-align: right;
-}
-
-.paas-hidden-table-header {
-  @include hidden;
-}
-
 .paas-table-notification {
   @include govuk-font($size: 24);
   padding: 25px 0;
   text-align: center;
 }
 
-.paas-statement-filter {
-  width: 23%;
-
-  .govuk-button {
-    width: 100%;
-  }
-}
-
 .paas-statement-filters {
   @include govuk-responsive-padding(6);
   background-color: govuk-colour("light-grey");
-  border-collapse: separate;
-
-  .govuk-table__header,
-  .govuk-table__cell {
-    border-bottom: 0;
-    padding-bottom: 0;
-    padding-top: .32632em
+  @include govuk-media-query($from:tablet) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-column-gap: govuk-spacing(3); // safari 10.1 - 11.1 and FF 52-60
+    column-gap: govuk-spacing(3);
+    align-items: end;
   }
-
-  .govuk-table__header {
-    @include govuk-font($size: 16, $weight: bold);
+  @include govuk-media-query($from:desktop) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  > div {
+    margin-bottom: govuk-spacing(3);
   }
 }

@@ -101,101 +101,78 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
             className="paas-statement-range"
           >
             <input type="hidden" name="_csrf" value={props.csrf} />
-            <div className="scrollable-table-container">
-              <table className="govuk-table paas-statement-filters">
-              <tbody className="govuk-table__body">
-                <tr className="govuk-table__row">
-                  <th className="govuk-table__header" scope="column">
-                    Month
-                  </th>
-                  <th className="govuk-table__header" scope="column">
-                    Spaces
-                  </th>
-                  <th className="govuk-table__header" scope="column">
-                    Services and apps
-                  </th>
-                  <th
-                    className="govuk-table__header paas-hidden-table-header"
-                    scope="column"
-                  >
-                    Filter
-                  </th>
-                </tr>
-                <tr>
-                  <td className="govuk-table__cell">
-                    <label className="govuk-label govuk-visually-hidden" htmlFor="rangeStart">
-                      Select month to filter by
-                    </label>
-                    <select
-                      className="govuk-select govuk-!-width-full"
-                      id="rangeStart"
-                      name="rangeStart"
+            <div className="paas-statement-filters">
+              <div>
+                <label className="govuk-label govuk-label--s govuk-!-font-size-16" htmlFor="rangeStart">
+                  <span className="govuk-visually-hidden">Filter by</span> Month
+                </label>
+                <select
+                  className="govuk-select govuk-!-width-full"
+                  id="rangeStart"
+                  name="rangeStart"
+                >
+                  {Object.keys(props.listOfPastYearMonths).map(
+                    (key, index) => (
+                      <option
+                        key={index}
+                        value={key}
+                        selected={props.filterMonth === key}
+                      >
+                        {props.listOfPastYearMonths[key]}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
+              <div>
+                <label className="govuk-label govuk-label--s govuk-!-font-size-16" htmlFor="space">
+                  <span className="govuk-visually-hidden">Filter by</span> Spaces
+                </label>
+                <select
+                  className="govuk-select govuk-!-width-full"
+                  id="space"
+                  name="space"
+                >
+                  {props.spaces.map(space => (
+                    <option
+                      key={space.guid}
+                      value={space.guid}
+                      selected={props.filterSpace?.guid === space.guid}
                     >
-                      {Object.keys(props.listOfPastYearMonths).map(
-                        (key, index) => (
-                          <option
-                            key={index}
-                            value={key}
-                            selected={props.filterMonth === key}
-                          >
-                            {props.listOfPastYearMonths[key]}
-                          </option>
-                        ),
-                      )}
-                    </select>
-                  </td>
-                  <td className="govuk-table__cell">
-                    <label className="govuk-label govuk-visually-hidden" htmlFor="space">
-                      Select a space to filter by
-                    </label>
-                    <select
-                      className="govuk-select govuk-!-width-full"
-                      id="space"
-                      name="space"
+                      {space.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="govuk-label govuk-label--s govuk-!-font-size-16" htmlFor="service">
+                  <span className="govuk-visually-hidden">Filter by</span> Services and apps
+                </label>
+                <select
+                  className="govuk-select govuk-!-width-full"
+                  id="service"
+                  name="service"
+                >
+                  {props.plans.map(plan => (
+                    <option
+                      key={plan.guid}
+                      value={plan.guid}
+                      selected={props.filterService?.guid === plan.guid}
                     >
-                      {props.spaces.map(space => (
-                        <option
-                          key={space.guid}
-                          value={space.guid}
-                          selected={props.filterSpace?.guid === space.guid}
-                        >
-                          {space.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="govuk-table__cell">
-                    <label className="govuk-label govuk-visually-hidden" htmlFor="service">
-                      Select services and apps to filter by
-                    </label>
-                    <select
-                      className="govuk-select govuk-!-width-full"
-                      id="service"
-                      name="service"
-                    >
-                      {props.plans.map(plan => (
-                        <option
-                          key={plan.guid}
-                          value={plan.guid}
-                          selected={props.filterService?.guid === plan.guid}
-                        >
-                          {plan.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="govuk-table__cell paas-statement-filter">
-                    <button
-                      className="govuk-button"
-                      data-module="govuk-button"
-                      data-prevent-double-click="true"
-                    >
-                      Filter <span className="govuk-visually-hidden">with selected options</span>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                      {plan.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <button
+                  className="govuk-button"
+                  data-module="govuk-button"
+                  data-prevent-double-click="true"
+                >
+                  Filter <span className="govuk-visually-hidden">with selected options</span>
+                </button>
+              </div>
             </div>
 
             <input type="hidden" name="sort" value={props.orderBy} />
@@ -204,88 +181,107 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
         </div>
 
         <div className="govuk-grid-column-full">
-          <div className="scrollable-table-container">
-            <table className="govuk-table paas-exchange-rate">
-            <caption className="govuk-visually-hidden">
-              Summary of total cost inclusive of 10% admin fee, shown with and without VAT
-            </caption>
-            <tr className="govuk-table__row">
-              <th className="govuk-table__header" scope="row">
-                Total cost for {props.currentMonth}{' '}
-                {props.filterSpace?.guid !== 'none' ? (
-                  <span className="paas-text-regular">
-                    in <strong>{props.filterSpace?.name.toLowerCase()}</strong>{' '}
-                    space
-                  </span>
-                ) : (
-                  <></>
-                )}{' '}
-                {props.filterService?.guid !== 'none' ? (
-                  <span className="paas-text-regular">
-                    with{' '}
-                    <strong>{props.filterService?.name.toLowerCase()}</strong>{' '}
-                    services
-                  </span>
+          <div className="scrollable-table-container cost-summary">
+            <table className="govuk-table cost-summary-table">
+              <caption className="govuk-visually-hidden">
+                Summary of total cost inclusive of 10% admin fee, shown with and without VAT at
+                exchange rate:
+                {props.usdCurrencyRates.length === 1 ? (
+                  `${' '}£1 to $${1.0 / props.usdCurrencyRates[0].rate.toFixed(2)}`
                 ) : (
                   <></>
                 )}
-              </th>
-              <th className="paas-month-price paas-month-price-demphasised">
-                £
-                {(
-                  props.totals.exVAT +
-                  props.totals.exVAT * props.adminFee
-                ).toFixed(2)}
-              </th>
-              <th className="paas-month-price">
-                £
-                {(
-                  props.totals.incVAT +
-                  props.totals.incVAT * props.adminFee
-                ).toFixed(2)}
-              </th>
-            </tr>
-            <tr>
-              <td className="govuk-table__cell">
-                <small>Included 10% admin fee:</small>
-              </td>
-              <td className="paas-month-price">
-                <small>
-                  £{(props.totals.exVAT * props.adminFee).toFixed(2)}
-                </small>
-              </td>
-              <td className="paas-month-price">
-                <small>
-                  £{(props.totals.incVAT * props.adminFee).toFixed(2)}
-                </small>
-              </td>
-            </tr>
-            <tr className="paas-month-total-information">
+                {props.usdCurrencyRates.length > 1 ? (
+                  props.usdCurrencyRates.map(usdCurrencyRate => (
+                      `{' '}£1 to $${(1.0 / usdCurrencyRate.rate).toFixed(2)} from${' '}
+                      ${moment(usdCurrencyRate.validFrom).format(DATE)}`
+                  ))
+                ) : (
+                  <></>
+                )}
+              </caption>
+              <thead className="govuk-table__head">
+                <tr className="govuk-table__row">
+                  <th scope="col" className="govuk-table__header govuk-visually-hidden">Item</th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-!-font-weight-regular govuk-!-font-size-16">
+                    excluding VAT
+                  </th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-!-font-weight-regular govuk-!-font-size-16">
+                    including VAT at 20%
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="govuk-table__body">
+                <tr className="govuk-table__row">
+                  <th className="govuk-table__header" scope="row">
+                    Total cost for {props.currentMonth}{' '}
+                    {props.filterSpace?.guid !== 'none' ? (
+                      <span className="govuk-!-font-weight-regular">
+                        in <strong>{props.filterSpace?.name.toLowerCase()}</strong>{' '}
+                        space
+                      </span>
+                    ) : (
+                      <></>
+                    )}{' '}
+                    {props.filterService?.guid !== 'none' ? (
+                      <span className="govuk-!-font-weight-regular">
+                        with{' '}
+                        <strong>{props.filterService?.name.toLowerCase()}</strong>{' '}
+                        services
+                      </span>
+                    ) : (
+                      <></>
+                    )}
+                  </th>
+                  <td className="govuk-table__cell govuk-table__cell--numeric">
+                    £
+                    {(
+                      props.totals.exVAT +
+                      props.totals.exVAT * props.adminFee
+                    ).toFixed(2)}
+                  </td>
+                  <td className="govuk-table__cell govuk-table__cell--numeric govuk-!-font-weight-bold">
+                    £
+                    {(
+                      props.totals.incVAT +
+                      props.totals.incVAT * props.adminFee
+                    ).toFixed(2)}
+                  </td>
+                </tr>
+                <tr className="govuk-table__row">
+                  <th className="govuk-table__header" scope="row">
+                    <span className="govuk-body-s govuk-!-font-weight-regular">Included 10% admin fee:</span>
+                  </th>
+                  <td className="govuk-table__cell govuk-table__cell--numeric">
+                    <small>
+                      £{(props.totals.exVAT * props.adminFee).toFixed(2)}
+                    </small>
+                  </td>
+                  <td className="govuk-table__cell govuk-table__cell--numeric">
+                    <small>
+                      £{(props.totals.incVAT * props.adminFee).toFixed(2)}
+                    </small>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
               {props.usdCurrencyRates.length === 1 ? (
-                <td className="govuk-table__cell">
-                  Exchange rate: £1 to $
-                  {1.0 / props.usdCurrencyRates[0].rate.toFixed(2)}
-                </td>
+                <p className="govuk-body-s exchange-rate">
+                  Exchange rate: £1 to ${1.0 / props.usdCurrencyRates[0].rate.toFixed(2)}
+                </p>
               ) : (
                 <></>
               )}
               {props.usdCurrencyRates.length > 1 ? (
-                <td className="govuk-table__cell">
-                  Exchange rate:{' '}
-                  {props.usdCurrencyRates.map((usdCurrencyRate, index) => (
-                    <span key={index}>
-                      £1 to ${(1.0 / usdCurrencyRate.rate).toFixed(2)} from{' '}
-                      {moment(usdCurrencyRate.validFrom).format(DATE)}
-                    </span>
-                  ))}
-                </td>
+                props.usdCurrencyRates.map((usdCurrencyRate, index) => (
+                  <p key={index} className="govuk-body-s exchange-rate">
+                    Exchange rate: £1 to ${(1.0 / usdCurrencyRate.rate).toFixed(2)} from{' '}
+                    {moment(usdCurrencyRate.validFrom).format(DATE)}
+                  </p>
+                ))
               ) : (
                 <></>
               )}
-              <td className="paas-month-price">ex VAT</td>
-              <td className="paas-month-price">inc VAT at 20%</td>
-            </tr>
-          </table>
           </div>
           <p>
             <a
