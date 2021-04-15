@@ -2,3 +2,8 @@
   border-bottom: 1px solid $govuk-border-colour;
   margin-bottom: 10px;
 }
+
+.metrics-filters {
+  @include govuk-responsive-padding(6);
+  background-color: govuk-colour("light-grey");
+}
