@@ -214,7 +214,7 @@ function Metric(props: IMetricProperties): ReactElement {
 
 function RangePicker(props: IRangePickerProperties): ReactElement {
   return (
-    <div className="paas-statement-filters">
+    <div className="metrics-filters">
       <h2 className="govuk-heading-m">Change time period</h2>
       <h3 className="govuk-heading-s">Chose a predefined period</h3>
         <ol className="govuk-list">
