@@ -127,6 +127,18 @@ describe("Cookies", () => {
       expect(document.documentElement.innerHTML).toContain(`https://www.googletagmanager.com/gtag/js?id=${cookies.trackingId}`);
       expect(global.dataLayer[1]).toContain(cookies.trackingId);
     });
+
+    it(`string is stripped of email address`, () => {
+      const input = '/users/test.user@test.com';
+      const result = cookies.PIIfy(input)
+      expect(result).toBe('/users/[email]');
+    });
+
+    it(`string is stripped of uuid`, () => {
+      const input = '/organisations/2b6275d6-6c39-484d-b6e1-71a05b3fab65';
+      const result = cookies.PIIfy(input)
+      expect(result).toBe('/organisations/…');
+    });
   });
 
 });
