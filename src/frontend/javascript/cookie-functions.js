@@ -145,7 +145,7 @@ Cookies.prototype.setupGtm = function () {
 
   var config = {
     cookie_expires: this.cookieDuration * 24 * 60 * 60,
-    page_path: this.stripUuids(),
+    page_path: this.PIIfy(window.location.pathname),
     // Paas-admin gets a relatively small number	
     // of visits daily, so the default site speed	
     // sample rate of 1% gives us too few data points.	
@@ -178,10 +178,19 @@ Cookies.prototype.loadGtmScript = function () {
   document.documentElement.firstChild.appendChild(gtmScriptTag)
 }
 
-Cookies.prototype.stripUuids = function () {
-  return window.location.pathname.replace(
-    /[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}/g, '…'
-  )
+Cookies.prototype.PIIfy = function (string) {
+
+  var strippedString
+  var EMAIL_PATTERN = /[^\s=/?&]+(?:@|%40)[^\s=/?&]+/g
+  var UUID_PATTERN = /[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}/g
+  strippedString = string
+    .replace(
+      UUID_PATTERN, '…'
+    ).replace(
+      EMAIL_PATTERN, '[email]'
+    )
+
+  return strippedString
 }
 
 export default Cookies
