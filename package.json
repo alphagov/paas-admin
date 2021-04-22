@@ -70,7 +70,7 @@
     "cheerio": "^1.0.0-rc.6",
     "compression-webpack-plugin": "^6.1.1",
     "css-loader": "^4.2.1",
-    "csv-parse": "^4.15.3",
+    "csv-parse": "^4.15.4",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
     "eslint": "^7.24.0",
