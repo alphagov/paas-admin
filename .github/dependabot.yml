@@ -1,0 +1,89 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "03:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: webpack
+    versions:
+    - ">= 5.a, < 6"
+  - dependency-name: aws-sdk
+    versions:
+    - 2.854.0
+    - 2.874.0
+    - 2.878.0
+    - 2.879.0
+    - 2.883.0
+    - 2.894.0
+  - dependency-name: ts-loader
+    versions:
+    - 8.0.16
+    - 9.0.0
+    - 9.0.2
+    - 9.1.0
+  - dependency-name: d3-scale
+    versions:
+    - 3.3.0
+  - dependency-name: helmet
+    versions:
+    - 4.5.0
+  - dependency-name: pino
+    versions:
+    - 6.11.3
+  - dependency-name: csv-parse
+    versions:
+    - 4.15.4
+  - dependency-name: react-markdown
+    versions:
+    - 6.0.0
+  - dependency-name: sass
+    versions:
+    - 1.32.11
+  - dependency-name: ts-jest
+    versions:
+    - 26.5.5
+  - dependency-name: d3
+    versions:
+    - 6.7.0
+  - dependency-name: css-loader
+    versions:
+    - 5.1.2
+    - 5.1.3
+    - 5.2.0
+    - 5.2.1
+  - dependency-name: typescript
+    versions:
+    - 4.2.2
+    - 4.2.4
+  - dependency-name: "@types/supertest"
+    versions:
+    - 2.0.11
+  - dependency-name: base32-encode
+    versions:
+    - 1.2.0
+  - dependency-name: cheerio
+    versions:
+    - 1.0.0-rc.5
+  - dependency-name: "@typescript-eslint/parser"
+    versions:
+    - 4.15.2
+    - 4.16.1
+    - 4.17.0
+  - dependency-name: "@types/react"
+    versions:
+    - 17.0.2
+  - dependency-name: "@typescript-eslint/eslint-plugin"
+    versions:
+    - 4.0.0
+  - dependency-name: "@types/react-dom"
+    versions:
+    - 17.0.0
+  - dependency-name: file-loader
+    versions:
+    - 6.2.0
+  - dependency-name: nock
+    versions:
+    - 13.0.6
