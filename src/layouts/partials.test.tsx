@@ -71,15 +71,15 @@ describe(CookieBanner, () => {
     expect(
       markup
       .find('.cookie-banner__button-accept').text())
-      .toMatch(/(Yes|PaaS can store analytics cookies on your device)/g);
+      .toMatch(/(Yes|GOV.UK PaaS can store analytics cookies on your device)/g);
     expect(
       markup
       .find('.cookie-banner__button-reject').text())
-      .toMatch(/(No|PaaS cannot store analytics cookies on your device)/g);
+      .toMatch(/(No|GOV.UK PaaS cannot store analytics cookies on your device)/g);
     expect(
       markup
       .find('.cookie-banner__link').text())
-      .toContain('How PaaS uses cookies');
+      .toContain('How GOV.UK PaaS uses cookies');
     expect(
       markup
       .find('.cookie-banner__link').props().href)
