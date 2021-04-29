@@ -138,7 +138,7 @@
     "moment": "^2.29.1",
     "nanoid": "^3.1.22",
     "node-jose": "^2.0.0",
-    "node-zendesk": "^2.0.6",
+    "node-zendesk": "^2.0.7",
     "notifications-node-client": "^5.1.0",
     "openid-client": "^4.7.2",
     "p-limit": "^3.1.0",
