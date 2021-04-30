@@ -387,12 +387,12 @@ export function CookieBanner(): ReactElement {
         <p className="govuk-body">Analytics cookies help us understand how our website is being used.</p>
         <div className="cookie-banner__buttons">
           <button className="govuk-button cookie-banner__button cookie-banner__button-accept" type="submit" data-accept-cookies="true" aria-describedby="cookie-banner__heading">
-            Yes{' '}<span className="govuk-visually-hidden">, PaaS can store analytics cookies on your device</span>
+            Yes{' '}<span className="govuk-visually-hidden">, GOV.UK PaaS can store analytics cookies on your device</span>
           </button>
           <button className="govuk-button cookie-banner__button cookie-banner__button-reject" type="submit" data-accept-cookies="false" aria-describedby="cookie-banner__heading">
-            No{' '}<span className="govuk-visually-hidden">, PaaS cannot store analytics cookies on your device</span>
+            No{' '}<span className="govuk-visually-hidden">, GOV.UK PaaS cannot store analytics cookies on your device</span>
           </button>
-          <a className="govuk-link cookie-banner__link" href="https://www.cloud.service.gov.uk/cookies/">How PaaS uses cookies</a>
+          <a className="govuk-link cookie-banner__link" href="https://www.cloud.service.gov.uk/cookies/">How GOV.UK PaaS uses cookies</a>
         </div>
       </div>
 
