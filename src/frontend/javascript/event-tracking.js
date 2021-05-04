@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 function EventTracking () {
   this.$bodyElement = document.querySelector('body')
   this.$mainHeading = this.$bodyElement.querySelector('h1')
