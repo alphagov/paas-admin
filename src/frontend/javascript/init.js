@@ -1,11 +1,13 @@
 import Tooltip from './tooltip';
 import Cookies from './cookie-functions'
-
+import EventTracking from './event-tracking'
 
 var cookies = new Cookies()
+var eventTracking = new EventTracking()
 
 if (cookies.hasConsentForAnalytics()) {
   cookies.initAnalytics()
+  eventTracking.init()
 }
 
 var $cookieBanner = document.querySelector('[data-module="cookie-banner"]')
