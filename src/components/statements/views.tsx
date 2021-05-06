@@ -169,6 +169,10 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
                   className="govuk-button"
                   data-module="govuk-button"
                   data-prevent-double-click="true"
+                  data-track-click="true" 
+                  data-track-category="Click"
+                  data-track-action="Button"
+                  data-track-label="Billing filter"
                 >
                   Filter <span className="govuk-visually-hidden">with selected options</span>
                 </button>
@@ -291,6 +295,10 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
               })}
               className="govuk-link"
               download
+              data-track-click="true" 
+              data-track-category="Click"
+              data-track-action="Link"
+              data-track-label="Billing download"
             >
               Download a spreadsheet of these items [CSV] <span className="govuk-visually-hidden">as a comma-separated values file</span>
             </a>
