@@ -1,3 +1,4 @@
+import axios from 'axios';
 import express from 'express';
 
 import { IAccountsUserResponse } from '../src/lib/accounts';
@@ -20,6 +21,22 @@ function mockAccounts(app: express.Application, _config: IStubServerPorts): expr
     res.send(JSON.stringify([]));
   });
 
+  app.get('/documents/terms-of-use', (_req, res) => {
+    axios.get('https://raw.githubusercontent.com/alphagov/paas-accounts/main/documents/terms-of-use.md')
+      .then(response => {
+        console.info('loaded terms of use from github...');
+        res.send({
+          content: response.data,
+          name: 'Terms of Use',
+          valid_from: '2021-01-01',
+        });
+      })
+      .catch(e => {
+        console.error('unable to load terms of use from github...');
+        console.trace(e);
+      });
+  });
+
   const cfUsers = JSON.parse(cfStubData.users);
   const userIds = cfUsers.resources.map((x: any) => x.metadata.guid);
   userIds.push(uaaStubData.userId);
@@ -30,7 +47,7 @@ function mockAccounts(app: express.Application, _config: IStubServerPorts): expr
     if (typeof email !== 'string' && typeof uuids !== 'string') {
       res.status(400).send('No uuids or email');
 
-return;
+      return;
     }
 
     if (typeof email === 'string') {
@@ -44,7 +61,7 @@ return;
         res.status(404).send('Not found');
       }
 
-return;
+      return;
     }
 
     const uuidsAsList: ReadonlyArray<string> = (uuids as string).split(',');
@@ -60,7 +77,7 @@ return;
     if (typeof req.params.guid !== 'string') {
       res.status(400).send('No guid');
 
-return;
+      return;
     }
 
     const id: string = req.params.guid;
