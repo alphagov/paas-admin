@@ -270,19 +270,6 @@ describe(exportMaxPerMonthDataValues,() => {
  });
 });
 
-describe(formatDate,() => {
-  it('should by default output month name and year from given timestamp', () => {
-    const input = '2020-02-24T16:32:03.000Z';
-    const output = formatDate(new Date(input));
-    expect(output).toContain('February 2020');
-  });
-  it('should output date string based on provided format options from given timestamp', () => {
-    const input = '2020-02-24T16:32:03.000Z';
-    const output = formatDate(new Date(input),{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    expect(output).toContain('Monday, February 24, 2020');
-  });
-});
-
 describe(combineMetrics,() => {
   it('should combine two array of objects into one array with trial and billable values', () => {
     const input1 = {
