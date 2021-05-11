@@ -7,21 +7,6 @@ interface ITermsPageProperties {
   readonly content: string;
 }
 
-function Link(props: {
-  readonly href: string;
-  readonly children: string;
-}): ReactElement {
-  return (
-    <a href={props.href} className="govuk-link">
-      {props.children}
-    </a>
-  );
-}
-
-function Paragraph(props: { readonly children: string }): ReactElement {
-  return <p className="govuk-body">{props.children}</p>;
-}
-
 export function List(props: {
   readonly children: ReactNode;
   readonly ordered: boolean;
@@ -62,14 +47,19 @@ export function TermsPage(props: ITermsPageProperties): ReactElement {
 
       <ReactMarkdown
         className="md"
-        source={props.content}
-        renderers={{
-          heading: Heading,
-          link: Link,
-          list: List,
-          paragraph: Paragraph,
+        components={{
+          h1: Heading,
+          h2: Heading,
+          h3: Heading,
+          h4: Heading,
+          h5: Heading,
+          h6: Heading,
+          ul: List,
+          ol: List,
         }}
-      />
+      >
+        {props.content}
+      </ReactMarkdown>
 
       <input type="hidden" name="document_name" value={props.name} />
 

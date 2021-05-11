@@ -37,7 +37,6 @@ describe(TermsPage, () => {
     expect($('ul').hasClass('govuk-list--bullet')).toBe(true);
     expect($('ol').hasClass('govuk-list')).toBe(true);
     expect($('ol').hasClass('govuk-list--number')).toBe(true);
-    expect($('a').hasClass('govuk-link')).toBe(true);
     expect(
       $('a')
         .first()
