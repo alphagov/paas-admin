@@ -1,12 +1,12 @@
-import { getGappyRandomData } from '../metrics';
+import { getGappyRandomData } from '../metrics'
 
 interface IServiceIdAndLabel {
-  readonly id: string;
-  readonly label: string;
+  readonly id: string
+  readonly label: string
 }
 
-export function getStubCloudwatchMetricsData(
-  metricSeriesLabelsAndIds: ReadonlyArray<IServiceIdAndLabel>,
+export function getStubCloudwatchMetricsData (
+  metricSeriesLabelsAndIds: readonly IServiceIdAndLabel[]
 ): string {
   // Creates a response with one days worth of data (with some gaps to test the charts can handle that)
   // Something like:
@@ -36,7 +36,7 @@ export function getStubCloudwatchMetricsData(
 
   const members = metricSeriesLabelsAndIds
     .map(({ label, id }) => {
-      const { timestamps, values } = getGappyRandomData();
+      const { timestamps, values } = getGappyRandomData()
 
       return `<member>
       <Timestamps>
@@ -48,9 +48,9 @@ export function getStubCloudwatchMetricsData(
       <Label>${label}</Label>
       <Id>${id}</Id>
       <StatusCode>Complete</StatusCode>
-    </member>`;
+    </member>`
     })
-    .join('\n');
+    .join('\n')
 
   return `<GetMetricDataResponse xmlns="http://monitoring.amazonaws.com/doc/2010-08-01/">
     <GetMetricDataResult>
@@ -62,5 +62,5 @@ export function getStubCloudwatchMetricsData(
     <ResponseMetadata>
       <RequestId>ff5e1b9b-675d-44e3-9909-13d0d9d83648</RequestId>
     </ResponseMetadata>
-  </GetMetricDataResponse>`;
+  </GetMetricDataResponse>`
 }

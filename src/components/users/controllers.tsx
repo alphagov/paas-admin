@@ -1,112 +1,112 @@
-import { capitalize, uniq } from 'lodash';
-import React from 'react';
+import { capitalize, uniq } from 'lodash'
+import React from 'react'
 
-import { Template } from '../../layouts';
-import { AccountsClient } from '../../lib/accounts';
-import CloudFoundryClient from '../../lib/cf';
-import { IParameters, IResponse } from '../../lib/router';
-import { NotFoundError } from '../../lib/router/errors';
-import UAAClient from '../../lib/uaa';
-import { IContext } from '../app/context';
+import { Template } from '../../layouts'
+import { AccountsClient } from '../../lib/accounts'
+import CloudFoundryClient from '../../lib/cf'
+import { IParameters, IResponse } from '../../lib/router'
+import { NotFoundError } from '../../lib/router/errors'
+import UAAClient from '../../lib/uaa'
+import { IContext } from '../app/context'
 import {
   CLOUD_CONTROLLER_ADMIN,
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-  CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-} from '../auth';
+  CLOUD_CONTROLLER_READ_ONLY_ADMIN
+} from '../auth'
 
-import { PasswordResetSuccess, PasswordResetRequest, UserPage, PasswordResetSetPasswordForm } from './views';
-import NotificationClient from '../../lib/notify';
+import { PasswordResetSuccess, PasswordResetRequest, UserPage, PasswordResetSetPasswordForm } from './views'
+import NotificationClient from '../../lib/notify'
 
-const CONCURRENCY_LIMIT = 5;
+const CONCURRENCY_LIMIT = 5
 
 interface IPasswordResetBody {
-  readonly email?: string;
+  readonly email?: string
 }
 
 interface INewPasswordBody {
-  readonly code: string;
-  readonly password: string;
-  readonly passwordConfirmation: string;
+  readonly code: string
+  readonly password: string
+  readonly passwordConfirmation: string
 }
 
-export async function getUser(ctx: IContext, params: IParameters): Promise<IResponse> {
-  const emailOrUserGUID = params.emailOrUserGUID;
+export async function getUser (ctx: IContext, params: IParameters): Promise<IResponse> {
+  const emailOrUserGUID = params.emailOrUserGUID
 
   if (typeof emailOrUserGUID !== 'string') {
-    throw new NotFoundError('not found');
+    throw new NotFoundError('not found')
   }
 
   const canViewUsers = ctx.token.hasAnyScope(
     CLOUD_CONTROLLER_ADMIN,
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-  );
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR
+  )
 
   if (!canViewUsers) {
-      throw new NotFoundError('not found');
+    throw new NotFoundError('not found')
   }
 
   const accountsClient = new AccountsClient({
     apiEndpoint: ctx.app.accountsAPI,
     logger: ctx.app.logger,
-    secret: ctx.app.accountsSecret,
-  });
+    secret: ctx.app.accountsSecret
+  })
 
   const accountsUser =
-    emailOrUserGUID.indexOf('@') >= 0
+    emailOrUserGUID.includes('@')
       ? await accountsClient.getUserByEmail(emailOrUserGUID)
-      : await accountsClient.getUser(emailOrUserGUID);
+      : await accountsClient.getUser(emailOrUserGUID)
 
-  if (!accountsUser) {
+  if (accountsUser == null) {
     throw new NotFoundError(
-      `Could not find user for ${emailOrUserGUID} in paas-accounts`,
-    );
+      `Could not find user for ${emailOrUserGUID} in paas-accounts`
+    )
   }
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
-  const roles = await cf.userRoles(accountsUser.uuid);
+  const roles = await cf.userRoles(accountsUser.uuid)
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const pLimit = require('p-limit');
-  const pool = pLimit(CONCURRENCY_LIMIT);
+  const pLimit = require('p-limit')
+  const pool = pLimit(CONCURRENCY_LIMIT)
 
   const spaceGUIDs = uniq(
     roles
       .filter(r => r.relationships.space.data)
       .map(r => r.relationships.space.data.guid)
-    ,
-  );
-  const spaces = await Promise.all(spaceGUIDs.map(s => pool(async () => await cf.space(s!))));
+
+  )
+  const spaces = await Promise.all(spaceGUIDs.map(s => pool(async () => await cf.space(s!))))
 
   const orgGUIDs = uniq(
     roles
       .filter(r => r.relationships.organization.data)
       .map(r => r.relationships.organization.data.guid)
       .concat(spaces.map(s => s.entity.organization_guid))
-    ,
-  );
-  const organizations = await Promise.all(orgGUIDs .map(o => pool(async () => await cf.organization(o!))));
+
+  )
+  const organizations = await Promise.all(orgGUIDs.map(o => pool(async () => await cf.organization(o!))))
 
   const uaa = new UAAClient({
     apiEndpoint: ctx.app.uaaAPI,
     clientCredentials: {
       clientID: ctx.app.oauthClientID,
-      clientSecret: ctx.app.oauthClientSecret,
-    },
-  });
+      clientSecret: ctx.app.oauthClientSecret
+    }
+  })
 
-  const uaaUser = await uaa.getUser(accountsUser.uuid);
-  if (!uaaUser) {
-    throw new NotFoundError('User not found');
+  const uaaUser = await uaa.getUser(accountsUser.uuid)
+  if (uaaUser == null) {
+    throw new NotFoundError('User not found')
   }
-  const origin = uaaUser.origin;
+  const origin = uaaUser.origin
 
-  const template = new Template(ctx.viewContext, 'User');
+  const template = new Template(ctx.viewContext, 'User')
 
   return {
     body: template.render(
@@ -117,212 +117,214 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
         organizations={organizations}
         origin={origin}
         user={accountsUser}
-      />,
-    ),
-  };
+      />
+    )
+  }
 }
 
-export async function resetPasswordRequestToken(ctx: IContext, _params: IParameters): Promise<IResponse> {
-  const template = new Template(ctx.viewContext, 'Request password reset');
+export async function resetPasswordRequestToken (ctx: IContext, _params: IParameters): Promise<IResponse> {
+  const template = new Template(ctx.viewContext, 'Request password reset')
 
   return await Promise.resolve({
-    body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} />),
-  });
+    body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} />)
+  })
 }
 
-export async function resetPasswordObtainToken(
-  ctx: IContext, params: IParameters, body: IPasswordResetBody,
+export async function resetPasswordObtainToken (
+  ctx: IContext, params: IParameters, body: IPasswordResetBody
 ): Promise<IResponse> {
-  const VALID_EMAIL = /^[^@]*@[^@]*$/;
-  const email = (/* istanbul ignore next */ body.email || '').toLowerCase();
-  const template = new Template(ctx.viewContext, 'Request password reset');
+  const VALID_EMAIL = /^[^@]*@[^@]*$/
+  const email = (/* istanbul ignore next */ body.email || '').toLowerCase()
+  const template = new Template(ctx.viewContext, 'Request password reset')
 
   if (!email || !VALID_EMAIL.test(email)) {
-    template.title = 'Error: Request password reset';
+    template.title = 'Error: Request password reset'
 
     return {
-      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} invalidEmail={true} />),
-      status: 400,
-    };
+      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} invalidEmail />),
+      status: 400
+    }
   }
 
   const uaa = new UAAClient({
     apiEndpoint: ctx.app.uaaAPI,
     clientCredentials: {
       clientID: ctx.app.oauthClientID,
-      clientSecret: ctx.app.oauthClientSecret,
-    },
-  });
+      clientSecret: ctx.app.oauthClientSecret
+    }
+  })
 
   const accounts = new AccountsClient({
     apiEndpoint: ctx.app.accountsAPI,
     logger: ctx.app.logger,
-    secret: ctx.app.accountsSecret,
-  });
+    secret: ctx.app.accountsSecret
+  })
 
-  const accountsUser = await accounts.getUserByEmail(email);
-  if (!accountsUser) {
+  const accountsUser = await accounts.getUserByEmail(email)
+  if (accountsUser == null) {
     // 400ms delay to stop people iterating through users
-    await new Promise(finish => setTimeout(finish, 400));
+    await new Promise(finish => setTimeout(finish, 400))
 
-    template.title = 'Error: User not found';
+    template.title = 'Error: User not found'
 
     return {
-      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} userNotFound={true} />),
-      status: 404,
-    };
+      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} userNotFound />),
+      status: 404
+    }
   }
 
   const uaaUser = await uaa.getUser(accountsUser.uuid)
-  if (!uaaUser) {
+  if (uaaUser == null) {
     // 400ms delay to stop people iterating through users
-    await new Promise(finish => setTimeout(finish, 400));
+    await new Promise(finish => setTimeout(finish, 400))
 
-    template.title = 'Error: User not found';
+    template.title = 'Error: User not found'
 
     return {
-      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} userNotFound={true} />),
-      status: 404,
-    };
+      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} userNotFound />),
+      status: 404
+    }
   }
 
   if (uaaUser.origin != 'uaa') {
     // 400ms delay to stop people iterating through users
-    await new Promise(finish => setTimeout(finish, 400));
+    await new Promise(finish => setTimeout(finish, 400))
 
-    const idpNice = capitalize(uaaUser.origin);
-    template.title = `Error: You have enabled ${idpNice} single sign-on`;
+    const idpNice = capitalize(uaaUser.origin)
+    template.title = `Error: You have enabled ${idpNice} single sign-on`
 
     return {
-      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} userEnabledSSO={true} idpNice={idpNice}/>),
-    };
+      body: template.render(<PasswordResetRequest csrf={ctx.viewContext.csrf} userEnabledSSO idpNice={idpNice} />)
+    }
   }
 
   const notify = new NotificationClient({
     apiKey: ctx.app.notifyAPIKey,
     templates: {
-      passwordReset: ctx.app.notifyPasswordResetTemplateID,
-    },
-  });
-  const resetCode = await uaa.obtainPasswordResetCode(uaaUser.userName);
+      passwordReset: ctx.app.notifyPasswordResetTemplateID
+    }
+  })
+  const resetCode = await uaa.obtainPasswordResetCode(uaaUser.userName)
 
-  const url = new URL(ctx.app.domainName);
-  url.pathname = '/password/confirm-reset';
-  url.searchParams.set('code', resetCode);
+  const url = new URL(ctx.app.domainName)
+  url.pathname = '/password/confirm-reset'
+  url.searchParams.set('code', resetCode)
 
-  await notify.sendPasswordReminder(email, url.toString());
+  await notify.sendPasswordReminder(email, url.toString())
 
-  template.title = 'Password reset successfully requested';
-  const successPage = <PasswordResetSuccess
-    title="Password reset successfully requested"
-    message="You should receive an email shortly with further instructions."
-  />;
+  template.title = 'Password reset successfully requested'
+  const successPage = (
+    <PasswordResetSuccess
+      title='Password reset successfully requested'
+      message='You should receive an email shortly with further instructions.'
+    />
+  )
 
   return {
-    body: template.render(successPage),
-  };
+    body: template.render(successPage)
+  }
 }
 
-export async function resetPasswordProvideNew(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function resetPasswordProvideNew (ctx: IContext, params: IParameters): Promise<IResponse> {
   if (!params.code) {
-    throw new NotFoundError('Invalid password reset token.');
+    throw new NotFoundError('Invalid password reset token.')
   }
 
-  const template = new Template(ctx.viewContext, 'Password reset');
+  const template = new Template(ctx.viewContext, 'Password reset')
 
   return await Promise.resolve({
-    body: template.render(<PasswordResetSetPasswordForm csrf={ctx.viewContext.csrf} code={params.code} />),
-  });
+    body: template.render(<PasswordResetSetPasswordForm csrf={ctx.viewContext.csrf} code={params.code} />)
+  })
 }
 
-export function checkPasswordAgainstPolicy(pw: string): { valid: boolean; message?: string } {
+export function checkPasswordAgainstPolicy (pw: string): { valid: boolean, message?: string } {
   if (pw.length < 12) {
     return {
       valid: false,
-      message: 'Your password should be 12 characters or more',
+      message: 'Your password should be 12 characters or more'
     }
   }
 
-  if (!pw.match(/[a-z]/)) {
+  if (pw.match(/[a-z]/) == null) {
     return {
       valid: false,
-      message: 'Your password should contain a lowercase character',
+      message: 'Your password should contain a lowercase character'
     }
   }
 
-  if (!pw.match(/[A-Z]/)) {
+  if (pw.match(/[A-Z]/) == null) {
     return {
       valid: false,
-      message: 'Your password should contain an uppercase character',
+      message: 'Your password should contain an uppercase character'
     }
   }
 
-  if (!pw.match(/[0-9]/)) {
+  if (pw.match(/[0-9]/) == null) {
     return {
       valid: false,
-      message: 'Your password should contain a number',
+      message: 'Your password should contain a number'
     }
   }
 
-  if (!pw.match(/[-_+:;<>[\]()#@£%^&!$/]/)) {
+  if (pw.match(/[-_+:;<>[\]()#@£%^&!$/]/) == null) {
     return {
       valid: false,
-      message: 'Your password should contain a special character',
+      message: 'Your password should contain a special character'
     }
   }
 
-  return { valid: true };
+  return { valid: true }
 }
 
-export async function resetPassword(ctx: IContext, _params: IParameters, body: INewPasswordBody): Promise<IResponse> {
+export async function resetPassword (ctx: IContext, _params: IParameters, body: INewPasswordBody): Promise<IResponse> {
   if (!body.code) {
-    throw new NotFoundError('Invalid password reset token.');
+    throw new NotFoundError('Invalid password reset token.')
   }
 
-  const template = new Template(ctx.viewContext, 'Password reset');
+  const template = new Template(ctx.viewContext, 'Password reset')
 
   if (body.password !== body.passwordConfirmation) {
-    template.title = 'Error: Password reset';
+    template.title = 'Error: Password reset'
 
     return {
       body: template.render(<PasswordResetSetPasswordForm
         csrf={ctx.viewContext.csrf}
         code={body.code}
-        passwordMismatch={true}
-      />),
-      status: 400,
-    };
+        passwordMismatch
+                            />),
+      status: 400
+    }
   }
 
-  const { valid, message } = checkPasswordAgainstPolicy(body.password);
+  const { valid, message } = checkPasswordAgainstPolicy(body.password)
   if (!valid) {
-    template.title = 'Error: Password reset';
+    template.title = 'Error: Password reset'
 
     return {
       body: template.render(<PasswordResetSetPasswordForm
         csrf={ctx.viewContext.csrf}
         code={body.code}
-        passwordDoesNotMeetPolicy={true}
+        passwordDoesNotMeetPolicy
         passwordDoesNotMeetPolicyMessage={message}
       />),
-      status: 400,
-    };
+      status: 400
+    }
   }
 
   const uaa = new UAAClient({
     apiEndpoint: ctx.app.uaaAPI,
     clientCredentials: {
       clientID: ctx.app.oauthClientID,
-      clientSecret: ctx.app.oauthClientSecret,
-    },
-  });
+      clientSecret: ctx.app.oauthClientSecret
+    }
+  })
 
-  await uaa.resetPassword(body.code, body.password);
+  await uaa.resetPassword(body.code, body.password)
 
   return {
     body: template.render(<PasswordResetSuccess
-      title="Password successfully reset"
-      message="You may now log in with the use of your email and password."
-    />),
-  };
+      title='Password successfully reset'
+      message='You may now log in with the use of your email and password.'
+                          />)
+  }
 }

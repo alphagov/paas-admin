@@ -1,2 +1,2 @@
-export * from './generators';
-export * from './views';
+export * from './generators'
+export * from './views'

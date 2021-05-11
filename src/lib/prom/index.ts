@@ -1,1 +1,1 @@
-export { default } from './prom';
+export { default } from './prom'

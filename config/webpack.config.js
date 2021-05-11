@@ -1,14 +1,14 @@
-const path = require('path');
+const path = require('path')
 
-const OptimizeCssnanoPlugin = require('@intervolga/optimize-cssnano-plugin');
-const CompressionPlugin = require('compression-webpack-plugin');
-const webpack = require('webpack');
-const nodeModules = require('webpack-node-externals');
+const OptimizeCssnanoPlugin = require('@intervolga/optimize-cssnano-plugin')
+const CompressionPlugin = require('compression-webpack-plugin')
+const webpack = require('webpack')
+const nodeModules = require('webpack-node-externals')
 
-const enableServer = require('./server.config');
+const enableServer = require('./server.config')
 
-const NODE_ENV = process.env.NODE_ENV || 'development';
-const assetName = ext => `assets/[hash:base32].[name].${ext || '[ext]'}`;
+const NODE_ENV = process.env.NODE_ENV || 'development'
+const assetName = ext => `assets/[hash:base32].[name].${ext || '[ext]'}`
 
 let cfg = {
 
@@ -19,13 +19,13 @@ let cfg = {
   entry: {
     main: ['./src/main.ts'],
     'assets/init': ['./src/frontend/javascript/init.js'],
-    'assets/sankey': ['./src/frontend/javascript/sankey.js'],
+    'assets/sankey': ['./src/frontend/javascript/sankey.js']
   },
 
   output: {
     path: path.resolve(__dirname, '..', 'dist'),
     filename: '[name].js',
-    publicPath: '/',
+    publicPath: '/'
   },
 
   devtool: 'source-map',
@@ -36,21 +36,21 @@ let cfg = {
     modules: false,
     warningsFilter: [
       // Express uses a dynamic require in view.js but we don't care
-      /node_modules\/express\/lib\/view\.js/,
-    ],
+      /node_modules\/express\/lib\/view\.js/
+    ]
   },
 
   optimization: {
     splitChunks: false,
-    runtimeChunk: false,
+    runtimeChunk: false
   },
 
   performance: {
-    hints: false,
+    hints: false
   },
 
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json'],
+    extensions: ['.ts', '.tsx', '.js', '.json']
   },
 
   module: {
@@ -62,10 +62,10 @@ let cfg = {
             loader: 'file-loader',
             options: {
               name: assetName(),
-              esModule: false,
-            },
-          },
-        ],
+              esModule: false
+            }
+          }
+        ]
       },
       {
         test: /\.(scss)$/,
@@ -74,34 +74,34 @@ let cfg = {
             loader: 'file-loader',
             options: {
               name: assetName('css'),
-              esModule: false,
-            },
+              esModule: false
+            }
           },
           {
             loader: 'extract-loader',
             options: {
-              publicPath: '/',
-            },
+              publicPath: '/'
+            }
           },
           {
             loader: 'css-loader',
             options: {
-              sourceMap: NODE_ENV === 'production' ? false : true,
-              url: false,
-            },
+              sourceMap: NODE_ENV !== 'production',
+              url: false
+            }
           },
           {
             loader: 'sass-loader',
             options: {
               sassOptions: {
                 includePaths: [
-                  path.resolve(__dirname, '../node_modules'),
-                ],
+                  path.resolve(__dirname, '../node_modules')
+                ]
               },
-              sourceMap: true,
-            },
-          },
-        ],
+              sourceMap: true
+            }
+          }
+        ]
       },
       {
         test: /\.(ts(x?))/,
@@ -109,20 +109,20 @@ let cfg = {
           {
             loader: 'ts-loader',
             options: {
-              reportFiles: [/(?<!\.test)\.ts(x?)/],
-            },
-          },
-        ],
+              reportFiles: [/(?<!\.test)\.ts(x?)/]
+            }
+          }
+        ]
       },
       {
         test: /\.pegjs$/,
         use: [
           {
-            loader: 'pegjs-loader',
-          },
-        ],
-      },
-    ],
+            loader: 'pegjs-loader'
+          }
+        ]
+      }
+    ]
   },
 
   plugins: [
@@ -130,17 +130,17 @@ let cfg = {
     new CompressionPlugin({
       test: /\.(js|svg|css)$/,
       include: 'assets/',
-      deleteOriginalAssets: true,
-    }),
-  ],
-};
+      deleteOriginalAssets: true
+    })
+  ]
+}
 
 if (process.env.ENABLE_WATCH === 'true') {
-  cfg.watch = true;
+  cfg.watch = true
 }
 
 if (process.env.ENABLE_SERVER === 'true') {
-  cfg = enableServer(cfg);
+  cfg = enableServer(cfg)
 }
 
 if (NODE_ENV === 'production') {
@@ -149,13 +149,13 @@ if (NODE_ENV === 'production') {
     cssnanoOptions: {
       preset: ['default', {
         discardComments: {
-          removeAll: true,
-        },
-      }],
-    },
-  }));
+          removeAll: true
+        }
+      }]
+    }
+  }))
 }
 
-cfg.externals.push(nodeModules({ allowlist: [] }));
+cfg.externals.push(nodeModules({ allowlist: [] }))
 
-module.exports = cfg;
+module.exports = cfg

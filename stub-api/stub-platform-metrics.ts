@@ -1,54 +1,52 @@
-import express from 'express';
+import express from 'express'
 
-import { IStubServerPorts } from './index';
+import { IStubServerPorts } from './index'
 
-function mockPlatformMetrics(
+function mockPlatformMetrics (
   app: express.Application,
-  _config: IStubServerPorts,
+  _config: IStubServerPorts
 ): express.Application {
-
   app.get('/metrics.json', (_req, res) => {
-
-    const aYearAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
+    const aYearAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
 
     const randomValue = (min: number, max: number) => {
-      return Math.random() * (max - min) + min;
-    };
+      return Math.random() * (max - min) + min
+    }
 
     const generateData = (startValue: number, endValue: number) => {
-      const arrayOfData = [];
+      const arrayOfData = []
       for (let i = 0; i < 52; i++) {
-        arrayOfData.push({ date: new Date(aYearAgo).setDate(aYearAgo.getDate() + (i*7)), value: Math.floor(randomValue(startValue, endValue)) });
+        arrayOfData.push({ date: new Date(aYearAgo).setDate(aYearAgo.getDate() + (i * 7)), value: Math.floor(randomValue(startValue, endValue)) })
       }
 
-return arrayOfData;
-    };
+      return arrayOfData
+    }
     const response = {
-      'applications': [
+      applications: [
         {
-          'metrics': generateData( 1000,2000),
-        },
+          metrics: generateData(1000, 2000)
+        }
       ],
-      'services': [
+      services: [
         {
-          'metrics': generateData(100,800),
-        },
+          metrics: generateData(100, 800)
+        }
       ],
-      'organizations': [
+      organizations: [
         {
-          'metrics': generateData(50,100),
+          metrics: generateData(50, 100)
         },
         {
-          'metrics': generateData(10, 30),
-        },
+          metrics: generateData(10, 30)
+        }
       ],
-      'uptime': randomValue(99,100).toFixed(2),
-    };
-    res.send(JSON.stringify(response));
-  },
-);
+      uptime: randomValue(99, 100).toFixed(2)
+    }
+    res.send(JSON.stringify(response))
+  }
+  )
 
-  return app;
+  return app
 }
 
-export default mockPlatformMetrics;
+export default mockPlatformMetrics

@@ -1,47 +1,45 @@
-import express from 'express';
-import lodash from 'lodash';
-import moment from 'moment';
+import express from 'express'
+import lodash from 'lodash'
+import moment from 'moment'
 
-import { IStubServerPorts } from './index';
+import { IStubServerPorts } from './index'
 
-function mockPrometheus(
+function mockPrometheus (
   app: express.Application,
-  _config: IStubServerPorts,
+  _config: IStubServerPorts
 ): express.Application {
-
   app.get(
     /query_range/,
     (req, res) => {
       console.log(req.query.start)
-      const historicTime = parseInt(req.query.start as string, 10);
-      const instantTime = parseInt(req.query.end as string, 10);
-      const step = parseInt(req.query.step as string, 10);
+      const historicTime = parseInt(req.query.start as string, 10)
+      const instantTime = parseInt(req.query.end as string, 10)
+      const step = parseInt(req.query.step as string, 10)
 
-      const length = Math.ceil(((instantTime - historicTime)) / step);
+      const length = Math.ceil(((instantTime - historicTime)) / step)
 
       const response = {
         status: 'success',
         data: {
-          result : [{
+          result: [{
             values: lodash
               .range(0, length, 1)
-                .map(i => {
-                  return [
-                    moment(historicTime * 1000)
-                      .add(step * i, 'seconds')
-                      .toDate().getTime() / 1000
-                    ,
-                    `${Math.random() * 100}`,
-                  ];
-                })
-            ,
-          }],
-        },
-      };
+              .map(i => {
+                return [
+                  moment(historicTime * 1000)
+                    .add(step * i, 'seconds')
+                    .toDate().getTime() / 1000,
+                    `${Math.random() * 100}`
+                ]
+              })
 
-      res.send(JSON.stringify(response));
-    },
-  );
+          }]
+        }
+      }
+
+      res.send(JSON.stringify(response))
+    }
+  )
 
   app.get(
     /query/,
@@ -51,15 +49,15 @@ function mockPrometheus(
         data: {
           result: [{
             value: [
-              moment().toDate().getTime() / 1000, `${Math.random() * 100}`,
-            ],
-          }],
-        },
-      }));
-    },
-  );
+              moment().toDate().getTime() / 1000, `${Math.random() * 100}`
+            ]
+          }]
+        }
+      }))
+    }
+  )
 
-  return app;
+  return app
 }
 
-export default mockPrometheus;
+export default mockPrometheus

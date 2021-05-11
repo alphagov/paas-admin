@@ -1,45 +1,44 @@
-import React, { ReactElement } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
+import React, { ReactElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 
-import { IViewContext } from '../components/app';
-import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs';
+import { IViewContext } from '../components/app'
+import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs'
 
-
-import govukPrintStyles from './govuk.print.scss';
-import govukIE8Styles from './govuk.screen.ie8.scss';
-import govukStyles from './govuk.screen.scss';
+import govukPrintStyles from './govuk.print.scss'
+import govukIE8Styles from './govuk.screen.ie8.scss'
+import govukStyles from './govuk.screen.scss'
 import {
   CookieBanner,
   Footer,
   Header,
   ISubNavigationProperties,
   Main,
-  SubNavigation,
-} from './partials';
+  SubNavigation
+} from './partials'
 
 export class Template {
-  private readonly _language = 'en';
-  private _breadcrumbs?: ReadonlyArray<IBreadcrumbsItem>;
-  private _subnav?: ISubNavigationProperties;
+  private readonly _language = 'en'
+  private _breadcrumbs?: readonly IBreadcrumbsItem[]
+  private _subnav?: ISubNavigationProperties
 
-  constructor(private readonly ctx: IViewContext, private _title?: string) {}
+  constructor (private readonly ctx: IViewContext, private _title?: string) {}
 
-  public set breadcrumbs(items: ReadonlyArray<IBreadcrumbsItem>) {
-    this._breadcrumbs = items;
+  public set breadcrumbs (items: readonly IBreadcrumbsItem[]) {
+    this._breadcrumbs = items
   }
 
-  public set title(value: string) {
-    this._title = value;
+  public set title (value: string) {
+    this._title = value
   }
 
-  public set subnav(value: ISubNavigationProperties) {
-    this._subnav = value;
+  public set subnav (value: ISubNavigationProperties) {
+    this._subnav = value
   }
 
-  public render(page: ReactElement): string {
-    const themeColor = '#0b0c0c';
-    const assetPath = '/assets';
-    const assetURL = 'https://admin.cloud.service.gov.uk/assets';
+  public render (page: ReactElement): string {
+    const themeColor = '#0b0c0c'
+    const assetPath = '/assets'
+    const assetURL = 'https://admin.cloud.service.gov.uk/assets'
 
     return `<!DOCTYPE html>
     <html lang=${this._language} class="govuk-template">
@@ -97,12 +96,12 @@ export class Template {
                 authenticated={this.ctx.authenticated}
               />
 
-              <div className="govuk-width-container">
-                {this._subnav
+              <div className='govuk-width-container'>
+                {(this._subnav != null)
                   ? <SubNavigation title={this._subnav.title} items={this._subnav.items} />
                   : undefined}
 
-                {this._breadcrumbs
+                {(this._breadcrumbs != null)
                   ? <Breadcrumbs items={this._breadcrumbs} />
                   : undefined}
 
@@ -114,6 +113,6 @@ export class Template {
           <script src="${assetPath}/all.js"></script>
           <script src="${assetPath}/init.js"></script>
         </body>
-      </html>`;
+      </html>`
   }
 }

@@ -1,27 +1,27 @@
-import { validateNewOrganization } from './validators';
+import { validateNewOrganization } from './validators'
 
 describe(validateNewOrganization, () => {
   it('should return no validation errors when correct input has been provided', () => {
     const validation = validateNewOrganization({
       organization: 'new-organization',
-      owner: 'Organization Owner',
-    });
+      owner: 'Organization Owner'
+    })
 
-    expect(validation).toHaveLength(0);
-  });
+    expect(validation).toHaveLength(0)
+  })
 
   it('should return validation errors when nothing has been submitted', () => {
-    const validation = validateNewOrganization({});
+    const validation = validateNewOrganization({})
 
-    expect(validation).toHaveLength(2);
-  });
+    expect(validation).toHaveLength(2)
+  })
 
   it('should return validation errors when organisation name does not meet our standards', () => {
     const validation = validateNewOrganization({
       organization: 'new_organization',
-      owner: 'Organization Owner',
-    });
+      owner: 'Organization Owner'
+    })
 
-    expect(validation).toHaveLength(1);
-  });
-});
+    expect(validation).toHaveLength(1)
+  })
+})

@@ -1,14 +1,14 @@
-import Router, { IParameters, IResponse } from '../../lib/router';
+import Router, { IParameters, IResponse } from '../../lib/router'
 
-import { config } from './app.test.config';
-import { IContext, initContext } from './context';
+import { config } from './app.test.config'
+import { IContext, initContext } from './context'
 
 const noopActionFunc = async (
   _: IContext,
-  __: IParameters,
+  __: IParameters
 ): Promise<IResponse> => {
-  return await new Promise<IResponse>(resolve => resolve({ body: 'noop' }));
-};
+  return await new Promise<IResponse>(resolve => resolve({ body: 'noop' }))
+}
 
 describe('IContext', () => {
   describe('linkTo', () => {
@@ -17,22 +17,22 @@ describe('IContext', () => {
         {
           action: noopActionFunc,
           name: 'test',
-          path: '/test',
-        },
-      ]);
+          path: '/test'
+        }
+      ])
       const req = {
         csrfToken: () => '',
         log: {},
         session: {},
-        token: {},
-      };
-      const ctx = initContext(req, router, router.routes[0], config);
+        token: {}
+      }
+      const ctx = initContext(req, router, router.routes[0], config)
 
-      const link = ctx.linkTo('test');
+      const link = ctx.linkTo('test')
 
-      expect(link).not.toContain(config.domainName);
-    });
-  });
+      expect(link).not.toContain(config.domainName)
+    })
+  })
 
   describe('absoluteLinkTo', () => {
     it('should generate an absolute URL', () => {
@@ -40,20 +40,20 @@ describe('IContext', () => {
         {
           action: noopActionFunc,
           name: 'test',
-          path: '/test',
-        },
-      ]);
+          path: '/test'
+        }
+      ])
       const req = {
         csrfToken: () => '',
         log: {},
         session: {},
-        token: {},
-      };
-      const ctx = initContext(req, router, router.routes[0], config);
+        token: {}
+      }
+      const ctx = initContext(req, router, router.routes[0], config)
 
-      const link = ctx.absoluteLinkTo('test');
+      const link = ctx.absoluteLinkTo('test')
 
-      expect(link).toContain(config.domainName);
-    });
-  });
-});
+      expect(link).toContain(config.domainName)
+    })
+  })
+})

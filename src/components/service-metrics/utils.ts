@@ -1,10 +1,10 @@
-import { bisectLeft } from 'd3-array';
-import moment from 'moment';
+import { bisectLeft } from 'd3-array'
+import moment from 'moment'
 
-export function getPeriod(rangeStart: moment.Moment, rangeStop: moment.Moment): number {
-  const secondsDifference = rangeStop.diff(rangeStart) / 1000;
-  const desiredNumberOfPoints = 300;
-  const idealPeriod = secondsDifference / desiredNumberOfPoints;
+export function getPeriod (rangeStart: moment.Moment, rangeStop: moment.Moment): number {
+  const secondsDifference = rangeStop.diff(rangeStart) / 1000
+  const desiredNumberOfPoints = 300
+  const idealPeriod = secondsDifference / desiredNumberOfPoints
 
   // https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricStat.html
 
@@ -23,24 +23,24 @@ export function getPeriod(rangeStart: moment.Moment, rangeStop: moment.Moment): 
   //      Start time between 15 and 63 days ago - Use a multiple of 300 seconds (5 minutes).
   //      Start time greater than 63 days ago - Use a multiple of 3600 seconds (1 hour).
 
-  const threeHoursAgo = moment().subtract(3, 'hours');
-  const fifteenDaysAgo = moment().subtract(15, 'days');
-  const sixtyThreeDaysAgo = moment().subtract(63, 'days');
+  const threeHoursAgo = moment().subtract(3, 'hours')
+  const fifteenDaysAgo = moment().subtract(15, 'days')
+  const sixtyThreeDaysAgo = moment().subtract(63, 'days')
 
   if (threeHoursAgo.isBefore(rangeStart)) {
-    const allowedPeriods = [1, 5, 10, 30, 60];
+    const allowedPeriods = [1, 5, 10, 30, 60]
     if (idealPeriod <= 60) {
-      return allowedPeriods[bisectLeft(allowedPeriods, idealPeriod)];
+      return allowedPeriods[bisectLeft(allowedPeriods, idealPeriod)]
     }
 
-    return Math.ceil(idealPeriod / 60) * 60;
+    return Math.ceil(idealPeriod / 60) * 60
   }
   if (fifteenDaysAgo.isBefore(rangeStart)) {
-    return Math.ceil(idealPeriod / 60) * 60;
+    return Math.ceil(idealPeriod / 60) * 60
   }
   if (sixtyThreeDaysAgo.isBefore(rangeStart)) {
-    return Math.ceil(idealPeriod / 300) * 300;
+    return Math.ceil(idealPeriod / 300) * 300
   }
 
-  return Math.ceil(idealPeriod / 3600) * 3600;
+  return Math.ceil(idealPeriod / 3600) * 3600
 }

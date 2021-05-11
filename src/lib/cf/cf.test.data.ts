@@ -14,7 +14,7 @@ export const info = `{
   "app_ssh_oauth_client": null,
   "routing_endpoint": "http://localhost:3000",
   "logging_endpoint": "ws://loggregator.vcap.me:80"
-}`;
+}`
 
 export const organizationQuota = `{
   "metadata": {
@@ -37,7 +37,7 @@ export const organizationQuota = `{
     "total_service_keys": -1,
     "total_reserved_route_ports": 5
   }
-}`;
+}`
 
 export const organizationQuotas = `{
   "total_results": 1,
@@ -45,7 +45,7 @@ export const organizationQuotas = `{
   "prev_url": null,
   "next_url": null,
   "resources": [ ${organizationQuota} ]
-}`;
+}`
 
 export const spaces = `{
   "total_results": 2,
@@ -106,7 +106,7 @@ export const spaces = `{
       }
     }
   ]
-}`;
+}`
 
 export const space = `{
   "metadata": {
@@ -133,7 +133,7 @@ export const space = `{
     "security_groups_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/security_groups",
     "staging_security_groups_url": "/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3/staging_security_groups"
   }
-}`;
+}`
 
 export const spaceSummary = `{
   "guid": "50ae42f6-346d-4eca-9e97-f8c9e04d5fbe",
@@ -225,7 +225,7 @@ export const spaceSummary = `{
       }
     }
   ]
-}`;
+}`
 
 export const spaceQuota = `{
   "metadata": {
@@ -249,7 +249,7 @@ export const spaceQuota = `{
     "organization_url": "/v2/organizations/a065dfc7-3aed-4438-a6af-b1f42d9a4ed4",
     "spaces_url": "/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019/spaces"
   }
-}`;
+}`
 
 export const appSummary = `{
   "guid": "cd897c8c-3171-456d-b5d7-3c87feeabbd1",
@@ -337,7 +337,7 @@ export const appSummary = `{
   "detected_start_command": "",
   "enable_ssh": true,
   "ports": null
-}`;
+}`
 
 export const dockerAppSummary = `{
   "guid": "646f636b-6572-0d0a-8697-86641668c123",
@@ -425,7 +425,7 @@ export const dockerAppSummary = `{
   "detected_start_command": "",
   "enable_ssh": true,
   "ports": null
-}`;
+}`
 
 export const appSummaryUsingCflinuxfs2 = `{
   "guid": "ebbcb962-8e5d-444d-a8fb-6f3b31fe99c7",
@@ -513,7 +513,7 @@ export const appSummaryUsingCflinuxfs2 = `{
   "detected_start_command": "",
   "enable_ssh": true,
   "ports": null
-}`;
+}`
 
 export const services = `{
   "total_results": 1,
@@ -551,7 +551,7 @@ export const services = `{
       }
     }
   ]
-}`;
+}`
 
 export const serviceInstance = `{
   "metadata": {
@@ -589,7 +589,7 @@ export const serviceInstance = `{
     "service_keys_url": "/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92/service_keys",
     "routes_url": "/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92/routes"
   }
-}`;
+}`
 
 export const servicePlan = `{
   "metadata": {
@@ -620,14 +620,14 @@ export const servicePlan = `{
       }
     }
   }
-}`;
+}`
 
 export const serviceObj = {
   metadata: {
     guid: '53f52780-e93c-4af7-a96c-6958311c40e5',
     url: '/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5',
     created_at: '2016-06-08T16:41:32Z',
-    updated_at: '2016-06-08T16:41:26Z',
+    updated_at: '2016-06-08T16:41:26Z'
   },
   entity: {
     label: 'postgres',
@@ -647,10 +647,10 @@ export const serviceObj = {
     service_broker_guid: '0e7250aa-364f-42c2-8fd2-808b0224376f',
     plan_updateable: false,
     service_plans_url:
-      '/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5/service_plans',
-  },
-};
-export const serviceString = JSON.stringify(serviceObj);
+      '/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5/service_plans'
+  }
+}
+export const serviceString = JSON.stringify(serviceObj)
 
 export const users = `{
   "total_results": 1,
@@ -713,7 +713,7 @@ export const users = `{
       }
     }
   ]
-}`;
+}`
 
 export const user = `{
   "metadata": {
@@ -734,7 +734,7 @@ export const user = `{
     "managed_spaces_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/managed_spaces",
     "audited_spaces_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/audited_spaces"
   }
-}`;
+}`
 
 export const userRoles = `{
   "metadata": {
@@ -759,7 +759,7 @@ export const userRoles = `{
     "app_events_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/app_events",
     "space_quota_definitions_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/space_quota_definitions"
   }
-}`;
+}`
 
 export const userRolesForOrg = `{
   "total_results": 1,
@@ -876,7 +876,7 @@ export const userRolesForOrg = `{
       }
     }
   ]
-}`;
+}`
 
 export const userRolesForOrgWithOneManager = `{
   "total_results": 1,
@@ -912,7 +912,7 @@ export const userRolesForOrgWithOneManager = `{
       }
     }
   ]
-}`;
+}`
 
 export const userRolesForSpace = `{
   "total_results": 1,
@@ -973,7 +973,7 @@ export const userRolesForSpace = `{
       }
     }
   ]
-}`;
+}`
 
 export const userServiceInstance = `{
   "metadata": {
@@ -999,7 +999,7 @@ export const userServiceInstance = `{
     "service_bindings_url": "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87/service_bindings",
     "routes_url": "/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87/routes"
   }
-}`;
+}`
 
 export const userServices = `{
   "total_results": 1,
@@ -1030,7 +1030,7 @@ export const userServices = `{
       }
     }
   ]
-}`;
+}`
 
 export const userSummary = `{
   "metadata": {
@@ -1080,7 +1080,7 @@ export const userSummary = `{
       }
     }]
   }
-}`;
+}`
 
 export const stacks = `{
   "total_results": 2,
@@ -1113,7 +1113,7 @@ export const stacks = `{
       }
     }
   ]
-}`;
+}`
 
 export const stack = `{
   "metadata": {
@@ -1126,7 +1126,7 @@ export const stack = `{
     "name": "cflinuxfs3",
     "description": "Cloud Foundry Linux-based filesystem (Ubuntu 18.04)"
   }
-}`;
+}`
 
 export const stackCflinuxfs2 = `{
   "metadata": {
@@ -1139,7 +1139,7 @@ export const stackCflinuxfs2 = `{
     "name": "cflinuxfs2",
     "description": "Cloud Foundry Linux-based filesystem (Ubuntu 14.04)"
   }
-}`;
+}`
 
 export const stacksWithoutCflinuxfs2 = `{
   "total_results": 1,
@@ -1160,7 +1160,7 @@ export const stacksWithoutCflinuxfs2 = `{
       }
     }
   ]
-}`;
+}`
 
 export const v3Organisation = `{
   "guid": "ORG_GUID",
@@ -1195,7 +1195,7 @@ export const v3Organisation = `{
       "owner": "ORG_OWNER_ANNOTATION"
     }
   }
-}`;
+}`
 
 export const v3Space = `{
   "guid": "SPACE_GUID",
@@ -1224,4 +1224,4 @@ export const v3Space = `{
     "labels": {},
     "annotations": {}
   }
-}`;
+}`

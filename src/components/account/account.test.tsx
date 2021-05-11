@@ -1,224 +1,224 @@
-import jwt from 'jsonwebtoken';
-import nock from 'nock';
+import jwt from 'jsonwebtoken'
+import nock from 'nock'
 
-import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
-import * as uaaData from '../../lib/uaa/uaa.test.data';
-import { IContext } from '../app';
-import { createTestContext } from '../app/app.test-helpers';
-import { Token } from '../auth';
+import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test'
+import * as uaaData from '../../lib/uaa/uaa.test.data'
+import { IContext } from '../app'
+import { createTestContext } from '../app/app.test-helpers'
+import { Token } from '../auth'
 
-import * as account from './account';
-import OIDC from './oidc';
+import * as account from './account'
+import OIDC from './oidc'
 
-jest.mock('./oidc');
+jest.mock('./oidc')
 
-function setUpUAA(userData: string): IContext {
+function setUpUAA (userData: string): IContext {
   const token = jwt.sign(
     {
       exp: 2535018460,
       origin: 'uaa',
       scope: [],
-      user_id: uaaData.userId,
+      user_id: uaaData.userId
     },
-    'secret',
-  );
+    'secret'
+  )
 
   const ctx = createTestContext({
     linkTo: (routeName: string) => routeName,
-    token: new Token(token, ['secret']),
-  });
+    token: new Token(token, ['secret'])
+  })
 
-  nock.cleanAll();
+  nock.cleanAll()
   nock(ctx.app.uaaAPI)
     .get(`/Users/${uaaData.userId}`)
     .reply(200, userData)
     .post('/oauth/token?grant_type=client_credentials')
-    .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
+    .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
 
-  return ctx;
+  return ctx
 }
 
 describe('account test suite', () => {
-  let ctx: IContext;
+  let ctx: IContext
 
   beforeEach(() => {
-    // @ts-ignore
-    OIDC.mockClear();
-  });
+    // @ts-expect-error
+    OIDC.mockClear()
+  })
 
   describe('account.use-google-sso.view', () => {
     it('should contain an explanation of the process for opting out', async () => {
-      ctx = setUpUAA(uaaData.ssoUser);
-      const response = await account.getUseGoogleSSO(ctx, {});
-      expect(response.body).toContain('id="opt-out-process-explanation"');
+      ctx = setUpUAA(uaaData.ssoUser)
+      const response = await account.getUseGoogleSSO(ctx, {})
+      expect(response.body).toContain('id="opt-out-process-explanation"')
       expect(
-        spacesMissingAroundInlineElements(response.body as string),
-      ).toHaveLength(0);
-    });
+        spacesMissingAroundInlineElements(response.body as string)
+      ).toHaveLength(0)
+    })
 
     it('throws an error view when Google SSO is not configured', async () => {
       ctx = createTestContext();
 
-      (ctx as any).app.oidcProviders.clear();
+      (ctx as any).app.oidcProviders.clear()
 
-      await expect(account.getUseGoogleSSO(ctx, {})).rejects.toThrowError();
-    });
+      await expect(account.getUseGoogleSSO(ctx, {})).rejects.toThrowError()
+    })
 
     it('returns a confirmation page', async () => {
-      ctx = setUpUAA(uaaData.user);
-      const response = await account.getUseGoogleSSO(ctx, {});
-      expect(response.body).toContain('Activate');
+      ctx = setUpUAA(uaaData.user)
+      const response = await account.getUseGoogleSSO(ctx, {})
+      expect(response.body).toContain('Activate')
       expect(
-        spacesMissingAroundInlineElements(response.body as string),
-      ).toHaveLength(0);
-    });
-  });
+        spacesMissingAroundInlineElements(response.body as string)
+      ).toHaveLength(0)
+    })
+  })
 
   describe('account.use-google-sso.post', () => {
     it('throws an error view when Google SSO is not configured', async () => {
       ctx = createTestContext();
 
-      (ctx as any).app.oidcProviders.clear();
+      (ctx as any).app.oidcProviders.clear()
 
-      await expect(account.postUseGoogleSSO(ctx, {})).rejects.toThrowError();
-    });
+      await expect(account.postUseGoogleSSO(ctx, {})).rejects.toThrowError()
+    })
 
     it('redirects to the OIDC authority\'s authorization endpoint', async () => {
-      ctx = setUpUAA(uaaData.user);
+      ctx = setUpUAA(uaaData.user)
 
-      const redirectURL = 'https://foo.bar';
+      const redirectURL = 'https://foo.bar'
 
-      // @ts-ignore
+      // @ts-expect-error
       OIDC.mockImplementation(() => {
         return {
           getAuthorizationOIDCURL: () => {
-            return redirectURL;
-          },
-        };
-      });
+            return redirectURL
+          }
+        }
+      })
 
-      const response = await account.postUseGoogleSSO(ctx, {});
-      expect(response.redirect).toEqual(redirectURL);
-    });
-  });
+      const response = await account.postUseGoogleSSO(ctx, {})
+      expect(response.redirect).toEqual(redirectURL)
+    })
+  })
 
   describe('account.use-google-sso-callback.get', () => {
     it('throws an error view when Google SSO is not configured', async () => {
       ctx = createTestContext();
 
-      (ctx as any).app.oidcProviders.clear();
+      (ctx as any).app.oidcProviders.clear()
 
       await expect(
-        account.getGoogleOIDCCallback(ctx, {}),
-      ).rejects.toThrowError();
-    });
+        account.getGoogleOIDCCallback(ctx, {})
+      ).rejects.toThrowError()
+    })
 
     describe('when the OIDC provider returns an error', () => {
       it('if the error is "access_denied", returns an access denied message', async () => {
-        ctx = createTestContext();
-        const state = 'foobar';
+        ctx = createTestContext()
+        const state = 'foobar'
 
         const params = {
           error: 'access_denied',
           error_description: 'Access denied',
           error_uri: '',
-          state,
-        };
+          state
+        }
 
-        const response = await account.getGoogleOIDCCallback(ctx, params);
-        expect(response.body).toContain('Access Denied');
+        const response = await account.getGoogleOIDCCallback(ctx, params)
+        expect(response.body).toContain('Access Denied')
         expect(
-          spacesMissingAroundInlineElements(response.body as string),
-        ).toHaveLength(0);
-      });
+          spacesMissingAroundInlineElements(response.body as string)
+        ).toHaveLength(0)
+      })
 
       it('if the error is "temporarily_unavailable", returns a try again error', async () => {
-        ctx = createTestContext();
-        const state = 'foobar';
+        ctx = createTestContext()
+        const state = 'foobar'
 
         const params = {
           error: 'temporarily_unavailable',
           error_description: 'Temporarily unavailable',
           error_uri: '',
-          state,
-        };
+          state
+        }
 
-        const response = await account.getGoogleOIDCCallback(ctx, params);
-        expect(response.body).toContain('try again later');
+        const response = await account.getGoogleOIDCCallback(ctx, params)
+        expect(response.body).toContain('try again later')
         expect(
-          spacesMissingAroundInlineElements(response.body as string),
-        ).toHaveLength(0);
-      });
+          spacesMissingAroundInlineElements(response.body as string)
+        ).toHaveLength(0)
+      })
 
       it('if the error is not "access_denied" or "temporarily_unavailable", returns a generic error', async () => {
-        ctx = createTestContext();
-        const state = 'foobar';
+        ctx = createTestContext()
+        const state = 'foobar'
 
         const params = {
           error: 'server_error',
           error_description: 'Server error',
           error_uri: '',
-          state,
-        };
+          state
+        }
 
         await expect(
-          account.getGoogleOIDCCallback(ctx, params),
-        ).rejects.toThrowError();
-      });
+          account.getGoogleOIDCCallback(ctx, params)
+        ).rejects.toThrowError()
+      })
 
       it('logs any error received', async () => {
         ctx = createTestContext();
-        (ctx as any).app.logger.error = jest.fn();
-        const state = 'foobar';
+        (ctx as any).app.logger.error = jest.fn()
+        const state = 'foobar'
 
         const params = {
           error: 'server_error',
           error_description: 'Server error',
           error_uri: '',
-          state,
-        };
+          state
+        }
 
         await expect(
-          account.getGoogleOIDCCallback(ctx, params),
-        ).rejects.toThrowError();
-        expect(ctx.app.logger.error).toHaveBeenCalled();
-      });
-    });
+          account.getGoogleOIDCCallback(ctx, params)
+        ).rejects.toThrowError()
+        expect(ctx.app.logger.error).toHaveBeenCalled()
+      })
+    })
 
     it('when the callback is successful, returns a success template', async () => {
-      // @ts-ignore
+      // @ts-expect-error
       OIDC.mockImplementation(() => {
         return {
-          oidcCallback: async () => await Promise.resolve(true),
-        };
-      });
+          oidcCallback: async () => await Promise.resolve(true)
+        }
+      })
 
-      ctx = createTestContext();
+      ctx = createTestContext()
 
-      const response = await account.getGoogleOIDCCallback(ctx, {});
-      expect((response.body as string).toLowerCase()).toContain('successful');
+      const response = await account.getGoogleOIDCCallback(ctx, {})
+      expect((response.body as string).toLowerCase()).toContain('successful')
       expect(
-        spacesMissingAroundInlineElements(response.body as string),
-      ).toHaveLength(0);
-    });
+        spacesMissingAroundInlineElements(response.body as string)
+      ).toHaveLength(0)
+    })
 
     it('when the callback is unsuccessful, returns a failure template', async () => {
-      // @ts-ignore
+      // @ts-expect-error
       OIDC.mockImplementation(() => {
         return {
-          oidcCallback: async () => await Promise.resolve(false),
-        };
-      });
+          oidcCallback: async () => await Promise.resolve(false)
+        }
+      })
 
-      ctx = createTestContext();
+      ctx = createTestContext()
 
-      const response = await account.getGoogleOIDCCallback(ctx, {});
+      const response = await account.getGoogleOIDCCallback(ctx, {})
       expect((response.body as string).toLowerCase()).toContain(
-        'unable to activate',
-      );
+        'unable to activate'
+      )
       expect(
-        spacesMissingAroundInlineElements(response.body as string),
-      ).toHaveLength(0);
-    });
-  });
-});
+        spacesMissingAroundInlineElements(response.body as string)
+      ).toHaveLength(0)
+    })
+  })
+})

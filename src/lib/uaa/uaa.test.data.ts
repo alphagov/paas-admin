@@ -1,4 +1,4 @@
-export const userId = '47ea627c-45b4-4b2b-ab76-3683068fdc89';
+export const userId = '47ea627c-45b4-4b2b-ab76-3683068fdc89'
 
 export const usersByEmail = `{
   "resources" : [ {
@@ -14,7 +14,7 @@ export const usersByEmail = `{
   "itemsPerPage" : 50,
   "totalResults" : 1,
   "schemas" : [ "urn:scim:schemas:core:1.0" ]
-}`;
+}`
 
 export const user = `{
   "id" : "47ea627c-45b4-4b2b-ab76-3683068fdc89",
@@ -116,7 +116,7 @@ export const user = `{
   "previousLogonTime" : 1527032725655,
   "lastLogonTime" : 1527032725657,
   "schemas" : [ "urn:scim:schemas:core:1.0" ]
-}`;
+}`
 
 export const gdsUser = `{
   "id" : "47ea627c-45b4-4b2b-ab76-3683068fdc89",
@@ -218,7 +218,7 @@ export const gdsUser = `{
   "previousLogonTime" : 1527032725655,
   "lastLogonTime" : 1527032725657,
   "schemas" : [ "urn:scim:schemas:core:1.0" ]
-}`;
+}`
 
 export const ssoUser = `{
   "id" : "47ea627c-45b4-4b2b-ab76-3683068fdc89",
@@ -320,7 +320,7 @@ export const ssoUser = `{
   "previousLogonTime" : 1527032725655,
   "lastLogonTime" : 1527032725657,
   "schemas" : [ "urn:scim:schemas:core:1.0" ]
-}`;
+}`
 
 export const noFoundUsersByEmail = `{
   "resources" : [],
@@ -328,7 +328,7 @@ export const noFoundUsersByEmail = `{
   "itemsPerPage" : 50,
   "totalResults" : 0,
   "schemas" : [ "urn:scim:schemas:core:1.0" ]
-}`;
+}`
 
 export const invite = `{
     "new_invites" : [
@@ -343,4 +343,4 @@ export const invite = `{
       }
     ],
     "failed_invites" : [ ]
-}`;
+}`

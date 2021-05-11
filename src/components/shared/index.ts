@@ -1,1 +1,1 @@
-export * from './success-page';
+export * from './success-page'

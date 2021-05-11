@@ -1,3 +1,3 @@
 declare module '*.pegjs' {
-  export function parse(expression: string): number;
+  export function parse (expression: string): number
 }

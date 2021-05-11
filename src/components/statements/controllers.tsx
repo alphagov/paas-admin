@@ -1,114 +1,112 @@
-import moment from 'moment';
-import React from 'react';
+import moment from 'moment'
+import React from 'react'
 
-import { Template } from '../../layouts';
-import { BillingClient } from '../../lib/billing';
-import CloudFoundryClient from '../../lib/cf';
-import { IParameters, IResponse } from '../../lib/router';
-import { IContext } from '../app/context';
+import { Template } from '../../layouts'
+import { BillingClient } from '../../lib/billing'
+import CloudFoundryClient from '../../lib/cf'
+import { IParameters, IResponse } from '../../lib/router'
+import { IContext } from '../app/context'
 import {
   CLOUD_CONTROLLER_ADMIN,
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-  CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-} from '../auth';
-import { IOrganizationSkeleton, fromOrg } from '../breadcrumbs';
-import { UserFriendlyError } from '../errors';
+  CLOUD_CONTROLLER_READ_ONLY_ADMIN
+} from '../auth'
+import { IOrganizationSkeleton, fromOrg } from '../breadcrumbs'
+import { UserFriendlyError } from '../errors'
 
-import { IFilterResource, StatementsPage } from './views';
+import { IFilterResource, StatementsPage } from './views'
 
 interface IResourceUsage {
-  readonly resourceGUID: string;
-  readonly resourceName: string;
-  readonly resourceType: string;
-  readonly orgGUID: string;
-  readonly spaceGUID: string;
-  readonly spaceName: string;
-  readonly planGUID: string;
-  readonly planName: string;
+  readonly resourceGUID: string
+  readonly resourceName: string
+  readonly resourceType: string
+  readonly orgGUID: string
+  readonly spaceGUID: string
+  readonly spaceName: string
+  readonly planGUID: string
+  readonly planName: string
   readonly price: {
-    readonly incVAT: number;
-    readonly exVAT: number;
-  };
+    readonly incVAT: number
+    readonly exVAT: number
+  }
 }
 
 interface IResourceGroup {
-  readonly [key: string]: IResourceUsage;
+  readonly [key: string]: IResourceUsage
 }
 
 interface IFilterTuple {
-  readonly guid: string;
-  readonly name: string;
+  readonly guid: string
+  readonly name: string
 }
 
 interface IResourceWithResourceName {
-  readonly resourceName: string;
+  readonly resourceName: string
 }
 
 interface IResourceWithPlanName {
-  readonly planName: string;
+  readonly planName: string
 }
 
-export type ISortableBy = 'name' | 'space' | 'plan' | 'amount';
-export type ISortableDirection = 'asc' | 'desc';
+export type ISortableBy = 'name' | 'space' | 'plan' | 'amount'
+export type ISortableDirection = 'asc' | 'desc'
 
 export interface ISortable {
-  readonly sort: ISortableBy;
-  readonly order: ISortableDirection;
+  readonly sort: ISortableBy
+  readonly order: ISortableDirection
 }
 
-const YYYMMDD = 'YYYY-MM-DD';
+const YYYMMDD = 'YYYY-MM-DD'
 
-
-
-export function sortByName(a: IFilterTuple, b: IFilterTuple): number {
+export function sortByName (a: IFilterTuple, b: IFilterTuple): number {
   if (a.name < b.name) {
-    return -1;
+    return -1
   }
   if (a.name > b.name) {
-    return 1;
+    return 1
   }
 
-  return 0;
+  return 0
 }
 
-export function sortByResourceName(a: IResourceWithResourceName, b: IResourceWithResourceName): number {
+export function sortByResourceName (a: IResourceWithResourceName, b: IResourceWithResourceName): number {
   if (a.resourceName < b.resourceName) {
-    return -1;
+    return -1
   }
   if (a.resourceName > b.resourceName) {
-    return 1;
+    return 1
   }
 
-  return 0;
+  return 0
 }
 
-export function sortByPlan(a: IResourceWithPlanName, b: IResourceWithPlanName): number {
+export function sortByPlan (a: IResourceWithPlanName, b: IResourceWithPlanName): number {
   if (a.planName < b.planName) {
-    return -1;
+    return -1
   }
   if (a.planName > b.planName) {
-    return 1;
+    return 1
   }
 
-  return 0;
+  return 0
 }
 
-export function sortBySpace(a: IResourceUsage, b: IResourceUsage): number {
+export function sortBySpace (a: IResourceUsage, b: IResourceUsage): number {
   if (a.spaceName < b.spaceName) {
-    return -1;
+    return -1
   }
   if (a.spaceName > b.spaceName) {
-    return 1;
+    return 1
   }
 
-  return 0;
+  return 0
 }
 
-export function composeCSV(
-  items: ReadonlyArray<IResourceUsage>,
-  adminFee: number,
+export function composeCSV (
+  items: readonly IResourceUsage[],
+  adminFee: number
 ): string {
-  const lines = ['Name,Space,Plan,Ex VAT,Inc VAT'];
+  const lines = ['Name,Space,Plan,Ex VAT,Inc VAT']
 
   for (const item of items) {
     const fields = [
@@ -116,117 +114,117 @@ export function composeCSV(
       item.spaceName,
       item.planName,
       item.price.exVAT.toFixed(2),
-      item.price.incVAT.toFixed(2),
-    ];
+      item.price.incVAT.toFixed(2)
+    ]
 
-    lines.push(fields.join(','));
+    lines.push(fields.join(','))
   }
 
   /* istanbul ignore next */
   const totals = {
     exVAT: items.reduce((sum, event) => sum + event.price.exVAT, 0),
-    incVAT: items.reduce((sum, event) => sum + event.price.incVAT, 0),
-  };
+    incVAT: items.reduce((sum, event) => sum + event.price.incVAT, 0)
+  }
   const adminFees = {
     exVAT: totals.exVAT * adminFee,
-    incVAT: totals.incVAT * adminFee,
-  };
+    incVAT: totals.incVAT * adminFee
+  }
   const toatlsIncludingAdminFee = {
     exVAT: (totals.exVAT + adminFees.exVAT).toFixed(2),
-    incVAT: (totals.incVAT + adminFees.incVAT).toFixed(2),
-  };
+    incVAT: (totals.incVAT + adminFees.incVAT).toFixed(2)
+  }
 
-  lines.push(',,,,');
+  lines.push(',,,,')
   lines.push(
     `10% Administration fees,,,${adminFees.exVAT.toFixed(
-      2,
-    )},${adminFees.incVAT.toFixed(2)}`,
-  );
+      2
+    )},${adminFees.incVAT.toFixed(2)}`
+  )
   lines.push(
-    `Total,,,${toatlsIncludingAdminFee.exVAT},${toatlsIncludingAdminFee.incVAT}`,
-  );
+    `Total,,,${toatlsIncludingAdminFee.exVAT},${toatlsIncludingAdminFee.incVAT}`
+  )
 
-  return lines.join('\n');
+  return lines.join('\n')
 }
 
-export function order(list: ReadonlyArray<IResourceUsage>, sort: ISortable): ReadonlyArray<IResourceUsage> {
-  const items = [...list];
+export function order (list: readonly IResourceUsage[], sort: ISortable): readonly IResourceUsage[] {
+  const items = [...list]
 
   switch (sort.sort) {
     case 'plan':
-      items.sort(sortByPlan);
-      break;
+      items.sort(sortByPlan)
+      break
     case 'space':
-      items.sort(sortBySpace);
-      break;
+      items.sort(sortBySpace)
+      break
     case 'amount':
-      items.sort((x, y) => x.price.incVAT - y.price.incVAT);
-      break;
+      items.sort((x, y) => x.price.incVAT - y.price.incVAT)
+      break
     case 'name':
     default:
-      items.sort(sortByResourceName);
+      items.sort(sortByResourceName)
   }
 
-  return sort.order === 'asc' ? items : items.reverse();
+  return sort.order === 'asc' ? items : items.reverse()
 }
 
-export async function statementRedirection(
+export async function statementRedirection (
   ctx: IContext,
-  params: IParameters,
+  params: IParameters
 ): Promise<IResponse> {
-  const date = params.rangeStart ? moment(params.rangeStart) : moment();
+  const date = params.rangeStart ? moment(params.rangeStart) : moment()
 
   return await Promise.resolve({
     redirect: ctx.linkTo('admin.statement.view', {
       ...params,
-      rangeStart: date.startOf('month').format(YYYMMDD),
-    }),
-  });
+      rangeStart: date.startOf('month').format(YYYMMDD)
+    })
+  })
 }
 
-export async function viewStatement(
+export async function viewStatement (
   ctx: IContext,
-  params: IParameters,
+  params: IParameters
 ): Promise<IResponse> {
-  const rangeStart = moment(params.rangeStart, YYYMMDD);
-  const filterSpace = params.space ? params.space : 'none';
-  const filterService = params.service ? params.service : 'none';
+  const rangeStart = moment(params.rangeStart, YYYMMDD)
+  const filterSpace = params.space ? params.space : 'none'
+  const filterService = params.service ? params.service : 'none'
   if (!rangeStart.isValid()) {
-    throw new Error('Billing Statement: invalid rangeStart provided');
+    throw new Error('Billing Statement: invalid rangeStart provided')
   }
 
   if (rangeStart.date() > 1) {
     throw new Error(
-      'Billing Statement: expected rangeStart to be the first day of the month',
-    );
+      'Billing Statement: expected rangeStart to be the first day of the month'
+    )
   }
 
-  const currentMonth = rangeStart.format('MMMM');
+  const currentMonth = rangeStart.format('MMMM')
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
   const isAdmin = ctx.token.hasAnyScope(
     CLOUD_CONTROLLER_ADMIN,
     CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-  );
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR
+  )
 
   let organization: IOrganizationSkeleton = {
     metadata: { guid: params.organizationGUID },
-    entity: { name: 'deleted-org' },
-  };
+    entity: { name: 'deleted-org' }
+  }
 
   // we still want to check bills for deleted orgs
   try {
-    organization = await cf.organization(params.organizationGUID);
-  } catch(e) {
+    organization = await cf.organization(params.organizationGUID)
+  } catch (e) {
     /* istanbul ignore next */
     if (e.code != 404 && !isAdmin) {
-      throw e;
+      throw e
     }
   }
 
@@ -235,42 +233,42 @@ export async function viewStatement(
       cf.hasOrganizationRole(
         params.organizationGUID,
         ctx.token.userID,
-        'org_manager',
+        'org_manager'
       ),
       cf.hasOrganizationRole(
         params.organizationGUID,
         ctx.token.userID,
-        'billing_manager',
-      ),
-    ]);
+        'billing_manager'
+      )
+    ])
 
     /* istanbul ignore next */
     if (!isManager && !isBillingManager) {
       throw new UserFriendlyError(
-        'Billing is currently unavailable, please try again later.',
-      );
+        'Billing is currently unavailable, please try again later.'
+      )
     }
   }
 
   const billingClient = new BillingClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.billingAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
   const filter = {
     orgGUIDs: [organization.metadata.guid],
     rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStart.add(1, 'month').toDate(),
-  };
+    rangeStop: rangeStart.add(1, 'month').toDate()
+  }
 
-  let events;
+  let events
   try {
-    events = await billingClient.getBillableEvents(filter);
+    events = await billingClient.getBillableEvents(filter)
   } catch {
     throw new UserFriendlyError(
-      'Billing is currently unavailable, please try again later.',
-    );
+      'Billing is currently unavailable, please try again later.'
+    )
   }
 
   /* istanbul ignore next */
@@ -278,13 +276,13 @@ export async function viewStatement(
     ...ev,
     resourceName: /__conduit_\d+__/.test(ev.resourceName)
       ? 'conduit-tunnel'
-      : ev.resourceName,
-  }));
+      : ev.resourceName
+  }))
 
-  const currencyRates = await billingClient.getCurrencyRates(filter);
+  const currencyRates = await billingClient.getCurrencyRates(filter)
   const usdCurrencyRates = currencyRates.filter(
-    currencyRate => currencyRate.code === 'USD',
-  );
+    currencyRate => currencyRate.code === 'USD'
+  )
 
   /* istanbul ignore next */
   const itemsObject: IResourceGroup = cleanEvents.reduce(
@@ -293,9 +291,9 @@ export async function viewStatement(
         event.orgGUID,
         event.spaceGUID,
         event.planGUID,
-        event.resourceName,
-      ].join(':');
-      const { [key]: resource, ...rest } = resources;
+        event.resourceName
+      ].join(':')
+      const { [key]: resource, ...rest } = resources
 
       if (!resource) {
         return {
@@ -305,12 +303,12 @@ export async function viewStatement(
             planName:
               event.price.details
                 .map(pc => pc.planName.replace('Free', 'micro'))
-                .find(name => name !== '') || 'unknown',
-          },
-        };
+                .find(name => name !== '') || 'unknown'
+          }
+        }
       }
 
-      const { price, ...resourceFields } = resource;
+      const { price, ...resourceFields } = resource
 
       return {
         ...rest,
@@ -318,72 +316,72 @@ export async function viewStatement(
           ...resourceFields,
           price: {
             exVAT: price.exVAT + event.price.exVAT,
-            incVAT: price.incVAT + event.price.incVAT,
-          },
-        },
-      };
+            incVAT: price.incVAT + event.price.incVAT
+          }
+        }
+      }
     },
-    {},
-  );
+    {}
+  )
 
-  const items = Object.values(itemsObject);
+  const items = Object.values(itemsObject)
 
-  const listOfPastYearMonths: { [i: string]: string } = {};
+  const listOfPastYearMonths: { [i: string]: string } = {}
 
   for (let i = 0; i < 12; i++) {
     const month = moment()
       .subtract(i, 'month')
-      .startOf('month');
+      .startOf('month')
 
     listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format(
-      'MMMM',
-    )} ${month.format('YYYY')}`;
+      'MMMM'
+    )} ${month.format('YYYY')}`
   }
 
-  const orderBy = params.sort || 'name';
-  const orderDirection = params.order || 'asc';
+  const orderBy = params.sort || 'name'
+  const orderDirection = params.order || 'asc'
 
-  const spaces = items.reduce((all: ReadonlyArray<IFilterResource>, next) => {
-    return !all.find(i => i.guid === next.spaceGUID) ? [ ...all, { guid: next.spaceGUID, name: next.spaceName } ] : all;
-  }, []);
+  const spaces = items.reduce((all: readonly IFilterResource[], next) => {
+    return (all.find(i => i.guid === next.spaceGUID) == null) ? [...all, { guid: next.spaceGUID, name: next.spaceName }] : all
+  }, [])
 
-  const plans = items.reduce((all: ReadonlyArray<IFilterResource>, next) => {
-    return !all.find(i => i.guid === next.planGUID) ? [ ...all, { guid: next.planGUID, name: next.planName } ] : all;
-  }, []);
+  const plans = items.reduce((all: readonly IFilterResource[], next) => {
+    return (all.find(i => i.guid === next.planGUID) == null) ? [...all, { guid: next.planGUID, name: next.planName }] : all
+  }, [])
 
   const listSpaces = [
     { guid: 'none', name: 'All spaces' },
-    ...[...spaces].sort(sortByName),
-  ];
+    ...[...spaces].sort(sortByName)
+  ]
   const listPlans = [
     { guid: 'none', name: 'All Services' },
-    ...[...plans].sort(sortByName),
-  ];
+    ...[...plans].sort(sortByName)
+  ]
 
   const unorderedFilteredItems = items.filter(
     item =>
       (filterSpace === 'none' || item.spaceGUID === filterSpace) &&
-      (filterService === 'none' || item.planGUID === filterService),
-  );
+      (filterService === 'none' || item.planGUID === filterService)
+  )
   const filteredItems = order(unorderedFilteredItems, {
     order: orderDirection,
-    sort: orderBy,
-  });
+    sort: orderBy
+  })
 
   if (params.download) {
     return {
       download: {
         data: composeCSV(filteredItems, ctx.app.adminFee),
-        name: `statement-${rangeStart.format(YYYMMDD)}.csv`,
-      },
-    };
+        name: `statement-${rangeStart.format(YYYMMDD)}.csv`
+      }
+    }
   }
 
   /* istanbul ignore next */
   const totals = {
     exVAT: filteredItems.reduce((sum, event) => sum + event.price.exVAT, 0),
-    incVAT: filteredItems.reduce((sum, event) => sum + event.price.incVAT, 0),
-  };
+    incVAT: filteredItems.reduce((sum, event) => sum + event.price.incVAT, 0)
+  }
 
   const updatedTitle = `Organisation ${organization.entity.name} Monthly billing statement\
     for ${currentMonth}\
@@ -397,12 +395,12 @@ export async function viewStatement(
     }\
     ordered by ${orderBy === 'amount' ? 'Inc VAT' : orderBy} column
     in ${orderDirection === 'asc' ? 'ascending' : 'descending'} order
-  `;
+  `
 
-  const template = new Template(ctx.viewContext, updatedTitle);
+  const template = new Template(ctx.viewContext, updatedTitle)
   template.breadcrumbs = fromOrg(ctx, organization, [
-    { text: 'Monthly billing statement' },
-  ]);
+    { text: 'Monthly billing statement' }
+  ])
 
   return {
     body: template.render(
@@ -420,7 +418,7 @@ export async function viewStatement(
         csrf={ctx.viewContext.csrf}
         filterMonth={params.rangeStart}
         filterService={listPlans.find(
-          i => i.guid === (params.service || 'none'),
+          i => i.guid === (params.service || 'none')
         )}
         filterSpace={listSpaces.find(i => i.guid === (params.space || 'none'))}
         linkTo={ctx.linkTo}
@@ -429,14 +427,14 @@ export async function viewStatement(
         orderBy={orderBy}
         orderDirection={orderDirection}
         items={filteredItems}
-      />,
-    ),
-  };
+      />
+    )
+  }
 }
 
-export async function downloadCSV(
+export async function downloadCSV (
   ctx: IContext,
-  params: IParameters,
+  params: IParameters
 ): Promise<IResponse> {
-  return await viewStatement(ctx, { ...params, download: true });
+  return await viewStatement(ctx, { ...params, download: true })
 }

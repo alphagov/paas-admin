@@ -1,29 +1,29 @@
-import { IContext } from '../app';
+import { IContext } from '../app'
 
-import { IBreadcrumbsItem } from './views';
+import { IBreadcrumbsItem } from './views'
 
 export interface IOrganizationSkeleton {
   readonly metadata: {
-    readonly guid: string;
-  };
+    readonly guid: string
+  }
   readonly entity: {
-    readonly name: string;
-  };
+    readonly name: string
+  }
 }
 
-export function fromOrg(
+export function fromOrg (
   ctx: IContext,
   organization: IOrganizationSkeleton,
-  children: ReadonlyArray<IBreadcrumbsItem>,
-): ReadonlyArray<IBreadcrumbsItem> {
+  children: readonly IBreadcrumbsItem[]
+): readonly IBreadcrumbsItem[] {
   return [
     { text: 'Organisations', href: ctx.linkTo('admin.organizations') },
     {
       text: organization.entity.name,
       href: ctx.linkTo('admin.organizations.view', {
-        organizationGUID: organization.metadata.guid,
-      }),
+        organizationGUID: organization.metadata.guid
+      })
     },
-    ...children,
-  ];
+    ...children
+  ]
 }

@@ -1,63 +1,63 @@
-import { createServer } from 'http';
+import { createServer } from 'http'
 
 interface IServerOptions {
-  readonly port?: number;
+  readonly port?: number
 }
 
 export default class Server {
-  public http: any;
+  public http: any
 
-  private handler: any;
-  private readonly port: number;
+  private handler: any
+  private readonly port: number
 
-  constructor(handler: any, opts: IServerOptions = {}) {
-    this.handler = handler;
-    this.port = opts.port || 0;
+  constructor (handler: any, opts: IServerOptions = {}) {
+    this.handler = handler
+    this.port = opts.port || 0
   }
 
-  public async start() {
+  public async start () {
     if (this.http) {
-      throw new Error('Server: cannot start server: server is already started');
+      throw new Error('Server: cannot start server: server is already started')
     }
-    this.http = createServer(this.handler);
-    this.http.listen(this.port);
+    this.http = createServer(this.handler)
+    this.http.listen(this.port)
 
     return await new Promise((resolve, reject) => {
-      this.http.once('listening', () => resolve(this));
-      this.http.once('error', reject);
-    });
+      this.http.once('listening', () => resolve(this))
+      this.http.once('error', reject)
+    })
   }
 
-  public async stop() {
+  public async stop () {
     if (!this.http) {
-      throw new Error('Server: cannot stop server: server is not started');
+      throw new Error('Server: cannot stop server: server is not started')
     }
-    const wait = this.wait();
-    const h = this.http;
-    this.http = null;
-    h.close();
+    const wait = this.wait()
+    const h = this.http
+    this.http = null
+    h.close()
 
-    return await wait;
+    return await wait
   }
 
-  public async wait() {
+  public async wait () {
     if (!this.http) {
-      throw new Error('Server: cannot wait on server: server is not started');
+      throw new Error('Server: cannot wait on server: server is not started')
     }
 
     return await new Promise((resolve, reject) => {
-      this.http.once('close', resolve);
-      this.http.once('error', reject);
-    });
+      this.http.once('close', resolve)
+      this.http.once('error', reject)
+    })
   }
 
-  public update(handler: any) {
-    const oldHandler = this.handler;
-    this.handler = handler;
+  public update (handler: any) {
+    const oldHandler = this.handler
+    this.handler = handler
     if (!this.http) {
-      return;
+      return
     }
-    this.http.removeListener('request', oldHandler);
-    this.http.on('request', this.handler);
+    this.http.removeListener('request', oldHandler)
+    this.http.on('request', this.handler)
   }
 }

@@ -1,2 +1,2 @@
-export * from './controllers';
-export * from './redirect';
+export * from './controllers'
+export * from './redirect'

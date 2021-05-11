@@ -1,59 +1,58 @@
-import * as cw from '@aws-sdk/client-cloudwatch-node';
-import _ from 'lodash';
-import moment from 'moment';
+import * as cw from '@aws-sdk/client-cloudwatch-node'
+import _ from 'lodash'
+import moment from 'moment'
 
+import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics'
 
-import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
-
-import { CloudWatchMetricDataGetter, ICloudWatchMetric } from './cloudwatch';
+import { CloudWatchMetricDataGetter, ICloudWatchMetric } from './cloudwatch'
 
 const rdsMetricPropertiesById: { [key in MetricName]: ICloudWatchMetric } = {
   mFreeStorageSpace: {
     name: 'FreeStorageSpace',
-    stat: 'Average',
+    stat: 'Average'
   },
   mCPUUtilization: {
     name: 'CPUUtilization',
-    stat: 'Average',
+    stat: 'Average'
   },
   mDatabaseConnections: {
     name: 'DatabaseConnections',
-    stat: 'Average',
+    stat: 'Average'
   },
   mFreeableMemory: {
     name: 'FreeableMemory',
-    stat: 'Average',
+    stat: 'Average'
   },
   mReadIOPS: {
     name: 'ReadIOPS',
-    stat: 'Average',
+    stat: 'Average'
   },
   mWriteIOPS: {
     name: 'WriteIOPS',
-    stat: 'Average',
-  },
-};
+    stat: 'Average'
+  }
+}
 
-export const rdsMetricNames = Object.keys(rdsMetricPropertiesById);
+export const rdsMetricNames = Object.keys(rdsMetricPropertiesById)
 
 export class RDSMetricDataGetter extends CloudWatchMetricDataGetter
   implements IMetricDataGetter {
-  constructor(private readonly cloudwatchClient: cw.CloudWatchClient) {
-    super();
+  constructor (private readonly cloudwatchClient: cw.CloudWatchClient) {
+    super()
   }
 
-  public getRdsDbInstanceIdentifier(guid: string): string {
-    return `rdsbroker-${guid}`;
+  public getRdsDbInstanceIdentifier (guid: string): string {
+    return `rdsbroker-${guid}`
   }
 
-  public async getData(
-    metricNames: ReadonlyArray<MetricName>,
+  public async getData (
+    metricNames: readonly MetricName[],
     guid: string,
     period: moment.Duration,
     rangeStart: moment.Moment,
-    rangeStop: moment.Moment,
-  ): Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }> {
-    const instanceId = this.getRdsDbInstanceIdentifier(guid);
+    rangeStop: moment.Moment
+  ): Promise<{ [key in MetricName]: readonly IMetricSerie[] }> {
+    const instanceId = this.getRdsDbInstanceIdentifier(guid)
 
     const metricDataInputs = [
       {
@@ -63,30 +62,30 @@ export class RDSMetricDataGetter extends CloudWatchMetricDataGetter
             Metric: {
               Dimensions: [{ Name: 'DBInstanceIdentifier', Value: instanceId }],
               MetricName: rdsMetricPropertiesById[metricId].name,
-              Namespace: 'AWS/RDS',
+              Namespace: 'AWS/RDS'
             },
             Period: period.asSeconds(),
-            Stat: rdsMetricPropertiesById[metricId].stat,
-          },
+            Stat: rdsMetricPropertiesById[metricId].stat
+          }
         })),
         StartTime: rangeStart.toDate(),
-        EndTime: rangeStop.toDate(),
-      },
-    ];
+        EndTime: rangeStop.toDate()
+      }
+    ]
 
     const responses = await Promise.all(
       metricDataInputs.map(async input =>
-        await this.cloudwatchClient.send(new cw.GetMetricDataCommand(input)),
-      ),
-    );
+        await this.cloudwatchClient.send(new cw.GetMetricDataCommand(input))
+      )
+    )
 
     const results = _.flatMap(
       responses,
-      response => response.MetricDataResults!,
-    );
+      response => response.MetricDataResults!
+    )
 
     return Promise.resolve(
-      this.addPlaceholderData(results, period, rangeStart, rangeStop),
-    );
+      this.addPlaceholderData(results, period, rangeStart, rangeStop)
+    )
   }
 }

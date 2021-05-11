@@ -1,18 +1,18 @@
-import moment from 'moment';
-import nock from 'nock';
-import pino from 'pino';
+import moment from 'moment'
+import nock from 'nock'
+import pino from 'pino'
 
-import { config } from '../../components/app/app.test.config';
+import { config } from '../../components/app/app.test.config'
 
-import { IUsageEvent } from './types';
+import { IUsageEvent } from './types'
 
-import { BillingClient } from '.';
+import { BillingClient } from '.'
 
 describe('lib/billing test suite', () => {
   it('should return billable events', async () => {
     nock(config.billingAPI)
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+        '/billable_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275'
       )
       .reply(
         200,
@@ -58,26 +58,26 @@ describe('lib/billing test suite', () => {
             }
           ]
         }
-      }]`,
-      );
+      }]`
+      )
 
     const bc = new BillingClient({
       accessToken: '__ACCESS_TOKEN__',
       apiEndpoint: config.billingAPI,
-      logger: pino({ level: 'silent' }),
-    });
+      logger: pino({ level: 'silent' })
+    })
     const response = await bc.getBillableEvents({
       orgGUIDs: ['3deb9f04-b449-4f94-b3dd-c73cefe5b275'],
       rangeStart: moment('2018-01-01').toDate(),
-      rangeStop: moment('2018-01-02').toDate(),
-    });
+      rangeStop: moment('2018-01-02').toDate()
+    })
 
-    expect(response.length).toEqual(1);
-    expect(response[0].price.exVAT).toEqual(0.02);
-  });
+    expect(response.length).toEqual(1)
+    expect(response[0].price.exVAT).toEqual(0.02)
+  })
 
   it('should return forecast events', async () => {
-    const fakeEvents: ReadonlyArray<IUsageEvent> = [
+    const fakeEvents: readonly IUsageEvent[] = [
       {
         eventGUID: '00000000-0000-0000-0000-000000000001',
         eventStart: moment('2018-01-01').toDate(),
@@ -91,9 +91,9 @@ describe('lib/billing test suite', () => {
         resourceType: 'app',
         spaceGUID: '00000001-0001-0000-0000-000000000000',
         spaceName: 'spaceName',
-        storageInMB: 1024,
-      },
-    ];
+        storageInMB: 1024
+      }
+    ]
 
     nock(config.billingAPI)
       .filteringPath(/forecast_events.+/g, 'forecast_events')
@@ -132,24 +132,24 @@ describe('lib/billing test suite', () => {
               ]
             }
           }
-        ]`,
-      );
+        ]`
+      )
 
     const bc = new BillingClient({
       accessToken: '__ACCESS_TOKEN__',
       apiEndpoint: config.billingAPI,
-      logger: pino({ level: 'silent' }),
-    });
+      logger: pino({ level: 'silent' })
+    })
     const response = await bc.getForecastEvents({
       events: fakeEvents,
       orgGUIDs: ['3deb9f04-b449-4f94-b3dd-c73cefe5b275'],
       rangeStart: moment('2018-01-01').toDate(),
-      rangeStop: moment('2018-01-02').toDate(),
-    });
+      rangeStop: moment('2018-01-02').toDate()
+    })
 
-    expect(response.length).toEqual(1);
-    expect(response[0].price.exVAT).toEqual(0.01);
-  });
+    expect(response.length).toEqual(1)
+    expect(response[0].price.exVAT).toEqual(0.01)
+  })
 
   it('should return pricing plans', async () => {
     nock(config.billingAPI)
@@ -179,23 +179,23 @@ describe('lib/billing test suite', () => {
           "storage_in_mb": 265,
           "number_of_nodes": 2
         }
-      ]`,
-      );
+      ]`
+      )
 
     const bc = new BillingClient({
       accessToken: '__ACCESS_TOKEN__',
       apiEndpoint: config.billingAPI,
-      logger: pino({ level: 'silent' }),
-    });
+      logger: pino({ level: 'silent' })
+    })
     const response = await bc.getPricingPlans({
       rangeStart: moment('2018-01-01').toDate(),
-      rangeStop: moment('2018-01-02').toDate(),
-    });
+      rangeStop: moment('2018-01-02').toDate()
+    })
 
-    expect(response.length).toEqual(1);
-    expect(response[0].components[0].currencyCode).toEqual('GBP');
-    expect(response[0].validFrom.toString()).toContain('Jan 01 2002');
-  });
+    expect(response.length).toEqual(1)
+    expect(response[0].components[0].currencyCode).toEqual('GBP')
+    expect(response[0].validFrom.toString()).toContain('Jan 01 2002')
+  })
 
   it('should return currency rates', async () => {
     nock(config.billingAPI)
@@ -218,30 +218,30 @@ describe('lib/billing test suite', () => {
           "rate": 0.9,
           "valid_from": "2018-06-01"
         }
-      ]`,
-      );
+      ]`
+      )
 
     const bc = new BillingClient({
       accessToken: '__ACCESS_TOKEN__',
       apiEndpoint: config.billingAPI,
-      logger: pino({ level: 'silent' }),
-    });
+      logger: pino({ level: 'silent' })
+    })
     const response = await bc.getCurrencyRates({
       rangeStart: moment('2018-01-01').toDate(),
-      rangeStop: moment('2019-01-01').toDate(),
-    });
+      rangeStop: moment('2019-01-01').toDate()
+    })
 
-    expect(response.length).toEqual(3);
-    expect(response[0].code).toEqual('GBP');
-    expect(response[0].rate).toEqual(1.0);
-    expect(response[0].validFrom.toString()).toContain('Jan 01 2017');
-    expect(response[1].code).toEqual('USD');
-    expect(response[1].rate).toEqual(0.8);
-    expect(response[1].validFrom.toString()).toContain('Jan 01 2017');
-    expect(response[2].code).toEqual('USD');
-    expect(response[2].rate).toEqual(0.9);
-    expect(response[2].validFrom.toString()).toContain('Jun 01 2018');
-  });
+    expect(response.length).toEqual(3)
+    expect(response[0].code).toEqual('GBP')
+    expect(response[0].rate).toEqual(1.0)
+    expect(response[0].validFrom.toString()).toContain('Jan 01 2017')
+    expect(response[1].code).toEqual('USD')
+    expect(response[1].rate).toEqual(0.8)
+    expect(response[1].validFrom.toString()).toContain('Jan 01 2017')
+    expect(response[2].code).toEqual('USD')
+    expect(response[2].rate).toEqual(0.9)
+    expect(response[2].validFrom.toString()).toContain('Jun 01 2018')
+  })
 
   it('should return VAT rates', async () => {
     nock(config.billingAPI)
@@ -264,79 +264,79 @@ describe('lib/billing test suite', () => {
           "rate": 0.0,
           "valid_from": "2018-06-01"
         }
-      ]`,
-      );
+      ]`
+      )
 
     const bc = new BillingClient({
       accessToken: '__ACCESS_TOKEN__',
       apiEndpoint: config.billingAPI,
-      logger: pino({ level: 'silent' }),
-    });
+      logger: pino({ level: 'silent' })
+    })
     const response = await bc.getVATRates({
       rangeStart: moment('2018-01-01').toDate(),
-      rangeStop: moment('2019-01-01').toDate(),
-    });
+      rangeStop: moment('2019-01-01').toDate()
+    })
 
-    expect(response.length).toEqual(3);
-    expect(response[0].code).toEqual('Standard');
-    expect(response[0].rate).toEqual(0.2);
-    expect(response[0].validFrom.toString()).toContain('Jan 01 2017');
-    expect(response[1].code).toEqual('Reduced');
-    expect(response[1].rate).toEqual(0.05);
-    expect(response[1].validFrom.toString()).toContain('Jan 01 2017');
-    expect(response[2].code).toEqual('Zero');
-    expect(response[2].rate).toEqual(0.0);
-    expect(response[2].validFrom.toString()).toContain('Jun 01 2018');
-  });
+    expect(response.length).toEqual(3)
+    expect(response[0].code).toEqual('Standard')
+    expect(response[0].rate).toEqual(0.2)
+    expect(response[0].validFrom.toString()).toContain('Jan 01 2017')
+    expect(response[1].code).toEqual('Reduced')
+    expect(response[1].rate).toEqual(0.05)
+    expect(response[1].validFrom.toString()).toContain('Jan 01 2017')
+    expect(response[2].code).toEqual('Zero')
+    expect(response[2].rate).toEqual(0.0)
+    expect(response[2].validFrom.toString()).toContain('Jun 01 2018')
+  })
 
   it('should throw an error when API response with 500', async () => {
     nock(config.billingAPI)
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=org-guid-500',
+        '/billable_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=org-guid-500'
       )
-      .reply(500, '{"message":"NOT OK"}');
+      .reply(500, '{"message":"NOT OK"}')
 
     const bc = new BillingClient({
       accessToken: '__ACCESS_TOKEN__',
       apiEndpoint: config.billingAPI,
-      logger: pino({ level: 'silent' }),
-    });
+      logger: pino({ level: 'silent' })
+    })
 
     await expect(
       bc.getBillableEvents({
         orgGUIDs: ['org-guid-500'],
         rangeStart: moment('2018-01-01').toDate(),
-        rangeStop: moment('2018-01-02').toDate(),
-      }),
-    ).rejects.toThrow(/failed with status 500/);
-  });
+        rangeStop: moment('2018-01-02').toDate()
+      })
+    ).rejects.toThrow(/failed with status 500/)
+  })
 
   it('should throw an error when API response with 500 and no data', async () => {
     nock(config.billingAPI)
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=org-guid-500-no-data',
+        '/billable_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=org-guid-500-no-data'
       )
-      .reply(500);
+      .reply(500)
 
     const bc = new BillingClient({
       accessToken: '__ACCESS_TOKEN__',
       apiEndpoint: config.billingAPI,
-      logger: pino({ level: 'silent' }),
-    });
+      logger: pino({ level: 'silent' })
+    })
 
     await expect(
       bc.getBillableEvents({
         orgGUIDs: ['org-guid-500-no-data'],
         rangeStart: moment('2018-01-01').toDate(),
-        rangeStop: moment('2018-01-02').toDate(),
-      }),
-    ).rejects.toThrow(/failed with status 500/);
-  });
+        rangeStop: moment('2018-01-02').toDate()
+      })
+    ).rejects.toThrow(/failed with status 500/)
+  })
 
   it('should throw an error when API response contains invalid price', async () => {
     nock(config.billingAPI)
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=org-guid-bad-price',
+        '/billable_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=org-guid-bad-price'
       )
       .reply(
         200,
@@ -348,28 +348,28 @@ describe('lib/billing test suite', () => {
           "inc_vat": "1.0",
           "details": []
         }
-      }]`,
-      );
+      }]`
+      )
 
     const bc = new BillingClient({
       accessToken: '__ACCESS_TOKEN__',
       apiEndpoint: config.billingAPI,
-      logger: pino({ level: 'silent' }),
-    });
+      logger: pino({ level: 'silent' })
+    })
 
     await expect(
       bc.getBillableEvents({
         orgGUIDs: ['org-guid-bad-price'],
         rangeStart: moment('2018-01-01').toDate(),
-        rangeStop: moment('2018-01-02').toDate(),
-      }),
-    ).rejects.toThrow(/failed to parse 'not-a-number' as a number/);
-  });
+        rangeStop: moment('2018-01-02').toDate()
+      })
+    ).rejects.toThrow(/failed to parse 'not-a-number' as a number/)
+  })
 
   it('should throw an error when API response contains invalid start_date', async () => {
     nock(config.billingAPI)
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=org-guid-invalid-date',
+        '/billable_events?range_start=2018-01-01&range_stop=2018-01-02&org_guid=org-guid-invalid-date'
       )
       .reply(
         200,
@@ -381,21 +381,21 @@ describe('lib/billing test suite', () => {
           "inc_vat": "0.024",
           "details": []
         }
-      }]`,
-      );
+      }]`
+      )
 
     const bc = new BillingClient({
       accessToken: '__ACCESS_TOKEN__',
       apiEndpoint: config.billingAPI,
-      logger: pino({ level: 'silent' }),
-    });
+      logger: pino({ level: 'silent' })
+    })
 
     await expect(
       bc.getBillableEvents({
         orgGUIDs: ['org-guid-invalid-date'],
         rangeStart: moment('2018-01-01').toDate(),
-        rangeStop: moment('2018-01-02').toDate(),
-      }),
-    ).rejects.toThrow(/invalid date format: 14:36 20-04-2018/);
-  });
-});
+        rangeStop: moment('2018-01-02').toDate()
+      })
+    ).rejects.toThrow(/invalid date format: 14:36 20-04-2018/)
+  })
+})

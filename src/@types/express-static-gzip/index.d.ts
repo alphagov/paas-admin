@@ -1,15 +1,15 @@
 declare module 'express-static-gzip' {
-  import express from 'express';
+  import express from 'express'
 
   interface IOptions {
-    readonly immutable: boolean;
+    readonly immutable: boolean
   }
 
   type MiddlewareFunction = (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
-  ) => void;
+  ) => void
 
-  export default function(path: string, opts?: IOptions): MiddlewareFunction;
+  export default function (path: string, opts?: IOptions): MiddlewareFunction
 }

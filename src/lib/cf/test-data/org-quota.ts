@@ -1,7 +1,7 @@
-import { IOrganizationQuota } from '../types';
+import { IOrganizationQuota } from '../types'
 
-export const billableOrgQuotaName = 'billable';
-export const billableOrgQuotaGUID = 'ORG-QUOTA-GUID';
+export const billableOrgQuotaName = 'billable'
+export const billableOrgQuotaGUID = 'ORG-QUOTA-GUID'
 
 export const billableOrgQuota = (): IOrganizationQuota =>
   JSON.parse(`{
@@ -25,10 +25,10 @@ export const billableOrgQuota = (): IOrganizationQuota =>
     "total_service_keys": -1,
     "total_reserved_route_ports": 5
   }
-}`);
+}`)
 
-export const trialOrgQuotaName = 'default';
-export const trialOrgQuotaGUID = '99999999-a8c0-4c43-9c72-649df53da8cb';
+export const trialOrgQuotaName = 'default'
+export const trialOrgQuotaGUID = '99999999-a8c0-4c43-9c72-649df53da8cb'
 
 export const trialOrgQuota = (): IOrganizationQuota =>
   JSON.parse(`{
@@ -52,4 +52,4 @@ export const trialOrgQuota = (): IOrganizationQuota =>
     "total_service_keys": -1,
     "total_reserved_route_ports": 5
   }
-}`);
+}`)

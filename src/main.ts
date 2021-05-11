@@ -1,79 +1,79 @@
-import pino from 'pino';
-import sourceMapSupport from 'source-map-support';
+import pino from 'pino'
+import sourceMapSupport from 'source-map-support'
 
 import app, {
   IAppConfig,
   IOIDCConfig,
-  OIDCProviderName,
-} from './components/app';
-import CloudFoundryClient from './lib/cf';
-import Server from './server';
+  OIDCProviderName
+} from './components/app'
+import CloudFoundryClient from './lib/cf'
+import Server from './server'
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
-});
+  level: process.env.LOG_LEVEL || 'info'
+})
 
-sourceMapSupport.install();
+sourceMapSupport.install()
 
-function expectEnvVariable(variableName: string): string {
-  const value = process.env[variableName] || '';
+function expectEnvVariable (variableName: string): string {
+  const value = process.env[variableName] || ''
 
   if (value === '') {
-    logger.error(`Expected environment variable "${variableName}" to be set.`);
-    process.exit(100);
+    logger.error(`Expected environment variable "${variableName}" to be set.`)
+    process.exit(100)
   }
 
-  return value;
+  return value
 }
 
-function onError(err: Error) {
-  logger.error({ exit: 1 }, err.toString());
-  process.exit(100);
+function onError (err: Error) {
+  logger.error({ exit: 1 }, err.toString())
+  process.exit(100)
 }
 
-function onShutdown() {
-  logger.info({ exit: 0 }, 'shutdown gracefully');
-  process.exit(0);
+function onShutdown () {
+  logger.info({ exit: 0 }, 'shutdown gracefully')
+  process.exit(0)
 }
 
 /* istanbul ignore next */
-function platformLocation(region: string): string {
+function platformLocation (region: string): string {
   switch (region) {
     case 'eu-west-1':
-      return 'Ireland';
+      return 'Ireland'
     case 'eu-west-2':
-      return 'London';
+      return 'London'
     default:
-      return region;
+      return region
   }
 }
 
-async function main() {
-  const cloudFoundryAPI = expectEnvVariable('API_URL');
-  const awsRegion = expectEnvVariable('AWS_REGION');
-  const location = platformLocation(awsRegion);
-  let authorizationAPI = process.env.AUTHORIZATION_URL;
-  let uaaAPI = process.env.UAA_URL;
+async function main () {
+  const cloudFoundryAPI = expectEnvVariable('API_URL')
+  const awsRegion = expectEnvVariable('AWS_REGION')
+  const location = platformLocation(awsRegion)
+  let authorizationAPI = process.env.AUTHORIZATION_URL
+  let uaaAPI = process.env.UAA_URL
 
   /* istanbul ignore next */
   if (!authorizationAPI || !uaaAPI) {
     const cf = new CloudFoundryClient({
       apiEndpoint: cloudFoundryAPI,
-      logger,
-    });
-    const info = await cf.info();
-    authorizationAPI = info.authorization_endpoint;
-    uaaAPI = info.token_endpoint;
+      logger
+    })
+    const info = await cf.info()
+    authorizationAPI = info.authorization_endpoint
+    uaaAPI = info.token_endpoint
   }
 
-  const providers = new Map<OIDCProviderName, IOIDCConfig>();
+  const providers = new Map<OIDCProviderName, IOIDCConfig>()
   providers.set('google', {
     providerName: 'google',
     clientID: expectEnvVariable('GOOGLE_CLIENT_ID'),
     clientSecret: expectEnvVariable('GOOGLE_CLIENT_SECRET'),
     discoveryURL:
-      'https://accounts.google.com/.well-known/openid-configuration',
-  });
+      'https://accounts.google.com/.well-known/openid-configuration'
+  })
 
   const config: IAppConfig = {
     accountsAPI: expectEnvVariable('ACCOUNTS_URL'),
@@ -84,9 +84,9 @@ async function main() {
     awsCloudwatchEndpoint: process.env.AWS_CLOUDWATCH_ENDPOINT,
     awsRegion,
     awsResourceTaggingAPIEndpoint: process.env.AWS_RESOURCE_TAGGING_API_ENDPOINT,
-    awsCredentials: !process.env.ENABLE_FAKE_AWS_CREDENTIALS? undefined : {
-      accessKeyId: "FAKE_ACCESS_KEY_ID",
-      secretAccessKey: "FAKE_SECRET_ACCESS_KEY",
+    awsCredentials: !process.env.ENABLE_FAKE_AWS_CREDENTIALS ? undefined : {
+      accessKeyId: 'FAKE_ACCESS_KEY_ID',
+      secretAccessKey: 'FAKE_SECRET_ACCESS_KEY'
     },
     billingAPI: expectEnvVariable('BILLING_URL'),
     cloudFoundryAPI,
@@ -108,22 +108,22 @@ async function main() {
     zendeskConfig: {
       token: process.env.ZENDESK_API_TOKEN || '__ZENDESK_API_TOKEN__',
       remoteUri: 'https://govuk.zendesk.com/api/v2',
-      username:  process.env.ZENDESK_USERNAME || '__ZENDESK_USERNAME__',
-    },
-  };
+      username: process.env.ZENDESK_USERNAME || '__ZENDESK_USERNAME__'
+    }
+  }
 
   const server = new Server(app(config), {
-    port: parseInt(process.env.PORT || '0', 10),
-  });
+    port: parseInt(process.env.PORT || '0', 10)
+  })
 
   process.once('SIGINT', () => {
-    server.stop().catch(err => console.error(err));
-  });
+    server.stop().catch(err => console.error(err))
+  })
   process.once('SIGTERM', () => {
-    server.stop().catch(err => console.error(err));
-  });
+    server.stop().catch(err => console.error(err))
+  })
 
-  await server.start();
+  await server.start()
   pino().info(
     {
       accountsAPI: config.accountsAPI,
@@ -131,14 +131,14 @@ async function main() {
       billingAPI: config.billingAPI,
       cloudFoundryAPI,
       port: server.http.address().port,
-      uaaAPI,
+      uaaAPI
     },
-    `listening http://localhost:${server.http.address().port}/`,
-  );
+    `listening http://localhost:${server.http.address().port}/`
+  )
 
-  return server.wait();
+  return server.wait()
 }
 
 main()
   .then(onShutdown)
-  .catch(onError);
+  .catch(onError)

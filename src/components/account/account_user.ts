@@ -1,28 +1,28 @@
-import { IUaaUser } from '../../lib/uaa';
+import { IUaaUser } from '../../lib/uaa'
 
 export class AccountUser {
-  constructor(private readonly user: IUaaUser) {}
+  constructor (private readonly user: IUaaUser) {}
 
-  get name(): string {
-    return `${this.user.name.givenName} ${this.user.name.familyName}`;
+  get name (): string {
+    return `${this.user.name.givenName} ${this.user.name.familyName}`
   }
 
-  get username(): string {
-    return this.user.userName;
+  get username (): string {
+    return this.user.userName
   }
 
-  get authenticationMethod(): string {
+  get authenticationMethod (): string {
     switch (this.user.origin) {
       case 'uaa':
-        return 'Username & password';
+        return 'Username & password'
       case 'google':
-        return 'Google';
+        return 'Google'
     }
 
-    return 'Unknown';
+    return 'Unknown'
   }
 
-  get origin(): string {
-    return this.user.origin;
+  get origin (): string {
+    return this.user.origin
   }
 }

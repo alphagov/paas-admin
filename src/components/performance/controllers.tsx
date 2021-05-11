@@ -1,102 +1,102 @@
-import axios from 'axios';
-import moment from 'moment';
-import React from 'react';
+import axios from 'axios'
+import moment from 'moment'
+import React from 'react'
 
-import { Template } from '../../layouts';
-import { IMetric, IMetricSerie } from '../../lib/metrics';
-import { IParameters, IResponse, NotFoundError } from '../../lib/router';
-import { IContext } from '../app';
+import { Template } from '../../layouts'
+import { IMetric, IMetricSerie } from '../../lib/metrics'
+import { IParameters, IResponse, NotFoundError } from '../../lib/router'
+import { IContext } from '../app'
 
-import { IScrapedData, period } from './scraper';
-import { MetricPage } from './views';
+import { IScrapedData, period } from './scraper'
+import { MetricPage } from './views'
 
-export function formatDate(input:Date, options?: Record<string, unknown>): string {
-  const opts = typeof options === 'undefined' ? { month: 'long', year: 'numeric' } : options;
+export function formatDate (input: Date, options?: Record<string, unknown>): string {
+  const opts = typeof options === 'undefined' ? { month: 'long', year: 'numeric' } : options
 
-return new Intl.DateTimeFormat('en-GB', opts).format(new Date(input));
+  return new Intl.DateTimeFormat('en-GB', opts).format(new Date(input))
 }
 
-function extractData(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArray<ReadonlyArray<string>> {
-  const defaultData: ReadonlyArray<{ readonly metrics: ReadonlyArray<IMetric>}> = [{ metrics: [] }];
-  const metrics = (data || defaultData)[0].metrics;
+function extractData (data: readonly IMetricSerie[] | undefined): ReadonlyArray<readonly string[]> {
+  const defaultData: ReadonlyArray<{ readonly metrics: readonly IMetric[]}> = [{ metrics: [] }]
+  const metrics = ((data != null) || defaultData)[0].metrics
 
   return metrics.map(metric => [
     moment(metric.date).format('YYYY-MM-DD[T]HH:mm'),
-    metric.value.toString(),
-  ]);
+    metric.value.toString()
+  ])
 }
 
-export function exportMaxPerMonthDataValues(data: IMetricSerie  ) {
-  const metrics = data.metrics;
+export function exportMaxPerMonthDataValues (data: IMetricSerie) {
+  const metrics = data.metrics
 
-return metrics.concat() // so that we con't modify the original array
+  return metrics.concat() // so that we con't modify the original array
     // 1. sort by value property so we get highest entry in each month to the highest index in array
     .sort((a, b) => b.value - a.value)
     // 2. remove any duplicates for given month, as we've already brought the needed values to the top of array
     // we're using actual month+year name as values are weekly in datetiem format
-    .reduce((acc: Array<any>, current: { readonly date: Date; }) => {
-      const entry = acc.find((item: { readonly date: Date; }) => formatDate(item.date) === formatDate(current.date));
+    .reduce((acc: any[], current: { readonly date: Date }) => {
+      const entry = acc.find((item: { readonly date: Date }) => formatDate(item.date) === formatDate(current.date))
       // filter out current month
-      const currentMonth = formatDate(new Date());
+      const currentMonth = formatDate(new Date())
       if (!entry && formatDate(current.date) !== currentMonth) {
-        return acc.concat([current]);
+        return acc.concat([current])
       } else {
-        return acc;
+        return acc
       }
     }, [])
     // 3. once we only have one entry per month, let's sort the months back to ascending order
-    .sort((a: { date: { getTime: () => number; }; }, b: { date: { getTime: () => number; }; }) => a.date.getTime() - b.date.getTime());
+    .sort((a: { date: { getTime: () => number } }, b: { date: { getTime: () => number } }) => a.date.getTime() - b.date.getTime())
 }
 
-export function combineMetrics(array1: IMetricSerie, array2: IMetricSerie ) {
-  const filteredArray1 = [...exportMaxPerMonthDataValues(array1)];
-  const filteredArray2 = [...exportMaxPerMonthDataValues(array2)];
+export function combineMetrics (array1: IMetricSerie, array2: IMetricSerie) {
+  const filteredArray1 = [...exportMaxPerMonthDataValues(array1)]
+  const filteredArray2 = [...exportMaxPerMonthDataValues(array2)]
   // as we've already picked out the max value for each month, we're not concerned about individual datetime stamps -
   // both of them belong to the same month
   const combinedArray = filteredArray1.map((metric, index) => ({
     date: formatDate(metric.date),
     billable: metric.value,
-    trial: filteredArray2[index].value,
-  }));
+    trial: filteredArray2[index].value
+  }))
 
-return combinedArray;
+  return combinedArray
 }
 
-function extractOrgData(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArray<ReadonlyArray<string>> {
-  const defaultData: ReadonlyArray<{ readonly metrics: ReadonlyArray<IMetric>}> = [{ metrics: [] }, { metrics: [] }];
-  const billable = (data || defaultData)[0].metrics;
-  const trial = (data || defaultData)[1].metrics;
+function extractOrgData (data: readonly IMetricSerie[] | undefined): ReadonlyArray<readonly string[]> {
+  const defaultData: ReadonlyArray<{ readonly metrics: readonly IMetric[]}> = [{ metrics: [] }, { metrics: [] }]
+  const billable = ((data != null) || defaultData)[0].metrics
+  const trial = ((data != null) || defaultData)[1].metrics
 
   return billable.map((metric, index) => [
     moment(metric.date).format('YYYY-MM-DD[T]HH:mm'),
     metric.value.toString(),
-    trial[index].value.toString(),
-  ]);
+    trial[index].value.toString()
+  ])
 }
 
-function objectifyMetrics(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArray<IMetricSerie> | undefined {
-  return data ? data.map(serie => ({
+function objectifyMetrics (data: readonly IMetricSerie[] | undefined): readonly IMetricSerie[] | undefined {
+  return (data != null) ? data.map(serie => ({
     label: serie.label,
-    metrics: serie.metrics.map(metric => ({ date: new Date(metric.date), value: metric.value })),
-  })) : undefined;
+    metrics: serie.metrics.map(metric => ({ date: new Date(metric.date), value: metric.value }))
+  })) : undefined
 }
 
-export async function viewDashboard(ctx: IContext, _params: IParameters): Promise<IResponse> {
-  const metrics = await axios.get<IScrapedData>(`${ctx.app.platformMetricsEndpoint}/metrics.json`);
-  const { applications, organizations, services, uptime } = metrics.data;
+export async function viewDashboard (ctx: IContext, _params: IParameters): Promise<IResponse> {
+  const metrics = await axios.get<IScrapedData>(`${ctx.app.platformMetricsEndpoint}/metrics.json`)
+  const { applications, organizations, services, uptime } = metrics.data
 
-  const template = new Template(ctx.viewContext, 'GOV.UK Platform as a Service Performance dashboard');
+  const template = new Template(ctx.viewContext, 'GOV.UK Platform as a Service Performance dashboard')
   template.breadcrumbs = [
     {
       href: 'https://www.gov.uk/service-toolkit#gov-uk-services',
-      text: 'GOV.UK services',
+      text: 'GOV.UK services'
     },
     {
       href: 'https://www.cloud.service.gov.uk/',
-      text: 'GOV.UK PaaS',
+      text: 'GOV.UK PaaS'
     },
-    { text: 'Performance dashboard' },
-  ];
+    { text: 'Performance dashboard' }
+  ]
 
   return {
     body: template.render(
@@ -108,45 +108,45 @@ export async function viewDashboard(ctx: IContext, _params: IParameters): Promis
         region={ctx.app.location}
         serviceCount={objectifyMetrics(services)}
         uptime={uptime}
-      />,
-    ),
-  };
+      />
+    )
+  }
 }
 
-export async function downloadPerformanceData(ctx: IContext, params: IParameters): Promise<IResponse> {
-  const metrics = await axios.get<IScrapedData>(`${ctx.app.platformMetricsEndpoint}/metrics.json`);
-  const { applications, organizations, services } = metrics.data;
+export async function downloadPerformanceData (ctx: IContext, params: IParameters): Promise<IResponse> {
+  const metrics = await axios.get<IScrapedData>(`${ctx.app.platformMetricsEndpoint}/metrics.json`)
+  const { applications, organizations, services } = metrics.data
 
-  const csvData = [];
+  const csvData = []
 
   switch (params.metric) {
     case 'mOrganizations':
       csvData.push(
         ['date', 'billable', 'trial'],
-        ...extractOrgData(organizations),
-      );
-      break;
+        ...extractOrgData(organizations)
+      )
+      break
     case 'mApplicationCount':
       csvData.push(
         ['date', 'applications'],
-        ...extractData(applications),
-      );
-      break;
+        ...extractData(applications)
+      )
+      break
     case 'mServiceCount':
       csvData.push(
         ['date', 'services'],
-        ...extractData(services),
-      );
-      break;
+        ...extractData(services)
+      )
+      break
     default:
-      throw new NotFoundError('Performance metric not recognised');
+      throw new NotFoundError('Performance metric not recognised')
   }
 
   return {
     download: {
       data: csvData.map(line => line.join(',')).join('\n'),
-      name: `govuk-paas-performance-${params.metric}.csv`,
+      name: `govuk-paas-performance-${params.metric}.csv`
     },
-    mimeType: 'text/csv',
-  };
+    mimeType: 'text/csv'
+  }
 }

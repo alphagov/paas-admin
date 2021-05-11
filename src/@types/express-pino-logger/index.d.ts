@@ -1,17 +1,17 @@
 declare module 'express-pino-logger' {
-  import express from 'express';
-  import { BaseLogger, SerializerFn } from 'pino';
+  import express from 'express'
+  import { BaseLogger, SerializerFn } from 'pino'
 
   interface IOptions {
-    readonly logger: BaseLogger;
-    readonly serializers?: { readonly [key: string]: SerializerFn };
+    readonly logger: BaseLogger
+    readonly serializers?: { readonly [key: string]: SerializerFn }
   }
 
   type MiddlewareFunction = (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
-  ) => void;
+  ) => void
 
-  export default function(opts?: IOptions): MiddlewareFunction;
+  export default function (opts?: IOptions): MiddlewareFunction
 }

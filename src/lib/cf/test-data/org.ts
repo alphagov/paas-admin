@@ -1,8 +1,8 @@
-import { IOrganization, IV3OrganizationResource } from '../types';
+import { IOrganization, IV3OrganizationResource } from '../types'
 
-export const orgName = 'the-system_domain-org-name';
-export const orgGUID = 'a7aff246-5f5b-4cf8-87d8-f316053e4a20';
-export const orgQuotaGUID = 'ORG-QUOTA-GUID';
+export const orgName = 'the-system_domain-org-name'
+export const orgGUID = 'a7aff246-5f5b-4cf8-87d8-f316053e4a20'
+export const orgQuotaGUID = 'ORG-QUOTA-GUID'
 
 export const org = (): IOrganization =>
   JSON.parse(`{
@@ -28,7 +28,7 @@ export const org = (): IOrganization =>
     "app_events_url": "/v2/organizations/${orgGUID}/app_events",
     "space_quota_definitions_url": "/v2/organizations/${orgGUID}/space_quota_definitions"
   }
-}`);
+}`)
 
 export const v3Org = (): IV3OrganizationResource =>
   JSON.parse(`{
@@ -61,4 +61,4 @@ export const v3Org = (): IV3OrganizationResource =>
         "owner": "some-owner"
      }
   }
-}`);
+}`)

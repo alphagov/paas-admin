@@ -1,109 +1,109 @@
-import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'
 
-export const CLOUD_CONTROLLER_ADMIN = 'cloud_controller.admin';
+export const CLOUD_CONTROLLER_ADMIN = 'cloud_controller.admin'
 export const CLOUD_CONTROLLER_READ_ONLY_ADMIN =
-  'cloud_controller.admin_read_only';
+  'cloud_controller.admin_read_only'
 export const CLOUD_CONTROLLER_GLOBAL_AUDITOR =
-  'cloud_controller.global_auditor';
+  'cloud_controller.global_auditor'
 
 interface IToken {
-  readonly exp: number;
-  readonly scope: ReadonlyArray<string>;
-  readonly user_id: string;
-  readonly origin: string;
+  readonly exp: number
+  readonly scope: readonly string[]
+  readonly user_id: string
+  readonly origin: string
 }
 
-function verify(
+function verify (
   accessToken: string,
-  signingKeys: ReadonlyArray<string>,
+  signingKeys: readonly string[]
 ): IToken {
-  let rawToken: any;
-  let jwtError;
+  let rawToken: any
+  let jwtError
 
   for (const key of signingKeys) {
     try {
-      rawToken = jwt.verify(accessToken, key);
-      break; // Break out of the for loop, in order not to continue testing remaining keys.
+      rawToken = jwt.verify(accessToken, key)
+      break // Break out of the for loop, in order not to continue testing remaining keys.
     } catch (err) {
       // We're iterating over each key, in attempt to verify the JWT token.
       // Throwing an error would prevent the next key to be tried.
-      jwtError = err;
+      jwtError = err
     }
   }
 
   if (typeof rawToken === 'undefined') {
-    throw jwtError;
+    throw jwtError
   }
 
   if (typeof rawToken !== 'object') {
     throw new Error(
-      'jwt: could not verify the token as no object has been verified',
-    );
+      'jwt: could not verify the token as no object has been verified'
+    )
   }
 
   if (!rawToken.exp) {
     throw new Error(
-      'jwt: could not verify the token as no exp has been decoded',
-    );
+      'jwt: could not verify the token as no exp has been decoded'
+    )
   }
 
   if (!rawToken.origin) {
     throw new Error(
-      'jwt: could not verify the token as no origin has been decoded',
-    );
+      'jwt: could not verify the token as no origin has been decoded'
+    )
   }
 
   if (!Array.isArray(rawToken.scope)) {
     throw new Error(
-      'jwt: could not verify the token as no scope(s) has been decoded',
-    );
+      'jwt: could not verify the token as no scope(s) has been decoded'
+    )
   }
 
   return {
     exp: rawToken.exp,
     scope: rawToken.scope,
     user_id: rawToken.user_id,
-    origin: rawToken.origin,
-  };
+    origin: rawToken.origin
+  }
 }
 
 export class Token {
-  public readonly expiry: number;
-  public readonly scopes: ReadonlyArray<string>;
-  public readonly userID: string;
-  public readonly origin: string;
+  public readonly expiry: number
+  public readonly scopes: readonly string[]
+  public readonly userID: string
+  public readonly origin: string
 
-  constructor(
+  constructor (
     public readonly accessToken: string,
-    public readonly signingKeys: ReadonlyArray<string>,
+    public readonly signingKeys: readonly string[]
   ) {
-    const rawToken = verify(accessToken, signingKeys);
+    const rawToken = verify(accessToken, signingKeys)
 
-    this.expiry = rawToken.exp;
-    this.scopes = rawToken.scope;
-    this.userID = rawToken.user_id;
-    this.origin = rawToken.origin;
+    this.expiry = rawToken.exp
+    this.scopes = rawToken.scope
+    this.userID = rawToken.user_id
+    this.origin = rawToken.origin
   }
 
-  public hasScope(scope: string): boolean {
-    return this.scopes.includes(scope);
+  public hasScope (scope: string): boolean {
+    return this.scopes.includes(scope)
   }
 
-  public hasAnyScope(...scopes: ReadonlyArray<string>): boolean {
+  public hasAnyScope (...scopes: readonly string[]): boolean {
     for (const scope of scopes) {
       if (this.scopes.includes(scope)) {
-        return true;
+        return true
       }
     }
 
-    return false;
+    return false
   }
 
-  public hasAdminScopes(): boolean {
+  public hasAdminScopes (): boolean {
     return this.hasAnyScope(
       CLOUD_CONTROLLER_ADMIN,
       CLOUD_CONTROLLER_GLOBAL_AUDITOR,
-      CLOUD_CONTROLLER_READ_ONLY_ADMIN,
-    );
+      CLOUD_CONTROLLER_READ_ONLY_ADMIN
+    )
   }
 }

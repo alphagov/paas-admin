@@ -1,35 +1,35 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios'
 
-import * as types from './uaa.types';
+import * as types from './uaa.types'
 
-const DEFAULT_TIMEOUT = 1000;
-const CONCURRENCY_LIMIT = 5;
+const DEFAULT_TIMEOUT = 1000
+const CONCURRENCY_LIMIT = 5
 
 interface IClientCredentials {
-  readonly clientID: string;
-  readonly clientSecret: string;
+  readonly clientID: string
+  readonly clientSecret: string
 }
 
 interface IUserCredentials {
-  readonly username: string;
-  readonly password: string;
+  readonly username: string
+  readonly password: string
 }
 
 interface IClientConfig {
-  readonly apiEndpoint: string;
-  readonly clientCredentials?: IClientCredentials;
-  readonly accessToken?: string;
-  readonly signingKeys?: ReadonlyArray<string>;
+  readonly apiEndpoint: string
+  readonly clientCredentials?: IClientCredentials
+  readonly accessToken?: string
+  readonly signingKeys?: readonly string[]
 }
 
-export type UaaOrigin = 'uaa' | 'google';
+export type UaaOrigin = 'uaa' | 'google'
 
 export interface IUaaInvitation {
-  readonly userId: string;
-  readonly inviteLink: string;
+  readonly userId: string
+  readonly inviteLink: string
 }
 
-async function request(endpoint: string, method: string, url: string, opts: any): Promise<AxiosResponse> {
+async function request (endpoint: string, method: string, url: string, opts: any): Promise<AxiosResponse> {
   const response = await axios.request({
     baseURL: endpoint,
     data: opts.data,
@@ -38,204 +38,204 @@ async function request(endpoint: string, method: string, url: string, opts: any)
     url,
     validateStatus: status => status > 0 && status < 501,
 
-    ...opts,
-  });
+    ...opts
+  })
   if (response.status < 200 || response.status >= 300) {
-    const msg = `UAAClient: ${method} ${url} failed with status ${response.status}`;
-    let err: any;
+    const msg = `UAAClient: ${method} ${url} failed with status ${response.status}`
+    let err: any
     if (typeof response.data === 'object') {
-      err = new Error(`${msg} and data ${JSON.stringify(response.data)}`);
+      err = new Error(`${msg} and data ${JSON.stringify(response.data)}`)
     } else {
-      err = new Error(msg);
+      err = new Error(msg)
     }
-    err.response = { status: response.status };
-    throw err;
+    err.response = { status: response.status }
+    throw err
   }
 
-  return response;
+  return response
 }
 
-export async function authenticate(endpoint: string, clientCredentials: IClientCredentials): Promise<string> {
+export async function authenticate (endpoint: string, clientCredentials: IClientCredentials): Promise<string> {
   /* istanbul ignore next */
   if (!clientCredentials.clientID) {
-    throw new TypeError('UAAClient: authenticate: clientID is required');
+    throw new TypeError('UAAClient: authenticate: clientID is required')
   }
 
   /* istanbul ignore next */
   if (!clientCredentials.clientSecret) {
-    throw new TypeError('UAAClient: authenticate: clientSecret is required');
+    throw new TypeError('UAAClient: authenticate: clientSecret is required')
   }
 
   const response = await request(endpoint, 'post', '/oauth/token', {
     auth: {
       password: clientCredentials.clientSecret,
-      username: clientCredentials.clientID,
+      username: clientCredentials.clientID
     },
     params: {
-      grant_type: 'client_credentials',
+      grant_type: 'client_credentials'
     },
     timeout: DEFAULT_TIMEOUT,
-    withCredentials: true,
-  });
+    withCredentials: true
+  })
 
-  return response.data.access_token;
+  return response.data.access_token
 }
 
-export async function authenticateUser(endpoint: string, userCredentials: IUserCredentials): Promise<string> {
+export async function authenticateUser (endpoint: string, userCredentials: IUserCredentials): Promise<string> {
   /* istanbul ignore next */
   if (!userCredentials.username) {
-    throw new TypeError('UAAClient: authenticateUser: username is required');
+    throw new TypeError('UAAClient: authenticateUser: username is required')
   }
 
   /* istanbul ignore next */
   if (!userCredentials.password) {
-    throw new TypeError('UAAClient: authenticateUser: password is required');
+    throw new TypeError('UAAClient: authenticateUser: password is required')
   }
 
   const response = await request(endpoint, 'post', '/oauth/token', {
     auth: {
-      username: 'cf',
+      username: 'cf'
     },
     params: {
       grant_type: 'password',
       response_type: 'token',
 
-      ...userCredentials,
+      ...userCredentials
     },
     timeout: DEFAULT_TIMEOUT,
-    withCredentials: true,
-  });
+    withCredentials: true
+  })
 
-  return response.data.access_token;
+  return response.data.access_token
 }
 
 export default class UAAClient {
-  private accessToken: string;
-  private readonly apiEndpoint: string;
-  private readonly clientCredentials?: IClientCredentials;
-  private signingKeys: ReadonlyArray<string>;
+  private accessToken: string
+  private readonly apiEndpoint: string
+  private readonly clientCredentials?: IClientCredentials
+  private signingKeys: readonly string[]
 
-  constructor(config: IClientConfig) {
-    this.apiEndpoint = config.apiEndpoint;
+  constructor (config: IClientConfig) {
+    this.apiEndpoint = config.apiEndpoint
     /* istanbul ignore next */
     if (!this.apiEndpoint) {
-      throw new Error('UAAClient: apiEndpoint is required');
+      throw new Error('UAAClient: apiEndpoint is required')
     }
-    this.accessToken = config.accessToken || '';
-    this.clientCredentials = config.clientCredentials;
-    this.signingKeys = config.signingKeys || [];
+    this.accessToken = config.accessToken || ''
+    this.clientCredentials = config.clientCredentials
+    this.signingKeys = (config.signingKeys != null) || []
   }
 
-  public async getAccessToken(): Promise<string> {
+  public async getAccessToken (): Promise<string> {
     if (this.accessToken) {
-      return this.accessToken;
+      return this.accessToken
     }
 
     /* istanbul ignore next */
-    if (this.clientCredentials) {
+    if (this.clientCredentials != null) {
       this.accessToken = await authenticate(
         this.apiEndpoint,
-        this.clientCredentials,
-      );
+        this.clientCredentials
+      )
     }
 
     /* istanbul ignore next */
     if (!this.accessToken) {
       throw new Error(
         'UAAClient: unable to get access token: accessToken ' +
-          'or clientID and clientSecret must be provided',
-      );
+          'or clientID and clientSecret must be provided'
+      )
     }
 
-    return this.accessToken;
+    return this.accessToken
   }
 
-  public async getSigningKeys(): Promise<ReadonlyArray<string>> {
+  public async getSigningKeys (): Promise<readonly string[]> {
     if (this.signingKeys && this.signingKeys.length > 0) {
-      return this.signingKeys;
+      return this.signingKeys
     }
 
     const response = await axios.request({
       baseURL: this.apiEndpoint,
       method: 'get',
       url: '/token_keys',
-      validateStatus: (status: number) => status > 0 && status < 500,
-    });
+      validateStatus: (status: number) => status > 0 && status < 500
+    })
 
     if (response.status < 200 || response.status >= 300) {
-      const msg = `UAAClient: failed to obtain signing key due to status ${response.status}`;
+      const msg = `UAAClient: failed to obtain signing key due to status ${response.status}`
       /* istanbul ignore next */
       if (typeof response.data === 'object') {
-        throw new Error(`${msg} and data ${JSON.stringify(response.data)}`);
+        throw new Error(`${msg} and data ${JSON.stringify(response.data)}`)
       }
       /* istanbul ignore next */
-      throw new Error(msg);
+      throw new Error(msg)
     }
 
-    this.signingKeys = response.data.keys.map((key: any) => key.value);
+    this.signingKeys = response.data.keys.map((key: any) => key.value)
 
-    return this.signingKeys;
+    return this.signingKeys
   }
 
-  public async request(method: string, url: string, opts: any = {}): Promise<AxiosResponse> {
-    const token = await this.getAccessToken();
-    const requiredHeaders = { Authorization: `Bearer ${token}` };
+  public async request (method: string, url: string, opts: any = {}): Promise<AxiosResponse> {
+    const token = await this.getAccessToken()
+    const requiredHeaders = { Authorization: `Bearer ${token}` }
 
-    opts.headers = { ...(opts.headers || {}), ...requiredHeaders };
+    opts.headers = { ...(opts.headers || {}), ...requiredHeaders }
 
-    return request(this.apiEndpoint, method, url, {
-      ...opts,
-    });
+    return await request(this.apiEndpoint, method, url, {
+      ...opts
+    })
   }
 
-  public async getUser(userGUID: string): Promise<types.IUaaUser | null> {
+  public async getUser (userGUID: string): Promise<types.IUaaUser | null> {
     try {
-      const response = await this.request('get', `/Users/${userGUID}`);
-      return response.data as types.IUaaUser;
+      const response = await this.request('get', `/Users/${userGUID}`)
+      return response.data as types.IUaaUser
     } catch (err) {
       if (err.response.status === 404) {
-        return null;
+        return null
       }
-      /* istanbul ignore next */ throw err;
+      /* istanbul ignore next */ throw err
     }
   }
 
-  public async getUsers(userGUIDs: ReadonlyArray<string>): Promise<ReadonlyArray<types.IUaaUser | null>> {
+  public async getUsers (userGUIDs: readonly string[]): Promise<ReadonlyArray<types.IUaaUser | null>> {
     // Limit number of users fetched from UAA concurrently
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const pLimit = require('p-limit');
-    const pool = pLimit(CONCURRENCY_LIMIT);
+    const pLimit = require('p-limit')
+    const pool = pLimit(CONCURRENCY_LIMIT)
     const uaaUsers = await Promise.all(
       userGUIDs.map(async guid =>
         await pool(async () => {
           try {
-            return await this.getUser(guid);
+            return await this.getUser(guid)
           } catch {
-            return new Promise(resolve =>
-              resolve(null),
-            ) as Promise<types.IUaaUser | null>;
+            return await new Promise(resolve =>
+              resolve(null)
+            )
           }
-        }),
-      ),
-    );
+        })
+      )
+    )
 
-    return uaaUsers;
+    return uaaUsers
   }
 
-  public async findUser(email: string): Promise<types.IUaaUser> {
-    const params = { filter: `email eq "${email}"` };
-    const response = await this.request('get', '/Users', { params });
+  public async findUser (email: string): Promise<types.IUaaUser> {
+    const params = { filter: `email eq "${email}"` }
+    const response = await this.request('get', '/Users', { params })
 
-    return response.data.resources[0] as types.IUaaUser;
+    return response.data.resources[0] as types.IUaaUser
   }
 
-  public async inviteUser(email: string, clientID: string, redirectURI: string): Promise<IUaaInvitation> {
-    const data = { emails: [email] };
+  public async inviteUser (email: string, clientID: string, redirectURI: string): Promise<IUaaInvitation> {
+    const data = { emails: [email] }
     const response = await this.request(
       'post',
       `/invite_users?redirect_uri=${redirectURI}&client_id=${clientID}`,
-      { data },
-    );
+      { data }
+    )
 
     // It seems the base URL for UAA is only configurable when using SAML
     //
@@ -248,73 +248,73 @@ export default class UAAClient {
     // Then they are redirected to the login subdomain
     // But they do not have a valid session in the login subdomain cookie
     // So they have to log in again, which is bad user experience and confusing
-    const responseWithUpdatedLink = response.data.new_invites[0];
+    const responseWithUpdatedLink = response.data.new_invites[0]
     responseWithUpdatedLink.inviteLink = responseWithUpdatedLink.inviteLink.replace(
       'https://uaa.',
-      'https://login.',
-    );
+      'https://login.'
+    )
 
-    return responseWithUpdatedLink;
+    return responseWithUpdatedLink
   }
 
-  public async createUser(email: string, password: string): Promise<types.IUaaUser> {
+  public async createUser (email: string, password: string): Promise<types.IUaaUser> {
     const data = {
       active: true,
       emails: [{ primary: true, value: email }],
       name: {},
       password,
       userName: email,
-      verified: true,
-    };
-    const response = await this.request('post', '/Users', { data });
+      verified: true
+    }
+    const response = await this.request('post', '/Users', { data })
 
-    return response.data;
+    return response.data
   }
 
-  public async deleteUser(userId: string): Promise<types.IUaaUser> {
-    const response = await this.request('delete', `/Users/${userId}`);
+  public async deleteUser (userId: string): Promise<types.IUaaUser> {
+    const response = await this.request('delete', `/Users/${userId}`)
 
-    return response.data;
+    return response.data
   }
 
-  public async setUserOrigin(userId: string, origin: UaaOrigin, originIdentifier?: string): Promise<types.IUaaUser> {
+  public async setUserOrigin (userId: string, origin: UaaOrigin, originIdentifier?: string): Promise<types.IUaaUser> {
     const user = {
       ...(await this.getUser(userId)),
 
-      origin,
-    };
+      origin
+    }
 
     /* istanbul ignore if */
     if (originIdentifier) {
-      user.userName = originIdentifier;
+      user.userName = originIdentifier
     }
 
     const reqOpts = {
       data: user,
       headers: {
-        'If-Match': '*',
-      },
-    };
-    const response = await this.request('put', `/Users/${userId}`, reqOpts);
+        'If-Match': '*'
+      }
+    }
+    const response = await this.request('put', `/Users/${userId}`, reqOpts)
 
-    return response.data as types.IUaaUser;
+    return response.data as types.IUaaUser
   }
 
-  public async obtainPasswordResetCode(username: string): Promise<string> {
+  public async obtainPasswordResetCode (username: string): Promise<string> {
     const response = await this.request('post', '/password_resets', {
       data: username,
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
 
-    return response.data.code;
+    return response.data.code
   }
 
-  public async resetPassword(code: string, password: string): Promise<types.IUaaUser> {
-    const response = await this.request('post', '/password_change', { data: { code, new_password: password } });
+  public async resetPassword (code: string, password: string): Promise<types.IUaaUser> {
+    const response = await this.request('post', '/password_change', { data: { code, new_password: password } })
 
-    return response.data;
+    return response.data
   }
 }

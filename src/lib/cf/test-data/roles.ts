@@ -1,9 +1,9 @@
-import { IRole } from '../types';
+import { IRole } from '../types'
 
-export function orgRole(
+export function orgRole (
   roleType: string,
   orgGUID: string,
-  userGUID: string,
+  userGUID: string
 ): IRole {
   return JSON.parse(`{
    "type": "${roleType}",
@@ -23,14 +23,14 @@ export function orgRole(
          "data": null
       }
    }
-}`);
+}`)
 }
 
-export function spaceRole(
+export function spaceRole (
   roleType: string,
   orgGUID: string,
   spaceGUID: string,
-  userGUID: string,
+  userGUID: string
 ): IRole {
   return JSON.parse(`{
    "type": "${roleType}",
@@ -52,5 +52,5 @@ export function spaceRole(
          }
       }
    }
-}`);
+}`)
 }

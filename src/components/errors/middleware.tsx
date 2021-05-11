@@ -1,89 +1,89 @@
-import express from 'express';
-import React from 'react';
+import express from 'express'
+import React from 'react'
 
-import { Template } from '../../layouts';
-import { NotAuthorisedError, NotFoundError } from '../../lib/router';
+import { Template } from '../../layouts'
+import { NotAuthorisedError, NotFoundError } from '../../lib/router'
 
-import { ErrorPage } from './views';
+import { ErrorPage } from './views'
 
 export class UserFriendlyError extends Error {}
 
 /* istanbul ignore next */
-function platformLocation(region: string): string {
+function platformLocation (region: string): string {
   switch (region) {
     case 'eu-west-1':
-      return 'Ireland';
+      return 'Ireland'
     case 'eu-west-2':
-      return 'London';
+      return 'London'
     default:
-      return region;
+      return region
   }
 }
 
-export function pageNotFoundMiddleware(
+export function pageNotFoundMiddleware (
   req: any,
   res: express.Response,
-  _next: express.NextFunction,
+  _next: express.NextFunction
 ) {
   const template = new Template(
     {
       csrf: req.csrfToken(),
       isPlatformAdmin: false,
       location: platformLocation(
-        process.env.AWS_REGION || /* istanbul ignore next */ '',
-      ),
+        process.env.AWS_REGION || /* istanbul ignore next */ ''
+      )
     },
-    'Page not found',
-  );
-  res.status(404);
+    'Page not found'
+  )
+  res.status(404)
   res.send(
     template.render(
-      <ErrorPage title="Page not found">
+      <ErrorPage title='Page not found'>
         If you entered a web address please check it was correct.
-      </ErrorPage>,
-    ),
-  );
+      </ErrorPage>
+    )
+  )
 }
 
-export function pageNotAuthorisedMiddleware(
+export function pageNotAuthorisedMiddleware (
   req: any,
   res: express.Response,
-  _next: express.NextFunction,
+  _next: express.NextFunction
 ) {
   const template = new Template(
     {
       csrf: req.csrfToken(),
       isPlatformAdmin: false,
       location: platformLocation(
-        process.env.AWS_REGION || /* istanbul ignore next */ '',
-      ),
+        process.env.AWS_REGION || /* istanbul ignore next */ ''
+      )
     },
-    'Page not authorised',
-  );
-  res.status(403);
+    'Page not authorised'
+  )
+  res.status(403)
   res.send(
     template.render(
-      <ErrorPage title="Page not authorised">
+      <ErrorPage title='Page not authorised'>
         If you entered a web address please check it was correct.
-      </ErrorPage>,
-    ),
-  );
+      </ErrorPage>
+    )
+  )
 }
 
-export function internalServerErrorMiddleware(
+export function internalServerErrorMiddleware (
   err: Error,
   req: any,
   res: express.Response,
-  next: express.NextFunction,
+  next: express.NextFunction
 ) {
-  req.log.error(err);
+  req.log.error(err)
 
   if (err instanceof NotFoundError) {
-    return pageNotFoundMiddleware(req, res, next);
+    return pageNotFoundMiddleware(req, res, next)
   }
 
   if (err instanceof NotAuthorisedError) {
-    return pageNotAuthorisedMiddleware(req, res, next);
+    return pageNotAuthorisedMiddleware(req, res, next)
   }
 
   const template = new Template(
@@ -91,23 +91,23 @@ export function internalServerErrorMiddleware(
       csrf: req.csrfToken(),
       isPlatformAdmin: false,
       location: platformLocation(
-        process.env.AWS_REGION || /* istanbul ignore next */ '',
-      ),
+        process.env.AWS_REGION || /* istanbul ignore next */ ''
+      )
     },
-    'Internal Server Error',
-  );
+    'Internal Server Error'
+  )
 
   if (err instanceof UserFriendlyError) {
-    res.status(500);
+    res.status(500)
     res.send(
       template.render(
-        <ErrorPage title="Sorry an error occurred">{err.message}</ErrorPage>,
-      ),
-    );
+        <ErrorPage title='Sorry an error occurred'>{err.message}</ErrorPage>
+      )
+    )
 
-    return;
+    return
   }
 
-  res.status(500);
-  res.send(template.render(<ErrorPage title="Sorry an error occurred" />));
+  res.status(500)
+  res.send(template.render(<ErrorPage title='Sorry an error occurred' />))
 }

@@ -1,57 +1,57 @@
-import { Logger } from 'pino';
+import { Logger } from 'pino'
 
-import Router, { IParameters, Route } from '../../lib/router';
-import { Token } from '../auth';
+import Router, { IParameters, Route } from '../../lib/router'
+import { Token } from '../auth'
 
-import { IAppConfig } from './app';
+import { IAppConfig } from './app'
 
-export type RouteLinker = (name: string, params?: IParameters) => string;
-export type RouteActiveChecker = (name: string) => boolean;
+export type RouteLinker = (name: string, params?: IParameters) => string
+export type RouteActiveChecker = (name: string) => boolean
 
 export interface IRawToken {
-  readonly user_id: string;
-  readonly scope: ReadonlyArray<string>;
+  readonly user_id: string
+  readonly scope: readonly string[]
 }
 
 export interface IViewContext {
-  readonly authenticated: boolean;
-  readonly csrf: string;
-  readonly location: string;
-  readonly origin?: string;
-  readonly isPlatformAdmin: boolean;
+  readonly authenticated: boolean
+  readonly csrf: string
+  readonly location: string
+  readonly origin?: string
+  readonly isPlatformAdmin: boolean
 }
 
 export interface IContext {
-  readonly app: IAppConfig;
-  readonly routePartOf: RouteActiveChecker;
-  readonly linkTo: RouteLinker;
-  readonly absoluteLinkTo: RouteLinker;
-  readonly log: Logger;
-  readonly token: Token;
-  readonly session: CookieSessionInterfaces.CookieSessionObject;
-  readonly viewContext: IViewContext;
+  readonly app: IAppConfig
+  readonly routePartOf: RouteActiveChecker
+  readonly linkTo: RouteLinker
+  readonly absoluteLinkTo: RouteLinker
+  readonly log: Logger
+  readonly token: Token
+  readonly session: CookieSessionInterfaces.CookieSessionObject
+  readonly viewContext: IViewContext
 }
 
-export function initContext(
+export function initContext (
   req: any,
   router: Router,
   route: Route,
-  config: IAppConfig,
+  config: IAppConfig
 ): IContext {
-  const origin = req.token && req.token.origin;
+  const origin = req.token && req.token.origin
   const isPlatformAdmin =
-    req.token && req.token.hasAdminScopes && req.token.hasAdminScopes();
+    req.token && req.token.hasAdminScopes && req.token.hasAdminScopes()
 
   const absoluteLinkTo = (name: string, params: IParameters = {}): string => {
     return router
       .findByName(name)
-      .composeAbsoluteURL(config.domainName, params);
-  };
+      .composeAbsoluteURL(config.domainName, params)
+  }
   const linkTo = (name: string, params: IParameters = {}): string => {
-    return router.findByName(name).composeURL(params);
-  };
+    return router.findByName(name).composeURL(params)
+  }
   const routePartOf = (name: string): boolean =>
-    route.definition.name === name || route.definition.name.startsWith(name);
+    route.definition.name === name || route.definition.name.startsWith(name)
 
   return {
     absoluteLinkTo,
@@ -66,7 +66,7 @@ export function initContext(
       csrf: req.csrfToken(),
       isPlatformAdmin,
       location: config.location,
-      origin,
-    },
-  };
+      origin
+    }
+  }
 }

@@ -80,5 +80,5 @@ export const eventTypeDescriptions: { readonly [event: string]: string } = {
   'audit.route.delete-request': 'Requested deletion of route',
 
   'audit.space.role.add': 'Added role to user',
-  'audit.space.role.remove': 'Removed role from user',
-};
+  'audit.space.role.remove': 'Removed role from user'
+}

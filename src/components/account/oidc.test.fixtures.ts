@@ -19,7 +19,7 @@ export const microsoftDiscoveryDoc = {
     'ver',
     'at_hash',
     'c_hash',
-    'email',
+    'email'
   ],
   cloud_graph_host_name: 'graph.windows.net',
   cloud_instance_name: 'microsoftonline.com',
@@ -37,7 +37,7 @@ export const microsoftDiscoveryDoc = {
     'code',
     'id_token',
     'code id_token',
-    'id_token token',
+    'id_token token'
   ],
   scopes_supported: ['openid', 'profile', 'email', 'offline_access'],
   subject_types_supported: ['pairwise'],
@@ -46,10 +46,10 @@ export const microsoftDiscoveryDoc = {
   token_endpoint_auth_methods_supported: [
     'client_secret_post',
     'private_key_jwt',
-    'client_secret_basic',
+    'client_secret_basic'
   ],
-  userinfo_endpoint: 'https://graph.microsoft.com/oidc/userinfo',
-};
+  userinfo_endpoint: 'https://graph.microsoft.com/oidc/userinfo'
+}
 
 export const googleDiscoveryDoc = {
   authorization_endpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
@@ -65,7 +65,7 @@ export const googleDiscoveryDoc = {
     'locale',
     'name',
     'picture',
-    'sub',
+    'sub'
   ],
   code_challenge_methods_supported: ['plain', 'S256'],
   id_token_signing_alg_values_supported: ['RS256'],
@@ -79,7 +79,7 @@ export const googleDiscoveryDoc = {
     'code id_token',
     'token id_token',
     'code token id_token',
-    'none',
+    'none'
   ],
   revocation_endpoint: 'https://oauth2.googleapis.com/revoke',
   scopes_supported: ['openid', 'email', 'profile'],
@@ -87,7 +87,7 @@ export const googleDiscoveryDoc = {
   token_endpoint: 'https://oauth2.googleapis.com/token',
   token_endpoint_auth_methods_supported: [
     'client_secret_post',
-    'client_secret_basic',
+    'client_secret_basic'
   ],
-  userinfo_endpoint: 'https://openidconnect.googleapis.com/v1/userinfo',
-};
+  userinfo_endpoint: 'https://openidconnect.googleapis.com/v1/userinfo'
+}

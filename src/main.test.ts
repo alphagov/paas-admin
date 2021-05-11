@@ -1,6 +1,6 @@
-import { ChildProcess, spawn } from 'child_process';
+import { ChildProcess, spawn } from 'child_process'
 
-import request from 'supertest';
+import request from 'supertest'
 
 const envVars = {
   ACCOUNTS_SECRET: '__ACCOUNTS_SECRET__',
@@ -24,174 +24,174 @@ const envVars = {
   PROMETHEUS_PASSWORD: 'password',
   PROMETHEUS_USERNAME: 'admin',
   TEST_TIMEOUT: process.env.TEST_TIMEOUT as string,
-  UAA_URL: 'https://example.com/uaa',
-};
-
-export interface IProcess extends ChildProcess {
-  logs?: Array<string>;
-  port?: number;
+  UAA_URL: 'https://example.com/uaa'
 }
 
-jest.setTimeout(parseInt(envVars.TEST_TIMEOUT, 10) || 30000);
+export interface IProcess extends ChildProcess {
+  logs?: string[]
+  port?: number
+}
 
-async function run(env = {}): Promise<any> {
+jest.setTimeout(parseInt(envVars.TEST_TIMEOUT, 10) || 30000)
+
+async function run (env = {}): Promise<any> {
   return await new Promise((resolve, reject) => {
-    const proc: IProcess = spawn(process.argv0, ['./dist/main.js'], { env });
-    let isListening = false;
-    const logs = proc.logs || [];
+    const proc: IProcess = spawn(process.argv0, ['./dist/main.js'], { env })
+    let isListening = false
+    const logs = (proc.logs != null) || []
 
-    // @ts-ignore
+    // @ts-expect-error
     proc.stdout.on('data', data => {
-      logs.push(data.toString());
+      logs.push(data.toString())
       if (!isListening && /listening/.test(data.toString())) {
-        isListening = true;
+        isListening = true
 
         try {
-          proc.port = JSON.parse(data.toString()).port;
+          proc.port = JSON.parse(data.toString()).port
         } catch (err) {
           reject(
             new Error(
-              `expected to be able to parse the log line to extract the port number: ${err}`,
-            ),
-          );
-          proc.kill('SIGKILL');
+              `expected to be able to parse the log line to extract the port number: ${err}`
+            )
+          )
+          proc.kill('SIGKILL')
 
-          return;
+          return
         }
 
-        resolve(proc);
+        resolve(proc)
       }
-    });
+    })
 
     proc.once('close', code => {
       if (!isListening) {
         reject(
-          new Error(`process exited with code ${code}: ${logs.join('\n')}`),
-        );
+          new Error(`process exited with code ${code}: ${logs.join('\n')}`)
+        )
       }
-    });
+    })
 
-    proc.logs = logs;
-  });
+    proc.logs = logs
+  })
 }
 
-async function kill(proc: IProcess, sig?: string) {
+async function kill (proc: IProcess, sig?: string) {
   return await new Promise((resolve, reject) => {
-    proc.once('close', resolve);
-    proc.once('error', reject);
-    proc.kill(sig || 'SIGKILL');
-  });
+    proc.once('close', resolve)
+    proc.once('error', reject)
+    proc.kill(sig || 'SIGKILL')
+  })
 }
 
-async function sleep(ms: number) {
-  return await new Promise(resolve => setTimeout(resolve, ms));
+async function sleep (ms: number) {
+  return await new Promise(resolve => setTimeout(resolve, ms))
 }
 
-async function waitForOutput(
+async function waitForOutput (
   proc: IProcess,
   regexp: RegExp,
-  attempt?: number,
+  attempt?: number
 ): Promise<any> {
   return await new Promise((resolve, reject) => {
-    if (!proc.logs) {
-      return reject(new Error('no logs provided'));
+    if (proc.logs == null) {
+      return reject(new Error('no logs provided'))
     }
 
     for (const line of proc.logs) {
       if (regexp.test(line)) {
-        return resolve(line);
+        return resolve(line)
       }
     }
 
-    const att = attempt || 1;
+    const att = attempt || 1
 
     if (att > 10) {
       return reject(
         new Error(`timeout waiting for log line to match: ${regexp.toString()}\n
-      proc logs: ${proc.logs.join('\n')}`),
-      );
+      proc logs: ${proc.logs.join('\n')}`)
+      )
     }
 
     return resolve(
-      sleep(100).then(async () => await waitForOutput(proc, regexp, att + 1)),
-    );
-  });
+      sleep(100).then(async () => await waitForOutput(proc, regexp, att + 1))
+    )
+  })
 }
 
 describe.only('main test suite', () => {
   it('should listen on a random port by default', async () => {
-    const proc = await run(envVars);
-    expect(proc.port).toBeGreaterThan(0);
+    const proc = await run(envVars)
+    expect(proc.port).toBeGreaterThan(0)
 
     const response = await request(`http://localhost:${proc.port}`).get(
-      '/healthcheck',
-    );
-    expect(response.status).toEqual(200);
+      '/healthcheck'
+    )
+    expect(response.status).toEqual(200)
 
-    await kill(proc);
-  });
+    await kill(proc)
+  })
 
   it('should listen on PORT environment variable', async () => {
-    const newEnvVars = { ...envVars, PORT: 4551 };
-    const proc = await run(newEnvVars);
-    const response = await request('http://localhost:4551').get('/healthcheck');
+    const newEnvVars = { ...envVars, PORT: 4551 }
+    const proc = await run(newEnvVars)
+    const response = await request('http://localhost:4551').get('/healthcheck')
 
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(200)
 
-    return kill(proc);
-  });
+    return await kill(proc)
+  })
 
   it('should emit structured request logs', async () => {
-    const newEnvVars = { ...envVars, LOG_LEVEL: 'info' };
+    const newEnvVars = { ...envVars, LOG_LEVEL: 'info' }
 
-    const proc = await run(newEnvVars);
+    const proc = await run(newEnvVars)
     try {
       const response = await request(`http://localhost:${proc.port}`).get(
-        '/healthcheck',
-      );
-      expect(response.status).toEqual(200);
+        '/healthcheck'
+      )
+      expect(response.status).toEqual(200)
 
-      const line = await waitForOutput(proc, /request completed/);
-      const data = JSON.parse(line);
-      expect(data.req).toBeDefined();
-      expect(data.req.method).toEqual('GET');
+      const line = await waitForOutput(proc, /request completed/)
+      const data = JSON.parse(line)
+      expect(data.req).toBeDefined()
+      expect(data.req.method).toEqual('GET')
     } catch (err) {
-      expect(err).not.toBeDefined();
+      expect(err).not.toBeDefined()
     }
 
-    return kill(proc);
-  });
+    return await kill(proc)
+  })
 
   it('should exit gracefully on SIGTERM', async () => {
-    const proc = await run(envVars);
-    const code = await kill(proc, 'SIGTERM');
-    expect(code).toEqual(0);
-  });
+    const proc = await run(envVars)
+    const code = await kill(proc, 'SIGTERM')
+    expect(code).toEqual(0)
+  })
 
   it('should exit gracefully on SIGINT', async () => {
-    const proc = await run(envVars);
-    const code = await kill(proc, 'SIGINT');
-    expect(code).toEqual(0);
-  });
+    const proc = await run(envVars)
+    const code = await kill(proc, 'SIGINT')
+    expect(code).toEqual(0)
+  })
 
   it('should exit with non-zero status on error (invalid PORT)', done => {
-    const newEnvVars = { ...envVars, PORT: '-1' };
-    const proc = spawn(process.argv0, ['./dist/main.js'], { env: newEnvVars });
-    proc.once('error', fail);
+    const newEnvVars = { ...envVars, PORT: '-1' }
+    const proc = spawn(process.argv0, ['./dist/main.js'], { env: newEnvVars })
+    proc.once('error', fail)
     proc.once('close', code => {
-      expect(code).not.toEqual(0);
-      done();
-    });
-  });
+      expect(code).not.toEqual(0)
+      done()
+    })
+  })
 
   it('should exit due to a missing variable', done => {
-    const newEnvVars = { ...envVars };
-    newEnvVars.API_URL = '';
-    const proc = spawn(process.argv0, ['./dist/main.js'], { env: newEnvVars });
-    proc.once('error', fail);
+    const newEnvVars = { ...envVars }
+    newEnvVars.API_URL = ''
+    const proc = spawn(process.argv0, ['./dist/main.js'], { env: newEnvVars })
+    proc.once('error', fail)
     proc.once('close', code => {
-      expect(code).not.toEqual(0);
-      done();
-    });
-  });
-});
+      expect(code).not.toEqual(0)
+      done()
+    })
+  })
+})

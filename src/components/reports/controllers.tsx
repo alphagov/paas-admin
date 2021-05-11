@@ -1,125 +1,125 @@
-import lodash, { Dictionary, flatMap, groupBy, sum, sumBy, uniq } from 'lodash';
-import moment from 'moment';
-import React from 'react';
+import lodash, { Dictionary, flatMap, groupBy, sum, sumBy, uniq } from 'lodash'
+import moment from 'moment'
+import React from 'react'
 
-import { Template } from '../../layouts';
-import { BillingClient } from '../../lib/billing';
-import CloudFoundryClient from '../../lib/cf';
+import { Template } from '../../layouts'
+import { BillingClient } from '../../lib/billing'
+import CloudFoundryClient from '../../lib/cf'
 import {
   IOrganization,
   IOrganizationQuota,
   ISpace,
-  IV3OrganizationResource,
-} from '../../lib/cf/types';
-import { IParameters, IResponse } from '../../lib/router';
-import { IContext } from '../app/context';
+  IV3OrganizationResource
+} from '../../lib/cf/types'
+import { IParameters, IResponse } from '../../lib/router'
+import { IContext } from '../app/context'
 
 import {
   CostByServiceReport,
   CostReport,
   OrganizationsReport,
-  VisualisationPage,
-} from './views';
+  VisualisationPage
+} from './views'
 
-const DATE = 'YYYY-MM-DD';
+const DATE = 'YYYY-MM-DD'
 
 interface ICostable {
-  readonly incVAT: number;
-  readonly exVAT: number;
-  readonly exVATWithAdminFee: number;
+  readonly incVAT: number
+  readonly exVAT: number
+  readonly exVATWithAdminFee: number
 }
 
-type ICostSummary = ICostable;
+type ICostSummary = ICostable
 
 interface IOrgCostRecord extends ICostable {
-  readonly orgGUID: string;
-  readonly orgName: string;
+  readonly orgGUID: string
+  readonly orgName: string
 
-  readonly quotaGUID: string;
-  readonly quotaName: string;
+  readonly quotaGUID: string
+  readonly quotaName: string
 }
 
 interface IQuotaCostRecord extends ICostable {
-  readonly quotaGUID: string;
-  readonly quotaName: string;
+  readonly quotaGUID: string
+  readonly quotaName: string
 }
 
 export interface IBillableByService {
-  readonly serviceGroup: string;
-  readonly incVAT: number;
-  readonly exVAT: number;
-  readonly exVATWithAdminFee: number;
+  readonly serviceGroup: string
+  readonly incVAT: number
+  readonly exVAT: number
+  readonly exVATWithAdminFee: number
 }
 
 export interface IBillableByOrganisation {
-  readonly org: IV3OrganizationResource;
-  readonly exVAT: number;
-  readonly exVATWithAdminFee: number;
+  readonly org: IV3OrganizationResource
+  readonly exVAT: number
+  readonly exVATWithAdminFee: number
 }
 
 export interface IBillableByOrganisationAndService extends IBillableByService {
-  readonly orgGUID: string;
-  readonly orgName: string;
+  readonly orgGUID: string
+  readonly orgName: string
 }
 
 export interface IBillableByOrganisationAndSpaceAndService
   extends IBillableByOrganisationAndService {
-  readonly spaceGUID: string;
-  readonly spaceName: string;
+  readonly spaceGUID: string
+  readonly spaceName: string
 }
 
 interface ID3SankeyNode {
-  readonly name: string;
+  readonly name: string
 }
 
 interface ID3SankeyLink {
-  readonly source: number;
-  readonly target: number;
-  readonly value: number;
+  readonly source: number
+  readonly target: number
+  readonly value: number
 }
 
 interface ID3SankeyInput {
-  readonly nodes: ReadonlyArray<ID3SankeyNode>;
-  readonly links: ReadonlyArray<ID3SankeyLink>;
+  readonly nodes: readonly ID3SankeyNode[]
+  readonly links: readonly ID3SankeyLink[]
 }
 
 interface IOrgAndOwner {
-  readonly org: string;
-  readonly owner: string;
+  readonly org: string
+  readonly owner: string
 }
 
-function trialExpiryDate(creation: Date): Date {
+function trialExpiryDate (creation: Date): Date {
   return moment(creation)
     .add(90, 'days')
-    .toDate();
+    .toDate()
 }
 
-export function buildD3SankeyInput(
-  billables: ReadonlyArray<IBillableByOrganisationAndService>,
-  organisationsByOwner: ReadonlyArray<IOrgAndOwner>,
+export function buildD3SankeyInput (
+  billables: readonly IBillableByOrganisationAndService[],
+  organisationsByOwner: readonly IOrgAndOwner[]
 ): ID3SankeyInput {
-  const services = uniq(billables.map(x => x.serviceGroup));
-  const orgNames = uniq(billables.map(x => x.orgName));
+  const services = uniq(billables.map(x => x.serviceGroup))
+  const orgNames = uniq(billables.map(x => x.orgName))
   const organisationsByOwnerWithBills = organisationsByOwner.filter(x =>
-    orgNames.includes(x.org),
-  );
-  const owners = uniq(organisationsByOwnerWithBills.map(x => x.owner));
-  const nodes = [...services, ...orgNames, ...owners];
+    orgNames.includes(x.org)
+  )
+  const owners = uniq(organisationsByOwnerWithBills.map(x => x.owner))
+  const nodes = [...services, ...orgNames, ...owners]
 
   if (nodes.length - owners.length === 0) {
-    return { links: [], nodes: [] };
+    return { links: [], nodes: [] }
   }
 
   const nodeIndexByName = nodes.reduce(
     (acc, x, index) => ({ ...acc, [x]: index }),
-    {},
-  ) as { readonly [_: string]: number };
+    {}
+  ) as { readonly [_: string]: number }
 
   const billableLinks = billables.map(x => ({
     source: nodeIndexByName[x.serviceGroup],
     target: nodeIndexByName[x.orgName],
-    value: x.exVAT,
-  }));
+    value: x.exVAT
+  }))
 
   const ownerLinks = organisationsByOwnerWithBills.map(orgOwner => ({
     source: nodeIndexByName[orgOwner.org],
@@ -127,332 +127,335 @@ export function buildD3SankeyInput(
     value: sum(
       billables
         .filter(billable => billable.orgName === orgOwner.org)
-        .map(billable => billable.exVAT),
-    ),
-  }));
+        .map(billable => billable.exVAT)
+    )
+  }))
 
   return {
     links: [...billableLinks, ...ownerLinks],
-    nodes: nodes.map(x => ({ name: x })),
-  };
+    nodes: nodes.map(x => ({ name: x }))
+  }
 }
 
-export function sumRecords(
-  records: ReadonlyArray<IBillableEvent>,
-  adminFee: number,
+export function sumRecords (
+  records: readonly IBillableEvent[],
+  adminFee: number
 ): ICostSummary {
-  let incVAT = 0;
-  let exVAT = 0;
+  let incVAT = 0
+  let exVAT = 0
 
   records.forEach(record => {
-    incVAT += record.price.incVAT;
-    exVAT += record.price.exVAT;
-  });
+    incVAT += record.price.incVAT
+    exVAT += record.price.exVAT
+  })
 
-  const exVATWithAdminFee = exVAT * (1 + adminFee);
+  const exVATWithAdminFee = exVAT * (1 + adminFee)
 
-  return { incVAT, exVAT, exVATWithAdminFee };
+  return { incVAT, exVAT, exVATWithAdminFee }
 }
 
-export function aggregateBillingEvents(
-  billableEvents: ReadonlyArray<IBillableEvent>,
-): { readonly [key: string]: ReadonlyArray<IBillableEvent> } {
+export function aggregateBillingEvents (
+  billableEvents: readonly IBillableEvent[]
+): { readonly [key: string]: readonly IBillableEvent[] } {
   return billableEvents.reduce(
     (
-      accumulator: { readonly [key: string]: ReadonlyArray<IBillableEvent> },
-      billableEvent: IBillableEvent,
+      accumulator: { readonly [key: string]: readonly IBillableEvent[] },
+      billableEvent: IBillableEvent
     ) => {
-      const accEvents = accumulator[billableEvent.orgGUID] || [];
+      const accEvents = accumulator[billableEvent.orgGUID] || []
 
       return {
         ...accumulator,
-        [billableEvent.orgGUID]: accEvents.concat([billableEvent]),
-      };
+        [billableEvent.orgGUID]: accEvents.concat([billableEvent])
+      }
     },
-    {},
-  );
+    {}
+  )
 }
 
-export function createOrgCostRecords(
-  orgs: ReadonlyArray<IOrganization>,
+export function createOrgCostRecords (
+  orgs: readonly IOrganization[],
   orgQuotas: { readonly [key: string]: IOrganizationQuota },
-  orgBillableEvents: { readonly [key: string]: ReadonlyArray<IBillableEvent> },
-  adminFee: number,
-): ReadonlyArray<IOrgCostRecord> {
+  orgBillableEvents: { readonly [key: string]: readonly IBillableEvent[] },
+  adminFee: number
+): readonly IOrgCostRecord[] {
   return orgs.map(org => {
-    const quota = orgQuotas[org.metadata.guid];
-    const billableEvents = orgBillableEvents[org.metadata.guid] || [];
+    const quota = orgQuotas[org.metadata.guid]
+    const billableEvents = orgBillableEvents[org.metadata.guid] || []
 
-    const incVAT = billableEvents.reduce((acc: number, e: IBillableEvent) => acc + e.price.incVAT, 0);
-    const exVAT = billableEvents.reduce((acc: number, e: IBillableEvent) => acc + e.price.exVAT, 0);
-    const exVATWithAdminFee = exVAT * (1 + adminFee);
+    const incVAT = billableEvents.reduce((acc: number, e: IBillableEvent) => acc + e.price.incVAT, 0)
+    const exVAT = billableEvents.reduce((acc: number, e: IBillableEvent) => acc + e.price.exVAT, 0)
+    const exVATWithAdminFee = exVAT * (1 + adminFee)
 
     return {
-      exVAT, exVATWithAdminFee,
+      exVAT,
+      exVATWithAdminFee,
       incVAT,
       orgGUID: org.metadata.guid,
       orgName: org.entity.name,
       quotaGUID: quota.metadata.guid,
-      quotaName: quota.entity.name,
-    };
-  });
+      quotaName: quota.entity.name
+    }
+  })
 }
 
-export function createQuotaCostRecords(
-  records: ReadonlyArray<IOrgCostRecord>,
-): ReadonlyArray<IQuotaCostRecord> {
+export function createQuotaCostRecords (
+  records: readonly IOrgCostRecord[]
+): readonly IQuotaCostRecord[] {
   const costsByQuota = records.reduce(
     (
       accumulator: { readonly [key: string]: IQuotaCostRecord },
-      record: IOrgCostRecord,
+      record: IOrgCostRecord
     ) => {
-      const accumulatedRecord = accumulator[record.quotaGUID];
-      const currentIncVAT = accumulatedRecord ? accumulatedRecord.incVAT : 0;
-      const currentExVAT = accumulatedRecord ? accumulatedRecord.exVAT : 0;
-      const currentExVATWithAdminFee = accumulatedRecord ? accumulatedRecord.exVATWithAdminFee : 0;
+      const accumulatedRecord = accumulator[record.quotaGUID]
+      const currentIncVAT = accumulatedRecord ? accumulatedRecord.incVAT : 0
+      const currentExVAT = accumulatedRecord ? accumulatedRecord.exVAT : 0
+      const currentExVATWithAdminFee = accumulatedRecord ? accumulatedRecord.exVATWithAdminFee : 0
 
-      const incVAT = currentIncVAT + record.incVAT;
-      const exVAT = currentExVAT + record.exVAT;
-      const exVATWithAdminFee = currentExVATWithAdminFee + (record.exVATWithAdminFee);
+      const incVAT = currentIncVAT + record.incVAT
+      const exVAT = currentExVAT + record.exVAT
+      const exVATWithAdminFee = currentExVATWithAdminFee + (record.exVATWithAdminFee)
 
       const quota = {
-        exVAT, exVATWithAdminFee, incVAT,
+        exVAT,
+        exVATWithAdminFee,
+        incVAT,
         quotaGUID: record.quotaGUID,
-        quotaName: record.quotaName,
-      };
+        quotaName: record.quotaName
+      }
 
-      return { ...accumulator, [record.quotaGUID]: quota };
+      return { ...accumulator, [record.quotaGUID]: quota }
     },
-    {},
-  );
+    {}
+  )
 
-  return Object.values(costsByQuota);
+  return Object.values(costsByQuota)
 }
 
-function compareOrgName(a: { readonly orgName: string }, b: { readonly orgName: string }): number {
-  return a.orgName.localeCompare(b.orgName);
+function compareOrgName (a: { readonly orgName: string }, b: { readonly orgName: string }): number {
+  return a.orgName.localeCompare(b.orgName)
 }
 
-function compareSpaceName(a: { readonly spaceName: string }, b: { readonly spaceName: string }): number {
-  return a.spaceName.localeCompare(b.spaceName);
+function compareSpaceName (a: { readonly spaceName: string }, b: { readonly spaceName: string }): number {
+  return a.spaceName.localeCompare(b.spaceName)
 }
 
-function comparePriceIncVAT(a: { readonly incVAT: number }, b: { readonly incVAT: number }): number {
-  return b.incVAT - a.incVAT;
+function comparePriceIncVAT (a: { readonly incVAT: number }, b: { readonly incVAT: number }): number {
+  return b.incVAT - a.incVAT
 }
 
-export function filterRealOrgs(
-  orgs: ReadonlyArray<IV3OrganizationResource>,
-): ReadonlyArray<IV3OrganizationResource> {
+export function filterRealOrgs (
+  orgs: readonly IV3OrganizationResource[]
+): readonly IV3OrganizationResource[] {
   return orgs.filter(org => {
-    if (org.name.match(/^(CATS|ACC|BACC|SMOKE|PERF)-/)) {
-      return false;
+    if (org.name.match(/^(CATS|ACC|BACC|SMOKE|PERF)-/) != null) {
+      return false
     }
 
     if (org.name === 'admin') {
-      return false;
+      return false
     }
 
-    return true;
-  });
+    return true
+  })
 }
 
-function filterTrialOrgs(
+function filterTrialOrgs (
   trialQuotaGUID: string,
-  orgs: ReadonlyArray<IV3OrganizationResource>,
-): ReadonlyArray<IV3OrganizationResource> {
+  orgs: readonly IV3OrganizationResource[]
+): readonly IV3OrganizationResource[] {
   const trialOrgs = orgs.filter(
-    o => o.relationships.quota.data.guid === trialQuotaGUID,
-  );
+    o => o.relationships.quota.data.guid === trialQuotaGUID
+  )
 
   // return the oldest orgs first
-  return lodash.sortBy(trialOrgs, o => new Date(o.created_at));
+  return lodash.sortBy(trialOrgs, o => new Date(o.created_at))
 }
 
-export function filterBillableOrgs(
+export function filterBillableOrgs (
   trialQuotaGUID: string,
-  orgs: ReadonlyArray<IV3OrganizationResource>,
-): ReadonlyArray<IV3OrganizationResource> {
+  orgs: readonly IV3OrganizationResource[]
+): readonly IV3OrganizationResource[] {
   const billableOrgs = orgs.filter(
-    o => o.relationships.quota.data.guid !== trialQuotaGUID,
-  );
+    o => o.relationships.quota.data.guid !== trialQuotaGUID
+  )
 
   // return the newest orgs first (reverse)
-  return lodash.sortBy(billableOrgs, o => new Date(o.created_at)).reverse();
+  return lodash.sortBy(billableOrgs, o => new Date(o.created_at)).reverse()
 }
 
-export function getBillablesByOrganisation(
-  orgs: ReadonlyArray<IV3OrganizationResource>,
-  billableEvents: ReadonlyArray<IBillableEvent>,
-  adminFee: number,
-): ReadonlyArray<IBillableByOrganisation> {
-  const billableEventsByOrganisation = groupBy(billableEvents, e => e.orgGUID);
+export function getBillablesByOrganisation (
+  orgs: readonly IV3OrganizationResource[],
+  billableEvents: readonly IBillableEvent[],
+  adminFee: number
+): readonly IBillableByOrganisation[] {
+  const billableEventsByOrganisation = groupBy(billableEvents, e => e.orgGUID)
 
   return orgs.map(org => {
-    const exVAT = sumBy(billableEventsByOrganisation[org.guid], x => x.price.exVAT) || 0;
-    const exVATWithAdminFee = exVAT * (1 + adminFee);
+    const exVAT = sumBy(billableEventsByOrganisation[org.guid], x => x.price.exVAT) || 0
+    const exVATWithAdminFee = exVAT * (1 + adminFee)
 
     return {
-      exVAT, exVATWithAdminFee,
-      org,
-    };
-  });
+      exVAT,
+      exVATWithAdminFee,
+      org
+    }
+  })
 }
 
 export const testable = {
   filterBillableOrgs,
   filterRealOrgs,
   filterTrialOrgs,
-  trialExpiryDate,
-};
+  trialExpiryDate
+}
 
-function getServiceGroup(billableEvent: IBillableEvent): string {
-  const details = billableEvent.price.details;
+function getServiceGroup (billableEvent: IBillableEvent): string {
+  const details = billableEvent.price.details
   if (details.length < 1) {
-    return 'unknown';
+    return 'unknown'
   }
-  const firstPlan = details[0].planName;
-  const planPrefix = firstPlan.split(' ')[0];
+  const firstPlan = details[0].planName
+  const planPrefix = firstPlan.split(' ')[0]
 
   switch (planPrefix) {
     case 'task':
     case 'staging':
     case 'app':
-      return 'compute';
+      return 'compute'
     default:
-      return planPrefix;
+      return planPrefix
   }
 }
 
-export function getBillableEventsByService(
-  billableEvents: ReadonlyArray<IBillableEvent>,
-  adminFee: number,
-): ReadonlyArray<IBillableByService> {
+export function getBillableEventsByService (
+  billableEvents: readonly IBillableEvent[],
+  adminFee: number
+): readonly IBillableByService[] {
   const billableEventsByService = Object.entries(
-    groupBy(billableEvents, getServiceGroup),
-  );
+    groupBy(billableEvents, getServiceGroup)
+  )
 
   return billableEventsByService
     .map(([serviceGroup, billableEventsForService]) => {
-      const incVAT = sumBy(billableEventsForService, x => x.price.incVAT);
-      const exVAT = sumBy(billableEventsForService, x => x.price.exVAT);
-      const exVATWithAdminFee = exVAT * (1 + adminFee);
+      const incVAT = sumBy(billableEventsForService, x => x.price.incVAT)
+      const exVAT = sumBy(billableEventsForService, x => x.price.exVAT)
+      const exVATWithAdminFee = exVAT * (1 + adminFee)
 
-      return { exVAT, exVATWithAdminFee, incVAT, serviceGroup };
+      return { exVAT, exVATWithAdminFee, incVAT, serviceGroup }
     })
     .sort(comparePriceIncVAT)
-  ;
 }
 
-export function getBillableEventsByOrganisationAndService(
-  billableEvents: ReadonlyArray<IBillableEvent>,
-  orgsByGUID: Dictionary<ReadonlyArray<IV3OrganizationResource>>,
-  adminFee: number,
-): ReadonlyArray<IBillableByOrganisationAndService> {
+export function getBillableEventsByOrganisationAndService (
+  billableEvents: readonly IBillableEvent[],
+  orgsByGUID: Dictionary<readonly IV3OrganizationResource[]>,
+  adminFee: number
+): readonly IBillableByOrganisationAndService[] {
   const billableEventsByOrgGUID = Object.entries(
-    groupBy(billableEvents, x => x.orgGUID),
-  );
+    groupBy(billableEvents, x => x.orgGUID)
+  )
 
   return flatMap(billableEventsByOrgGUID, ([orgGUID, billableEventsForOrg]) => {
-    const org = (orgsByGUID[orgGUID] || [])[0];
-    const orgName = org ? org.name : 'unknown';
+    const org = (orgsByGUID[orgGUID] || [])[0]
+    const orgName = org ? org.name : 'unknown'
 
     return getBillableEventsByService(billableEventsForOrg, adminFee).map(x => ({
       ...x,
       orgGUID,
-      orgName,
-    }));
-  }).sort((a, b) => compareOrgName(a, b) || comparePriceIncVAT(a, b));
+      orgName
+    }))
+  }).sort((a, b) => compareOrgName(a, b) || comparePriceIncVAT(a, b))
 }
 
-export function getBillableEventsByOrganisationAndSpaceAndService(
-  billableEvents: ReadonlyArray<IBillableEvent>,
-  orgsByGUID: Dictionary<ReadonlyArray<IV3OrganizationResource>>,
-  spacesByGUID: Dictionary<ReadonlyArray<ISpace>>,
-  adminFee: number,
-): ReadonlyArray<IBillableByOrganisationAndSpaceAndService> {
+export function getBillableEventsByOrganisationAndSpaceAndService (
+  billableEvents: readonly IBillableEvent[],
+  orgsByGUID: Dictionary<readonly IV3OrganizationResource[]>,
+  spacesByGUID: Dictionary<readonly ISpace[]>,
+  adminFee: number
+): readonly IBillableByOrganisationAndSpaceAndService[] {
   const billableEventsByOrgGUID = Object.entries(
-    groupBy(billableEvents, x => x.orgGUID),
-  );
+    groupBy(billableEvents, x => x.orgGUID)
+  )
 
   return flatMap(billableEventsByOrgGUID, ([orgGUID, billableEventsForOrg]) => {
-    const org = (orgsByGUID[orgGUID] || [])[0];
-    const orgName = org ? org.name : 'unknown';
+    const org = (orgsByGUID[orgGUID] || [])[0]
+    const orgName = org ? org.name : 'unknown'
     const orgBillableEventsBySpaceGUID = Object.entries(
-      groupBy(billableEventsForOrg, x => x.spaceGUID),
-    );
+      groupBy(billableEventsForOrg, x => x.spaceGUID)
+    )
 
     return flatMap(
       orgBillableEventsBySpaceGUID,
       ([spaceGUID, billableEventsForSpace]) => {
-        const space = (spacesByGUID[spaceGUID] || [])[0];
-        const spaceName = space ? space.entity.name : 'unknown';
+        const space = (spacesByGUID[spaceGUID] || [])[0]
+        const spaceName = space ? space.entity.name : 'unknown'
 
         return getBillableEventsByService(billableEventsForSpace, adminFee).map(x => ({
           ...x,
           orgGUID,
           orgName,
           spaceGUID,
-          spaceName,
-        }));
-      },
-    );
+          spaceName
+        }))
+      }
+    )
   }).sort(
     (a, b) =>
       compareOrgName(a, b) ||
       compareSpaceName(a, b) ||
-      comparePriceIncVAT(a, b),
-  );
+      comparePriceIncVAT(a, b)
+  )
 }
 
-function getFirstBillableEventQuotaGUID(billableEvents: ReadonlyArray<IBillableEvent>): string | undefined {
-  return billableEvents && billableEvents[0] && billableEvents[0].quotaGUID;
+function getFirstBillableEventQuotaGUID (billableEvents: readonly IBillableEvent[]): string | undefined {
+  return billableEvents && billableEvents[0] && billableEvents[0].quotaGUID
 }
 
-export async function viewPmoOrgSpendReportCSV(
+export async function viewPmoOrgSpendReportCSV (
   ctx: IContext,
-  params: IParameters,
+  params: IParameters
 ): Promise<IResponse> {
-  const rangeStart = moment(params.rangeStart, DATE);
-  const rangeStop = moment(rangeStart).add(1, 'month');
+  const rangeStart = moment(params.rangeStart, DATE)
+  const rangeStop = moment(rangeStart).add(1, 'month')
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
   const billingClient = new BillingClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.billingAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
-  const trialQuotaCandidates = await cf.quotaDefinitions({ name: 'default' });
+  const trialQuotaCandidates = await cf.quotaDefinitions({ name: 'default' })
   /* istanbul ignore next */
   if (trialQuotaCandidates.length !== 1) {
-    throw new Error('Could not find default quota');
+    throw new Error('Could not find default quota')
   }
-  const trialQuotaGUID = trialQuotaCandidates[0].metadata.guid;
+  const trialQuotaGUID = trialQuotaCandidates[0].metadata.guid
 
-  const realOrgs = filterRealOrgs(await cf.v3Organizations());
-  const billableOrgs = filterBillableOrgs(trialQuotaGUID, realOrgs);
+  const realOrgs = filterRealOrgs(await cf.v3Organizations())
+  const billableOrgs = filterBillableOrgs(trialQuotaGUID, realOrgs)
 
-  const billableOrgsByGUID = groupBy(billableOrgs, x => x.guid);
-  const billableOrgGUIDs = Object.keys(billableOrgsByGUID);
+  const billableOrgsByGUID = groupBy(billableOrgs, x => x.guid)
+  const billableOrgGUIDs = Object.keys(billableOrgsByGUID)
   const billableEvents = await billingClient.getBillableEvents({
     orgGUIDs: billableOrgGUIDs,
     rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStop.toDate(),
-  });
+    rangeStop: rangeStop.toDate()
+  })
   const billablesByOrganisation = getBillablesByOrganisation(
     billableOrgs,
     billableEvents,
-    ctx.app.adminFee,
-  );
+    ctx.app.adminFee
+  )
 
-  const nameMonth = moment(rangeStart).format('YYYY-MM');
-  const nameLocation = ctx.app.location.toLowerCase();
+  const nameMonth = moment(rangeStart).format('YYYY-MM')
+  const nameLocation = ctx.app.location.toLowerCase()
 
   const csvData = [
     ['Billing month', 'Org', 'Region', 'Unique ID', 'Spend in GBP without VAT'],
@@ -464,172 +467,172 @@ export async function viewPmoOrgSpendReportCSV(
       (
         billablesForOrg.exVAT +
         billablesForOrg.exVAT * ctx.app.adminFee
-      ).toFixed(2),
-    ]),
-  ];
+      ).toFixed(2)
+    ])
+  ]
 
   return {
     download: {
       data: csvData.map(line => line.join(',')).join('\n'),
-      name: `paas-pmo-org-spend-${nameLocation}-${nameMonth}.csv`,
+      name: `paas-pmo-org-spend-${nameLocation}-${nameMonth}.csv`
     },
-    mimeType: 'text/csv',
-  };
+    mimeType: 'text/csv'
+  }
 }
 
-export async function viewVisualisation(
+export async function viewVisualisation (
   ctx: IContext,
-  params: IParameters,
+  params: IParameters
 ): Promise<IResponse> {
-  const rangeStart = moment(params.rangeStart, DATE);
-  const rangeStop = moment(rangeStart).add(1, 'month');
+  const rangeStart = moment(params.rangeStart, DATE)
+  const rangeStop = moment(rangeStart).add(1, 'month')
 
   const billingClient = new BillingClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.billingAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
   const orgs = (await cf.v3Organizations()).filter(
-    org => !org.name.match(/^(CAT|SMOKE|PERF|B?ACC)/),
-  );
+    org => org.name.match(/^(CAT|SMOKE|PERF|B?ACC)/) == null
+  )
 
-  const orgsByGUID = groupBy(orgs, x => x.guid);
-  const orgGUIDs = Object.keys(orgsByGUID);
+  const orgsByGUID = groupBy(orgs, x => x.guid)
+  const orgGUIDs = Object.keys(orgsByGUID)
 
   const billableEvents = await billingClient.getBillableEvents({
     orgGUIDs,
     rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStop.toDate(),
-  });
+    rangeStop: rangeStop.toDate()
+  })
 
   const billablesByOrganisationAndService = getBillableEventsByOrganisationAndService(
     billableEvents,
     orgsByGUID,
-    ctx.app.adminFee,
-  );
+    ctx.app.adminFee
+  )
   /* istanbul ignore next */
   const organisationsByOwner = orgs.map(x => ({
     org: x.name,
-    owner: x.metadata.annotations.owner || 'Other',
-  }));
+    owner: x.metadata.annotations.owner || 'Other'
+  }))
   const data = buildD3SankeyInput(
     billablesByOrganisationAndService,
-    organisationsByOwner,
-  );
+    organisationsByOwner
+  )
 
-  const template = new Template(ctx.viewContext, 'Costs Report Visualisation');
+  const template = new Template(ctx.viewContext, 'Costs Report Visualisation')
   template.subnav = {
     items: [
       {
         link: ctx.linkTo('admin.reports.cost', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: rangeStart.format(DATE)
         }),
-        text: 'Summary',
+        text: 'Summary'
       },
       {
         link: ctx.linkTo('admin.reports.costbyservice', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: rangeStart.format(DATE)
         }),
-        text: 'By service',
+        text: 'By service'
       },
       {
         active: true,
         link: ctx.linkTo('admin.reports.visualisation', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: rangeStart.format(DATE)
         }),
-        text: 'Visualisation',
-      },
-    ],
-  };
+        text: 'Visualisation'
+      }
+    ]
+  }
 
   return {
     body: template.render(
       <VisualisationPage
         date={moment(rangeStart).format('MMMM YYYY')}
         data={data.nodes.length > 0 ? data : undefined}
-      />,
-    ),
-  };
+      />
+    )
+  }
 }
 
-export async function viewCostByServiceReport(
+export async function viewCostByServiceReport (
   ctx: IContext,
-  params: IParameters,
+  params: IParameters
 ): Promise<IResponse> {
-  const rangeStart = moment(params.rangeStart, DATE);
-  const rangeStop = moment(rangeStart).add(1, 'month');
+  const rangeStart = moment(params.rangeStart, DATE)
+  const rangeStop = moment(rangeStart).add(1, 'month')
 
   const billingClient = new BillingClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.billingAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
   const orgs = (await cf.v3Organizations()).filter(
-    org => !org.name.match(/^(CAT|SMOKE|PERF|ACC|BACC)/),
-  );
-  const orgsByGUID = groupBy(orgs, x => x.guid);
-  const orgGUIDs = Object.keys(orgsByGUID);
+    org => org.name.match(/^(CAT|SMOKE|PERF|ACC|BACC)/) == null
+  )
+  const orgsByGUID = groupBy(orgs, x => x.guid)
+  const orgGUIDs = Object.keys(orgsByGUID)
 
   const billableEvents = await billingClient.getBillableEvents({
     orgGUIDs,
     rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStop.toDate(),
-  });
+    rangeStop: rangeStop.toDate()
+  })
 
-  const spaces = await cf.spaces();
-  const spacesByGUID = groupBy(spaces, x => x.metadata.guid);
+  const spaces = await cf.spaces()
+  const spacesByGUID = groupBy(spaces, x => x.metadata.guid)
 
-  const billablesByService = getBillableEventsByService(billableEvents, ctx.app.adminFee);
+  const billablesByService = getBillableEventsByService(billableEvents, ctx.app.adminFee)
   const billablesByOrganisationAndService = getBillableEventsByOrganisationAndService(
     billableEvents,
     orgsByGUID,
-    ctx.app.adminFee,
-  );
+    ctx.app.adminFee
+  )
   const billablesByOrganisationAndSpaceAndService = getBillableEventsByOrganisationAndSpaceAndService(
     billableEvents,
     orgsByGUID,
     spacesByGUID,
-    ctx.app.adminFee,
-  );
+    ctx.app.adminFee
+  )
 
-  const template = new Template(ctx.viewContext, 'Costs By Service Report');
+  const template = new Template(ctx.viewContext, 'Costs By Service Report')
   template.subnav = {
     items: [
       {
         link: ctx.linkTo('admin.reports.cost', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: rangeStart.format(DATE)
         }),
-        text: 'Summary',
+        text: 'Summary'
       },
       {
         active: true,
         link: ctx.linkTo('admin.reports.costbyservice', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: rangeStart.format(DATE)
         }),
-        text: 'By service',
+        text: 'By service'
       },
       {
         link: ctx.linkTo('admin.reports.visualisation', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: rangeStart.format(DATE)
         }),
-        text: 'Visualisation',
-      },
-    ],
-  };
+        text: 'Visualisation'
+      }
+    ]
+  }
 
   return {
     body: template.render(
@@ -640,53 +643,53 @@ export async function viewCostByServiceReport(
         billablesByOrganisationAndSpaceAndService={
           billablesByOrganisationAndSpaceAndService
         }
-      />,
-    ),
-  };
+      />
+    )
+  }
 }
 
-export async function viewOrganizationsReport(
+export async function viewOrganizationsReport (
   ctx: IContext,
-  _params: IParameters,
+  _params: IParameters
 ): Promise<IResponse> {
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
-  const trialQuotaCandidates = await cf.quotaDefinitions({ name: 'default' });
+  const trialQuotaCandidates = await cf.quotaDefinitions({ name: 'default' })
 
   if (trialQuotaCandidates.length !== 1) {
-    throw new Error('Could not find default quota');
+    throw new Error('Could not find default quota')
   }
 
-  const organizations = filterRealOrgs(await cf.v3Organizations());
+  const organizations = filterRealOrgs(await cf.v3Organizations())
 
   const orgQuotaGUIDs = lodash.uniq(
-    organizations.map(o => o.relationships.quota.data.guid),
-  );
+    organizations.map(o => o.relationships.quota.data.guid)
+  )
 
   const orgQuotas = await Promise.all(
-    orgQuotaGUIDs.map(async g => await cf.organizationQuota(g)),
-  );
+    orgQuotaGUIDs.map(async g => await cf.organizationQuota(g))
+  )
 
-  const trialQuotaGUID = trialQuotaCandidates[0].metadata.guid;
-  const trialOrgs = filterTrialOrgs(trialQuotaGUID, organizations);
-  const billableOrgs = filterBillableOrgs(trialQuotaGUID, organizations);
+  const trialQuotaGUID = trialQuotaCandidates[0].metadata.guid
+  const trialOrgs = filterTrialOrgs(trialQuotaGUID, organizations)
+  const billableOrgs = filterBillableOrgs(trialQuotaGUID, organizations)
 
   const orgQuotaMapping: { readonly [key: string]: IOrganizationQuota } = lodash.keyBy(
     orgQuotas,
-    q => q.metadata.guid,
-  );
+    q => q.metadata.guid
+  )
 
   const orgTrialExpirys: { readonly [key: string]: Date } = lodash
     .chain(trialOrgs)
     .keyBy(org => org.guid)
     .mapValues(org => trialExpiryDate(new Date(org.created_at)))
-    .value();
+    .value()
 
-  const template = new Template(ctx.viewContext, 'Organizations Report');
+  const template = new Template(ctx.viewContext, 'Organizations Report')
 
   return {
     body: template.render(
@@ -697,109 +700,109 @@ export async function viewOrganizationsReport(
         billableOrgs={billableOrgs}
         orgQuotaMapping={orgQuotaMapping}
         orgTrialExpirys={orgTrialExpirys}
-      />,
-    ),
-  };
+      />
+    )
+  }
 }
 
-export async function viewCostReport(
+export async function viewCostReport (
   ctx: IContext,
-  params: IParameters,
+  params: IParameters
 ): Promise<IResponse> {
-  const rangeStart = moment(params.rangeStart, DATE);
-  const rangeStop = moment(rangeStart).add(1, 'month');
+  const rangeStart = moment(params.rangeStart, DATE)
+  const rangeStop = moment(rangeStart).add(1, 'month')
 
-  let serviceFilter = (_: IBillableEvent) => true;
+  let serviceFilter = (_: IBillableEvent) => true
   if (params.service) {
     serviceFilter = (billableEvent: IBillableEvent): boolean =>
       billableEvent.price.details.some(details =>
-        details.planName.includes(params.service),
-      );
+        details.planName.includes(params.service)
+      )
   }
 
   const billingClient = new BillingClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.billingAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
-    logger: ctx.app.logger,
-  });
+    logger: ctx.app.logger
+  })
 
   const orgs = (await cf.organizations()).filter(org => {
-    const name = org.entity.name;
+    const name = org.entity.name
 
     // ignore orgs used by tests
-    return !name.match(/^(CAT|SMOKE|PERF|ACC)/);
-  });
-  const orgGUIDs = orgs.map(o => o.metadata.guid);
+    return name.match(/^(CAT|SMOKE|PERF|ACC)/) == null
+  })
+  const orgGUIDs = orgs.map(o => o.metadata.guid)
 
   const billableEvents = await billingClient
     .getBillableEvents({
       orgGUIDs,
       rangeStart: rangeStart.toDate(),
-      rangeStop: rangeStop.toDate(),
+      rangeStop: rangeStop.toDate()
     })
-    .then(events => events.filter(serviceFilter));
+    .then(events => events.filter(serviceFilter))
 
-  const orgBillableEvents = aggregateBillingEvents(billableEvents);
+  const orgBillableEvents = aggregateBillingEvents(billableEvents)
 
   const orgQuotas: { readonly [key: string]: IOrganizationQuota } = (
     await Promise.all(
       orgs.map(async (org: IOrganization) => {
         const orgQuotaGUID =
           getFirstBillableEventQuotaGUID(
-            orgBillableEvents[org.metadata.guid],
-          ) || org.entity.quota_definition_guid;
-        const quota = await cf.organizationQuota(orgQuotaGUID);
+            orgBillableEvents[org.metadata.guid]
+          ) || org.entity.quota_definition_guid
+        const quota = await cf.organizationQuota(orgQuotaGUID)
 
-        return { [org.metadata.guid]: quota };
-      }),
+        return { [org.metadata.guid]: quota }
+      })
     )
   ).reduce(
     /* istanbul ignore next */ (accumulator, quota) => {
-      return { ...accumulator, ...quota };
-    },
-  );
+      return { ...accumulator, ...quota }
+    }
+  )
 
   const orgCostRecords = createOrgCostRecords(
     orgs,
     orgQuotas,
     orgBillableEvents,
-    ctx.app.adminFee,
-  );
-  const quotaCostRecords = createQuotaCostRecords(orgCostRecords);
+    ctx.app.adminFee
+  )
+  const quotaCostRecords = createQuotaCostRecords(orgCostRecords)
 
-  const totalBillables = sumRecords(billableEvents, ctx.app.adminFee);
-  const billableEventCount = billableEvents.length;
+  const totalBillables = sumRecords(billableEvents, ctx.app.adminFee)
+  const billableEventCount = billableEvents.length
 
-  const template = new Template(ctx.viewContext, 'Costs Report');
+  const template = new Template(ctx.viewContext, 'Costs Report')
   template.subnav = {
     items: [
       {
         active: true,
         link: ctx.linkTo('admin.reports.cost', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: rangeStart.format(DATE)
         }),
-        text: 'Summary',
+        text: 'Summary'
       },
       {
         link: ctx.linkTo('admin.reports.costbyservice', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: rangeStart.format(DATE)
         }),
-        text: 'By service',
+        text: 'By service'
       },
       {
         link: ctx.linkTo('admin.reports.visualisation', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: rangeStart.format(DATE)
         }),
-        text: 'Visualisation',
-      },
-    ],
-  };
+        text: 'Visualisation'
+      }
+    ]
+  }
 
   return {
     body: template.render(
@@ -809,7 +812,7 @@ export async function viewCostReport(
         totalBillables={totalBillables}
         orgCostRecords={Object.values(orgCostRecords)}
         quotaCostRecords={quotaCostRecords}
-      />,
-    ),
-  };
+      />
+    )
+  }
 }

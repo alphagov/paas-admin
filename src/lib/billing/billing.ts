@@ -1,46 +1,46 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import moment from 'moment';
-import { BaseLogger } from 'pino';
-import qs from 'qs';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import moment from 'moment'
+import { BaseLogger } from 'pino'
+import qs from 'qs'
 
-import { intercept } from '../axios-logger/axios';
+import { intercept } from '../axios-logger/axios'
 
-import * as t from './types';
+import * as t from './types'
 
-const DEFAULT_TIMEOUT = 300000;
+const DEFAULT_TIMEOUT = 300000
 
 interface IBillingClientConfig {
-  readonly apiEndpoint: string;
-  readonly accessToken?: string;
-  readonly logger: BaseLogger;
+  readonly apiEndpoint: string
+  readonly accessToken?: string
+  readonly logger: BaseLogger
 }
 
-function parseDate(d: Date): string {
-  const m = moment(d);
+function parseDate (d: Date): string {
+  const m = moment(d)
 
-  return m.format('YYYY-MM-DD');
+  return m.format('YYYY-MM-DD')
 }
 
-function parseTimestamp(s: string): Date {
-  const m = moment(s, moment.ISO_8601);
+function parseTimestamp (s: string): Date {
+  const m = moment(s, moment.ISO_8601)
   if (!m.isValid()) {
-    throw new Error(`BillingClient: invalid date format: ${s}`);
+    throw new Error(`BillingClient: invalid date format: ${s}`)
   }
 
-  return moment(s, moment.ISO_8601).toDate();
+  return moment(s, moment.ISO_8601).toDate()
 }
 
-function parseNumber(s: string): number {
-  const n = parseFloat(s);
+function parseNumber (s: string): number {
+  const n = parseFloat(s)
 
   if (isNaN(n)) {
-    throw new Error(`BillingClient: failed to parse '${s}' as a number`);
+    throw new Error(`BillingClient: failed to parse '${s}' as a number`)
   }
 
-  return n;
+  return n
 }
 
-function parseUsageEvent(ev: t.IUsageEventResponse): t.IUsageEvent {
+function parseUsageEvent (ev: t.IUsageEventResponse): t.IUsageEvent {
   return {
     eventGUID: ev.event_guid,
     eventStart: parseTimestamp(ev.event_start),
@@ -54,11 +54,11 @@ function parseUsageEvent(ev: t.IUsageEventResponse): t.IUsageEvent {
     resourceType: ev.resource_type,
     spaceGUID: ev.space_guid,
     spaceName: ev.space_name,
-    storageInMB: ev.storage_in_mb,
-  };
+    storageInMB: ev.storage_in_mb
+  }
 }
 
-function parseUsageEventResponse(ev: t.IUsageEvent): t.IUsageEventResponse {
+function parseUsageEventResponse (ev: t.IUsageEvent): t.IUsageEventResponse {
   return {
     event_guid: ev.eventGUID,
     event_start: parseDate(ev.eventStart),
@@ -72,11 +72,11 @@ function parseUsageEventResponse(ev: t.IUsageEvent): t.IUsageEventResponse {
     resource_type: ev.resourceType,
     space_guid: ev.spaceGUID,
     space_name: ev.spaceName,
-    storage_in_mb: ev.storageInMB,
-  };
+    storage_in_mb: ev.storageInMB
+  }
 }
 
-function parsePriceComponent(pc: t.IPriceComponentResponse): t.IPriceComponent {
+function parsePriceComponent (pc: t.IPriceComponentResponse): t.IPriceComponent {
   return {
     currencyCode: pc.currency_code,
     exVAT: parseNumber(pc.ex_vat),
@@ -86,37 +86,37 @@ function parsePriceComponent(pc: t.IPriceComponentResponse): t.IPriceComponent {
     start: parseTimestamp(pc.start),
     stop: parseTimestamp(pc.stop),
     VATCode: pc.vat_code,
-    VATRate: parseNumber(pc.vat_rate),
-  };
+    VATRate: parseNumber(pc.vat_rate)
+  }
 }
 
-function parseBillableEvent(ev: t.IBillableEventResponse): t.IBillableEvent {
+function parseBillableEvent (ev: t.IBillableEventResponse): t.IBillableEvent {
   return {
     ...parseUsageEvent(ev),
     price: {
       details: ev.price.details.map(parsePriceComponent),
       exVAT: parseNumber(ev.price.ex_vat),
-      incVAT: parseNumber(ev.price.inc_vat),
+      incVAT: parseNumber(ev.price.inc_vat)
     },
-    quotaGUID: ev.quota_definition_guid,
-  };
+    quotaGUID: ev.quota_definition_guid
+  }
 }
 
-function parseComponentResponse(component: t.IComponentResponse): t.IComponent {
+function parseComponentResponse (component: t.IComponentResponse): t.IComponent {
   return {
     currencyCode: component.currency_code,
     formula: component.formula,
     name: component.name,
-    vatCode: component.vat_code,
-  };
+    vatCode: component.vat_code
+  }
 }
 
-function parsePricingPlan(plan: t.IPricingPlanResponse): t.IPricingPlan {
+function parsePricingPlan (plan: t.IPricingPlanResponse): t.IPricingPlan {
   // NOTE: extracting the serviceName from the planName is not a reliable
   // method, and we do not want to have to give paas-admin scopes to look up
   // this information if cf. A better solution is to get paas-billing should
   // provide this information
-  const [serviceName, ...planName] = plan.name.split(/\s+/);
+  const [serviceName, ...planName] = plan.name.split(/\s+/)
 
   return {
     components: plan.components.map(parseComponentResponse),
@@ -126,151 +126,151 @@ function parsePricingPlan(plan: t.IPricingPlanResponse): t.IPricingPlan {
     planName: planName.join('-'),
     serviceName,
     storageInMB: plan.storage_in_mb,
-    validFrom: parseTimestamp(plan.valid_from),
-  };
+    validFrom: parseTimestamp(plan.valid_from)
+  }
 }
 
-function parseRate(rate: t.IRateResponse): t.IRate {
+function parseRate (rate: t.IRateResponse): t.IRate {
   return {
     code: rate.code,
     rate: parseNumber(rate.rate),
-    validFrom: parseTimestamp(rate.valid_from),
-  };
+    validFrom: parseTimestamp(rate.valid_from)
+  }
 }
 
-function validateStatus(status: number): boolean {
-  return status > 0 && status < 501;
+function validateStatus (status: number): boolean {
+  return status > 0 && status < 501
 }
 
-async function request(
+async function request (
   req: AxiosRequestConfig,
-  logger: BaseLogger,
+  logger: BaseLogger
 ): Promise<AxiosResponse> {
   const reqWithDefaults: AxiosRequestConfig = {
     method: 'get',
     timeout: DEFAULT_TIMEOUT,
     validateStatus,
-    ...req,
-  };
+    ...req
+  }
 
-  const instance = axios.create();
-  intercept(instance, 'billing', logger);
+  const instance = axios.create()
+  intercept(instance, 'billing', logger)
 
-  const response = await instance.request(reqWithDefaults);
+  const response = await instance.request(reqWithDefaults)
 
   if (response.status < 200 || response.status >= 300) {
-    const msg = `BillingClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`;
+    const msg = `BillingClient: ${reqWithDefaults.method} ${reqWithDefaults.url} failed with status ${response.status}`
 
     /* istanbul ignore else  */
     if (typeof reqWithDefaults.params === 'object') {
-      throw new Error(`${msg} and params ${JSON.stringify(reqWithDefaults.params)}`);
+      throw new Error(`${msg} and params ${JSON.stringify(reqWithDefaults.params)}`)
     } else if (typeof response.data === 'object') {
-      throw new Error(`${msg} and data ${JSON.stringify(response.data)}`);
+      throw new Error(`${msg} and data ${JSON.stringify(response.data)}`)
     }
   }
 
-  return response;
+  return response
 }
 
 export default class BillingClient {
-  constructor(private readonly config: IBillingClientConfig) {
-    this.config = config;
+  constructor (private readonly config: IBillingClientConfig) {
+    this.config = config
   }
 
-  public async request(req: AxiosRequestConfig): Promise<AxiosResponse> {
+  public async request (req: AxiosRequestConfig): Promise<AxiosResponse> {
     return await request(
       {
         baseURL: this.config.apiEndpoint,
         headers: {
-          Authorization: `Bearer ${this.config.accessToken}`,
+          Authorization: `Bearer ${this.config.accessToken}`
         },
-        paramsSerializer(params) {
+        paramsSerializer (params) {
           return qs.stringify(params, {
-            indices: false,
-          });
+            indices: false
+          })
         },
-        ...req,
+        ...req
       },
-      this.config.logger,
-    );
+      this.config.logger
+    )
   }
 
-  public async getBillableEvents(
-    params: t.IEventFilter,
-  ): Promise<ReadonlyArray<t.IBillableEvent>> {
+  public async getBillableEvents (
+    params: t.IEventFilter
+  ): Promise<readonly t.IBillableEvent[]> {
     const response = await this.request({
       params: {
         org_guid: params.orgGUIDs,
         range_start: parseDate(params.rangeStart),
-        range_stop: parseDate(params.rangeStop),
+        range_stop: parseDate(params.rangeStop)
       },
-      url: '/billable_events',
-    });
+      url: '/billable_events'
+    })
 
-    const data: ReadonlyArray<t.IBillableEventResponse> = response.data;
+    const data: readonly t.IBillableEventResponse[] = response.data
 
-    return data.map(parseBillableEvent);
+    return data.map(parseBillableEvent)
   }
 
-  public async getForecastEvents(params: t.IForecastParameters): Promise<ReadonlyArray<t.IBillableEvent>> {
+  public async getForecastEvents (params: t.IForecastParameters): Promise<readonly t.IBillableEvent[]> {
     const response = await this.request({
       params: {
         events: JSON.stringify(params.events.map(parseUsageEventResponse)),
         org_guid: params.orgGUIDs,
         range_start: parseDate(params.rangeStart),
-        range_stop: parseDate(params.rangeStop),
+        range_stop: parseDate(params.rangeStop)
       },
-      url: '/forecast_events',
-    });
+      url: '/forecast_events'
+    })
 
-    const data: ReadonlyArray<t.IBillableEventResponse> = response.data;
+    const data: readonly t.IBillableEventResponse[] = response.data
 
-    return data.map(parseBillableEvent);
+    return data.map(parseBillableEvent)
   }
 
-  public async getPricingPlans(
-    params: t.IRangeable,
-  ): Promise<ReadonlyArray<t.IPricingPlan>> {
+  public async getPricingPlans (
+    params: t.IRangeable
+  ): Promise<readonly t.IPricingPlan[]> {
     const response = await this.request({
       params: {
         range_start: parseDate(params.rangeStart),
-        range_stop: parseDate(params.rangeStop),
+        range_stop: parseDate(params.rangeStop)
       },
-      url: '/pricing_plans',
-    });
+      url: '/pricing_plans'
+    })
 
-    const data: ReadonlyArray<t.IPricingPlanResponse> = response.data;
+    const data: readonly t.IPricingPlanResponse[] = response.data
 
-    return data.map(parsePricingPlan);
+    return data.map(parsePricingPlan)
   }
 
-  public async getCurrencyRates(
-    params: t.IRangeable,
-  ): Promise<ReadonlyArray<t.IRate>> {
+  public async getCurrencyRates (
+    params: t.IRangeable
+  ): Promise<readonly t.IRate[]> {
     const response = await this.request({
       params: {
         range_start: parseDate(params.rangeStart),
-        range_stop: parseDate(params.rangeStop),
+        range_stop: parseDate(params.rangeStop)
       },
-      url: '/currency_rates',
-    });
+      url: '/currency_rates'
+    })
 
-    const data: ReadonlyArray<t.IRateResponse> = response.data;
+    const data: readonly t.IRateResponse[] = response.data
 
-    return data.map(parseRate);
+    return data.map(parseRate)
   }
 
-  public async getVATRates(params: t.IRangeable): Promise<ReadonlyArray<t.IRate>> {
+  public async getVATRates (params: t.IRangeable): Promise<readonly t.IRate[]> {
     const response = await this.request({
       params: {
         range_start: parseDate(params.rangeStart),
-        range_stop: parseDate(params.rangeStop),
+        range_stop: parseDate(params.rangeStop)
       },
-      url: '/vat_rates',
-    });
+      url: '/vat_rates'
+    })
 
-    const data: ReadonlyArray<t.IRateResponse> = response.data;
+    const data: readonly t.IRateResponse[] = response.data
 
-    return data.map(parseRate);
+    return data.map(parseRate)
   }
 }

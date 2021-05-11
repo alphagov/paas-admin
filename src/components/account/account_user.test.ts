@@ -1,4 +1,4 @@
-import { AccountUser } from './account_user';
+import { AccountUser } from './account_user'
 
 describe('AccountUser', () => {
   describe('name', () => {
@@ -8,53 +8,53 @@ describe('AccountUser', () => {
       const uaaUser: any = {
         name: {
           familyName: 'Name',
-          givenName: 'User',
-        },
-      };
+          givenName: 'User'
+        }
+      }
 
-      const acctUser = new AccountUser(uaaUser);
-      expect(acctUser.name).toEqual('User Name');
-    });
-  });
+      const acctUser = new AccountUser(uaaUser)
+      expect(acctUser.name).toEqual('User Name')
+    })
+  })
 
   describe('username', () => {
     it('returns the users username', () => {
-      const uaaUser: any = { userName: 'foo@bar.org' };
+      const uaaUser: any = { userName: 'foo@bar.org' }
 
-      const acctUser = new AccountUser(uaaUser);
-      expect(acctUser.username).toEqual('foo@bar.org');
-    });
-  });
+      const acctUser = new AccountUser(uaaUser)
+      expect(acctUser.username).toEqual('foo@bar.org')
+    })
+  })
 
   describe('authenticationMethod', () => {
     it('returns u&p if the user\'s origin is uaa', () => {
-      const uaaUser: any = { origin: 'uaa' };
+      const uaaUser: any = { origin: 'uaa' }
 
-      const acctUser = new AccountUser(uaaUser);
-      expect(acctUser.authenticationMethod).toEqual('Username & password');
-    });
+      const acctUser = new AccountUser(uaaUser)
+      expect(acctUser.authenticationMethod).toEqual('Username & password')
+    })
 
     it('returns google if the user\'s origin is google', () => {
-      const uaaUser: any = { origin: 'google' };
+      const uaaUser: any = { origin: 'google' }
 
-      const acctUser = new AccountUser(uaaUser);
-      expect(acctUser.authenticationMethod).toEqual('Google');
-    });
+      const acctUser = new AccountUser(uaaUser)
+      expect(acctUser.authenticationMethod).toEqual('Google')
+    })
 
     it('returns unknown if the user\'s origin is not uaa or google', () => {
-      const uaaUser: any = { origin: null };
+      const uaaUser: any = { origin: null }
 
-      const acctUser = new AccountUser(uaaUser);
-      expect(acctUser.authenticationMethod).toEqual('Unknown');
-    });
-  });
+      const acctUser = new AccountUser(uaaUser)
+      expect(acctUser.authenticationMethod).toEqual('Unknown')
+    })
+  })
 
   describe('origin', () => {
     it('returns the origin of the underlying user', () => {
-      const uaaUser: any = { origin: 'foo' };
+      const uaaUser: any = { origin: 'foo' }
 
-      const acctUser = new AccountUser(uaaUser);
-      expect(acctUser.origin).toEqual('foo');
-    });
-  });
-});
+      const acctUser = new AccountUser(uaaUser)
+      expect(acctUser.origin).toEqual('foo')
+    })
+  })
+})

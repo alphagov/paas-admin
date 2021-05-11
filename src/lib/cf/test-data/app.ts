@@ -1,9 +1,9 @@
-import { IApplication } from '../types';
+import { IApplication } from '../types'
 
-export const appName = 'name-2401';
-export const appGUID = '15b3885d-0351-4b9b-8697-86641668c123';
-export const appSpaceGUID = '7846301e-c84c-4ba9-9c6a-2dfdae948d52';
-export const appStackGUID = 'bb9ca94f-b456-4ebd-ab09-eb7987cce728';
+export const appName = 'name-2401'
+export const appGUID = '15b3885d-0351-4b9b-8697-86641668c123'
+export const appSpaceGUID = '7846301e-c84c-4ba9-9c6a-2dfdae948d52'
+export const appStackGUID = 'bb9ca94f-b456-4ebd-ab09-eb7987cce728'
 
 export const app = (): IApplication =>
   JSON.parse(`{
@@ -50,4 +50,4 @@ export const app = (): IApplication =>
     "service_bindings_url": "/v2/apps/${appGUID}/service_bindings",
     "route_mappings_url": "/v2/apps/${appGUID}/route_mappings"
   }
-}`);
+}`)

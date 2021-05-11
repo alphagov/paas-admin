@@ -1,19 +1,19 @@
-import pino from 'pino';
+import pino from 'pino'
 
-import { IAppConfig, IOIDCConfig, OIDCProviderName } from './app';
+import { IAppConfig, IOIDCConfig, OIDCProviderName } from './app'
 
-const logger = pino({ level: 'silent' });
+const logger = pino({ level: 'silent' })
 
-const sessionSecret = 'mysecret';
+const sessionSecret = 'mysecret'
 
-const providers = new Map<OIDCProviderName, IOIDCConfig>();
+const providers = new Map<OIDCProviderName, IOIDCConfig>()
 
 providers.set('google', {
   clientID: 'CLIENTID',
   clientSecret: 'CLIENTSECRET',
   discoveryURL: 'https://accounts.google.com/.well-known/openid-configuration',
-  providerName: 'google',
-});
+  providerName: 'google'
+})
 
 export const config: IAppConfig = {
   accountsAPI: 'https://example.com/accounts',
@@ -44,6 +44,6 @@ export const config: IAppConfig = {
   zendeskConfig: {
     remoteUri: 'https://example.com/zendesk',
     token: 'qwerty-1234567890',
-    username: 'poiuytrewq',
-  },
-};
+    username: 'poiuytrewq'
+  }
+}
