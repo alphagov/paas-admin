@@ -23,8 +23,8 @@
     "scrape:performance": "ts-node src/scripts/performance.ts",
     "start": "export PORT=${PORT-3000}; export LOG_LEVEL=${LOG_LEVEL-warn}; if [ \"$NODE_ENV\" = 'production' ]; then npm run -s start:production; else npm run -s start:dev; fi",
     "start:dev": "NODE_ENV=development ENABLE_WATCH=true ENABLE_SERVER=true ALLOW_INSECURE_SESSION=true npm run -s build",
-    "start:stub-api": "source ./stub-api/stub-apis-env.sh; ts-node stub-api/index.ts",
-    "start:with-stub-api": "source ./stub-api/stub-apis-env.sh; npm start",
+    "start:stub-api": "./stub-api/start-stub-api.sh",
+    "start:with-stub-api": "./stub-api/start-with-stub-api.sh",
     "start:production": "NODE_ENV=production ALLOW_INSECURE_SESSION=true npm run -s build && node dist/main.js",
     "push": "NODE_ENV=production npm run -s build && cf push",
     "clean": "find dist -maxdepth 1 ! -name downloads ! -name dist -exec rm -r {} \\; || echo 'already clean'"
