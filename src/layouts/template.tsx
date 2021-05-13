@@ -4,8 +4,6 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { IViewContext } from '../components/app';
 import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs';
 
-
-import govukPrintStyles from './govuk.print.scss';
 import govukIE8Styles from './govuk.screen.ie8.scss';
 import govukStyles from './govuk.screen.scss';
 import {
@@ -68,12 +66,11 @@ export class Template {
           <meta name="x-user-identity-origin" content="${this.ctx.origin || ''}" />
 
           <!--[if !IE 8]><!-->
-            <link href="${govukStyles}" media="screen" rel="stylesheet" />
-            <link href="${govukPrintStyles}" media="print" rel="stylesheet" type="text/css" />
+            <link href="${govukStyles}" media="all" rel="stylesheet" />
           <!--<![endif]-->
 
           <!--[if IE 8]>
-            <link href="${govukIE8Styles}" media="screen" rel="stylesheet" />
+            <link href="${govukIE8Styles}" media="all" rel="stylesheet" />
           <![endif]-->
 
           <!--[if lt IE 9]>
