@@ -27,7 +27,7 @@ export function Breadcrumbs(props: IBreadcrumbsProperties): ReactElement {
   ));
 
   return (
-    <div className="govuk-breadcrumbs">
+    <div className="govuk-breadcrumbs govuk-!-display-none-print">
       <ol className="govuk-breadcrumbs__list">{items}</ol>
     </div>
   );

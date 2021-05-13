@@ -83,7 +83,7 @@ export function Header(props: IHeaderProperties): ReactElement {
             </span>
           </a>
         </div>
-        <div className="govuk-header__content">
+        <div className="govuk-header__content govuk-!-display-none-print">
           <button
             type="button"
             className="govuk-header__menu-button govuk-js-header-toggle"
@@ -211,7 +211,7 @@ export function Main(params: IMainProperties): ReactElement {
 
 export function Footer({ authenticated }: IFooterProperties): ReactElement {
   return (
-    <footer className="govuk-footer " role="contentinfo">
+    <footer className="govuk-footer govuk-!-display-none-print" role="contentinfo">
       <div className="govuk-width-container ">
         <div className="govuk-footer__navigation">
           <div className="govuk-footer__section">
@@ -360,7 +360,7 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
 
 export function SubNavigation(props: ISubNavigationProperties): ReactElement {
   return (
-    <div className="govuk-grid-row subnav">
+    <div className="govuk-grid-row subnav govuk-!-display-none-print">
       <div className="govuk-grid-column-one-third">
         <strong>{props.title}</strong>
       </div>
@@ -424,7 +424,7 @@ export function CookieBanner(): ReactElement {
       role="region"
       aria-label="cookie-banner"
     >
-      <div className="cookie-banner__wrapper govuk-width-container">
+      <div className="cookie-banner__wrapper govuk-width-container govuk-!-display-none-print">
         <h2 className="govuk-heading-m" id="cookie-banner__heading">Can we store analytics cookies on your device?</h2>
         <p className="govuk-body">Analytics cookies help us understand how our website is being used.</p>
         <div className="cookie-banner__buttons">
