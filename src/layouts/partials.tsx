@@ -100,17 +100,38 @@ export function Header(props: IHeaderProperties): ReactElement {
               aria-label="Top Level Navigation"
             >
               <li className="govuk-header__navigation-item">
-                <a className="govuk-header__link" href="/support">
+                <a
+                  className="govuk-header__link" 
+                  href="/support"
+                  data-track-click="true"
+                  data-track-category="Navigation"
+                  data-track-action="Top Menu"
+                  data-track-label="Support"
+                >
                   Support
                 </a>
               </li>
               <li className="govuk-header__navigation-item">
-                <a className="govuk-header__link" href="/marketplace">
+                <a
+                  className="govuk-header__link"
+                  href="/marketplace"
+                  data-track-click="true"
+                  data-track-category="Navigation"
+                  data-track-action="Top Menu"
+                  data-track-label="Marketplace"
+                >
                   Marketplace
                 </a>
               </li>
               {props.authenticated ? <li className="govuk-header__navigation-item">
-                <a className="govuk-header__link" href="/">
+                <a
+                  className="govuk-header__link" 
+                  href="/"
+                  data-track-click="true"
+                  data-track-category="Navigation"
+                  data-track-action="Top Menu"
+                  data-track-label="Organisations"
+                >
                   Organisations
                 </a>
               </li> : undefined}
@@ -118,6 +139,10 @@ export function Header(props: IHeaderProperties): ReactElement {
                 <a
                   className="govuk-header__link"
                   href="https://docs.cloud.service.gov.uk"
+                  data-track-click="true"
+                  data-track-category="Navigation"
+                  data-track-action="Top Menu"
+                  data-track-label="Documentation"
                 >
                   Documentation
                 </a>
@@ -125,12 +150,25 @@ export function Header(props: IHeaderProperties): ReactElement {
               {props.isPlatformAdmin ? platformLink : undefined}
               {props.authenticated
                 ? <li className="govuk-header__navigation-item">
-                    <a className="govuk-header__link" href="/auth/logout">
+                    <a 
+                      className="govuk-header__link" 
+                      href="/auth/logout"
+                      data-track-click="true"
+                      data-track-category="Navigation"
+                      data-track-action="Top Menu"
+                      data-track-label="Sign out"
+                    >
                       Sign out
                     </a>
                   </li>
                 : <li className="govuk-header__navigation-item">
-                    <a className="govuk-header__link" href="/">
+                    <a 
+                      className="govuk-header__link" 
+                      href="/"
+                      data-track-click="true"
+                      data-track-category="Navigation"
+                      data-track-action="Top Menu"
+                      data-track-label="Sign in">
                       Sign In
                     </a>
                   </li>}
@@ -140,6 +178,10 @@ export function Header(props: IHeaderProperties): ReactElement {
                   title="Switch to a different region"
                   className={`govuk-header__link govuk-tag app-region-tag app-region-tag--${props.location.toLowerCase()}`}
                   aria-label={`Current region: ${props.location.toLowerCase()}. Switch to a different region.`}
+                  data-track-click="true"
+                  data-track-category="Navigation"
+                  data-track-action="Top Menu"
+                  data-track-label="Switch to a different region ?add region name?"
                 >
                   <span className="app-region-tag__text">Region:</span> {props.location}
                 </a>
