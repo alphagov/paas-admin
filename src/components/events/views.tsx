@@ -78,7 +78,7 @@ export function Event(props: IEventProperties): ReactElement {
   return (
     <dl className="govuk-summary-list">
       <EventSummaryItem title="Date">
-        {moment(props.event.updated_at).format(DATE_TIME)}
+        {moment(props.event.updated_at).format(DATE_TIME)} (UTC)
       </EventSummaryItem>
       <EventSummaryItem title="Actor">
         {props.actor?.email || props.event.actor.name || (
@@ -103,7 +103,7 @@ export function TargetedEvent(props: IEventProperties): ReactElement {
   return (
     <dl className="govuk-summary-list">
       <EventSummaryItem title="Date">
-        {moment(props.event.updated_at).format(DATE_TIME)}
+        {moment(props.event.updated_at).format(DATE_TIME)} (UTC)
       </EventSummaryItem>
       <EventSummaryItem title="Actor">
         {props.actor?.email || props.event.actor.name || (
