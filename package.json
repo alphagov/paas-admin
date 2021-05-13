@@ -92,7 +92,7 @@
     "pegjs": "^0.10.0",
     "pegjs-loader": "^0.5.6",
     "pino-pretty": "^4.8.0",
-    "sass": "^1.32.12",
+    "sass": "^1.32.13",
     "sass-loader": "^9.0.3",
     "stylelint": "^13.13.1",
     "stylelint-config-gds": "^0.1.0",
