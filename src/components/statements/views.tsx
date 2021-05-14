@@ -98,7 +98,7 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
             action={props.linkTo('admin.statement.dispatcher', {
               organizationGUID: props.organizationGUID,
             })}
-            className="paas-statement-range"
+            className="paas-statement-range govuk-!-display-none-print"
           >
             <input type="hidden" name="_csrf" value={props.csrf} />
             <div className="paas-statement-filters">
@@ -293,7 +293,7 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
                 organizationGUID: props.organizationGUID,
                 rangeStart: props.filterMonth,
               })}
-              className="govuk-link"
+              className="govuk-link govuk-!-display-none-print"
               download
               data-track-click="true" 
               data-track-category="Click"
