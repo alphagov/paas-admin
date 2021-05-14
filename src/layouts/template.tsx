@@ -4,7 +4,6 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { IViewContext } from '../components/app';
 import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs';
 
-import govukIE8Styles from './govuk.screen.ie8.scss';
 import govukStyles from './govuk.screen.scss';
 import {
   CookieBanner,
@@ -65,17 +64,7 @@ export class Template {
 
           <meta name="x-user-identity-origin" content="${this.ctx.origin || ''}" />
 
-          <!--[if !IE 8]><!-->
-            <link href="${govukStyles}" media="all" rel="stylesheet" />
-          <!--<![endif]-->
-
-          <!--[if IE 8]>
-            <link href="${govukIE8Styles}" media="all" rel="stylesheet" />
-          <![endif]-->
-
-          <!--[if lt IE 9]>
-            <script src="/html5-shiv/html5shiv.js"></script>
-          <![endif]-->
+          <link href="${govukStyles}" media="all" rel="stylesheet" />
 
           <meta property="og:image" content="${assetURL}/images/govuk-opengraph-image.png" />
         </head>
