@@ -71,4 +71,19 @@ describe(viewService, () => {
     expect(response.body).toContain('medium');
     expect(response.body).not.toContain('tiny');
   });
+
+  it('should respond with a not found page if version is had crafted', async () => {
+    // @ts-ignore
+    CloudFoundryClient.prototype.v3Service.mockReturnValueOnce(Promise.resolve(mockService));
+    // @ts-ignore
+    CloudFoundryClient.prototype.v3ServicePlans.mockReturnValueOnce(Promise.resolve([
+      mockPlan,
+      mockRichPlan,
+      mockRichPlan2,
+    ]));
+
+    await expect(
+      viewService(createTestContext(), { serviceGUID: 'SERVICE_GUID', version: 'TEST_VERSION' }),
+    ).rejects.toThrowError();
+  });
 });

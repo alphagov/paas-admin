@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
-import { IParameters, IResponse } from '../../lib/router';
+import { IParameters, IResponse, NotFoundError } from '../../lib/router';
 import { IContext } from '../app';
 
 import { IPaaSServiceMetadata, IPaaSServicePlanMetadata, MarketplaceItemPage, MarketplacePage } from './views';
@@ -43,6 +43,10 @@ export async function viewService(ctx: IContext, params: IParameters): Promise<I
     .filter(plan => !!plan.broker_catalog.metadata.AdditionalMetadata?.version)
     .map(plan => `${plan.broker_catalog.metadata.AdditionalMetadata!.version!}`)
     .sort((first: any, second: any) => second - first)));
+
+  if (params.version !== undefined && !versions.includes(params.version)) {
+    throw new NotFoundError('The requested version does not exist on our record...');
+  }
 
   const version = params.version || versions[0];
 
