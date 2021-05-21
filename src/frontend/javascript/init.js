@@ -10,7 +10,7 @@ if (cookies.hasConsentForAnalytics()) {
   eventTracking.init()
 }
 
-var $cookieBanner = document.querySelector('[data-module="cookie-banner"]')
+var $cookieBanner = document.querySelector('[data-module="govuk-cookie-banner"]')
 if ($cookieBanner) {
   cookies.initCookieBanner($cookieBanner)
 }
