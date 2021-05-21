@@ -62,27 +62,27 @@ describe(Footer, () => {
 describe(CookieBanner, () => {
   it('should successfully display the cookie banner element', () => {
     const markup = shallow(<CookieBanner />);
-    expect(markup.find('.cookie-banner')).toHaveLength(1);
-    expect(markup.find('#cookie-banner__heading').text()).toBe('Can we store analytics cookies on your device?');
+    expect(markup.find('.govuk-cookie-banner')).toHaveLength(1);
+    expect(markup.find('.govuk-cookie-banner__heading').text()).toBe('Cookies on GOV.UK PaaS');
     expect(
       markup
-      .find('.cookie-banner p').at(0).text())
-      .toBe('Analytics cookies help us understand how our website is being used.');
+      .find('.govuk-cookie-banner__content p').at(1).text())
+      .toBe('We’d also like to use analytics cookies so we can understand how you use the service and make improvements.');
     expect(
       markup
-      .find('.cookie-banner__button-accept').text())
-      .toMatch(/(Yes|GOV.UK PaaS can store analytics cookies on your device)/g);
+      .find('button[data-accept-cookies="true"]').text())
+      .toMatch('Accept analytics cookies');
     expect(
       markup
-      .find('.cookie-banner__button-reject').text())
-      .toMatch(/(No|GOV.UK PaaS cannot store analytics cookies on your device)/g);
+      .find('button[data-accept-cookies="false"]').text())
+      .toMatch('Reject analytics cookies');
     expect(
       markup
-      .find('.cookie-banner__link').text())
-      .toContain('How GOV.UK PaaS uses cookies');
+      .find('.govuk-button-group .govuk-link').text())
+      .toContain('View cookies');
     expect(
       markup
-      .find('.cookie-banner__link').props().href)
+      .find('.govuk-button-group .govuk-link').props().href)
       .toBe('https://www.cloud.service.gov.uk/cookies/');
   });
 });
