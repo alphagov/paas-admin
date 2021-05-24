@@ -34,20 +34,24 @@ Cookies.prototype.initCookieBanner = function ($module) {
     return
   }
 
+  this.$cookieBannerMainContent = document.querySelector('.js-cookie-content')
+  this.$cookieBannerAcceptMessage = document.querySelector('.js-cookie-accept-content')
+  this.$cookieBannerRejectMessage = document.querySelector('.js-cookie-reject-content')
   this.$module.hideCookieMessage = this.hideCookieMessage.bind(this)
   this.$module.showBannerConfirmationMessage = this.showBannerConfirmationMessage.bind(this)
   this.$module.setBannerCookieConsent = this.setBannerCookieConsent.bind(this)
-  this.$module.cookieBannerConfirmationMessage = this.$module.querySelector('.cookie-banner__confirmation')
 
-  this.$hideLink = this.$module.querySelector('button[data-hide-cookie-banner]');
-  if (this.$hideLink) {
-    this.$hideLink.addEventListener('click', this.$module.hideCookieMessage);
+  this.hideLinksArray = this.$module.querySelectorAll('button[data-hide-cookie-banner]');
+
+  for (var i = 0; i < this.hideLinksArray.length; i++) {
+    this.hideLinksArray[i].addEventListener('click', this.$module.hideCookieMessage);
   }
 
   this.$acceptCookiesLink = this.$module.querySelector('button[data-accept-cookies=true]');
   if (this.$acceptCookiesLink) {
     this.$acceptCookiesLink.addEventListener('click', function() {
       this.$module.setBannerCookieConsent(true);
+      this.setFocus(this.$cookieBannerAcceptMessage)
     }.bind(this));
   }
 
@@ -55,6 +59,7 @@ Cookies.prototype.initCookieBanner = function ($module) {
   if (this.$rejectCookiesLink) {
     this.$rejectCookiesLink.addEventListener('click', function() {
       this.$module.setBannerCookieConsent(false);
+      this.setFocus(this.$cookieBannerRejectMessage)
     }.bind(this));
   }
 
@@ -66,6 +71,8 @@ Cookies.prototype.showCookieBanner = function () {
   var hasCookiesPolicy = this.getCookie(this.cookieName)
   if (this.$module && !hasCookiesPolicy) {
     this.$module.style.display = 'block'
+  } else {
+    this.$module.style.display = 'none'
   }
 }
 
@@ -73,7 +80,6 @@ Cookies.prototype.setBannerCookieConsent = function (analyticsConsent) {
   this.setCookie(this.cookieName, JSON.stringify({ 'analytics': analyticsConsent }), {days: this.cookieDuration})
 
   this.$module.showBannerConfirmationMessage(analyticsConsent)
-  this.$module.cookieBannerConfirmationMessage.focus()
 
   if (analyticsConsent) { 
     this.initAnalytics()
@@ -91,15 +97,15 @@ Cookies.prototype.hideCookieMessage = function (event) {
 }
 
 Cookies.prototype.showBannerConfirmationMessage = function (analyticsConsent) {
-  var messagePrefix = analyticsConsent ? 'You’ve accepted analytics cookies.' : 'You told us not to use analytics cookies.';
 
-  this.$cookieBannerMainContent = document.querySelector('.cookie-banner__wrapper')
-  this.$cookieBannerConfirmationMessage = document.querySelector('.cookie-banner__confirmation-message')
-
-  this.$cookieBannerConfirmationMessage.insertAdjacentText('afterbegin', messagePrefix)
-  this.$cookieBannerMainContent.style.display = 'none'
-  this.$module.cookieBannerConfirmationMessage.style.display = 'block'
+  analyticsConsent ? this.$cookieBannerAcceptMessage.removeAttribute('hidden') : this.$cookieBannerRejectMessage.removeAttribute('hidden')
+  this.$cookieBannerMainContent.setAttribute('hidden', '')
 };
+
+Cookies.prototype.setFocus = function (target) {
+  target.setAttribute('tabindex', '-1')
+  target.focus()
+}
 
 Cookies.prototype.getCookie = function (name) {
   var nameEQ = name + '='

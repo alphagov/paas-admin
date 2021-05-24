@@ -14,7 +14,7 @@ describe("Cookies", () => {
     cookies.cookieDomain = ''; // to be able to set a cookie in test env
     document.body.innerHTML = shallow(<CookieBanner />).html();
     cookies.initAnalytics = jest.fn();
-    document.querySelector(".cookie-banner").style.display = "none";
+    document.querySelector(".govuk-cookie-banner").style.display = "none";
   });
 
   afterEach(() => {
@@ -29,7 +29,7 @@ describe("Cookies", () => {
       if (cookies.hasConsentForAnalytics()) {
         cookies.initAnalytics();
       }
-      expect(document.querySelector(".cookie-banner").style.display).toEqual("none");
+      expect(document.querySelector(".govuk-cookie-banner").style.display).toEqual("none");
       expect(cookies.initAnalytics).toHaveBeenCalledTimes(1);
     });
 
@@ -38,22 +38,22 @@ describe("Cookies", () => {
       if (cookies.hasConsentForAnalytics()) {
         cookies.initAnalytics();
       }
-      expect(document.querySelector(".cookie-banner").style.display).toEqual("none");
+      expect(document.querySelector(".govuk-cookie-banner").style.display).toEqual("none");
       expect(cookies.initAnalytics).toHaveBeenCalledTimes(0);
     });
   });
 
   describe("when new user", () => {
     it(`should see cookie banner when no consent cookie present`, () => {
-      const $cookieBanner = document.querySelector('[data-module="cookie-banner"]')
+      const $cookieBanner = document.querySelector('[data-module="govuk-cookie-banner"]')
       if ($cookieBanner) {
         cookies.initCookieBanner($cookieBanner)
       }
-      expect(document.querySelector(".cookie-banner").style.display).toEqual("block");
+      expect(document.querySelector(".govuk-cookie-banner").style.display).toEqual("block");
     });
 
     it(`clicks YES on the cookie banner - sets the consent to TRUE, shows the $message and fires analytics`, () => {
-      const $cookieBanner = document.querySelector('[data-module="cookie-banner"]')
+      const $cookieBanner = document.querySelector('[data-module="govuk-cookie-banner"]')
       if ($cookieBanner) {
         cookies.initCookieBanner($cookieBanner)
       };
@@ -62,16 +62,16 @@ describe("Cookies", () => {
       
       const consentCookie = cookies.getCookie(cookies.cookieName)
       const consentCookieJson = JSON.parse(consentCookie);
-      const $message = document.querySelector(".cookie-banner__confirmation");
+      const $message = document.querySelector(".js-cookie-accept-content");
 
       expect(consentCookieJson.analytics).toEqual(true);
-      expect($message.style.display).toEqual("block");
+      expect($message).toHaveProperty('hidden')
       expect($message.textContent).toContain('You’ve accepted analytics cookies');
       expect(cookies.initAnalytics).toHaveBeenCalledTimes(1);
     });
 
     it(`clicks NO on the cookie banner -sets the consent to FALSE, shows the $message and does not fires analytics`, () => {
-      const $cookieBanner = document.querySelector('[data-module="cookie-banner"]');
+      const $cookieBanner = document.querySelector('[data-module="govuk-cookie-banner"]');
       if ($cookieBanner) {
         cookies.initCookieBanner($cookieBanner);
       };
@@ -80,28 +80,28 @@ describe("Cookies", () => {
 
       const consentCookie = cookies.getCookie(cookies.cookieName);
       const consentCookieJson = JSON.parse(consentCookie);
-      const $message = document.querySelector(".cookie-banner__confirmation");
+      const $message = document.querySelector(".js-cookie-reject-content");
 
       expect(consentCookieJson.analytics).toEqual(false);
-      expect($message.style.display).toEqual("block");
-      expect($message.textContent).toContain('You told us not to use analytics cookies');
+      expect($message).toHaveProperty('hidden')
+      expect($message.textContent).toContain('You’ve rejected analytics cookies');
       expect(cookies.initAnalytics).toHaveBeenCalledTimes(0);
     });
   });
 
   describe("confirmation mesage", () => {
     it(`hide button works`, () => {
-      const $cookieBanner = document.querySelector('[data-module="cookie-banner"]');
+      const $cookieBanner = document.querySelector('[data-module="govuk-cookie-banner"]');
       if ($cookieBanner) {
         cookies.initCookieBanner($cookieBanner);
       };
 
       document.querySelector("button[data-accept-cookies=true]").click();
-      const $message = document.querySelector(".cookie-banner__confirmation");
+      const $message = document.querySelector(".js-cookie-accept-content");
 
-      expect($message.style.display).toEqual("block");
+      expect($message).toHaveProperty('hidden')
 
-      $message.querySelector(".cookie-banner__hide-button").click();
+      $message.querySelector("button[data-hide-cookie-banner]").click();
       expect($cookieBanner.style.display).toEqual("none");
     });
   });
@@ -110,7 +110,7 @@ describe("Cookies", () => {
     it(`cookie banner javascript does not run if cookie banner isn't present`, () => {
       document.body.innerHTML = '';
       cookies.showCookieBanner = jest.fn()
-      const $cookieBanner = document.querySelector('[data-module="cookie-banner"]');
+      const $cookieBanner = document.querySelector('[data-module="govuk-cookie-banner"]');
       if ($cookieBanner) {
         cookies.initCookieBanner($cookieBanner);
       };

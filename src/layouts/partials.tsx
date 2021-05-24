@@ -418,34 +418,56 @@ export function NoTick(): ReactElement {
 
 export function CookieBanner(): ReactElement {
   return (
-    <div 
-      className="cookie-banner"
-      data-module="cookie-banner"
-      role="region"
-      aria-label="cookie-banner"
-    >
-      <div className="cookie-banner__wrapper govuk-width-container govuk-!-display-none-print">
-        <h2 className="govuk-heading-m" id="cookie-banner__heading">Can we store analytics cookies on your device?</h2>
-        <p className="govuk-body">Analytics cookies help us understand how our website is being used.</p>
-        <div className="cookie-banner__buttons">
-          <button className="govuk-button cookie-banner__button cookie-banner__button-accept" type="submit" data-accept-cookies="true" aria-describedby="cookie-banner__heading">
-            Yes{' '}<span className="govuk-visually-hidden">, GOV.UK PaaS can store analytics cookies on your device</span>
+    <div className="govuk-cookie-banner govuk-!-display-none-print" role="region" aria-label="Cookies on GOV.UK Platform as a Service" data-module="govuk-cookie-banner">
+      <div className="govuk-cookie-banner__message js-cookie-content govuk-width-container">
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            <h2 className="govuk-cookie-banner__heading govuk-heading-m">Cookies on GOV.UK PaaS</h2>
+
+            <div className="govuk-cookie-banner__content">
+              <p>We use some essential cookies to make this service work.</p>
+              <p>We’d also like to use analytics cookies so we can understand how you use the service and make improvements.</p>
+            </div>
+          </div>
+        </div>
+        <div className="govuk-button-group">
+          <button value="accept" type="button" name="cookies" className="govuk-button" data-module="govuk-button" data-accept-cookies="true">
+            Accept analytics cookies
           </button>
-          <button className="govuk-button cookie-banner__button cookie-banner__button-reject" type="submit" data-accept-cookies="false" aria-describedby="cookie-banner__heading">
-            No{' '}<span className="govuk-visually-hidden">, GOV.UK PaaS cannot store analytics cookies on your device</span>
+          <button value="reject" type="button" name="cookies" className="govuk-button" data-module="govuk-button" data-accept-cookies="false">
+            Reject analytics cookies
           </button>
-          <a className="govuk-link cookie-banner__link" href="https://www.cloud.service.gov.uk/cookies/">How GOV.UK PaaS uses cookies</a>
+          <a className="govuk-link" href="https://www.cloud.service.gov.uk/cookies/">View cookies</a>
         </div>
       </div>
-
-      <div className="cookie-banner__confirmation govuk-width-container" tabIndex={-1}>
-        <p className="cookie-banner__confirmation-message govuk-body">
-          You can <a className="govuk-link" href="https://www.cloud.service.gov.uk/cookies/">change your cookie settings</a> at any time.
-        </p>
-        <button className="cookie-banner__hide-button govuk-link" data-hide-cookie-banner="true" role="link">
-          Hide{' '}<span className="govuk-visually-hidden"> cookies message</span>
-        </button>
+      <div className="govuk-cookie-banner__message js-cookie-accept-content govuk-width-container" role="alert" hidden>
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            <div className="govuk-cookie-banner__content">
+              <p>You’ve accepted analytics cookies. You can <a className="govuk-link" href="https://www.cloud.service.gov.uk/cookies/">change your cookie settings</a> at any time.</p>
+            </div>
+          </div>
+        </div>
+        <div className="govuk-button-group">
+          <button className="govuk-button" data-module="govuk-button" data-hide-cookie-banner="true">
+            Hide this message
+          </button>
+        </div>
       </div>
-  </div>
+      <div className="govuk-cookie-banner__message js-cookie-reject-content govuk-width-container" role="alert" hidden>
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            <div className="govuk-cookie-banner__content">
+              <p>You’ve rejected analytics cookies. You can <a className="govuk-link" href="https://www.cloud.service.gov.uk/cookies/">change your cookie settings</a> at any time.</p>
+            </div>
+          </div>
+        </div>
+        <div className="govuk-button-group">
+          <button className="govuk-button" data-module="govuk-button" data-hide-cookie-banner="true">
+            Hide this message
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

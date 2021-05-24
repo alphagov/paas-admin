@@ -71,12 +71,13 @@ export class Template {
           <body class="govuk-template__body">
             <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
 
-            <a href="#main-content" class="govuk-skip-link">
-              Skip to main content
-            </a>
+            
 
             ${renderToStaticMarkup(<>
               <CookieBanner />
+              <a href="#main-content" className="govuk-skip-link">
+                Skip to main content
+              </a>
               <Header
                 location={this.ctx.location}
                 isPlatformAdmin={!!this.ctx.isPlatformAdmin}
