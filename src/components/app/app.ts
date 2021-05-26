@@ -134,6 +134,11 @@ export default function(config: IAppConfig): express.Express {
     res.redirect(301, 'https://vdp.cabinetoffice.gov.uk/.well-known/security.txt'),
   );
 
+ /* istanbul ignore next */
+  app.get('/.well-known/security.txt', (_req: express.Request, res: express.Response) =>
+    res.redirect(301, 'https://vdp.cabinetoffice.gov.uk/.well-known/security.txt'),
+  );
+
   const sessionConfig = {
     authorizationURL: `${config.authorizationAPI}/oauth/authorize`,
     clientID: config.oauthClientID,
