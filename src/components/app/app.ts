@@ -129,6 +129,11 @@ export default function(config: IAppConfig): express.Express {
     res.send({ message: 'OK' }),
   );
 
+  /* istanbul ignore next */
+  app.get('/security.txt', (_req: express.Request, res: express.Response) =>
+    res.redirect(301, 'https://vdp.cabinetoffice.gov.uk/.well-known/security.txt'),
+  );
+
   const sessionConfig = {
     authorizationURL: `${config.authorizationAPI}/oauth/authorize`,
     clientID: config.oauthClientID,
