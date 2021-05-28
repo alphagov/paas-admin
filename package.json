@@ -112,7 +112,7 @@
     "@aws-sdk/client-resource-groups-tagging-api-node": "0.1.0-preview.2",
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
-    "aws-sdk": "^2.914.0",
+    "aws-sdk": "^2.917.0",
     "axios": "^0.21.1",
     "babel-jest": "^26.6.3",
     "base32-encode": "^1.2.0",
