@@ -116,7 +116,7 @@ let cfg = {
       deleteOriginalAssets: 'keep-source-map',
     }),
     new MiniCssExtractPlugin({
-      filename: `assets/govuk.screen.css`
+      filename: 'assets/govuk.screen.css'
     })
   ],
 };
