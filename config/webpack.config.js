@@ -1,6 +1,6 @@
 const path = require('path');
-
-const OptimizeCssnanoPlugin = require('@intervolga/optimize-cssnano-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const webpack = require('webpack');
 const nodeModules = require('webpack-node-externals');
@@ -8,7 +8,7 @@ const nodeModules = require('webpack-node-externals');
 const enableServer = require('./server.config');
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const assetName = ext => `assets/[hash:base32].[name].${ext || '[ext]'}`;
+const assetName = ext => `assets/[contenthash:base32].[name]${ext || '[ext]'}`;
 
 let cfg = {
 
@@ -18,18 +18,17 @@ let cfg = {
 
   entry: {
     main: ['./src/main.ts'],
-    'assets/init': ['./src/frontend/javascript/init.js'],
-    'assets/sankey': ['./src/frontend/javascript/sankey.js'],
+    init: {import: './src/frontend/javascript/init.js', filename: 'assets/init.js'},
+    sankey: {import: './src/frontend/javascript/sankey.js', filename: 'assets/sankey.js'}
   },
 
   output: {
-    path: path.resolve(__dirname, '..', 'dist'),
-    filename: '[name].js',
     publicPath: '/',
   },
 
   devtool: 'source-map',
 
+  externalsPresets: { node: true },
   externals: ['chokidar'],
 
   stats: {
@@ -41,6 +40,9 @@ let cfg = {
   },
 
   optimization: {
+    minimizer: [
+      new CssMinimizerPlugin(),
+    ],
     splitChunks: false,
     runtimeChunk: false,
   },
@@ -57,36 +59,18 @@ let cfg = {
     rules: [
       {
         test: /\.(png|jpg|ico|svg|gif)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: assetName(),
-              esModule: false,
-            },
-          },
-        ],
+        type: 'asset/resource',
+        generator: {
+          filename: assetName()
+        }
       },
       {
         test: /\.(scss)$/,
         use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: assetName('css'),
-              esModule: false,
-            },
-          },
-          {
-            loader: 'extract-loader',
-            options: {
-              publicPath: '/',
-            },
-          },
+          MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
             options: {
-              sourceMap: NODE_ENV === 'production' ? false : true,
               url: false,
             },
           },
@@ -98,7 +82,6 @@ let cfg = {
                   path.resolve(__dirname, '../node_modules'),
                 ],
               },
-              sourceMap: true,
             },
           },
         ],
@@ -130,13 +113,16 @@ let cfg = {
     new CompressionPlugin({
       test: /\.(js|svg|css)$/,
       include: 'assets/',
-      deleteOriginalAssets: true,
+      deleteOriginalAssets: 'keep-source-map',
     }),
+    new MiniCssExtractPlugin({
+      filename: `assets/govuk.screen.css`
+    })
   ],
 };
 
 if (process.env.ENABLE_WATCH === 'true') {
-  cfg.watch = true;
+  cfg.watch = true; //possibly depricated by webpack 5 https://webpack.js.org/migrate/5/#clean-up-configuration
 }
 
 if (process.env.ENABLE_SERVER === 'true') {
@@ -144,14 +130,15 @@ if (process.env.ENABLE_SERVER === 'true') {
 }
 
 if (NODE_ENV === 'production') {
-  cfg.plugins.push(new OptimizeCssnanoPlugin({
-    sourceMap: false,
-    cssnanoOptions: {
-      preset: ['default', {
-        discardComments: {
-          removeAll: true,
+  cfg.devtool = false;
+  cfg.plugins.push(new CssMinimizerPlugin({
+    minimizerOptions: {
+      preset: [
+        'default',
+        {
+          discardComments: { removeAll: true },
         },
-      }],
+      ],
     },
   }));
 }
