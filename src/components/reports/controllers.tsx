@@ -686,7 +686,7 @@ export async function viewOrganizationsReport(
     .mapValues(org => trialExpiryDate(new Date(org.created_at)))
     .value();
 
-  const template = new Template(ctx.viewContext, 'Organizations Report');
+  const template = new Template(ctx.viewContext, 'Organisations Report');
 
   return {
     body: template.render(
