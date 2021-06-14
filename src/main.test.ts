@@ -177,7 +177,7 @@ describe.only('main test suite', () => {
   it('should exit with non-zero status on error (invalid PORT)', done => {
     const newEnvVars = { ...envVars, PORT: '-1' };
     const proc = spawn(process.argv0, ['./dist/main.js'], { env: newEnvVars });
-    proc.once('error', fail);
+    proc.once('error', Error);
     proc.once('close', code => {
       expect(code).not.toEqual(0);
       done();
@@ -188,7 +188,7 @@ describe.only('main test suite', () => {
     const newEnvVars = { ...envVars };
     newEnvVars.API_URL = '';
     const proc = spawn(process.argv0, ['./dist/main.js'], { env: newEnvVars });
-    proc.once('error', fail);
+    proc.once('error', Error);
     proc.once('close', code => {
       expect(code).not.toEqual(0);
       done();
