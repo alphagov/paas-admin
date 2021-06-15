@@ -63,12 +63,12 @@ describe('server test suite', () => {
     await request(`http://localhost:${port}`)
       .get('/')
       .expect('HANDLER_A')
-      .catch(fail);
+      .catch(Error);
     server.update(handlerB);
     await request(`http://localhost:${port}`)
       .get('/')
       .expect('HANDLER_B')
-      .catch(fail);
+      .catch(Error);
 
     return server.stop();
   });
@@ -85,7 +85,7 @@ describe('server test suite', () => {
     await request(`http://localhost:${port}`)
       .get('/')
       .expect('HANDLER_B')
-      .catch(fail);
+      .catch(Error);
 
     return server.stop();
   });
