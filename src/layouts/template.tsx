@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { IViewContext } from '../components/app';
 import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs';
 
-import govukStyles from './govuk.screen.scss';
+import './govuk.screen.scss';
 import {
   CookieBanner,
   Footer,
@@ -64,7 +64,7 @@ export class Template {
 
           <meta name="x-user-identity-origin" content="${this.ctx.origin || ''}" />
 
-          <link href="${govukStyles}" media="all" rel="stylesheet" />
+          <link href="${assetPath}/govuk.screen.css" media="all" rel="stylesheet" />
 
           <meta property="og:image" content="${assetURL}/images/govuk-opengraph-image.png" />
         </head>
