@@ -1,5 +1,5 @@
 import { DescribeDBLogFilesDetails } from 'aws-sdk/clients/rds';
-import moment from 'moment';
+import { format } from 'date-fns';
 import React, { ReactElement, ReactNode } from 'react';
 
 import { DATE_TIME } from '../../layouts/constants';
@@ -228,7 +228,7 @@ function FileListingItem(props: IFileListingItemProperties): ReactElement {
       {' '}
       <span className="govuk-visually-hidden">file size </span>
       <span className="service-log-list-item__attribute">{bytesToHuman(props.size)}</span>
-      <span className="service-log-list-item__attribute">Last written: {moment(props.date).format(DATE_TIME)}</span>
+      <span className="service-log-list-item__attribute">Last written: {format(props.date, DATE_TIME)}</span>
     </p>
   </li>;
 }
