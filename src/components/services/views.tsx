@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import React, { ReactElement, ReactNode } from 'react';
 
 import { DATE_TIME } from '../../layouts/constants';
-import { bytesToHuman, Abbreviation } from '../../layouts/helpers';
+import { Abbreviation, bytesToHuman } from '../../layouts/helpers';
 import { CommandLineAlternative } from '../../layouts/partials';
 import { IService, IServiceInstance, IServicePlan } from '../../lib/cf/types';
 import { RouteActiveChecker, RouteLinker } from '../app';
@@ -74,7 +74,7 @@ export function ServiceTab(props: IServiceTabProperties): ReactElement {
           <span className="govuk-visually-hidden">Service</span>{' '}
           {props.service.entity.name}
         </span>{' '}
-        
+
         <span
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
@@ -224,7 +224,9 @@ function FileListingItem(props: IFileListingItemProperties): ReactElement {
 
     <p className="govuk-body" id={`download-${props.date.getTime()}`}>
       <span className="govuk-visually-hidden">file type </span>
-      <span className="service-log-list-item__attribute"><Abbreviation description="record of events">LOG</Abbreviation></span>,
+      <span className="service-log-list-item__attribute">
+        <Abbreviation description="record of events">LOG</Abbreviation>
+      </span>,
       {' '}
       <span className="govuk-visually-hidden">file size </span>
       <span className="service-log-list-item__attribute">{bytesToHuman(props.size)}</span>
