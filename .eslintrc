@@ -23,7 +23,9 @@
     "coverage/",
     "dist/",
     "node_modules/",
-    "src/frontend/javascript/"
+    "src/frontend/javascript/",
+    "jest-puppeteer.config.js",
+    "jest-with-puppeteer.config.js"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
