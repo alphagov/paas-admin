@@ -155,7 +155,7 @@ describe('redrect', () => {
             },
           ),
         ).rejects.toThrow(
-          /Constructed date is invalid, should be YYYY-MM-DD: blah-blah-01/,
+          /Constructed date is invalid, should be yyyy-MM-dd: blah-blah-01/,
         );
       });
 
