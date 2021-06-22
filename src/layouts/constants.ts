@@ -1,4 +1,4 @@
-export const DATE = 'MMMM Do YYYY';
+export const DATE = 'MMMM do yyyy';
 export const TIME = 'HH:mm';
 export const DATE_TIME = 'h:mmaaa, d MMMM yyyy';
 
