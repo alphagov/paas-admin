@@ -1,4 +1,4 @@
-import { Duration, formatDuration } from 'date-fns';
+import { add, Duration, formatDistance } from 'date-fns';
 import React, { ReactElement, ReactNode } from 'react';
 
 import { IMetricSerie } from '../../lib/metrics';
@@ -82,7 +82,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
 
         <p className="govuk-body">
           Each point on the charts is aggregated data over {}
-          <strong className="non-breaking">{formatDuration(props.period)}</strong>.
+          <strong className="non-breaking">{formatDistance(new Date(), add(new Date(), props.period))}</strong>.
           Each chart shows 1 year of data.
         </p>
 

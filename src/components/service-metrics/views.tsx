@@ -1,4 +1,4 @@
-import { Duration, format, formatDuration } from 'date-fns';
+import { add, Duration, format, formatDistance } from 'date-fns';
 import { forIn } from 'lodash';
 import React, { ReactElement, ReactNode } from 'react';
 
@@ -563,7 +563,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
             <p className="govuk-body">
               Each point on a graph is aggregated over
               {' '}
-              <strong className="non-breaking">{formatDuration(props.period)}</strong>
+              <strong className="non-breaking">{formatDistance(new Date(), add(new Date(), props.period))}</strong>
               {' '}
               of data.
             </p>
