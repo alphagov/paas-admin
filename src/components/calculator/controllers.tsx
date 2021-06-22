@@ -1,5 +1,5 @@
+import { endOfMonth, format, startOfMonth } from 'date-fns';
 import { sum } from 'lodash';
-import moment from 'moment';
 import React from 'react';
 import * as uuid from 'uuid';
 
@@ -49,11 +49,11 @@ async function getQuote(
   billing: BillingClient,
   state: ICalculatorState,
 ): Promise<IQuote> {
-  const rangeStart = moment(state.rangeStart);
-  const rangeStop = moment(state.rangeStop);
+  const rangeStart = new Date(state.rangeStart);
+  const rangeStop = new Date(state.rangeStop);
   const rates = await billing.getCurrencyRates({
-    rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStop.toDate(),
+    rangeStart,
+    rangeStop,
   });
   const latestUsdRate = rates.find(currencyRate => currencyRate.code === 'USD');
   /* istanbul ignore if */
@@ -64,8 +64,8 @@ async function getQuote(
     const plan = state.plans.find(p => p.planGUID === item.planGUID);
     const defaultEvent: IBillableEvent = {
       eventGUID: uuid.v1(),
-      eventStart: rangeStart.toDate(),
-      eventStop: rangeStop.toDate(),
+      eventStart: rangeStart,
+      eventStop: rangeStop,
       memoryInMB: parseFloat(item.memoryInMB),
       numberOfNodes: parseFloat(item.numberOfNodes),
       orgGUID: '00000001-0000-0000-0000-000000000000',
@@ -188,25 +188,20 @@ export async function getCalculator(
   ctx: IContext,
   params: IParameters,
 ): Promise<IResponse> {
-  const monthOfEstimate = moment().format('MMMM YYYY');
-  const rangeStart =
-    params.rangeStart ||
-    moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-  const rangeStop =
-    params.rangeStop ||
-    moment()
-      .endOf('month')
-      .format('YYYY-MM-DD');
+  const monthOfEstimate = format(new Date(), 'MMMM yyyy');
+  /* istanbul ignore next */
+  const rangeStart = params.rangeStart ? new Date(params.rangeStart) : startOfMonth(new Date());
+  /* istanbul ignore next */
+  const rangeStop = params.rangeStop ? new Date(params.rangeStop) : endOfMonth(new Date());
   const billing = new BillingClient({
     apiEndpoint: ctx.app.billingAPI,
     logger: ctx.app.logger,
   });
+
   const plans = (
     await billing.getPricingPlans({
-      rangeStart: moment(rangeStart).toDate(),
-      rangeStop: moment(rangeStop).toDate(),
+      rangeStart: rangeStart,
+      rangeStop: rangeStop,
     })
   )
     .filter(safelistServices)

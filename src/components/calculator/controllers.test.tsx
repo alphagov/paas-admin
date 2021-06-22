@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { endOfMonth, format, startOfMonth } from 'date-fns';
 import nock from 'nock';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
@@ -36,12 +36,8 @@ describe('calculator test suite', () => {
   });
 
   it('should get calculator', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-    const rangeStop = moment()
-      .endOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
@@ -107,12 +103,8 @@ describe('calculator test suite', () => {
   });
 
   it('should get a zero quote if no items are specified', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-    const rangeStop = moment()
-      .endOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
@@ -130,12 +122,8 @@ describe('calculator test suite', () => {
   });
 
   it('should calculate prices (including exchange rate) when provided fake services', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-    const rangeStop = moment()
-      .endOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
@@ -209,12 +197,8 @@ describe('calculator test suite', () => {
   });
 
   it('should sort the quote by order added', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-    const rangeStop = moment()
-      .endOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
     const postgresGuid = 'f4d4b95a-f55e-4593-8d54-3364c25798c4';
     const appGuid = 'f4d4b95b-f55e-4593-8d54-3364c25798c0';
@@ -267,12 +251,8 @@ describe('calculator test suite', () => {
   });
 
   it('should filter out compose plans', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-    const rangeStop = moment()
-      .endOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
@@ -295,12 +275,8 @@ describe('calculator test suite', () => {
   });
 
   it('should show postgres plan and sort the versions', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-    const rangeStop = moment()
-      .endOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
@@ -357,12 +333,8 @@ describe('calculator test suite', () => {
   });
 
   it('should use calculator and ignore empty application', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-    const rangeStop = moment()
-      .endOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
@@ -419,12 +391,8 @@ describe('calculator test suite', () => {
   });
 
   it('should omit printing "default" when there is only a default pricing plan', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-    const rangeStop = moment()
-      .endOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
     nock(config.billingAPI)
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)

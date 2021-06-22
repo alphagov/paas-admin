@@ -1,8 +1,10 @@
+import { format } from 'date-fns';
 import { groupBy, mapValues, values } from 'lodash';
 import React, { Fragment, ReactElement } from 'react';
 
-import { bytesConvert, bytesToHuman } from '../../layouts/helpers';
 import { KIBIBYTE } from '../../layouts/constants';
+import { bytesConvert, bytesToHuman } from '../../layouts/helpers';
+import { IBillableEvent, IPricingPlan } from '../../lib/billing/types';
 
 export interface IQuote {
   readonly events: ReadonlyArray<IBillableEvent>;
@@ -19,16 +21,16 @@ export interface IResourceItem {
 
 export interface ICalculatorState {
   readonly monthOfEstimate: string;
-  readonly rangeStart: string;
-  readonly rangeStop: string;
+  readonly rangeStart: Date;
+  readonly rangeStop: Date;
   readonly items: ReadonlyArray<IResourceItem>;
   readonly plans: ReadonlyArray<IPricingPlan>;
 }
 
 interface IStateFieldsProperties {
   readonly items: ReadonlyArray<IResourceItem>;
-  readonly rangeStart: string;
-  readonly rangeStop: string;
+  readonly rangeStart: Date;
+  readonly rangeStop: Date;
   readonly remove?: number;
 }
 
@@ -94,6 +96,7 @@ function niceServiceName(planName: string): string {
 
 export function appInstanceDescription(memoryInMB: number, instances: number): ReactElement {
   const precisionDigits = memoryInMB > KIBIBYTE && memoryInMB < KIBIBYTE * 2 ? 1 : 0;
+
   return <>
     {instances.toFixed(0)} app instance{instances === 1 ? '' : 's'}
     {' '}
@@ -103,19 +106,20 @@ export function appInstanceDescription(memoryInMB: number, instances: number): R
   </>;
 }
 
-export function appInstanceDescriptionText(memoryInMB: number, instances: number) {
+export function appInstanceDescriptionText(memoryInMB: number, instances: number): string {
   const precisionDigits = memoryInMB > KIBIBYTE && memoryInMB < KIBIBYTE * 2 ? 1 : 0;
   const converted = bytesConvert((memoryInMB * 1024 * 1024), precisionDigits);
+
   return (
-    `${instances.toFixed(0)} app instance${instances === 1 ? '' : 's'}${' '}with${' '}${converted.value} ${converted.long} of memory`
-  )
+    `${instances.toFixed(0)} app instance${instances === 1 ? '' : 's'} with ${converted.value} ${converted.long} of memory`
+  );
 }
 
 function StateFields(props: IStateFieldsProperties): ReactElement {
   return (
     <>
-      <input type="hidden" name="rangeStart" value={props.rangeStart} />
-      <input type="hidden" name="rangeStop" value={props.rangeStop} />
+      <input type="hidden" name="rangeStart" value={format(props.rangeStart, 'yyyy-MM-dd')} />
+      <input type="hidden" name="rangeStop" value={format(props.rangeStop, 'yyyy-MM-dd')} />
       {props.items.map((item, index) =>
         props.remove !== index ? (
           <Fragment key={index}>
@@ -148,7 +152,6 @@ function Plans(props: IPlansProperties): ReactElement {
     <>
       {values(
         mapValues(groupBy(props.plans, 'serviceName'), (plans, serviceName) => (
-          
             <div key={serviceName} className="govuk-summary-list__row">
               <form className="paas-service-selection" method="get">
                 <dt className="govuk-summary-list__key">
@@ -237,8 +240,8 @@ function Plans(props: IPlansProperties): ReactElement {
                   <button type="submit" className="paas-add-button">
                     Add{' '}
                     <span className="govuk-visually-hidden">
-                    {props.serviceName === 'app' ? 
-                      'compute instance with selected configuration' : 
+                    {props.serviceName === 'app' ?
+                      'compute instance with selected configuration' :
                       `selected ${props.serviceName} service plan`
                     }
                     </span>
@@ -317,7 +320,8 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
                         type="submit"
                         aria-label={`Remove 
                           ${event.resourceType === 'app'
-                          ? `compute configuration of ${appInstanceDescriptionText(event.memoryInMB, event.numberOfNodes)}`
+                          ? `compute configuration of
+                              ${appInstanceDescriptionText(event.memoryInMB, event.numberOfNodes)}`
                           : `${event.resourceType} ${event.resourceName} service plan`}
                         `}
                       >
@@ -347,7 +351,6 @@ export function CalculatorPage(props: ICalculatorPageProperties): ReactElement {
                   £{((props.quote.exVAT / 100) * 10).toFixed(2)}
                 </td>
               </tr>
-            
             ) : (
               <></>
             )}
