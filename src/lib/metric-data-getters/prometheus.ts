@@ -1,5 +1,5 @@
+import { add, Duration, isBefore, isEqual, milliseconds, millisecondsToSeconds } from 'date-fns';
 import _ from 'lodash';
-import moment from 'moment';
 
 import { IMetric, IMetricSerie, MetricName } from '../metrics';
 import PromClient from '../prom';
@@ -10,17 +10,17 @@ export class PrometheusMetricDataGetter {
   public addPlaceholderData(
     series: ReadonlyArray<IMetricSerie>,
 
-    period: moment.Duration,
-    rangeStart: moment.Moment,
-    rangeStop: moment.Moment,
+    period: Duration,
+    rangeStart: Date,
+    rangeStop: Date,
   ): ReadonlyArray<IMetricSerie> {
     const placeholderData: { [key: number]: IMetric } = {};
     for (
-      const time = rangeStart.clone();
-      time.isSameOrBefore(rangeStop);
-      time.add(period)
+      let time = new Date(rangeStart);
+      isEqual(time, rangeStop) || isBefore(time, rangeStop);
+      time = add(time, period)
     ) {
-      placeholderData[+time] = { date: time.toDate(), value: NaN };
+      placeholderData[+time] = { date: time, value: NaN };
     }
 
     return series.map(serie => {
@@ -47,9 +47,9 @@ export class PrometheusMetricDataGetter {
   public async getDataFromPrometheus(
     metricNames: ReadonlyArray<MetricName>,
     queries: ReadonlyArray<string>,
-    period: moment.Duration,
-    rangeStart: moment.Moment,
-    rangeStop: moment.Moment,
+    period: Duration,
+    rangeStart: Date,
+    rangeStop: Date,
   ): Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }> {
     const queryResults: ReadonlyArray<
       ReadonlyArray<IMetricSerie> | undefined
@@ -57,9 +57,9 @@ export class PrometheusMetricDataGetter {
       queries.map(async query =>
         await this.promClient.getSeries(
           query,
-          period.asSeconds(),
-          rangeStart.toDate(),
-          rangeStop.toDate(),
+          millisecondsToSeconds(milliseconds(period)),
+          rangeStart,
+          rangeStop,
         ),
       ),
     );

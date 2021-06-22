@@ -1,7 +1,7 @@
 import * as cw from '@aws-sdk/client-cloudwatch-node';
 import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
+import { Duration, milliseconds, millisecondsToSeconds } from 'date-fns';
 import _ from 'lodash';
-import moment from 'moment';
 
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
@@ -101,9 +101,9 @@ export class CloudFrontMetricDataGetter extends CloudWatchMetricDataGetter
   public async getData(
     metricNames: ReadonlyArray<MetricName>,
     guid: string,
-    period: moment.Duration,
-    rangeStart: moment.Moment,
-    rangeStop: moment.Moment,
+    period: Duration,
+    rangeStart: Date,
+    rangeStop: Date,
   ): Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }> {
     const distributionId = await this.getCloudFrontDistributionId(guid);
 
@@ -120,12 +120,12 @@ export class CloudFrontMetricDataGetter extends CloudWatchMetricDataGetter
               MetricName: cloudfrontMetricPropertiesById[metricId].name,
               Namespace: 'AWS/CloudFront',
             },
-            Period: period.asSeconds(),
+            Period: millisecondsToSeconds(milliseconds(period)),
             Stat: cloudfrontMetricPropertiesById[metricId].stat,
           },
         })),
-        StartTime: rangeStart.toDate(),
-        EndTime: rangeStop.toDate(),
+        StartTime: rangeStart,
+        EndTime: rangeStop,
       },
     ];
 

@@ -1,13 +1,13 @@
 import * as cw from '@aws-sdk/client-cloudwatch-node';
+import { Duration, milliseconds, millisecondsToSeconds } from 'date-fns';
 import _ from 'lodash';
-import moment from 'moment';
 
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
 
 import { CloudWatchMetricDataGetter, ICloudWatchMetric } from './cloudwatch';
 
-const sqsMetricPropertiesById: { [key in MetricName]: ICloudWatchMetric } = {
+const sqsMetricPropertiesById: { readonly [key in MetricName]: ICloudWatchMetric } = {
   mNumberOfMessagesReceived: {
     name: 'NumberOfMessagesReceived',
     stat: 'Average',
@@ -39,9 +39,9 @@ export class SQSMetricDataGetter extends CloudWatchMetricDataGetter
   public async getData(
     metricNames: ReadonlyArray<MetricName>,
     guid: string,
-    period: moment.Duration,
-    rangeStart: moment.Moment,
-    rangeStop: moment.Moment,
+    period: Duration,
+    rangeStart: Date,
+    rangeStop: Date,
     servicePlanName?: string,
   ): Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }> {
 
@@ -58,12 +58,12 @@ export class SQSMetricDataGetter extends CloudWatchMetricDataGetter
               MetricName: sqsMetricPropertiesById[metricId].name,
               Namespace: 'AWS/SQS',
             },
-            Period: period.asSeconds(),
+            Period: millisecondsToSeconds(milliseconds(period)),
             Stat: sqsMetricPropertiesById[metricId].stat,
           },
         })),
-        StartTime: rangeStart.toDate(),
-        EndTime: rangeStop.toDate(),
+        StartTime: rangeStart,
+        EndTime: rangeStop,
       },
     ];
 

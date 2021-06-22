@@ -1,6 +1,6 @@
 import { _UnmarshalledMetricDataResult as CloudWatchResult } from '@aws-sdk/client-cloudwatch-node';
+import { add, Duration, isBefore, isEqual } from 'date-fns';
 import _ from 'lodash';
-import moment from 'moment';
 
 import { IMetric, MetricName } from '../metrics';
 
@@ -13,17 +13,17 @@ export class CloudWatchMetricDataGetter {
   public addPlaceholderData(
     results: ReadonlyArray<CloudWatchResult>,
 
-    period: moment.Duration,
-    rangeStart: moment.Moment,
-    rangeStop: moment.Moment,
+    period: Duration,
+    rangeStart: Date,
+    rangeStop: Date,
   ) {
     const placeholderData: { [key: number]: IMetric } = {};
     for (
-      const time = rangeStart.clone();
-      time.isSameOrBefore(rangeStop);
-      time.add(period)
+      let time = new Date(rangeStart);
+      isEqual(time, rangeStop) || isBefore(time, rangeStop);
+      time = add(time, period)
     ) {
-      placeholderData[+time] = { date: time.toDate(), value: NaN };
+      placeholderData[+time] = { date: time, value: NaN };
     }
 
     return _.chain(results)

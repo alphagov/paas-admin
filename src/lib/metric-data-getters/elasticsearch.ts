@@ -1,5 +1,5 @@
+import { Duration } from 'date-fns';
 import _ from 'lodash';
-import moment from 'moment';
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
 import PromClient from '../prom';
@@ -60,9 +60,9 @@ export class ElasticsearchMetricDataGetter extends PrometheusMetricDataGetter
   public async getData(
     metricNames: ReadonlyArray<MetricName>,
     guid: string,
-    period: moment.Duration,
-    rangeStart: moment.Moment,
-    rangeStop: moment.Moment,
+    period: Duration,
+    rangeStart: Date,
+    rangeStop: Date,
   ): Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }> {
     const queries = metricNames.map(metricName =>
       elasticsearchMetricPropertiesById[metricName].promQL(guid),

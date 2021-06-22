@@ -1,6 +1,6 @@
 import * as cw from '@aws-sdk/client-cloudwatch-node';
+import { Duration, milliseconds, millisecondsToSeconds } from 'date-fns';
 import _ from 'lodash';
-import moment from 'moment';
 
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
@@ -49,9 +49,9 @@ export class RDSMetricDataGetter extends CloudWatchMetricDataGetter
   public async getData(
     metricNames: ReadonlyArray<MetricName>,
     guid: string,
-    period: moment.Duration,
-    rangeStart: moment.Moment,
-    rangeStop: moment.Moment,
+    period: Duration,
+    rangeStart: Date,
+    rangeStop: Date,
   ): Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }> {
     const instanceId = this.getRdsDbInstanceIdentifier(guid);
 
@@ -65,12 +65,12 @@ export class RDSMetricDataGetter extends CloudWatchMetricDataGetter
               MetricName: rdsMetricPropertiesById[metricId].name,
               Namespace: 'AWS/RDS',
             },
-            Period: period.asSeconds(),
+            Period: millisecondsToSeconds(milliseconds(period)),
             Stat: rdsMetricPropertiesById[metricId].stat,
           },
         })),
-        StartTime: rangeStart.toDate(),
-        EndTime: rangeStop.toDate(),
+        StartTime: rangeStart,
+        EndTime: rangeStop,
       },
     ];
 
