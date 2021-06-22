@@ -1,4 +1,3 @@
-import moment from 'moment';
 import nock from 'nock';
 import pino from 'pino';
 
@@ -178,8 +177,7 @@ describe('lib/accounts test suite', () => {
     const doc = await ac.getDocument('my-doc');
     expect(doc.name).toEqual('my-doc');
     expect(doc.validFrom.toString()).toEqual(
-      moment('2018-04-20T14:36:09+00:00')
-        .toDate()
+      (new Date('2018-04-20T14:36:09+00:00'))
         .toString(),
     );
     expect(doc.content).toEqual('my-doc-content');
@@ -220,8 +218,7 @@ describe('lib/accounts test suite', () => {
     expect(docs.length).toEqual(1);
     expect(docs[0].name).toEqual('my-doc-1');
     expect(docs[0].validFrom.toString()).toEqual(
-      moment('2018-04-20T14:36:09+00:00')
-        .toDate()
+      (new Date('2018-04-20T14:36:09+00:00'))
         .toString(),
     );
     expect(docs[0].content).toEqual('my-pending-doc-content-1');
