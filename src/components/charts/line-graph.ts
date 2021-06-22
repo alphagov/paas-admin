@@ -3,24 +3,24 @@ import { axisBottom, axisLeft } from 'd3-axis';
 import { scaleLinear, scaleTime } from 'd3-scale';
 import { select } from 'd3-selection';
 import { line } from 'd3-shape';
+import { format } from 'date-fns';
 import { Window } from 'happy-dom';
 import { flatMap } from 'lodash';
-import moment from 'moment';
 
 import { IMetric, IMetricSerie, IMetricSerieSummary } from '../../lib/metrics';
 
 const viewBox = {
+  height: 320,
+  width: 960,
   x: 0,
   y: 0,
-  width: 960,
-  height: 320,
 };
 
 const padding = {
-  top: 25,
-  right: 30,
   bottom: 132,
   left: 90,
+  right: 30,
+  top: 25,
 };
 
 export function drawLineGraph(
@@ -46,22 +46,23 @@ export function drawLineGraph(
     .attr('role', 'img')
     .attr('aria-labelledby', itemID);
 
-  const xAxisExtent = extent(
+  const rawxAxisExtent = extent(
     flatMap(series, s => s.metrics),
     d => d.date,
   ) as readonly [Date, Date];
 
-  const start = moment(xAxisExtent[0]);
-  const end = moment(xAxisExtent[1]);
-  const dateFormat = 'h:mma on D MMMM YYYY';
+  const xAxisExtent = series.length > 0 ? rawxAxisExtent : [new Date(), new Date()];
+
+  const start = new Date(xAxisExtent[0]);
+  const end = new Date(xAxisExtent[1]);
+
+  const dateFormat = 'h:mmaaa \'on\' d MMMM yyyy';
 
   svg
     .append('title')
     .attr('id', itemID)
     .text(
-      `Line graph showing ${title} from ${start.format(
-        dateFormat,
-      )} to ${end.format(dateFormat)}`,
+      `Line graph showing ${title} from ${format(start, dateFormat)} to ${format(end, dateFormat)}`,
     );
 
   const yAxisMax = max(
@@ -190,9 +191,11 @@ export function drawLineGraph(
 }
 
 export function summariseSerie(serie: IMetricSerie): IMetricSerieSummary {
-  const matches = serie.label.match(/-(\d{3})/);
+  /* istanbul ignore next */
+  const matches = (serie.label || '').match(/-(\d{3})/);
 
-  const label = matches && matches.length > 1 ? matches[1] : serie.label;
+  /* istanbul ignore next */
+  const label = matches && matches.length > 1 ? matches[1] : serie.label || '';
 
   const latestMetric = serie.metrics.reduce(
     (value, m) => (!isNaN(m.value) ? m.value : value),
@@ -211,11 +214,11 @@ export function summariseSerie(serie: IMetricSerie): IMetricSerieSummary {
     serie.metrics.filter(m => !isNaN(m.value)).length;
 
   const summary = {
+    average: averageMetric,
     label,
     latest: latestMetric,
-    average: averageMetric,
-    min: minMetric,
     max: maxMetric,
+    min: minMetric,
   };
 
   return summary;
