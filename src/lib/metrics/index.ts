@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { add, Duration, formatISO, sub } from 'date-fns';
 
 import roundDown from '../moment/round';
 
@@ -29,7 +29,7 @@ export interface IMetricSerieSummary {
 }
 
 export interface IMetricSerie {
-  readonly label: string;
+  readonly label?: string;
 
   readonly metrics: ReadonlyArray<IMetric>;
 }
@@ -38,10 +38,10 @@ export interface IMetricDataGetter {
   readonly getData: (
     metricNames: ReadonlyArray<MetricName>,
     guid: string,
-    period: moment.Duration,
-    rangeStart: moment.Moment,
-    rangeStop: moment.Moment,
-  ) => Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }>;
+    period: Duration,
+    rangeStart: Date,
+    rangeStop: Date,
+  ) => Promise<{ readonly [key in MetricName]: ReadonlyArray<IMetricSerie> }>;
 }
 
 export interface IMetricGraphDisplayable {
@@ -58,10 +58,7 @@ export function getGappyRandomData(): {
   const timestamps: Array<string> = [];
   const values: Array<number> = [];
 
-  const startTime = roundDown(
-    moment().subtract(1, 'day'),
-    moment.duration(5, 'minutes'),
-  );
+  const startTime = roundDown(sub(new Date(), { days: 1 }), { minutes: 5 });
   for (let i = 0; i < minutesInADay; i += 5) {
     if (
       i < minutesInADay * 0.2 ||
@@ -69,12 +66,8 @@ export function getGappyRandomData(): {
     ) {
       // do nothing - empty piece of the graph
     } else {
-      timestamps.push(
-        startTime
-          .clone()
-          .add(i, 'minutes')
-          .toISOString(),
-      );
+      const timestamp = formatISO(add(startTime, { minutes: i }));
+
       let value = 0;
       if (values.length === 0) {
         value = Math.random() * 105;
@@ -82,6 +75,8 @@ export function getGappyRandomData(): {
         value = values[values.length - 1] + 10 * (Math.random() - 0.5);
         value = value > 0 ? value : 0;
       }
+
+      timestamps.push(timestamp);
       values.push(value);
     }
   }
