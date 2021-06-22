@@ -12,11 +12,26 @@ import {
 describe(OrganizationsReport, () => {
   const org = [
     {
-      guid: 'org-guid',
       created_at: '2020-01-01',
-      updated_at: '2020-01-01',
+      guid: 'org-guid',
+      links: {
+        default_domain: {
+          href: 'default-domain-link',
+        },
+        domains: {
+          href: 'domain-link',
+        },
+        self: {
+          href: 'self-link',
+        },
+      },
+      metadata: {
+        annotations: {
+          owner: 'owner',
+        },
+        labels: {},
+      },
       name: 'org-name',
-      suspended: false,
       relationships: {
         quota: {
           data: {
@@ -24,33 +39,33 @@ describe(OrganizationsReport, () => {
           },
         },
       },
-      links: {
-        self: {
-          href: 'self-link',
-        },
-        domains: {
-          href: 'domain-link',
-        },
-        default_domain: {
-          href: 'default-domain-link',
-        },
-      },
-      metadata: {
-        labels: {},
-        annotations: {
-          owner: 'owner',
-        },
-      },
+      suspended: false,
+      updated_at: '2020-01-01',
     },
   ];
 
   const billableOrg = [
     {
-      guid: 'org-guid',
       created_at: '2019-12-01',
-      updated_at: '2020-01-01',
+      guid: 'org-guid',
+      links: {
+        default_domain: {
+          href: 'default-domain-link',
+        },
+        domains: {
+          href: 'domain-link',
+        },
+        self: {
+          href: 'self-link',
+        },
+      },
+      metadata: {
+        annotations: {
+          owner: 'billable-owner',
+        },
+        labels: {},
+      },
       name: 'org-name',
-      suspended: false,
       relationships: {
         quota: {
           data: {
@@ -58,33 +73,33 @@ describe(OrganizationsReport, () => {
           },
         },
       },
-      links: {
-        self: {
-          href: 'self-link',
-        },
-        domains: {
-          href: 'domain-link',
-        },
-        default_domain: {
-          href: 'default-domain-link',
-        },
-      },
-      metadata: {
-        labels: {},
-        annotations: {
-          owner: 'billable-owner',
-        },
-      },
+      suspended: false,
+      updated_at: '2020-01-01',
     },
   ];
 
   const suspendedOrg = [
     {
-      guid: 'suspended-guid',
       created_at: '2020-01-01',
-      updated_at: '2020-01-01',
+      guid: 'suspended-guid',
+      links: {
+        default_domain: {
+          href: 'default-domain-link',
+        },
+        domains: {
+          href: 'domain-link',
+        },
+        self: {
+          href: 'self-link',
+        },
+      },
+      metadata: {
+        annotations: {
+          owner: 'owner',
+        },
+        labels: {},
+      },
       name: 'suspended-org',
-      suspended: true,
       relationships: {
         quota: {
           data: {
@@ -92,23 +107,8 @@ describe(OrganizationsReport, () => {
           },
         },
       },
-      links: {
-        self: {
-          href: 'self-link',
-        },
-        domains: {
-          href: 'domain-link',
-        },
-        default_domain: {
-          href: 'default-domain-link',
-        },
-      },
-      metadata: {
-        labels: {},
-        annotations: {
-          owner: 'owner',
-        },
-      },
+      suspended: true,
+      updated_at: '2020-01-01',
     },
   ];
 
@@ -128,10 +128,10 @@ describe(OrganizationsReport, () => {
       trial_db_allowed: false,
     },
     metadata: {
-      guid: 'quota-guid',
-      url: 'url',
       created_at: '2020-01-01',
+      guid: 'quota-guid',
       updated_at: '2020-01-01',
+      url: 'url',
     },
   };
 
@@ -151,10 +151,10 @@ describe(OrganizationsReport, () => {
       trial_db_allowed: false,
     },
     metadata: {
-      guid: 'billable-quota-guid',
-      url: 'url',
       created_at: '2020-01-01',
+      guid: 'billable-quota-guid',
       updated_at: '2020-01-01',
+      url: 'url',
     },
   };
 
@@ -166,8 +166,8 @@ describe(OrganizationsReport, () => {
         trialOrgs={org}
         billableOrgs={billableOrg}
         orgQuotaMapping={{
-          'quota-guid': orgQuota,
           'billable-quota-guid': billableQuota,
+          'quota-guid': orgQuota,
         }}
         orgTrialExpirys={{ 'org-guid': new Date('2019-01-30') }}
       />,
@@ -183,17 +183,30 @@ describe(OrganizationsReport, () => {
   });
 
   it('should parse the organizations report with owner undefined', () => {
-    org[0].metadata.annotations.owner = undefined;
-    billableOrg[0].metadata.annotations.owner = undefined;
+    const orgWithNoAnnotations = [{
+      ...org[0],
+      metadata: {
+        annotations: {},
+        labels: {},
+      },
+    }];
+    const billableOrgWithNoAnnotations = [{
+      ...billableOrg[0],
+      metadata: {
+        annotations: {},
+        labels: {},
+      },
+    }];
+
     const markup = shallow(
       <OrganizationsReport
         linkTo={route => `__LINKS_TO__${route}`}
-        organizations={org}
-        trialOrgs={org}
-        billableOrgs={billableOrg}
+        organizations={orgWithNoAnnotations}
+        trialOrgs={orgWithNoAnnotations}
+        billableOrgs={billableOrgWithNoAnnotations}
         orgQuotaMapping={{
-          'quota-guid': orgQuota,
           'billable-quota-guid': billableQuota,
+          'quota-guid': orgQuota,
         }}
         orgTrialExpirys={{ 'org-guid': new Date('2019-01-30') }}
       />,
@@ -210,10 +223,10 @@ describe(OrganizationsReport, () => {
         trialOrgs={suspendedOrg}
         billableOrgs={billableOrg}
         orgQuotaMapping={{
-          'quota-guid': orgQuota,
           'billable-quota-guid': billableQuota,
+          'quota-guid': orgQuota,
         }}
-        orgTrialExpirys={{ 'org-guid': new Date('2019-01-30') }}
+        orgTrialExpirys={{ 'org-guid': new Date('2019-01-30'), 'suspended-guid': new Date('2019-01-15') }}
       />,
     );
     const $ = cheerio.load(markup.html());
@@ -222,7 +235,7 @@ describe(OrganizationsReport, () => {
     );
 
     expect($('table tbody tr td:first-of-type span.govuk-tag').length).toEqual(1);
-  })
+  });
 });
 
 describe(CostReport, () => {
@@ -233,21 +246,21 @@ describe(CostReport, () => {
   };
 
   const orgCostRecords = {
+    exVAT: 62.97,
+    exVATWithAdminFee: 69.267,
+    incVAT: 75.56,
     orgGUID: 'org-guid',
     orgName: 'org-name',
     quotaGUID: 'quota-guid',
     quotaName: 'quota-name',
-    exVAT: 62.97,
-    exVATWithAdminFee: 69.267,
-    incVAT: 75.56,
   };
 
   const quotaCostRecords = {
-    quotaGUID: 'quota-guid',
-    quotaName: 'quota-name',
     exVAT: 62.97,
     exVATWithAdminFee: 69.267,
     incVAT: 75.56,
+    quotaGUID: 'quota-guid',
+    quotaName: 'quota-name',
   };
 
   it('should parse the cost report', () => {
@@ -282,30 +295,30 @@ describe(CostReport, () => {
 
 describe(CostByServiceReport, () => {
   const billablesByService = {
-    serviceGroup: 'service-group',
-    incVAT: 75.56,
     exVAT: 62.97,
     exVATWithAdminFee: 69.267,
+    incVAT: 75.56,
+    serviceGroup: 'service-group',
   };
 
   const billablesByOrganisationAndService = {
+    exVAT: 62.97,
+    exVATWithAdminFee: 69.267,
+    incVAT: 75.56,
     orgGUID: 'org-guid',
     orgName: 'org-name',
     serviceGroup: 'service-group',
-    incVAT: 75.56,
-    exVAT: 62.97,
-    exVATWithAdminFee: 69.267,
   };
 
   const billablesByOrganisationAndSpaceAndService = {
-    spaceGUID: 'space-guid',
-    spaceName: 'space-name',
+    exVAT: 62.97,
+    exVATWithAdminFee: 69.267,
+    incVAT: 75.56,
     orgGUID: 'org-guid',
     orgName: 'org-name',
     serviceGroup: 'service-group',
-    incVAT: 75.56,
-    exVAT: 62.97,
-    exVATWithAdminFee: 69.267,
+    spaceGUID: 'space-guid',
+    spaceName: 'space-name',
   };
 
   it('should parse the cost by service report', () => {
@@ -364,7 +377,7 @@ describe(VisualisationPage, () => {
 
   it('should parse visualisation with no data', () => {
     const markup = shallow(
-      <VisualisationPage date={'January 2020'} data={null} />,
+      <VisualisationPage date={'January 2020'} data={undefined} />,
     );
 
     const $ = cheerio.load(markup.html());

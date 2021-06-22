@@ -1,10 +1,11 @@
 import parse from 'csv-parse/lib/sync'; // eslint-disable-line import/default
+import { format, startOfMonth, sub } from 'date-fns';
 import jwt from 'jsonwebtoken';
 import lodash from 'lodash';
-import moment from 'moment';
 import nock from 'nock';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
+import { IPriceComponent } from '../../lib/billing/types';
 import * as cf from '../../lib/cf/cf.test.data';
 import {
   org as defaultOrg,
@@ -93,26 +94,22 @@ describe('organisations report helpers', () => {
 
     const orgs = [
       lodash.merge(defaultOrgv3(), {
-        created_at: moment().toDate(),
+        created_at: new Date(),
         name: '1-trial-org',
         relationships: { quota: { data: { guid: trialGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        created_at: moment().toDate(),
+        created_at: new Date(),
         name: '1-paid-org',
         relationships: { quota: { data: { guid: paidGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        created_at: moment()
-          .subtract(1, 'days')
-          .toDate(),
+        created_at: sub(new Date(), { days: 1 }),
         name: '2-trial-org',
         relationships: { quota: { data: { guid: trialGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        created_at: moment()
-          .subtract(1, 'days')
-          .toDate(),
+        created_at: sub(new Date(), { days: 1 }),
         name: '2-paid-org',
         relationships: { quota: { data: { guid: paidGUID } } },
       }),
@@ -131,26 +128,22 @@ describe('organisations report helpers', () => {
 
     const orgs = [
       lodash.merge(defaultOrgv3(), {
-        created_at: moment().toDate(),
+        created_at: new Date(),
         name: '1-trial-org',
         relationships: { quota: { data: { guid: trialGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        created_at: moment().toDate(),
+        created_at: new Date(),
         name: '1-paid-org',
         relationships: { quota: { data: { guid: paidGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        created_at: moment()
-          .subtract(1, 'days')
-          .toDate(),
+        created_at: sub(new Date(), { days: 1 }),
         name: '2-trial-org',
         relationships: { quota: { data: { guid: trialGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        created_at: moment()
-          .subtract(1, 'days')
-          .toDate(),
+        created_at: sub(new Date(), { days: 1 }),
         name: '2-paid-org',
         relationships: { quota: { data: { guid: paidGUID } } },
       }),
@@ -177,31 +170,25 @@ describe('organisations report helpers', () => {
 
     const orgs = [
       lodash.merge(defaultOrgv3(), {
-        created_at: moment().toDate(),
+        created_at: new Date(),
         guid: 'current-trial-org',
         name: 'current-trial-org',
         relationships: { quota: { data: { guid: trialGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        created_at: moment()
-          .subtract(100, 'days')
-          .toDate(),
+        created_at: sub(new Date(), { days: 100 }),
         guid: 'expiring-trial-org',
         name: 'expiring-trial-org',
         relationships: { quota: { data: { guid: trialGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        created_at: moment()
-          .subtract(365, 'days')
-          .toDate(),
+        created_at: sub(new Date(), { days: 365 }),
         guid: 'cheap-org',
         name: 'cheap-org',
         relationships: { quota: { data: { guid: cheapGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        created_at: moment()
-          .subtract(730, 'days')
-          .toDate(),
+        created_at: sub(new Date(), { days: 730 }),
         guid: 'expensive-org',
         name: 'expensive-org',
         relationships: { quota: { data: { guid: expensiveGUID } } },
@@ -238,8 +225,8 @@ describe('organisations report helpers', () => {
     expect(response.body).toContain('Expires in 3 months');
 
     // When billabe accounts were created approximately
-    expect(response.body).toContain('Created a year ago');
-    expect(response.body).toContain('Created 2 years ago');
+    expect(response.body).toContain('Created about 1 year ago');
+    expect(response.body).toContain('Created almost 2 years ago');
 
     // Should show the quota names
     expect(response.body).toContain('Trial');
@@ -306,8 +293,8 @@ describe('cost report test suite', () => {
 
   afterEach(() => {
     nockCF.on('response', () => {
-  nockCF.done()
-});
+    nockCF.done();
+  });
     nockBilling.done();
 
     nock.cleanAll();
@@ -322,10 +309,8 @@ describe('cost report test suite', () => {
       .get('/v2/quota_definitions/ORG-QUOTA-GUID')
       .times(1)
       .reply(200, cf.organizationQuota);
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-    const period = moment(rangeStart).format('MMMM YYYY');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const period = format(new Date(rangeStart), 'MMMM yyyy');
 
     nockBilling
       .get('/billable_events')
@@ -352,9 +337,7 @@ describe('cost report test suite', () => {
   });
 
   it('should report some billables but not attribute to org', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
     nockCF
       .get('/v2/organizations')
@@ -431,9 +414,7 @@ describe('cost report test suite', () => {
   });
 
   it('should filter billable events by service plan', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
     nockCF
       .get('/v2/organizations')
@@ -507,9 +488,7 @@ describe('cost report test suite', () => {
   });
 
   it('should report some billables and attribute to org', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
     nockCF
       .get('/v2/organizations')
@@ -719,7 +698,7 @@ describe('cost report test suite', () => {
             quota_definition_url: '',
             space_quota_definitions_url: '',
             spaces_url: '',
-            status: '',
+            status: 'active',
             users_url: '',
           },
           metadata: {
@@ -790,7 +769,7 @@ describe('cost report test suite', () => {
             quota_definition_url: '',
             space_quota_definitions_url: '',
             spaces_url: '',
-            status: '',
+            status: 'active',
             users_url: '',
           },
           metadata: {
@@ -814,7 +793,7 @@ describe('cost report test suite', () => {
             quota_definition_url: '',
             space_quota_definitions_url: '',
             spaces_url: '',
-            status: '',
+            status: 'active',
             users_url: '',
           },
           metadata: {
@@ -936,8 +915,8 @@ describe('html cost report by service test suite', () => {
 
   afterEach(() => {
     nockCF.on('response', () => {
-  nockCF.done()
-});
+    nockCF.done();
+  });
     nockBilling.done();
 
     nock.cleanAll();
@@ -949,10 +928,8 @@ describe('html cost report by service test suite', () => {
       .times(1)
       .reply(200, JSON.stringify(wrapV3Resources(defaultOrgv3())));
 
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-    const period = moment(rangeStart).format('MMMM YYYY');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const period = format(new Date(rangeStart), 'MMMM yyyy');
 
     nockBilling
       .get('/billable_events')
@@ -978,9 +955,7 @@ describe('html cost report by service test suite', () => {
   });
 
   it('should group billable events by org and service', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
     const defaultPriceDetails = {
       currency_code: 'default-currency-code',
@@ -1074,7 +1049,13 @@ describe('html cost report by service test suite', () => {
       .get('/v2/spaces')
       .reply(
         200,
-        '{"total_results": 1, "total_pages": 1, "prev_url": null, "next_url": null, "resources": [{"metadata": {"guid": "default-space-guid"}, "entity": {"name": "default-space-name"}}]}',
+        JSON.stringify({
+          next_url: null,
+          prev_url: null,
+          resources: [{ entity: { name: 'default-space-name' }, metadata: { guid: 'default-space-guid' } }],
+          total_pages: 1,
+          total_results: 1,
+        }),
       );
 
     const response = await reports.viewCostByServiceReport(ctx, { rangeStart });
@@ -1388,6 +1369,7 @@ describe('cost report grouping functions', () => {
       expect(result[1].spaceName).toBe('unknown');
     });
 
+    // eslint-disable-next-line max-len
     it('should group by organisation (sorted alphabetically), then by space (sorted alphabetically), then by service (sorted by cost)', () => {
       const orgsByGUID = {
         'org-guid-one': [{ name: 'org-name-one' } as any],
@@ -1499,9 +1481,7 @@ describe('csv organisation monthly spend report for the pmo team', () => {
   });
 
   it('should return a one-line CSV when there are no organisations', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
     nockCF
       .get('/v3/organizations')
@@ -1541,7 +1521,7 @@ describe('csv organisation monthly spend report for the pmo team', () => {
   });
 
   it('should apply the 10% admin fee', async () => {
-    const rangeStart = moment().startOf('month');
+    const rangeStart = startOfMonth(new Date());
 
     const defaultPriceDetails = {
       ex_vat: 0,
@@ -1597,13 +1577,13 @@ describe('csv organisation monthly spend report for the pmo team', () => {
     );
 
     const response = await reports.viewPmoOrgSpendReportCSV(ctx, {
-      rangeStart: rangeStart.format('YYYY-MM-DD'),
+      rangeStart: format(rangeStart, 'yyyy-MM-dd'),
     });
     expect(response.download).not.toBeUndefined();
     const records = parse(response.download!.data, { columns: true });
     expect(records.length).toEqual(1);
     expect(records).toContainEqual({
-      'Billing month': rangeStart.format('MMMM YYYY'),
+      'Billing month': format(rangeStart, 'MMMM yyyy'),
       Org: 'Org One',
       Region: 'Ireland',
       'Spend in GBP without VAT': '1.10',
@@ -1612,7 +1592,7 @@ describe('csv organisation monthly spend report for the pmo team', () => {
   });
 
   it('should group billable events by org', async () => {
-    const rangeStart = moment().startOf('month');
+    const rangeStart = startOfMonth(new Date());
 
     const defaultPriceDetails = {
       ex_vat: 0,
@@ -1689,20 +1669,20 @@ describe('csv organisation monthly spend report for the pmo team', () => {
       );
 
     const response = await reports.viewPmoOrgSpendReportCSV(ctx, {
-      rangeStart: rangeStart.format('YYYY-MM-DD'),
+      rangeStart: format(rangeStart, 'yyyy-MM-dd'),
     });
     expect(response.download).not.toBeUndefined();
     const records = parse(response.download!.data, { columns: true });
     expect(records.length).toEqual(2);
     expect(records).toContainEqual({
-      'Billing month': rangeStart.format('MMMM YYYY'),
+      'Billing month': format(rangeStart, 'MMMM yyyy'),
       Org: 'Org One',
       Region: 'Ireland',
       'Spend in GBP without VAT': '1211.10',
       'Unique ID': 'org-one',
     });
     expect(records).toContainEqual({
-      'Billing month': rangeStart.format('MMMM YYYY'),
+      'Billing month': format(rangeStart, 'MMMM yyyy'),
       Org: 'Org Two',
       Region: 'Ireland',
       'Spend in GBP without VAT': '11011.00',
@@ -1711,7 +1691,7 @@ describe('csv organisation monthly spend report for the pmo team', () => {
   });
 
   it('should list billable orgs which have no billable events', async () => {
-    const rangeStart = moment().startOf('month');
+    const rangeStart = startOfMonth(new Date());
 
     nockCF
       .get('/v3/organizations')
@@ -1732,13 +1712,13 @@ describe('csv organisation monthly spend report for the pmo team', () => {
       .reply(200, '[]');
 
     const response = await reports.viewPmoOrgSpendReportCSV(ctx, {
-      rangeStart: rangeStart.format('YYYY-MM-DD'),
+      rangeStart: format(rangeStart, 'yyyy-MM-dd'),
     });
     expect(response.download).not.toBeUndefined();
     const records = parse(response.download!.data, { columns: true });
     expect(records.length).toEqual(1);
     expect(records[0]).toEqual({
-      'Billing month': rangeStart.format('MMMM YYYY'),
+      'Billing month': format(rangeStart, 'MMMM yyyy'),
       Org: 'Org With Nothing Billed',
       Region: 'Ireland',
       'Spend in GBP without VAT': '0.00',
@@ -1913,17 +1893,15 @@ describe('html visualisation report test suite', () => {
 
   afterEach(() => {
     nockCF.on('response', () => {
-  nockCF.done()
-});
+    nockCF.done();
+  });
     nockBilling.done();
 
     nock.cleanAll();
   });
 
   it('should show empty report for zero billables', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
     nockCF
       .get('/v3/organizations')
@@ -1946,9 +1924,7 @@ describe('html visualisation report test suite', () => {
   });
 
   it('should show non empty report for non-zero billables', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
     nockCF
       .get('/v3/organizations')

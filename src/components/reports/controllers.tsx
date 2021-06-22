@@ -1,9 +1,10 @@
+import { add, format } from 'date-fns';
 import lodash, { Dictionary, flatMap, groupBy, sum, sumBy, uniq } from 'lodash';
-import moment from 'moment';
 import React from 'react';
 
 import { Template } from '../../layouts';
 import { BillingClient } from '../../lib/billing';
+import { IBillableEvent } from '../../lib/billing/types';
 import CloudFoundryClient from '../../lib/cf';
 import {
   IOrganization,
@@ -21,7 +22,7 @@ import {
   VisualisationPage,
 } from './views';
 
-const DATE = 'YYYY-MM-DD';
+const DATE = 'yyyy-MM-dd';
 
 interface ICostable {
   readonly incVAT: number;
@@ -89,9 +90,7 @@ interface IOrgAndOwner {
 }
 
 function trialExpiryDate(creation: Date): Date {
-  return moment(creation)
-    .add(90, 'days')
-    .toDate();
+  return add(new Date(creation), { days: 90 });
 }
 
 export function buildD3SankeyInput(
@@ -137,21 +136,15 @@ export function buildD3SankeyInput(
   };
 }
 
-export function sumRecords(
-  records: ReadonlyArray<IBillableEvent>,
-  adminFee: number,
-): ICostSummary {
-  let incVAT = 0;
-  let exVAT = 0;
+export function sumRecords(records: ReadonlyArray<IBillableEvent>, adminFee: number): ICostSummary {
+  const { exVAT, incVAT } = records.reduce((totals, record) => {
+    return {
+      exVAT: totals.exVAT + record.price.exVAT,
+      incVAT: totals.incVAT + record.price.incVAT,
+    };
+  }, { exVAT: 0, incVAT: 0 });
 
-  records.forEach(record => {
-    incVAT += record.price.incVAT;
-    exVAT += record.price.exVAT;
-  });
-
-  const exVATWithAdminFee = exVAT * (1 + adminFee);
-
-  return { incVAT, exVAT, exVATWithAdminFee };
+  return { exVAT, exVATWithAdminFee: exVAT * (1 + adminFee), incVAT };
 }
 
 export function aggregateBillingEvents(
@@ -413,8 +406,8 @@ export async function viewPmoOrgSpendReportCSV(
   ctx: IContext,
   params: IParameters,
 ): Promise<IResponse> {
-  const rangeStart = moment(params.rangeStart, DATE);
-  const rangeStop = moment(rangeStart).add(1, 'month');
+  const rangeStart = new Date(params.rangeStart);
+  const rangeStop = add(new Date(rangeStart), { months: 1 });
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
@@ -442,8 +435,8 @@ export async function viewPmoOrgSpendReportCSV(
   const billableOrgGUIDs = Object.keys(billableOrgsByGUID);
   const billableEvents = await billingClient.getBillableEvents({
     orgGUIDs: billableOrgGUIDs,
-    rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStop.toDate(),
+    rangeStart: rangeStart,
+    rangeStop: rangeStop,
   });
   const billablesByOrganisation = getBillablesByOrganisation(
     billableOrgs,
@@ -451,13 +444,13 @@ export async function viewPmoOrgSpendReportCSV(
     ctx.app.adminFee,
   );
 
-  const nameMonth = moment(rangeStart).format('YYYY-MM');
+  const nameMonth = format(rangeStart, 'yyyy-MM');
   const nameLocation = ctx.app.location.toLowerCase();
 
   const csvData = [
     ['Billing month', 'Org', 'Region', 'Unique ID', 'Spend in GBP without VAT'],
     ...billablesByOrganisation.map(billablesForOrg => [
-      moment(rangeStart).format('MMMM YYYY'),
+      format(rangeStart, 'MMMM yyyy'),
       billablesForOrg.org.name,
       ctx.app.location,
       billablesForOrg.org.guid,
@@ -481,8 +474,8 @@ export async function viewVisualisation(
   ctx: IContext,
   params: IParameters,
 ): Promise<IResponse> {
-  const rangeStart = moment(params.rangeStart, DATE);
-  const rangeStop = moment(rangeStart).add(1, 'month');
+  const rangeStart = new Date(params.rangeStart);
+  const rangeStop = add(rangeStart, { months: 1 });
 
   const billingClient = new BillingClient({
     accessToken: ctx.token.accessToken,
@@ -505,8 +498,8 @@ export async function viewVisualisation(
 
   const billableEvents = await billingClient.getBillableEvents({
     orgGUIDs,
-    rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStop.toDate(),
+    rangeStart: rangeStart,
+    rangeStop: rangeStop,
   });
 
   const billablesByOrganisationAndService = getBillableEventsByOrganisationAndService(
@@ -529,20 +522,20 @@ export async function viewVisualisation(
     items: [
       {
         link: ctx.linkTo('admin.reports.cost', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: format(rangeStart, DATE),
         }),
         text: 'Summary',
       },
       {
         link: ctx.linkTo('admin.reports.costbyservice', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: format(rangeStart, DATE),
         }),
         text: 'By service',
       },
       {
         active: true,
         link: ctx.linkTo('admin.reports.visualisation', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: format(rangeStart, DATE),
         }),
         text: 'Visualisation',
       },
@@ -552,7 +545,7 @@ export async function viewVisualisation(
   return {
     body: template.render(
       <VisualisationPage
-        date={moment(rangeStart).format('MMMM YYYY')}
+        date={format(rangeStart, 'MMMM yyyy')}
         data={data.nodes.length > 0 ? data : undefined}
       />,
     ),
@@ -563,8 +556,8 @@ export async function viewCostByServiceReport(
   ctx: IContext,
   params: IParameters,
 ): Promise<IResponse> {
-  const rangeStart = moment(params.rangeStart, DATE);
-  const rangeStop = moment(rangeStart).add(1, 'month');
+  const rangeStart = new Date(params.rangeStart);
+  const rangeStop = add(rangeStart, { months: 1 });
 
   const billingClient = new BillingClient({
     accessToken: ctx.token.accessToken,
@@ -586,8 +579,8 @@ export async function viewCostByServiceReport(
 
   const billableEvents = await billingClient.getBillableEvents({
     orgGUIDs,
-    rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStop.toDate(),
+    rangeStart: rangeStart,
+    rangeStop: rangeStop,
   });
 
   const spaces = await cf.spaces();
@@ -611,20 +604,20 @@ export async function viewCostByServiceReport(
     items: [
       {
         link: ctx.linkTo('admin.reports.cost', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: format(rangeStart, DATE),
         }),
         text: 'Summary',
       },
       {
         active: true,
         link: ctx.linkTo('admin.reports.costbyservice', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: format(rangeStart, DATE),
         }),
         text: 'By service',
       },
       {
         link: ctx.linkTo('admin.reports.visualisation', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: format(rangeStart, DATE),
         }),
         text: 'Visualisation',
       },
@@ -634,7 +627,7 @@ export async function viewCostByServiceReport(
   return {
     body: template.render(
       <CostByServiceReport
-        date={moment(rangeStart).format('MMMM YYYY')}
+        date={format(rangeStart, 'MMMM yyyy')}
         billablesByService={billablesByService}
         billablesByOrganisationAndService={billablesByOrganisationAndService}
         billablesByOrganisationAndSpaceAndService={
@@ -706,16 +699,13 @@ export async function viewCostReport(
   ctx: IContext,
   params: IParameters,
 ): Promise<IResponse> {
-  const rangeStart = moment(params.rangeStart, DATE);
-  const rangeStop = moment(rangeStart).add(1, 'month');
+  const rangeStart = new Date(params.rangeStart);
+  const rangeStop = add(rangeStart, { months: 1 });
 
-  let serviceFilter = (_: IBillableEvent) => true;
-  if (params.service) {
-    serviceFilter = (billableEvent: IBillableEvent): boolean =>
-      billableEvent.price.details.some(details =>
-        details.planName.includes(params.service),
-      );
-  }
+  const serviceFilter = (billableEvent: IBillableEvent): boolean =>
+    billableEvent.price.details.some(details =>
+      details.planName.includes(params.service),
+    );
 
   const billingClient = new BillingClient({
     accessToken: ctx.token.accessToken,
@@ -737,13 +727,13 @@ export async function viewCostReport(
   });
   const orgGUIDs = orgs.map(o => o.metadata.guid);
 
-  const billableEvents = await billingClient
-    .getBillableEvents({
-      orgGUIDs,
-      rangeStart: rangeStart.toDate(),
-      rangeStop: rangeStop.toDate(),
-    })
-    .then(events => events.filter(serviceFilter));
+  const originalBillableEvents = await billingClient.getBillableEvents({
+    orgGUIDs,
+    rangeStart: rangeStart,
+    rangeStop: rangeStop,
+  });
+
+  const billableEvents = params.service ? originalBillableEvents.filter(serviceFilter) : originalBillableEvents;
 
   const orgBillableEvents = aggregateBillingEvents(billableEvents);
 
@@ -782,19 +772,19 @@ export async function viewCostReport(
       {
         active: true,
         link: ctx.linkTo('admin.reports.cost', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: format(rangeStart, DATE),
         }),
         text: 'Summary',
       },
       {
         link: ctx.linkTo('admin.reports.costbyservice', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: format(rangeStart, DATE),
         }),
         text: 'By service',
       },
       {
         link: ctx.linkTo('admin.reports.visualisation', {
-          rangeStart: rangeStart.format(DATE),
+          rangeStart: format(rangeStart, DATE),
         }),
         text: 'Visualisation',
       },
@@ -804,7 +794,7 @@ export async function viewCostReport(
   return {
     body: template.render(
       <CostReport
-        date={moment(rangeStart).format('MMMM YYYY')}
+        date={format(rangeStart, 'MMMM yyyy')}
         billableEventCount={billableEventCount}
         totalBillables={totalBillables}
         orgCostRecords={Object.values(orgCostRecords)}
