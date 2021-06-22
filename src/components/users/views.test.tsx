@@ -1,6 +1,6 @@
 import cheerio from 'cheerio';
+import { format } from 'date-fns';
 import { shallow } from 'enzyme';
-import moment from 'moment';
 import React from 'react';
 
 import { DATE_TIME } from '../../layouts';
@@ -17,22 +17,22 @@ function linker(_route: string, params: any): string {
 
 describe(UserPage, () => {
   const orgA = ({
-    metadata: { guid: 'a' },
     entity: { name: 'A' },
+    metadata: { guid: 'a' },
   } as unknown) as IOrganization;
   const orgB = ({
-    metadata: { guid: 'b' },
     entity: { name: 'B' },
+    metadata: { guid: 'b' },
   } as unknown) as IOrganization;
   const orgC = ({
-    metadata: { guid: 'c' },
     entity: { name: 'C' },
+    metadata: { guid: 'c' },
   } as unknown) as IOrganization;
   const group = ({ display: 'profile' } as unknown) as IUaaGroup;
   const user = {
-    uuid: 'ACCOUNTS-USER-GUID',
-    username: 'jeff0',
     email: 'jeff@jefferson.com',
+    username: 'jeff0',
+    uuid: 'ACCOUNTS-USER-GUID',
   };
   const logon = new Date(2020, 1, 1);
 
@@ -48,7 +48,7 @@ describe(UserPage, () => {
       />,
     );
     const $ = cheerio.load(markup.html());
-    expect($('dd').text()).toContain(moment(logon).format(DATE_TIME));
+    expect($('dd').text()).toContain(format(new Date(logon), DATE_TIME));
     expect($('p').text()).toContain('This user is a member of 3 orgs.');
     expect($('ul:last-of-type li')).toHaveLength(1);
   });
