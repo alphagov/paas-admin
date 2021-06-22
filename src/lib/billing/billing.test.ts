@@ -1,4 +1,3 @@
-import moment from 'moment';
 import nock from 'nock';
 import pino from 'pino';
 
@@ -68,8 +67,8 @@ describe('lib/billing test suite', () => {
     });
     const response = await bc.getBillableEvents({
       orgGUIDs: ['3deb9f04-b449-4f94-b3dd-c73cefe5b275'],
-      rangeStart: moment('2018-01-01').toDate(),
-      rangeStop: moment('2018-01-02').toDate(),
+      rangeStart: new Date('2018-01-01'),
+      rangeStop: new Date('2018-01-02'),
     });
 
     expect(response.length).toEqual(1);
@@ -80,8 +79,8 @@ describe('lib/billing test suite', () => {
     const fakeEvents: ReadonlyArray<IUsageEvent> = [
       {
         eventGUID: '00000000-0000-0000-0000-000000000001',
-        eventStart: moment('2018-01-01').toDate(),
-        eventStop: moment('2018-01-02').toDate(),
+        eventStart: new Date('2018-01-01'),
+        eventStop: new Date('2018-01-02'),
         memoryInMB: 2048,
         numberOfNodes: 2,
         orgGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -143,8 +142,8 @@ describe('lib/billing test suite', () => {
     const response = await bc.getForecastEvents({
       events: fakeEvents,
       orgGUIDs: ['3deb9f04-b449-4f94-b3dd-c73cefe5b275'],
-      rangeStart: moment('2018-01-01').toDate(),
-      rangeStop: moment('2018-01-02').toDate(),
+      rangeStart: new Date('2018-01-01'),
+      rangeStop: new Date('2018-01-02'),
     });
 
     expect(response.length).toEqual(1);
@@ -188,8 +187,8 @@ describe('lib/billing test suite', () => {
       logger: pino({ level: 'silent' }),
     });
     const response = await bc.getPricingPlans({
-      rangeStart: moment('2018-01-01').toDate(),
-      rangeStop: moment('2018-01-02').toDate(),
+      rangeStart: new Date('2018-01-01'),
+      rangeStop: new Date('2018-01-02'),
     });
 
     expect(response.length).toEqual(1);
@@ -227,8 +226,8 @@ describe('lib/billing test suite', () => {
       logger: pino({ level: 'silent' }),
     });
     const response = await bc.getCurrencyRates({
-      rangeStart: moment('2018-01-01').toDate(),
-      rangeStop: moment('2019-01-01').toDate(),
+      rangeStart: new Date('2018-01-01'),
+      rangeStop: new Date('2019-01-01'),
     });
 
     expect(response.length).toEqual(3);
@@ -273,8 +272,8 @@ describe('lib/billing test suite', () => {
       logger: pino({ level: 'silent' }),
     });
     const response = await bc.getVATRates({
-      rangeStart: moment('2018-01-01').toDate(),
-      rangeStop: moment('2019-01-01').toDate(),
+      rangeStart: new Date('2018-01-01'),
+      rangeStop: new Date('2019-01-01'),
     });
 
     expect(response.length).toEqual(3);
@@ -305,8 +304,8 @@ describe('lib/billing test suite', () => {
     await expect(
       bc.getBillableEvents({
         orgGUIDs: ['org-guid-500'],
-        rangeStart: moment('2018-01-01').toDate(),
-        rangeStop: moment('2018-01-02').toDate(),
+        rangeStart: new Date('2018-01-01'),
+        rangeStop: new Date('2018-01-02'),
       }),
     ).rejects.toThrow(/failed with status 500/);
   });
@@ -327,8 +326,8 @@ describe('lib/billing test suite', () => {
     await expect(
       bc.getBillableEvents({
         orgGUIDs: ['org-guid-500-no-data'],
-        rangeStart: moment('2018-01-01').toDate(),
-        rangeStop: moment('2018-01-02').toDate(),
+        rangeStart: new Date('2018-01-01'),
+        rangeStop: new Date('2018-01-02'),
       }),
     ).rejects.toThrow(/failed with status 500/);
   });
@@ -360,8 +359,8 @@ describe('lib/billing test suite', () => {
     await expect(
       bc.getBillableEvents({
         orgGUIDs: ['org-guid-bad-price'],
-        rangeStart: moment('2018-01-01').toDate(),
-        rangeStop: moment('2018-01-02').toDate(),
+        rangeStart: new Date('2018-01-01'),
+        rangeStop: new Date('2018-01-02'),
       }),
     ).rejects.toThrow(/failed to parse 'not-a-number' as a number/);
   });
@@ -393,8 +392,8 @@ describe('lib/billing test suite', () => {
     await expect(
       bc.getBillableEvents({
         orgGUIDs: ['org-guid-invalid-date'],
-        rangeStart: moment('2018-01-01').toDate(),
-        rangeStop: moment('2018-01-02').toDate(),
+        rangeStart: new Date('2018-01-01'),
+        rangeStop: new Date('2018-01-02'),
       }),
     ).rejects.toThrow(/invalid date format: 14:36 20-04-2018/);
   });
