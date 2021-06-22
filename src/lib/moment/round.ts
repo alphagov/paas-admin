@@ -1,5 +1,5 @@
-import moment from 'moment';
+import { Duration, milliseconds } from 'date-fns';
 
-export default function roundDown(date: moment.Moment, duration: moment.Duration): moment.Moment {
-  return moment(Math.floor(+date / +duration) * +duration);
+export default function roundDown(date: Date, duration: Duration): Date {
+  return new Date(Math.floor(+date / +milliseconds(duration)) * +milliseconds(duration));
 }
