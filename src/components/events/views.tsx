@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { format } from 'date-fns';
 import React, { ReactElement, ReactNode } from 'react';
 
 import { DATE_TIME } from '../../layouts';
@@ -78,7 +78,7 @@ export function Event(props: IEventProperties): ReactElement {
   return (
     <dl className="govuk-summary-list">
       <EventSummaryItem title="Date">
-        {moment(props.event.updated_at).format(DATE_TIME)} (UTC)
+        {format(new Date(props.event.updated_at), DATE_TIME)} (UTC)
       </EventSummaryItem>
       <EventSummaryItem title="Actor">
         {props.actor?.email || props.event.actor.name || (
@@ -103,7 +103,7 @@ export function TargetedEvent(props: IEventProperties): ReactElement {
   return (
     <dl className="govuk-summary-list">
       <EventSummaryItem title="Date">
-        {moment(props.event.updated_at).format(DATE_TIME)} (UTC)
+        {format(new Date(props.event.updated_at), DATE_TIME)} (UTC)
       </EventSummaryItem>
       <EventSummaryItem title="Actor">
         {props.actor?.email || props.event.actor.name || (
@@ -131,7 +131,7 @@ export function EventListItem(props: IEventListItemProperties): ReactElement {
   return (
     <tr className="govuk-table__row">
       <td className="govuk-table__cell datetime">
-        {moment(props.date).format(DATE_TIME)}
+        {format(new Date(props.date), DATE_TIME)}
       </td>
       <td className="govuk-table__cell actor">{props.actor}</td>
       <td className="govuk-table__cell description">{props.type}</td>
@@ -150,7 +150,7 @@ export function TargetedEventListItem(
   return (
     <tr className="govuk-table__row">
       <td className="govuk-table__cell datetime">
-        {moment(props.date).format(DATE_TIME)}
+        {format(new Date(props.date), DATE_TIME)}
       </td>
       <td className="govuk-table__cell actor">{props.actor}</td>
       <td className="govuk-table__cell target">{props.target}</td>
@@ -167,10 +167,10 @@ export function TargetedEventListItem(
 export function Totals(props: ITotalsProperties): ReactElement {
   return (
     <p className="govuk-body">
-      There are {props.results} total events. 
-      {props.pages > 1 ? 
-        `${' '}Displaying page ${props.page} of${' '}${props.pages}.`
-        : <></> 
+      There are {props.results} total events.
+      {props.pages > 1
+        ? `${' '}Displaying page ${props.page} of${' '}${props.pages}.`
+        : <></>
       }
     </p>
   );
