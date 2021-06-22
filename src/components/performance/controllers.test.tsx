@@ -279,7 +279,7 @@ describe(formatDate,() => {
   it('should output date string based on provided format options from given timestamp', () => {
     const input = '2020-02-24T16:32:03.000Z';
     const output = formatDate(new Date(input),{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    expect(output).toContain('Monday, February 24, 2020');
+    expect(output).toContain('Monday, 24 February 2020');
   });
 });
 
