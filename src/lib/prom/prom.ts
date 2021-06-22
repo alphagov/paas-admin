@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from 'axios';
-import moment from 'moment';
 import { BaseLogger } from 'pino';
 
 import { intercept } from '../axios-logger/axios';
@@ -60,8 +59,8 @@ export default class PromClient {
     const promResponse: AxiosResponse<IPrometheusResponse<
       IPrometheusQueryResponseResult
     >> = await this.request('/api/v1/query', {
-      time: moment(time).unix(),
       query,
+      time: time.getTime() / 1000,
     });
     const promValues = promResponse.data.data.result;
 
@@ -81,10 +80,10 @@ export default class PromClient {
     const promResponse: AxiosResponse<IPrometheusResponse<
       IPrometheusQueryRangeResponseResult
     >> = await this.request('/api/v1/query_range', {
-      start: moment(start).unix(),
-      end: moment(end).unix(),
-      step: parseInt(step.toFixed(0), 10),
+      end: end.getTime() / 1000,
       query,
+      start: start.getTime() / 1000,
+      step: parseInt(step.toFixed(0), 10),
     });
 
     if (!promResponse.data || !promResponse.data.data || promResponse.data.data.result.length === 0) {
@@ -99,7 +98,7 @@ export default class PromClient {
       return {
         label: series.metric.instance,
         metrics: metrics.map(metric => {
-          const date = moment.unix(metric[0] as number).toDate();
+          const date = new Date(metric[0]);
           const value = parseFloat(metric[1] as string);
 
           return { date, value };
@@ -117,16 +116,16 @@ export default class PromClient {
 
     const method = 'GET';
     const response = await instance.request({
+      auth: {
+        password: this.password,
+        username: this.username,
+      },
+      baseURL: this.apiEndpoint,
       method,
       params,
-      baseURL: this.apiEndpoint,
+      timeout: DEFAULT_TIMEOUT,
       url: path,
       validateStatus: (status: number) => status > 0 && status < 501,
-      timeout: DEFAULT_TIMEOUT,
-      auth: {
-        username: this.username,
-        password: this.password,
-      },
     });
 
     if (response.status < 200 || response.status >= 300) {
