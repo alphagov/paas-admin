@@ -4,7 +4,7 @@ image_resource:
   type: docker-image
   source:
     repository: node
-    tag: 12-alpine
+    tag: 14-alpine
 inputs:
   - name: repo
 run:
