@@ -1,6 +1,6 @@
+import { add, fromUnixTime } from 'date-fns';
 import express from 'express';
 import lodash from 'lodash';
-import moment from 'moment';
 
 import { IStubServerPorts } from './index';
 
@@ -12,7 +12,7 @@ function mockPrometheus(
   app.get(
     /query_range/,
     (req, res) => {
-      console.log(req.query.start)
+      console.log(req.query.start);
       const historicTime = parseInt(req.query.start as string, 10);
       const instantTime = parseInt(req.query.end as string, 10);
       const step = parseInt(req.query.step as string, 10);
@@ -20,23 +20,20 @@ function mockPrometheus(
       const length = Math.ceil(((instantTime - historicTime)) / step);
 
       const response = {
-        status: 'success',
         data: {
           result : [{
             values: lodash
               .range(0, length, 1)
                 .map(i => {
                   return [
-                    moment(historicTime * 1000)
-                      .add(step * i, 'seconds')
-                      .toDate().getTime() / 1000
-                    ,
+                    add(fromUnixTime(historicTime * 1000), { seconds: step * i }).getTime() / 1000,
                     `${Math.random() * 100}`,
                   ];
                 })
             ,
           }],
         },
+        status: 'success',
       };
 
       res.send(JSON.stringify(response));
@@ -47,14 +44,14 @@ function mockPrometheus(
     /query/,
     (_req, res) => {
       res.send(JSON.stringify({
-        status: 'success',
         data: {
           result: [{
             value: [
-              moment().toDate().getTime() / 1000, `${Math.random() * 100}`,
+              (new Date()).getTime() / 1000, `${Math.random() * 100}`,
             ],
           }],
         },
+        status: 'success',
       }));
     },
   );
