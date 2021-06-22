@@ -4,8 +4,8 @@
 // Mocking request-promise-native is a workaround. See https://github.com/request/request-promise/issues/247.
 jest.mock('request-promise-native');
 
+import { endOfMonth, format, startOfMonth } from 'date-fns';
 import jwt from 'jsonwebtoken';
-import moment from 'moment';
 import nock from 'nock';
 import request, { SuperTest, Test } from 'supertest';
 
@@ -19,10 +19,10 @@ import Router, { IParameters } from '../../lib/router';
 import { CLOUD_CONTROLLER_ADMIN } from '../auth';
 
 import init from './app';
-import csp from './app.csp';
+import { csp } from './app.csp';
 import { config } from './app.test.config';
 import { IContext, initContext } from './context';
-import router from './router';
+import { router } from './router';
 
 const tokenKey = 'tokensecret';
 
@@ -126,12 +126,8 @@ describe('app test suite', () => {
   });
 
   it('should be able to handle 500 error when accessing pricing calculator', async () => {
-    const rangeStart = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
-    const rangeStop = moment()
-      .endOf('month')
-      .format('YYYY-MM-DD');
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
     nockBilling
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
@@ -208,7 +204,7 @@ describe('app test suite', () => {
   });
 
   it('should be able to access marketplace without login', async () => {
-    const service = { guid: 'SERVICE_GUID', name: 'postgres', broker_catalog: { metadata: {} }, tags: [] };
+    const service = { broker_catalog: { metadata: {} }, guid: 'SERVICE_GUID', name: 'postgres', tags: [] };
     nockCF
       .get('/v3/service_offerings').reply(200, { pagination: { next: null }, resources: [ service ] });
 
@@ -229,8 +225,8 @@ describe('app test suite', () => {
   });
 
   it('should be able to access marketplace service without login', async () => {
-    const service = { guid: 'SERVICE_GUID', name: 'postgres', broker_catalog: { metadata: {} }, tags: [] };
-    const plan = { name: 'tiny', broker_catalog: { metadata: {} } };
+    const service = { broker_catalog: { metadata: {} }, guid: 'SERVICE_GUID', name: 'postgres', tags: [] };
+    const plan = { broker_catalog: { metadata: {} }, name: 'tiny' };
     nockCF
       .get('/v3/service_offerings/SERVICE_GUID')
       .reply(200, service)
