@@ -1,8 +1,9 @@
-import moment from 'moment';
+import { add, format, isValid, startOfMonth, sub } from 'date-fns';
 import React from 'react';
 
 import { Template } from '../../layouts';
 import { BillingClient } from '../../lib/billing';
+import { IBillableEvent } from '../../lib/billing/types';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app/context';
@@ -56,7 +57,7 @@ export interface ISortable {
   readonly order: ISortableDirection;
 }
 
-const YYYMMDD = 'YYYY-MM-DD';
+const YYYMMDD = 'yyyy-MM-dd';
 
 
 
@@ -174,12 +175,12 @@ export async function statementRedirection(
   ctx: IContext,
   params: IParameters,
 ): Promise<IResponse> {
-  const date = params.rangeStart ? moment(params.rangeStart) : moment();
+  const date = params.rangeStart ? new Date(params.rangeStart) : new Date();
 
   return await Promise.resolve({
     redirect: ctx.linkTo('admin.statement.view', {
       ...params,
-      rangeStart: date.startOf('month').format(YYYMMDD),
+      rangeStart: format(startOfMonth(date), YYYMMDD),
     }),
   });
 }
@@ -188,20 +189,20 @@ export async function viewStatement(
   ctx: IContext,
   params: IParameters,
 ): Promise<IResponse> {
-  const rangeStart = moment(params.rangeStart, YYYMMDD);
+  const rangeStart = new Date(params.rangeStart);
   const filterSpace = params.space ? params.space : 'none';
   const filterService = params.service ? params.service : 'none';
-  if (!rangeStart.isValid()) {
+  if (!isValid(rangeStart)) {
     throw new Error('Billing Statement: invalid rangeStart provided');
   }
 
-  if (rangeStart.date() > 1) {
+  if (rangeStart.getDate() > 1) {
     throw new Error(
       'Billing Statement: expected rangeStart to be the first day of the month',
     );
   }
 
-  const currentMonth = rangeStart.format('MMMM');
+  const currentMonth = format(rangeStart, 'MMMM');
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
@@ -260,8 +261,8 @@ export async function viewStatement(
 
   const filter = {
     orgGUIDs: [organization.metadata.guid],
-    rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStart.add(1, 'month').toDate(),
+    rangeStart: rangeStart,
+    rangeStop: add(rangeStart, { months: 1 }),
   };
 
   let events;
@@ -331,13 +332,9 @@ export async function viewStatement(
   const listOfPastYearMonths: { [i: string]: string } = {};
 
   for (let i = 0; i < 12; i++) {
-    const month = moment()
-      .subtract(i, 'month')
-      .startOf('month');
+    const month = sub(startOfMonth(new Date()), { months: i });
 
-    listOfPastYearMonths[month.format(YYYMMDD)] = `${month.format(
-      'MMMM',
-    )} ${month.format('YYYY')}`;
+    listOfPastYearMonths[format(month, YYYMMDD)] = `${format(month, 'MMMM yyyy')}`;
   }
 
   const orderBy = params.sort || 'name';
@@ -374,7 +371,7 @@ export async function viewStatement(
     return {
       download: {
         data: composeCSV(filteredItems, ctx.app.adminFee),
-        name: `statement-${rangeStart.format(YYYMMDD)}.csv`,
+        name: `statement-${format(filter.rangeStop, YYYMMDD)}.csv`,
       },
     };
   }
