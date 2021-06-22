@@ -1,5 +1,5 @@
 import axios from 'axios';
-import moment from 'moment';
+import { Duration, getUnixTime, milliseconds, millisecondsToSeconds, sub } from 'date-fns';
 import { Logger } from 'pino';
 
 import { intercept } from '../../lib/axios-logger/axios';
@@ -8,11 +8,12 @@ import PromClient from '../../lib/prom';
 
 const DELAY = 2000;
 
-export const now = moment().subtract(1, 'hour');
-export const period = moment.duration(1, 'week');
-export const timeAgo = moment().subtract(1, 'year');
+export const now = sub(new Date(), { hours: 1 });
+export const period: Duration = { weeks: 1 };
+export const timeAgo = sub(new Date(), { years: 1 });
 
 const delay = async (ms: number): Promise<object> => await new Promise(resolve => setTimeout(resolve, ms));
+const durationToSeconds = (duration: Duration): number => millisecondsToSeconds(milliseconds(duration));
 
 interface IConfig {
   readonly pingdom: {
@@ -89,9 +90,9 @@ export async function scrape(cfg: IConfig, logger: Logger): Promise<IScrapedData
   logger.info('Obtaining uptime data...');
   const uptimeResponse = await pingdom.get<IPingdomUptimeResponse>(`/api/3.1/summary.average/${cfg.pingdom.checkID}`, {
     params: {
-      from: timeAgo.unix(),
-      to: now.unix(),
+      from: getUnixTime(timeAgo),
       includeuptime: true,
+      to: getUnixTime(now),
     },
   });
   /* istanbul ignore next */
@@ -104,9 +105,9 @@ export async function scrape(cfg: IConfig, logger: Logger): Promise<IScrapedData
   logger.info('Obtaining organizations data...');
   const organizations = await prometheus.getSeries(
     queries.organizations,
-    period.asSeconds(),
-    timeAgo.toDate(),
-    now.toDate(),
+    durationToSeconds(period),
+    timeAgo,
+    now,
   );
   /* istanbul ignore next */
   if (!organizations) {
@@ -118,9 +119,9 @@ export async function scrape(cfg: IConfig, logger: Logger): Promise<IScrapedData
   logger.info('Obtaining applications data...');
   const applicationCount = await prometheus.getSeries(
     queries.applicationCount,
-    period.asSeconds(),
-    timeAgo.toDate(),
-    now.toDate(),
+    durationToSeconds(period),
+    timeAgo,
+    now,
   );
   /* istanbul ignore next */
   if (!applicationCount) {
@@ -132,9 +133,9 @@ export async function scrape(cfg: IConfig, logger: Logger): Promise<IScrapedData
   logger.info('Obtaining services data...');
   const serviceCount = await prometheus.getSeries(
     queries.serviceCount,
-    period.asSeconds(),
-    timeAgo.toDate(),
-    now.toDate(),
+    durationToSeconds(period),
+    timeAgo,
+    now,
   );
   /* istanbul ignore next */
   if (!serviceCount) {

@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { format } from 'date-fns';
 import React, { ReactElement } from 'react';
 
 import { DATE } from '../../layouts';
@@ -198,7 +198,7 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
                 {props.usdCurrencyRates.length > 1 ? (
                   props.usdCurrencyRates.map(usdCurrencyRate => (
                       `{' '}£1 to $${(1.0 / usdCurrencyRate.rate).toFixed(2)} from${' '}
-                      ${moment(usdCurrencyRate.validFrom).format(DATE)}`
+                      ${format(new Date(usdCurrencyRate.validFrom), DATE)}`
                   ))
                 ) : (
                   <></>
@@ -280,7 +280,7 @@ export function StatementsPage(props: IStatementsPageProperties): ReactElement {
                 props.usdCurrencyRates.map((usdCurrencyRate, index) => (
                   <p key={index} className="govuk-body-s exchange-rate">
                     Exchange rate: £1 to ${(1.0 / usdCurrencyRate.rate).toFixed(2)} from{' '}
-                    {moment(usdCurrencyRate.validFrom).format(DATE)}
+                    {format(new Date(usdCurrencyRate.validFrom), DATE)}
                   </p>
                 ))
               ) : (

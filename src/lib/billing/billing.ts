@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import moment from 'moment';
+import { format, isValid } from 'date-fns';
 import { BaseLogger } from 'pino';
 import qs from 'qs';
 
@@ -16,18 +16,16 @@ interface IBillingClientConfig {
 }
 
 function parseDate(d: Date): string {
-  const m = moment(d);
-
-  return m.format('YYYY-MM-DD');
+  return format(new Date(d), 'yyyy-MM-dd');
 }
 
 function parseTimestamp(s: string): Date {
-  const m = moment(s, moment.ISO_8601);
-  if (!m.isValid()) {
+  const m = new Date(s);
+  if (!isValid(m)) {
     throw new Error(`BillingClient: invalid date format: ${s}`);
   }
 
-  return moment(s, moment.ISO_8601).toDate();
+  return m;
 }
 
 function parseNumber(s: string): number {

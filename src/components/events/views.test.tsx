@@ -1,6 +1,6 @@
 import cheerio from 'cheerio';
+import { format } from 'date-fns';
 import { shallow } from 'enzyme';
-import moment from 'moment';
 import React from 'react';
 
 import { DATE_TIME } from '../../layouts';
@@ -8,7 +8,7 @@ import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.t
 import { IAccountsUser } from '../../lib/accounts';
 import { IAuditEvent, IAuditEventActorTarget } from '../../lib/cf/types';
 
-import { Details, Event, TargetedEvent, Totals, EventTimestamps } from './views';
+import { Details, Event, EventTimestamps, TargetedEvent, Totals } from './views';
 
 describe(Details, () => {
   it('should display details element', () => {
@@ -19,6 +19,7 @@ describe(Details, () => {
 
 describe(Event, () => {
   const actor = ({ email: 'jeff@jefferson.com' } as unknown) as IAccountsUser;
+  const updatedAt = new Date();
   const event = ({
     actor: { guid: 'AUDIT_EVENT_ACTOR_GUID', name: 'Jeff Jefferson' },
     data: {
@@ -26,13 +27,13 @@ describe(Event, () => {
       package_guid: 'PACKAGE_GUID',
     },
     type: 'tester.testing',
+    updated_at: updatedAt,
   } as unknown) as IAuditEvent;
-  const updatedAt = new Date();
 
   it('should display event element', () => {
     const markup = shallow(<Event event={event} />);
     const $ = cheerio.load(markup.html());
-    expect($('.date dd').text()).toContain(moment(updatedAt).format(DATE_TIME));
+    expect($('.date dd').text()).toContain(format(updatedAt, DATE_TIME));
     expect($('.actor dd').text()).not.toContain(actor.email);
     expect($('.actor dd').text()).toContain(event.actor.name);
     expect($('.actor dd').text()).not.toContain(event.actor.guid);
@@ -76,6 +77,7 @@ describe(Event, () => {
 describe(TargetedEvent, () => {
   const actor = ({ email: 'jeff@jefferson.com' } as unknown) as IAccountsUser;
   const target = ({ guid: 'TAGET_GUID' } as unknown) as IAuditEventActorTarget;
+  const updatedAt = new Date();
   const event = ({
     actor: { guid: 'AUDIT_EVENT_ACTOR_GUID', name: 'Jeff Jefferson' },
     data: {
@@ -84,13 +86,13 @@ describe(TargetedEvent, () => {
     },
     target,
     type: 'tester.testing',
+    updated_at: updatedAt,
   } as unknown) as IAuditEvent;
-  const updatedAt = new Date();
 
   it('should display targeted event element', () => {
     const markup = shallow(<TargetedEvent event={event} />);
     const $ = cheerio.load(markup.html());
-    expect($('.date dd').text()).toContain(moment(updatedAt).format(DATE_TIME));
+    expect($('.date dd').text()).toContain(format(updatedAt, DATE_TIME));
     expect($('.actor dd').text()).not.toContain(actor.email);
     expect($('.actor dd').text()).toContain(event.actor.name);
     expect($('.actor dd').text()).not.toContain(event.actor.guid);

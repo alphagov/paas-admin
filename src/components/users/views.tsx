@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { format } from 'date-fns';
 import React, { ReactElement } from 'react';
 
 import { DATE_TIME } from '../../layouts';
@@ -90,7 +90,7 @@ export function UserPage(props: IUserPageProps): ReactElement {
         <div className="govuk-summary-list__row">
           <dt className="govuk-summary-list__key">Last logon</dt>
           <dd className="govuk-summary-list__value">
-            {moment(props.lastLogon).format(DATE_TIME)}
+            {format(new Date(props.lastLogon), DATE_TIME)}
           </dd>
         </div>
       </dl>

@@ -1,10 +1,11 @@
 import { IMetricSerie } from '../../lib/metrics';
+import { numberLabel } from '../service-metrics/metrics';
 
 import { drawLineGraph, summariseSerie } from './line-graph';
 
 const defaultTitle = 'some title';
 const defaultUnits = 'some-units';
-const defaultFormat = '.1s';
+const defaultFormat = numberLabel;
 
 describe('line graphs', () => {
   it('should render an SVG', () => {
@@ -37,7 +38,7 @@ describe('line graphs', () => {
       { date: new Date(2019, 3, 1), value: 53 },
     ];
     const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, [
-      { metrics: series, label: 'some-label' },
+      { label: 'some-label', metrics: series },
     ]);
     const seriesPaths = result.querySelectorAll('path.series');
     expect(seriesPaths).toHaveLength(1);
@@ -51,9 +52,9 @@ describe('line graphs', () => {
       { date: new Date(2019, 2, 1), value: 58 },
     ];
     const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, [
-      { metrics: series, label: 'some-label-001' },
-      { metrics: series, label: 'some-label-002' },
-      { metrics: series, label: 'some-label-003' },
+      { label: 'some-label-001', metrics: series },
+      { label: 'some-label-002', metrics: series },
+      { label: 'some-label-003', metrics: series },
     ]);
     const seriesPaths = result.querySelectorAll('path.series');
     expect(seriesPaths).toHaveLength(3);
@@ -67,9 +68,9 @@ describe('line graphs', () => {
       { date: new Date(2019, 2, 1), value: 58 },
     ];
     const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, [
-      { metrics: series, label: 'some-label-one' },
-      { metrics: series, label: 'some-label-two' },
-      { metrics: series, label: 'some-label-three' },
+      { label: 'some-label-one', metrics: series },
+      { label: 'some-label-two', metrics: series },
+      { label: 'some-label-three', metrics: series },
     ]);
     const seriesPaths = result.querySelectorAll('path.series');
     expect(seriesPaths).toHaveLength(3);
@@ -86,9 +87,9 @@ describe('line graphs', () => {
       { date: new Date(2019, 2, 1), value: 58 },
     ];
     const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, [
-      { metrics: series, label: 'some-label-1' },
-      { metrics: series, label: 'some-label-2' },
-      { metrics: series, label: 'some-label-3' },
+      { label: 'some-label-1', metrics: series },
+      { label: 'some-label-2', metrics: series },
+      { label: 'some-label-3', metrics: series },
     ]);
     const seriesPaths = result.querySelectorAll('path.series');
     expect(seriesPaths).toHaveLength(3);
@@ -120,14 +121,14 @@ describe(summariseSerie, () => {
   const metricSerie: IMetricSerie = {
     label: 'cf-0aaa00aaaa0aa-002 MetricName',
     metrics: [
-      { date: new Date('2020-01-01[T]00:00:00'), value: 90 },
-      { date: new Date('2020-01-01[T]01:00:00'), value: 32 },
-      { date: new Date('2020-01-01[T]02:00:00'), value: 56 },
-      { date: new Date('2020-01-01[T]03:00:00'), value: 12 },
-      { date: new Date('2020-01-01[T]04:00:00'), value: 2 },
-      { date: new Date('2020-01-01[T]05:00:00'), value: 94 },
-      { date: new Date('2020-01-01[T]06:00:00'), value: 73 },
-      { date: new Date('2020-01-01[T]07:00:00'), value: NaN },
+      { date: new Date('2020-01-01\'T\'00:00:00'), value: 90 },
+      { date: new Date('2020-01-01\'T\'01:00:00'), value: 32 },
+      { date: new Date('2020-01-01\'T\'02:00:00'), value: 56 },
+      { date: new Date('2020-01-01\'T\'03:00:00'), value: 12 },
+      { date: new Date('2020-01-01\'T\'04:00:00'), value: 2 },
+      { date: new Date('2020-01-01\'T\'05:00:00'), value: 94 },
+      { date: new Date('2020-01-01\'T\'06:00:00'), value: 73 },
+      { date: new Date('2020-01-01\'T\'07:00:00'), value: NaN },
     ],
   };
 

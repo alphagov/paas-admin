@@ -56,7 +56,7 @@ describe(MetricPage, () => {
             { 'date': new Date('2020-03-23T16:32:03.000Z'), 'value': 5 },
           ],
         },
-      ] as unknown as IMetricSerie;
+      ] as unknown as ReadonlyArray<IMetricSerie>;
     const markup = shallow(
       <MetricPage
         linkTo={route => `__LINKS_TO__${route}`}

@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import moment from 'moment';
+import { isValid } from 'date-fns';
 import { BaseLogger } from 'pino';
 
 import { intercept } from '../axios-logger/axios';
@@ -69,12 +69,12 @@ function latestOnly(
 }
 
 function parseTimestamp(s: string): Date {
-  const m = moment(s, moment.ISO_8601);
-  if (!m.isValid()) {
+  const m = new Date(s);
+  if (!isValid(m)) {
     throw new Error(`AccountsClient: invalid date format: ${s}`);
   }
 
-  return moment(s, moment.ISO_8601).toDate();
+  return m;
 }
 
 function parseDocument(doc: IDocumentResponse): IDocument {
@@ -271,8 +271,8 @@ export class AccountsClient {
   ): Promise<IAccountsUser | undefined> {
     const response = await this.request({
       method: 'get',
-      url: '/users',
       params: { email },
+      url: '/users',
     });
 
     const parsedResponse: IAccountsUsersResponse = response.data;

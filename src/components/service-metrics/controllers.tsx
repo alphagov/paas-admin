@@ -1,8 +1,8 @@
 /* eslint-disable no-case-declarations */
 import * as cw from '@aws-sdk/client-cloudwatch-node';
 import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
+import { Duration, format, formatISO, isBefore, isValid, sub } from 'date-fns';
 import { mapValues, values } from 'lodash';
-import moment from 'moment';
 import React from 'react';
 
 import { bytesConvert, DATE_TIME, Template } from '../../layouts';
@@ -44,69 +44,98 @@ import {
 const PERSISTANCE_MESSAGE_370_DAYS = '370 days';
 
 interface IRange {
-  readonly period: moment.Duration;
-  readonly rangeStart: moment.Moment;
-  readonly rangeStop: moment.Moment;
+  readonly period: Duration;
+  readonly rangeStart: Date;
+  readonly rangeStop: Date;
 }
 
+type RangeObject = {
+  readonly day?: number;
+  readonly hour?: number;
+  readonly minute?: number;
+  readonly month?: number;
+  readonly second?: number;
+  readonly year?: number;
+};
+
+type Range = RangeObject | string;
+
 // check if user-provided string is a number
-export function isNumeric(value: any) {
+export function isNumeric(value: string): boolean {
   return /^\d+$/.test(value);
 }
 
-export function sanitiseMomentInput(date: moment.MomentInputObject): moment.MomentInputObject {
-  return {
-    // if users enter something other than a number, return current date-time value
-    day: isNumeric(date.day) ? date.day : moment().date(),
-    hour: isNumeric(date.hour) ? date.hour : moment().hour(),
-    minute: isNumeric(date.minute) ? date.minute : moment().minute(),
-    month: isNumeric(date.month) ? date.month - 1 : moment().month(),
-    year: isNumeric(date.year) ? date.year : moment().year(),
-  };
+function isValidDateObject(obj: RangeObject): boolean {
+  if (obj.month && (obj.month < 1 || obj.month > 12)) {
+    return false;
+  }
+
+  if (obj.day && (obj.day < 1 || obj.day > 31)) {
+    return false;
+  }
+
+  if (obj.hour && (obj.hour < 0 || obj.hour > 23)) {
+    return false;
+  }
+
+  if (obj.minute && (obj.minute < 0 || obj.minute > 59)) {
+    return false;
+  }
+
+  if (obj.second && (obj.second < 0 || obj.second > 59)) {
+    return false;
+  }
+
+  return true;
 }
 
-export function parseRange(start: string | moment.MomentInputObject, stop: string | moment.MomentInputObject): IRange {
-  let rangeStart = typeof start === 'object' ? moment(sanitiseMomentInput(start)).isValid() ? 
-    moment(sanitiseMomentInput(start)) : moment() : moment(start);
-  let rangeStop = typeof stop === 'object' ? moment(sanitiseMomentInput(stop)).isValid() ? 
-    moment(sanitiseMomentInput(stop)) : moment() : moment(stop);
+export function objectToDate(obj: RangeObject): Date {
+  const now = new Date();
 
-  if (
-    rangeStart.isBefore(
-      rangeStop
-        .clone()
-        .subtract(1, 'year')
-        .subtract(1, 'week'),
-    )
-  ) {
-    throw new UserFriendlyError(
-      'Invalid time range provided. Cannot handle more than a year of metrics',
-    );
+  if (!isValidDateObject(obj)) {
+    return now;
   }
 
-  if (
-    rangeStop.isBefore(
-      moment()
-        .subtract(1, 'years')
-        .subtract(1, 'week'),
-    ) ||
-    rangeStart.isBefore(
-      moment()
-        .subtract(1, 'years')
-        .subtract(1, 'week'),
-    )
-  ) {
-    throw new UserFriendlyError(
-      'Invalid time range provided. Cannot handle over a year old metrics',
-    );
+  return new Date(
+    obj.year || now.getFullYear(),
+    obj.month ? obj.month - 1 : now.getMonth(),
+    obj.day || now.getDate(),
+    obj.hour !== undefined ? obj.hour : now.getHours(),
+    obj.minute !== undefined ? obj.minute : now.getMinutes(),
+    obj.second !== undefined ? obj.second : now.getSeconds(),
+  );
+}
+
+export function parseRange(start: Range, stop: Range): IRange {
+  const rawStart = typeof start === 'object' ? objectToDate(start) : new Date(start);
+  const rawStop = typeof stop === 'object' ? objectToDate(stop) : new Date(stop);
+
+  /* istanbul ignore next */
+  const rangeStart = isValid(rawStart) ? rawStart : new Date();
+  /* istanbul ignore next */
+  const rangeStop = isValid(rawStop) ? rawStop : new Date();
+
+  if (isBefore(rangeStart, sub(rangeStop, { weeks: 1, years: 1 }))) {
+    throw new UserFriendlyError('Invalid time range provided. Cannot handle more than a year of metrics');
   }
 
-  if (rangeStop.isBefore(rangeStart)) {
-    rangeStart = moment().subtract(1,'hour');
-    rangeStop = moment();
+  if (isBefore(rangeStop, sub(new Date(), { weeks: 1, years: 1 }))
+    || isBefore(rangeStart, sub(new Date(), { weeks: 1, years: 1 }))) {
+    throw new UserFriendlyError('Invalid time range provided. Cannot handle over a year old metrics');
   }
 
-  const period = moment.duration(getPeriod(rangeStart, rangeStop), 'seconds');
+  if (isBefore(rangeStop, rangeStart)) {
+    const rangeStart = sub(new Date(), { hours: 1 });
+    const rangeStop = new Date();
+
+    return {
+      period: { seconds: 60 },
+      rangeStart,
+      rangeStop,
+    };
+  }
+
+  const period = { seconds: getPeriod(rangeStart, rangeStop) };
 
   return {
     period,
@@ -131,15 +160,15 @@ export function composeValue(value: number, units?: string): string {
 }
 
 export async function resolveServiceMetrics(ctx: IContext, params: IParameters): Promise<IResponse> {
-  const rangeStop = moment();
+  const rangeStop = new Date();
   /* eslint-disable sort-keys */
-  const timeRanges: { readonly [key: string]: moment.Moment } = {
-    '1h': rangeStop.clone().subtract(1, 'hour'),
-    '3h': rangeStop.clone().subtract(3, 'hours'),
-    '12h': rangeStop.clone().subtract(12, 'hours'),
-    '24h': rangeStop.clone().subtract(24, 'hours'),
-    '7d': rangeStop.clone().subtract(7, 'days'),
-    '30d': rangeStop.clone().subtract(30, 'days'),
+  const timeRanges: { readonly [key: string]: Date } = {
+    '1h': sub(rangeStop, { hours: 1 }),
+    '3h': sub(rangeStop, { hours: 3 }),
+    '12h': sub(rangeStop, { hours: 12 }),
+    '24h': sub(rangeStop, { hours: 24 }),
+    '7d': sub(rangeStop, { days: 7 }),
+    '30d': sub(rangeStop, { days: 30 }),
   };
   /* eslint-enable sort-keys */
   const rangeStart = timeRanges[params.offset] || timeRanges['24h'];
@@ -147,8 +176,8 @@ export async function resolveServiceMetrics(ctx: IContext, params: IParameters):
   return await Promise.resolve({
     redirect: ctx.linkTo('admin.organizations.spaces.services.metrics.view', {
       organizationGUID: params.organizationGUID,
-      rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
-      rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+      rangeStart: formatISO(rangeStart),
+      rangeStop: formatISO(rangeStop),
       serviceGUID: params.serviceGUID,
       spaceGUID: params.spaceGUID,
     }),
@@ -170,10 +199,8 @@ export async function viewServiceMetrics(
     return {
       redirect: ctx.linkTo('admin.organizations.spaces.services.metrics.view', {
         organizationGUID: params.organizationGUID,
-        rangeStart: moment()
-          .subtract(24, 'hours')
-          .format('YYYY-MM-DD[T]HH:mm'),
-        rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+        rangeStart: formatISO(sub(new Date(), { hours: 24 })),
+        rangeStop: formatISO(new Date()),
         serviceGUID: params.serviceGUID,
         spaceGUID: params.spaceGUID,
       }),
@@ -220,7 +247,7 @@ export async function viewServiceMetrics(
   const template = new Template(
     ctx.viewContext,
     `Service ${service.entity.name} Metrics between 
-    ${moment(rangeStart).format(DATE_TIME)} and ${moment(rangeStop).format(DATE_TIME)}`,
+    ${format(rangeStart, DATE_TIME)} and ${format(rangeStop, DATE_TIME)}`,
   );
   template.breadcrumbs = fromOrg(ctx, organization, [
     {
@@ -238,8 +265,8 @@ export async function viewServiceMetrics(
     linkTo: ctx.linkTo,
     organizationGUID: organization.metadata.guid,
     period,
-    rangeStart: rangeStart.toDate(),
-    rangeStop: rangeStop.toDate(),
+    rangeStart: rangeStart,
+    rangeStop: rangeStop,
     routePartOf: ctx.routePartOf,
     service: summarisedService,
     serviceLabel,
@@ -263,9 +290,9 @@ export async function viewServiceMetrics(
     case 'aws-sqs-queue':
       const sqsMetricSeries = await new SQSMetricDataGetter(
         new cw.CloudWatchClient({
+          credentials: ctx.app.awsCredentials,
           endpoint: ctx.app.awsCloudwatchEndpoint,
           region: ctx.app.awsRegion,
-          credentials: ctx.app.awsCredentials,
         }),
       ).getData(
         sqsMetricNames,
@@ -285,14 +312,14 @@ export async function viewServiceMetrics(
     case 'cdn-route':
       const cloudFrontMetricSeries = await new CloudFrontMetricDataGetter(
         new cw.CloudWatchClient({
+          credentials: ctx.app.awsCredentials,
           endpoint: ctx.app.awsCloudwatchEndpoint,
           region: 'us-east-1',
-          credentials: ctx.app.awsCredentials,
         }),
         new rg.ResourceGroupsTaggingAPIClient({
+          credentials: ctx.app.awsCredentials,
           endpoint: ctx.app.awsResourceTaggingAPIEndpoint,
           region: 'us-east-1',
-          credentials: ctx.app.awsCredentials,
         }),
       ).getData(
         cloudfrontMetricNames,
@@ -312,9 +339,9 @@ export async function viewServiceMetrics(
     case 'mysql':
       const rdsMetricSeries = await new RDSMetricDataGetter(
         new cw.CloudWatchClient({
+          credentials: ctx.app.awsCredentials,
           endpoint: ctx.app.awsCloudwatchEndpoint,
           region: ctx.app.awsRegion,
-          credentials: ctx.app.awsCredentials,
         }),
       ).getData(
         rdsMetricNames,
@@ -333,9 +360,9 @@ export async function viewServiceMetrics(
     case 'redis':
       const elastiCacheMetricSeries = await new ElastiCacheMetricDataGetter(
         new cw.CloudWatchClient({
+          credentials: ctx.app.awsCredentials,
           endpoint: ctx.app.awsCloudwatchEndpoint,
           region: ctx.app.awsRegion,
-          credentials: ctx.app.awsCredentials,
         }),
       ).getData(
         elasticacheMetricNames,
@@ -412,10 +439,8 @@ export async function downloadServiceMetrics(
     return {
       redirect: ctx.linkTo('admin.organizations.spaces.services.metrics.view', {
         organizationGUID: params.organizationGUID,
-        rangeStart: moment()
-          .subtract(24, 'hours')
-          .format('YYYY-MM-DD[T]HH:mm'),
-        rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+        rangeStart: formatISO(sub(new Date(), { hours: 24 })),
+        rangeStop: formatISO(new Date()),
         serviceGUID: params.serviceGUID,
         spaceGUID: params.spaceGUID,
       }),
@@ -469,7 +494,7 @@ export async function downloadServiceMetrics(
         .map(metric =>
           metric.metrics.map(series => [
             serviceLabel,
-            moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+            formatISO(series.date),
             composeValue(series.value, params.units),
           ]),
         )
@@ -498,7 +523,7 @@ export async function downloadServiceMetrics(
         .map(metric =>
           metric.metrics.map(series => [
             serviceLabel,
-            moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+            formatISO(series.date),
             composeValue(series.value, params.units),
           ]),
         )
@@ -524,7 +549,7 @@ export async function downloadServiceMetrics(
         .map(metric =>
           metric.metrics.map(series => [
             serviceLabel,
-            moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+            formatISO(series.date),
             composeValue(series.value, params.units),
           ]),
         )
@@ -549,8 +574,8 @@ export async function downloadServiceMetrics(
         .map(metric =>
           metric.metrics.map(series => [
             serviceLabel,
-            metric.label,
-            moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+            metric.label || '',
+            formatISO(series.date),
             composeValue(series.value, params.units),
           ]),
         )
@@ -577,8 +602,9 @@ export async function downloadServiceMetrics(
         .map(metric =>
           metric.metrics.map(series => [
             serviceLabel,
-            metric.label,
-            moment(series.date).format('YYYY-MM-DD[T]HH:mm'),
+            /* istanbul ignore next */
+            metric.label || '',
+            formatISO(series.date),
             composeValue(series.value, params.units),
           ]),
         )

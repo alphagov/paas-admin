@@ -1,5 +1,5 @@
+import { format } from 'date-fns';
 import lodash from 'lodash';
-import moment from 'moment';
 import nock from 'nock';
 
 
@@ -7,7 +7,7 @@ import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
 import { app as defaultApp } from '../../lib/cf/test-data/app';
-import { auditEvent as defaultAuditEvent, auditEventForAutoscaler } from '../../lib/cf/test-data/audit-event';
+import { auditEventForAutoscaler, auditEvent as defaultAuditEvent } from '../../lib/cf/test-data/audit-event';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import {
   wrapResources,
@@ -56,15 +56,15 @@ describe('space event', () => {
       .reply(200, JSON.stringify(event));
 
     const response = await spaces.viewSpaceEvent(ctx, {
+      eventGUID: event.guid,
       organizationGUID,
       spaceGUID,
-      eventGUID: event.guid,
     });
 
     expect(response.body).toContain('Space name-2064 Event details');
 
     expect(response.body).toContain(
-      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+      /* DateTime    */ format(new Date(event.updated_at), DATE_TIME),
     );
     expect(response.body).toContain(/* Actor       */ 'admin');
     expect(response.body).toContain(/* Description */ 'Updated application');
@@ -90,15 +90,15 @@ describe('space event', () => {
     );
 
     const response = await spaces.viewSpaceEvent(ctx, {
+      eventGUID: event.guid,
       organizationGUID,
       spaceGUID,
-      eventGUID: event.guid,
     });
 
     expect(response.body).toContain('Space name-2064 Event details');
 
     expect(response.body).toContain(
-      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+      /* DateTime    */ format(new Date(event.updated_at), DATE_TIME),
     );
     expect(response.body).toContain(/* Actor       */ 'one@user.in.database');
     expect(response.body).toContain(/* Description */ 'Updated application');
@@ -114,21 +114,21 @@ describe('space event', () => {
       200,
       JSON.stringify(
         lodash.merge(event, {
-          actor: { type: 'unknown', name: 'unknown-actor' },
+          actor: { name: 'unknown-actor', type: 'unknown' },
         }),
       ),
     );
 
     const response = await spaces.viewSpaceEvent(ctx, {
+      eventGUID: event.guid,
       organizationGUID,
       spaceGUID,
-      eventGUID: event.guid,
     });
 
     expect(response.body).toContain('Space name-2064 Event details');
 
     expect(response.body).toContain(
-      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+      /* DateTime    */ format(new Date(event.updated_at), DATE_TIME),
     );
     expect(response.body).toContain(/* Actor       */ 'unknown-actor');
     expect(response.body).toContain(/* Description */ 'Updated application');
@@ -146,9 +146,9 @@ describe('space event', () => {
     );
 
     const response = await spaces.viewSpaceEvent(ctx, {
+      eventGUID: event.guid,
       organizationGUID,
       spaceGUID,
-      eventGUID: event.guid,
     });
 
     expect(response.body).toContain('Space name-2064 Event details');
@@ -177,8 +177,8 @@ describe('spaces test suite', () => {
   afterEach(() => {
     nockAccounts.done();
     nockCF.on('response', () => {
-  nockCF.done()
-});
+    nockCF.done();
+  });
 
     nock.cleanAll();
   });
@@ -189,9 +189,9 @@ describe('spaces test suite', () => {
     nockAccounts.get('/users/uaa-id-253').reply(
       200,
       JSON.stringify({
+        user_email: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
         user_uuid: 'uaa-id-253',
         username: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
-        user_email: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
       }),
     );
 
@@ -265,8 +265,8 @@ describe('spaces test suite', () => {
         JSON.stringify(
           wrapResources(
             lodash.merge(defaultApp(), {
-              metadata: { guid: appGuid },
               entity: { name: appName },
+              metadata: { guid: appGuid },
             }),
           ),
         ),
@@ -327,9 +327,9 @@ describe('spaces test suite', () => {
         nockCF
           .get('/v3/audit_events')
           .query({
+            order_by: '-updated_at',
             page: 1,
             per_page: 25,
-            order_by: '-updated_at',
             space_guids: spaceGUID,
           })
           .reply(200, JSON.stringify(wrapV3Resources()));
@@ -354,9 +354,9 @@ describe('spaces test suite', () => {
         nockCF
           .get('/v3/audit_events')
           .query({
+            order_by: '-updated_at',
             page: 1,
             per_page: 25,
-            order_by: '-updated_at',
             space_guids: spaceGUID,
           })
           .reply(
@@ -371,36 +371,36 @@ describe('spaces test suite', () => {
                     type: 'audit.app.restage',
                   }),
                   lodash.merge(defaultAuditEvent(), {
-                    type: 'audit.app.update',
                     target: {
                       guid: defaultAuditEvent().actor.guid,
                       name: defaultAuditEvent().actor.name,
                       type: 'user',
                     },
+                    type: 'audit.app.update',
                   }),
                   lodash.merge(defaultAuditEvent(), {
-                    type: 'audit.app.create',
                     target: {
                       guid: 'unknown',
                       name: 'an-application',
                       type: 'app',
                     },
+                    type: 'audit.app.create',
                   }),
                   lodash.merge(defaultAuditEvent(), {
-                    type: 'some unknown event type',
                     actor: {
                       guid: 'unknown',
                       name: 'some unknown actor',
                       type: 'unknown',
                     },
+                    type: 'some unknown event type',
                   }),
                   auditEventForAutoscaler(),
                 ),
                 {
                   pagination: {
+                    next: { href: '/link-to-next-page' },
                     total_pages: 2702,
                     total_results: 1337,
-                    next: { href: '/link-to-next-page' },
                   },
                 },
               ),
@@ -425,8 +425,8 @@ describe('spaces test suite', () => {
       it('should show a table of events on the application events page', async () => {
         const response = await spaces.viewSpaceEvents(ctx, {
           organizationGUID,
-          spaceGUID,
           page: 1,
+          spaceGUID,
         });
 
         expect(response.body).toContain('Space name-2064 Events');
@@ -477,8 +477,8 @@ describe('suspended organisation spaces', () => {
   afterEach(() => {
     nockAccounts.done();
     nockCF.on('response', () => {
-  nockCF.done()
-});
+    nockCF.done();
+  });
 
     nock.cleanAll();
   });
@@ -489,9 +489,9 @@ describe('suspended organisation spaces', () => {
     nockAccounts.get('/users/uaa-id-253').reply(
       200,
       JSON.stringify({
+        user_email: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
         user_uuid: 'uaa-id-253',
         username: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
-        user_email: 'uaa-id-253@fake.digital.cabinet-office.gov.uk',
       }),
     );
 

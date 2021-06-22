@@ -1,12 +1,12 @@
+import { format } from 'date-fns';
 import lodash from 'lodash';
-import moment from 'moment';
 import nock from 'nock';
 
 import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
 import { app as defaultApp } from '../../lib/cf/test-data/app';
-import { auditEvent as defaultAuditEvent, auditEventForAutoscaler } from '../../lib/cf/test-data/audit-event';
+import { auditEventForAutoscaler, auditEvent as defaultAuditEvent } from '../../lib/cf/test-data/audit-event';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import { wrapV3Resources } from '../../lib/cf/test-data/wrap-resources';
 import { createTestContext } from '../app/app.test-helpers';
@@ -40,7 +40,7 @@ describe('application event', () => {
   afterEach(() => {
     nockAccounts.done();
     nockCF.on('response', () => {
-  nockCF.done()
+    nockCF.done();
 });
 
     nock.cleanAll();
@@ -54,10 +54,10 @@ describe('application event', () => {
     const event = defaultAuditEvent();
 
     const response = await viewApplicationEvent(ctx, {
-      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       applicationGUID: defaultApp().metadata.guid,
       eventGUID: event.guid,
+      organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
+      spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
 
     expect(response.body).toContain(
@@ -65,7 +65,7 @@ describe('application event', () => {
     );
 
     expect(response.body).toContain(
-      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+      /* DateTime    */ format(new Date(event.updated_at), DATE_TIME),
     );
     expect(response.body).toContain(/* Actor       */ 'admin');
     expect(response.body).toContain(/* Description */ 'Updated application');
@@ -99,7 +99,7 @@ describe('application event', () => {
     );
 
     expect(response.body).toContain(
-      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+      /* DateTime    */ format(new Date(event.updated_at), DATE_TIME),
     );
     expect(response.body).toContain(/* Actor       */ 'one@user.in.database');
     expect(response.body).toContain(/* Description */ 'Updated application');
@@ -129,7 +129,7 @@ describe('application event', () => {
     );
 
     expect(response.body).toContain(
-      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+      /* DateTime    */ format(new Date(event.updated_at), DATE_TIME),
     );
     expect(response.body).toContain(/* Actor       */ 'unknown-actor');
     expect(response.body).toContain(/* Description */ 'Updated application');

@@ -1,5 +1,5 @@
+import { add, Duration, format, formatDistance } from 'date-fns';
 import { forIn } from 'lodash';
-import moment from 'moment';
 import React, { ReactElement, ReactNode } from 'react';
 
 import { bytesToHuman, DATE_TIME } from '../../layouts';
@@ -41,7 +41,7 @@ interface IRangePickerProperties {
   readonly rangeStop: Date;
   readonly linkTo: RouteLinker;
   readonly service: IServiceInstance;
-  readonly period: moment.Duration;
+  readonly period: Duration;
   readonly persistancePeriod?: string;
 }
 
@@ -59,7 +59,7 @@ interface IMetricPageProperties extends IPageProperties {
   readonly rangeStart: Date;
   readonly rangeStop: Date;
   readonly serviceLabel: string;
-  readonly period: moment.Duration;
+  readonly period: Duration;
   readonly metrics: ReadonlyArray<IMetricProperties>;
 }
 
@@ -258,7 +258,9 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
         >
           <input type="hidden" name="_csrf" value={props.csrf} />
 
-          <h3 className="govuk-heading-s">Provide custom date and time <span className="govuk-visually-hidden">for showing metrics</span></h3>
+          <h3 className="govuk-heading-s">
+            Provide custom date and time <span className="govuk-visually-hidden">for showing metrics</span>
+          </h3>
           <div className="govuk-form-group">
             <fieldset className="govuk-fieldset" role="group" aria-describedby="range-start-date-hint">
               <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
@@ -273,14 +275,14 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <label className="govuk-label govuk-date-input__label" htmlFor="rangeStartDay">
                       Day
                     </label>
-                    <input 
-                      className="govuk-input govuk-date-input__input govuk-input--width-2" 
+                    <input
+                      className="govuk-input govuk-date-input__input govuk-input--width-2"
                       id="rangeStartDay"
                       name="rangeStart[day]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
-                      defaultValue={moment(props.rangeStart).format('DD')}
+                      defaultValue={format(props.rangeStart, 'dd')}
                     />
                   </div>
                 </div>
@@ -289,14 +291,14 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <label className="govuk-label govuk-date-input__label" htmlFor="startMonth">
                       Month
                     </label>
-                    <input 
-                      className="govuk-input govuk-date-input__input govuk-input--width-2" 
+                    <input
+                      className="govuk-input govuk-date-input__input govuk-input--width-2"
                       id="rangeStartMonth"
                       name="rangeStart[month]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
-                      defaultValue={moment(props.rangeStart).format('MM')}
+                      defaultValue={format(props.rangeStart, 'MM')}
                       />
                   </div>
                 </div>
@@ -312,7 +314,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
-                      defaultValue={moment(props.rangeStart).format('YYYY')}
+                      defaultValue={format(props.rangeStart, 'yyyy')}
                       />
                   </div>
                 </div>
@@ -340,7 +342,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
-                      defaultValue={moment(props.rangeStart).format('HH')}
+                      defaultValue={format(props.rangeStart, 'HH')}
                     />
                   </div>
                 </div>
@@ -349,14 +351,14 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     <label className="govuk-label govuk-date-input__label" htmlFor="rangeStartMinute">
                       Minutes
                     </label>
-                    <input 
+                    <input
                       className="govuk-input govuk-date-input__input govuk-input--width-2"
                       id="rangeStartMinute"
                       name="rangeStart[minute]"
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
-                      defaultValue={moment(props.rangeStart).format('mm')} 
+                      defaultValue={format(props.rangeStart, 'mm')}
                     />
                   </div>
                 </div>
@@ -385,7 +387,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
-                      defaultValue={moment(props.rangeStop).format('DD')}
+                      defaultValue={format(props.rangeStop, 'dd')}
                       />
                   </div>
                 </div>
@@ -401,7 +403,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                     type="text"
                     pattern="[0-9]*"
                     inputMode="numeric"
-                    defaultValue={moment(props.rangeStop).format('MM')}
+                    defaultValue={format(props.rangeStop, 'MM')}
                   />
                   </div>
                 </div>
@@ -417,7 +419,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
-                      defaultValue={moment(props.rangeStop).format('YYYY')}
+                      defaultValue={format(props.rangeStop, 'yyyy')}
                     />
                   </div>
                 </div>
@@ -445,7 +447,7 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                       type="text"
                       pattern="[0-9]*"
                       inputMode="numeric"
-                      defaultValue={moment(props.rangeStop).format('HH')}
+                      defaultValue={format(props.rangeStart, 'HH')}
                     />
                   </div>
                 </div>
@@ -460,15 +462,15 @@ function RangePicker(props: IRangePickerProperties): ReactElement {
                       name="rangeStop[minute]"
                       type="text"
                       pattern="[0-9]*"
-                      inputMode="numeric" 
-                      defaultValue={moment(props.rangeStop).format('mm')}
+                      inputMode="numeric"
+                      defaultValue={format(props.rangeStart, 'mm')}
                       />
                     </div>
                 </div>
               </div>
             </fieldset>
           </div>
-          
+
           <button
             className="govuk-button"
             data-module="govuk-button"
@@ -521,9 +523,10 @@ export function UnsupportedServiceMetricsPage(
 
 export function MetricPage(props: IMetricPageProperties): ReactElement {
   const title = `Metrics <span class="govuk-visually-hidden">
-    between ${' '}${moment(props.rangeStart).format(DATE_TIME)}${' '}
-    and${' '}${moment(props.rangeStop).format(DATE_TIME)}
+    between ${' '}${format(props.rangeStart, DATE_TIME)}${' '}
+    and${' '}${format(props.rangeStop, DATE_TIME)}
   </span>`;
+
   return (
     <ServiceTab
       {...props}
@@ -548,9 +551,9 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
             <hr className="govuk-section-break govuk-section-break--m" />
             <p className="govuk-body">
               Showing metrics between{' '}
-              <strong>{moment(props.rangeStart).format(DATE_TIME)}</strong>{' '}
+              <strong>{format(props.rangeStart, DATE_TIME)}</strong>{' '}
               and{' '}
-              <strong>{moment(props.rangeStop).format(DATE_TIME)}</strong>
+              <strong>{format(props.rangeStop, DATE_TIME)}</strong>
             </p>
 
             <p className="govuk-body">
@@ -560,7 +563,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
             <p className="govuk-body">
               Each point on a graph is aggregated over
               {' '}
-              <strong className="non-breaking">{props.period.humanize()}</strong>
+              <strong className="non-breaking">{formatDistance(new Date(), add(new Date(), props.period))}</strong>
               {' '}
               of data.
             </p>

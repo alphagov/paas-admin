@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { add } from 'date-fns';
 
 import { ElasticsearchMetricDataGetter } from './elasticsearch';
 
@@ -7,15 +7,15 @@ describe('Elasticsearch', () => {
     it('should get data from prometheus', async () => {
       const getSeries = jest.fn();
 
-      const rangeStart = moment();
-      const rangeStop = rangeStart.clone().add(1, 'day');
+      const rangeStart = new Date();
+      const rangeStop = add(rangeStart, { days: 1 });
       const aValue = 123456.789;
 
       getSeries.mockReturnValue(
         Promise.resolve([
           {
             label: 'instance',
-            metrics: [{ date: rangeStart.toDate(), value: aValue }],
+            metrics: [{ date: rangeStart, value: aValue }],
           },
         ]),
       );
@@ -25,7 +25,7 @@ describe('Elasticsearch', () => {
       const data = await dg.getData(
         ['loadAvg'],
         'abc-def',
-        moment.duration(1, 'minute'),
+        { minutes: 1 },
         rangeStart,
         rangeStop,
       );
@@ -35,7 +35,7 @@ describe('Elasticsearch', () => {
       expect(data.loadAvg.length).toEqual(1);
       expect(data.loadAvg[0].label).toEqual('instance');
       expect(data.loadAvg[0].metrics).toContainEqual({
-        date: rangeStart.toDate(),
+        date: rangeStart,
         value: aValue,
       });
     });
@@ -43,15 +43,15 @@ describe('Elasticsearch', () => {
     it('get data should filter out the results of bad queries', async () => {
       const getSeries = jest.fn();
 
-      const rangeStart = moment();
-      const rangeStop = rangeStart.clone().add(1, 'day');
+      const rangeStart = new Date();
+      const rangeStop = add(rangeStart, { days: 1 });
       const aValue = 123456.789;
 
       getSeries.mockReturnValueOnce(
         Promise.resolve([
           {
             label: 'instance',
-            metrics: [{ date: rangeStart.toDate(), value: aValue }],
+            metrics: [{ date: rangeStart, value: aValue }],
           },
         ]),
       );
@@ -62,7 +62,7 @@ describe('Elasticsearch', () => {
       const data = await dg.getData(
         ['loadAvg', 'diskUsed'],
         'abc-def',
-        moment.duration(1, 'minute'),
+        { minutes: 1 },
         rangeStart,
         rangeStop,
       );
@@ -74,7 +74,7 @@ describe('Elasticsearch', () => {
       expect(data.loadAvg.length).toEqual(1);
       expect(data.loadAvg[0].label).toEqual('instance');
       expect(data.loadAvg[0].metrics).toContainEqual({
-        date: rangeStart.toDate(),
+        date: rangeStart,
         value: aValue,
       });
     });

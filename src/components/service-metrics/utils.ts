@@ -1,8 +1,8 @@
 import { bisectLeft } from 'd3-array';
-import moment from 'moment';
+import { differenceInSeconds, isBefore, sub } from 'date-fns';
 
-export function getPeriod(rangeStart: moment.Moment, rangeStop: moment.Moment): number {
-  const secondsDifference = rangeStop.diff(rangeStart) / 1000;
+export function getPeriod(rangeStart: Date, rangeStop: Date): number {
+  const secondsDifference = differenceInSeconds(rangeStop, rangeStart);
   const desiredNumberOfPoints = 300;
   const idealPeriod = secondsDifference / desiredNumberOfPoints;
 
@@ -23,11 +23,11 @@ export function getPeriod(rangeStart: moment.Moment, rangeStop: moment.Moment): 
   //      Start time between 15 and 63 days ago - Use a multiple of 300 seconds (5 minutes).
   //      Start time greater than 63 days ago - Use a multiple of 3600 seconds (1 hour).
 
-  const threeHoursAgo = moment().subtract(3, 'hours');
-  const fifteenDaysAgo = moment().subtract(15, 'days');
-  const sixtyThreeDaysAgo = moment().subtract(63, 'days');
+  const threeHoursAgo = sub(new Date(), { hours: 3 });
+  const fifteenDaysAgo = sub(new Date(), { days: 15 });
+  const sixtyThreeDaysAgo = sub(new Date(), { days: 63 });
 
-  if (threeHoursAgo.isBefore(rangeStart)) {
+  if (isBefore(threeHoursAgo, rangeStart)) {
     const allowedPeriods = [1, 5, 10, 30, 60];
     if (idealPeriod <= 60) {
       return allowedPeriods[bisectLeft(allowedPeriods, idealPeriod)];
@@ -35,10 +35,10 @@ export function getPeriod(rangeStart: moment.Moment, rangeStop: moment.Moment): 
 
     return Math.ceil(idealPeriod / 60) * 60;
   }
-  if (fifteenDaysAgo.isBefore(rangeStart)) {
+  if (isBefore(fifteenDaysAgo, rangeStart)) {
     return Math.ceil(idealPeriod / 60) * 60;
   }
-  if (sixtyThreeDaysAgo.isBefore(rangeStart)) {
+  if (isBefore(sixtyThreeDaysAgo, rangeStart)) {
     return Math.ceil(idealPeriod / 300) * 300;
   }
 

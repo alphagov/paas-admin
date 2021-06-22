@@ -42,7 +42,7 @@ async function viewCosts(
 
   if (!rangeStart.match(/[20][123][0-9]-[01][0-9]-01/)) {
     throw new Error(
-      `Constructed date is invalid, should be YYYY-MM-DD: ${rangeStart}`,
+      `Constructed date is invalid, should be yyyy-MM-dd: ${rangeStart}`,
     );
   }
 

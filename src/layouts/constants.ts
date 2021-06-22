@@ -1,6 +1,6 @@
-export const DATE = 'MMMM Do YYYY';
+export const DATE = 'MMMM do yyyy';
 export const TIME = 'HH:mm';
-export const DATE_TIME = 'h:mma, D MMMM YYYY';
+export const DATE_TIME = 'h:mmaaa, d MMMM yyyy';
 
 export const KIBIBYTE = 1024;
 export const MEBIBYTE = KIBIBYTE * 1024;

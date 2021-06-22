@@ -1,8 +1,7 @@
 import querystring from 'querystring';
 
-import moment from 'moment';
+import { differenceInSeconds, format, formatISO, getUnixTime, sub } from 'date-fns';
 import nock from 'nock';
-
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { getStubCloudwatchMetricsData } from '../../lib/aws/aws-cloudwatch.test.data';
@@ -24,9 +23,9 @@ import {
   composeValue,
   downloadServiceMetrics,
   isNumeric,
+  objectToDate,
   parseRange,
   resolveServiceMetrics,
-  sanitiseMomentInput,
   viewServiceMetrics,
 } from '.';
 
@@ -99,10 +98,8 @@ describe('service metrics test suite', () => {
 
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      rangeStart: moment()
-        .subtract(1, 'hour')
-        .format('YYYY-MM-DD[T]HH:mm'),
-      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+      rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
@@ -130,11 +127,8 @@ describe('service metrics test suite', () => {
 
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      rangeStart: moment()
-        .subtract(1, 'year')
-        .subtract(2, 'days')
-        .format('YYYY-MM-DD[T]HH:mm'),
-      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      rangeStart: format(sub(new Date(), { days: 2, years: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+      rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
@@ -167,10 +161,8 @@ describe('service metrics test suite', () => {
     });
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      rangeStart: moment()
-        .subtract(1, 'hour')
-        .format('YYYY-MM-DD[T]HH:mm'),
-      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+      rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
@@ -203,10 +195,8 @@ describe('service metrics test suite', () => {
     });
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      rangeStart: moment()
-        .subtract(1, 'hour')
-        .format('YYYY-MM-DD[T]HH:mm'),
-      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+      rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
@@ -240,10 +230,8 @@ describe('service metrics test suite', () => {
 
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      rangeStart: moment()
-        .subtract(1, 'hour')
-        .format('YYYY-MM-DD[T]HH:mm'),
-      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+      rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
@@ -281,10 +269,8 @@ describe('service metrics test suite', () => {
 
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      rangeStart: moment()
-        .subtract(1, 'hour')
-        .format('YYYY-MM-DD[T]HH:mm'),
-      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+      rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
@@ -315,10 +301,8 @@ describe('service metrics test suite', () => {
 
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      rangeStart: moment()
-        .subtract(1, 'hour')
-        .format('YYYY-MM-DD[T]HH:mm'),
-      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+      rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
@@ -342,10 +326,8 @@ describe('service metrics test suite', () => {
     const userProvidedServiceGUID = '54e4c645-7d20-4271-8c27-8cc904e1e7ee';
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      rangeStart: moment()
-        .subtract(1, 'hour')
-        .format('YYYY-MM-DD[T]HH:mm'),
-      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+      rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
       serviceGUID: userProvidedServiceGUID,
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
@@ -373,10 +355,8 @@ describe('service metrics test suite', () => {
 
     const response = await viewServiceMetrics(ctx, {
       organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-      rangeStart: moment()
-      .subtract(1, 'hour')
-      .format('YYYY-MM-DD[T]HH:mm'),
-      rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+      rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+      rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
       serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
       spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
     });
@@ -449,11 +429,8 @@ describe('service metrics test suite', () => {
     await expect(
       viewServiceMetrics(ctx, {
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        rangeStart: moment()
-          .subtract(1, 'year')
-          .subtract(2, 'weeks')
-          .format('YYYY-MM-DD[T]HH:mm'),
-        rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+        rangeStart: format(sub(new Date(), { weeks: 2, years: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+        rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
         serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       }),
@@ -464,10 +441,8 @@ describe('service metrics test suite', () => {
     await expect(
       viewServiceMetrics(ctx, {
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        rangeStart: moment()
-          .subtract(1, 'week')
-          .unix(),
-        rangeStop: moment().unix(),
+        rangeStart: getUnixTime(sub(new Date(), { weeks: 1 })),
+        rangeStop: getUnixTime(new Date()),
         serviceGUID: '54e4c645-7d20-4271-8c27-8cc904e1e7ee',
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
       }),
@@ -494,8 +469,8 @@ describe('service metrics test suite', () => {
       },
     });
 
-    const rangeStop = moment();
-    const rangeStart = rangeStop.subtract(1, 'hour');
+    const rangeStop = new Date();
+    const rangeStart = sub(rangeStop, { hours: 1 });
 
     const response = await downloadServiceMetrics(
       {
@@ -505,8 +480,8 @@ describe('service metrics test suite', () => {
       {
         metric: 'mNumberOfMessagesReceived',
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
-        rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+        rangeStart: format(rangeStart, 'yyyy-MM-dd\'T\'HH:mm'),
+        rangeStop: format(rangeStop, 'yyyy-MM-dd\'T\'HH:mm'),
         serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         units: 'Number',
@@ -517,9 +492,9 @@ describe('service metrics test suite', () => {
     expect(response.download).toBeDefined();
     expect(response.download!.name).toMatch(/aws-sqs-queue-metrics.*\.csv/);
     expect(response.download!.data).toMatch(/Service,Time,Value/);
-    expect(response.download!.data).toMatch(
-      new RegExp(`aws-sqs-queue,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d`),
-    );
+    expect(response.download!.data).toMatch(/aws-sqs-queue/);
+    expect(response.download!.data).toMatch(format(rangeStart, 'yyyy-MM-dd\'T\'HH:mm'));
+    expect(response.download!.data).toMatch(/,\d/);
 
     const lines = response.download!.data
       .split('\n')
@@ -529,7 +504,7 @@ describe('service metrics test suite', () => {
 
     const [{}, first, ...{}] = lines;
     const [{}, firstDate, {}] = first.split(',');
-    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
+    expect(differenceInSeconds(new Date(firstDate), rangeStart)).toBeLessThanOrEqual(60);
   });
 
   it('should download a postgres csv', async () => {
@@ -546,8 +521,8 @@ describe('service metrics test suite', () => {
 
     mockService(data.serviceObj);
 
-    const rangeStop = moment();
-    const rangeStart = rangeStop.subtract(1, 'hour');
+    const rangeStop = new Date();
+    const rangeStart = sub(rangeStop, { hours: 1 });
 
     const response = await downloadServiceMetrics(
       {
@@ -557,8 +532,8 @@ describe('service metrics test suite', () => {
       {
         metric: 'mFreeStorageSpace',
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
-        rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+        rangeStart: format(rangeStart, 'yyyy-MM-dd\'T\'HH:mm'),
+        rangeStop: format(rangeStop, 'yyyy-MM-dd\'T\'HH:mm'),
         serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         units: 'Bytes',
@@ -569,9 +544,9 @@ describe('service metrics test suite', () => {
     expect(response.download).toBeDefined();
     expect(response.download!.name).toMatch(/postgres-metrics.*\.csv/);
     expect(response.download!.data).toMatch(/Service,Time,Value/);
-    expect(response.download!.data).toMatch(
-      new RegExp(`postgres,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+B`),
-    );
+    expect(response.download!.data).toMatch(/postgres/);
+    expect(response.download!.data).toMatch(format(rangeStart, 'yyyy-MM-dd\'T\'HH:mm'));
+    expect(response.download!.data).toMatch(/,\d+B/);
 
     const lines = response.download!.data
       .split('\n')
@@ -581,7 +556,7 @@ describe('service metrics test suite', () => {
 
     const [{}, first, ...{}] = lines;
     const [{}, firstDate, {}] = first.split(',');
-    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
+    expect(differenceInSeconds(new Date(firstDate), rangeStart)).toBeLessThanOrEqual(60);
   });
 
   it('should download a redis csv', async () => {
@@ -604,8 +579,8 @@ describe('service metrics test suite', () => {
       },
     });
 
-    const rangeStop = moment();
-    const rangeStart = rangeStop.subtract(1, 'hour');
+    const rangeStop = new Date();
+    const rangeStart = sub(rangeStop, { hours: 1 });
 
     const response = await downloadServiceMetrics(
       {
@@ -615,8 +590,8 @@ describe('service metrics test suite', () => {
       {
         metric: 'mCacheHits',
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
-        rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+        rangeStart: format(rangeStart, 'yyyy-MM-dd\'T\'HH:mm'),
+        rangeStop: format(rangeStop, 'yyyy-MM-dd\'T\'HH:mm'),
         serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         units: 'Number',
@@ -627,9 +602,9 @@ describe('service metrics test suite', () => {
     expect(response.download).toBeDefined();
     expect(response.download!.name).toMatch(/redis-metrics.*\.csv/);
     expect(response.download!.data).toMatch(/Service,Instance,Time,Value/);
-    expect(response.download!.data).toMatch(
-      new RegExp(`redis,,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`),
-    );
+    expect(response.download!.data).toMatch(/redis/);
+    expect(response.download!.data).toMatch(format(rangeStart, 'yyyy-MM-dd\'T\'HH:mm'));
+    expect(response.download!.data).toMatch(/,\d+/);
 
     const lines = response.download!.data.split('\n');
 
@@ -637,7 +612,7 @@ describe('service metrics test suite', () => {
 
     const [{}, first, ...{}] = lines;
     const [{}, {}, firstDate, {}] = first.split(',');
-    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
+    expect(differenceInSeconds(new Date(firstDate), rangeStart)).toBeLessThanOrEqual(60);
   });
 
   it('should download a cdn-route csv', async () => {
@@ -664,8 +639,8 @@ describe('service metrics test suite', () => {
       },
     });
 
-    const rangeStop = moment();
-    const rangeStart = rangeStop.subtract(1, 'hour');
+    const rangeStop = new Date();
+    const rangeStart = sub(rangeStop, { hours: 1 });
 
     const response = await downloadServiceMetrics(
       {
@@ -675,8 +650,8 @@ describe('service metrics test suite', () => {
       {
         metric: 'mRequests',
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
-        rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+        rangeStart: format(rangeStart, 'yyyy-MM-dd\'T\'HH:mm'),
+        rangeStop: format(rangeStop, 'yyyy-MM-dd\'T\'HH:mm'),
         serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         units: 'Number',
@@ -687,9 +662,9 @@ describe('service metrics test suite', () => {
     expect(response.download).toBeDefined();
     expect(response.download!.name).toMatch(/cdn-route-metrics.*\.csv/);
     expect(response.download!.data).toMatch(/Service,Time,Value/);
-    expect(response.download!.data).toMatch(
-      new RegExp(`cdn-route,${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`),
-    );
+    expect(response.download!.data).toMatch(/cdn-route/);
+    expect(response.download!.data).toMatch(format(rangeStart, 'yyyy-MM-dd\'T\'HH:mm'));
+    expect(response.download!.data).toMatch(/,\d+/);
 
     const lines = response.download!.data.split('\n');
 
@@ -697,7 +672,7 @@ describe('service metrics test suite', () => {
 
     const [{}, first, ...{}] = lines;
     const [{}, firstDate, ...{}] = first.split(',');
-    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
+    expect(differenceInSeconds(new Date(firstDate), rangeStart)).toBeLessThanOrEqual(60);
   });
 
   it('should download an elasticsearch csv', async () => {
@@ -715,8 +690,8 @@ describe('service metrics test suite', () => {
       },
     });
 
-    const rangeStop = moment();
-    const rangeStart = rangeStop.subtract(1, 'hour');
+    const rangeStop = new Date();
+    const rangeStart = sub(rangeStop, { hours: 1 });
 
     const response = await downloadServiceMetrics(
       {
@@ -726,8 +701,8 @@ describe('service metrics test suite', () => {
       {
         metric: 'loadAvg',
         organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-        rangeStart: rangeStart.format('YYYY-MM-DD[T]HH:mm'),
-        rangeStop: rangeStop.format('YYYY-MM-DD[T]HH:mm'),
+        rangeStart: format(rangeStart, 'yyyy-MM-dd\'T\'HH:mm'),
+        rangeStop: format(rangeStop, 'yyyy-MM-dd\'T\'HH:mm'),
         serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
         spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
         units: 'Number',
@@ -738,11 +713,9 @@ describe('service metrics test suite', () => {
     expect(response.download).toBeDefined();
     expect(response.download!.name).toMatch(/elasticsearch-metrics.*\.csv/);
     expect(response.download!.data).toMatch(/Service,Instance,Time,Value/);
-    expect(response.download!.data).toMatch(
-      new RegExp(
-        `elasticsearch,00[1-2],${rangeStart.format('YYYY-MM-DD[T]HH:mm')},\\d+`,
-      ),
-    );
+    expect(response.download!.data).toMatch(/elasticsearch,00[1-2]/);
+    expect(response.download!.data).toMatch(format(rangeStart, 'yyyy-MM-dd\'T\'HH:mm'));
+    expect(response.download!.data).toMatch(/,\d+/);
 
     const lines = response.download!.data.split('\n');
 
@@ -750,7 +723,7 @@ describe('service metrics test suite', () => {
 
     const [{}, first, ...{}] = lines;
     const [{}, {}, firstDate, {}] = first.split(',');
-    expect(moment(firstDate).diff(rangeStart)).toBeLessThanOrEqual(60 * 1000);
+    expect(differenceInSeconds(new Date(firstDate), rangeStart)).toBeLessThanOrEqual(60);
   });
 
   it('should fail to download csv if no data returned from prometheus', async () => {
@@ -776,10 +749,8 @@ describe('service metrics test suite', () => {
         {
           metric: 'diskUsed',
           organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-          rangeStart: moment()
-            .subtract(1, 'hour')
-            .format('YYYY-MM-DD[T]HH:mm'),
-          rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+          rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+          rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
           serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
           spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
           units: 'Bytes',
@@ -804,10 +775,8 @@ describe('service metrics test suite', () => {
         {
           metric: 'mFreeStorageSpace',
           organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-          rangeStart: moment()
-            .subtract(1, 'hour')
-            .format('YYYY-MM-DD[T]HH:mm'),
-          rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+          rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+          rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
           serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
           spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
           units: 'Bytes',
@@ -853,10 +822,8 @@ describe('service metrics test suite', () => {
         {
           metric: 'aMetric',
           organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-          rangeStart: moment()
-            .subtract(1, 'hour')
-            .format('YYYY-MM-DD[T]HH:mm'),
-          rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+          rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+          rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
           serviceGUID: '0d632575-bb06-4ea5-bb19-a451a9644d92',
           spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
           units: 'aUnit',
@@ -877,10 +844,8 @@ describe('service metrics test suite', () => {
         {
           metric: 'aMetric',
           organizationGUID: '6e1ca5aa-55f1-4110-a97f-1f3473e771b9',
-          rangeStart: moment()
-            .subtract(1, 'hour')
-            .format('YYYY-MM-DD[T]HH:mm'),
-          rangeStop: moment().format('YYYY-MM-DD[T]HH:mm'),
+          rangeStart: format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'),
+          rangeStop: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
           serviceGUID: userProvidedServiceGUID,
           spaceGUID: '38511660-89d9-4a6e-a889-c32c7e94f139',
           units: 'aUnit',
@@ -907,69 +872,113 @@ describe(isNumeric, () => {
 });
 
 
-describe(sanitiseMomentInput, () => {
+describe(objectToDate, () => {
+  it('should parse desired date', () => {
+    const date = objectToDate({ day: 15, hour: 13, minute: 45, month: 1, second: 0, year: 2021 });
+
+    expect(formatISO(date)).toEqual('2021-01-15T13:45:00Z');
+  });
+
+  it('should get current time if invalid day provided', () => {
+    const now = new Date();
+    const date = objectToDate({ day: 32, hour: 13, minute: 45, month: 1, second: 0, year: 2021 });
+
+    expect(formatISO(date)).toEqual(formatISO(now));
+  });
+
+  it('should get current time if invalid month provided', () => {
+    const now = new Date();
+    const date = objectToDate({ day: 15, hour: 13, minute: 45, month: 13, second: 0, year: 2021 });
+
+    expect(formatISO(date)).toEqual(formatISO(now));
+  });
+
+  it('should get current time if invalid hour provided', () => {
+    const now = new Date();
+    const date = objectToDate({ day: 15, hour: 25, minute: 45, month: 1, second: 0, year: 2021 });
+
+    expect(formatISO(date)).toEqual(formatISO(now));
+  });
+
+  it('should get current time if invalid minute provided', () => {
+    const now = new Date();
+    const date = objectToDate({ day: 15, hour: 13, minute: 63, month: 1, second: 0, year: 2021 });
+
+    expect(formatISO(date)).toEqual(formatISO(now));
+  });
+
+  it('should get current time if invalid second provided', () => {
+    const now = new Date();
+    const date = objectToDate({ day: 15, hour: 13, minute: 45, month: 1, second: 72, year: 2021 });
+
+    expect(formatISO(date)).toEqual(formatISO(now));
+  });
+
   it('should populate values with today\'s date-time if input values are missing', () => {
-    const userInput = sanitiseMomentInput(
-      { day: undefined, month: undefined, year: undefined, hour: undefined, minute: undefined },
-    )
-    const currentDay = Number(moment().format('DD'))
-    const currentMonth = Number(moment().format('MM')) - 1  // momentjs months are Zero-based
-    const currentYear = Number(moment().format('YYYY'))
-    const currentHour = Number(moment().format('HH'))
-    const currentMinute = Number(moment().format('mm'))
-    expect(userInput.day).toEqual(currentDay);
-    expect(userInput.month).toEqual(currentMonth);
-    expect(userInput.year).toEqual(currentYear);
-    expect(userInput.hour).toEqual(currentHour);
-    expect(userInput.minute).toEqual(currentMinute);
+    const userInput = objectToDate({
+      day: undefined,
+      hour: undefined,
+      minute: undefined,
+      month: undefined,
+      year: undefined,
+    });
+
+    const now = new Date();
+    const currentDay = now.getDate();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    expect(userInput.getDate()).toEqual(currentDay);
+    expect(userInput.getMonth()).toEqual(currentMonth);
+    expect(userInput.getFullYear()).toEqual(currentYear);
+    expect(userInput.getHours()).toEqual(currentHour);
+    expect(userInput.getMinutes()).toEqual(currentMinute);
   });
 });
 
 describe(parseRange, () => {
   it('should do nothing if user hasn\'t submitted anything', () => {
+    const defaultRange = parseRange('2220-09-13T14:25', '2220-09-14T15:25');
 
-    const defaultRange = parseRange('2220-09-13T14:25', '2220-09-14T15:25')
-    expect((defaultRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(moment('2220-09-13T14:25').format('YYYY-MM-DD[T]HH:mm'));
-    expect((defaultRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(moment('2220-09-14T15:25').format('YYYY-MM-DD[T]HH:mm'));
+    expect(format(defaultRange.rangeStart, 'yyyy-MM-dd\'T\'HH:mm'))
+      .toEqual(format(new Date('2220-09-13T14:25'), 'yyyy-MM-dd\'T\'HH:mm'));
+    expect(format(defaultRange.rangeStop, 'yyyy-MM-dd\'T\'HH:mm'))
+      .toEqual(format(new Date('2220-09-14T15:25'), 'yyyy-MM-dd\'T\'HH:mm'));
 
   });
+
   it('should return a sanitized user input', () => {
+    const userStartInput = { day: 13, hour: 14, minute: 25, month: 9, year: 2220 };
+    const userStopInput = { day: 14, hour: 15, minute: 25, month: 9, year: 2220 };
 
-    const userStartInput = { day: 13, month: 9 , year: 2220, hour: 14, minute: 25 }
-    const userStopInput = { day: 14, month: 9 , year: 2220, hour: 15, minute: 25 }
-    
-    const userEnteredRange = parseRange(userStartInput, userStopInput)
-    expect((userEnteredRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(moment(userStartInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm')); 
-    expect((userEnteredRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(moment(userStopInput).subtract('1','month').format('YYYY-MM-DD[T]HH:mm'));
-    // momentjs months are Zero-based hence the subtraction
+    const userEnteredRange = parseRange(userStartInput, userStopInput);
+
+    expect(format(userEnteredRange.rangeStart, 'yyyy-MM-dd\'T\'HH:mm'))
+      .toEqual(format(objectToDate(userStartInput), 'yyyy-MM-dd\'T\'HH:mm'));
+    expect(format(userEnteredRange.rangeStop, 'yyyy-MM-dd\'T\'HH:mm'))
+      .toEqual(format(objectToDate(userStopInput), 'yyyy-MM-dd\'T\'HH:mm'));
   });
 
+  it('should use current date-time values if user-entered values are not a valid date', () => {
+    const today = new Date();
+    const userStartInput = { day: 13, hour: 14, minute: 25, month: 13, year: today.getFullYear() };
+    const userStopInput = { day: 14, hour: 15, minute: 25, month: 13, year: today.getFullYear() };
 
-  it('should use current\' date-time values if user-entered values are not a valid date', () => {
+    const userEnteredRange = parseRange(userStartInput, userStopInput);
 
-    const userStartInput = { day: 13, month: 13 , year: 2019, hour: 14, minute: 25 }
-    const userStopInput = { day: 14, month: 13 , year: 2020, hour: 15, minute: 25 }
-    const today = moment()
-    
-    const userEnteredRange = parseRange(userStartInput, userStopInput)
-    expect((userEnteredRange.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(today.format('YYYY-MM-DD[T]HH:mm')); 
-    expect((userEnteredRange.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(today.format('YYYY-MM-DD[T]HH:mm'));
+    expect(format(userEnteredRange.rangeStart, 'yyyy-MM-dd\'T\'HH:mm')).toEqual(format(today, 'yyyy-MM-dd\'T\'HH:mm'));
+    expect(format(userEnteredRange.rangeStop, 'yyyy-MM-dd\'T\'HH:mm')).toEqual(format(today, 'yyyy-MM-dd\'T\'HH:mm'));
   });
 
   it('should use current datetime and current datetime minus 1 hour if stop date is before start date', () => {
-    
-    const rangeStartBeforeStop = parseRange('2020-11-01T14:25', '2020-09-01T15:25')
+    const rangeStartBeforeStop = parseRange('2020-11-01T14:25', '2020-09-01T15:25');
 
-    expect((rangeStartBeforeStop.rangeStart).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(moment().subtract(1,'hour').format('YYYY-MM-DD[T]HH:mm')); 
-    expect((rangeStartBeforeStop.rangeStop).format('YYYY-MM-DD[T]HH:mm'))
-      .toEqual(moment().format('YYYY-MM-DD[T]HH:mm')); 
+    expect(format(rangeStartBeforeStop.rangeStart, 'yyyy-MM-dd\'T\'HH:mm'))
+      .toEqual(format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'));
+    expect(format(rangeStartBeforeStop.rangeStop, 'yyyy-MM-dd\'T\'HH:mm'))
+      .toEqual(format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'));
   });
 });
 

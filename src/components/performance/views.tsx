@@ -1,3 +1,4 @@
+import { add, Duration, formatDistance } from 'date-fns';
 import React, { ReactElement, ReactNode } from 'react';
 
 import { IMetricSerie } from '../../lib/metrics';
@@ -25,7 +26,7 @@ interface IMetricPageProperties {
   readonly applicationCount?: ReadonlyArray<IMetricSerie>;
   readonly linkTo: RouteLinker;
   readonly organizations?: ReadonlyArray<IMetricSerie>;
-  readonly period: moment.Duration;
+  readonly period: Duration;
   readonly region: string;
   readonly serviceCount?: ReadonlyArray<IMetricSerie>;
   readonly uptime?: number;
@@ -81,7 +82,7 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
 
         <p className="govuk-body">
           Each point on the charts is aggregated data over {}
-          <strong className="non-breaking">{props.period.humanize()}</strong>.
+          <strong className="non-breaking">{formatDistance(new Date(), add(new Date(), props.period))}</strong>.
           Each chart shows 1 year of data.
         </p>
 
@@ -143,12 +144,18 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
               </div>
             </Metric>
             <table className="govuk-table">
-              <caption className="govuk-table__caption govuk-table__caption--m govuk-visually-hidden">Maximum number of billable and trial organisations per month previously</caption>
+              <caption className="govuk-table__caption govuk-table__caption--m govuk-visually-hidden">
+                Maximum number of billable and trial organisations per month previously
+              </caption>
               <thead className="govuk-table__head">
                 <tr className="govuk-table__row">
                   <th scope="col" className="govuk-table__header govuk-!-width-one-third">Month</th>
-                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">Maximum number of billable organisations per month</th>
-                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">Maximum number of trial organisations per month</th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">
+                    Maximum number of billable organisations per month
+                  </th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">
+                    Maximum number of trial organisations per month
+                  </th>
                 </tr>
               </thead>
               <tbody className="govuk-table__body">
@@ -189,11 +196,15 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
               </div>
             </Metric>
             <table className="govuk-table">
-              <caption className="govuk-table__caption govuk-table__caption--m govuk-visually-hidden">Maximum number of running applications per month previously</caption>
+              <caption className="govuk-table__caption govuk-table__caption--m govuk-visually-hidden">
+                Maximum number of running applications per month previously
+              </caption>
               <thead className="govuk-table__head">
                 <tr className="govuk-table__row">
                   <th scope="col" className="govuk-table__header">Month</th>
-                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">Maximum number of running applications per month</th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">
+                    Maximum number of running applications per month
+                  </th>
                 </tr>
               </thead>
               <tbody className="govuk-table__body">
@@ -234,11 +245,15 @@ export function MetricPage(props: IMetricPageProperties): ReactElement {
               </div>
             </Metric>
             <table className="govuk-table">
-              <caption className="govuk-table__caption govuk-table__caption--m govuk-visually-hidden">Maximum number of backing services per month previously</caption>
+              <caption className="govuk-table__caption govuk-table__caption--m govuk-visually-hidden">
+                Maximum number of backing services per month previously
+              </caption>
               <thead className="govuk-table__head">
                 <tr className="govuk-table__row">
                   <th scope="col" className="govuk-table__header">Month</th>
-                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">Maximum number of backing services per month</th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">
+                    Maximum number of backing services per month
+                  </th>
                 </tr>
               </thead>
               <tbody className="govuk-table__body">

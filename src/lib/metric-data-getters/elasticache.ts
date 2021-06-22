@@ -1,9 +1,9 @@
 
 import * as cw from '@aws-sdk/client-cloudwatch-node';
 import base32Encode from 'base32-encode'; // eslint-disable-line import/default
+import { Duration, milliseconds, millisecondsToSeconds } from 'date-fns';
 import fnv from 'fnv-plus';
 import _ from 'lodash';
-import moment from 'moment';
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
 
@@ -77,9 +77,9 @@ export class ElastiCacheMetricDataGetter extends CloudWatchMetricDataGetter
   public async getData(
     metricNames: ReadonlyArray<MetricName>,
     guid: string,
-    period: moment.Duration,
-    rangeStart: moment.Moment,
-    rangeStop: moment.Moment,
+    period: Duration,
+    rangeStart: Date,
+    rangeStop: Date,
   ): Promise<{ [key in MetricName]: ReadonlyArray<IMetricSerie> }> {
     const replicationGroupId = this.getElasticacheReplicationGroupId(guid);
 
@@ -93,15 +93,15 @@ export class ElastiCacheMetricDataGetter extends CloudWatchMetricDataGetter
         const metricDimension = elasticacheMetricPropertiesById[metricId];
         const expression = `SEARCH('{AWS/ElastiCache,CacheClusterId} MetricName="${
           metricDimension.name
-        }" AND ${replicationGroupId}', 'Average', ${period.asSeconds()})`;
+        }" AND ${replicationGroupId}', 'Average', ${millisecondsToSeconds(milliseconds(period))})`;
 
         return {
           Expression: expression,
           Id: metricId,
         };
       }),
-      StartTime: rangeStart.toDate(),
-      EndTime: rangeStop.toDate(),
+      StartTime: rangeStart,
+      EndTime: rangeStop,
     }));
 
     const responses = await Promise.all(

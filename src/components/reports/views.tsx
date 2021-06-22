@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { format, formatDistance } from 'date-fns';
 import React, { ReactElement } from 'react';
 
 import { DATE } from '../../layouts';
@@ -150,7 +150,10 @@ export function OrganizationsReport(
                     organizationGUID: organization.guid,
                   })}
                   className="govuk-link"
-                  aria-label={`Organisation name: ${organization.name}${organization.suspended? ', status: suspended':''}`}
+                  aria-label={`Organisation name: ${organization.name}${organization.suspended
+                    ? ', status: suspended'
+                    :''
+                  }`}
                 >
                   {organization.name}
                 </a>
@@ -172,13 +175,13 @@ export function OrganizationsReport(
                 }
               </td>
               <td className="govuk-table__cell">
-                {moment(organization.created_at).format(DATE)}
+                {format(new Date(organization.created_at), DATE)}
               </td>
               <td className="govuk-table__cell">
                 {new Date() > props.orgTrialExpirys[organization.guid]
                   ? 'Expired'
                   : 'Expires'}{' '}
-                {moment(props.orgTrialExpirys[organization.guid]).fromNow()}
+                {formatDistance(new Date(props.orgTrialExpirys[organization.guid]), new Date(), { addSuffix: true })}
               </td>
             </tr>
           ))}
@@ -233,10 +236,10 @@ export function OrganizationsReport(
                 }
               </td>
               <td className="govuk-table__cell">
-                {moment(organization.created_at).format(DATE)}
+                {format(new Date(organization.created_at), DATE)}
               </td>
               <td className="govuk-table__cell">
-                Created {moment(organization.created_at).fromNow()}
+                Created {formatDistance(new Date(organization.created_at), new Date(), { addSuffix: true })}
               </td>
             </tr>
           ))}

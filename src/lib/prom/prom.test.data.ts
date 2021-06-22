@@ -6,9 +6,7 @@ export function getStubPrometheusMetricsSeriesData(
   instances: ReadonlyArray<string>,
 ): string {
   return JSON.stringify({
-    status: 'success',
     data: {
-      resultType: 'series',
       result: instances.map(instance => {
         const { timestamps, values } = getGappyRandomData();
 
@@ -17,6 +15,8 @@ export function getStubPrometheusMetricsSeriesData(
           values: _.zip(timestamps, values),
         };
       }),
+      resultType: 'series',
     },
+    status: 'success',
   });
 }

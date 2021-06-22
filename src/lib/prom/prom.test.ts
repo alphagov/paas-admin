@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { sub } from 'date-fns';
 import nock from 'nock';
 import pino from 'pino';
 
@@ -6,9 +6,9 @@ import PromClient from '.';
 
 const config = {
   apiEndpoint: 'https://example.com/prom',
-  username: 'jeff',
-  password: 'J3ff3rs0n!',
   logger: pino({ level: 'silent' }),
+  password: 'J3ff3rs0n!',
+  username: 'jeff',
 };
 
 describe('lib/prom test suite', () => {
@@ -56,19 +56,18 @@ describe('lib/prom test suite', () => {
 
   it('should getValue successfully', async () => {
     nockPrometheus.get(/api.v1.query\??/).reply(200, {
-      status: 'success',
       data: {
         result: [
           {
             value: [
-              moment()
-                .toDate()
+              (new Date())
                 .getTime() / 1000,
               `${Math.random() * 100}`,
             ],
           },
         ],
       },
+      status: 'success',
     });
 
     const client = new PromClient(
@@ -86,8 +85,8 @@ describe('lib/prom test suite', () => {
 
   it('should fail to getValue when invalid query has been provided', async () => {
     nockPrometheus.get(/api.v1.query\??/).reply(200, {
-      status: 'success',
       data: { result: [] },
+      status: 'success',
     });
 
     const client = new PromClient(
@@ -103,7 +102,6 @@ describe('lib/prom test suite', () => {
 
   it('should getSeries successfully', async () => {
     nockPrometheus.get(/api.v1.query_range\??/).reply(200, {
-      status: 'success',
       data: {
         result: [
           {
@@ -112,26 +110,22 @@ describe('lib/prom test suite', () => {
             },
             values: [
               [
-                moment()
-                  .toDate()
+                (new Date())
                   .getTime() / 1000,
                 `${Math.random() * 100}`,
               ],
               [
-                moment()
-                  .toDate()
+                (new Date())
                   .getTime() / 1000,
                 `${Math.random() * 100}`,
               ],
               [
-                moment()
-                  .toDate()
+                (new Date())
                   .getTime() / 1000,
                 `${Math.random() * 100}`,
               ],
               [
-                moment()
-                  .toDate()
+                (new Date())
                   .getTime() / 1000,
                 `${Math.random() * 100}`,
               ],
@@ -143,26 +137,22 @@ describe('lib/prom test suite', () => {
             },
             values: [
               [
-                moment()
-                  .toDate()
+                (new Date())
                   .getTime() / 1000,
                 `${Math.random() * 100}`,
               ],
               [
-                moment()
-                  .toDate()
+                (new Date())
                   .getTime() / 1000,
                 `${Math.random() * 100}`,
               ],
               [
-                moment()
-                  .toDate()
+                (new Date())
                   .getTime() / 1000,
                 `${Math.random() * 100}`,
               ],
               [
-                moment()
-                  .toDate()
+                (new Date())
                   .getTime() / 1000,
                 `${Math.random() * 100}`,
               ],
@@ -170,6 +160,7 @@ describe('lib/prom test suite', () => {
           },
         ],
       },
+      status: 'success',
     });
 
     const client = new PromClient(
@@ -181,10 +172,8 @@ describe('lib/prom test suite', () => {
     const series = await client.getSeries(
       'http_response_2xx',
       10,
-      moment()
-        .subtract(1, 'day')
-        .toDate(),
-      moment().toDate(),
+      sub(new Date(), { days: 1 }),
+      new Date(),
     );
 
     expect(series).toBeDefined();
@@ -194,10 +183,10 @@ describe('lib/prom test suite', () => {
 
   it('should fail to getSeries when invalid query has been provided', async () => {
     nockPrometheus.get(/api.v1.query_range\??/).reply(200, {
-      status: 'success',
       data: {
         result: [],
       },
+      status: 'success',
     });
 
     const client = new PromClient(
@@ -209,10 +198,8 @@ describe('lib/prom test suite', () => {
     const series = await client.getSeries(
       'http_response_5xx',
       10,
-      moment()
-        .subtract(1, 'day')
-        .toDate(),
-      moment().toDate(),
+      sub(new Date(), { days: 1 }),
+      new Date(),
     );
 
     expect(series).toBeUndefined();

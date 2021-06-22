@@ -1,11 +1,11 @@
+import { format } from 'date-fns';
 import lodash from 'lodash';
-import moment from 'moment';
 import nock from 'nock';
 
 import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as data from '../../lib/cf/cf.test.data';
-import { auditEvent as defaultAuditEvent, auditEventForAutoscaler } from '../../lib/cf/test-data/audit-event';
+import { auditEventForAutoscaler, auditEvent as defaultAuditEvent } from '../../lib/cf/test-data/audit-event';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import { wrapV3Resources } from '../../lib/cf/test-data/wrap-resources';
 import { createTestContext } from '../app/app.test-helpers';
@@ -55,10 +55,10 @@ describe('service event', () => {
   it('should show an event', async () => {
     const event = defaultAuditEvent();
     nockCF
-      .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+      .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
       .reply(200, data.serviceInstance)
 
-      .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+      .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
       .reply(200, data.serviceString)
 
       .get(`/v3/audit_events/${event.guid}`)
@@ -74,7 +74,7 @@ describe('service event', () => {
     expect(response.body).toContain('Service name-1508 Event details');
 
     expect(response.body).toContain(
-      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+      /* DateTime    */ format(new Date(event.updated_at), DATE_TIME),
     );
     expect(response.body).toContain(/* Actor       */ 'admin');
     expect(response.body).toContain(/* Description */ 'Updated application');
@@ -87,10 +87,10 @@ describe('service event', () => {
   it('should show the email of the event actor if it is a user with an email', async () => {
     const event = defaultAuditEvent();
     nockCF
-      .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+      .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
       .reply(200, data.serviceInstance)
 
-      .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+      .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
       .reply(200, data.serviceString)
 
       .get(`/v3/audit_events/${event.guid}`)
@@ -115,7 +115,7 @@ describe('service event', () => {
     expect(response.body).toContain('Service name-1508 Event details');
 
     expect(response.body).toContain(
-      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+      /* DateTime    */ format(new Date(event.updated_at), DATE_TIME),
     );
     expect(response.body).toContain(/* Actor       */ 'one@user.in.database');
     expect(response.body).toContain(/* Description */ 'Updated application');
@@ -128,10 +128,10 @@ describe('service event', () => {
   it('should show the name event actor if it is not a user', async () => {
     const event = defaultAuditEvent();
       nockCF
-        .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+        .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
         .reply(200, data.serviceInstance)
 
-        .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+        .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
         .reply(200, data.serviceString)
 
         .get(`/v3/audit_events/${event.guid}`)
@@ -154,7 +154,7 @@ describe('service event', () => {
     expect(response.body).toContain('Service name-1508 Event details');
 
     expect(response.body).toContain(
-      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+      /* DateTime    */ format(new Date(event.updated_at), DATE_TIME),
     );
     expect(response.body).toContain(/* Actor       */ 'unknown-actor');
     expect(response.body).toContain(/* Description */ 'Updated application');
@@ -167,10 +167,10 @@ describe('service event', () => {
   it('should show the GUID of the event actor if it is not a UUID', async () => {
     const event = defaultAuditEvent();
       nockCF
-        .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+        .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
         .reply(200, data.serviceInstance)
 
-        .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+        .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
         .reply(200, data.serviceString)
 
         .get(`/v3/audit_events/${event.guid}`)
@@ -219,8 +219,8 @@ describe('service events', () => {
   afterEach(() => {
     nockAccounts.done();
     nockCF.on('response', () => {
-  nockCF.done()
-});
+    nockCF.done();
+  });
 
     nock.cleanAll();
   });
@@ -228,10 +228,10 @@ describe('service events', () => {
   describe('when there are no audit events to display', () => {
     beforeEach(() => {
       nockCF
-        .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+        .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
         .reply(200, data.serviceInstance)
 
-        .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+        .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
         .reply(200, data.serviceString)
 
         .get(`/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`)
@@ -265,10 +265,10 @@ describe('service events', () => {
   describe('when there are some audit events to display', () => {
     beforeEach(() => {
       nockCF
-        .get(`/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`)
+        .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
         .reply(200, data.serviceInstance)
 
-        .get(`/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`)
+        .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
         .reply(200, data.serviceString)
 
         .get(`/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`)
@@ -392,8 +392,8 @@ describe('service event - CUPS', () => {
   afterEach(() => {
     nockAccounts.done();
     nockCF.on('response', () => {
-  nockCF.done()
-});
+    nockCF.done();
+  });
 
     nock.cleanAll();
   });
@@ -428,7 +428,7 @@ describe('service event - CUPS', () => {
   it('should show an event for CUPS', async () => {
     const event = defaultAuditEvent();
     nockCF
-      .get(`/v3/audit_events/a595fe2f-01ff-4965-a50c-290258ab8582`)
+      .get('/v3/audit_events/a595fe2f-01ff-4965-a50c-290258ab8582')
       .reply(200, JSON.stringify(event));
 
     const response = await viewServiceEvent(ctx, {
@@ -441,7 +441,7 @@ describe('service event - CUPS', () => {
     expect(response.body).toContain('Service name-1508 Event details');
 
     expect(response.body).toContain(
-      /* DateTime    */ moment(event.updated_at).format(DATE_TIME),
+      /* DateTime    */ format(new Date(event.updated_at), DATE_TIME),
     );
     expect(response.body).toContain(/* Actor       */ 'admin');
     expect(response.body).toContain(/* Description */ 'Updated application');

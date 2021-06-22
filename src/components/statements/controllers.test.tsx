@@ -1,5 +1,5 @@
+import { format, startOfMonth } from 'date-fns';
 import jwt from 'jsonwebtoken';
-import moment from 'moment';
 import nock from 'nock';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
@@ -243,12 +243,12 @@ describe('statements test suite', () => {
       .reply(200, JSON.stringify(defaultOrg()));
 
     const response = await statement.viewStatement(ctx, {
+      order: 'desc',
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       rangeStart: '2018-01-01',
       service: 'f4d4b95a-f55e-4593-8d54-3364c25798c4',
-      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
       sort: 'amount',
-      order: 'desc',
+      space: 'bc8d3381-390d-4bd7-8c71-25309900a2e3',
     });
 
     expect(response.body).toContain('sorted by Inc VAT column');
@@ -405,9 +405,7 @@ describe('statements test suite', () => {
     const response = await statement.statementRedirection(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
     });
-    const currentMonth = moment()
-      .startOf('month')
-      .format('YYYY-MM-DD');
+    const currentMonth = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
     expect(response.redirect).toContain(`/${currentMonth}`);
   });

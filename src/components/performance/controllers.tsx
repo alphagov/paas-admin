@@ -1,5 +1,5 @@
 import axios from 'axios';
-import moment from 'moment';
+import { formatISO } from 'date-fns';
 import React from 'react';
 
 import { Template } from '../../layouts';
@@ -13,7 +13,7 @@ import { MetricPage } from './views';
 export function formatDate(input:Date, options?: Record<string, unknown>): string {
   const opts = typeof options === 'undefined' ? { month: 'long', year: 'numeric' } : options;
 
-return new Intl.DateTimeFormat('en-GB', opts).format(new Date(input));
+  return new Intl.DateTimeFormat('en-GB', opts).format(new Date(input));
 }
 
 function extractData(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArray<ReadonlyArray<string>> {
@@ -21,45 +21,48 @@ function extractData(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArr
   const metrics = (data || defaultData)[0].metrics;
 
   return metrics.map(metric => [
-    moment(metric.date).format('YYYY-MM-DD[T]HH:mm'),
+    formatISO(new Date(metric.date)),
     metric.value.toString(),
   ]);
 }
 
-export function exportMaxPerMonthDataValues(data: IMetricSerie  ) {
+export function exportMaxPerMonthDataValues(data: IMetricSerie): ReadonlyArray<IMetric> {
   const metrics = data.metrics;
 
-return metrics.concat() // so that we con't modify the original array
+return [...metrics.concat() // so that we con't modify the original array
     // 1. sort by value property so we get highest entry in each month to the highest index in array
     .sort((a, b) => b.value - a.value)
     // 2. remove any duplicates for given month, as we've already brought the needed values to the top of array
     // we're using actual month+year name as values are weekly in datetiem format
-    .reduce((acc: Array<any>, current: { readonly date: Date; }) => {
-      const entry = acc.find((item: { readonly date: Date; }) => formatDate(item.date) === formatDate(current.date));
+    .reduce((acc: ReadonlyArray<IMetric>, current: IMetric) => {
+      const entry = acc.find((item: IMetric) => formatDate(item.date) === formatDate(current.date));
       // filter out current month
       const currentMonth = formatDate(new Date());
-      if (!entry && formatDate(current.date) !== currentMonth) {
-        return acc.concat([current]);
-      } else {
-        return acc;
-      }
-    }, [])
+
+      return (!entry && formatDate(current.date) !== currentMonth) ? acc.concat([current]) : acc;
+    }, [])]
     // 3. once we only have one entry per month, let's sort the months back to ascending order
-    .sort((a: { date: { getTime: () => number; }; }, b: { date: { getTime: () => number; }; }) => a.date.getTime() - b.date.getTime());
+    .sort((a: IMetric, b: IMetric) => a.date.getTime() - b.date.getTime());
 }
 
-export function combineMetrics(array1: IMetricSerie, array2: IMetricSerie ) {
+interface ICombinedMetrics {
+  readonly billable: number;
+  readonly date: string;
+  readonly trial: number;
+}
+
+export function combineMetrics(array1: IMetricSerie, array2: IMetricSerie): ReadonlyArray<ICombinedMetrics> {
   const filteredArray1 = [...exportMaxPerMonthDataValues(array1)];
   const filteredArray2 = [...exportMaxPerMonthDataValues(array2)];
   // as we've already picked out the max value for each month, we're not concerned about individual datetime stamps -
   // both of them belong to the same month
   const combinedArray = filteredArray1.map((metric, index) => ({
-    date: formatDate(metric.date),
     billable: metric.value,
+    date: formatDate(metric.date),
     trial: filteredArray2[index].value,
   }));
 
-return combinedArray;
+  return combinedArray;
 }
 
 function extractOrgData(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArray<ReadonlyArray<string>> {
@@ -68,7 +71,7 @@ function extractOrgData(data: ReadonlyArray<IMetricSerie> | undefined): Readonly
   const trial = (data || defaultData)[1].metrics;
 
   return billable.map((metric, index) => [
-    moment(metric.date).format('YYYY-MM-DD[T]HH:mm'),
+    formatISO(new Date(metric.date)),
     metric.value.toString(),
     trial[index].value.toString(),
   ]);

@@ -4,13 +4,13 @@ import React from 'react';
 
 import { IService, IServiceInstance, IServicePlan } from '../../lib/cf/types';
 
-import { ServicePage, ServiceTab, ServiceLogsPage } from './views';
+import { ServiceLogsPage, ServicePage, ServiceTab } from './views';
 
 describe(ServiceTab, () => {
   it('should produce service tab', () => {
     const service = ({
-      metadata: { guid: 'SERVICE_GUID' },
       entity: { name: 'service-name' },
+      metadata: { guid: 'SERVICE_GUID' },
       service: { entity: { label: 'postgres' } },
     } as unknown) as IServiceInstance;
     const markup = shallow(
@@ -21,6 +21,7 @@ describe(ServiceTab, () => {
           route === 'admin.organizations.spaces.services.view'
         }
         organizationGUID="ORG_GUID"
+        pageTitle="test"
         spaceGUID="SPACE_GUID"
       >
         <p>TEST</p>
@@ -46,8 +47,8 @@ describe(ServiceTab, () => {
 
   it('should produce service tab without logs tab', () => {
     const service = ({
-      metadata: { guid: 'SERVICE_GUID' },
       entity: { name: 'service-name', type: 'not-approved' },
+      metadata: { guid: 'SERVICE_GUID' },
     } as unknown) as IServiceInstance;
 
     const markup = shallow(
@@ -58,6 +59,7 @@ describe(ServiceTab, () => {
           route === 'admin.organizations.spaces.services.view'
         }
         organizationGUID="ORG_GUID"
+        pageTitle="test"
         spaceGUID="SPACE_GUID"
       >
         <p>TEST</p>
@@ -69,7 +71,8 @@ describe(ServiceTab, () => {
     expect($('section.govuk-tabs__panel').text()).toEqual('TEST');
     expect($('ul li:first-of-type a').prop('href')).toEqual('__LINKS_TO__admin.organizations.spaces.services.view');
     expect($('ul li:first-of-type').hasClass('govuk-tabs__list-item--selected')).toBe(true);
-    expect($('ul li:last-of-type a').prop('href')).not.toEqual('__LINKS_TO__admin.organizations.spaces.services.logs.view');
+    expect($('ul li:last-of-type a').prop('href'))
+      .not.toEqual('__LINKS_TO__admin.organizations.spaces.services.logs.view');
     expect($('ul li:last-of-type').hasClass('govuk-tabs__list-item--selected')).toBe(false);
   });
 });
@@ -77,29 +80,30 @@ describe(ServiceTab, () => {
 describe(ServicePage, () => {
   it('should not display default values', () => {
     const service = ({
-      metadata: { guid: 'SERVICE_GUID' },
       entity: {
         last_operation: { state: 'success' },
         name: 'service-name',
         tags: [],
       },
+      metadata: { guid: 'SERVICE_GUID' },
     } as unknown) as IServiceInstance;
     const markup = shallow(
       <ServicePage
         service={{
           ...service,
-          service_plan: ({
-            entity: { name: 'service-plan-name' },
-          } as unknown) as IServicePlan,
           service: ({
             entity: { label: 'service-label' },
           } as unknown) as IService,
+          service_plan: ({
+            entity: { name: 'service-plan-name' },
+          } as unknown) as IServicePlan,
         }}
         linkTo={route => `__LINKS_TO__${route}`}
         routePartOf={route =>
           route === 'admin.organizations.spaces.services.view'
         }
         organizationGUID="ORG_GUID"
+        pageTitle="test"
         spaceGUID="SPACE_GUID"
       />,
     );
@@ -111,8 +115,8 @@ describe(ServicePage, () => {
 
   it('should fallback to default values', () => {
     const service = ({
-      metadata: { guid: 'SERVICE_GUID' },
       entity: { name: 'service-name', tags: [] },
+      metadata: { guid: 'SERVICE_GUID' },
     } as unknown) as IServiceInstance;
     const markup = shallow(
       <ServicePage
@@ -122,6 +126,7 @@ describe(ServicePage, () => {
           route === 'admin.organizations.spaces.services.view'
         }
         organizationGUID="ORG_GUID"
+        pageTitle="test"
         spaceGUID="SPACE_GUID"
       />,
     );
@@ -150,6 +155,7 @@ describe(ServiceLogsPage, () => {
       linkTo={route => `__LINKS_TO__${route}`}
       routePartOf={route => route === 'admin.organizations.spaces.services.logs.view'}
       organizationGUID="ORG_GUID"
+      pageTitle="test"
       spaceGUID="SPACE_GUID"
     />);
 
@@ -175,6 +181,7 @@ describe(ServiceLogsPage, () => {
       linkTo={route => `__LINKS_TO__${route}`}
       routePartOf={route => route === 'admin.organizations.spaces.services.logs.view'}
       organizationGUID="ORG_GUID"
+      pageTitle="test"
       spaceGUID="SPACE_GUID"
     />);
 
