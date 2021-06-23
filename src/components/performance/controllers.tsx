@@ -10,7 +10,7 @@ import { IContext } from '../app';
 import { IScrapedData, period } from './scraper';
 import { MetricPage } from './views';
 
-export function formatDate(input:Date, options?: Record<string, unknown>): string {
+export function formatDate(input: Date, options?: Record<string, unknown>): string {
   const opts = typeof options === 'undefined' ? { month: 'long', year: 'numeric' } : options;
 
   return new Intl.DateTimeFormat('en-GB', opts).format(new Date(input));
@@ -29,7 +29,7 @@ function extractData(data: ReadonlyArray<IMetricSerie> | undefined): ReadonlyArr
 export function exportMaxPerMonthDataValues(data: IMetricSerie): ReadonlyArray<IMetric> {
   const metrics = data.metrics;
 
-return [...metrics.concat() // so that we con't modify the original array
+  return [...metrics.concat() // so that we con't modify the original array
     // 1. sort by value property so we get highest entry in each month to the highest index in array
     .sort((a, b) => b.value - a.value)
     // 2. remove any duplicates for given month, as we've already brought the needed values to the top of array
