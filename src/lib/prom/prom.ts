@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import { fromUnixTime } from 'date-fns';
 import { BaseLogger } from 'pino';
 
 import { intercept } from '../axios-logger/axios';
@@ -98,7 +99,7 @@ export default class PromClient {
       return {
         label: series.metric.instance,
         metrics: metrics.map(metric => {
-          const date = new Date(metric[0]);
+          const date = fromUnixTime(metric[0]);
           const value = parseFloat(metric[1] as string);
 
           return { date, value };

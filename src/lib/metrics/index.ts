@@ -1,4 +1,4 @@
-import { add, Duration, formatISO, sub } from 'date-fns';
+import { add, Duration, getUnixTime, sub } from 'date-fns';
 
 import roundDown from '../moment/round';
 
@@ -66,7 +66,7 @@ export function getGappyRandomData(): {
     ) {
       // do nothing - empty piece of the graph
     } else {
-      const timestamp = formatISO(add(startTime, { minutes: i }));
+      const timestamp = getUnixTime(add(startTime, { minutes: i }));
 
       let value = 0;
       if (values.length === 0) {
@@ -76,7 +76,7 @@ export function getGappyRandomData(): {
         value = value > 0 ? value : 0;
       }
 
-      timestamps.push(timestamp);
+      timestamps.push(`${timestamp}`);
       values.push(value);
     }
   }

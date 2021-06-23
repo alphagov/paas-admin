@@ -1,4 +1,4 @@
-import { sub } from 'date-fns';
+import { getUnixTime, sub } from 'date-fns';
 import nock from 'nock';
 import pino from 'pino';
 
@@ -101,6 +101,7 @@ describe('lib/prom test suite', () => {
   });
 
   it('should getSeries successfully', async () => {
+    const now = new Date();
     nockPrometheus.get(/api.v1.query_range\??/).reply(200, {
       data: {
         result: [
@@ -110,23 +111,19 @@ describe('lib/prom test suite', () => {
             },
             values: [
               [
-                (new Date())
-                  .getTime() / 1000,
+                getUnixTime(now),
                 `${Math.random() * 100}`,
               ],
               [
-                (new Date())
-                  .getTime() / 1000,
+                getUnixTime(now),
                 `${Math.random() * 100}`,
               ],
               [
-                (new Date())
-                  .getTime() / 1000,
+                getUnixTime(now),
                 `${Math.random() * 100}`,
               ],
               [
-                (new Date())
-                  .getTime() / 1000,
+                getUnixTime(now),
                 `${Math.random() * 100}`,
               ],
             ],
@@ -137,23 +134,19 @@ describe('lib/prom test suite', () => {
             },
             values: [
               [
-                (new Date())
-                  .getTime() / 1000,
+                getUnixTime(now),
                 `${Math.random() * 100}`,
               ],
               [
-                (new Date())
-                  .getTime() / 1000,
+                getUnixTime(now),
                 `${Math.random() * 100}`,
               ],
               [
-                (new Date())
-                  .getTime() / 1000,
+                getUnixTime(now),
                 `${Math.random() * 100}`,
               ],
               [
-                (new Date())
-                  .getTime() / 1000,
+                getUnixTime(now),
                 `${Math.random() * 100}`,
               ],
             ],
@@ -179,6 +172,8 @@ describe('lib/prom test suite', () => {
     expect(series).toBeDefined();
     expect(series!.length).toEqual(2);
     expect(series![0].metrics.length).toEqual(4);
+    expect(getUnixTime(series![0].metrics[0].date)).toEqual(getUnixTime(now));
+    expect(getUnixTime(series![0].metrics[1].date)).toEqual(getUnixTime(now));
   });
 
   it('should fail to getSeries when invalid query has been provided', async () => {

@@ -13,7 +13,6 @@ export const period: Duration = { weeks: 1 };
 export const timeAgo = sub(new Date(), { years: 1 });
 
 const delay = async (ms: number): Promise<object> => await new Promise(resolve => setTimeout(resolve, ms));
-const durationToSeconds = (duration: Duration): number => millisecondsToSeconds(milliseconds(duration));
 
 interface IConfig {
   readonly pingdom: {
@@ -105,7 +104,7 @@ export async function scrape(cfg: IConfig, logger: Logger): Promise<IScrapedData
   logger.info('Obtaining organizations data...');
   const organizations = await prometheus.getSeries(
     queries.organizations,
-    durationToSeconds(period),
+    millisecondsToSeconds(milliseconds(period)),
     timeAgo,
     now,
   );
@@ -119,7 +118,7 @@ export async function scrape(cfg: IConfig, logger: Logger): Promise<IScrapedData
   logger.info('Obtaining applications data...');
   const applicationCount = await prometheus.getSeries(
     queries.applicationCount,
-    durationToSeconds(period),
+    millisecondsToSeconds(milliseconds(period)),
     timeAgo,
     now,
   );
@@ -133,7 +132,7 @@ export async function scrape(cfg: IConfig, logger: Logger): Promise<IScrapedData
   logger.info('Obtaining services data...');
   const serviceCount = await prometheus.getSeries(
     queries.serviceCount,
-    durationToSeconds(period),
+    millisecondsToSeconds(milliseconds(period)),
     timeAgo,
     now,
   );
