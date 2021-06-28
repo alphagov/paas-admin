@@ -42,7 +42,7 @@
     "@types/d3-axis": "^2.1.0",
     "@types/d3-scale": "^3.3.0",
     "@types/d3-selection": "^2.0.0",
-    "@types/d3-shape": "^2.1.0",
+    "@types/d3-shape": "^3.0.0",
     "@types/enzyme": "^3.10.8",
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/eslint": "^7.2.13",
