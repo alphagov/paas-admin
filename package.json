@@ -84,7 +84,7 @@
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.0.0",
     "mocha": "^8.4.0",
-    "nock": "^13.1.0",
+    "nock": "^13.1.1",
     "nodemon-webpack-plugin": "^4.5.2",
     "pegjs": "^0.10.0",
     "pegjs-loader": "^0.5.6",
