@@ -37,7 +37,7 @@
     "@types/cheerio": "^0.22.29",
     "@types/compression": "^1.7.0",
     "@types/cookie-session": "^2.0.42",
-    "@types/csurf": "^1.11.1",
+    "@types/csurf": "^1.11.2",
     "@types/d3-array": "^3.0.1",
     "@types/d3-axis": "^3.0.1",
     "@types/d3-scale": "^4.0.1",
