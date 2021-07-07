@@ -50,7 +50,7 @@
     "@types/jest": "^26.0.24",
     "@types/jsdom": "^16.2.13",
     "@types/jsonwebtoken": "^8.5.4",
-    "@types/lodash": "^4.14.170",
+    "@types/lodash": "^4.14.171",
     "@types/node-jose": "^1.1.7",
     "@types/passport": "^1.0.6",
     "@types/passport-oauth2": "^1.4.10",
