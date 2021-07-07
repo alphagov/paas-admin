@@ -46,7 +46,7 @@
     "@types/enzyme": "^3.10.9",
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/eslint": "^7.2.14",
-    "@types/express": "^4.17.12",
+    "@types/express": "^4.17.13",
     "@types/jest": "^26.0.24",
     "@types/jsdom": "^16.2.13",
     "@types/jsonwebtoken": "^8.5.4",
