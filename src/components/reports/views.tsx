@@ -208,6 +208,7 @@ export function OrganizationsReport(
             <th className="govuk-table__header">Quota</th>
             <th className="govuk-table__header">Creation date</th>
             <th className="govuk-table__header">Time since creation</th>
+            <th className="govuk-table__header">Last update date</th>
           </tr>
         </thead>
         <tbody className="govuk-table__body">
@@ -240,6 +241,9 @@ export function OrganizationsReport(
               </td>
               <td className="govuk-table__cell">
                 Created {formatDistance(new Date(organization.created_at), new Date(), { addSuffix: true })}
+              </td>
+              <td className="govuk-table__cell">
+                {format(new Date(organization.updated_at), DATE)}
               </td>
             </tr>
           ))}
