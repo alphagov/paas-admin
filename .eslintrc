@@ -18,7 +18,6 @@
     "SharedArrayBuffer": "readonly"
   },
   "ignorePatterns": [
-    "acceptance-tests/",
     "config/",
     "coverage/",
     "dist/",
@@ -92,12 +91,14 @@
   "overrides": [
     {
       "files": [
+        "acceptance-tests/**/*.test.{ts,tsx,js,jsx}",
         "src/**/*.test.{ts,tsx,js,jsx}",
         "stub-api/**/*.{ts,tsx,js,jsx}"
       ],
       "rules": {
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-floating-promises": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "functional/functional-parameters": "off",
         "functional/no-let": "off",
