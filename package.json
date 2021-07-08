@@ -53,7 +53,7 @@
     "@types/lodash": "^4.14.171",
     "@types/node-jose": "^1.1.8",
     "@types/passport": "^1.0.6",
-    "@types/passport-oauth2": "^1.4.10",
+    "@types/passport-oauth2": "^1.4.11",
     "@types/pino": "^6.3.8",
     "@types/qs": "^6.9.7",
     "@types/react": "^17.0.13",
