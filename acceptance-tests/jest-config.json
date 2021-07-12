@@ -1,0 +1,11 @@
+{
+  "testEnvironment": "node",
+  "moduleFileExtensions": [
+    "ts",
+    "js",
+    "json"
+  ],
+  "testMatch": [
+    "<rootDir>/acceptance-tests/**/*.test.+(ts|tsx|js|jsx)"
+  ]
+}

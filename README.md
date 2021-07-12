@@ -71,6 +71,21 @@ Execute the unit tests to ensure everything looks good:
 npm test
 ```
 
+Executing the acceptance tests against dev environment:
+
+```sh
+export PAAS_ADMIN_BASE_URL=https://admin.${DEPLOY_ENV}.dev.cloudpipeline.digital
+export CF_API_BASE_URL=https://api.${DEPLOY_ENV}.dev.cloudpipeline.digital
+export ACCOUNTS_API_BASE_URL=https://accounts.${DEPLOY_ENV}.dev.cloudpipeline.digital
+export ACCOUNTS_USERNAME=admin
+export ACCOUNTS_PASSWORD= # get this value from credhub using `credhub get -n /concourse/main/create-cloudfoundry/paas_accounts_password`
+
+export ADMIN_USERNAME=admin
+export ADMIN_PASSWORD= # get this value from credhub using `credhub get -n /${DEPLOY_ENV}/${DEPLOY_ENV}/cf_admin_password`
+
+npm run test:acceptance
+```
+
 Start the server pointing at stubbed APIs
 
 ```sh
