@@ -14,7 +14,7 @@ export interface IRawToken {
 }
 
 export interface IViewContext {
-  readonly authenticated: boolean;
+  readonly authenticated?: boolean;
   readonly csrf: string;
   readonly location: string;
   readonly origin?: string;

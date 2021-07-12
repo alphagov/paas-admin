@@ -11,7 +11,7 @@ describe(StatementsPage, () => {
     resourceType: 'resource-type',
     orgGUID: 'org-guid',
     spaceGUID: 'space-guid',
-    spaceName: undefined,
+    spaceName: '',
     planGUID: 'plan-guid',
     planName: 'plan-name',
     price: {
@@ -42,6 +42,7 @@ describe(StatementsPage, () => {
         orderDirection="asc"
         linkTo={route => `__LINKS_TO__${route}`}
         organizationGUID="ORG_GUID"
+        organisationName="ORG_NAME"
         items={[
           {
             resourceGUID: 'resource-guid',
@@ -107,6 +108,7 @@ describe(StatementsPage, () => {
         orderDirection="desc"
         linkTo={route => `__LINKS_TO__${route}`}
         organizationGUID="ORG_GUID"
+        organisationName="ORG_NAME"
         items={[item]}
       />,
     );
@@ -142,6 +144,7 @@ describe(StatementsPage, () => {
         orderDirection="desc"
         linkTo={route => `__LINKS_TO__${route}`}
         organizationGUID="ORG_GUID"
+        organisationName="ORG_NAME"
         items={[item]}
       />,
     );
@@ -175,6 +178,7 @@ describe(StatementsPage, () => {
         orderDirection="desc"
         linkTo={route => `__LINKS_TO__${route}`}
         organizationGUID="ORG_GUID"
+        organisationName="ORG_NAME"
         items={[item]}
       />,
     );
@@ -207,6 +211,7 @@ describe(StatementsPage, () => {
         orderDirection="desc"
         linkTo={route => `__LINKS_TO__${route}`}
         organizationGUID="ORG_GUID"
+        organisationName="ORG_NAME"
         items={[]}
       />,
     );
@@ -239,6 +244,7 @@ describe(StatementsPage, () => {
           orderDirection="desc"
           linkTo={route => `__LINKS_TO__${route}`}
           organizationGUID="ORG_GUID"
+          organisationName="ORG_NAME"
           items={[
             {
               resourceGUID: 'resource-guid',
@@ -284,6 +290,7 @@ describe(StatementsPage, () => {
           orderDirection="asc"
           linkTo={route => `__LINKS_TO__${route}`}
           organizationGUID="ORG_GUID"
+          organisationName="ORG_NAME"
           items={[
             {
               resourceGUID: 'resource-guid',
@@ -329,6 +336,7 @@ describe(StatementsPage, () => {
           orderDirection="asc"
           linkTo={route => `__LINKS_TO__${route}`}
           organizationGUID="ORG_GUID"
+          organisationName="ORG_NAME"
           items={[
             {
               resourceGUID: 'resource-guid',
@@ -374,6 +382,7 @@ describe(StatementsPage, () => {
           orderDirection="asc"
           linkTo={route => `__LINKS_TO__${route}`}
           organizationGUID="ORG_GUID"
+          organisationName="ORG_NAME"
           items={[
             {
               resourceGUID: 'resource-guid',

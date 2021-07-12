@@ -341,7 +341,10 @@ function validateAdditionalUserEmail({ additional_users }: ISignupForm): Readonl
   return errors;
 }
 
-export async function SupportSelectionForm (ctx: IContext, _params: IParameters): Promise<IResponse> {
+export async function SupportSelectionForm (
+  ctx: IContext, 
+  _params: IParameters,
+): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Get support');
 
@@ -388,7 +391,10 @@ export async function HandleSupportSelectionFormPost (
   });
 }
 
-export async function SomethingWrongWithServiceForm (ctx: IContext): Promise<IResponse> {
+export async function SomethingWrongWithServiceForm (
+  ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Something’s wrong with my live service');
 
@@ -472,7 +478,10 @@ export async function HandleSomethingWrongWithServiceFormPost(
   };
 }
 
-export async function HelpUsingPaasForm (ctx: IContext): Promise<IResponse> {
+export async function HelpUsingPaasForm (
+  ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'I need some help using GOV.UK PaaS');
 
@@ -549,7 +558,10 @@ export async function HandleHelpUsingPaasFormPost(
   };
 }
 
-export async function FindOutMoreForm (ctx: IContext): Promise<IResponse> {
+export async function FindOutMoreForm (
+  ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'I’d like to find out more about GOV.UK PaaS');
 
@@ -630,7 +642,10 @@ export async function HandleFindOutMoreFormPost (
   };
 }
 
-export async function ContactUsForm (ctx: IContext, _params: IParameters): Promise<IResponse> {
+export async function ContactUsForm (
+  ctx: IContext, 
+  _params: IParameters,
+): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Contact us');
 
@@ -711,7 +726,10 @@ export async function HandleContactUsFormPost(
   };
 }
 
-export async function RequestAnAccountForm(ctx: IContext): Promise<IResponse> {
+export async function RequestAnAccountForm(
+  ctx: IContext,
+  _params: IParameters,
+  ): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Request a GOV.UK PaaS account');
 
@@ -723,7 +741,10 @@ export async function RequestAnAccountForm(ctx: IContext): Promise<IResponse> {
   });
 }
 
-export async function JoiningExistingOrganisationNotice (ctx: IContext): Promise<IResponse> {
+export async function JoiningExistingOrganisationNotice (
+  ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Joining an existing organisation');
 
@@ -732,7 +753,10 @@ export async function JoiningExistingOrganisationNotice (ctx: IContext): Promise
   });
 }
 
-export async function SignupForm (ctx: IContext): Promise<IResponse> {
+export async function SignupForm (
+  ctx: IContext,
+  _params: IParameters,
+): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Request a GOV.UK PaaS account');
 
