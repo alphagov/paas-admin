@@ -6,6 +6,9 @@
     "json"
   ],
   "testMatch": [
-    "<rootDir>/acceptance-tests/**/*.test.+(ts|tsx|js|jsx)"
-  ]
+    "<rootDir>/**/*.test.+(ts|tsx|js|jsx)"
+  ],
+  "transform": {
+    "^.+\\.(ts|tsx)$": "ts-jest"
+  }
 }
