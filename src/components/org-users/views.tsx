@@ -714,9 +714,13 @@ export function OrganizationUsersPage(
                 <th className="govuk-table__header name" scope="col">
                   Email address
                 </th>
-                <th className="govuk-table__header authentication" scope="col">
-                  {props.privileged ? 'Authentication' : ''}
-                </th>
+                {props.privileged ? (
+                  <th className="govuk-table__header authentication" scope="col">
+                    Authentication
+                  </th>
+                ) : (
+                  <></>
+                )}
                 <th className="govuk-table__header is-org-manager" scope="col">
                   Org manager
                 </th>
@@ -749,25 +753,15 @@ export function OrganizationUsersPage(
                       props.users[guid].username
                     )}
                   </th>
-                  <td className="govuk-table__cell">
-                    {props.privileged ? (
-                      props.userOriginMapping[guid] === 'uaa' ? (
-                        <a
-                          href={props.linkTo('admin.organizations.users.edit', {
-                            organizationGUID: props.organizationGUID,
-                            userGUID: guid,
-                          })}
-                          className="govuk-link"
-                        >
-                          <span className="govuk-visually-hidden">Authentication method:</span> Password
-                        </a>
-                      ) : (
-                        capitalize(props.userOriginMapping[guid])
-                      )
-                    ) : (
-                      <NoTick />
-                    )}
-                  </td>
+                  {props.privileged ? (
+                    <td className="govuk-table__cell">
+                      <span className="govuk-visually-hidden">Authentication method:</span> {
+                        props.userOriginMapping[guid] === 'uaa' ? 'Password' : capitalize(props.userOriginMapping[guid])
+                      }
+                    </td>
+                  ) : (
+                    <></>
+                  )}
                   <td className="govuk-table__cell">
                     {props.users[guid].orgRoles.includes('org_manager') ? (
                       <Tick />
