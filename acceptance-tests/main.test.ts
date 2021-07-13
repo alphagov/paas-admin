@@ -51,7 +51,13 @@ describe('paas-admin', () => {
     const managerUserEmail = `CAT-paas-admin-acceptance-manager-${randomSuffix}@example.com`;
     const managerUserPassword = `${Math.floor(Math.random()*1e12)}`;
 
-    const browser = puppeteer.launch({ headless: !HEADLESS ? true : HEADLESS == 'true' });
+    const browser = puppeteer.launch({
+      args: [
+        '--disable-dev-shm-usage',
+        '--no-sandbox',
+      ],
+      headless: !HEADLESS ? true : HEADLESS == 'true',
+    });
     let page: puppeteer.Page;
 
     let cfClient: CloudFoundryClient;
