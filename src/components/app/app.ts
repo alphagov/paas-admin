@@ -86,6 +86,11 @@ export interface IOIDCConfig {
 export default function(config: IAppConfig): express.Express {
   const app = express();
 
+  app.use((req, res, next) => {
+      res.append('Permissions-Policy', 'interest-cohort=()');
+      next();
+  });
+
   app.use(
     pinoMiddleware({
       logger: config.logger,
