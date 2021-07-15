@@ -45,7 +45,7 @@
     "@types/d3-shape": "^3.0.1",
     "@types/enzyme": "^3.10.9",
     "@types/enzyme-adapter-react-16": "^1.0.6",
-    "@types/eslint": "^7.2.14",
+    "@types/eslint": "^7.28.0",
     "@types/expect-puppeteer": "^4.4.6",
     "@types/express": "^4.17.13",
     "@types/jest": "^26.0.24",
