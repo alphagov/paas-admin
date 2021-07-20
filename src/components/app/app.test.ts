@@ -87,6 +87,12 @@ describe('app test suite', () => {
     );
   });
 
+  it('should server a null cohort permissions policy header', async () => {
+    const app = init(config);
+    const response = await request(app).get('/healthcheck');
+    expect(response.header['permissions-policy']).toEqual('interest-cohort=()');
+  });
+
   it('should redirect to oauth provider for auth', async () => {
     const app = init(config);
     const response = await request(app).get(
