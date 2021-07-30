@@ -85,6 +85,11 @@ describe('calculator test suite', () => {
             name: 'aws-s3-bucket default',
             plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c9',
           },
+          {
+            ...defaultPricingPlan,
+            name: 'aws-sqs-queue standard',
+            plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c9',
+          },
         ]),
       );
 
@@ -97,6 +102,7 @@ describe('calculator test suite', () => {
     expect(response.body).toMatch(/\bRedis\b/);
     expect(response.body).toMatch(/\bElasticsearch\b/);
     expect(response.body).toMatch(/\bAmazon S3\b/);
+    expect(response.body).toMatch(/\bAmazon SQS\b/);
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
