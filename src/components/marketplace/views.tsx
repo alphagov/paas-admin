@@ -181,7 +181,7 @@ function documentationTitle(service: string, url: string): string {
           case u.pathname.toLowerCase().includes('elasticache'):
             return `AWS ElastiCache ${service} documentation`;
         }
-      return `AWS RDS ${service} documentation`;
+      return `AWS ${service} documentation`;
     case 'help.aiven.io':
       return `Aiven ${service} documentation`;
     default:
