@@ -154,7 +154,7 @@ const serviceDetails: IServiceDetails = {
   'mysql': {
     image: mysqlLogo,
     imageTitle: 'MySQL - Official Logo',
-    name: 'MySQL',
+    name: 'RDS MySQL',
   },
   'postgres': {
     image: postgresLogo,
