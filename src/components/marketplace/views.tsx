@@ -159,7 +159,7 @@ const serviceDetails: IServiceDetails = {
   'postgres': {
     image: postgresLogo,
     imageTitle: 'PostgreSQL - Official Logo',
-    name: 'Postgres',
+    name: 'RDS Postgres',
   },
   'redis': {
     image: redisLogo,
