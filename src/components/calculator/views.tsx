@@ -84,6 +84,7 @@ function niceServiceName(planName: string): string {
   const niceServiceNames: {readonly [key: string]: string} = {
     'app': 'Compute',
     'aws-s3-bucket': 'Amazon S3',
+    'aws-sqs-queue': 'Amazon SQS',
     'elasticsearch': 'Elasticsearch',
     'influxdb': 'InfluxDB',
     'mysql': 'MySQL',

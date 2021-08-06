@@ -1,5 +1,5 @@
 import { endOfMonth, format, startOfMonth } from 'date-fns';
-import { sum } from 'lodash';
+import { isMatch, sum } from 'lodash';
 import React from 'react';
 import * as uuid from 'uuid';
 
@@ -151,16 +151,19 @@ function toVersionedPricingPlans(plan: IPricingPlan): IVersionedPricingPlan {
 
 function safelistServices(p: IPricingPlan): boolean {
   const safelist = [
-    'app',
-    'postgres',
-    'mysql',
-    'redis',
-    'elasticsearch',
-    'aws-s3-bucket',
-    'influxdb',
+    {serviceName: 'app'},
+    {serviceName: 'postgres'},
+    {serviceName: 'mysql'},
+    {serviceName: 'redis'},
+    {serviceName: 'elasticsearch'},
+    {serviceName: 'aws-s3-bucket'},
+    {serviceName: 'influxdb'},
+    // both sqs queue types are priced the same and a meaningless plan
+    // selector is weird and ugly
+    {serviceName: 'aws-sqs-queue', planName: 'standard'},
   ];
 
-  return safelist.some(name => name === p.serviceName);
+  return safelist.some(query => isMatch(p, query));
 }
 
 function filterComposeIOServices(p: IPricingPlan): boolean {
