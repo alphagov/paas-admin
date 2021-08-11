@@ -48,7 +48,7 @@
     "@types/eslint": "^7.28.0",
     "@types/expect-puppeteer": "^4.4.6",
     "@types/express": "^4.17.13",
-    "@types/jest": "^26.0.24",
+    "@types/jest": "^27.0.0",
     "@types/jsdom": "^16.2.13",
     "@types/jsonwebtoken": "^8.5.4",
     "@types/lodash": "^4.14.172",
