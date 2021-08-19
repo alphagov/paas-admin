@@ -1808,7 +1808,7 @@ export function StaticIPs(): ReactElement {
     <div className="govuk-grid-column-two-thirds">
       <h1 className="govuk-heading-xl">GOV.UK PaaS Static IPs</h1>
 
-      <p className="govuk-body">GOV.UK PaaS has three static IPs per region</p>
+      <p className="govuk-body">GOV.UK PaaS has three static egress IPs per region</p>
 
       <dl className="govuk-summary-list">
         <div className="govuk-summary-list__row">
