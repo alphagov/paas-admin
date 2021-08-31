@@ -244,7 +244,7 @@ export class AccountsClient {
       const data: IAccountsUserResponse = response.data;
 
       return parseUser(data);
-    } catch (err) {
+    } catch (err: any) {
       if (err.response.status === 404) {
         return;
       }
