@@ -192,7 +192,7 @@ export default class UAAClient {
     try {
       const response = await this.request('get', `/Users/${userGUID}`);
       return response.data as types.IUaaUser;
-    } catch (err) {
+    } catch (err: any) {
       if (err.response.status === 404) {
         return null;
       }

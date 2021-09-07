@@ -40,7 +40,7 @@ describe('paas-admin', () => {
       try {
         await axios.request({ maxRedirects: 0, url: PAAS_ADMIN_BASE_URL });
       }
-      catch(rejection) {
+      catch(rejection: any) {
         expect(rejection.response.status).toEqual(302);
       }
     });
