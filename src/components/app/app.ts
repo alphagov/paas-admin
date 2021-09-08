@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http';
 
-import awsTypes from '@aws-sdk/types';
+import { Credentials as awsCredentials } from '@aws-sdk/types';
 import compression from 'compression';
 import cookieSession from 'cookie-session';
 import csrf from 'csurf';
@@ -61,7 +61,7 @@ export interface IAppConfig {
   readonly awsRegion: string;
   readonly awsCloudwatchEndpoint?: string;
   readonly awsResourceTaggingAPIEndpoint?: string;
-  readonly awsCredentials?: awsTypes.Credentials;
+  readonly awsCredentials?: awsCredentials;
   readonly adminFee: number;
   readonly platformMetricsEndpoint: string;
   readonly prometheusEndpoint: string;
