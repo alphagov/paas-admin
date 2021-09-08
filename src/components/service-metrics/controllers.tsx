@@ -492,11 +492,13 @@ export async function downloadServiceMetrics(
       headers = ['Service', 'Time', 'Value'];
       contents = values(sqsMetricSeries[params.metric])
         .map(metric =>
-          metric.metrics.map(series => [
-            serviceLabel,
-            formatISO(series.date),
-            composeValue(series.value, params.units),
-          ]),
+          metric.metrics
+            .filter(series => isValid(series.date))
+            .map(series => [
+              serviceLabel,
+              formatISO(series.date),
+              composeValue(series.value, params.units),
+            ]),
         )
         .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
@@ -521,11 +523,13 @@ export async function downloadServiceMetrics(
       headers = ['Service', 'Time', 'Value'];
       contents = values(cloudfrontMetricSeries[params.metric])
         .map(metric =>
-          metric.metrics.map(series => [
-            serviceLabel,
-            formatISO(series.date),
-            composeValue(series.value, params.units),
-          ]),
+          metric.metrics
+            .filter(series => isValid(series.date))
+            .map(series => [
+              serviceLabel,
+              formatISO(series.date),
+              composeValue(series.value, params.units),
+            ]),
         )
         .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
@@ -547,11 +551,13 @@ export async function downloadServiceMetrics(
       headers = ['Service', 'Time', 'Value'];
       contents = values(rdsMetricSeries[params.metric])
         .map(metric =>
-          metric.metrics.map(series => [
-            serviceLabel,
-            formatISO(series.date),
-            composeValue(series.value, params.units),
-          ]),
+          metric.metrics
+            .filter(series => isValid(series.date))
+            .map(series => [
+              serviceLabel,
+              formatISO(series.date),
+              composeValue(series.value, params.units),
+            ]),
         )
         .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
@@ -572,12 +578,14 @@ export async function downloadServiceMetrics(
       headers = ['Service', 'Instance', 'Time', 'Value'];
       contents = values(elasticacheMetricSeries[params.metric])
         .map(metric =>
-          metric.metrics.map(series => [
-            serviceLabel,
-            metric.label || '',
-            formatISO(series.date),
-            composeValue(series.value, params.units),
-          ]),
+          metric.metrics
+            .filter(series => isValid(series.date))
+            .map(series => [
+              serviceLabel,
+              metric.label || '',
+              formatISO(series.date),
+              composeValue(series.value, params.units),
+            ]),
         )
         .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
@@ -600,13 +608,15 @@ export async function downloadServiceMetrics(
       headers = ['Service', 'Instance', 'Time', 'Value'];
       contents = values(elasticsearchMetricSeries[params.metric])
         .map(metric =>
-          metric.metrics.map(series => [
-            serviceLabel,
-            /* istanbul ignore next */
-            metric.label || '',
-            formatISO(series.date),
-            composeValue(series.value, params.units),
-          ]),
+          metric.metrics
+            .filter(series => isValid(series.date))
+            .map(series => [
+              serviceLabel,
+              /* istanbul ignore next */
+              metric.label || '',
+              formatISO(series.date),
+              composeValue(series.value, params.units),
+            ]),
         )
         .reduceRight((list, flatList) => [...flatList, ...list], []);
       break;
