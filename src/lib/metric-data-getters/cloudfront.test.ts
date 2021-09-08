@@ -29,13 +29,13 @@ describe('Cloudfront', () => {
 
       expect(send).toBeCalledWith(
         new GetResourcesCommand({
+          ResourceTypeFilters: ['cloudfront:distribution'],
           TagFilters: [
             {
               Key: 'ServiceInstance',
               Values: ['a-service-guid'],
             },
           ],
-          ResourceTypeFilters: ['cloudfront:distribution'],
         }),
       );
 
@@ -58,13 +58,13 @@ describe('Cloudfront', () => {
 
       expect(send).toBeCalledWith(
         new GetResourcesCommand({
+          ResourceTypeFilters: ['cloudfront:distribution'],
           TagFilters: [
             {
               Key: 'ServiceInstance',
               Values: ['a-service-guid'],
             },
           ],
-          ResourceTypeFilters: ['cloudfront:distribution'],
         }),
       );
     });
@@ -85,13 +85,13 @@ describe('Cloudfront', () => {
 
       expect(send).toBeCalledWith(
         new GetResourcesCommand({
+          ResourceTypeFilters: ['cloudfront:distribution'],
           TagFilters: [
             {
               Key: 'ServiceInstance',
               Values: ['a-service-guid'],
             },
           ],
-          ResourceTypeFilters: ['cloudfront:distribution'],
         }),
       );
     });
@@ -118,7 +118,6 @@ describe('Cloudfront', () => {
               Values: ['a-service-guid'],
             },
           ],
-          ResourceTypeFilters: ['cloudfront:distribution'],
         }),
       );
     });
@@ -147,13 +146,13 @@ describe('Cloudfront', () => {
 
       expect(send).toBeCalledWith(
         new GetResourcesCommand({
+          ResourceTypeFilters: ['cloudfront:distribution'],
           TagFilters: [
             {
               Key: 'ServiceInstance',
               Values: ['a-service-guid'],
             },
           ],
-          ResourceTypeFilters: ['cloudfront:distribution'],
         }),
       );
     });

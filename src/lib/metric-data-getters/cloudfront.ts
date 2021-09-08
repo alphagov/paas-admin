@@ -9,21 +9,8 @@ import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
 import { CloudWatchMetricDataGetter, ICloudWatchMetric } from './cloudwatch';
 
 const cloudfrontMetricPropertiesById: {
-  [key in MetricName]: ICloudWatchMetric;
+  readonly [key in MetricName]: ICloudWatchMetric;
 } = {
-  mRequests: {
-    name: 'Requests',
-    stat: 'Sum',
-  },
-  mBytesUploaded: {
-    name: 'BytesUploaded',
-    stat: 'Sum',
-  },
-  mBytesDownloaded: {
-    name: 'BytesDownloaded',
-    stat: 'Sum',
-  },
-
   m4xxErrorRate: {
     name: '4xxErrorRate',
     stat: 'Average',
@@ -31,6 +18,18 @@ const cloudfrontMetricPropertiesById: {
   m5xxErrorRate: {
     name: '5xxErrorRate',
     stat: 'Average',
+  },
+  mBytesDownloaded: {
+    name: 'BytesDownloaded',
+    stat: 'Sum',
+  },
+  mBytesUploaded: {
+    name: 'BytesUploaded',
+    stat: 'Sum',
+  },
+  mRequests: {
+    name: 'Requests',
+    stat: 'Sum',
   },
   mTotalErrorRate: {
     name: 'TotalErrorRate',
@@ -57,14 +56,14 @@ export class CloudFrontMetricDataGetter extends CloudWatchMetricDataGetter
     const arn = await this.resourceGroupsTaggingAPIClient
       .send(
         new rg.GetResourcesCommand({
+          ResourceTypeFilters: [
+            'cloudfront:distribution',
+          ],
           TagFilters: [
             {
               Key: 'ServiceInstance',
               Values: [serviceGUID],
             },
-          ],
-          ResourceTypeFilters: [
-            'cloudfront:distribution',
           ],
         }),
       )
@@ -109,6 +108,7 @@ export class CloudFrontMetricDataGetter extends CloudWatchMetricDataGetter
 
     const metricDataInputs = [
       {
+        EndTime: rangeStop,
         MetricDataQueries: metricNames.map(metricId => ({
           Id: metricId,
           MetricStat: {
@@ -125,7 +125,6 @@ export class CloudFrontMetricDataGetter extends CloudWatchMetricDataGetter
           },
         })),
         StartTime: rangeStart,
-        EndTime: rangeStop,
       },
     ];
 
@@ -137,6 +136,7 @@ export class CloudFrontMetricDataGetter extends CloudWatchMetricDataGetter
 
     const results = _.flatMap(
       responses,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       response => response.MetricDataResults!,
     );
 
