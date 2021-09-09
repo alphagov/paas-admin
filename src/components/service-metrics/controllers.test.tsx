@@ -973,7 +973,7 @@ describe(parseRange, () => {
   });
 
   it('should use current datetime and current datetime minus 1 hour if stop date is before start date', () => {
-    const rangeStartBeforeStop = parseRange('2020-11-01T14:25', '2020-09-01T15:25');
+    const rangeStartBeforeStop = parseRange('2021-11-01T14:25', '2021-09-01T15:25');
 
     expect(format(rangeStartBeforeStop.rangeStart, 'yyyy-MM-dd\'T\'HH:mm'))
       .toEqual(format(sub(new Date(), { hours: 1 }), 'yyyy-MM-dd\'T\'HH:mm'));
