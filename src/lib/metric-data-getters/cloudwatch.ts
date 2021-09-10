@@ -1,4 +1,4 @@
-import { _UnmarshalledMetricDataResult as CloudWatchResult } from '@aws-sdk/client-cloudwatch-node';
+import { _UnmarshalledMetricDataResult as CloudWatchResult } from '@aws-sdk/client-cloudwatch';
 import { add, Duration, isBefore, isEqual } from 'date-fns';
 import _ from 'lodash';
 

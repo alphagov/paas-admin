@@ -1,6 +1,6 @@
 /* eslint-disable no-case-declarations */
-import * as cw from '@aws-sdk/client-cloudwatch-node';
-import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
+import * as cw from '@aws-sdk/client-cloudwatch';
+import * as rg from '@aws-sdk/client-resource-groups-tagging-api';
 import { Duration, format, formatISO, isBefore, isValid, sub } from 'date-fns';
 import { mapValues, values } from 'lodash';
 import React from 'react';

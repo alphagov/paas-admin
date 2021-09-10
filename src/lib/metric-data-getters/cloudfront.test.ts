@@ -1,4 +1,4 @@
-import { GetResourcesCommand } from '@aws-sdk/client-resource-groups-tagging-api-node';
+import { GetResourcesCommand } from '@aws-sdk/client-resource-groups-tagging-api';
 
 import { CloudFrontMetricDataGetter } from './cloudfront';
 

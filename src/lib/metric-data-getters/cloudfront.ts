@@ -1,5 +1,5 @@
-import * as cw from '@aws-sdk/client-cloudwatch-node';
-import * as rg from '@aws-sdk/client-resource-groups-tagging-api-node';
+import * as cw from '@aws-sdk/client-cloudwatch';
+import * as rg from '@aws-sdk/client-resource-groups-tagging-api';
 import { Duration, milliseconds, millisecondsToSeconds } from 'date-fns';
 import _ from 'lodash';
 
