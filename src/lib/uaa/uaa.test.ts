@@ -283,7 +283,7 @@ describe('lib/uaa test suite', () => {
         const acceptHeader = this.req.headers['accept'];
         const contentTypeHeader = this.req.headers['content-type'];
 
-        if (acceptHeader !== 'application/json' || contentTypeHeader !== 'application/json') {
+        if (acceptHeader !== 'application/json' || contentTypeHeader !== 'application/json;chartset=utf-8') {
           return [
             404,
             {

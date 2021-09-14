@@ -305,7 +305,7 @@ export default class UAAClient {
       data: username,
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json;chartset=utf-8',
       },
     });
 
