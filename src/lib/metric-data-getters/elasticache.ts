@@ -1,5 +1,5 @@
 
-import * as cw from '@aws-sdk/client-cloudwatch-node';
+import * as cw from '@aws-sdk/client-cloudwatch';
 import base32Encode from 'base32-encode'; // eslint-disable-line import/default
 import { Duration, milliseconds, millisecondsToSeconds } from 'date-fns';
 import fnv from 'fnv-plus';

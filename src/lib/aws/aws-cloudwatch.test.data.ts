@@ -1,4 +1,5 @@
 import { getGappyRandomData } from '../metrics';
+import { format, fromUnixTime } from 'date-fns'
 
 interface IServiceIdAndLabel {
   readonly id: string;
@@ -37,10 +38,12 @@ export function getStubCloudwatchMetricsData(
   const members = metricSeriesLabelsAndIds
     .map(({ label, id }) => {
       const { timestamps, values } = getGappyRandomData();
+      console.log(timestamps)
+      console.log(fromUnixTime(parseInt('1631535900')))
 
       return `<member>
       <Timestamps>
-        ${timestamps.map(t => `<member>${t}</member>`).join('\n')}
+        ${timestamps.map(t => `<member>${format(fromUnixTime(parseInt(t)),'yyyy-MM-dd\'T\'HH:mm:ss\'Z\'')}</member>`).join('\n')}
       </Timestamps>
       <Values>
         ${values.map(v => `<member>${v}</member>`).join('\n')}
