@@ -139,7 +139,7 @@
     "node-jose": "^2.0.0",
     "node-zendesk": "^2.1.0",
     "notifications-node-client": "^5.1.0",
-    "openid-client": "^4.7.5",
+    "openid-client": "^4.8.0",
     "p-limit": "^3.1.0",
     "passport": "^0.4.1",
     "passport-oauth2": "^1.6.0",
