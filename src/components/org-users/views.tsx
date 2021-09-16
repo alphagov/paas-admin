@@ -1,4 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
+import { format } from 'date-fns';
+import { DATE_TIME } from '../../layouts';
 
 import { capitalize } from '../../layouts';
 import { NoTick, Tick } from '../../layouts/partials';
@@ -90,12 +92,19 @@ export interface IUserRolesByGuid {
   readonly [guid: string]: IUserRoles;
 }
 
+export interface IExtraUserInfo {
+  readonly [key: string]: {
+    readonly origin: string; 
+    readonly lastLogonTime?: number;
+  }
+}
+
 interface IOrganizationUsersPageProperties {
   readonly linkTo: RouteLinker;
   readonly organizationGUID: string;
   readonly privileged: boolean;
   readonly users: IUserRolesByGuid;
-  readonly userOriginMapping: { readonly [key: string]: string };
+  readonly userExtraInfo: IExtraUserInfo;
 }
 
 export function Permission(props: IPermissionProperties): ReactElement {
@@ -733,6 +742,13 @@ export function OrganizationUsersPage(
                 <th className="govuk-table__header spaces" scope="col">
                   Spaces assigned or can access
                 </th>
+                {props.privileged ? (
+                  <th className="govuk-table__header" scope="col">
+                    Last login
+                  </th>
+                ) : (
+                  <></>
+                )}
               </tr>
             </thead>
             <tbody className="govuk-table__body">
@@ -756,7 +772,7 @@ export function OrganizationUsersPage(
                   {props.privileged ? (
                     <td className="govuk-table__cell">
                       <span className="govuk-visually-hidden">Authentication method:</span> {
-                        props.userOriginMapping[guid] === 'uaa' ? 'Password' : capitalize(props.userOriginMapping[guid])
+                        props.userExtraInfo[guid].origin === 'uaa' ? 'Password' : capitalize(props.userExtraInfo[guid].origin)
                       }
                     </td>
                   ) : (
@@ -803,6 +819,17 @@ export function OrganizationUsersPage(
                       ))}
                     </ul>
                   </td>
+                  {props.privileged ? (
+                    <td className="govuk-table__cell">
+                      {props.userExtraInfo[guid].lastLogonTime ? (
+                        format(props.userExtraInfo[guid].lastLogonTime!, DATE_TIME)
+                      ) : (
+                        "No login"
+                      )}
+                    </td>
+                  ): (
+                    <></>
+                  )}
                 </tr>
               ))}
             </tbody>
