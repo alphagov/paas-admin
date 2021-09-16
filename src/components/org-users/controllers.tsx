@@ -10,7 +10,6 @@ import lodash, { CollectionChain, mapValues, merge, values } from 'lodash';
 import { BaseLogger } from 'pino';
 import React from 'react';
 
-
 import { Template } from '../../layouts';
 import { AccountsClient } from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
@@ -37,6 +36,7 @@ import { IValidationError } from '../errors/types';
 import {
   DeleteConfirmationPage,
   EditPage,
+  IExtraUserInfo,
   InvitePage,
   IRoleValues,
   IUserRoles,
@@ -320,17 +320,19 @@ export async function listUsers(
     ctx.app.logger,
   );
 
-  const userOriginMapping: { readonly [key: string]: string } = (lodash
-      .chain(uaaUsers)
-      .filter(u => u != null) as CollectionChain<IUaaUser>
-    )
-    .keyBy(u => u.id)
-    .mapValues(u => u.origin)
-    .value();
+  const userExtraInfo: IExtraUserInfo = (lodash
+    .chain(uaaUsers)
+    .filter(u => u != null) as CollectionChain<IUaaUser>
+  )
+  .keyBy(u => u.id)
+  .mapValues(u => ({
+    origin: u.origin,
+    lastLogonTime: u.lastLogonTime,
+  }))
+  .value();
 
   const template = new Template(ctx.viewContext, 'Team members');
   template.breadcrumbs = fromOrg(ctx, organization, [{ text: 'Team members' }]);
-
   return {
     body: template.render(
       <OrganizationUsersPage
@@ -338,7 +340,7 @@ export async function listUsers(
         organizationGUID={organization.metadata.guid}
         privileged={isAdmin || isManager}
         users={users}
-        userOriginMapping={userOriginMapping}
+        userExtraInfo={userExtraInfo}
       />,
     ),
   };
