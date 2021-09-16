@@ -18,6 +18,9 @@ import {
   SuccessPage,
 } from './views';
 
+import { format } from 'date-fns';
+import { DATE_TIME } from '../../layouts';
+
 describe(Permission, () => {
   it('should produce a checkbox with appropriate values provided', () => {
     const markup = shallow(
@@ -326,6 +329,9 @@ describe(OrganizationUsersPage, () => {
     } as unknown) as IUserRoles,
   };
 
+  const lastLogonTime = + new Date()
+  const lastLogonTimeFormatted = format(lastLogonTime, DATE_TIME)
+
   it('should produce the org users view', () => {
     const markup = shallow(
       <OrganizationUsersPage
@@ -333,7 +339,10 @@ describe(OrganizationUsersPage, () => {
         organizationGUID="ORG_GUID"
         privileged={false}
         users={users}
-        userOriginMapping={{ USER_GUID: 'origin-name', USER_GUID_2: 'uaa' }}
+        userExtraInfo={{
+          "USER_GUID": { origin: 'origin-name', lastLogonTime: undefined },
+          "USER_GUID_2": { origin: 'uaa', lastLogonTime: lastLogonTime },
+        }}
       />,
     );
     const $ = cheerio.load(markup.html());
@@ -344,6 +353,7 @@ describe(OrganizationUsersPage, () => {
     expect($('li').text()).toContain(space.entity.name);
     expect($('.tick-symbol').length).toEqual(2);
     expect($('.govuk-table__body td:nth-child(4)').text()).toContain('no');
+    expect($('thead th:nth-child(6)').text()).not.toContain('Last login');
   });
 
   it('should produce the org users view when being privileged', () => {
@@ -353,14 +363,24 @@ describe(OrganizationUsersPage, () => {
         organizationGUID="ORG_GUID"
         privileged={true}
         users={users}
-        userOriginMapping={{ USER_GUID: 'origin-name', USER_GUID_2: 'uaa' }}
+        userExtraInfo={{
+          "USER_GUID": { origin: 'origin-name', lastLogonTime: undefined },
+          "USER_GUID_2": { origin: 'uaa', lastLogonTime: lastLogonTime },
+        }}
       />,
     );
+
+    
+
     const $ = cheerio.load(markup.html());
     expect($('tbody th:first-of-type').text()).toContain('user-name');
     expect($('tbody th:first-of-type a').length).toEqual(2);
     expect($('td').text()).toContain('Origin-name');
     expect($('td').text()).toContain('Password');
+    expect($('thead th:nth-child(7)').text()).toContain('Last login');
+    expect($('tbody tr:nth-child(1) td:nth-child(7)').text()).toContain('No login');
+    expect($('tbody tr:nth-child(2) td:nth-child(7)').text()).toContain(lastLogonTimeFormatted);
+    
   });
 });
 
