@@ -129,6 +129,7 @@ describe('org-users test suite', () => {
     expect(response.body).toContain('Custom-origin-1');
     expect(response.body).toContain('Custom-origin-2');
     expect(response.body).toContain('Custom-origin-3');
+    expect(response.body).toContain('Last login');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
