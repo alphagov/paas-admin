@@ -108,7 +108,7 @@
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.33.0",
     "@aws-sdk/client-resource-groups-tagging-api": "^3.33.0",
-    "@aws-sdk/types": "^3.32.0",
+    "@aws-sdk/types": "^3.34.0",
     "@babel/preset-env": "^7.15.6",
     "@babel/preset-react": "^7.14.5",
     "aws-sdk": "^2.994.0",
@@ -118,7 +118,7 @@
     "compression": "^1.7.4",
     "cookie-session": "^2.0.0-rc.1",
     "csurf": "^1.11.0",
-    "d3": "^7.0.3",
+    "d3": "^7.0.4",
     "d3-array": "^2.12.1",
     "d3-axis": "^2.1.0",
     "d3-sankey": "^0.12.3",
