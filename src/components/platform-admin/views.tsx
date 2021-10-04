@@ -188,6 +188,102 @@ function Users(props: IFormProperties): ReactElement {
   );
 }
 
+
+function Email(props: IFormProperties): ReactElement {
+  return (
+    <>
+      <h2 className="govuk-heading-m">Contact</h2>
+
+      <h3 className="govuk-heading-s">Email Org Managers</h3>
+
+      <form action={props.linkTo('platform-admin.redirect')} method="POST">
+        <input type="hidden" name="_csrf" value={props.csrf} />
+
+        <input type="hidden" name="action" value="find-user" />
+
+
+        <div className="govuk-form-group">
+          <div className="govuk-date-input" id="passport-issued">
+            <div className="govuk-date-input__item">
+              <div className="govuk-form-group">
+                <label
+                  className="govuk-label govuk-date-input__label"
+                  htmlFor="view-costs-month"
+                >
+                  Org Name
+                </label>
+                <select
+                  className="govuk-select"
+                  id="view-costs-month"
+                  name="month"
+                >
+                  <option value="01">Gov.uk</option>
+                  <option value="02">February</option>
+                  <option value="03">March</option>
+                  <option value="04">April</option>
+                  <option value="05">May</option>
+                  <option value="06">June</option>
+                  <option value="07">July</option>
+                  <option value="08">August</option>
+                  <option value="09">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="govuk-date-input__item">
+              <div className="govuk-form-group">
+                <label
+                  className="govuk-label govuk-date-input__label"
+                  htmlFor="view-costs-year"
+                >
+                  Region
+                </label>
+                <select
+                  className="govuk-select"
+                  id="view-costs-month"
+                  name="month"
+                >
+                  <option value="01">London</option>
+                  <option value="02">February</option>
+                  <option value="03">March</option>
+                  <option value="04">April</option>
+                  <option value="05">May</option>
+                  <option value="06">June</option>
+                  <option value="07">July</option>
+                  <option value="08">August</option>
+                  <option value="09">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="govuk-form-group">
+          <label className="govuk-label" htmlFor="email-body">
+            Message
+          </label>
+
+          <textarea
+            className="govuk-textarea"
+            id="email-body"
+            name="email-or-user-guid"
+            rows="5"
+          />
+        </div>
+
+        <button className="govuk-button">Find user</button>
+      </form>
+    </>
+  );
+}
+
 export function PlatformAdministratorPage(
   props: IFormProperties,
 ): ReactElement {
@@ -196,13 +292,16 @@ export function PlatformAdministratorPage(
       <h1 className="govuk-heading-l">Platform Admin</h1>
 
       <div className="govuk-grid-row govuk-grid-row-vertically-separated">
-        <div className="govuk-grid-column-full govuk-grid-column-one-third-from-desktop">
+        <div className="govuk-grid-column-full govuk-grid-column-one-quarter-from-desktop">
           <Costs {...props} />
         </div>
-        <div className="govuk-grid-column-full govuk-grid-column-one-third-from-desktop">
+        <div className="govuk-grid-column-full govuk-grid-column-one-quarter-from-desktop">
           <Users {...props} />
         </div>
-        <div className="govuk-grid-column-full govuk-grid-column-one-third-from-desktop">
+        <div className="govuk-grid-column-full govuk-grid-column-one-quarter-from-desktop">
+          <Email {...props} />
+        </div>
+        <div className="govuk-grid-column-full govuk-grid-column-one-quarter-from-desktop">
           <Organizations {...props} />
         </div>
       </div>
