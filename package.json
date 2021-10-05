@@ -106,7 +106,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.34.0",
+    "@aws-sdk/client-cloudwatch": "^3.35.0",
     "@aws-sdk/client-resource-groups-tagging-api": "^3.35.0",
     "@aws-sdk/types": "^3.34.0",
     "@babel/preset-env": "^7.15.6",
@@ -125,7 +125,7 @@
     "d3-scale": "^3.3.0",
     "d3-selection": "^2.0.0",
     "d3-shape": "^2.1.0",
-    "date-fns": "^2.24.0",
+    "date-fns": "^2.25.0",
     "express": "^4.17.1",
     "express-pino-logger": "^6.0.0",
     "express-static-gzip": "^2.1.1",
