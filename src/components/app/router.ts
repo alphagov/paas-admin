@@ -253,6 +253,11 @@ export const router = new Router([
     path: '/platform-admin/create-org',
   },
   {
+    action: platformAdmin.emailOrganizationForm,
+    name: 'platform-admin.email-organization.form',
+    path: '/platform-admin/email-org',
+  },
+  {
     action: platformAdmin.createOrganization,
     method: 'post',
     name: 'platform-admin.create-organization',

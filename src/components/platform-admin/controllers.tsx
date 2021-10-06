@@ -6,13 +6,16 @@ import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
 
+
 import { validateNewOrganization } from './validators';
 import {
   CreateOrganizationPage,
+  EmailOrganizationPage,
   CreateOrganizationSuccessPage,
   INewOrganizationUserBody,
   PlatformAdministratorPage,
 } from './views';
+import NotificationClient from '../../lib/notify';
 
 const TITLE_CREATE_ORG = 'Create Organisation';
 
@@ -43,6 +46,44 @@ export async function createOrganizationForm(ctx: IContext, _params: IParameters
 
   return {
     body: template.render(<CreateOrganizationPage
+      csrf={ctx.viewContext.csrf}
+      linkTo={ctx.linkTo}
+      owners={owners}
+    />),
+  };
+}
+
+
+export async function emailOrganizationForm(ctx: IContext, _params: IParameters): Promise<IResponse> {
+  throwErrorIfNotAdmin(ctx);
+
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+
+  const orgs = await cf.v3Organizations();
+  const owners = Array.from(new Set(orgs
+    .filter(org => !!org.metadata.annotations.owner)
+    .map(org => ({ name: org.name, owner: org.metadata.annotations.owner! }))
+    .sort()));
+
+  const template = new Template(ctx.viewContext, TITLE_CREATE_ORG);
+
+  const notify = new NotificationClient({
+    apiKey: ctx.app.notifyAPIKey,
+    templates: {
+      sendOrgEmail: ctx.app.notifySendOrgEmailTemplateID,
+    },
+  });
+
+  const url = new URL(ctx.app.domainName);
+
+  await notify.sendOrgEmail(email, url.toString());
+
+  return {
+    body: template.render(<EmailOrganizationPage
       csrf={ctx.viewContext.csrf}
       linkTo={ctx.linkTo}
       owners={owners}

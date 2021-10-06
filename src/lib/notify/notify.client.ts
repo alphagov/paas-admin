@@ -49,4 +49,16 @@ export default class NotificationClient {
       personalisation: { url },
     });
   }
+
+
+  public async sendOrgEmail(emailAddress: string, url: string): Promise<IResponse> {
+    /* istanbul ignore next */
+    if (!this.templates.sendOrgEmail) {
+      throw new Error('NotifyClient: templates.sendOrgEmail: id is required');
+    }
+
+    return await this.client.sendEmail(this.templates.sendOrgEmail, emailAddress, {
+      personalisation: { url },
+    });
+  }
 }
