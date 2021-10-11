@@ -63,11 +63,11 @@ export async function emailOrganizationForm(ctx: IContext, _params: IParameters)
     logger: ctx.app.logger,
   });
 
-  const orgs = await cf.v3Organizations();
-  const owners = Array.from(new Set(orgs
-    .filter(org => !!org.metadata.annotations.owner)
-    .map(org => ({ name: org.name, owner: org.metadata.annotations.owner! }))
-    .sort()));
+  const ufo = await cf.usersForOrganization('test');
+
+  const manager_emails = Array.from(new Set(
+      ufo.filter(user => user.entity.organization_roles.includes('org_manager'))
+      .map(user => (user.entity.username))));
 
   const template = new Template(ctx.viewContext, TITLE_CREATE_ORG);
 
