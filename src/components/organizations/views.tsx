@@ -290,12 +290,11 @@ export function EditOrganizationQuota(props: IEditOrganizationQuotaProperties): 
             The <code>default</code> quota represents a trial account for specific organisation and will not be billed
             for.
           </span>
-          <select className="govuk-select" id="quota" name="quota">
+          <select className="govuk-select" id="quota" name="quota" aria-describedby="quota-hint">
             {props.quotas.map(quota => <option
               key={quota.guid}
               selected={props.organization.entity.quota_definition_guid === quota.guid}
               value={quota.guid}
-              aria-describedby="quota-hint"
               >
                 {quota.name}
               </option>)}
