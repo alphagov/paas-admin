@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 
+import { bytesToHuman, MEBIBYTE } from '../../layouts';
 import { IOrganization, IOrganizationQuota, IV3OrganizationQuota, IV3OrganizationResource } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
 
@@ -349,7 +350,7 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
         <tbody className="govuk-table__body">
           {props.quotas.map(quota => <tr className="govuk-table__row" key={quota.guid}>
             <th scope="row" className="govuk-table__header">{quota.name}</th>
-            <td className="govuk-table__cell">{quota.apps.total_memory_in_mb}</td>
+            <td className="govuk-table__cell">{bytesToHuman(quota.apps.total_memory_in_mb * MEBIBYTE)}</td>
             <td className="govuk-table__cell">{quota.routes.total_routes}</td>
             <td className="govuk-table__cell">{quota.services.total_service_instances}</td>
           </tr>)}

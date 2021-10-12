@@ -75,7 +75,7 @@ export async function editOrgData(ctx: IContext, params: IParameters): Promise<I
     cf.organizationQuotas(),
   ]);
 
-  const realQuotas = quotas.filter(quota => !quota.name.match(/^(CATS|ACC|BACC|SMOKE|PERF|AIVENBACC)-/));
+  const realQuotas = quotas.filter(quota => !quota.name.match(/^(CATS|ACC|BACC|SMOKE|PERF|AIVENBACC|ASATS)-/));
   const template = new Template(ctx.viewContext, `Organisation ${organization.name} Manage`);
 
   template.breadcrumbs = [
