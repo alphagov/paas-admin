@@ -22,7 +22,7 @@ interface IClientConfig {
   readonly logger: BaseLogger;
 }
 
-type httpMethod = 'post' | 'get' | 'put' | 'delete';
+type httpMethod = 'post' | 'patch' | 'get' | 'put' | 'delete';
 
 async function request(
   endpoint: string,
@@ -219,6 +219,33 @@ export default class CloudFoundryClient {
     const response = await this.request(
       'get',
       `/v2/organizations/${organizationGUID}`,
+    );
+
+    return response.data;
+  }
+
+  public async getOrganization(org: { readonly guid: string }): Promise<cf.IV3OrganizationResource>;
+  public async getOrganization(org: cf.IV3OrganizationResource): Promise<cf.IV3OrganizationResource> {
+    const response = await this.request(
+      'get',
+      `/v3/organizations/${org.guid}`,
+    );
+
+    return response.data;
+  }
+
+  public async updateOrganization(
+    org: { readonly guid: string },
+    data: cf.IV3UpdateOrganizationResource,
+  ): Promise<cf.IV3OrganizationResource>;
+  public async updateOrganization(
+    org: cf.IV3OrganizationResource,
+    data: cf.IV3UpdateOrganizationResource,
+  ): Promise<cf.IV3OrganizationResource> {
+    const response = await this.request(
+      'patch',
+      `/v3/organizations/${org.guid}`,
+      data,
     );
 
     return response.data;

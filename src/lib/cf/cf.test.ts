@@ -284,6 +284,17 @@ describe('lib/cf test suite', () => {
     expect(organization.entity.name).toEqual('the-system_domain-org-name');
   });
 
+  it('should obtain single organisation with V3 API', async () => {
+      nockCF
+        .get('/v3/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
+        .reply(200, { name: 'the-system_domain-org-name' });
+
+      const client = new CloudFoundryClient(config);
+      const organization = await client.getOrganization({ guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20' });
+
+      expect(organization.name).toEqual('the-system_domain-org-name');
+  });
+
   it('should delete an organisation', async () => {
     nockCF
       .delete(

@@ -217,7 +217,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
               href={props.linkTo('admin.organizations.quota.edit', { organizationGUID: props.organization.metadata.guid })}
               className="govuk-link"
             >
-              Manage quota for this organization
+              Manage this organization
             </a>
           </p> : <></>}
 

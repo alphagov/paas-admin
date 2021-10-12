@@ -214,12 +214,23 @@ interface IV3Relation {
   };
 }
 
+export interface IV3UpdateOrganizationResource {
+  readonly metadata?: {
+    readonly labels: {};
+    readonly annotations: {
+      readonly owner?: string;
+    };
+  };
+  readonly name?: string;
+  readonly suspended?: boolean;
+}
+
 export interface IV3OrganizationResource extends IV3Metadata {
   readonly name: string;
-  readonly suspended: boolean;
   readonly relationships: {
     readonly quota: IV3Relation;
   };
+  readonly suspended: boolean;
   readonly links: {
     readonly self: IV3Link;
     readonly domains: IV3Link;

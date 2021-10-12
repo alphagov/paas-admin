@@ -6,12 +6,15 @@ import CloudFoundryClient from '../../lib/cf';
 import { IOrganization } from '../../lib/cf/types';
 import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import { IContext } from '../app/context';
-
-import { OrganizationsPage, EditOrganizationQuota } from './views';
 import { SuccessPage } from '../shared';
 
-interface IUpdateOrgQuotaBody {
+import { EditOrganization, OrganizationsPage } from './views';
+
+interface IUpdateOrgDataBody {
+  readonly name: string;
+  readonly owner: string;
   readonly quota: string;
+  readonly suspended: string;
 }
 
 function sortOrganizationsByName(
@@ -57,7 +60,7 @@ export async function listOrganizations(
   };
 }
 
-export async function editOrgQuota(ctx: IContext, params: IParameters): Promise<IResponse> {
+export async function editOrgData(ctx: IContext, params: IParameters): Promise<IResponse> {
   if (!ctx.token.hasAdminScopes()) {
     throw new NotAuthorisedError('Not a platform admin');
   }
@@ -69,24 +72,24 @@ export async function editOrgQuota(ctx: IContext, params: IParameters): Promise<
   });
 
   const [organization, quotas] = await Promise.all([
-    cf.organization(params.organizationGUID),
+    cf.getOrganization({ guid: params.organizationGUID }),
     cf.organizationQuotas(),
   ]);
 
-  const realQuotas = quotas.filter(quota => !quota.name.match(/^(CATS|ACC|BACC|SMOKE|PERF|AIVENBACC)-/));
-  const template = new Template(ctx.viewContext, `Organisation ${organization.entity.name} Manage Quota`);
+  const realQuotas = quotas.filter(quota => !quota.name.match(/^(CATS|ACC|BACC|SMOKE|PERF|AIVENBACC|ASATS)-/));
+  const template = new Template(ctx.viewContext, `Organisation ${organization.name} Manage`);
 
   template.breadcrumbs = [
     { href: ctx.linkTo('admin.organizations'), text: 'Organisations' },
     {
-      href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.metadata.guid }),
-      text: organization.entity.name,
+      href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.guid }),
+      text: organization.name,
     },
-    { text: 'Manage Quota' },
+    { text: 'Manage Organisation' },
   ];
 
   return {
-    body: template.render(<EditOrganizationQuota
+    body: template.render(<EditOrganization
       organization={organization}
       quotas={realQuotas.sort((qA, qB) => qA.apps.total_memory_in_mb - qB.apps.total_memory_in_mb)}
       csrf={ctx.viewContext.csrf}
@@ -94,7 +97,7 @@ export async function editOrgQuota(ctx: IContext, params: IParameters): Promise<
   };
 }
 
-export async function updateOrgQuota(ctx: IContext, params: IParameters, body: IUpdateOrgQuotaBody): Promise<IResponse> {
+export async function updateOrgData(ctx: IContext, params: IParameters, body: IUpdateOrgDataBody): Promise<IResponse> {
   if (!ctx.token.hasAdminScopes()) {
     throw new NotAuthorisedError('Not a platform admin');
   }
@@ -105,27 +108,38 @@ export async function updateOrgQuota(ctx: IContext, params: IParameters, body: I
     logger: ctx.app.logger,
   });
 
-  const organization = await cf.organization(params.organizationGUID);
+  const organization = await cf.getOrganization({ guid: params.organizationGUID });
 
   await cf.applyOrganizationQuota(body.quota, params.organizationGUID);
+  await cf.updateOrganization(organization, {
+    metadata: {
+      ...organization.metadata,
+      annotations: {
+        ...organization.metadata.annotations,
+        owner: body.owner,
+      },
+    },
+    name: body.name,
+    suspended: body.suspended === 'true',
+  });
 
-  const template = new Template(ctx.viewContext, `Quota successfully set`);
+  const template = new Template(ctx.viewContext, 'Organisation successfully updated');
 
   template.breadcrumbs = [
     { href: ctx.linkTo('admin.organizations'), text: 'Organisations' },
     {
-      href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.metadata.guid }),
-      text: organization.entity.name,
+      href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.guid }),
+      text: organization.name,
     },
     {
-      href: ctx.linkTo('admin.organizations.quota.edit', { organizationGUID: organization.metadata.guid }),
-      text: 'Manage Quota',
+      href: ctx.linkTo('admin.organizations.quota.edit', { organizationGUID: organization.guid }),
+      text: 'Manage Organisation',
     },
   ];
 
   return {
     body: template.render(<SuccessPage
-      heading="Quota successfully set"
+      heading="Organisation successfully updated"
     />),
   };
 }

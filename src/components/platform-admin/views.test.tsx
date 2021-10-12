@@ -27,10 +27,6 @@ describe(CreateOrganizationPage, () => {
     expect(markup.find('input#organization')).toHaveLength(1);
     expect(markup.find('input#organization').html()).not.toContain('<script>');
     expect(markup.find('input#organization').html()).toContain('&lt;script&gt;');
-    expect(markup.find('table').html()).not.toContain('<strong>');
-    expect(markup.find('table').html()).toContain('&lt;strong&gt;');
-    expect(markup.find('table').html()).not.toContain('<em>');
-    expect(markup.find('table').html()).toContain('&lt;em&gt;');
     expect(markup.find('input#organization').html()).toContain('&quot;pwnd by test&quot;');
   });
 
