@@ -12,6 +12,7 @@ import { EditOrganization, OrganizationsPage } from './views';
 
 interface IUpdateOrgDataBody {
   readonly name: string;
+  readonly owner: string;
   readonly quota: string;
   readonly suspended: string;
 }
@@ -111,7 +112,13 @@ export async function updateOrgData(ctx: IContext, params: IParameters, body: IU
 
   await cf.applyOrganizationQuota(body.quota, params.organizationGUID);
   await cf.updateOrganization(organization, {
-    metadata: organization.metadata,
+    metadata: {
+      ...organization.metadata,
+      annotations: {
+        ...organization.metadata.annotations,
+        owner: body.owner,
+      },
+    },
     name: body.name,
     suspended: body.suspended === 'true',
   });

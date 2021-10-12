@@ -113,6 +113,7 @@ describe(editOrgData, () => {
   let nockCF: nock.Scope;
   const organization = {
     guid: '__ORG_GUID__',
+    metadata: { annotations: { owner: 'Testing Departament' } },
     name: 'org-name',
     relationships: {
       quota: {
@@ -207,6 +208,7 @@ describe(updateOrgData, () => {
   let nockCF: nock.Scope;
   const organization = {
     guid: '__ORG_GUID__',
+    metadata: { annotations: { owner: 'Testing Departament' } },
     name: 'org-name',
     relationships: {
       quota: {
@@ -219,7 +221,7 @@ describe(updateOrgData, () => {
   const quotaGUID = '__QUOTA_GUID__';
 
   const params = { organizationGUID: organization.guid };
-  const body = { name: organization.name, quota: quotaGUID, suspended: 'true' };
+  const body = { name: organization.name, owner: 'Testing Departament', quota: quotaGUID, suspended: 'true' };
 
 
   describe('when not a platform admin', () => {

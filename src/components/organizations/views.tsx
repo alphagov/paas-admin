@@ -3,6 +3,7 @@ import React, { ReactElement } from 'react';
 import { bytesToHuman, MEBIBYTE } from '../../layouts';
 import { IOrganization, IOrganizationQuota, IV3OrganizationQuota, IV3OrganizationResource } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
+import { owners } from './owners';
 
 interface IOrganizationProperties {
   readonly guid: string;
@@ -297,6 +298,23 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
         </div>
 
         <div className="govuk-form-group">
+          <label className="govuk-label govuk-label--m" htmlFor="owner">
+            Owner
+          </label>
+          <span id="owner-hint" className="govuk-hint">
+            Choose an owner from the list. If one you are looking for does not exist, set it to <code>Unknown</code>,
+            and ask person on support to add one in place.
+          </span>
+          <select className="govuk-select" id="owner" name="owner" aria-describedby="owner-hint" required={true}>
+            <option selected={props.organization.metadata.annotations.owner === 'Unknown'}>Unknown</option>
+            {owners.map(owner =>
+              <option key={owner} selected={props.organization.metadata.annotations.owner === owner}>
+                {owner}
+              </option>)}
+          </select>
+        </div>
+
+        <div className="govuk-form-group">
           <label className="govuk-label govuk-label--m" htmlFor="quota">
             Select a Quota
           </label>
@@ -320,8 +338,8 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
             Organisation Suspension
           </label>
           <span id="suspended-hint" className="govuk-hint">
-            By default, an org has the status of <code>Active</code>. An admin can set the status of an org to
-            <code>Suspended</code> for various reasons such as failure to provide payment or misuse. When an org is
+            By default, an org has the status of <code>Active</code>. An admin can set the status of an org to {}
+            <code>Suspended</code> for various reasons such as failure to provide payment or misuse. When an org is {}
             <code>Suspended</code>, users cannot perform certain activities within the org, such as push apps, modify
             spaces, or bind services.
           </span>

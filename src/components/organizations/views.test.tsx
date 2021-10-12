@@ -111,6 +111,7 @@ describe(EditOrganization, () => {
       csrf="__CSRF_TOKEN__"
       organization={{
         guid: '__ORG_GUID__',
+        metadata: { annotations: { owner: 'Testing Departament' } },
         name: 'org-name',
         relationships: {
           quota: {

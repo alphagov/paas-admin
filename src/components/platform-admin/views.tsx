@@ -4,6 +4,7 @@ import { SLUG_REGEX } from '../../layouts';
 import { RouteLinker } from '../app';
 import { IValidationError } from '../errors/types';
 import { SuccessPage } from '../org-users/views';
+import { owners } from '../organizations/owners';
 
 interface IProperties {
   readonly linkTo: RouteLinker;
@@ -255,36 +256,19 @@ export function CreateOrganizationPage(props: ICreateOrganizationPageProperties)
           Owner
         </label>
         <span id="owner-hint" className="govuk-hint">
-          The name of a party owning that organisation. You can also refer to the section on the side for some examples.
+          Choose an owner from the list. If one you are looking for does not exist, set it to <code>Unknown</code>,
+          and ask person on support to add one in place.
         </span>
-        <input id="owner" name="owner" className="govuk-input" aria-describedby="owner-hint" type="text"
-          defaultValue={props.values?.owner} required={true} />
+        <select className="govuk-select" id="owner" name="owner" aria-describedby="owner-hint" required={true}>
+          <option selected={props.values?.owner === 'Unknown'}>Unknown</option>
+          {owners.map(owner => <option key={owner} selected={props.values?.owner === owner}>{owner}</option>)}
+        </select>
       </div>
 
       <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
         Create Organisation
       </button>
     </form>
-
-    <div className="govuk-grid-column-one-half">
-      <div className="scrollable-table-container">
-        <table className="govuk-table">
-        <caption className="govuk-table__caption">Existing owners</caption>
-        <thead className="govuk-table__head">
-          <tr className="govuk-table__row">
-            <th scope="col" className="govuk-table__header">Name</th>
-            <th scope="col" className="govuk-table__header">Owner</th>
-          </tr>
-        </thead>
-        <tbody className="govuk-table__body">
-          {props.owners.map((org, index) => <tr key={index} className="govuk-table__row">
-              <td className="govuk-table__cell">{org.name}</td>
-              <td className="govuk-table__cell">{org.owner}</td>
-            </tr>)}
-        </tbody>
-      </table>
-      </div>
-    </div>
   </div>);
 }
 
