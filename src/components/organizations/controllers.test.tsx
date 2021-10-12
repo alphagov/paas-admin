@@ -2,8 +2,6 @@ import jwt from 'jsonwebtoken';
 import lodash from 'lodash';
 import nock from 'nock';
 
-import { Token, CLOUD_CONTROLLER_ADMIN } from '../auth';
-
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import {
@@ -15,9 +13,11 @@ import {
 import { wrapResources } from '../../lib/cf/test-data/wrap-resources';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
+import { CLOUD_CONTROLLER_ADMIN, Token } from '../auth';
+
+import { editOrgData, updateOrgData } from './controllers';
 
 import { listOrganizations } from '.';
-import { editOrgQuota, updateOrgQuota } from './controllers';
 
 const organizations = JSON.stringify(
   wrapResources(
@@ -109,7 +109,7 @@ describe('organizations test suite', () => {
   });
 });
 
-describe(editOrgQuota, () => {
+describe(editOrgData, () => {
   let nockCF: nock.Scope;
   const organization = {
     guid: '__ORG_GUID__',
@@ -123,9 +123,9 @@ describe(editOrgQuota, () => {
     },
   };
   const quota = {
+    apps: { total_memory_in_mb: 2 },
     guid: '__QUOTA_1_GUID__',
     name: 'quota-1',
-    apps: { total_memory_in_mb: 2 },
     routes: { total_routes: 2 },
     services: { total_service_instances: 2 },
   };
@@ -144,7 +144,7 @@ describe(editOrgQuota, () => {
     const ctx: IContext = createTestContext({ token });
 
     it('should return an error', async () => {
-      await expect(editOrgQuota(ctx, {})).rejects.toThrow(
+      await expect(editOrgData(ctx, {})).rejects.toThrow(
         /Not a platform admin/,
       );
     });
@@ -172,11 +172,11 @@ describe(editOrgQuota, () => {
         .get(`/v3/organizations/${organization.guid}`)
         .reply(200, organization)
 
-        .get(`/v3/organization_quotas`)
+        .get('/v3/organization_quotas')
         .reply(200, {
           pagination: {
-            total_results: 3,
             total_pages: 1,
+            total_results: 3,
           },
           resources: [
             quota,
@@ -188,14 +188,14 @@ describe(editOrgQuota, () => {
 
     afterEach(() => {
       nockCF.on('response', () => {
-  nockCF.done()
-});
+      nockCF.done();
+    });
 
       nock.cleanAll();
     });
 
     it('should correctly parse data into a form', async () => {
-      const response = await editOrgQuota(ctx, { organizationGUID: organization.guid });
+      const response = await editOrgData(ctx, { organizationGUID: organization.guid });
 
       expect(response.status).toBeUndefined();
       expect(response.body).toContain(`Organisation ${organization.name}`);
@@ -203,7 +203,7 @@ describe(editOrgQuota, () => {
   });
 });
 
-describe(updateOrgQuota, () => {
+describe(updateOrgData, () => {
   let nockCF: nock.Scope;
   const organization = {
     guid: '__ORG_GUID__',
@@ -218,8 +218,8 @@ describe(updateOrgQuota, () => {
   };
   const quotaGUID = '__QUOTA_GUID__';
 
-  const body = { quota: quotaGUID };
   const params = { organizationGUID: organization.guid };
+  const body = { name: organization.name, quota: quotaGUID, suspended: 'true' };
 
 
   describe('when not a platform admin', () => {
@@ -236,7 +236,7 @@ describe(updateOrgQuota, () => {
     const ctx: IContext = createTestContext({ token });
 
     it('should return an error', async () => {
-      await expect(updateOrgQuota(ctx, params, body)).rejects.toThrow(
+      await expect(updateOrgData(ctx, params, body)).rejects.toThrow(
         /Not a platform admin/,
       );
     });
@@ -264,23 +264,26 @@ describe(updateOrgQuota, () => {
         .get(`/v3/organizations/${organization.guid}`)
         .reply(200, organization)
 
+        .patch(`/v3/organizations/${organization.guid}`)
+        .reply(200, organization)
+
         .post(`/v3/organization_quotas/${quotaGUID}/relationships/organizations`)
         .reply(201, { data: [{ guid: organization.guid }] });
     });
 
     afterEach(() => {
       nockCF.on('response', () => {
-  nockCF.done()
-});
+      nockCF.done();
+    });
 
       nock.cleanAll();
     });
 
     it('should parse the success message correctly', async () => {
-      const response = await updateOrgQuota(ctx, params, body);
+      const response = await updateOrgData(ctx, params, body);
 
       expect(response.status).toBeUndefined();
-      expect(response.body).toContain('Quota successfully set');
+      expect(response.body).toContain('Organisation successfully updated');
     });
   });
 });

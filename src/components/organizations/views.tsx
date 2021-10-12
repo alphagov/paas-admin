@@ -17,20 +17,16 @@ interface IOrganizationPageProperties {
   readonly quotas: { readonly [guid: string]: IOrganizationQuota };
 }
 
-interface IEditOrganizationQuotaProperties {
+interface IEditOrganizationProperties {
   readonly csrf: string;
   readonly organization: IV3OrganizationResource;
   readonly quotas: ReadonlyArray<IV3OrganizationQuota>;
 }
 
 export function Organization(props: IOrganizationProperties): ReactElement {
-  let linkAriaLabel: string;
-
-  if(props.suspended) {
-    linkAriaLabel = `Organisation name: ${props.name}, status: suspended`
-  } else {
-    linkAriaLabel = `Organisation name: ${props.name}`
-  }
+  const linkAriaLabel = props.suspended
+    ? `Organisation name: ${props.name}, status: suspended`
+    : `Organisation name: ${props.name}`;
 
   return (
     <tr className="govuk-table__row">
@@ -132,7 +128,6 @@ export function OrganizationsPage(
           <p className="govuk-body">
             <a
               href="https://packages.cloudfoundry.org/stable?release=redhat64&version=v7&source=github"
-              
               className="govuk-link"
             >
               Download the RedHat version [RPM] <span className="govuk-visually-hidden">installer file</span>
@@ -266,7 +261,7 @@ export function OrganizationsPage(
   );
 }
 
-export function EditOrganizationQuota(props: IEditOrganizationQuotaProperties): ReactElement {
+export function EditOrganization(props: IEditOrganizationProperties): ReactElement {
   return <div className="govuk-grid-row">
     <div className="govuk-grid-column-full">
       <h1 className="govuk-heading-l">
@@ -274,7 +269,7 @@ export function EditOrganizationQuota(props: IEditOrganizationQuotaProperties): 
           <span className="govuk-visually-hidden">Organisation</span>{' '}
           {props.organization.name}
         </span>{' '}
-        Manage Quota
+        Manage
       </h1>
     </div>
 
@@ -283,7 +278,25 @@ export function EditOrganizationQuota(props: IEditOrganizationQuotaProperties): 
         <input type="hidden" name="_csrf" value={props.csrf} />
 
         <div className="govuk-form-group">
-          <label className="govuk-label" htmlFor="quota">
+          <label className="govuk-label govuk-label--m" htmlFor="name">
+            Organisation Name
+          </label>
+          <span id="name-hint" className="govuk-hint">
+            This needs to be all lowercase and hyphen separated meaningful name of the organisation.
+            You can also refer to the section on the side for some examples.
+          </span>
+          <input
+            className="govuk-input"
+            id="name"
+            name="name"
+            type="text"
+            defaultValue={props.organization.name}
+            aria-describedby="name-hint"
+          />
+        </div>
+
+        <div className="govuk-form-group">
+          <label className="govuk-label govuk-label--m" htmlFor="quota">
             Select a Quota
           </label>
           <span id="quota-hint" className="govuk-hint">
@@ -301,8 +314,23 @@ export function EditOrganizationQuota(props: IEditOrganizationQuotaProperties): 
           </select>
         </div>
 
+        <div className="govuk-form-group">
+          <label className="govuk-label govuk-label--m" htmlFor="suspended">
+            Organisation Suspension
+          </label>
+          <span id="suspended-hint" className="govuk-hint">
+            By default, an org has the status of active. An admin can set the status of an org to suspended for various
+            reasons such as failure to provide payment or misuse. When an org is suspended, users cannot perform certain
+            activities within the org, such as push apps, modify spaces, or bind services.
+          </span>
+          <select className="govuk-select" id="suspended" name="suspended" aria-describedby="suspended-hint">
+            <option selected={!props.organization.suspended} value="false">Active</option>
+            <option selected={props.organization.suspended} value="true">Suspended</option>
+          </select>
+        </div>
+
         <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
-          Set Organisation Quota
+          Update Organisation
         </button>
       </form>
     </div>
