@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-import { IOrganization, IOrganizationQuota, IV3OrganizationQuota } from '../../lib/cf/types';
+import { IOrganization, IOrganizationQuota, IV3OrganizationQuota, IV3OrganizationResource } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
 
 interface IOrganizationProperties {
@@ -19,7 +19,7 @@ interface IOrganizationPageProperties {
 
 interface IEditOrganizationQuotaProperties {
   readonly csrf: string;
-  readonly organization: IOrganization;
+  readonly organization: IV3OrganizationResource;
   readonly quotas: ReadonlyArray<IV3OrganizationQuota>;
 }
 
@@ -272,7 +272,7 @@ export function EditOrganizationQuota(props: IEditOrganizationQuotaProperties): 
       <h1 className="govuk-heading-l">
         <span className="govuk-caption-l">
           <span className="govuk-visually-hidden">Organisation</span>{' '}
-          {props.organization.entity.name}
+          {props.organization.name}
         </span>{' '}
         Manage Quota
       </h1>
@@ -293,7 +293,7 @@ export function EditOrganizationQuota(props: IEditOrganizationQuotaProperties): 
           <select className="govuk-select" id="quota" name="quota" aria-describedby="quota-hint">
             {props.quotas.map(quota => <option
               key={quota.guid}
-              selected={props.organization.entity.quota_definition_guid === quota.guid}
+              selected={props.organization.relationships.quota.data.guid === quota.guid}
               value={quota.guid}
               >
                 {quota.name}

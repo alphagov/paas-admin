@@ -224,6 +224,16 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
+  public async getOrganization(org: { readonly guid: string }): Promise<cf.IV3OrganizationResource>;
+  public async getOrganization(org: cf.IV3OrganizationResource): Promise<cf.IV3OrganizationResource> {
+    const response = await this.request(
+      'get',
+      `/v2/organizations/${org.guid}`,
+    );
+
+    return response.data;
+  }
+
   public async deleteOrganization(orgRequest: {
     readonly guid: string;
     readonly recursive: boolean;

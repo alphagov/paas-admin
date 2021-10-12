@@ -69,18 +69,18 @@ export async function editOrgQuota(ctx: IContext, params: IParameters): Promise<
   });
 
   const [organization, quotas] = await Promise.all([
-    cf.organization(params.organizationGUID),
+    cf.getOrganization({ guid: params.organizationGUID }),
     cf.organizationQuotas(),
   ]);
 
   const realQuotas = quotas.filter(quota => !quota.name.match(/^(CATS|ACC|BACC|SMOKE|PERF|AIVENBACC)-/));
-  const template = new Template(ctx.viewContext, `Organisation ${organization.entity.name} Manage Quota`);
+  const template = new Template(ctx.viewContext, `Organisation ${organization.name} Manage`);
 
   template.breadcrumbs = [
     { href: ctx.linkTo('admin.organizations'), text: 'Organisations' },
     {
-      href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.metadata.guid }),
-      text: organization.entity.name,
+      href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.guid }),
+      text: organization.name,
     },
     { text: 'Manage Quota' },
   ];
@@ -105,7 +105,7 @@ export async function updateOrgQuota(ctx: IContext, params: IParameters, body: I
     logger: ctx.app.logger,
   });
 
-  const organization = await cf.organization(params.organizationGUID);
+  const organization = await cf.getOrganization({ guid: params.organizationGUID });
 
   await cf.applyOrganizationQuota(body.quota, params.organizationGUID);
 
@@ -114,12 +114,12 @@ export async function updateOrgQuota(ctx: IContext, params: IParameters, body: I
   template.breadcrumbs = [
     { href: ctx.linkTo('admin.organizations'), text: 'Organisations' },
     {
-      href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.metadata.guid }),
-      text: organization.entity.name,
+      href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.guid }),
+      text: organization.name,
     },
     {
-      href: ctx.linkTo('admin.organizations.quota.edit', { organizationGUID: organization.metadata.guid }),
       text: 'Manage Quota',
+      href: ctx.linkTo('admin.organizations.quota.edit', { organizationGUID: organization.guid }),
     },
   ];
 

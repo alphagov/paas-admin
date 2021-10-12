@@ -112,8 +112,15 @@ describe('organizations test suite', () => {
 describe(editOrgQuota, () => {
   let nockCF: nock.Scope;
   const organization = {
-    entity: { name: 'org-name' },
-    metadata: { guid: '__ORG_GUID__' },
+    guid: '__ORG_GUID__',
+    name: 'org-name',
+    relationships: {
+      quota: {
+        data: {
+          guid: '__QUOTA_1_GUID__',
+        },
+      },
+    },
   };
   const quota = {
     guid: '__QUOTA_1_GUID__',
@@ -162,7 +169,7 @@ describe(editOrgQuota, () => {
       nockCF = nock(ctx.app.cloudFoundryAPI);
 
       nockCF
-        .get(`/v2/organizations/${organization.metadata.guid}`)
+        .get(`/v3/organizations/${organization.guid}`)
         .reply(200, organization)
 
         .get(`/v3/organization_quotas`)
@@ -188,10 +195,10 @@ describe(editOrgQuota, () => {
     });
 
     it('should correctly parse data into a form', async () => {
-      const response = await editOrgQuota(ctx, { organizationGUID: organization.metadata.guid });
+      const response = await editOrgQuota(ctx, { organizationGUID: organization.guid });
 
       expect(response.status).toBeUndefined();
-      expect(response.body).toContain(`Organisation ${organization.entity.name}`);
+      expect(response.body).toContain(`Organisation ${organization.name}`);
     });
   });
 });
@@ -199,13 +206,20 @@ describe(editOrgQuota, () => {
 describe(updateOrgQuota, () => {
   let nockCF: nock.Scope;
   const organization = {
-    entity: { name: 'org-name' },
-    metadata: { guid: '__ORG_GUID__' },
+    guid: '__ORG_GUID__',
+    name: 'org-name',
+    relationships: {
+      quota: {
+        data: {
+          guid: '__QUOTA_1_GUID__',
+        },
+      },
+    },
   };
   const quotaGUID = '__QUOTA_GUID__';
 
-  const params = { organizationGUID: organization.metadata.guid };
   const body = { quota: quotaGUID };
+  const params = { organizationGUID: organization.guid };
 
 
   describe('when not a platform admin', () => {
@@ -247,11 +261,11 @@ describe(updateOrgQuota, () => {
       nockCF = nock(ctx.app.cloudFoundryAPI);
 
       nockCF
-        .get(`/v2/organizations/${organization.metadata.guid}`)
+        .get(`/v3/organizations/${organization.guid}`)
         .reply(200, organization)
 
         .post(`/v3/organization_quotas/${quotaGUID}/relationships/organizations`)
-        .reply(201, { data: [{ guid: organization.metadata.guid }] });
+        .reply(201, { data: [{ guid: organization.guid }] });
     });
 
     afterEach(() => {

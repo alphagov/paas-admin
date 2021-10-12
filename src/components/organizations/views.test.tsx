@@ -109,9 +109,17 @@ describe(EditOrganizationQuota, () => {
     const markup = shallow(<EditOrganizationQuota
       csrf="__CSRF_TOKEN__"
       organization={{
-        entity: { name: 'org-name', quota_definition_guid: '__QUOTA_2_GUID__' },
-        metadata: { guid: '__ORG_GUID__' },
-      } as IOrganization}
+        guid: '__ORG_GUID__',
+        name: 'org-name',
+        relationships: {
+          quota: {
+            data: {
+              guid: '__QUOTA_2_GUID__',
+            },
+          },
+        },
+        suspended: true,
+      } as IV3OrganizationResource}
       quotas={[
         quota as IV3OrganizationQuota,
         { ...quota, guid: '__QUOTA_2_GUID__', name: 'quota-2' } as IV3OrganizationQuota,
