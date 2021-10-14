@@ -6,7 +6,7 @@ import { IV3Service, IV3ServicePlan } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
 
 import autoscalerLogo from './icons/autoscaler.png';
-import cdnLogo from './icons/cdn.png';
+import cdnLogo from './icons/cdn.svg';
 import cloudLogo from './icons/cloud.png';
 import elasticsearchLogo from './icons/elasticsearch.png';
 import influxdbLogo from './icons/influxdb.png';
@@ -181,6 +181,7 @@ function documentationTitle(service: string, url: string): string {
           case u.pathname.toLowerCase().includes('elasticache'):
             return `AWS ElastiCache ${service} documentation`;
         }
+
       return `AWS ${service} documentation`;
     case 'help.aiven.io':
       return `Aiven ${service} documentation`;
