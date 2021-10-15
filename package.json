@@ -89,7 +89,7 @@
     "nodemon-webpack-plugin": "^4.5.2",
     "pegjs": "^0.10.0",
     "pegjs-loader": "^0.5.6",
-    "pino-pretty": "^7.0.1",
+    "pino-pretty": "^7.1.0",
     "puppeteer": "^10.4.0",
     "request-promise-native": "^1.0.9",
     "sass": "^1.43.2",
