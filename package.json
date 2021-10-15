@@ -203,7 +203,7 @@
       "<rootDir>/config/jest/enzyme.config.js"
     ],
     "transformIgnorePatterns": [
-      "<rootDir>/node_modules/(?!d3)/"
+      "<rootDir>/node_modules/(?!d3-(array|axis|scale|selection|shape))"
     ]
   }
 }
