@@ -32,6 +32,12 @@ interface ICreateOrganizationPageProperties extends IFormProperties {
   }>;
 }
 
+interface IEmailOrganizationPageProperties extends IFormProperties {
+  readonly owners: ReadonlyArray<{
+    readonly email: string;
+  }>;
+}
+
 function Costs(props: IFormProperties): ReactElement {
   return (
     <>
@@ -279,12 +285,14 @@ export function CreateOrganizationPage(props: ICreateOrganizationPageProperties)
 }
 
 
-export function EmailOrganizationPage(props: ICreateOrganizationPageProperties): ReactElement {
+export function EmailOrganizationPage(props: IEmailOrganizationPageProperties): ReactElement {
   return (<div className="govuk-grid-row">
-    <form method="post" className="govuk-grid-column-one-half">
-      <h1 className="govuk-heading-xl">Email an Organisation</h1>
 
+
+    <form action={props.linkTo('platform-admin.redirect')} method="POST">
       <input type="hidden" name="_csrf" value={props.csrf} />
+
+      <input type="hidden" name="action" value="email-owners" />
 
       {props.errors
         ? <div className="govuk-error-summary" aria-labelledby="error-summary-title"

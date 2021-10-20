@@ -17,6 +17,22 @@ async function findUser(
   });
 }
 
+async function emailOwners(
+  ctx: IContext,
+  _params: IParameters,
+  body: any,
+): Promise<IResponse> {
+  const emailOrUserGUID = body['email-or-user-guid'];
+
+  if (typeof emailOrUserGUID === 'undefined' || emailOrUserGUID === '') {
+    throw new Error('Field email-or-user-guid is undefined or blank');
+  }
+
+  return await Promise.resolve({
+    redirect: ctx.linkTo('users.get', { emailOrUserGUID }),
+  });
+}
+
 async function viewCosts(
   ctx: IContext,
   _params: IParameters,
@@ -70,6 +86,11 @@ export async function redirectToPage(
 
   if (action === 'find-user') {
     return await findUser(ctx, params, body);
+  }
+
+
+  if (action === 'email-owners') {
+    return await emailOwners(ctx, params, body);
   }
 
   if (action === 'view-costs') {

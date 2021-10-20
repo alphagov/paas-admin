@@ -96,6 +96,7 @@ async function main() {
     notifyAPIKey: expectEnvVariable('NOTIFY_API_KEY'),
     notifyPasswordResetTemplateID: process.env.NOTIFY_PASSWORD_RESET_TEMPLATE_ID || null,
     notifyWelcomeTemplateID: process.env.NOTIFY_WELCOME_TEMPLATE_ID || null,
+    notifySendOrgEmailTemplateID: process.env.NOTIFY_ORG_EMAIL_TEMPLATE_ID || null,
     oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
     oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
     oidcProviders: providers,

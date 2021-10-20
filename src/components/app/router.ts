@@ -242,6 +242,11 @@ export const router = new Router([
     path: '/platform-admin',
   },
   {
+    action: platformAdmin.emailOrgOwners,
+    name: 'platform-admin.emailOrgOwners',
+    path: '/platform-admin/email-org-owners',
+  },
+  {
     action: platformAdmin.redirectToPage,
     method: 'post',
     name: 'platform-admin.redirect',

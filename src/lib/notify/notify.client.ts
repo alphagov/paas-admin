@@ -3,6 +3,7 @@ import { IResponse, NotifyClient } from 'notifications-node-client';
 interface ITemplates {
   readonly welcome?: string;
   readonly passwordReset?: string;
+  readonly sendOrgEmail?: string
 }
 
 interface IConfig {
