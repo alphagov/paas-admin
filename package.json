@@ -91,7 +91,7 @@
     "pino-pretty": "^7.1.0",
     "puppeteer": "^10.4.0",
     "request-promise-native": "^1.0.9",
-    "sass": "^1.43.2",
+    "sass": "^1.43.3",
     "sass-loader": "^12.2.0",
     "stylelint": "^13.13.1",
     "stylelint-config-gds": "^0.1.0",
