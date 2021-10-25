@@ -268,13 +268,10 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
         <h1 className="govuk-heading-l">Something&apos;s wrong with my live service</h1>
         <div className="govuk-inset-text">
           <p className="govuk-body">
-            If you have a critical issue, <a className="govuk-link" href="https://status.cloud.service.gov.uk/">start by
-            checking the system status page</a>: if it&apos;s a known issue with the platform, it will show there and
-            we&apos;ll keep our users updated on the progression of the incident.
+            Check the <a className="govuk-link" href="https://status.cloud.service.gov.uk/">GOV.UK PaaS status page </a> for known issues and to subscribe to updates on active incidents.
           </p>
           <p className="govuk-body">
-            If you are having a critical issue with a live service outside working hours, please use the emergency
-            contact details you have been sent.
+            If there’s a critical issue with your live service, use the emergency contact details you have been sent.
           </p>
         </div>
         <form noValidate method="post">
@@ -534,14 +531,24 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
             Submit
           </button>
         </form>
-        <h2 className="govuk-heading-m">Escalate a request</h2>
+        <h2 className="govuk-heading-m">Response times</h2>
         <p className="govuk-body">
-          If you have already sent your request for support and you think we’re not handling it in the way you would
-          expect, please contact a member of the product team, who will reply during working hours.
+          Our response times vary depending on:
+        </p>
+        <ul className="govuk-list govuk-list--bullet">
+          <li>the nature of the request - we prioritise issues over queries</li>
+          <li>the severity of the issue</li>
+          <li>if a live service is affected</li>
+          <li>if the request was raised in or outside of working hours</li>
+        </ul>
+        <p className="govuk-body">
+          Working hours are between 9am and 5pm on weekdays, excluding bank holidays.
         </p>
         <p className="govuk-body">
-          To escalate an issue about a production service in or outside working hours, please use the emergency contact
-          details you have been sent.
+        Outside of working hours we provide emergency support for critical incidents affecting live production services.
+        </p>
+        <p className="govuk-body">
+          Read more about how we support <a href="https://www.cloud.service.gov.uk/support-and-response-times/">GOV.UK PaaS and our response times</a>. 
         </p>
       </div>
     </div>
