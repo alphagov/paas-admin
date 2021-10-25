@@ -222,6 +222,35 @@ export function PlatformAdministratorPage(
   );
 }
 
+
+export function EmailSuccessPage(
+  props: IFormProperties,
+): ReactElement {
+  return (
+    <>
+
+      {(props.errors !== undefined && props.errors.length > 0)
+        ? <div className="govuk-error-summary" aria-labelledby="error-summary-title"
+            role="alert" tabIndex={-1} data-module="govuk-error-summary">
+            <h2 className="govuk-error-summary__title" id="error-summary-title">
+              There is a problem
+            </h2>
+            <div className="govuk-error-summary__body">
+              <ul className="govuk-list govuk-error-summary__list">
+                {props.errors.map((error, index) => (
+                  <li key={index}>{error.message}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        :
+        <h1 className="govuk-heading-l">Email(s) sent!</h1>
+       }
+
+    </>
+  );
+}
+
 export function CreateOrganizationPage(props: ICreateOrganizationPageProperties): ReactElement {
   return (<div className="govuk-grid-row">
     <form method="post" className="govuk-grid-column-one-half">
@@ -323,11 +352,11 @@ export function EmailOrganizationPage(props: IEmailOrganizationPageProperties): 
 
         <select
         className="govuk-select"
-        id="view-costs-month"
+        id="org-name"
         defaultValue={props.values?.organization}
-        name="month"
+        name="org-name"
         >
-        <option value="01">Gov.uk</option>
+        <option value="gov.uk">gov.uk</option>
         <option value="02">February</option>
         <option value="03">March</option>
         <option value="04">April</option>
@@ -353,7 +382,7 @@ export function EmailOrganizationPage(props: IEmailOrganizationPageProperties): 
         <textarea
           className="govuk-textarea"
           id="email-body"
-          name="email-or-user-guid"
+          name="email-body"
           defaultValue={props.values?.owner}
           rows="5"
         />

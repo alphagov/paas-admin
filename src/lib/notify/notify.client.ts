@@ -52,14 +52,14 @@ export default class NotificationClient {
   }
 
 
-  public async sendOrgEmail(emailAddress: string, url: string): Promise<IResponse> {
+  public async sendOrgEmail(emailAddress: string, url: string, emailBody: string): Promise<IResponse> {
     /* istanbul ignore next */
     if (!this.templates.sendOrgEmail) {
       throw new Error('NotifyClient: templates.sendOrgEmail: id is required');
     }
 
     return await this.client.sendEmail(this.templates.sendOrgEmail, emailAddress, {
-      personalisation: { url },
+      personalisation: { emailBody, url },
     });
   }
 }

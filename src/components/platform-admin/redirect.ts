@@ -22,14 +22,18 @@ async function emailOwners(
   _params: IParameters,
   body: any,
 ): Promise<IResponse> {
-  const emailOrUserGUID = body['email-or-user-guid'];
+  const orgName = body['org-name'];
+  const emailBody = body['email-body'];
 
-  if (typeof emailOrUserGUID === 'undefined' || emailOrUserGUID === '') {
-    throw new Error('Field email-or-user-guid is undefined or blank');
+  if (typeof orgName === 'undefined' || orgName === '') {
+    throw new Error('Field org-name is undefined or blank');
+  }
+  if (typeof emailBody === 'undefined' || emailBody === '') {
+    throw new Error('Field email-body is undefined or blank');
   }
 
   return await Promise.resolve({
-    redirect: ctx.linkTo('users.get', { emailOrUserGUID }),
+    redirect: ctx.linkTo('platform-admin.emailOrgOwners', { emailBody, orgName }),
   });
 }
 

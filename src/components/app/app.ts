@@ -50,6 +50,7 @@ export interface IAppConfig {
   readonly logger: BaseLogger;
   readonly notifyAPIKey: string;
   readonly notifyPasswordResetTemplateID?: string;
+  readonly notifySendOrgEmailTemplateID?: string;
   readonly notifyWelcomeTemplateID?: string;
   readonly oauthClientID: string;
   readonly oauthClientSecret: string;

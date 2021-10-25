@@ -16,12 +16,15 @@ import {
   CreateOrganizationSuccessPage,
   INewOrganizationUserBody,
   PlatformAdministratorPage,
+  EmailSuccessPage,
 } from './views';
 import NotificationClient from '../../lib/notify';
 
 import {
   IOrganizationUserRoles,
 } from '../../lib/cf/types';
+
+import { IValidationError } from '../errors/types';
 
 interface UserEmails {
   readonly email: string;
@@ -172,6 +175,9 @@ export async function emailOrgOwners(
   throwErrorIfNotAdmin(ctx);
 
 
+  const emailBody = _params['emailBody'];
+  const orgName = _params['orgName'];
+
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
     apiEndpoint: ctx.app.cloudFoundryAPI,
@@ -186,7 +192,7 @@ export async function emailOrgOwners(
 
   const template = new Template(ctx.viewContext, 'Platform Administrator');
 
-  const ufo = await cf.usersForOrganization('TODO');
+  const ufo = await cf.usersForOrganization(orgName);
 
   var ufo_to_account = async function(user: IOrganizationUserRoles): Promise<string> {
       const account_user = await accountsClient.getUser(user.metadata.guid);
@@ -217,17 +223,25 @@ export async function emailOrgOwners(
   const url = new URL(ctx.app.domainName);
 
   const results = deduped_emails.map(
-      email => notify.sendOrgEmail(email, url.toString()
+      email => notify.sendOrgEmail(email, url.toString(), emailBody
   ));
 
-  // TODO: Check the promises for errors
-  await Promise.all(results);
-
+  const errors: Array<IValidationError> = [];
+  await Promise.all(results).then(
+      r => r.map(
+          (n: IResponse) => {
+              if (n.status !== undefined && n.status > 299) {
+                  errors.push({ field: 'email', message: 'email not sent' });
+              }
+      })
+  );
+  console.debug(errors);
   return await Promise.resolve({
     body: template.render(
-      <PlatformAdministratorPage
+      <EmailSuccessPage
         linkTo={ctx.linkTo}
         csrf={ctx.viewContext.csrf}
+        errors={errors}
       />,
     ),
   });
