@@ -22,6 +22,7 @@ import NotificationClient from '../../lib/notify';
 
 import {
   IOrganizationUserRoles,
+  IOrganization,
 } from '../../lib/cf/types';
 
 import { IValidationError } from '../errors/types';
@@ -66,9 +67,19 @@ export async function createOrganizationForm(ctx: IContext, _params: IParameters
   };
 }
 
+function sortOrganizationsByName(
+  organizations: ReadonlyArray<IOrganization>,
+): ReadonlyArray<IOrganization> {
+  const organizationsCopy = Array.from(organizations);
+  organizationsCopy.sort((a, b) => a.entity.name.localeCompare(b.entity.name));
+
+  return organizationsCopy;
+}
 
 export async function emailOrganizationForm(ctx: IContext, _params: IParameters): Promise<IResponse> {
   throwErrorIfNotAdmin(ctx);
+
+  const template = new Template(ctx.viewContext, "Email org managers");
 
   const emailBody = _params['emailBody'];
   const orgName = _params['orgName'];
@@ -85,28 +96,6 @@ export async function emailOrganizationForm(ctx: IContext, _params: IParameters)
     secret: ctx.app.accountsSecret,
   });
 
-  // TODO should this be called userRolesForOrg...
-  const ufo = await cf.usersForOrganization(orgName);
-
-  var ufo_to_account = async function(user: IOrganizationUserRoles): Promise<string> {
-      const account_user = await accountsClient.getUser(user.metadata.guid);
-      if (account_user != undefined) {
-          return account_user.email
-      }
-      else {
-          return ""
-      }
-  }
-
-  const manager_emails_promises = Array.from(new Set(
-      ufo.filter(user => user.entity.organization_roles.includes('org_manager'))
-         .map(ufo_to_account)));
-
-  const manager_emails = await Promise.all(manager_emails_promises);
-
-  const deduped_emails: Array<string> = manager_emails.filter(e => e.length > 0);
-
-
   const notify = new NotificationClient({
     apiKey: ctx.app.notifyAPIKey,
     templates: {
@@ -114,48 +103,85 @@ export async function emailOrganizationForm(ctx: IContext, _params: IParameters)
     },
   });
 
-  const url = new URL(ctx.app.domainName);
+  const [organizations] = await Promise.all([
+    cf.organizations().then(sortOrganizationsByName),
+  ]);
 
-  const results = deduped_emails.map(
-      email => notify.sendOrgEmail(email, url.toString(), emailBody
-  ));
+  console.debug(organizations);
 
-  const errors: Array<IValidationError> = [];
-  await Promise.all(results).then(
-      r => r.map(
-          (n: IResponse) => {
-              if (n.status !== undefined && n.status > 199) {
-                  errors.push({ field: 'email', message: 'email not sent' });
-              }
-      })
-  );
-  console.debug(errors);
-  return await Promise.resolve({
-    body: template.render(errors
-    ?
-      <EmailSuccessPage
-        linkTo={ctx.linkTo}
-        csrf={ctx.viewContext.csrf}
-        errors={errors}
-      />
-    :
-    <EmailOrganizationPage
-      csrf={ctx.viewContext.csrf}
-      linkTo={ctx.linkTo}
-      owners={['some', 'owners']}
-    />),
-  });
-
-  const all_orgs = ['test']
-
-  const template = new Template(ctx.viewContext, TITLE_CREATE_ORG);
+  if (emailBody === undefined && orgName === undefined) {
+      // render form
   return {
-    body: template.render(<EmailOrganizationPage
-      csrf={ctx.viewContext.csrf}
-      linkTo={ctx.linkTo}
-      owners={all_orgs}
-    />),
-  };
+      body: template.render(
+        <EmailOrganizationPage
+          csrf={ctx.viewContext.csrf}
+          linkTo={ctx.linkTo}
+          orgs={organizations}
+        />
+      ),
+    };
+  }
+  else {
+     // send emails
+
+
+
+    // TODO should this be called userRolesForOrg...
+    const ufo = await cf.usersForOrganization(orgName);
+
+    var ufo_to_account = async function(user: IOrganizationUserRoles): Promise<string> {
+        const account_user = await accountsClient.getUser(user.metadata.guid);
+        if (account_user != undefined) {
+            return account_user.email
+        }
+        else {
+            return ""
+        }
+    }
+
+    const manager_emails_promises = Array.from(
+        ufo.filter(user => user.entity.organization_roles.includes('org_manager'))
+          .map(ufo_to_account));
+
+    const manager_emails = await Promise.all(manager_emails_promises);
+
+    const deduped_emails: Array<string> = Array.from(new Set(manager_emails.filter(e => e.length > 0)));
+
+    const url = new URL(ctx.app.domainName);
+
+    const results = deduped_emails.map(
+        email => notify.sendOrgEmail(email, url.toString(), emailBody
+    ));
+
+    const errors: Array<IValidationError> = [];
+    await Promise.all(results).then(
+        results => results.map(
+            (n: IResponse) => {
+                // TODO should we check JUST for 201s?
+                // TODO check for more errors, connection errors etc
+                if (n.status !== undefined && n.status > 299) {
+                    errors.push({ field: 'email', message: 'email not sent' });
+                }
+        })
+    );
+
+    console.debug(errors);
+    return {
+        body: template.render(
+        errors.length > 0 ?
+          <EmailOrganizationPage
+            csrf={ctx.viewContext.csrf}
+            linkTo={ctx.linkTo}
+            owners={['some', 'owners']}
+            errors={errors}
+          />
+        : <EmailSuccessPage
+            linkTo={ctx.linkTo}
+            csrf={ctx.viewContext.csrf}
+          />
+      ),
+    };
+}
 }
 
 export async function createOrganization(
@@ -229,88 +255,3 @@ export async function viewHomepage(
   });
 }
 
-// TODO all this processing should be done on the form
-export async function emailOrgOwners(
-  ctx: IContext,
-  _params: IParameters,
-): Promise<IResponse> {
-  throwErrorIfNotAdmin(ctx);
-
-
-  const emailBody = _params['emailBody'];
-  const orgName = _params['orgName'];
-
-  const cf = new CloudFoundryClient({
-    accessToken: ctx.token.accessToken,
-    apiEndpoint: ctx.app.cloudFoundryAPI,
-    logger: ctx.app.logger,
-  });
-
-  const accountsClient = new AccountsClient({
-    apiEndpoint: ctx.app.accountsAPI,
-    logger: ctx.app.logger,
-    secret: ctx.app.accountsSecret,
-  });
-
-  const template = new Template(ctx.viewContext, 'Platform Administrator');
-
-  const ufo = await cf.usersForOrganization(orgName);
-
-  var ufo_to_account = async function(user: IOrganizationUserRoles): Promise<string> {
-      const account_user = await accountsClient.getUser(user.metadata.guid);
-      if (account_user != undefined) {
-          return account_user.email
-      }
-      else {
-          return ""
-      }
-  }
-
-  const manager_emails_promises = Array.from(new Set(
-      ufo.filter(user => user.entity.organization_roles.includes('org_manager'))
-         .map(ufo_to_account)));
-
-  const manager_emails = await Promise.all(manager_emails_promises);
-
-  const deduped_emails: Array<string> = manager_emails.filter(e => e.length > 0);
-
-
-  const notify = new NotificationClient({
-    apiKey: ctx.app.notifyAPIKey,
-    templates: {
-      sendOrgEmail: ctx.app.notifySendOrgEmailTemplateID,
-    },
-  });
-
-  const url = new URL(ctx.app.domainName);
-
-  const results = deduped_emails.map(
-      email => notify.sendOrgEmail(email, url.toString(), emailBody
-  ));
-
-  const errors: Array<IValidationError> = [];
-  await Promise.all(results).then(
-      r => r.map(
-          (n: IResponse) => {
-              if (n.status !== undefined && n.status > 199) {
-                  errors.push({ field: 'email', message: 'email not sent' });
-              }
-      })
-  );
-  console.debug(errors);
-  return await Promise.resolve({
-    body: template.render(errors
-    ?
-      <EmailSuccessPage
-        linkTo={ctx.linkTo}
-        csrf={ctx.viewContext.csrf}
-        errors={errors}
-      />
-    :
-    <EmailOrganizationPage
-      csrf={ctx.viewContext.csrf}
-      linkTo={ctx.linkTo}
-      owners={['some', 'owners']}
-    />),
-  });
-}

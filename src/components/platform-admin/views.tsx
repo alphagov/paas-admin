@@ -33,8 +33,13 @@ interface ICreateOrganizationPageProperties extends IFormProperties {
 }
 
 interface IEmailOrganizationPageProperties extends IFormProperties {
-  readonly owners: ReadonlyArray<{
-    readonly email: string;
+  readonly orgs: ReadonlyArray<{
+    readonly metadata: {
+        readonly guid: string;
+    }
+    readonly entity: {
+        readonly name: string;
+    }
   }>;
 }
 
@@ -353,21 +358,12 @@ export function EmailOrganizationPage(props: IEmailOrganizationPageProperties): 
         <select
         className="govuk-select"
         id="org-name"
-        defaultValue={props.values?.organization}
+        defaultValue={props.orgs[0].entity.name}
         name="org-name"
         >
-        <option value="gov.uk">gov.uk</option>
-        <option value="02">February</option>
-        <option value="03">March</option>
-        <option value="04">April</option>
-        <option value="05">May</option>
-        <option value="06">June</option>
-        <option value="07">July</option>
-        <option value="08">August</option>
-        <option value="09">September</option>
-        <option value="10">October</option>
-        <option value="11">November</option>
-        <option value="12">December</option>
+          {props.orgs.map(org => (
+              <option key={org.metadata.guid} value={org.entity.name}>{org.entity.name}</option>
+          ))},
         </select>
       </div>
 
