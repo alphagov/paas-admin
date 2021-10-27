@@ -117,8 +117,7 @@ export async function emailOrganizationForm(ctx: IContext, _params: IParameters)
           csrf={ctx.viewContext.csrf}
           linkTo={ctx.linkTo}
           orgs={organizations}
-        />
-      ),
+        />),
     };
   }
   else {
@@ -129,15 +128,15 @@ export async function emailOrganizationForm(ctx: IContext, _params: IParameters)
     // TODO should this be called userRolesForOrg...
     const ufo = await cf.usersForOrganization(orgName);
 
-    var ufo_to_account = async function(user: IOrganizationUserRoles): Promise<string> {
+    const ufo_to_account = async function(user: IOrganizationUserRoles): Promise<string> {
         const account_user = await accountsClient.getUser(user.metadata.guid);
         if (account_user != undefined) {
-            return account_user.email
+            return account_user.email;
         }
         else {
-            return ""
+            return '';
         }
-    }
+    };
 
     const manager_emails_promises = Array.from(
         ufo.filter(user => user.entity.organization_roles.includes('org_manager'))
@@ -145,12 +144,12 @@ export async function emailOrganizationForm(ctx: IContext, _params: IParameters)
 
     const manager_emails = await Promise.all(manager_emails_promises);
 
-    const deduped_emails: Array<string> = Array.from(new Set(manager_emails.filter(e => e.length > 0)));
+    const deduped_emails: ReadonlyArray<string> = Array.from(new Set(manager_emails.filter(e => e.length > 0)));
 
     const url = new URL(ctx.app.domainName);
 
     const results = deduped_emails.map(
-        email => notify.sendOrgEmail(email, url.toString(), emailBody
+        async email => await notify.sendOrgEmail(email, url.toString(), emailBody
     ));
 
     const errors: Array<IValidationError> = [];
@@ -159,29 +158,26 @@ export async function emailOrganizationForm(ctx: IContext, _params: IParameters)
             (n: IResponse) => {
                 // TODO should we check JUST for 201s?
                 // TODO check for more errors, connection errors etc
-                if (n.status !== undefined && n.status > 299) {
+                if (n.status !== undefined && n.status > 199) {
                     errors.push({ field: 'email', message: 'email not sent' });
                 }
-        })
-    );
+        }));
 
-    console.debug(errors);
     return {
         body: template.render(
         errors.length > 0 ?
           <EmailOrganizationPage
             csrf={ctx.viewContext.csrf}
             linkTo={ctx.linkTo}
-            owners={['some', 'owners']}
+            orgs={organizations}
             errors={errors}
           />
         : <EmailSuccessPage
             linkTo={ctx.linkTo}
             csrf={ctx.viewContext.csrf}
-          />
-      ),
+          />),
     };
-}
+  }
 }
 
 export async function createOrganization(
@@ -202,7 +198,7 @@ export async function createOrganization(
     const orgs = await cf.v3Organizations();
     const owners = Array.from(new Set(orgs
       .filter(org => !!org.metadata.annotations.owner)
-      .map(org => ({ name: org.name, owner: org.metadata.annotations.owner! }))
+      .map(org => ({ name: org.name, owner: org.metadata.annotations.owner }))
       .sort()));
 
     return {
