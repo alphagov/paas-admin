@@ -384,7 +384,8 @@ export function EmailOrganizationPage(props: IEmailOrganizationPageProperties): 
           id="email-body"
           name="email-body"
           defaultValue={props.values?.owner}
-          rows="5"
+          rows={5}
+          required
         />
       </div>
 

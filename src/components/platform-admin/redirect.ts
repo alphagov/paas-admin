@@ -33,7 +33,7 @@ async function emailOwners(
   }
 
   return await Promise.resolve({
-    redirect: ctx.linkTo('platform-admin.emailOrgOwners', { emailBody, orgName }),
+    redirect: ctx.linkTo('platform-admin.email-organization.form', { emailBody, orgName }),
   });
 }
 
