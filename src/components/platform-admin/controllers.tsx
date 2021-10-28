@@ -6,8 +6,7 @@ import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
 
-import { NotFoundError } from '../../lib/router/errors';
-import { AccountsClient } from '../../lib/accounts';
+import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 
 import { validateNewOrganization } from './validators';
 import {
@@ -21,15 +20,10 @@ import {
 import NotificationClient from '../../lib/notify';
 
 import {
-  IOrganizationUserRoles,
   IOrganization,
 } from '../../lib/cf/types';
 
 import { IValidationError } from '../errors/types';
-
-interface UserEmails {
-  readonly email: string;
-};
 
 const TITLE_CREATE_ORG = 'Create Organisation';
 
@@ -107,77 +101,62 @@ export async function emailOrganizationForm(ctx: IContext, _params: IParameters)
     cf.organizations().then(sortOrganizationsByName),
   ]);
 
-  console.debug(organizations);
+  const errors: Array<IValidationError> = [];
 
-  if (emailBody === undefined && orgName === undefined) {
-      // render form
+  if (emailBody !== undefined && orgName !== undefined) {
+    const usersForGivenOrg = await cf.usersForOrganization(orgName);
+
+    const managerUsersInOrg = await Promise.all(
+      usersForGivenOrg.filter(user => user.entity.organization_roles.includes('org_manager'))
+        .map(async manager => await accountsClient.getUser(manager.metadata.guid))
+    );
+
+    const managersEmails: ReadonlyArray<string> = Array.from(
+      new Set(
+        managerUsersInOrg
+          .filter((managerAccount): managerAccount is IAccountsUser => !!managerAccount)
+          .map((managerAccount) => managerAccount.email)
+      )
+    );
+
+    const url = new URL(ctx.app.domainName);
+
+    const results = managersEmails.map(
+      async email => await notify.sendOrgEmail(email, url.toString(), emailBody)
+    );
+
+    await Promise.all(results)
+      .then(
+        results => results.map(
+          (resp: IResponse) => {
+            // TODO should we check JUST for 201s?
+            // TODO check for more errors, connection errors etc
+            if (resp.status !== undefined && resp.status > 199) {
+                errors.push({ field: 'email', message: 'email not sent' });
+            }
+          }
+        )
+      );
+  }
+
   return {
-      body: template.render(
+    body: template.render(
+      errors.length == 0 && 
+      emailBody !== undefined && 
+      orgName !== undefined ?
+        <EmailSuccessPage
+          linkTo={ctx.linkTo}
+          csrf={ctx.viewContext.csrf}
+        />
+      :
         <EmailOrganizationPage
           csrf={ctx.viewContext.csrf}
           linkTo={ctx.linkTo}
           orgs={organizations}
-        />),
-    };
-  }
-  else {
-     // send emails
-
-
-
-    // TODO should this be called userRolesForOrg...
-    const ufo = await cf.usersForOrganization(orgName);
-
-    const ufo_to_account = async function(user: IOrganizationUserRoles): Promise<string> {
-        const account_user = await accountsClient.getUser(user.metadata.guid);
-        if (account_user != undefined) {
-            return account_user.email;
-        }
-        else {
-            return '';
-        }
-    };
-
-    const manager_emails_promises = Array.from(
-        ufo.filter(user => user.entity.organization_roles.includes('org_manager'))
-          .map(ufo_to_account));
-
-    const manager_emails = await Promise.all(manager_emails_promises);
-
-    const deduped_emails: ReadonlyArray<string> = Array.from(new Set(manager_emails.filter(e => e.length > 0)));
-
-    const url = new URL(ctx.app.domainName);
-
-    const results = deduped_emails.map(
-        async email => await notify.sendOrgEmail(email, url.toString(), emailBody
-    ));
-
-    const errors: Array<IValidationError> = [];
-    await Promise.all(results).then(
-        results => results.map(
-            (n: IResponse) => {
-                // TODO should we check JUST for 201s?
-                // TODO check for more errors, connection errors etc
-                if (n.status !== undefined && n.status > 199) {
-                    errors.push({ field: 'email', message: 'email not sent' });
-                }
-        }));
-
-    return {
-        body: template.render(
-        errors.length > 0 ?
-          <EmailOrganizationPage
-            csrf={ctx.viewContext.csrf}
-            linkTo={ctx.linkTo}
-            orgs={organizations}
-            errors={errors}
-          />
-        : <EmailSuccessPage
-            linkTo={ctx.linkTo}
-            csrf={ctx.viewContext.csrf}
-          />),
-    };
-  }
+          errors={errors}
+        />
+    ),
+  };
 }
 
 export async function createOrganization(

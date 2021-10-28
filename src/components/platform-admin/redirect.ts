@@ -12,7 +12,7 @@ async function findUser(
     throw new Error('Field email-or-user-guid is undefined or blank');
   }
 
-  return await Promise.resolve({
+  return await Promise.resolve({ 
     redirect: ctx.linkTo('users.get', { emailOrUserGUID }),
   });
 }
@@ -22,8 +22,8 @@ async function emailOwners(
   _params: IParameters,
   body: any,
 ): Promise<IResponse> {
-  const orgName = body['org-name'];
-  const emailBody = body['email-body'];
+  const orgName = body['organization']; //TODO: Does this need to be GUID instead?
+  const emailBody = body['message'];
 
   if (typeof orgName === 'undefined' || orgName === '') {
     throw new Error('Field org-name is undefined or blank');

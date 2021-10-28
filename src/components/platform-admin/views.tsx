@@ -228,32 +228,25 @@ export function PlatformAdministratorPage(
 }
 
 
-export function EmailSuccessPage(
-  props: IFormProperties,
-): ReactElement {
-  return (
-    <>
-
-      {(props.errors !== undefined && props.errors.length > 0)
-        ? <div className="govuk-error-summary" aria-labelledby="error-summary-title"
-            role="alert" tabIndex={-1} data-module="govuk-error-summary">
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              There is a problem
-            </h2>
-            <div className="govuk-error-summary__body">
-              <ul className="govuk-list govuk-error-summary__list">
-                {props.errors.map((error, index) => (
-                  <li key={index}>{error.message}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        :
-        <h1 className="govuk-heading-l">Email(s) sent!</h1>
-       }
-
-    </>
-  );
+export function EmailSuccessPage(props: IFormProperties): ReactElement {
+  if (props.errors !== undefined && props.errors.length > 0) {
+    return (
+      <div className="govuk-error-summary" aria-labelledby="error-summary-title"
+        role="alert" tabIndex={-1} data-module="govuk-error-summary">
+        <h2 className="govuk-error-summary__title" id="error-summary-title">
+          There is a problem
+        </h2>
+        <div className="govuk-error-summary__body">
+          <ul className="govuk-list govuk-error-summary__list">
+            {props.errors.map((error, index) => (
+              <li key={index}>{error.message}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    );
+  }
+  return (<h1 className="govuk-heading-l">Email(s) sent!</h1>);
 }
 
 export function CreateOrganizationPage(props: ICreateOrganizationPageProperties): ReactElement {
@@ -329,7 +322,7 @@ export function EmailOrganizationPage(props: IEmailOrganizationPageProperties): 
 
           <input type="hidden" name="action" value="email-owners" />
 
-          {props.errors
+          {props.errors && props.errors.length > 0
             ? <div className="govuk-error-summary" aria-labelledby="error-summary-title"
                 role="alert" tabIndex={-1} data-module="govuk-error-summary">
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
