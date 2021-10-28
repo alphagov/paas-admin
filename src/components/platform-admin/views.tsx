@@ -320,79 +320,79 @@ export function CreateOrganizationPage(props: ICreateOrganizationPageProperties)
 
 
 export function EmailOrganizationPage(props: IEmailOrganizationPageProperties): ReactElement {
-  return (<div className="govuk-grid-row">
+  return (
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-two-thirds">
+        <h1 className="govuk-heading-l">Email organisation managers</h1>
+        <form action={props.linkTo('platform-admin.redirect')} method="POST" noValidate>
+          <input type="hidden" name="_csrf" value={props.csrf} />
 
+          <input type="hidden" name="action" value="email-owners" />
 
-    <form action={props.linkTo('platform-admin.redirect')} method="POST">
-      <input type="hidden" name="_csrf" value={props.csrf} />
+          {props.errors
+            ? <div className="govuk-error-summary" aria-labelledby="error-summary-title"
+                role="alert" tabIndex={-1} data-module="govuk-error-summary">
+                <h2 className="govuk-error-summary__title" id="error-summary-title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <ul className="govuk-list govuk-error-summary__list">
+                    {props.errors.map((error, index) => (
+                      <li key={index}><a href={`#${error.field}`}>{error.message}</a></li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            : null}
 
-      <input type="hidden" name="action" value="email-owners" />
+          <p className="govuk-body">
+            This form will email all the owners of an organisation.
+          </p>
+          <p className="govuk-body govuk-!-font-weight-bold">
+          This is not for broad service updates, please use the corresponding mailing list instead.
+          </p>
 
-      {props.errors
-        ? <div className="govuk-error-summary" aria-labelledby="error-summary-title"
-            role="alert" tabIndex={-1} data-module="govuk-error-summary">
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              There is a problem
-            </h2>
-            <div className="govuk-error-summary__body">
-              <ul className="govuk-list govuk-error-summary__list">
-                {props.errors.map((error, index) => (
-                  <li key={index}><a href={`#${error.field}`}>{error.message}</a></li>
-                ))}
-              </ul>
-            </div>
+          <div className="govuk-form-group">
+            <label className="govuk-label" htmlFor="organization">
+              Organisation name
+            </label>
+            <select
+              className="govuk-select"
+              id="organization"
+              defaultValue={props.orgs[0].entity.name}
+              name="organization"
+            >
+              {props.orgs.map(org => (
+                  <option key={org.metadata.guid} value={org.entity.name}>{org.entity.name}</option>
+              ))},
+            </select>
           </div>
-        : null}
 
-      <p className="govuk-body">
-        This form will email all the owners of an organisation.
-        {' '}
-        <strong>This is not for broad service updates, please use the corresponding mailing list instead.</strong>
-      </p>
+          <div className="govuk-form-group">
+            <label className="govuk-label" htmlFor="message">
+              Message
+            </label>
+            <span id="message-hint" className="govuk-hint">
+              The message that will be sent. Please adhere to our support messaging guidelines.
+            </span>
 
-      <div className="govuk-form-group">
-        <label className="govuk-label" htmlFor="organization">
-          Organisation name
-        </label>
+            <textarea
+              className="govuk-textarea"
+              id="message"
+              name="message"
+              aria-describedby="message-hint"
+              defaultValue={props.values?.owner}
+              rows={5}
+            />
+          </div>
 
-        <select
-        className="govuk-select"
-        id="org-name"
-        defaultValue={props.orgs[0].entity.name}
-        name="org-name"
-        >
-          {props.orgs.map(org => (
-              <option key={org.metadata.guid} value={org.entity.name}>{org.entity.name}</option>
-          ))},
-        </select>
+          <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
+            Send email
+          </button>
+        </form>
       </div>
-
-      <div className="govuk-form-group">
-        <label className="govuk-label" htmlFor="owner">
-          Message
-        </label>
-        <span id="owner-hint" className="govuk-hint">
-          The message that will be sent. Please adhere to our support messaging guidelines.
-        </span>
-
-        <textarea
-          className="govuk-textarea"
-          id="email-body"
-          name="email-body"
-          defaultValue={props.values?.owner}
-          rows={5}
-          required
-        />
-      </div>
-
-      <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
-        Send
-      </button>
-    </form>
-
-    <div className="govuk-grid-column-one-half">
     </div>
-  </div>);
+    );
 }
 
 export function CreateOrganizationSuccessPage(props: ICreateOrganizationSuccessPageProperties): ReactElement {
