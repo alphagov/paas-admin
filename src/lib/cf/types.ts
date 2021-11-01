@@ -9,6 +9,14 @@ export interface IMetadata {
   readonly updated_at: string;
 }
 
+export interface IError {
+  readonly errors: ReadonlyArray<{
+    readonly error: string;
+    readonly message: string;
+  }>
+  readonly status_code: number;
+}
+
 export interface IResource {
   readonly entity: {
     readonly name: string;

@@ -20,10 +20,12 @@ import {
 import NotificationClient from '../../lib/notify';
 
 import {
+  IError,
   IOrganization,
 } from '../../lib/cf/types';
 
 import { IValidationError } from '../errors/types';
+import { response } from 'express';
 
 const TITLE_CREATE_ORG = 'Create Organisation';
 
@@ -125,17 +127,29 @@ export async function emailOrganizationForm(ctx: IContext, _params: IParameters)
       async email => await notify.sendOrgEmail(email, url.toString(), emailBody)
     );
 
+    var notifyID;
+    var isMultipleEmails;
+
     await Promise.all(results)
-      .then(
-        results => results.map(
-          (resp: IResponse) => {
-            // TODO should we check JUST for 201s?
-            // TODO check for more errors, connection errors etc
-            if (resp.status !== undefined && resp.status > 199) {
-                errors.push({ field: 'email', message: 'email not sent' });
-            }
-          }
-        )
+      .then((successfulNotifyApiCalls) => {
+        isMultipleEmails = (successfulNotifyApiCalls.length > 1);
+
+        successfulNotifyApiCalls.map(
+          response => notifyID += response.data.id + ', '
+        );
+        notifyID = notifyID.slice(0, -2);
+      })
+      .catch(failedPromise => {
+        const failure: IError = failedPromise.response.data;
+          // TODO should we check JUST for 201s?
+          // TODO check for more errors, connection errors etc
+          if (failure.status_code != 201) {
+              // errors.push({ field: 'email', message: 'email not sent' });
+              failure.errors.map((error) => errors.push({ field: 'email', message: error.message }));
+
+              console.error(failure);
+          } 
+        }
       );
   }
 
@@ -146,7 +160,8 @@ export async function emailOrganizationForm(ctx: IContext, _params: IParameters)
       orgName !== undefined ?
         <EmailSuccessPage
           linkTo={ctx.linkTo}
-          csrf={ctx.viewContext.csrf}
+          heading={isMultipleEmails ? "Emails sent!" : "Email sent"}
+          text={"NotifyIDs: " + notifyID}
         />
       :
         <EmailOrganizationPage

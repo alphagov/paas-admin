@@ -43,6 +43,11 @@ interface IEmailOrganizationPageProperties extends IFormProperties {
   }>;
 }
 
+interface IEmailSuccessPageProperties extends IProperties {
+  readonly heading: string;
+  readonly text: string;
+}
+
 function Costs(props: IFormProperties): ReactElement {
   return (
     <>
@@ -228,26 +233,27 @@ export function PlatformAdministratorPage(
 }
 
 
-export function EmailSuccessPage(props: IFormProperties): ReactElement {
-  if (props.errors !== undefined && props.errors.length > 0) {
-    return (
-      <div className="govuk-error-summary" aria-labelledby="error-summary-title"
-        role="alert" tabIndex={-1} data-module="govuk-error-summary">
-        <h2 className="govuk-error-summary__title" id="error-summary-title">
-          There is a problem
-        </h2>
-        <div className="govuk-error-summary__body">
-          <ul className="govuk-list govuk-error-summary__list">
-            {props.errors.map((error, index) => (
-              <li key={index}>{error.message}</li>
-            ))}
-          </ul>
+export function EmailSuccessPage(props: IEmailSuccessPageProperties): ReactElement {
+  return (
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-two-thirds">
+        <div className="govuk-panel govuk-panel--confirmation">
+          <h1 className="govuk-panel__title">{props.heading}</h1>
+          <div className="govuk-panel__body">{props.text}</div>
         </div>
+        {/* <h2 className="govuk-heading-m">More actions</h2> */}
+        <a
+          href={props.linkTo('platform-admin.email-organization.form')}
+          role="button"
+          draggable="false"
+          className="govuk-button"
+          data-module="govuk-button"
+        >
+          Email organisation owners
+        </a>
       </div>
-    );
-  }
-  return (<h1 className="govuk-heading-l">Email(s) sent!</h1>);
-}
+    </div>
+  );}
 
 export function CreateOrganizationPage(props: ICreateOrganizationPageProperties): ReactElement {
   return (<div className="govuk-grid-row">
