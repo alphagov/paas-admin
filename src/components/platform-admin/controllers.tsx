@@ -1,31 +1,27 @@
 import React from 'react';
 
 import { Template } from '../../layouts';
+import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
-import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
+import {
+  IOrganization,
+} from '../../lib/cf/types';
+import NotificationClient from '../../lib/notify';
+import { IParameters, IResponse, NotAuthorisedError, NotFoundError } from '../../lib/router';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
-
-import { AccountsClient, IAccountsUser } from '../../lib/accounts';
+import { IValidationError } from '../errors/types';
 
 import { validateNewOrganization } from './validators';
 import {
   CreateOrganizationPage,
-  EmailOrganizationPage,
   CreateOrganizationSuccessPage,
+  EmailOrganizationPage,
+  EmailSuccessPage,
   INewOrganizationUserBody,
   PlatformAdministratorPage,
-  EmailSuccessPage,
 } from './views';
-import NotificationClient from '../../lib/notify';
 
-import {
-  IError,
-  IOrganization,
-} from '../../lib/cf/types';
-
-import { IValidationError } from '../errors/types';
-import { response } from 'express';
 
 const TITLE_CREATE_ORG = 'Create Organisation';
 
@@ -72,13 +68,13 @@ function sortOrganizationsByName(
   return organizationsCopy;
 }
 
-export async function emailOrganizationForm(ctx: IContext, _params: IParameters): Promise<IResponse> {
+export async function emailOrganizationForm(ctx: IContext, params: IParameters): Promise<IResponse> {
   throwErrorIfNotAdmin(ctx);
 
-  const template = new Template(ctx.viewContext, "Email org managers");
+  const template = new Template(ctx.viewContext, 'Email org managers');
 
-  const emailBody = _params['emailBody'];
-  const orgName = _params['orgName'];
+  const emailBody = params['emailBody'];
+  const orgName = params['orgName'];
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
@@ -103,74 +99,54 @@ export async function emailOrganizationForm(ctx: IContext, _params: IParameters)
     cf.organizations().then(sortOrganizationsByName),
   ]);
 
-  const errors: Array<IValidationError> = [];
+  const errors = [];
 
-  if (emailBody !== undefined && orgName !== undefined) {
-    const usersForGivenOrg = await cf.usersForOrganization(orgName);
+  if (!emailBody || !orgName) {
+    throw new NotFoundError('Unable to read email body or organisation name.');
+  }
+  const usersForGivenOrg = await cf.usersForOrganization(orgName);
 
-    const managerUsersInOrg = await Promise.all(
-      usersForGivenOrg.filter(user => user.entity.organization_roles.includes('org_manager'))
-        .map(async manager => await accountsClient.getUser(manager.metadata.guid))
-    );
+  const managerUsersInOrg = await Promise.all(
+    usersForGivenOrg.filter(user => user.entity.organization_roles.includes('org_manager'))
+      .map(async manager => await accountsClient.getUser(manager.metadata.guid)),
+  );
 
-    const managersEmails: ReadonlyArray<string> = Array.from(
-      new Set(
-        managerUsersInOrg
-          .filter((managerAccount): managerAccount is IAccountsUser => !!managerAccount)
-          .map((managerAccount) => managerAccount.email)
-      )
-    );
+  const managersEmails: ReadonlyArray<string> = Array.from(
+    new Set(
+      managerUsersInOrg
+        .filter((managerAccount): managerAccount is IAccountsUser => !!managerAccount)
+        .map(managerAccount => managerAccount.email),
+    ),
+  );
 
-    const url = new URL(ctx.app.domainName);
+  const url = new URL(ctx.app.domainName);
 
-    const results = managersEmails.map(
-      async email => await notify.sendOrgEmail(email, url.toString(), emailBody)
-    );
+  const jobs = managersEmails.map(
+    async email => await notify.sendOrgEmail(email, url.toString(), emailBody),
+  );
 
-    var notifyID;
-    var isMultipleEmails;
+  const results = await Promise.all(jobs);
 
-    await Promise.all(results)
-      .then((successfulNotifyApiCalls) => {
-        isMultipleEmails = (successfulNotifyApiCalls.length > 1);
+  // TODO should we check JUST for 201s?
+  // TODO check for more errors, connection errors etc
 
-        successfulNotifyApiCalls.map(
-          response => notifyID += response.data.id + ', '
-        );
-        notifyID = notifyID.slice(0, -2);
-      })
-      .catch(failedPromise => {
-        const failure: IError = failedPromise.response.data;
-          // TODO should we check JUST for 201s?
-          // TODO check for more errors, connection errors etc
-          if (failure.status_code != 201) {
-              // errors.push({ field: 'email', message: 'email not sent' });
-              failure.errors.map((error) => errors.push({ field: 'email', message: error.message }));
-
-              console.error(failure);
-          } 
-        }
-      );
+  if (errors.length > 0) {
+    return {
+      body: template.render(<EmailOrganizationPage
+        csrf={ctx.viewContext.csrf}
+        linkTo={ctx.linkTo}
+        orgs={organizations}
+        errors={errors}
+      />),
+    };
   }
 
   return {
-    body: template.render(
-      errors.length == 0 && 
-      emailBody !== undefined && 
-      orgName !== undefined ?
-        <EmailSuccessPage
-          linkTo={ctx.linkTo}
-          heading={isMultipleEmails ? "Emails sent!" : "Email sent"}
-          text={"NotifyIDs: " + notifyID}
-        />
-      :
-        <EmailOrganizationPage
-          csrf={ctx.viewContext.csrf}
-          linkTo={ctx.linkTo}
-          orgs={organizations}
-          errors={errors}
-        />
-    ),
+    body: template.render(<EmailSuccessPage
+      linkTo={ctx.linkTo}
+      heading={results.length > 1 ? 'Emails sent!' : 'Email sent'}
+      text={`NotifyIDs: ${results.map(r => r.data.id).join(', ')}`}
+    />),
   };
 }
 
