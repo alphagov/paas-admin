@@ -3,11 +3,9 @@ import React from 'react';
 import { Template } from '../../layouts';
 import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
-import {
-  IOrganization,
-} from '../../lib/cf/types';
+import { IError, IOrganization } from '../../lib/cf/types';
 import NotificationClient from '../../lib/notify';
-import { IParameters, IResponse, NotAuthorisedError, NotFoundError } from '../../lib/router';
+import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
 import { IValidationError } from '../errors/types';
@@ -99,11 +97,17 @@ export async function emailOrganizationForm(ctx: IContext, params: IParameters):
     cf.organizations().then(sortOrganizationsByName),
   ]);
 
-  const errors = [];
-
   if (!emailBody || !orgName) {
-    throw new NotFoundError('Unable to read email body or organisation name.');
+    return {
+      body: template.render(<EmailOrganizationPage
+        csrf={ctx.viewContext.csrf}
+        linkTo={ctx.linkTo}
+        orgs={organizations}
+      />),
+    };
   }
+
+
   const usersForGivenOrg = await cf.usersForOrganization(orgName);
 
   const managerUsersInOrg = await Promise.all(
@@ -125,7 +129,39 @@ export async function emailOrganizationForm(ctx: IContext, params: IParameters):
     async email => await notify.sendOrgEmail(email, url.toString(), emailBody),
   );
 
-  const results = await Promise.all(jobs);
+  const errors: ReadonlyArray<IValidationError>  = [];
+
+class GenericNotifyResponse {
+  readonly statusCode: number;
+  readonly notifyId?: string;
+  readonly errors?: ReadonlyArray<IValidationError>;
+}
+
+  const results: ReadonlyArray<GenericNotifyResponse> = await Promise.all(jobs)
+    .then(successfulNotifyApiCalls => {
+      return successfulNotifyApiCalls
+        .map((response): GenericNotifyResponse => ({ notifyId: response.data.id, statusCode: response.status }));
+    })
+    // .catch(obj => obj);
+    // .then((successfulNotifyApiCalls) => {
+    //   isMultipleEmails = (successfulNotifyApiCalls.length > 1);
+
+    //   successfulNotifyApiCalls.map(
+    //     response => notifyID += response.data.id + ', '
+    //   );
+    //   notifyID = notifyID.slice(0, -2);
+    // })
+    .catch((failedPromise): ReadonlyArray<GenericNotifyResponse> => {
+      const failure: IError = failedPromise.response.data;
+
+        return [{
+          errors: failure.errors.map(error => ({ field: 'email', message: error.message })),
+          statusCode: failure.status_code,
+        }];
+      },
+    );
+
+  console.log(results);
 
   // TODO should we check JUST for 201s?
   // TODO check for more errors, connection errors etc
