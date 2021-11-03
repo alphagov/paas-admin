@@ -22,15 +22,29 @@ export interface INewOrganizationUserBody {
 interface IFormProperties extends IProperties {
   readonly csrf: string;
   readonly errors?: ReadonlyArray<IValidationError>;
-  readonly values?: INewOrganizationUserBody;
 }
 
 interface ICreateOrganizationPageProperties extends IFormProperties {
+  readonly values?: INewOrganizationUserBody;
   readonly owners: ReadonlyArray<{
     readonly name: string;
     readonly owner: string;
   }>;
 }
+
+export interface IEmailOrganisationManagersPageValues {
+  readonly organisation: string;
+  readonly message: string;
+}
+
+interface IEmailOrganisationManagersPageProperties extends IFormProperties {
+  readonly orgs: ReadonlyArray<{
+    readonly guid: string;
+    readonly name: string;
+    readonly suspended: boolean;
+  }>;
+}
+
 
 function Costs(props: IFormProperties): ReactElement {
   return (
@@ -150,6 +164,11 @@ function Organizations(props: IProperties): ReactElement {
         <li>
           <a className="govuk-link" href={props.linkTo('admin.reports.organizations')}>
             View trial and billable organisations
+          </a>
+        </li>
+        <li>
+          <a className="govuk-link" href={props.linkTo('platform-admin.email-organization-managers')}>
+            Email organisation managers
           </a>
         </li>
       </ul>
@@ -281,4 +300,78 @@ export function CreateOrganizationSuccessPage(props: ICreateOrganizationSuccessP
     text={'You still need to invite people and assign permissions.'}
     >
   </SuccessPage>);
+}
+
+export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersPageProperties): ReactElement {
+  return (<div className="govuk-grid-row">
+    <div className="govuk-grid-column-two-thirds">
+      <form method="post" noValidate>
+        <h1 className="govuk-heading-xl">Email organisation managers</h1>
+
+        <input type="hidden" name="_csrf" value={props.csrf} />
+
+        {props.errors
+          ? <div className="govuk-error-summary" aria-labelledby="error-summary-title"
+              role="alert" tabIndex={-1} data-module="govuk-error-summary">
+              <h2 className="govuk-error-summary__title" id="error-summary-title">
+                There is a problem
+              </h2>
+              <div className="govuk-error-summary__body">
+                <ul className="govuk-list govuk-error-summary__list">
+                  {props.errors.map((error, index) => (
+                    <li key={index}><a href={`#${error.field}`}>{error.message}</a></li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          : null
+        }
+
+        <p className="govuk-body">
+          This form will email all the owners of an organisation.
+        </p>
+        <p className="govuk-body govuk-!-font-weight-bold">
+        This is not for broad service updates, please use the corresponding mailing list instead.
+        </p>
+
+        <div className="govuk-form-group">
+          <label className="govuk-label" htmlFor="organization">
+            Organisation name
+          </label>
+          <select
+            className="govuk-select"
+            id="organization"
+            name="organization"
+          >
+            <option>Select an organisation</option>
+            {props.orgs.map(org => (
+                <option key={org.guid} value={org.guid}>{org.name} { org.suspended ? '( suspended )' : null }</option>
+            ))},
+          </select>
+        </div>
+
+        <div className="govuk-form-group">
+          <label className="govuk-label" htmlFor="message">
+            Message
+          </label>
+          <span id="message-hint" className="govuk-hint">
+            The message that will be sent. Please adhere to our support messaging guidelines.
+          </span>
+
+          <textarea
+            className="govuk-textarea"
+            id="message"
+            name="message"
+            aria-describedby="message-hint"
+            rows={8}
+          />
+        </div>
+
+        <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
+          Send email
+        </button>
+      </form>
+    </div>
+   
+  </div>);
 }

@@ -10,11 +10,14 @@ import { validateNewOrganization } from './validators';
 import {
   CreateOrganizationPage,
   CreateOrganizationSuccessPage,
+  EmailOrganisationManagersPage,
+  IEmailOrganisationManagersPageValues,
   INewOrganizationUserBody,
   PlatformAdministratorPage,
 } from './views';
 
 const TITLE_CREATE_ORG = 'Create Organisation';
+const TITLE_EMAIL_ORG_MANAGERS = 'Email organisation managers';
 
 function throwErrorIfNotAdmin({ token }: { readonly token: Token }): void {
   if (token.hasAdminScopes()) {
@@ -99,6 +102,30 @@ export async function createOrganization(
     body: template.render(<CreateOrganizationSuccessPage
       linkTo={ctx.linkTo}
       organizationGUID={organization.guid}
+    />),
+  };
+}
+
+export async function emailOrganisationManagers(
+  ctx: IContext, _params: IParameters, body: IEmailOrganisationManagersPageValues,
+): Promise<IResponse> {
+  throwErrorIfNotAdmin(ctx);
+
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+
+  const orgsList = await cf.v3Organizations();
+
+  const template = new Template(ctx.viewContext, TITLE_EMAIL_ORG_MANAGERS);
+
+  return {
+    body: template.render(<EmailOrganisationManagersPage
+      linkTo={ctx.linkTo}
+      csrf={ctx.viewContext.csrf}
+      orgs={orgsList}
     />),
   };
 }
