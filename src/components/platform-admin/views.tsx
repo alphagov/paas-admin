@@ -340,7 +340,7 @@ export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersP
               ? 'govuk-form-group--error'
               : ''
           }`}>
-          <label className="govuk-label" htmlFor="organization">
+          <label className="govuk-label" htmlFor="organisation">
             Organisation name
           </label>
           {props.errors
@@ -361,8 +361,8 @@ export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersP
                   ? 'govuk-select--error'
                   : ''
               }`}
-            id="organization"
-            name="organization"
+            id="organisation"
+            name="organisation"
             aria-describedby={
               props.errors?.some(e => e.field === 'organisation')
                 ? 'organisation-error'
