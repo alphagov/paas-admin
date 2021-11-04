@@ -264,6 +264,12 @@ export const router = new Router([
     path: '/platform-admin/email-organisation-managers',
   },
   {
+    action: platformAdmin.emailOrganisationManagersPost,
+    method: 'post',
+    name: 'platform-admin.email-organization-managers.post',
+    path: '/platform-admin/email-organisation-managers',
+  },
+  {
     action: performance.viewDashboard,
     name: 'performance.view',
     path: '/performance',

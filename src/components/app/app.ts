@@ -35,6 +35,8 @@ import {
 import { termsCheckerMiddleware } from '../terms';
 import { resetPassword, resetPasswordObtainToken, resetPasswordProvideNew, resetPasswordRequestToken } from '../users';
 
+import { emailOrganisationManagersPost } from '../platform-admin'
+
 import { csp } from './app.csp';
 import { initContext } from './context';
 import { router } from './router';
@@ -492,6 +494,19 @@ export default function(config: IAppConfig): express.Express {
       .catch(
         /* istanbul ignore next */
         err => internalServerErrorMiddleware(err, req, res, next));
+    },
+  );
+
+  /* istanbul ignore next */
+  app.post('/platform-admin/email-organisation-managers', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const route = router.findByName('platform-admin.email-organization-managers.post');
+    const ctx = initContext(req, router, route, config);
+
+    emailOrganisationManagersPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
+      .then((response: IResponse) => {
+        res.status(response.status || 200).send(response.body);
+      })
+      .catch(err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
 

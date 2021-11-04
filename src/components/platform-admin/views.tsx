@@ -43,6 +43,7 @@ interface IEmailOrganisationManagersPageProperties extends IFormProperties {
     readonly name: string;
     readonly suspended: boolean;
   }>;
+  readonly values?: IEmailOrganisationManagersPageValues;
 }
 
 
@@ -334,36 +335,86 @@ export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersP
         This is not for broad service updates, please use the corresponding mailing list instead.
         </p>
 
-        <div className="govuk-form-group">
+        <div className={`govuk-form-group ${
+            props.errors?.some(e => e.field === 'organisation')
+              ? 'govuk-form-group--error'
+              : ''
+          }`}>
           <label className="govuk-label" htmlFor="organization">
             Organisation name
           </label>
+          {props.errors
+            ?.filter(error => error.field === 'organisation')
+            .map((error, index) => (
+              <span
+                key={index}
+                id="organisation-error"
+                className="govuk-error-message"
+              >
+                <span className="govuk-visually-hidden">Error:</span>{' '}
+                {error.message}
+              </span>
+            ))}
           <select
-            className="govuk-select"
+            className={`govuk-select ${
+              props.errors?.some(e => e.field === 'organisation')
+                  ? 'govuk-select--error'
+                  : ''
+              }`}
             id="organization"
             name="organization"
+            aria-describedby={
+              props.errors?.some(e => e.field === 'organisation')
+                ? 'organisation-error'
+                : ''
+            }
           >
-            <option>Select an organisation</option>
-            {props.orgs.map(org => (
+            <option value=''>Select an organisation</option>
+            {/* {props.orgs.map(org => (
                 <option key={org.guid} value={org.guid}>{org.name} { org.suspended ? '( suspended )' : null }</option>
-            ))},
+            ))}, */}
           </select>
         </div>
 
-        <div className="govuk-form-group">
+        <div className={`govuk-form-group ${
+            props.errors?.some(e => e.field === 'message')
+              ? 'govuk-form-group--error'
+              : ''
+          }`}>
           <label className="govuk-label" htmlFor="message">
             Message
           </label>
           <span id="message-hint" className="govuk-hint">
             The message that will be sent. Please adhere to our support messaging guidelines.
           </span>
+          {props.errors
+            ?.filter(error => error.field === 'message')
+            .map((error, index) => (
+              <span
+                key={index}
+                id="message-error"
+                className="govuk-error-message"
+              >
+                <span className="govuk-visually-hidden">Error:</span>{' '}
+                {error.message}
+              </span>
+            ))}
 
           <textarea
-            className="govuk-textarea"
+            className={`govuk-textarea ${
+              props.errors?.some(e => e.field === 'message')
+                  ? 'govuk-textarea--error'
+                  : ''
+              }`}
             id="message"
             name="message"
-            aria-describedby="message-hint"
+            aria-describedby={
+              props.errors?.some(e => e.field === 'message')
+                ? 'message-error message-hint'
+                : 'message-hint'
+            }
             rows={8}
+            defaultValue={props.values?.message}
           />
         </div>
 

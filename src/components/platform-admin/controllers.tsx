@@ -5,6 +5,7 @@ import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
+import { IValidationError } from '../errors/types';
 
 import { validateNewOrganization } from './validators';
 import {
@@ -26,6 +27,33 @@ function throwErrorIfNotAdmin({ token }: { readonly token: Token }): void {
 
   throw new NotAuthorisedError('Not a platform admin');
 }
+
+function validateEmailMessage({ message }: IEmailOrganisationManagersPageValues): ReadonlyArray<IValidationError> {
+  const errors = [];
+
+  if (!message) {
+    errors.push({
+      field: 'message',
+      message: 'Enter your message',
+    });
+  }
+
+  return errors;
+}
+
+function validateOrgSelection({ organisation }: IEmailOrganisationManagersPageValues): ReadonlyArray<IValidationError> {
+  const errors = [];
+
+  if (!organisation) {
+    errors.push({
+      field: 'organisation',
+      message: 'Select an organisation',
+    });
+  }
+
+  return errors;
+}
+
 
 export async function createOrganizationForm(ctx: IContext, _params: IParameters): Promise<IResponse> {
   throwErrorIfNotAdmin(ctx);
@@ -127,6 +155,53 @@ export async function emailOrganisationManagers(
       csrf={ctx.viewContext.csrf}
       orgs={orgsList}
     />),
+  };
+}
+
+export async function emailOrganisationManagersPost(
+  ctx: IContext, _params: IParameters, body: IEmailOrganisationManagersPageValues,
+): Promise<IResponse> {
+  // throwErrorIfNotAdmin(ctx);
+
+  // const cf = new CloudFoundryClient({
+  //   accessToken: ctx.token.accessToken,
+  //   apiEndpoint: ctx.app.cloudFoundryAPI,
+  //   logger: ctx.app.logger,
+  // });
+
+  // const orgsList = await cf.v3Organizations();
+
+  const template = new Template(ctx.viewContext);
+  const errors = [];
+
+  errors.push(
+    ...validateOrgSelection(body),
+    ...validateEmailMessage(body),
+  );
+  console.log(body, 'body')
+
+  if (errors.length > 0) {
+    template.title = `Error: ${TITLE_EMAIL_ORG_MANAGERS}`;
+
+    return {
+      body: template.render(<EmailOrganisationManagersPage
+        csrf={ctx.viewContext.csrf}
+        linkTo={ctx.linkTo}
+        errors={errors}
+        values={body}
+      />),
+      status: 400,
+    };
+  }
+
+  return {
+    body: template.render(<EmailOrganisationManagersPage
+      csrf={ctx.viewContext.csrf}
+      linkTo={ctx.linkTo}
+      errors={errors}
+      values={body}
+    />),
+    status: 400,
   };
 }
 
