@@ -83,7 +83,7 @@
     "jest": "^27.3.1",
     "jest-puppeteer": "^6.0.0",
     "lodash": "^4.17.21",
-    "mini-css-extract-plugin": "^2.4.3",
+    "mini-css-extract-plugin": "^2.4.4",
     "nock": "^13.1.4",
     "nodemon-webpack-plugin": "^4.5.2",
     "pegjs": "^0.10.0",
