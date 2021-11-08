@@ -230,6 +230,9 @@ export function SupportSelectionPage(props: ISupportSelectionFormProperties): Re
         >
           Continue
         </button>
+        <p className="govuk-body">
+          All the data we collect is processed in accordance with our <a className="govuk-link" href="https://www.cloud.service.gov.uk/privacy-notice/">privacy notice</a>.
+        </p>
       </form>
       </div>
     </div>
@@ -702,7 +705,7 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="message">
-            Tell us a bit more about what you’re trying to do
+            Tell us about what you’re trying to do
             </label>
             {props.errors
               ?.filter(error => error.field === 'message')
@@ -739,16 +742,14 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
             Submit
           </button>
         </form>
-        <h2 className="govuk-heading-m">Other help you can get</h2>
+        <h2 className="govuk-heading-m">Other ways to get help</h2>
         <p className="govuk-body">
-          We publish our guidance on how to use the platform in
-          our <a className="govuk-link" href="https://docs.cloud.service.gov.uk">documentation</a>.
+          You can:
         </p>
-        <p className="govuk-body">
-          You can also talk to us via the cross-government Slack
-          channel <span className="govuk-!-font-weight-bold">#govuk-paas</span> on the UK Government Digital workspace,
-          or the <span className="govuk-!-font-weight-bold">#paas</span> channel on the GDS workspace.
-        </p>
+        <ul className="govuk-list govuk-list--bullet">
+          <li>read the <a className="govuk-link" href="https://docs.cloud.service.gov.uk">GOV.UK PaaS documentation</a></li>
+          <li>ask for help on the <a className="govuk-link" href="https://ukgovernmentdigital.slack.com/messages/govuk-paas">#govuk-paas UK Government Digital Slack channel</a> - you’ll need a government email address</li>
+        </ul>
       </div>
     </div>
   );
@@ -786,8 +787,7 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
         <h1 className="govuk-heading-l">I&apos;d like to find out more about GOV.UK PaaS</h1>
         <div className="govuk-inset-text">
           <p className="govuk-body">
-            Contact us if you have a question about GOV.UK PaaS or you want to find out whether it&apos;s the right
-            solution for your service.
+            Contact us if you have a question about GOV.UK PaaS or want to find out if it&apos;s right for your service.
           </p>
         </div>
         <form noValidate method="post">
@@ -914,7 +914,7 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="message">
-            Tell us a bit more about what you need to know and we’ll be in contact to discuss it
+            Your question
             </label>
             {props.errors
               ?.filter(error => error.field === 'message')
@@ -953,17 +953,13 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
         </form>
         <h2 className="govuk-heading-m">More information</h2>
         <p className="govuk-body">
-          Our documentation lists
-          the <a className="govuk-link" href="https://docs.cloud.service.gov.uk/#before-you-start">requirements for an
-          app to run on GOV.UK PaaS</a>.
+          You can:
         </p>
-        <p className="govuk-body">
-          Read more about our <a className="govuk-link" href="https://www.cloud.service.gov.uk/features">features and
-          roadmap</a>.
-        </p>
-        <p className="govuk-body">
-          All the data we collect is processed in accordance with our <a className="govuk-link" href="https://www.cloud.service.gov.uk/privacy-notice">privacy notice</a>.
-        </p>
+        <ul className="govuk-list govuk-list--bullet">
+          <li>read about the <a className="govuk-link" href="https://docs.cloud.service.gov.uk/before_you_start.html">requirements for an app to run on GOV.UK PaaS</a></li>
+          <li>read about our <a className="govuk-link" href="https://www.cloud.service.gov.uk/features">features and roadmap</a></li>
+          <li>ask for help on the <a className="govuk-link" href="https://ukgovernmentdigital.slack.com/messages/govuk-paas">#govuk-paas UK Government Digital Slack channel</a> - you’ll need a government email address</li>
+        </ul>
       </div>
     </div>
   );
@@ -1193,7 +1189,7 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
             </textarea>
           </div>
           <button data-prevent-double-click="true" className="govuk-button" data-module="govuk-button">
-            Submit enquiry
+            Submit
           </button>
         </form>
       </div>
