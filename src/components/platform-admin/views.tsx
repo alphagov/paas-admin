@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { SLUG_REGEX } from '../../layouts';
 import { RouteLinker } from '../app';
@@ -44,6 +44,13 @@ interface IEmailOrganisationManagersPageProperties extends IFormProperties {
     readonly suspended: boolean;
   }>;
   readonly values?: IEmailOrganisationManagersPageValues;
+}
+
+interface EmailOrganisationManagersConfirmationPageProperties {
+  readonly heading: string;
+  readonly text: string;
+  readonly children: ReactNode;
+  readonly linkTo: RouteLinker;
 }
 
 
@@ -370,6 +377,7 @@ export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersP
             }
           >
             <option value=''>Select an organisation</option>
+            <option value='yes'>yes-org</option>
             {/* {props.orgs.map(org => (
                 <option key={org.guid} value={org.guid}>{org.name} { org.suspended ? '( suspended )' : null }</option>
             ))}, */}
@@ -425,4 +433,23 @@ export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersP
     </div>
    
   </div>);
+}
+
+export function EmailOrganisationManagersConfirmationPage(props: EmailOrganisationManagersConfirmationPageProperties): ReactElement {
+  return (
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-two-thirds">
+        <div className="govuk-panel govuk-panel--confirmation">
+          <h1 className="govuk-panel__title">
+            {props.heading}
+          </h1>
+          <div className="govuk-panel__body">
+            {props.text}
+          </div>
+        </div>
+
+        <p className="govuk-body">{props.children}</p>
+      </div>
+    </div>
+  );
 }
