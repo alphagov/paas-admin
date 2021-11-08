@@ -1,6 +1,7 @@
 import React from 'react';
 
 import * as zendesk from 'node-zendesk';
+import axios from 'axios';
 import { Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
@@ -209,26 +210,38 @@ export async function emailOrganisationManagersPost(
 
   const client = zendesk.createClient(ctx.app.zendeskConfig);
 
-  (async () => {
-    try {
-      const result = await client.tickets.create({
-        ticket: {
-          comment: {
-            body: contactOrgManagersContent({
-              organisation: body.organisation,
-              message: body.message,
-            },
-            ctx.viewContext.location)
-          },
-          subject: `[PaaS Support] About your organisation on Paas`,
-          status: 'pending',
-          tags: ['govuk_paas_support'],
-        }
-      });
-      console.log(JSON.stringify(result, null, 2));
-    } catch (err) {
-    }
-  })();
+  const zendeskAuthToken = Buffer.from(`${ctx.app.zendeskConfig.username}/token:${ctx.app.zendeskConfig.token}`).toString('base64');
+
+axios.post(`${ctx.app.zendeskConfig}/tickets`, {
+  data: {"ticket": {"subject": "Paas Support] My printer is on fire!", "comment": { "body": "The smoke is very colorful." }}}
+}, {
+  headers: {
+    'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json',
+    'Authorization': `Basic ${zendeskAuthToken}` 
+  }
+})
+
+  // (async () => {
+  //   try {
+  //     const result = await client.tickets.create({
+  //       ticket: {
+  //         comment: {
+  //           body: contactOrgManagersContent({
+  //             organisation: body.organisation,
+  //             message: body.message,
+  //           },
+  //           ctx.viewContext.location)
+  //         },
+  //         subject: `[PaaS Support] About your organisation on Paas`,
+  //         status: 'pending',
+  //         tags: ['govuk_paas_support'],
+  //       }
+  //     });
+  //     console.log(JSON.stringify(result, null, 2));
+  //   } catch (err) {
+  //   }
+  // })();
 
 
 
