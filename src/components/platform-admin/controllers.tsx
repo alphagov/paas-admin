@@ -1,5 +1,6 @@
 import React from 'react';
 
+import * as zendesk from 'node-zendesk';
 import { Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
@@ -11,6 +12,7 @@ import { validateNewOrganization } from './validators';
 import {
   CreateOrganizationPage,
   CreateOrganizationSuccessPage,
+  EmailOrganisationManagersConfirmationPage,
   EmailOrganisationManagersPage,
   IEmailOrganisationManagersPageValues,
   INewOrganizationUserBody,
@@ -52,6 +54,19 @@ function validateOrgSelection({ organisation }: IEmailOrganisationManagersPageVa
   }
 
   return errors;
+}
+
+function contactOrgManagersContent(variables: IEmailOrganisationManagersPageValues, region: string): string {
+
+  return `
+  Hello,
+  you are receiving this email as you're listed as a manager of the ${variables.organisation} organistion in our ${region.toUpperCase} region.
+  
+  ${variables.message}
+
+  Thank you,
+  GOV.​UK PaaS
+  `;
 }
 
 
@@ -148,7 +163,6 @@ export async function emailOrganisationManagers(
   const orgsList = await cf.v3Organizations();
 
   const template = new Template(ctx.viewContext, TITLE_EMAIL_ORG_MANAGERS);
-
   return {
     body: template.render(<EmailOrganisationManagersPage
       linkTo={ctx.linkTo}
@@ -178,7 +192,6 @@ export async function emailOrganisationManagersPost(
     ...validateOrgSelection(body),
     ...validateEmailMessage(body),
   );
-  console.log(body, 'body')
 
   if (errors.length > 0) {
     template.title = `Error: ${TITLE_EMAIL_ORG_MANAGERS}`;
@@ -194,15 +207,60 @@ export async function emailOrganisationManagersPost(
     };
   }
 
+  const client = zendesk.createClient(ctx.app.zendeskConfig);
+
+  (async () => {
+    try {
+      const result = await client.tickets.create({
+        ticket: {
+          comment: {
+            body: contactOrgManagersContent({
+              organisation: body.organisation,
+              message: body.message,
+            },
+            ctx.viewContext.location)
+          },
+          subject: `[PaaS Support] About your organisation on Paas`,
+          status: 'pending',
+          tags: ['govuk_paas_support'],
+        }
+      });
+      console.log(JSON.stringify(result, null, 2));
+    } catch (err) {
+    }
+  })();
+
+
+
+  // await client.tickets.create({
+  //   ticket: {
+  //     comment: {
+  //       body: contactOrgManagersContent({
+  //         organisation: body.organisation,
+  //         message: body.message,
+  //       },
+  //       ctx.viewContext.location)
+  //     },
+  //     subject: `[PaaS Support] About your organisation on Paas`,
+  //     status: 'pending',
+  //     tags: ['govuk_paas_support'],
+  //   }
+  // });
+
   return {
-    body: template.render(<EmailOrganisationManagersPage
-      csrf={ctx.viewContext.csrf}
-      linkTo={ctx.linkTo}
-      errors={errors}
-      values={body}
-    />),
-    status: 400,
-  };
+    body: template.render(
+      <EmailOrganisationManagersConfirmationPage
+        linkTo={ctx.linkTo}
+        heading={'Message has been sent'}
+        text={`A Zendesk ticket has also been created to track progress.`}
+      >
+        <a className="govuk-link"
+          href="/platform-admin/email-organisation-managers">
+            Contact more organisation managers
+        </a>.
+      </EmailOrganisationManagersConfirmationPage>,
+    ),
+  }
 }
 
 export async function viewHomepage(
