@@ -377,10 +377,9 @@ export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersP
             }
           >
             <option value=''>Select an organisation</option>
-            <option value='yes'>yes-org</option>
-            {/* {props.orgs.map(org => (
-                <option key={org.guid} value={org.guid}>{org.name} { org.suspended ? '( suspended )' : null }</option>
-            ))}, */}
+            {props.orgs.map(org => (
+              <option key={org.guid} selected={org.guid === props.values?.organisation} value={org.guid}>{org.name} { org.suspended ? '( suspended )' : null }</option>
+            ))},
           </select>
         </div>
 
