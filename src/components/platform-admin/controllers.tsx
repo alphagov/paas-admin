@@ -1,8 +1,7 @@
 import React from 'react';
 
 import * as zendesk from 'node-zendesk';
-import axios from 'axios';
-import { AccountsClient, IAccountsUser } from '../../lib/accounts';
+import UAAClient, { IUaaUser } from '../../lib/uaa';
 import { Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
@@ -61,10 +60,9 @@ function validateOrgSelection({ organisation }: IEmailOrganisationManagersPageVa
 function contactOrgManagersContent(variables: IEmailOrganisationManagersPageValues, region: string): string {
 
   return `
-  Hello,
-  you are receiving this email as you're listed as a manager of the ${variables.organisation} organistion in our ${region.toUpperCase} region.
-  
   ${variables.message}
+
+  You are receiving this email as you're listed as a manager of the ${variables.organisation} organisation in our ${region.toUpperCase()} region.
 
   Thank you,
   GOV.​UK PaaS
@@ -212,86 +210,45 @@ export async function emailOrganisationManagersPost(
     };
   }
 
-  // no errors so
-
-  const accountsClient = new AccountsClient({
-    apiEndpoint: ctx.app.accountsAPI,
-    logger: ctx.app.logger,
-    secret: ctx.app.accountsSecret,
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
   });
 
-  const usersForGivenOrg = await cf.usersForOrganization(body.organisation);
+  
 
-  const managerUsersInOrg = await Promise.all(
-    usersForGivenOrg.filter(user => user.entity.organization_roles.includes('org_manager'))
-      .map(async manager => await accountsClient.getUser(manager.metadata.guid)),
-  );
-
-  const managersEmails: ReadonlyArray<string> = Array.from(
-    new Set(
-      managerUsersInOrg
-        .filter((managerAccount): managerAccount is IAccountsUser => !!managerAccount)
-        .map(managerAccount => managerAccount.email),
-    ),
-  );
-  //find org guid in accounts
   // pull out list of org managers
   // add them as cc to zendesk ticket api
-  //send 
 
-  console.log(body)
+  // get admin user details to populate requester field for zendesk
+  const adminUser: IUaaUser | null = await uaa.getUser(ctx.token.userID);
 
-  // const client = zendesk.createClient(ctx.app.zendeskConfig);
+ // send zendesk api request with all the data 
+  const client = zendesk.createClient(ctx.app.zendeskConfig);
 
-  // const zendeskAuthToken = Buffer.from(`${ctx.app.zendeskConfig.username}/token:${ctx.app.zendeskConfig.token}`).toString('base64');
-
-  // axios.post(`${ctx.app.zendeskConfig}/tickets`, {
-  //   data: {"ticket": {"subject": "Paas Support] My printer is on fire!", "comment": { "body": "The smoke is very colorful." }}}
-  // }, {
-  //   headers: {
-  //     'Access-Control-Allow-Origin': '*',
-  //     'Content-Type': 'application/json',
-  //     'Authorization': `Basic ${zendeskAuthToken}` 
-  //   }
-  // })
-
-  // (async () => {
-  //   try {
-  //     const result = await client.tickets.create({
-  //       ticket: {
-  //         comment: {
-  //           body: contactOrgManagersContent({
-  //             organisation: body.organisation,
-  //             message: body.message,
-  //           },
-  //           ctx.viewContext.location)
-  //         },
-  //         subject: `[PaaS Support] About your organisation on Paas`,
-  //         status: 'pending',
-  //         tags: ['govuk_paas_support'],
-  //       }
-  //     });
-  //     console.log(JSON.stringify(result, null, 2));
-  //   } catch (err) {
-  //   }
-  // })();
-
-
-
-  // await client.tickets.create({
-  //   ticket: {
-  //     comment: {
-  //       body: contactOrgManagersContent({
-  //         organisation: body.organisation,
-  //         message: body.message,
-  //       },
-  //       ctx.viewContext.location)
-  //     },
-  //     subject: `[PaaS Support] About your organisation on Paas`,
-  //     status: 'pending',
-  //     tags: ['govuk_paas_support'],
-  //   }
-  // });
+  await client.tickets.create({
+    ticket: {
+      comment: {
+        body: contactOrgManagersContent({
+          organisation: body.organisation,
+          message: body.message,
+        },
+        ctx.viewContext.location)
+      },
+      subject: `[PaaS Support] About your organisation on Paas`,
+      status: 'pending',
+      tags: ['govuk_paas_support'],
+      requester: {
+        name: `${adminUser?.name.givenName} ${adminUser?.name.familyName}`,
+       // en-gb via https://developer.zendesk.com/api-reference/ticketing/account-configuration/locales/#list-available-public-locales
+       locale_id: 1176, 
+       email: adminUser?.emails[0].value!
+      }
+    }
+  });
 
   template.title = 'Message has been sent';
 
