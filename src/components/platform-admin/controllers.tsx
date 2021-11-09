@@ -2,6 +2,7 @@ import React from 'react';
 
 import * as zendesk from 'node-zendesk';
 import axios from 'axios';
+import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 import { Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
@@ -176,17 +177,8 @@ export async function emailOrganisationManagers(
 export async function emailOrganisationManagersPost(
   ctx: IContext, _params: IParameters, body: IEmailOrganisationManagersPageValues,
 ): Promise<IResponse> {
-  // throwErrorIfNotAdmin(ctx);
+  throwErrorIfNotAdmin(ctx);
 
-  // const cf = new CloudFoundryClient({
-  //   accessToken: ctx.token.accessToken,
-  //   apiEndpoint: ctx.app.cloudFoundryAPI,
-  //   logger: ctx.app.logger,
-  // });
-
-  // const orgsList = await cf.v3Organizations();
-
-  const template = new Template(ctx.viewContext);
   const errors = [];
 
   errors.push(
@@ -194,7 +186,18 @@ export async function emailOrganisationManagersPost(
     ...validateEmailMessage(body),
   );
 
+  const template = new Template(ctx.viewContext);
+
   if (errors.length > 0) {
+
+    const cf = new CloudFoundryClient({
+      accessToken: ctx.token.accessToken,
+      apiEndpoint: ctx.app.cloudFoundryAPI,
+      logger: ctx.app.logger,
+    });
+  
+    const orgsList = await cf.v3Organizations();
+  
     template.title = `Error: ${TITLE_EMAIL_ORG_MANAGERS}`;
 
     return {
@@ -202,25 +205,55 @@ export async function emailOrganisationManagersPost(
         csrf={ctx.viewContext.csrf}
         linkTo={ctx.linkTo}
         errors={errors}
+        orgs={orgsList}
         values={body}
       />),
       status: 400,
     };
   }
 
-  const client = zendesk.createClient(ctx.app.zendeskConfig);
+  // no errors so
 
-  const zendeskAuthToken = Buffer.from(`${ctx.app.zendeskConfig.username}/token:${ctx.app.zendeskConfig.token}`).toString('base64');
+  const accountsClient = new AccountsClient({
+    apiEndpoint: ctx.app.accountsAPI,
+    logger: ctx.app.logger,
+    secret: ctx.app.accountsSecret,
+  });
 
-axios.post(`${ctx.app.zendeskConfig}/tickets`, {
-  data: {"ticket": {"subject": "Paas Support] My printer is on fire!", "comment": { "body": "The smoke is very colorful." }}}
-}, {
-  headers: {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json',
-    'Authorization': `Basic ${zendeskAuthToken}` 
-  }
-})
+  const usersForGivenOrg = await cf.usersForOrganization(body.organisation);
+
+  const managerUsersInOrg = await Promise.all(
+    usersForGivenOrg.filter(user => user.entity.organization_roles.includes('org_manager'))
+      .map(async manager => await accountsClient.getUser(manager.metadata.guid)),
+  );
+
+  const managersEmails: ReadonlyArray<string> = Array.from(
+    new Set(
+      managerUsersInOrg
+        .filter((managerAccount): managerAccount is IAccountsUser => !!managerAccount)
+        .map(managerAccount => managerAccount.email),
+    ),
+  );
+  //find org guid in accounts
+  // pull out list of org managers
+  // add them as cc to zendesk ticket api
+  //send 
+
+  console.log(body)
+
+  // const client = zendesk.createClient(ctx.app.zendeskConfig);
+
+  // const zendeskAuthToken = Buffer.from(`${ctx.app.zendeskConfig.username}/token:${ctx.app.zendeskConfig.token}`).toString('base64');
+
+  // axios.post(`${ctx.app.zendeskConfig}/tickets`, {
+  //   data: {"ticket": {"subject": "Paas Support] My printer is on fire!", "comment": { "body": "The smoke is very colorful." }}}
+  // }, {
+  //   headers: {
+  //     'Access-Control-Allow-Origin': '*',
+  //     'Content-Type': 'application/json',
+  //     'Authorization': `Basic ${zendeskAuthToken}` 
+  //   }
+  // })
 
   // (async () => {
   //   try {
@@ -259,6 +292,8 @@ axios.post(`${ctx.app.zendeskConfig}/tickets`, {
   //     tags: ['govuk_paas_support'],
   //   }
   // });
+
+  template.title = 'Message has been sent';
 
   return {
     body: template.render(
