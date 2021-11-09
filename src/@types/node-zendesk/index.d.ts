@@ -474,6 +474,7 @@ declare module 'node-zendesk' {
       /**
        * @see {@link https://developer.zendesk.com/rest_api/docs/support/tickets#create-ticket|Zendesk Tickets Create}
        */
+
       interface CreateModel {
           readonly comment: Requests.Comments.CreateModel;
           readonly external_id?: string | null;
@@ -483,6 +484,7 @@ declare module 'node-zendesk' {
           readonly priority?: Priority | null;
           readonly status?: Status | null;
           readonly recipient?: string | null;
+          readonly requester?: Requester;
           readonly requester_id?: ZendeskID;
           readonly submitter_id?: ZendeskID | null;
           readonly assignee_id?: ZendeskID | null;
@@ -492,6 +494,7 @@ declare module 'node-zendesk' {
           readonly collaborators?: ReadonlyArray<any> | null;
           readonly follower_ids?: ReadonlyArray<number> | null;
           readonly email_cc_ids?: ReadonlyArray<number> | null;
+          readonly email_ccs?: ReadonlyArray<EmailCC> | null;
           readonly forum_topic_id?: number | null;
           readonly problem_id?: number | null;
           readonly due_at?: string | null;
@@ -574,6 +577,12 @@ declare module 'node-zendesk' {
           readonly comment_count?: number;
       }
 
+      interface Requester {
+        readonly name: string;
+        readonly email?: string;
+        readonly locale_id?: ZendeskID;
+     }
+
       interface Audit {
           readonly id: ZendeskID;
           readonly ticket_id: ZendeskID;
@@ -587,7 +596,7 @@ declare module 'node-zendesk' {
       interface EmailCC {
           readonly user_id?: ZendeskID;
           readonly user_email?: string;
-          readonly action: string;
+          readonly action?: string;
       }
 
       interface Field {
