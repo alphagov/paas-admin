@@ -58,12 +58,25 @@ function validateOrgSelection({ organisation }: IEmailOrganisationManagersPageVa
   return errors;
 }
 
+function validateManagerRoleSelection({ managerRole }: IEmailOrganisationManagersPageValues): ReadonlyArray<IValidationError> {
+  const errors = [];
+
+  if (!managerRole) {
+    errors.push({
+      field: 'managerRole',
+      message: 'Select a manager role',
+    });
+  }
+
+  return errors;
+}
+
 function contactOrgManagersContent(variables: IEmailOrganisationManagersPageValues, region: string): string {
 
   return `
   ${variables.message}
 
-  You are receiving this email as you're listed as a manager of the ${variables.organisation} organisation in our ${region.toUpperCase()} region.
+  You are receiving this email as you're listed as ${variables.managerRole === 'org_manager' ? 'an organisation' : 'a billing'} manager of the ${variables.organisation} organisation in our ${region.toUpperCase()} region.
 
   Thank you,
   GOV.​UK PaaS
@@ -150,7 +163,7 @@ export async function createOrganization(
   };
 }
 
-export async function emailOrganisationManagers(
+export async function contactOrganisationManagers(
   ctx: IContext, _params: IParameters, body: IEmailOrganisationManagersPageValues,
 ): Promise<IResponse> {
   throwErrorIfNotAdmin(ctx);
@@ -173,7 +186,7 @@ export async function emailOrganisationManagers(
   };
 }
 
-export async function emailOrganisationManagersPost(
+export async function contactOrganisationManagersPost(
   ctx: IContext, _params: IParameters, body: IEmailOrganisationManagersPageValues,
 ): Promise<IResponse> {
   throwErrorIfNotAdmin(ctx);
@@ -182,6 +195,7 @@ export async function emailOrganisationManagersPost(
 
   errors.push(
     ...validateOrgSelection(body),
+    ...validateManagerRoleSelection(body),
     ...validateEmailMessage(body),
   );
 
@@ -210,6 +224,32 @@ export async function emailOrganisationManagersPost(
 
   const orgsList = await cf.v3Organizations();
 
+  // get email adresses for all managers for the selected type and organisation
+  if (body.organisation) {
+    const usersForGivenOrg = await cf.usersForOrganization(body.organisation);
+    const filteredManagers = await Promise.all(
+      usersForGivenOrg.filter(user => user.entity.organization_roles.includes(body.managerRole))
+        .map(async manager => await accountsClient.getUser(manager.metadata.guid)),
+    );
+
+    const orgUserEmails = Array.from(
+      new Set(
+        filteredManagers
+          .filter((user): user is IAccountsUser => !!user)
+          .map(user => ({ user_email: user.email}))
+      ),
+    );
+
+    // if manager role type has been selected but there are no users with selected role, update the error message
+    // message property is readonly so cannot just update the message
+    if (orgUserEmails.length === 0 && body.managerRole ) {
+      const managerRoleErrorIndex = errors.findIndex(
+        (error) => error.field === 'managerRole'
+      )
+      errors.splice(managerRoleErrorIndex, 0, { field: 'managerRole', message: 'Select organisation does not have any selected manager roles'});
+    }
+  }
+
   if (errors.length > 0) {
 
     template.title = `Error: ${TITLE_EMAIL_ORG_MANAGERS}`;
@@ -226,30 +266,11 @@ export async function emailOrganisationManagersPost(
     };
   }
 
-  const usersForGivenOrg = await cf.usersForOrganization(body.organisation);
-  const filteredManagers = await Promise.all(
-    usersForGivenOrg.filter(user => user.entity.organization_roles.includes('org_manager'))
-      .map(async manager => await accountsClient.getUser(manager.metadata.guid)),
-  );
-
-  const orgUserEmails = Array.from(
-    new Set(
-      filteredManagers
-        .filter((user): user is IAccountsUser => !!user)
-        .map(user => ({ user_email: user.email}))
-    ),
-  );
-
-  // console.log('org users',orgUserEmails)
-
   // get org name from selected org guid
   const orgDisplayName = orgsList
     .filter(org => org.guid === body.organisation)
     .map(org => org.name)
     .toString();
-
-  
-  // add them as cc to zendesk ticket api
 
   // get admin user details to populate requester field for zendesk
   const adminUser: IUaaUser | null = await uaa.getUser(ctx.token.userID);
@@ -257,27 +278,28 @@ export async function emailOrganisationManagersPost(
  // send zendesk api request with all the data 
   const client = zendesk.createClient(ctx.app.zendeskConfig);
 
-  await client.tickets.create({
-    ticket: {
-      comment: {
-        body: contactOrgManagersContent({
-          organisation: orgDisplayName,
-          message: body.message,
-        },
-        ctx.viewContext.location)
-      },
-      subject: `[PaaS Support] About your organisation on Paas`,
-      status: 'pending',
-      tags: ['govuk_paas_support'],
-      requester: {
-        name: `${adminUser?.name.givenName} ${adminUser?.name.familyName}`,
-       // en-gb via https://developer.zendesk.com/api-reference/ticketing/account-configuration/locales/#list-available-public-locales
-       locale_id: 1176, 
-       email: adminUser?.emails[0].value!
-      },
-      email_ccs: orgUserEmails
-    }
-  });
+  // await client.tickets.create({
+  //   ticket: {
+  //     comment: {
+  //       body: contactOrgManagersContent({
+  //         organisation: orgDisplayName,
+  //         message: body.message,
+  //         managerRole: body.managerRole,
+  //       },
+  //       ctx.viewContext.location)
+  //     },
+  //     subject: `[PaaS Support] About your organisation on GOV.UK PaaS`,
+  //     status: 'pending',
+  //     tags: ['govuk_paas_support'],
+  //     requester: {
+  //       name: `${adminUser?.name.givenName} ${adminUser?.name.familyName}`,
+  //      // en-gb via https://developer.zendesk.com/api-reference/ticketing/account-configuration/locales/#list-available-public-locales
+  //      locale_id: 1176, 
+  //      email: adminUser?.emails[0].value!
+  //     },
+  //     email_ccs: orgUserEmails
+  //   }
+  // });
 
   template.title = 'Message has been sent';
 
@@ -289,7 +311,7 @@ export async function emailOrganisationManagersPost(
         text={`A Zendesk ticket has also been created to track progress.`}
       >
         <a className="govuk-link"
-          href="/platform-admin/email-organisation-managers">
+          href="/platform-admin/contact-organisation-managers">
             Contact more organisation managers
         </a>.
       </EmailOrganisationManagersConfirmationPage>,
