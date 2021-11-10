@@ -259,15 +259,15 @@ export const router = new Router([
     path: '/platform-admin/create-org',
   },
   {
-    action: platformAdmin.emailOrganisationManagers,
-    name: 'platform-admin.email-organization-managers',
-    path: '/platform-admin/email-organisation-managers',
+    action: platformAdmin.contactOrganisationManagers,
+    name: 'platform-admin.contact-organization-managers',
+    path: '/platform-admin/contact-organisation-managers',
   },
   {
-    action: platformAdmin.emailOrganisationManagersPost,
+    action: platformAdmin.contactOrganisationManagersPost,
     method: 'post',
-    name: 'platform-admin.email-organization-managers.post',
-    path: '/platform-admin/email-organisation-managers',
+    name: 'platform-admin.contact-organization-managers.post',
+    path: '/platform-admin/contact-organisation-managers',
   },
   {
     action: performance.viewDashboard,
