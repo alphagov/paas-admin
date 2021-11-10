@@ -6,6 +6,10 @@ import { IValidationError } from '../errors/types';
 import { SuccessPage } from '../org-users/views';
 import { owners } from '../organizations/owners';
 
+import {
+  OrganizationUserRoles,
+} from '../../lib/cf/types';
+
 interface IProperties {
   readonly linkTo: RouteLinker;
 }
@@ -35,6 +39,7 @@ interface ICreateOrganizationPageProperties extends IFormProperties {
 export interface IEmailOrganisationManagersPageValues {
   readonly organisation: string;
   readonly message: string;
+  readonly managerRole: OrganizationUserRoles;
 }
 
 interface IEmailOrganisationManagersPageProperties extends IFormProperties {
@@ -175,8 +180,8 @@ function Organizations(props: IProperties): ReactElement {
           </a>
         </li>
         <li>
-          <a className="govuk-link" href={props.linkTo('platform-admin.email-organization-managers')}>
-            Email organisation managers
+          <a className="govuk-link" href={props.linkTo('platform-admin.contact-organization-managers')}>
+            Contact organisation managers
           </a>
         </li>
       </ul>
@@ -314,7 +319,7 @@ export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersP
   return (<div className="govuk-grid-row">
     <div className="govuk-grid-column-two-thirds">
       <form method="post" noValidate>
-        <h1 className="govuk-heading-xl">Email organisation managers</h1>
+        <h1 className="govuk-heading-xl">Contact organisation managers</h1>
 
         <input type="hidden" name="_csrf" value={props.csrf} />
 
@@ -336,10 +341,7 @@ export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersP
         }
 
         <p className="govuk-body">
-          This form will email all the owners of an organisation.
-        </p>
-        <p className="govuk-body govuk-!-font-weight-bold">
-        This is not for broad service updates, please use the corresponding mailing list instead.
+        This form will create a Zendesk ticket and send an email to all selected managers of an organisation.
         </p>
 
         <div className={`govuk-form-group ${
@@ -384,6 +386,46 @@ export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersP
         </div>
 
         <div className={`govuk-form-group ${
+            props.errors?.some(e => e.field === 'organisation')
+              ? 'govuk-form-group--error'
+              : ''
+          }`}>
+          <label className="govuk-label" htmlFor="managerRole">
+            Manager role
+          </label>
+          {props.errors
+            ?.filter(error => error.field === 'managerRole')
+            .map((error, index) => (
+              <span
+                key={index}
+                id="managerRole-error"
+                className="govuk-error-message"
+              >
+                <span className="govuk-visually-hidden">Error:</span>{' '}
+                {error.message}
+              </span>
+            ))}
+          <select
+            className={`govuk-select ${
+              props.errors?.some(e => e.field === 'managerRole')
+                  ? 'govuk-select--error'
+                  : ''
+              }`}
+            id="managerRole"
+            name="managerRole"
+            aria-describedby={
+              props.errors?.some(e => e.field === 'managerRole')
+                ? 'managerRole-error'
+                : ''
+            }
+          >
+            <option value=''>Select manager role</option>
+            <option value='billing_manager' selected={props.values?.managerRole === 'billing_manager'}>Billing manager</option>
+            <option value='org_manager' selected={props.values?.managerRole === 'org_manager'}>Organisation manager</option>
+          </select>
+        </div>
+
+        <div className={`govuk-form-group ${
             props.errors?.some(e => e.field === 'message')
               ? 'govuk-form-group--error'
               : ''
@@ -391,9 +433,6 @@ export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersP
           <label className="govuk-label" htmlFor="message">
             Message
           </label>
-          <span id="message-hint" className="govuk-hint">
-            The message that will be sent. Please adhere to our support messaging guidelines.
-          </span>
           {props.errors
             ?.filter(error => error.field === 'message')
             .map((error, index) => (
@@ -424,9 +463,18 @@ export function EmailOrganisationManagersPage(props: IEmailOrganisationManagersP
             defaultValue={props.values?.message}
           />
         </div>
+        
+        <p className="govuk-body">
+        Message will automatically include the following:
+        <span id="message-hint" className="govuk-hint govuk-!-display-block">
+            You are receiving this email as you're listed as a [manager_role] manager of the [organisation_name] organisation in our [paas_region] region.<br /><br />
+          Thank you,<br />
+          GOV.​UK PaaS
+          </span>
+        </p>
 
         <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
-          Send email
+          Send
         </button>
       </form>
     </div>
