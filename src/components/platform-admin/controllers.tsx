@@ -19,6 +19,7 @@ import {
   INewOrganizationUserBody,
   PlatformAdministratorPage,
 } from './views';
+import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 
 const TITLE_CREATE_ORG = 'Create Organisation';
 const TITLE_EMAIL_ORG_MANAGERS = 'Email organisation managers';
@@ -186,16 +187,31 @@ export async function emailOrganisationManagersPost(
 
   const template = new Template(ctx.viewContext);
 
+  const cf = new CloudFoundryClient({
+    accessToken: ctx.token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
+  const accountsClient = new AccountsClient({
+    apiEndpoint: ctx.app.accountsAPI,
+    logger: ctx.app.logger,
+    secret: ctx.app.accountsSecret,
+  });
+
+
+  const orgsList = await cf.v3Organizations();
+
   if (errors.length > 0) {
 
-    const cf = new CloudFoundryClient({
-      accessToken: ctx.token.accessToken,
-      apiEndpoint: ctx.app.cloudFoundryAPI,
-      logger: ctx.app.logger,
-    });
-  
-    const orgsList = await cf.v3Organizations();
-  
     template.title = `Error: ${TITLE_EMAIL_ORG_MANAGERS}`;
 
     return {
@@ -210,17 +226,29 @@ export async function emailOrganisationManagersPost(
     };
   }
 
-  const uaa = new UAAClient({
-    apiEndpoint: ctx.app.uaaAPI,
-    clientCredentials: {
-      clientID: ctx.app.oauthClientID,
-      clientSecret: ctx.app.oauthClientSecret,
-    },
-  });
+  const usersForGivenOrg = await cf.usersForOrganization(body.organisation);
+  const filteredManagers = await Promise.all(
+    usersForGivenOrg.filter(user => user.entity.organization_roles.includes('org_manager'))
+      .map(async manager => await accountsClient.getUser(manager.metadata.guid)),
+  );
+
+  const orgUserEmails = Array.from(
+    new Set(
+      filteredManagers
+        .filter((user): user is IAccountsUser => !!user)
+        .map(user => ({ user_email: user.email}))
+    ),
+  );
+
+  // console.log('org users',orgUserEmails)
+
+  // get org name from selected org guid
+  const orgDisplayName = orgsList
+    .filter(org => org.guid === body.organisation)
+    .map(org => org.name)
+    .toString();
 
   
-
-  // pull out list of org managers
   // add them as cc to zendesk ticket api
 
   // get admin user details to populate requester field for zendesk
@@ -233,7 +261,7 @@ export async function emailOrganisationManagersPost(
     ticket: {
       comment: {
         body: contactOrgManagersContent({
-          organisation: body.organisation,
+          organisation: orgDisplayName,
           message: body.message,
         },
         ctx.viewContext.location)
@@ -246,7 +274,8 @@ export async function emailOrganisationManagersPost(
        // en-gb via https://developer.zendesk.com/api-reference/ticketing/account-configuration/locales/#list-available-public-locales
        locale_id: 1176, 
        email: adminUser?.emails[0].value!
-      }
+      },
+      email_ccs: orgUserEmails
     }
   });
 
