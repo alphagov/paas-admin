@@ -32,6 +32,7 @@ function throwErrorIfNotAdmin({ token }: { readonly token: Token }): void {
   throw new NotAuthorisedError('Not a platform admin');
 }
 
+// form field validations
 function validateEmailMessage({ message }: IEmailOrganisationManagersPageValues): ReadonlyArray<IValidationError> {
   const errors = [];
 
@@ -71,7 +72,8 @@ function validateManagerRoleSelection({ managerRole }: IEmailOrganisationManager
   return errors;
 }
 
-function contactOrgManagersContent(variables: IEmailOrganisationManagersPageValues, region: string): string {
+// body of the zendesk email
+function contactOrgManagersZendeskContent(variables: IEmailOrganisationManagersPageValues, region: string): string {
 
   return `
   ${variables.message}
@@ -163,6 +165,7 @@ export async function createOrganization(
   };
 }
 
+// intial form display
 export async function contactOrganisationManagers(
   ctx: IContext, _params: IParameters, body: IEmailOrganisationManagersPageValues,
 ): Promise<IResponse> {
@@ -186,20 +189,11 @@ export async function contactOrganisationManagers(
   };
 }
 
+// when form is submitted
 export async function contactOrganisationManagersPost(
   ctx: IContext, _params: IParameters, body: IEmailOrganisationManagersPageValues,
 ): Promise<IResponse> {
   throwErrorIfNotAdmin(ctx);
-
-  const errors = [];
-
-  errors.push(
-    ...validateOrgSelection(body),
-    ...validateManagerRoleSelection(body),
-    ...validateEmailMessage(body),
-  );
-
-  const template = new Template(ctx.viewContext);
 
   const cf = new CloudFoundryClient({
     accessToken: ctx.token.accessToken,
@@ -221,17 +215,30 @@ export async function contactOrganisationManagersPost(
     secret: ctx.app.accountsSecret,
   });
 
+  const errors = [];
 
+  // check if any fields are missing
+  // if so, create error messages
+  errors.push(
+    ...validateOrgSelection(body),
+    ...validateManagerRoleSelection(body),
+    ...validateEmailMessage(body),
+  );
+
+  const template = new Template(ctx.viewContext);
   const orgsList = await cf.v3Organizations();
+  const orgUserEmails:ReadonlyArray<any> = []
 
-  // get email adresses for all managers for the selected type and organisation
+  // get email adfresses for all managers for the selected type and organisation
   if (body.organisation) {
     const usersForGivenOrg = await cf.usersForOrganization(body.organisation);
+    // we need to look into paas-accounts for their actual email address
     const filteredManagers = await Promise.all(
       usersForGivenOrg.filter(user => user.entity.organization_roles.includes(body.managerRole))
         .map(async manager => await accountsClient.getUser(manager.metadata.guid)),
     );
-
+    
+    // create a zendesk api-friendly array of email address objects
     const orgUserEmails = Array.from(
       new Set(
         filteredManagers
@@ -250,6 +257,7 @@ export async function contactOrganisationManagersPost(
     }
   }
 
+  // if there are errors, rerender the page with error messages
   if (errors.length > 0) {
 
     template.title = `Error: ${TITLE_EMAIL_ORG_MANAGERS}`;
@@ -277,29 +285,28 @@ export async function contactOrganisationManagersPost(
 
  // send zendesk api request with all the data 
   const client = zendesk.createClient(ctx.app.zendeskConfig);
-
-  // await client.tickets.create({
-  //   ticket: {
-  //     comment: {
-  //       body: contactOrgManagersContent({
-  //         organisation: orgDisplayName,
-  //         message: body.message,
-  //         managerRole: body.managerRole,
-  //       },
-  //       ctx.viewContext.location)
-  //     },
-  //     subject: `[PaaS Support] About your organisation on GOV.UK PaaS`,
-  //     status: 'pending',
-  //     tags: ['govuk_paas_support'],
-  //     requester: {
-  //       name: `${adminUser?.name.givenName} ${adminUser?.name.familyName}`,
-  //      // en-gb via https://developer.zendesk.com/api-reference/ticketing/account-configuration/locales/#list-available-public-locales
-  //      locale_id: 1176, 
-  //      email: adminUser?.emails[0].value!
-  //     },
-  //     email_ccs: orgUserEmails
-  //   }
-  // });
+  await client.tickets.create({
+    ticket: {
+      comment: {
+        body: contactOrgManagersZendeskContent({
+          organisation: orgDisplayName,
+          message: body.message,
+          managerRole: body.managerRole,
+        },
+        ctx.viewContext.location)
+      },
+      subject: `[PaaS Support] About your organisation on GOV.UK PaaS`,
+      status: 'pending',
+      tags: ['govuk_paas_support'],
+      requester: {
+        name: `${adminUser?.name.givenName} ${adminUser?.name.familyName}`,
+        // en-gb via https://developer.zendesk.com/api-reference/ticketing/account-configuration/locales/#list-available-public-locales
+        locale_id: 1176, 
+        email: adminUser?.emails[0].value!
+      },
+      email_ccs: orgUserEmails
+    }
+  });
 
   template.title = 'Message has been sent';
 
