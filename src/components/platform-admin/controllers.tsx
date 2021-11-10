@@ -227,7 +227,7 @@ export async function contactOrganisationManagersPost(
 
   const template = new Template(ctx.viewContext);
   const orgsList = await cf.v3Organizations();
-  const orgUserEmails:ReadonlyArray<any> = []
+  let orgUserEmails:ReadonlyArray<any> = []
 
   // get email adfresses for all managers for the selected type and organisation
   if (body.organisation) {
@@ -239,7 +239,7 @@ export async function contactOrganisationManagersPost(
     );
     
     // create a zendesk api-friendly array of email address objects
-    const orgUserEmails = Array.from(
+    orgUserEmails = Array.from(
       new Set(
         filteredManagers
           .filter((user): user is IAccountsUser => !!user)
