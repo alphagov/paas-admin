@@ -259,6 +259,17 @@ export const router = new Router([
     path: '/platform-admin/create-org',
   },
   {
+    action: platformAdmin.contactOrganisationManagers,
+    name: 'platform-admin.contact-organization-managers',
+    path: '/platform-admin/contact-organisation-managers',
+  },
+  {
+    action: platformAdmin.contactOrganisationManagersPost,
+    method: 'post',
+    name: 'platform-admin.contact-organization-managers.post',
+    path: '/platform-admin/contact-organisation-managers',
+  },
+  {
     action: performance.viewDashboard,
     name: 'performance.view',
     path: '/performance',
