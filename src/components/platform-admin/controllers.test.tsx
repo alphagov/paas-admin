@@ -1,6 +1,7 @@
 import cheerio from 'cheerio';
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
+import lodash from 'lodash'
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { AccountsClient } from '../../lib/accounts';
@@ -11,7 +12,7 @@ import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
 import { CLOUD_CONTROLLER_ADMIN } from '../auth/has-role';
-
+import { v3Org as defaultV3Org } from '../../lib/cf/test-data/org';
 
 import {
   constructZendeskRequesterObject,
@@ -20,6 +21,8 @@ import {
   contactOrgManagersZendeskContent,
   createOrganization,
   createOrganizationForm,
+  filterOutRealOrganisations,
+  sortOrganisationsByName,
   viewHomepage,
 } from './controllers';
 
@@ -500,6 +503,43 @@ GOV.UK PaaS`;
       };
 
       expect(userIsNull).toMatchObject(expecteNullUserOutput);
+    });
+  });
+
+  describe(filterOutRealOrganisations, () => {
+    it('should return only real organisations', () => {
+      const orgs = [
+        lodash.merge(defaultV3Org(), { name: 'org c' }),
+        lodash.merge(defaultV3Org(), { name: 'org a' }),
+        lodash.merge(defaultV3Org(), { name: 'ACC-123' }),
+        lodash.merge(defaultV3Org(), { name: 'BACC-123' }),
+        lodash.merge(defaultV3Org(), { name: 'CATS-123' }),
+        lodash.merge(defaultV3Org(), { name: 'org b' }),
+        lodash.merge(defaultV3Org(), { name: 'SMOKE-' }),
+      ];
+  
+      const filteredOrgs = filterOutRealOrganisations(orgs);
+  
+      expect(filteredOrgs.length).toEqual(3);
+      expect(filteredOrgs[0].name).toEqual('org c');
+      expect(filteredOrgs[1].name).toEqual('org a');
+      expect(filteredOrgs[2].name).toEqual('org b');
+    });
+  });
+
+  describe(sortOrganisationsByName, () => {
+    it('should sort organisations alphabetically by name', () => {
+      const orgs = [
+        lodash.merge(defaultV3Org(), { name: 'org c' }),
+        lodash.merge(defaultV3Org(), { name: 'org a' }),
+        lodash.merge(defaultV3Org(), { name: 'org b' }),
+      ];
+  
+      const sortedOrgs = sortOrganisationsByName(orgs);
+  
+      expect(sortedOrgs[0].name).toEqual('org a');
+      expect(sortedOrgs[1].name).toEqual('org b');
+      expect(sortedOrgs[2].name).toEqual('org c');
     });
   });
 

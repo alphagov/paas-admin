@@ -4,6 +4,7 @@ import React from 'react';
 import { Template } from '../../layouts';
 import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
+import { IV3OrganizationResource } from '../../lib/cf/types';
 import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import UAAClient, { IUaaUser } from '../../lib/uaa';
 import { IContext } from '../app/context';
@@ -83,6 +84,16 @@ You are receiving this email as you are listed as ${variables.managerRole === 'o
 
 Thank you,
 GOV.UK PaaS`;
+}
+
+export function sortOrganisationsByName(organisations: ReadonlyArray<IV3OrganizationResource>): ReadonlyArray<IV3OrganizationResource> {
+  // have to create copy because original array type is read only
+  const organisationsCopy = Array.from(organisations)
+  return organisationsCopy.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function filterOutRealOrganisations(organisations: ReadonlyArray<IV3OrganizationResource>): ReadonlyArray<IV3OrganizationResource> {
+  return organisations.filter(org => !org.name.match(/^(CATS|ACC|BACC|SMOKE|PERF|AIVENBACC|ASATS)-/));
 }
 
 // construct requester object for zendesk api
@@ -189,9 +200,9 @@ export async function contactOrganisationManagers(
     logger: ctx.app.logger,
   });
 
-  const orgsList = (await cf.v3Organizations()).filter(
-    org => !org.name.match(/^(CATS|ACC|BACC|SMOKE|PERF|AIVENBACC|ASATS)-/),
-  );
+  const orgsList = await cf.v3Organizations()
+    .then(filterOutRealOrganisations)
+    .then(sortOrganisationsByName)
 
   const template = new Template(ctx.viewContext, TITLE_EMAIL_ORG_MANAGERS);
 
@@ -241,9 +252,9 @@ export async function contactOrganisationManagersPost(
   );
 
   const template = new Template(ctx.viewContext);
-  const orgsList = (await cf.v3Organizations()).filter(
-    org => !org.name.match(/^(CATS|ACC|BACC|SMOKE|PERF|AIVENBACC|ASATS)-/),
-  );
+  const orgsList = await cf.v3Organizations()
+    .then(filterOutRealOrganisations)
+    .then(sortOrganisationsByName)
   let orgUserEmails:ReadonlyArray<any> = [];
 
   // get email adfresses for all managers for the selected type and organisation
