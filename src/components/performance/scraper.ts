@@ -82,6 +82,7 @@ export async function scrape(cfg: IConfig, logger: Logger): Promise<IScrapedData
       apiEndpoint: cfg.prometheus.endpoint,
       logger,
       password: cfg.prometheus.password,
+      timeout: 5 * 60 * 1000,
       username: cfg.prometheus.username,
     },
   );
