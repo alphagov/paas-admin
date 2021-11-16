@@ -35,22 +35,18 @@ interface IPrometheusResponse<T> {
   readonly data: IPrometheusResponseData<T>;
 }
 
+interface IPromClientConfig {
+  readonly apiEndpoint: string;
+  readonly logger: BaseLogger;
+  readonly password: string;
+  readonly username: string;
+  readonly timeout?: number;
+}
 export default class PromClient {
-  private readonly username: string;
-  private readonly password: string;
-  private readonly apiEndpoint: string;
-  private readonly logger: BaseLogger;
+  private readonly config: IPromClientConfig;
 
-  constructor(
-    endpoint: string,
-    username: string,
-    password: string,
-    logger: BaseLogger,
-  ) {
-    this.apiEndpoint = endpoint;
-    this.username = username;
-    this.password = password;
-    this.logger = logger;
+  constructor(config: IPromClientConfig) {
+    this.config = config;
   }
 
   public async getValue(
@@ -113,24 +109,24 @@ export default class PromClient {
     params: { readonly [key: string]: string | number },
   ): Promise<AxiosResponse> {
     const instance = axios.create();
-    intercept(instance, 'prom', this.logger);
+    intercept(instance, 'prom', this.config.logger);
 
     const method = 'GET';
     const response = await instance.request({
       auth: {
-        password: this.password,
-        username: this.username,
+        password: this.config.password,
+        username: this.config.username,
       },
-      baseURL: this.apiEndpoint,
+      baseURL: this.config.apiEndpoint,
       method,
       params,
-      timeout: DEFAULT_TIMEOUT,
+      timeout: this.config.timeout || DEFAULT_TIMEOUT,
       url: path,
       validateStatus: (status: number) => status > 0 && status < 501,
     });
 
     if (response.status < 200 || response.status >= 300) {
-      let msg = `prom: ${method} ${this.apiEndpoint}${path} failed with status ${response.status}`;
+      let msg = `prom: ${method} ${this.config.apiEndpoint}${path} failed with status ${response.status}`;
       if (typeof response.data === 'object') {
         msg = `${msg} and data ${JSON.stringify(response.data)}`;
       }
