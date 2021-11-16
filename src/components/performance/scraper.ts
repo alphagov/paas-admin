@@ -78,10 +78,12 @@ export async function scrape(cfg: IConfig, logger: Logger): Promise<IScrapedData
   intercept(pingdom, 'pingdom', logger);
 
   const prometheus = new PromClient(
-    cfg.prometheus.endpoint,
-    cfg.prometheus.username,
-    cfg.prometheus.password,
-    logger,
+    {
+      apiEndpoint: cfg.prometheus.endpoint,
+      logger,
+      password: cfg.prometheus.password,
+      username: cfg.prometheus.username,
+    },
   );
 
   logger.info('Starting the scraper');

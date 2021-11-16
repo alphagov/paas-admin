@@ -29,12 +29,7 @@ describe('lib/prom test suite', () => {
   it('should throw error when prometheus responds with 404', async () => {
     nockPrometheus.get(/api.v1.query\??/).reply(404, { error: 'not found' });
 
-    const client = new PromClient(
-      config.apiEndpoint,
-      config.username,
-      config.password,
-      config.logger,
-    );
+    const client = new PromClient(config);
     await expect(
       client.getValue('http_response_2xx', new Date()),
     ).rejects.toThrowError(/failed with status 404/);
@@ -43,12 +38,7 @@ describe('lib/prom test suite', () => {
   it('should throw error when prometheus responds with 404 no body', async () => {
     nockPrometheus.get(/api.v1.query\??/).reply(404);
 
-    const client = new PromClient(
-      config.apiEndpoint,
-      config.username,
-      config.password,
-      config.logger,
-    );
+    const client = new PromClient(config);
     await expect(
       client.getValue('http_response_2xx', new Date()),
     ).rejects.toThrowError(/failed with status 404/);
@@ -70,12 +60,10 @@ describe('lib/prom test suite', () => {
       status: 'success',
     });
 
-    const client = new PromClient(
-      config.apiEndpoint,
-      config.username,
-      config.password,
-      config.logger,
-    );
+    const client = new PromClient({
+      ...config,
+      timeout: 1000,
+    });
     const values = await client.getValue('http_response_2xx', new Date());
 
     expect(values).toBeDefined();
@@ -89,12 +77,7 @@ describe('lib/prom test suite', () => {
       status: 'success',
     });
 
-    const client = new PromClient(
-      config.apiEndpoint,
-      config.username,
-      config.password,
-      config.logger,
-    );
+    const client = new PromClient(config);
     const value = await client.getValue('http_response_5xx', new Date());
 
     expect(value).toBeUndefined();
@@ -156,12 +139,7 @@ describe('lib/prom test suite', () => {
       status: 'success',
     });
 
-    const client = new PromClient(
-      config.apiEndpoint,
-      config.username,
-      config.password,
-      config.logger,
-    );
+    const client = new PromClient(config);
     const series = await client.getSeries(
       'http_response_2xx',
       10,
@@ -184,12 +162,7 @@ describe('lib/prom test suite', () => {
       status: 'success',
     });
 
-    const client = new PromClient(
-      config.apiEndpoint,
-      config.username,
-      config.password,
-      config.logger,
-    );
+    const client = new PromClient(config);
     const series = await client.getSeries(
       'http_response_5xx',
       10,

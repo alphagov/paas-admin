@@ -381,10 +381,12 @@ export async function viewServiceMetrics(
     case 'elasticsearch':
       const elasticSearchMetricSeries = await new ElasticsearchMetricDataGetter(
         new PromClient(
-          ctx.app.prometheusEndpoint,
-          ctx.app.prometheusUsername,
-          ctx.app.prometheusPassword,
-          ctx.app.logger,
+          {
+            apiEndpoint: ctx.app.prometheusEndpoint,
+            logger: ctx.app.logger,
+            password: ctx.app.prometheusPassword,
+            username: ctx.app.prometheusUsername,
+          },
         ),
       ).getData(
         elasticsearchMetricNames,
@@ -592,10 +594,12 @@ export async function downloadServiceMetrics(
     case 'elasticsearch':
       const elasticsearchMetricSeries = await new ElasticsearchMetricDataGetter(
         new PromClient(
-          ctx.app.prometheusEndpoint,
-          ctx.app.prometheusUsername,
-          ctx.app.prometheusPassword,
-          ctx.app.logger,
+          {
+            apiEndpoint: ctx.app.prometheusEndpoint,
+            logger: ctx.app.logger,
+            password: ctx.app.prometheusPassword,
+            username: ctx.app.prometheusUsername,
+          },
         ),
       ).getData(
         [params.metric],
