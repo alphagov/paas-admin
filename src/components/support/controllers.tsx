@@ -431,6 +431,12 @@ export async function HandleSomethingWrongWithServiceFormPost(
 
   const client = zendesk.createClient(ctx.app.zendeskConfig);
 
+  let subject = ""
+  if(body.impact_severity === "service-down") {
+    subject = `[PaaS Support] URGENT: ${body.affected_paas_organisation} at ${TODAY_DATE.toDateString()}`;
+  } else {
+    subject = `[PaaS Support] ${TODAY_DATE.toDateString()} something wrong in ${body.affected_paas_organisation} live service`;
+  }
   await client.requests.create({
     request: {
       comment: {
@@ -442,7 +448,7 @@ export async function HandleSomethingWrongWithServiceFormPost(
           name: body.name,
         }),
       },
-      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} something wrong in ${body.affected_paas_organisation} live service`,
+      subject: subject,
       requester: {
         email: body.email,
         name: body.name,
