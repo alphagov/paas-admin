@@ -342,24 +342,26 @@ describe(controller.HandleSomethingWrongWithServiceFormPost, () => {
     expect(response.body).toContain('We have received your message');
   });
 
-  it('should create a ticket with the word "URGENT" toward the front when a service is down', async () => {
-    nockZD
-      .post('/requests.json', (body: any) => {
-        let subject = body["request"]["subject"] as string;
-        return subject.substr(0, (subject.length/2)).includes("URGENT")
-      })
-      .reply(201, {});
+  ["service-down", "service-downgraded", "cannot_operate_live"].forEach(impactSeverity => {
+    it('should create a ticket with the word "URGENT" toward the front when a support form severity is "'+impactSeverity+'"', async () => {
+      nockZD
+        .post('/requests.json', (body: any) => {
+          let subject = body["request"]["subject"] as string;
+          return subject.substr(0, (subject.length/2)).includes("URGENT")
+        })
+        .reply(201, {});
 
-    const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
-      name: 'Jeff',
-      email: 'jeff@example.gov.uk',
-      message: 'Help my service is down',
-      affected_paas_organisation: '__fake_org__',
-      impact_severity: 'service-down',
-    } as any);
+      const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
+        name: 'Jeff',
+        email: 'jeff@example.gov.uk',
+        message: 'Help my service is down',
+        affected_paas_organisation: '__fake_org__',
+        impact_severity: impactSeverity,
+      } as any);
 
-    expect(response.status).toBeUndefined();
-    expect(response.body).toContain('We have received your message');
+      expect(response.status).toBeUndefined();
+      expect(response.body).toContain('We have received your message');
+    })
   })
 });
 

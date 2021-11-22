@@ -432,8 +432,9 @@ export async function HandleSomethingWrongWithServiceFormPost(
   const client = zendesk.createClient(ctx.app.zendeskConfig);
 
   let subject = ""
-  if(body.impact_severity === "service-down") {
-    subject = `[PaaS Support] URGENT: ${body.affected_paas_organisation} at ${TODAY_DATE.toDateString()}`;
+  const urgentSeverities = ["service-down", "service-downgraded", "cannot_operate_live"]
+  if(urgentSeverities.includes(body.impact_severity)) {
+    subject = `[PaaS Support] URGENT: ${body.impact_severity} for ${body.affected_paas_organisation} at ${TODAY_DATE.toDateString()}`;
   } else {
     subject = `[PaaS Support] ${TODAY_DATE.toDateString()} something wrong in ${body.affected_paas_organisation} live service`;
   }
