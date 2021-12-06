@@ -11,6 +11,7 @@ import cloudLogo from './icons/cloud.png';
 import elasticsearchLogo from './icons/elasticsearch.png';
 import influxdbLogo from './icons/influxdb.png';
 import mysqlLogo from './icons/mysql.png';
+import opensearchLogo from './icons/opensearch.png';
 import postgresLogo from './icons/postgres.png';
 import redisLogo from './icons/redis.png';
 import s3Logo from './icons/s3.png';
@@ -155,6 +156,11 @@ const serviceDetails: IServiceDetails = {
     image: mysqlLogo,
     imageTitle: 'MySQL - Official Logo',
     name: 'RDS MySQL',
+  },
+  'opensearch': {
+    image: opensearchLogo,
+    imageTitle: 'OpenSearch - Official Logo',
+    name: 'OpenSearch',
   },
   'postgres': {
     image: postgresLogo,
