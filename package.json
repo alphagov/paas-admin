@@ -143,7 +143,7 @@
     "passport": "^0.5.0",
     "passport-oauth2": "^1.6.1",
     "pino": "^6.13.3",
-    "qs": "^6.10.1",
+    "qs": "^6.10.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-markdown": "^6.0.3",
