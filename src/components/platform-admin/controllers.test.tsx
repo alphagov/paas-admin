@@ -514,6 +514,7 @@ GOV.UK PaaS`;
         lodash.merge(defaultV3Org(), { name: 'ACC-123' }),
         lodash.merge(defaultV3Org(), { name: 'BACC-123' }),
         lodash.merge(defaultV3Org(), { name: 'CATS-123' }),
+        lodash.merge(defaultV3Org(), { name: 'CAT-123' }),
         lodash.merge(defaultV3Org(), { name: 'org b' }),
         lodash.merge(defaultV3Org(), { name: 'SMOKE-' }),
       ];

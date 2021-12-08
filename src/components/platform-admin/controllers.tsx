@@ -93,7 +93,7 @@ export function sortOrganisationsByName(organisations: ReadonlyArray<IV3Organiza
 }
 
 export function filterOutRealOrganisations(organisations: ReadonlyArray<IV3OrganizationResource>): ReadonlyArray<IV3OrganizationResource> {
-  return organisations.filter(org => !org.name.match(/^(CATS|ACC|BACC|SMOKE|PERF|AIVENBACC|ASATS)-/));
+  return organisations.filter(org => !org.name.match(/^(CATS?|ACC|BACC|SMOKE|PERF|AIVENBACC|ASATS)-/));
 }
 
 // construct requester object for zendesk api
