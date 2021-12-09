@@ -318,6 +318,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
           </a>
         </div>
       </details>
+      {props.spaces.length > 0 ?
       <div className="scrollable-table-container">
         <table className="govuk-table">
         <thead className="govuk-table__head">
@@ -390,6 +391,8 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
         </tbody>
       </table>
       </div>
+      : <></>
+      }
     </>
   );
 }
