@@ -441,4 +441,20 @@ describe(SpacesPage, () => {
     expect($('h1').text()).toContain('Status: Suspended');
   })
 
+  it('should not display a table of spaces if there are no spaces', () => {
+    const markup = shallow(
+      <SpacesPage
+        linkTo={route => `__LINKS_TO__${route}`}
+        isAdmin={false}
+        isManager={false}
+        isBillingManager={false}
+        organization={organization}
+        spaces={[]}
+        users={[null]}
+      />)
+
+    const $ = cheerio.load(markup.html());
+    expect($('.govuk-table')).toHaveLength(0);
+  });
+
 });
