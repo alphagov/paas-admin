@@ -457,4 +457,157 @@ describe(SpacesPage, () => {
     expect($('.govuk-table')).toHaveLength(0);
   });
 
+  it('should not show expiration notice / count if the organisation is of type billable', () => {
+
+    const organization = ({
+      metadata: { guid: 'ORG_GUID' },
+      entity: { name: 'org-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: {
+        entity: { name: 'name', memory_limit: (5 * GIBIBYTE) / MEBIBYTE },
+      },
+    } as unknown) as IEnhancedOrganization;
+    const space = ({
+      metadata: { guid: 'SPACE_GUID_1' },
+      entity: { name: 'space-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: { entity: { memory_limit: (5 * GIBIBYTE) / MEBIBYTE } },
+      running_apps: [null],
+      stopped_apps: [null],
+      serviceInstances: [null],
+    } as unknown) as IEnhancedSpace;
+
+    const markup = shallow(
+      <SpacesPage
+        linkTo={route => `__LINKS_TO__${route}`}
+        isAdmin={false}
+        isManager={false}
+        isBillingManager={false}
+        organization={organization}
+        spaces={[space, { ...space, quota: undefined }]}
+        users={[null]}
+        daysLeftInTrialPeriod={null}
+      />,
+    );
+
+    const $ = cheerio.load(markup.html());
+    expect($('p').text()).not.toContain(
+      'Trial period',
+    );
+  });
+
+  it('should show expiration notice if the trial org is more than 90 days old', () => {
+
+    const organization = ({
+      metadata: { guid: 'ORG_GUID' },
+      entity: { name: 'org-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: {
+        entity: { name: 'default', memory_limit: (5 * GIBIBYTE) / MEBIBYTE },
+      },
+    } as unknown) as IEnhancedOrganization;
+    const space = ({
+      metadata: { guid: 'SPACE_GUID_1' },
+      entity: { name: 'space-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: { entity: { memory_limit: (5 * GIBIBYTE) / MEBIBYTE } },
+      running_apps: [null],
+      stopped_apps: [null],
+      serviceInstances: [null],
+    } as unknown) as IEnhancedSpace;
+
+    const markup = shallow(
+      <SpacesPage
+        linkTo={route => `__LINKS_TO__${route}`}
+        isAdmin={false}
+        isManager={false}
+        isBillingManager={false}
+        organization={organization}
+        spaces={[space, { ...space, quota: undefined }]}
+        users={[null]}
+        daysLeftInTrialPeriod={-2}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('p').text()).toContain(
+      'Trial period has expired',
+    );
+  });
+
+  it('should show count of days until trial period expires', () => {
+
+    const organization = ({
+      metadata: { guid: 'ORG_GUID' },
+      entity: { name: 'org-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: {
+        entity: { name: 'default', memory_limit: (5 * GIBIBYTE) / MEBIBYTE },
+      },
+    } as unknown) as IEnhancedOrganization;
+    const space = ({
+      metadata: { guid: 'SPACE_GUID_1' },
+      entity: { name: 'space-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: { entity: { memory_limit: (5 * GIBIBYTE) / MEBIBYTE } },
+      running_apps: [null],
+      stopped_apps: [null],
+      serviceInstances: [null],
+    } as unknown) as IEnhancedSpace;
+
+    const markup = shallow(
+      <SpacesPage
+        linkTo={route => `__LINKS_TO__${route}`}
+        isAdmin={false}
+        isManager={false}
+        isBillingManager={false}
+        organization={organization}
+        spaces={[space, { ...space, quota: undefined }]}
+        users={[null]}
+        daysLeftInTrialPeriod={60}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('p').text()).toContain(
+      'Trial period expires in 60 days',
+    );
+  });
+
+  it('should show count of 1 day until trial period expires', () => {
+
+    const organization = ({
+      metadata: { guid: 'ORG_GUID' },
+      entity: { name: 'org-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: {
+        entity: { name: 'default', memory_limit: (5 * GIBIBYTE) / MEBIBYTE },
+      },
+    } as unknown) as IEnhancedOrganization;
+    const space = ({
+      metadata: { guid: 'SPACE_GUID_1' },
+      entity: { name: 'space-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: { entity: { memory_limit: (5 * GIBIBYTE) / MEBIBYTE } },
+      running_apps: [null],
+      stopped_apps: [null],
+      serviceInstances: [null],
+    } as unknown) as IEnhancedSpace;
+
+    const markup = shallow(
+      <SpacesPage
+        linkTo={route => `__LINKS_TO__${route}`}
+        isAdmin={false}
+        isManager={false}
+        isBillingManager={false}
+        organization={organization}
+        spaces={[space, { ...space, quota: undefined }]}
+        users={[null]}
+        daysLeftInTrialPeriod={1}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('p').text()).toContain(
+      'Trial period expires in 1 day.',
+    );
+  });
+
 });
