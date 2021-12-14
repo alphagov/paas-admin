@@ -80,7 +80,7 @@
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-react": "^7.27.1",
     "expect": "^27.4.2",
-    "jest": "^27.4.4",
+    "jest": "^27.4.5",
     "jest-puppeteer": "^6.0.2",
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.4.5",
