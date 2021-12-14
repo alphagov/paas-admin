@@ -113,7 +113,7 @@
     "aws-sdk": "^2.1046.0",
     "axios": "^0.21.4",
     "babel-jest": "^27.4.4",
-    "base32-encode": "^1.2.0",
+    "base32-encode": "^2.0.0",
     "compression": "^1.7.4",
     "cookie-session": "^2.0.0-rc.1",
     "csurf": "^1.11.0",
