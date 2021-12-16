@@ -215,7 +215,7 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
     <footer className="govuk-footer govuk-!-display-none-print" role="contentinfo">
       <div className="govuk-width-container ">
         <div className="govuk-footer__navigation">
-          <div className="govuk-footer__section">
+          <div className="govuk-footer__section govuk-grid-column-one-half">
             <h2 className="govuk-footer__heading govuk-heading-m">Support</h2>
             <ul className="govuk-footer__list">
               <li className="govuk-footer__list-item">
@@ -258,7 +258,7 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
               </li>
             </ul>
           </div>
-          <div className="govuk-footer__section">
+          <div className="govuk-footer__section govuk-grid-column-one-half">
             <h2 className="govuk-footer__heading govuk-heading-m">Legal terms</h2>
             <ul className="govuk-footer__list">
               {authenticated ? <li className="govuk-footer__list-item">
