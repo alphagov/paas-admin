@@ -113,7 +113,7 @@ function Costs(props: IFormProperties): ReactElement {
                   className="govuk-input govuk-date-input__input govuk-input--width-4"
                   id="view-costs-year"
                   name="year"
-                  type="number"
+                  inputMode="numeric"
                   defaultValue={new Date().getFullYear()}
                   pattern="20[123][0-9]"
                 />
