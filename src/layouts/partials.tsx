@@ -84,20 +84,21 @@ export function Header(props: IHeaderProperties): ReactElement {
           </a>
         </div>
         <div className="govuk-header__content govuk-!-display-none-print">
-          <button
-            type="button"
-            className="govuk-header__menu-button govuk-js-header-toggle"
-            aria-controls="navigation"
-            aria-label="Show or hide Top Level Navigation Menu"
-          >
-            Menu
-          </button>
-
-          <nav>
+          <nav 
+            aria-label="Top Level Navigation" 
+            className="govuk-header__navigation"
+            >
+            <button
+              type="button"
+              className="govuk-header__menu-button govuk-js-header-toggle"
+              aria-controls="navigation"
+              aria-label="Show or hide Top Level Navigation Menu"
+            >
+              Menu
+            </button>
             <ul
               id="navigation"
-              className="govuk-header__navigation "
-              aria-label="Top Level Navigation"
+              className="govuk-header__navigation-list"
             >
               <li className="govuk-header__navigation-item">
                 <a
