@@ -59,3 +59,8 @@ if ($tooltips) {
     new Tooltip($tooltips[i]).init();
   };
 }
+
+// Find first skip link module to enhance.
+var $skipLink = document.querySelector('[data-module="govuk-skip-link"]')
+var GOVUKSkipLink = window.GOVUKFrontend.SkipLink;
+new GOVUKSkipLink($skipLink).init()
