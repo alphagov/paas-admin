@@ -58,7 +58,7 @@ export function Header(props: IHeaderProperties): ReactElement {
           >
             <span className="govuk-header__logotype">
               <svg
-                role="presentation"
+                aria-hidden="true"
                 focusable="false"
                 className="govuk-header__logotype-crown"
                 xmlns="http://www.w3.org/2000/svg"
@@ -84,20 +84,21 @@ export function Header(props: IHeaderProperties): ReactElement {
           </a>
         </div>
         <div className="govuk-header__content govuk-!-display-none-print">
-          <button
-            type="button"
-            className="govuk-header__menu-button govuk-js-header-toggle"
-            aria-controls="navigation"
-            aria-label="Show or hide Top Level Navigation Menu"
-          >
-            Menu
-          </button>
-
-          <nav>
+          <nav 
+            aria-label="Top Level Navigation" 
+            className="govuk-header__navigation"
+            >
+            <button
+              type="button"
+              className="govuk-header__menu-button govuk-js-header-toggle"
+              aria-controls="navigation"
+              aria-label="Show or hide Top Level Navigation Menu"
+            >
+              Menu
+            </button>
             <ul
               id="navigation"
-              className="govuk-header__navigation "
-              aria-label="Top Level Navigation"
+              className="govuk-header__navigation-list"
             >
               <li className="govuk-header__navigation-item">
                 <a
@@ -214,7 +215,7 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
     <footer className="govuk-footer govuk-!-display-none-print" role="contentinfo">
       <div className="govuk-width-container ">
         <div className="govuk-footer__navigation">
-          <div className="govuk-footer__section">
+          <div className="govuk-footer__section govuk-grid-column-one-half">
             <h2 className="govuk-footer__heading govuk-heading-m">Support</h2>
             <ul className="govuk-footer__list">
               <li className="govuk-footer__list-item">
@@ -257,7 +258,7 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
               </li>
             </ul>
           </div>
-          <div className="govuk-footer__section">
+          <div className="govuk-footer__section govuk-grid-column-one-half">
             <h2 className="govuk-footer__heading govuk-heading-m">Legal terms</h2>
             <ul className="govuk-footer__list">
               {authenticated ? <li className="govuk-footer__list-item">
@@ -319,7 +320,7 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
                 </a>
             </div>
             <svg
-              role="presentation"
+              aria-hidden="true"
               focusable="false"
               className="govuk-footer__licence-logo"
               xmlns="http://www.w3.org/2000/svg"
@@ -418,7 +419,12 @@ export function NoTick(): ReactElement {
 
 export function CookieBanner(): ReactElement {
   return (
-    <div className="govuk-cookie-banner govuk-!-display-none-print" role="region" aria-label="Cookies on GOV.UK Platform as a Service" data-module="govuk-cookie-banner">
+    <div className="govuk-cookie-banner govuk-!-display-none-print"
+      role="region"
+      aria-label="Cookies on GOV.UK Platform as a Service"
+      data-module="govuk-cookie-banner"
+      data-nosnippet
+      >
       <div className="govuk-cookie-banner__message js-cookie-content govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

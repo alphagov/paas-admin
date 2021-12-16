@@ -168,14 +168,14 @@ export function PermissionBlock(
       {props.errors
         ?.filter(error => error.field === 'roles')
         .map((error, index) => (
-          <span
+          <p
             key={index}
             id="roles-error"
             className="govuk-error-message"
           >
             <span className="govuk-visually-hidden">Error:</span>{' '}
             {error.message}
-          </span>
+          </p>
         ))
       }
       <h3 className="govuk-heading-s">Organisation level roles</h3>
@@ -219,9 +219,9 @@ export function PermissionBlock(
           <legend className="govuk-fieldset__legend">
             <span className="govuk-visually-hidden">Which roles for organisation{' '}{props.organization.entity.name}{' '}roles would you like to assign to this user?</span>
           </legend>
-          <span id="org-roles-hint" className="govuk-hint">
+          <div id="org-roles-hint" className="govuk-hint">
             Select all that apply.
-          </span>
+          </div>
           <div className="govuk-checkboxes">
               <Permission
                 name="Org manager"
@@ -320,9 +320,9 @@ export function PermissionBlock(
             <legend className="govuk-fieldset__legend">
               <span className="govuk-visually-hidden">Which roles for space{' '}{space.entity.name}{' '}would you like to assign to this user?</span>
             </legend>
-            <span id="space-roles-hint" className="govuk-hint">
+            <div id="space-roles-hint" className="govuk-hint">
               Select all that apply.
-            </span>
+            </div>
             <div className="govuk-checkboxes">
               <Permission
                 name="Space manager"
@@ -594,14 +594,14 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
             {props.errors
               ?.filter(error => error.field === 'email')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="email-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
               className={`govuk-input ${

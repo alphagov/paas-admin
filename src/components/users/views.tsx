@@ -169,10 +169,10 @@ export function PasswordResetRequest(props: IPasswordResetFormProperties): React
             Email address
           </label>
 
-          {props.invalidEmail ? <span id="email-error" className="govuk-error-message">
+          {props.invalidEmail ? <p id="email-error" className="govuk-error-message">
             <span className="govuk-visually-hidden">Error:</span>{' '}
             Enter an email address in the correct format, like name@example.com
-          </span> : <></>}
+          </p> : <></>}
 
           <input
             className={`govuk-input ${props.invalidEmail ? 'govuk-input--error' : ''}`}
@@ -261,15 +261,15 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
             New Password
           </label>
 
-          {props.passwordMismatch ? <span id="password-error" className="govuk-error-message">
+          {props.passwordMismatch ? <p id="password-error" className="govuk-error-message">
             <span className="govuk-visually-hidden">Error:</span>{' '}
             You need to type in the same password twice
-            </span> : <></>}
+            </p> : <></>}
 
-          {props.passwordDoesNotMeetPolicy ? <span id="password-error" className="govuk-error-message">
+          {props.passwordDoesNotMeetPolicy ? <p id="password-error" className="govuk-error-message">
             <span className="govuk-visually-hidden">Error:</span>{' '}
             {props.passwordDoesNotMeetPolicyMessage!}
-          </span> : <></>}
+          </p> : <></>}
 
           <input
             className={`govuk-input ${props.passwordMismatch || props.passwordDoesNotMeetPolicy ? 'govuk-input--error' : ''}`}
@@ -285,10 +285,10 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
             Confirm your new password
           </label>
 
-          {props.passwordMismatch ? <span id="password-confirmation-error" className="govuk-error-message">
+          {props.passwordMismatch ? <p id="password-confirmation-error" className="govuk-error-message">
             <span className="govuk-visually-hidden">Error:</span>{' '}
             You need to type in the same password twice
-          </span> : <></>}
+          </p> : <></>}
 
           <input
             className={`govuk-input ${props.passwordMismatch ? 'govuk-input--error' : ''}`}

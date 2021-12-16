@@ -141,14 +141,14 @@ export function SupportSelectionPage(props: ISupportSelectionFormProperties): Re
             {props.errors
               ?.filter(error => error.field === 'support_type')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="support_type-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <div className="govuk-radios">
               <div className="govuk-radios__item">
@@ -290,14 +290,14 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
             {props.errors
               ?.filter(error => error.field === 'name')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="name-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
            className={`govuk-input ${
@@ -329,14 +329,14 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
             {props.errors
               ?.filter(error => error.field === 'email')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="email-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input className={`govuk-input ${
               props.errors?.some(e => e.field === 'email')
@@ -368,14 +368,14 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
             {props.errors
             ?.filter(error => error.field === 'affected_paas_organisation')
             .map((error, index) => (
-              <span
+              <p
                 key={index}
                 id="affected_paas_organisation-error"
                 className="govuk-error-message"
               >
                 <span className="govuk-visually-hidden">Error:</span>{' '}
                 {error.message}
-              </span>
+              </p>
             ))
             }
             <input className={`govuk-input ${
@@ -414,14 +414,14 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
               {props.errors
               ?.filter(error => error.field === 'impact_severity')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="impact_severity-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
               <div className="govuk-radios">
                 <div className="govuk-radios__item">
@@ -503,14 +503,14 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
             {props.errors
               ?.filter(error => error.field === 'message')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="message-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <textarea
               className={`govuk-textarea ${
@@ -620,14 +620,14 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
             {props.errors
               ?.filter(error => error.field === 'name')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="name-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
            className={`govuk-input ${
@@ -659,14 +659,14 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
             {props.errors
               ?.filter(error => error.field === 'email')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="email-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input className={`govuk-input ${
               props.errors?.some(e => e.field === 'email')
@@ -710,14 +710,14 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
             {props.errors
               ?.filter(error => error.field === 'message')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="message-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <textarea
               className={`govuk-textarea ${
@@ -803,14 +803,14 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
             {props.errors
               ?.filter(error => error.field === 'name')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="name-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
            className={`govuk-input ${
@@ -842,14 +842,14 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
             {props.errors
               ?.filter(error => error.field === 'email')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="email-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input className={`govuk-input ${
               props.errors?.some(e => e.field === 'email')
@@ -880,14 +880,14 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
             {props.errors
               ?.filter(error => error.field === 'gov_organisation_name')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="gov_organisation_name-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
               className={`govuk-input ${
@@ -919,14 +919,14 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
             {props.errors
               ?.filter(error => error.field === 'message')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="message-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <textarea
               className={`govuk-textarea ${
@@ -1008,14 +1008,14 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
             {props.errors
               ?.filter(error => error.field === 'name')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="name-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
            className={`govuk-input ${
@@ -1047,14 +1047,14 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
             {props.errors
               ?.filter(error => error.field === 'email')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="email-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input className={`govuk-input ${
               props.errors?.some(e => e.field === 'email')
@@ -1085,14 +1085,14 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
             {props.errors
               ?.filter(error => error.field === 'department_agency')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="department_agency-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
               className={`govuk-input ${
@@ -1123,14 +1123,14 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
             {props.errors
               ?.filter(error => error.field === 'service_team')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="service_team-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
               className={`govuk-input ${
@@ -1161,14 +1161,14 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
             {props.errors
               ?.filter(error => error.field === 'message')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="message-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <textarea
               className={`govuk-textarea ${
@@ -1220,9 +1220,9 @@ export function RequestAnAccountPage(props: IFormProperties): ReactElement {
                   Do you want to create an organisation?
                 </h1>
               </legend>
-              <span id="create-an-org-hint" className="govuk-hint">
+              <div id="create-an-org-hint" className="govuk-hint">
                 An organisation typically represents the government department, agency or team you work for.
-              </span>
+              </div>
               <div className="govuk-radios">
                 <div className="govuk-radios__item">
                   <input
@@ -1331,14 +1331,14 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
             {props.errors
               ?.filter(error => error.field === 'name')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="name-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
             className={`govuk-input ${
@@ -1367,13 +1367,13 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
             <label className="govuk-label" htmlFor="email">
               Email address
             </label>
-            <span id="email-hint" className="govuk-hint">
+            <div id="email-hint" className="govuk-hint">
               Must be from a government organisation or public body
-            </span>
+            </div>
             {props.errors
               ?.filter(error => error.field === 'email')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="email-error"
                   className="govuk-error-message"
@@ -1386,7 +1386,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                   // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{ __html: error.messageExtra }} /> : ''
                   }
-                </span>
+                </p>
               ))}
             <input className={`govuk-input ${
               props.errors?.some(e => e.field === 'email')
@@ -1419,14 +1419,14 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
             {props.errors
               ?.filter(error => error.field === 'department_agency')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="department_agency-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
               className={`govuk-input ${
@@ -1457,14 +1457,14 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
             {props.errors
               ?.filter(error => error.field === 'service_team')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="service_team-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
               className={`govuk-input ${
@@ -1499,21 +1499,21 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
               <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
                 Will you be a manager of this organisation?
               </legend>
-              <span id="person_is_manager-hint" className="govuk-hint">
+              <div id="person_is_manager-hint" className="govuk-hint">
                 Organisations are controlled by ‘org managers’ who are responsible for administering the account and
                 assigning roles and permissions to users within the organisation
-              </span>
+              </div>
               {props.errors
               ?.filter(error => error.field === 'person_is_manager')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="person_is_manager-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
               <div className="govuk-radios">
                 <div className="govuk-radios__item">
@@ -1579,20 +1579,20 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
               <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
                 Would you like to invite additional users now?
               </legend>
-              <span id="invite_users-hint" className="govuk-hint">
+              <div id="invite_users-hint" className="govuk-hint">
                 We recommend each &apos;organisation&apos; has at least two &apos;org managers&apos;
-              </span>
+              </div>
               {props.errors
               ?.filter(error => error.field === 'invite_users')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="invite_users-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
               <div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
                 <div className="govuk-radios__item">
@@ -1627,14 +1627,14 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                                 {props.errors
                                   ?.filter(error => error.field === 'additional_users-0')
                                   .map((error, index) => (
-                                    <span
+                                    <p
                                       key={index}
                                       id="additional_users-0-error"
                                       className="govuk-error-message"
                                     >
                                       <span className="govuk-visually-hidden">Error:</span>{' '}
                                       {error.message}
-                                    </span>
+                                    </p>
                                   ))}
                                 <input
                                   className={`govuk-input ${
@@ -1680,14 +1680,14 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                             {props.errors
                               ?.filter(error => error.field === 'additional_users-1')
                               .map((error, index) => (
-                                <span
+                                <p
                                   key={index}
                                   id="additional_users-1-error"
                                   className="govuk-error-message"
                                 >
                                   <span className="govuk-visually-hidden">Error:</span>{' '}
                                   {error.message}
-                                </span>
+                                </p>
                               ))}
                             <input
                               className={`govuk-input ${
@@ -1733,14 +1733,14 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                             {props.errors
                               ?.filter(error => error.field === 'additional_users-2')
                               .map((error, index) => (
-                                <span
+                                <p
                                   key={index}
                                   id="additional_users-2-error"
                                   className="govuk-error-message"
                                 >
                                   <span className="govuk-visually-hidden">Error:</span>{' '}
                                   {error.message}
-                                </span>
+                                </p>
                               ))}
                             <input
                               className={`govuk-input ${
