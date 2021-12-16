@@ -275,10 +275,10 @@ export function CreateOrganizationPage(props: ICreateOrganizationPageProperties)
         <label className="govuk-label" htmlFor="organization">
           Organisation name
         </label>
-        <span id="organization-hint" className="govuk-hint">
+        <div id="organization-hint" className="govuk-hint">
           This needs to be all lowercase and hyphen separated meaningful name of the organisation.
           You can also refer to the section on the side for some examples.
-        </span>
+        </div>
         <input id="organization" name="organization" className="govuk-input" aria-describedby="organization-hint"
           type="text" defaultValue={props.values?.organization} required={true} pattern={SLUG_REGEX} />
       </div>
@@ -287,10 +287,10 @@ export function CreateOrganizationPage(props: ICreateOrganizationPageProperties)
         <label className="govuk-label" htmlFor="owner">
           Owner
         </label>
-        <span id="owner-hint" className="govuk-hint">
+        <div id="owner-hint" className="govuk-hint">
           Choose an owner from the list. If one you are looking for does not exist, set it to <code>Unknown</code>,
           and ask person on support to add one in place.
-        </span>
+        </div>
         <select className="govuk-select" id="owner" name="owner" aria-describedby="owner-hint" required={true}>
           <option selected={props.values?.owner === 'Unknown'}>Unknown</option>
           {owners.map(owner => <option key={owner} selected={props.values?.owner === owner}>{owner}</option>)}
@@ -466,11 +466,11 @@ export function ContactOrganisationManagersPage(props: IContactOrganisationManag
 
         <p className="govuk-body">
         Message will automatically include the following:
-        <span id="message-hint" className="govuk-hint govuk-!-display-block">
+        <div id="message-hint" className="govuk-hint">
           You are receiving this email as you are listed as a [manager_role] manager of the [organisation_name] organisation in our [paas_region] region.<br /><br />
           Thank you,<br />
           GOV.UK PaaS
-          </span>
+          </div>
         </p>
 
         <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">

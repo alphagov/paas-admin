@@ -1220,9 +1220,9 @@ export function RequestAnAccountPage(props: IFormProperties): ReactElement {
                   Do you want to create an organisation?
                 </h1>
               </legend>
-              <span id="create-an-org-hint" className="govuk-hint">
+              <div id="create-an-org-hint" className="govuk-hint">
                 An organisation typically represents the government department, agency or team you work for.
-              </span>
+              </div>
               <div className="govuk-radios">
                 <div className="govuk-radios__item">
                   <input
@@ -1367,9 +1367,9 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
             <label className="govuk-label" htmlFor="email">
               Email address
             </label>
-            <span id="email-hint" className="govuk-hint">
+            <div id="email-hint" className="govuk-hint">
               Must be from a government organisation or public body
-            </span>
+            </div>
             {props.errors
               ?.filter(error => error.field === 'email')
               .map((error, index) => (
@@ -1499,10 +1499,10 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
               <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
                 Will you be a manager of this organisation?
               </legend>
-              <span id="person_is_manager-hint" className="govuk-hint">
+              <div id="person_is_manager-hint" className="govuk-hint">
                 Organisations are controlled by ‘org managers’ who are responsible for administering the account and
                 assigning roles and permissions to users within the organisation
-              </span>
+              </div>
               {props.errors
               ?.filter(error => error.field === 'person_is_manager')
               .map((error, index) => (
@@ -1579,9 +1579,9 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
               <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
                 Would you like to invite additional users now?
               </legend>
-              <span id="invite_users-hint" className="govuk-hint">
+              <div id="invite_users-hint" className="govuk-hint">
                 We recommend each &apos;organisation&apos; has at least two &apos;org managers&apos;
-              </span>
+              </div>
               {props.errors
               ?.filter(error => error.field === 'invite_users')
               .map((error, index) => (

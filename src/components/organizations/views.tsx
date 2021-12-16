@@ -283,10 +283,10 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
           <label className="govuk-label govuk-label--m" htmlFor="name">
             Organisation Name
           </label>
-          <span id="name-hint" className="govuk-hint">
+          <div id="name-hint" className="govuk-hint">
             This needs to be all lowercase and hyphen separated meaningful name of the organisation.
             You can also refer to the section on the side for some examples.
-          </span>
+          </div>
           <input
             className="govuk-input"
             id="name"
@@ -301,10 +301,10 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
           <label className="govuk-label govuk-label--m" htmlFor="owner">
             Owner
           </label>
-          <span id="owner-hint" className="govuk-hint">
+          <div id="owner-hint" className="govuk-hint">
             Choose an owner from the list. If one you are looking for does not exist, set it to <code>Unknown</code>,
             and ask person on support to add one in place.
-          </span>
+          </div>
           <select className="govuk-select" id="owner" name="owner" aria-describedby="owner-hint" required={true}>
             <option selected={props.organization.metadata.annotations.owner === 'Unknown'}>Unknown</option>
             {owners.map(owner =>
@@ -318,10 +318,10 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
           <label className="govuk-label govuk-label--m" htmlFor="quota">
             Select a Quota
           </label>
-          <span id="quota-hint" className="govuk-hint">
+          <div id="quota-hint" className="govuk-hint">
             The <code>default</code> quota represents a trial account for specific organisation and will not be billed
             for.
-          </span>
+          </div>
           <select className="govuk-select" id="quota" name="quota" aria-describedby="quota-hint">
             {props.quotas.map(quota => <option
               key={quota.guid}
