@@ -419,7 +419,12 @@ export function NoTick(): ReactElement {
 
 export function CookieBanner(): ReactElement {
   return (
-    <div className="govuk-cookie-banner govuk-!-display-none-print" role="region" aria-label="Cookies on GOV.UK Platform as a Service" data-module="govuk-cookie-banner">
+    <div className="govuk-cookie-banner govuk-!-display-none-print"
+      role="region"
+      aria-label="Cookies on GOV.UK Platform as a Service"
+      data-module="govuk-cookie-banner"
+      data-nosnippet
+      >
       <div className="govuk-cookie-banner__message js-cookie-content govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
