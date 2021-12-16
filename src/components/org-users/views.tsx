@@ -168,14 +168,14 @@ export function PermissionBlock(
       {props.errors
         ?.filter(error => error.field === 'roles')
         .map((error, index) => (
-          <span
+          <p
             key={index}
             id="roles-error"
             className="govuk-error-message"
           >
             <span className="govuk-visually-hidden">Error:</span>{' '}
             {error.message}
-          </span>
+          </p>
         ))
       }
       <h3 className="govuk-heading-s">Organisation level roles</h3>
@@ -594,14 +594,14 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
             {props.errors
               ?.filter(error => error.field === 'email')
               .map((error, index) => (
-                <span
+                <p
                   key={index}
                   id="email-error"
                   className="govuk-error-message"
                 >
                   <span className="govuk-visually-hidden">Error:</span>{' '}
                   {error.message}
-                </span>
+                </p>
               ))}
             <input
               className={`govuk-input ${

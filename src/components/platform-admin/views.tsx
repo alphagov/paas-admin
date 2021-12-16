@@ -355,14 +355,14 @@ export function ContactOrganisationManagersPage(props: IContactOrganisationManag
           {props.errors
             ?.filter(error => error.field === 'organisation')
             .map((error, index) => (
-              <span
+              <p
                 key={index}
                 id="organisation-error"
                 className="govuk-error-message"
               >
                 <span className="govuk-visually-hidden">Error:</span>{' '}
                 {error.message}
-              </span>
+              </p>
             ))}
           <select
             className={`govuk-select ${
@@ -396,14 +396,14 @@ export function ContactOrganisationManagersPage(props: IContactOrganisationManag
           {props.errors
             ?.filter(error => error.field === 'managerRole')
             .map((error, index) => (
-              <span
+              <p
                 key={index}
                 id="managerRole-error"
                 className="govuk-error-message"
               >
                 <span className="govuk-visually-hidden">Error:</span>{' '}
                 {error.message}
-              </span>
+              </p>
             ))}
           <select
             className={`govuk-select ${
@@ -436,14 +436,14 @@ export function ContactOrganisationManagersPage(props: IContactOrganisationManag
           {props.errors
             ?.filter(error => error.field === 'message')
             .map((error, index) => (
-              <span
+              <p
                 key={index}
                 id="message-error"
                 className="govuk-error-message"
               >
                 <span className="govuk-visually-hidden">Error:</span>{' '}
                 {error.message}
-              </span>
+              </p>
             ))}
 
           <textarea
