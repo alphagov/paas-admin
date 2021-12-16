@@ -58,7 +58,7 @@ export function Header(props: IHeaderProperties): ReactElement {
           >
             <span className="govuk-header__logotype">
               <svg
-                role="presentation"
+                aria-hidden="true"
                 focusable="false"
                 className="govuk-header__logotype-crown"
                 xmlns="http://www.w3.org/2000/svg"
@@ -320,7 +320,7 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
                 </a>
             </div>
             <svg
-              role="presentation"
+              aria-hidden="true"
               focusable="false"
               className="govuk-footer__licence-logo"
               xmlns="http://www.w3.org/2000/svg"
