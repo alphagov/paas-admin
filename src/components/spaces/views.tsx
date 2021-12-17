@@ -53,6 +53,7 @@ interface ISpacesPageProperties {
   readonly organization: IEnhancedOrganization;
   readonly spaces: ReadonlyArray<IEnhancedSpace>;
   readonly users: ReadonlyArray<IUser>;
+  readonly daysLeftInTrialPeriod?: number | null;
 }
 
 interface IApplicationPageProperties {
@@ -273,6 +274,18 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
               ? 'Trial organisations have limited access to backing services'
               : 'Billable organisations have full access to backing services'}
           </p>
+          
+          {props.daysLeftInTrialPeriod ?
+            <p className="govuk-body">
+              Trial period{' '}
+              <span className="govuk-!-font-weight-bold">
+                {props.daysLeftInTrialPeriod! <= 0 ? 'has expired' : 
+                  props.daysLeftInTrialPeriod! === 1 ? 'expires in 1 day' 
+                  : `expires in ${props.daysLeftInTrialPeriod} days`}
+              </span>.
+            </p>
+            : <></>
+          }
 
           {help.conditionallyDisplay(
             props.isAdmin || props.isManager || props.isBillingManager,

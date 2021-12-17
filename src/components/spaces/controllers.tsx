@@ -1,6 +1,7 @@
 import lodash from 'lodash';
 import React from 'react';
 import { validate as uuidValidate } from 'uuid';
+import differenceInCalendarDays from 'date-fns/differenceInCalendarDays'
 
 import { Template } from '../../layouts';
 import { AccountsClient, IAccountsUser } from '../../lib/accounts';
@@ -361,6 +362,8 @@ export async function listSpaces(
     }),
   ]);
 
+  const TRIAL_PERIOD_DURATION = 90 // days (this )our trial period)
+
   const summarisedSpaces = await Promise.all(
     spaces.map(async (space: ISpace) => {
       const [applications, serviceInstances, quota] = await Promise.all([
@@ -414,6 +417,15 @@ export async function listSpaces(
     title = `Organisation ${summarisedOrganization.entity.name} Overview`
   }
 
+  // calculate difference in days between today and when org was created
+  // if trial org, it will still have 'default' quota and if that condition is met,
+  // calculate, else pass 'null' and in the view we will not show any text
+  // ignored as we're already testing this in the view test (line 460)
+  /* istanbul ignore next */
+  const daysLeftInTrialPeriod: number | null = summarisedOrganization.quota.entity.name === 'default' ?
+    TRIAL_PERIOD_DURATION - differenceInCalendarDays(new Date(), new Date(summarisedOrganization.metadata.created_at))
+    : null;
+
   const template = new Template(
     ctx.viewContext,
     title,
@@ -433,6 +445,7 @@ export async function listSpaces(
         organization={summarisedOrganization}
         spaces={summarisedSpaces}
         users={users}
+        daysLeftInTrialPeriod={daysLeftInTrialPeriod}
       />,
     ),
   };
