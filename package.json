@@ -36,7 +36,7 @@
     "@types/body-parser": "^1.19.2",
     "@types/cheerio": "^0.22.30",
     "@types/compression": "^1.7.2",
-    "@types/cookie-session": "^2.0.43",
+    "@types/cookie-session": "^2.0.44",
     "@types/csurf": "^1.11.2",
     "@types/d3-array": "^3.0.1",
     "@types/d3-axis": "^3.0.1",
