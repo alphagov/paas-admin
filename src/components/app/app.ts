@@ -124,8 +124,21 @@ export default function(config: IAppConfig): express.Express {
   app.use('/assets', staticGzip('node_modules/d3-sankey/dist', { immutable: true }));
   app.use(compression());
 
-  app.use(helmet());
-  app.use(helmet.contentSecurityPolicy(csp));
+  // helmet 5.0.0 enabled some headers by default that need more testing
+  // and break local development so we're reverting to previous default
+  // see https://github.com/helmetjs/helmet/blob/main/CHANGELOG.md#500---2022-01-02
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        useDefaults: false,
+        ...csp,
+      },
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: false,
+      originAgentCluster: false,
+    }),
+  ) 
 
   app.use(express.urlencoded({ extended: true }));
   app.use(csrf());
