@@ -95,7 +95,7 @@
     "sass-loader": "^12.4.0",
     "stylelint": "^13.13.1",
     "stylelint-config-gds": "^0.1.0",
-    "supertest": "^6.2.0",
+    "supertest": "^6.2.1",
     "ts-jest": "^27.1.2",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",
