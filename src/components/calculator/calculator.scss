@@ -1,12 +1,8 @@
 .paas-summary-section {
   @include govuk-font($size: 16);
-  padding-top: govuk-spacing(3);
-  padding-bottom: govuk-spacing(3);
-  padding-left: govuk-spacing(3);
-  padding-right: govuk-spacing(3);
+  padding: govuk-spacing(3) govuk-spacing(3) govuk-spacing(3) govuk-spacing(3);
   background-color: govuk-colour("light-grey");
   border: 10px govuk-colour("light-grey") solid;
-  position: -webkit-sticky;
   position: sticky;
   top: govuk-spacing(3);
   margin-top: 25px;
@@ -21,7 +17,7 @@
   }
 
   td:nth-child(even) {
-    text-align:right;
+    text-align: right;
   }
 
   td:nth-child(odd) {
@@ -115,7 +111,6 @@
     @include govuk-font($size: 16);
   }
 
-
   button {
     @include govuk-font($size: 16);
     background: none;
@@ -145,6 +140,7 @@
 
 .paas-add-button {
   position: relative;
+
   &:before {
     position: absolute;
     left: 4px;

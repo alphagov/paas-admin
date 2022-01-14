@@ -2,7 +2,6 @@ $govuk-global-styles: true;
 $govuk-new-link-styles: true;
 $govuk-page-width: 1200px;
 $app-super-light-grey: #f8f8f8;
-
 $govuk-breakpoints: (
   mobile:  320px,
   tablet:  641px,
@@ -10,24 +9,24 @@ $govuk-breakpoints: (
   wideDesktop: 1156px
 );
 
-@import '~govuk-frontend/govuk/all';
+@import "~govuk-frontend/govuk/all";
 
-@import 'elements';
-@import 'header';
+@import "elements";
+@import "header";
 
-@import '../components/calculator/calculator';
+@import "../components/calculator/calculator";
 
-@import './subnav';
-@import '../components/reports/reports';
+@import "./subnav";
+@import "../components/reports/reports";
 
-@import '../components/org-users/org-users';
-@import '../components/org-users/permissions';
+@import "../components/org-users/org-users";
+@import "../components/org-users/permissions";
 
-@import '../components/marketplace/marketplace';
-@import '../components/statements/statements';
-@import '../components/services/services';
-@import '../components/service-metrics/service-metrics';
-@import '../components/charts/line-graph';
+@import "../components/marketplace/marketplace";
+@import "../components/statements/statements";
+@import "../components/services/services";
+@import "../components/service-metrics/service-metrics";
+@import "../components/charts/line-graph";
 
 .govuk-template__body {
   font-family: "GDS Transport", Arial, sans-serif;
@@ -47,7 +46,7 @@ $govuk-breakpoints: (
 
   .org-summary-stat__figure {
     font-size: 36px;
-    line-height: 1.1111111111;
+    line-height: 1.1111;
     font-weight: 700;
   }
 }
@@ -66,11 +65,10 @@ $govuk-breakpoints: (
 }
 
 .govuk-grid-row.govuk-grid-row-vertically-separated {
-  > *+* {
+  > * + * {
     border-left: 1px solid $govuk-border-colour;
   }
 }
-
 
 .govuk-link:not([href*="//"]) {
   @include govuk-link-style-no-visited-state;
@@ -90,7 +88,7 @@ $govuk-breakpoints: (
   font-weight: 400;
 }
 
-//abbreviation tooltip
+// abbreviation tooltip
 
 [data-module="tooltip"] {
   position: relative;
@@ -122,16 +120,16 @@ $govuk-breakpoints: (
   cursor: help;
 }
 
-[data-module="tooltip"][tooltip=active]:after,
+[data-module="tooltip"][tooltip="active"]:after,
 [data-module="tooltip"]:hover:after {
-    width: auto;
-    height: auto;
-    overflow: visible;
-    clip: auto;
-    -webkit-clip-path: none;
-    clip-path: none;
-    white-space: inherit;
-    z-index: 99;
-    margin-top: -(govuk-spacing(5));
-    padding: 2px 3px;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  -webkit-clip-path: none;
+  clip-path: none;
+  white-space: inherit;
+  z-index: 99;
+  margin-top: -(govuk-spacing(5));
+  padding: 2px 3px;
 }

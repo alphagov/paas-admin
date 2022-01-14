@@ -1,11 +1,11 @@
 .user-roles {
- h3 {
-  @include govuk-font($size: 19, $weight: bold);;
- }
+  h3 {
+    @include govuk-font($size: 19, $weight: bold);
+  }
 
- p {
-  @include govuk-font($size: 19);;
- }
+  p {
+    @include govuk-font($size: 19);
+  }
 }
 
 .user-list-table {

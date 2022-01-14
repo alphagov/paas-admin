@@ -30,7 +30,7 @@
 .paas-table-billing-statement {
   @include govuk-font($size: 16);
 
-  button[name=sort] {
+  button[name="sort"] {
     background: none;
     border: none;
     box-shadow: none;
@@ -40,7 +40,7 @@
     margin: 0;
     padding: 0;
 
-    &::after {
+    &:after {
       display: inline-block;
       margin-left: .5rem;
       content: "";
@@ -80,6 +80,7 @@
   @include govuk-media-query($from:desktop) {
     grid-template-columns: repeat(4, 1fr);
   }
+
   > div {
     margin-bottom: govuk-spacing(3);
   }

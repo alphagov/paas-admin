@@ -1,4 +1,5 @@
-.marketplace-list, .service-details {
+.marketplace-list,
+.service-details {
   figure {
     display: block;
     margin: 0;
@@ -48,17 +49,16 @@
   }
 }
 
-.service-details {
-  figure {
-    div {
-      height: auto;
-    }
-    img {
-      max-width: 150px;
+.service-details figure {
+  div {
+    height: auto;
+  }
 
-      @include govuk-media-query($from: tablet) {
-        max-width: 100%;
-      }
+  img {
+    max-width: 150px;
+
+    @include govuk-media-query($from: tablet) {
+      max-width: 100%;
     }
   }
 }
