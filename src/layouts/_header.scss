@@ -19,7 +19,7 @@
 }
 
 @include govuk-media-query(tablet) {
-  /* GOV.UK Platform-as-a-Service is too long */
+  // GOV.UK Platform-as-a-Service is too long
   .govuk-header__logo {
     width: auto;
   }
