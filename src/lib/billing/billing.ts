@@ -243,9 +243,9 @@ export default class BillingClient {
       url: '/billable_events',
     });
 
-    const data: ReadonlyArray<t.IBillableEventResponse> = response.data;
+    const data: ReadonlyArray<t.IFlatBillableEventResponse> = response.data;
 
-    return data.map(parseBillableEvent);
+    return data.map(parseFlatBillableEvent);
   }
 
   public async getForecastEvents(params: t.IForecastParameters): Promise<ReadonlyArray<t.IBillableEvent>> {
