@@ -1,4 +1,4 @@
-import { add, format, isValid, startOfMonth, sub } from 'date-fns';
+import { add, format, isValid, isEqual, startOfMonth, sub } from 'date-fns';
 import React from 'react';
 
 import { Template } from '../../layouts';
@@ -202,6 +202,15 @@ export async function viewStatement(
     );
   }
 
+  const today = new Date();
+
+  let rangeStop;
+  if (isEqual(startOfMonth(today), startOfMonth(rangeStart))) {
+    rangeStop = today;
+  } else {
+    rangeStop = add(rangeStart, { months: 1 });
+  }
+
   const currentMonth = format(rangeStart, 'MMMM');
 
   const cf = new CloudFoundryClient({
@@ -262,7 +271,7 @@ export async function viewStatement(
   const filter = {
     orgGUIDs: [organization.metadata.guid],
     rangeStart: rangeStart,
-    rangeStop: add(rangeStart, { months: 1 }),
+    rangeStop: rangeStop,
   };
 
   let events;

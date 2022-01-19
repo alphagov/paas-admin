@@ -16,7 +16,7 @@ interface IBillingClientConfig {
 }
 
 function parseDate(d: Date): string {
-  return format(new Date(d), 'yyyy-MM-dd');
+  return format(new Date(d), "yyyy-MM-dd'T'HH:mm:ss'Z'");
 }
 
 function parseTimestamp(s: string): Date {
