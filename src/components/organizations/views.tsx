@@ -337,12 +337,12 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
           <label className="govuk-label govuk-label--m" htmlFor="suspended">
             Organisation Suspension
           </label>
-          <span id="suspended-hint" className="govuk-hint">
+          <div id="suspended-hint" className="govuk-hint">
             By default, an org has the status of <code>Active</code>. An admin can set the status of an org to {}
             <code>Suspended</code> for various reasons such as failure to provide payment or misuse. When an org is {}
             <code>Suspended</code>, users cannot perform certain activities within the org, such as push apps, modify
             spaces, or bind services.
-          </span>
+          </div>
           <select className="govuk-select" id="suspended" name="suspended" aria-describedby="suspended-hint">
             <option selected={!props.organization.suspended} value="false">Active</option>
             <option selected={props.organization.suspended} value="true">Suspended</option>
