@@ -137,7 +137,7 @@
     "nanoid": "^3.2.0",
     "node-jose": "^2.0.0",
     "node-zendesk": "^2.1.0",
-    "notifications-node-client": "^5.1.0",
+    "notifications-node-client": "^5.1.1",
     "openid-client": "^4.9.1",
     "p-limit": "^3.1.0",
     "passport": "^0.5.2",
