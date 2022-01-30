@@ -1,9 +1,8 @@
+import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
 import lodash from 'lodash';
 import React from 'react';
-import { validate as uuidValidate } from 'uuid';
-import differenceInCalendarDays from 'date-fns/differenceInCalendarDays'
 
-import { Template } from '../../layouts';
+import { checkIfValidUuid , Template } from '../../layouts';
 import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
 import {
@@ -96,7 +95,7 @@ export async function viewSpaceEvent(
   ]);
 
   const eventActorGUID: string | undefined =
-    event.actor.type === 'user' && uuidValidate(event.actor.guid)
+    event.actor.type === 'user' && checkIfValidUuid(event.actor.guid)
       ? event.actor.guid
       : undefined;
 
@@ -164,13 +163,13 @@ export async function viewSpaceEvents(
     .chain(events)
     .filter(e => e.actor.type === 'user')
     .map(e => e.actor.guid)
-    .filter(guid => uuidValidate(guid))
+    .filter(guid => checkIfValidUuid(guid))
     .value();
   const userTargetGUIDs = lodash
     .chain(events)
     .filter(e => e.target.type === 'user')
     .map(e => e.target.guid)
-    .filter(guid => uuidValidate(guid))
+    .filter(guid => checkIfValidUuid(guid))
     .value();
   const userGUIDs = lodash.uniq(userActorGUIDs.concat(userTargetGUIDs));
 
