@@ -72,3 +72,10 @@ export function conditionallyDisplay(
 export function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
+
+/* Check if string is a valid UUID */
+export function checkIfValidUuid(input: string): boolean {
+  // 8-4-4-4-12 arrangement of 36 characters
+  const regexExp = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
+  return regexExp.test(input.toLowerCase());
+}
