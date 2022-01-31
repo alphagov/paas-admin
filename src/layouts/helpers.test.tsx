@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 import cheerio from 'cheerio';
 import { shallow } from 'enzyme';
 import React from 'react';
@@ -7,6 +9,7 @@ import {
   Abbreviation,
   bytesToHuman,
   capitalize,
+  checkIfValidUuid,
   conditionallyDisplay,
   percentage,
 } from './helpers';
@@ -67,5 +70,15 @@ describe(Abbreviation, () => {
     expect($('abbr').text()).toBe('FTW');
     expect($('abbr').attr('aria-label')).toBe('For the win');
     expect($('abbr').attr('role')).toBe('tooltip');
+  });
+});
+
+describe(checkIfValidUuid, () => {
+  it('should return true if string is a valid UUID', () => {
+    expect(checkIfValidUuid(randomUUID())).toBeTruthy();
+  });
+
+  it('should return false if string is not a valid UUID', () => {
+    expect(checkIfValidUuid('a24a6ea4-ce75-4665-a070')).toBeFalsy();
   });
 });

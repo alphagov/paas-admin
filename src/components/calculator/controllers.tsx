@@ -1,7 +1,8 @@
+import { randomUUID } from 'crypto';
+
 import { endOfMonth, format, startOfMonth } from 'date-fns';
 import { isMatch, sum } from 'lodash';
 import React from 'react';
-import * as uuid from 'uuid';
 
 import { Template } from '../../layouts';
 import { BillingClient } from '../../lib/billing';
@@ -63,7 +64,7 @@ async function getQuote(
   const forecastEvents = state.items.map((item: IResourceItem) => {
     const plan = state.plans.find(p => p.planGUID === item.planGUID);
     const defaultEvent: IBillableEvent = {
-      eventGUID: uuid.v1(),
+      eventGUID: randomUUID(),
       eventStart: rangeStart,
       eventStop: rangeStop,
       memoryInMB: parseFloat(item.memoryInMB),
@@ -75,7 +76,7 @@ async function getQuote(
         exVAT: 0,
         incVAT: 0,
       },
-      resourceGUID: uuid.v4(),
+      resourceGUID: randomUUID(),
       resourceName: 'unknown',
       resourceType: 'unknown',
       spaceGUID: '00000001-0001-0000-0000-000000000000',

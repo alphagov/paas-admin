@@ -1,8 +1,7 @@
 import lodash from 'lodash';
 import React from 'react';
-import { validate as uuidValidate } from 'uuid';
 
-import { Template } from '../../layouts';
+import { checkIfValidUuid, Template } from '../../layouts';
 import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse } from '../../lib/router';
@@ -37,7 +36,7 @@ export async function viewApplicationEvent(
   ]);
 
   const eventActorGUID: string | undefined =
-    event.actor.type === 'user' && uuidValidate(event.actor.guid)
+    event.actor.type === 'user' && checkIfValidUuid(event.actor.guid)
       ? event.actor.guid
       : undefined;
 
@@ -114,7 +113,7 @@ export async function viewApplicationEvents(
     .chain(events)
     .filter(e => e.actor.type === 'user')
     .map(e => e.actor.guid)
-    .filter(guid => uuidValidate(guid))
+    .filter(guid => checkIfValidUuid(guid))
     .uniq()
     .value();
 
