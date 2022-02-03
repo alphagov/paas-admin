@@ -99,11 +99,11 @@ describe('statements test suite', () => {
 
   it('should show the statement page', async () => {
     nockBilling
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, '[]')
 
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents);
 
@@ -142,11 +142,11 @@ describe('statements test suite', () => {
 
   it('should show the statement page to admins for a deleted org', async () => {
     nockBilling
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, '[]')
 
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       )
       .reply(200, billingData.billableEvents);
 
@@ -170,11 +170,11 @@ describe('statements test suite', () => {
   it('should prepare statement to download', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, '[]');
 
     nockCF
@@ -198,11 +198,11 @@ describe('statements test suite', () => {
   it('should be able to use filters', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, billingData.currencyRates);
 
     nockCF
@@ -227,11 +227,11 @@ describe('statements test suite', () => {
   it('should be reflect the selected filters in the main heading', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, billingData.currencyRates);
 
     nockCF
@@ -258,11 +258,11 @@ describe('statements test suite', () => {
   it('populates filter dropdowns with all spaces / services', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, billingData.currencyRates);
 
     nockCF
@@ -294,11 +294,11 @@ describe('statements test suite', () => {
   it('does not outputs USD rate if not known', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, []);
 
     nockCF
@@ -322,11 +322,11 @@ describe('statements test suite', () => {
   it('outputs a single USD rate if there is only one', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, [{ code: 'USD', rate: 0.8, valid_from: '2017-01-01' }]);
 
     nockCF
@@ -351,11 +351,11 @@ describe('statements test suite', () => {
   it('outputs multiple USD rates if there are multiple this month', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, [
         { code: 'USD', rate: 0.8, valid_from: '2017-01-01' },
         { code: 'USD', rate: 0.5, valid_from: '2017-01-15' },
