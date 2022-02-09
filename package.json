@@ -92,7 +92,7 @@
     "request-promise-native": "^1.0.9",
     "sass": "^1.49.7",
     "sass-loader": "^12.4.0",
-    "stylelint": "^14.3.0",
+    "stylelint": "^14.4.0",
     "stylelint-config-standard-scss": "^3.0.0",
     "supertest": "^6.2.1",
     "ts-jest": "^27.1.3",
