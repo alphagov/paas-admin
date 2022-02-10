@@ -469,7 +469,6 @@ export function EditPage(props: IEditPageProperties): ReactElement {
             className="govuk-error-summary"
             aria-labelledby="error-summary-title"
             role="alert"
-            tabIndex={-1}
             data-module="govuk-error-summary"
           >
             <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -559,7 +558,6 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
             className="govuk-error-summary"
             aria-labelledby="error-summary-title"
             role="alert"
-            tabIndex={-1}
             data-module="govuk-error-summary"
           >
             <h2 className="govuk-error-summary__title" id="error-summary-title">

@@ -250,8 +250,12 @@ export function CreateOrganizationPage(props: ICreateOrganizationPageProperties)
       <input type="hidden" name="_csrf" value={props.csrf} />
 
       {props.errors
-        ? <div className="govuk-error-summary" aria-labelledby="error-summary-title"
-            role="alert" tabIndex={-1} data-module="govuk-error-summary">
+        ? <div 
+            className="govuk-error-summary"
+            aria-labelledby="error-summary-title"
+            role="alert"
+            data-module="govuk-error-summary"
+          >
             <h2 className="govuk-error-summary__title" id="error-summary-title">
               There is a problem
             </h2>
@@ -324,8 +328,12 @@ export function ContactOrganisationManagersPage(props: IContactOrganisationManag
         <input type="hidden" name="_csrf" value={props.csrf} />
 
         {props.errors
-          ? <div className="govuk-error-summary" aria-labelledby="error-summary-title"
-              role="alert" tabIndex={-1} data-module="govuk-error-summary">
+          ? <div 
+              className="govuk-error-summary"
+              aria-labelledby="error-summary-title"
+              role="alert"
+              data-module="govuk-error-summary"
+            >
               <h2 className="govuk-error-summary__title" id="error-summary-title">
                 There is a problem
               </h2>

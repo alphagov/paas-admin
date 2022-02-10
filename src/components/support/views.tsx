@@ -99,7 +99,6 @@ export function SupportSelectionPage(props: ISupportSelectionFormProperties): Re
             className="govuk-error-summary"
             aria-labelledby="error-summary-title"
             role="alert"
-            tabIndex={-1}
             data-module="govuk-error-summary"
           >
             <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -248,7 +247,6 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
             className="govuk-error-summary"
             aria-labelledby="error-summary-title"
             role="alert"
-            tabIndex={-1}
             data-module="govuk-error-summary"
           >
             <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -586,7 +584,6 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
             className="govuk-error-summary"
             aria-labelledby="error-summary-title"
             role="alert"
-            tabIndex={-1}
             data-module="govuk-error-summary"
           >
             <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -764,7 +761,6 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
             className="govuk-error-summary"
             aria-labelledby="error-summary-title"
             role="alert"
-            tabIndex={-1}
             data-module="govuk-error-summary"
           >
             <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -974,7 +970,6 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
             className="govuk-error-summary"
             aria-labelledby="error-summary-title"
             role="alert"
-            tabIndex={-1}
             data-module="govuk-error-summary"
           >
             <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -1296,7 +1291,6 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
             className="govuk-error-summary"
             aria-labelledby="error-summary-title"
             role="alert"
-            tabIndex={-1}
             data-module="govuk-error-summary"
           >
             <h2 className="govuk-error-summary__title" id="error-summary-title">
