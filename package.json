@@ -91,7 +91,7 @@
     "puppeteer": "^13.3.2",
     "request-promise-native": "^1.0.9",
     "sass": "^1.49.7",
-    "sass-loader": "^12.4.0",
+    "sass-loader": "^12.5.0",
     "stylelint": "^14.5.0",
     "stylelint-config-standard-scss": "^3.0.0",
     "supertest": "^6.2.1",
