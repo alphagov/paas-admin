@@ -1,4 +1,4 @@
-import { format, startOfMonth } from 'date-fns';
+import { format, startOfMonth, startOfDay } from 'date-fns';
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
@@ -67,6 +67,8 @@ const adminCtx: IContext = createTestContext({
     `${name}/${params ? params.rangeStart : ''}`,
   token: new Token(adminToken, [tokenKey]),
 });
+
+const startCurrentMonth = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
 describe('statements test suite', () => {
   let nockBilling: nock.Scope;
@@ -391,6 +393,40 @@ describe('statements test suite', () => {
       /Billing Statement: expected rangeStart to be the first day of the month/,
     );
   });
+
+  it('should ask for range_stop as todays date if has current month as start date', async () => {
+    
+    const currentDate = startOfDay(new Date());
+    const currentDateLongFormat = format(currentDate, "yyyy-MM-dd'T'HH:mm:ss'Z'");
+    nockBilling
+      .get(
+        `/billable_events?range_start=${startCurrentMonth}T00:00:00Z&range_stop=${currentDateLongFormat}&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20`,
+      )
+      .reply(200, billingData.billableEvents)
+
+      .get(`/currency_rates?range_start=${startCurrentMonth}T00:00:00Z&range_stop=${currentDateLongFormat}`)
+      .reply(200, [
+        { code: 'USD', rate: 0.8, valid_from: '2017-01-01' },
+        { code: 'USD', rate: 0.5, valid_from: '2017-01-15' },
+      ]);
+
+    nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .times(2)
+      .reply(200, data.userRolesForOrg)
+
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .reply(200, JSON.stringify(defaultOrg()));
+
+
+    const response = await statement.viewStatement(ctx, {
+        organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+        rangeStart: startCurrentMonth,
+      });
+    expect (response.body).toContain(startCurrentMonth);
+
+
+   });
 
   it('should redirect to correct statement', async () => {
     const response = await statement.statementRedirection(ctx, {

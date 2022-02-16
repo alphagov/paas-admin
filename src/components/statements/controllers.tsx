@@ -1,4 +1,4 @@
-import { add, format, isValid, isEqual, startOfMonth, sub } from 'date-fns';
+import { add, format, isValid, isEqual, startOfMonth, sub, startOfDay } from 'date-fns';
 import React from 'react';
 
 import { Template } from '../../layouts';
@@ -202,7 +202,7 @@ export async function viewStatement(
     );
   }
 
-  const today = new Date();
+  const today = startOfDay(new Date());
 
   let rangeStop;
   if (isEqual(startOfMonth(today), startOfMonth(rangeStart))) {
