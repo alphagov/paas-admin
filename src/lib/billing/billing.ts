@@ -118,7 +118,7 @@ function parseFlatBillableEvent(ev: t.IFlatBillableEventResponse): t.IBillableEv
     price: {
       details: parseFlatPriceComponent(ev),
       exVAT: parseNumber(ev.charge_gbp_exc_vat),
-      incVAT: parseNumber(ev.charge_gbp_inc_vat,),
+      incVAT: parseNumber(ev.charge_gbp_inc_vat),
     },
     quotaGUID: ev.org_quota_definition_guid,
   };

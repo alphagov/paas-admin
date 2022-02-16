@@ -15,21 +15,21 @@ describe('lib/billing test suite', () => {
       )
       .reply(
         200,
-	`[{
+        `[{
         "resource_guid": "a585feac-32a1-44f6-92e2-cdb1377e42f4",
         "resource_name": "api-availability-test-app",
         "resource_type": "app",
         "org_guid": "7f9c0e11-e7f1-41d7-9d3f-cb9d05110f9e",
-	"org_name": "org",
+        "org_name": "org",
         "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
-	"space_name": "space",
-	"component_name": "component",
+        "space_name": "space",
+        "component_name": "component",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-	"plan_name": "plan",
+        "plan_name": "plan",
         "org_quota_definition_guid": "3f2dd80c-7dfb-4e7f-b8a9-406b0b8abfa3",
         "charge_gbp_exc_vat": "0.02",
         "charge_gbp_inc_vat": "0.024",
-	"charge_usd_exc_vat": "0.015"
+        "charge_usd_exc_vat": "0.015"
         }
       ]`,
       );
@@ -318,16 +318,16 @@ describe('lib/billing test suite', () => {
         "resource_name": "api-availability-test-app",
         "resource_type": "app",
         "org_guid": "7f9c0e11-e7f1-41d7-9d3f-cb9d05110f9e",
-	"org_name": "org",
+        "org_name": "org",
         "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
-	"space_name": "space",
-	"component_name": "component",
+        "space_name": "space",
+        "component_name": "component",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-	"plan_name": "plan",
+        "plan_name": "plan",
         "org_quota_definition_guid": "3f2dd80c-7dfb-4e7f-b8a9-406b0b8abfa3",
         "charge_gbp_exc_vat": "not-a-number",
         "charge_gbp_inc_vat": "0.024",
-	"charge_usd_exc_vat": "0.015"
+        "charge_usd_exc_vat": "0.015"
         }
       ]`
       ,

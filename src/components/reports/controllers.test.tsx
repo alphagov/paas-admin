@@ -362,16 +362,16 @@ describe('cost report test suite', () => {
         "resource_name": "api-availability-test-app",
         "resource_type": "app",
         "org_guid": "7f9c0e11-e7f1-41d7-9d3f-cb9d05110f9e",
-	"org_name": "org",
+        "org_name": "org",
         "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
-	"space_name": "space",
-	"component_name": "component",
+        "space_name": "space",
+        "component_name": "component",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-	"plan_name": "plan",
+        "plan_name": "plan",
         "org_quota_definition_guid": "3f2dd80c-7dfb-4e7f-b8a9-406b0b8abfa3",
         "charge_gbp_exc_vat": "0.02",
         "charge_gbp_inc_vat": "0.024",
-	"charge_usd_exc_vat": "0.015"
+        "charge_usd_exc_vat": "0.015"
         }]`,
       );
 
@@ -409,16 +409,16 @@ describe('cost report test suite', () => {
         "resource_name": "api-availability-test-app",
         "resource_type": "app",
         "org_guid": "7f9c0e11-e7f1-41d7-9d3f-cb9d05110f9e",
-	"org_name": "org",
+        "org_name": "org",
         "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
-	"space_name": "space",
-	"component_name": "component",
+        "space_name": "space",
+        "component_name": "component",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-	"plan_name": "matching plan",
+        "plan_name": "matching plan",
         "org_quota_definition_guid": "3f2dd80c-7dfb-4e7f-b8a9-406b0b8abfa3",
         "charge_gbp_exc_vat": "1337.13",
         "charge_gbp_inc_vat": "1337.00",
-	"charge_usd_exc_vat": "0.015"
+        "charge_usd_exc_vat": "0.015"
         }]`,
       );
 
@@ -470,16 +470,16 @@ describe('cost report test suite', () => {
         "resource_name": "api-availability-test-app",
         "resource_type": "app",
         "org_guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
-	"org_name": "the-system_domain-org-name",
+        "org_name": "the-system_domain-org-name",
         "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
-	"space_name": "space",
-	"component_name": "component",
+        "space_name": "space",
+        "component_name": "component",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-	"plan_name": "plan",
+        "plan_name": "plan",
         "org_quota_definition_guid": "ORG-QUOTA-GUID",
         "charge_gbp_exc_vat": "0.02",
         "charge_gbp_inc_vat": "0.024",
-	"charge_usd_exc_vat": "0.025"
+        "charge_usd_exc_vat": "0.025"
         }]`,
       );
 
@@ -887,22 +887,22 @@ describe('html cost report by service test suite', () => {
   it('should group billable events by org and service', async () => {
     const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
-    const defaultBillableEvent = 
-	{
+    const defaultBillableEvent =
+        {
         resource_guid: 'a585feac-32a1-44f6-92e2-cdb1377e42f4',
         resource_name: 'default-resource-guid',
         resource_type: 'app',
         org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-	org_name: 'org',
+        org_name: 'org',
         space_guid: 'default-space-guid',
-	space_name: 'space',
-	component_name : 'component',
+        space_name: 'space',
+        component_name : 'component',
         plan_guid: 'default-plan-guid',
-	plan_name: 'unknown',
+        plan_name: 'unknown',
         org_quota_definition_guid: 'default-quota-definition-guid',
         charge_gbp_exc_vat: '0.02',
         charge_gbp_inc_vat: '0.024',
-	charge_usd_exc_vat: '0.015',
+        charge_usd_exc_vat: '0.015',
       };
 
     nockCF
@@ -919,14 +919,14 @@ describe('html cost report by service test suite', () => {
         JSON.stringify([
           {
             ...defaultBillableEvent,
-	    plan_name: 'task',
-	    charge_gbp_inc_vat: '1'
+            plan_name: 'task',
+            charge_gbp_inc_vat: '1',
           },
           {
             ...defaultBillableEvent,
             plan_name: 'staging',
             charge_gbp_inc_vat: '10',
-            
+
           },
           {
             ...defaultBillableEvent,
@@ -937,7 +937,7 @@ describe('html cost report by service test suite', () => {
             ...defaultBillableEvent,
            plan_name: 'postgres',
            charge_gbp_inc_vat: '1000',
-           
+
           },
           {
             ...defaultBillableEvent,
@@ -1430,22 +1430,22 @@ describe('csv organisation monthly spend report for the pmo team', () => {
 
 
 
-    const defaultBillableEvent = 
-	{
+    const defaultBillableEvent =
+        {
         resource_guid: 'a585feac-32a1-44f6-92e2-cdb1377e42f4',
         resource_name: 'default-resource-guid',
         resource_type: 'app',
         org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-	org_name: 'org',
+        org_name: 'org',
         space_guid: 'default-space-guid',
-	space_name: 'space',
-	component_name : 'component',
+        space_name: 'space',
+        component_name : 'component',
         plan_guid: 'default-plan-guid',
-	plan_name: 'plan',
+        plan_name: 'plan',
         org_quota_definition_guid: 'default-quota-definition-guid',
         charge_gbp_exc_vat: '0.02',
         charge_gbp_inc_vat: '0.024',
-	charge_usd_exc_vat: '0.015',
+        charge_usd_exc_vat: '0.015',
       };
     nock(config.billingAPI)
       .get('/billable_events')
@@ -1488,45 +1488,22 @@ describe('csv organisation monthly spend report for the pmo team', () => {
   it('should group billable events by org', async () => {
     const rangeStart = startOfMonth(new Date());
 
-
-    const defaultBillableEvent = {
-    eventGUID: '',
-    eventStart: new Date(),
-    eventStop: new Date(),
-    memoryInMB: 0,
-    numberOfNodes: 0,
-    orgGUID: '',
-    planGUID: '',
-    price: {
-      details: [],
-      exVAT: 0,
-      incVAT: 0,
-    },
-    quotaGUID: '',
-    resourceGUID: '',
-    resourceName: '',
-    resourceType: '',
-    spaceGUID: '',
-    spaceName: '',
-    storageInMB: 0,
-    };      
-
-    const defaultFlatBillableEvent = 
-	{
+    const defaultFlatBillableEvent =
+        {
         resource_guid: 'a585feac-32a1-44f6-92e2-cdb1377e42f4',
         resource_name: 'default-resource-guid',
         resource_type: 'app',
         org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-	org_name: 'org',
+        org_name: 'org',
         space_guid: 'default-space-guid',
-	space_name: 'space',
-	component_name : 'component',
+        space_name: 'space',
+        component_name : 'component',
         plan_guid: 'default-plan-guid',
-	plan_name: 'plan',
+        plan_name: 'plan',
         org_quota_definition_guid: 'default-quota-definition-guid',
         charge_gbp_exc_vat: '0.02',
         charge_gbp_inc_vat: '0.024',
-	charge_usd_exc_vat: '0.015',
+        charge_usd_exc_vat: '0.015',
       };
 
     nock(config.billingAPI)
@@ -1633,23 +1610,6 @@ describe('csv organisation monthly spend report for the pmo team', () => {
 });
 
 describe('cost report grouping functions', () => {
-  const defaultFlatBillableEvent = 
-	{
-        resource_guid: 'a585feac-32a1-44f6-92e2-cdb1377e42f4',
-        resource_name: 'default-resource-guid',
-        resource_type: 'app',
-        org_guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-	org_name: 'org',
-        space_guid: 'default-space-guid',
-	space_name: 'space',
-	component_name : 'component',
-        plan_guid: 'default-plan-guid',
-	plan_name: 'plan',
-        org_quota_definition_guid: 'default-quota-definition-guid',
-        charge_gbp_exc_vat: '0.02',
-        charge_gbp_inc_vat: '0.024',
-	charge_usd_exc_vat: '0.015',
-  };
 
   const defaultBillableEvent = {
     eventGUID: '',
@@ -1871,16 +1831,16 @@ describe('html visualisation report test suite', () => {
         "resource_name": "api-availability-test-app",
         "resource_type": "app",
         "org_guid": "7f9c0e11-e7f1-41d7-9d3f-cb9d05110f9e",
-	"org_name": "org",
+        "org_name": "org",
         "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
-	"space_name": "space",
-	"component_name": "component",
+        "space_name": "space",
+        "component_name": "component",
         "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-	"plan_name": "plan",
+        "plan_name": "plan",
         "org_quota_definition_guid": "3f2dd80c-7dfb-4e7f-b8a9-406b0b8abfa3",
         "charge_gbp_exc_vat": "0.02",
         "charge_gbp_inc_vat": "0.024",
-	"charge_usd_exc_vat": "0.015"
+        "charge_usd_exc_vat": "0.015"
         }]`,
       );
 
