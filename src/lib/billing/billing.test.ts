@@ -347,5 +347,31 @@ describe('lib/billing test suite', () => {
       }),
     ).rejects.toThrow(/failed to parse 'not-a-number' as a number/);
   });
+it('should throw invalid date', async () => {
+    nock(config.billingAPI)
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2019-01-01T00:00:00Z')
+      .reply(
+        200,
+        `[
+        {
+          "code": "GBP",
+          "rate": 1.0,
+          "valid_from": "2017-13-13"
+        }
+      ]`,
+      );
+
+    const bc = new BillingClient({
+      accessToken: '__ACCESS_TOKEN__',
+      apiEndpoint: config.billingAPI,
+      logger: pino({ level: 'silent' }),
+    });
+    await expect( bc.getCurrencyRates({
+      rangeStart: new Date('2018-01-01'),
+      rangeStop: new Date('2019-01-01'),
+    }),
+    ).rejects.toThrow(/BillingClient: invalid date format: 2017-13-13/)
+
+  });
 
 });
