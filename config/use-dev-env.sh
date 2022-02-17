@@ -32,7 +32,8 @@ export API_URL=$(service_domain "api")
 export UAA_URL=$(service_domain "uaa")
 export AUTHORIZATION_URL=$(service_domain "uaa")
 
-export AWS_CLOUDWATCH_ENDPOINT=http://0:${STUB_AWS_PORT}
+export AWS_REGION=eu-west-1
+export AWS_CLOUDWATCH_ENDPOINT="https://monitoring.${AWS_REGION}.amazonaws.com"
 export PROMETHEUS_ENDPOINT=http://0:${STUB_PROMETHEUS_PORT}
 export PROMETHEUS_USERNAME=not-used
 export PROMETHEUS_PASSWORD=not-used
@@ -44,14 +45,10 @@ read -p $'Enter the Notify API key: (credhub get -q -n "/concourse/main/create-c
 export NOTIFY_API_KEY="${notify_api_key}"
 export NOTIFY_WELCOME_TEMPLATE_ID="1859ce68-f133-4218-ac6e-a8ef32a41292"
 
-
 export OAUTH_CLIENT_ID=paas-admin-local
 export OAUTH_CLIENT_SECRET=local-dev
-export AWS_REGION=eu-west-2
 export GOOGLE_CLIENT_ID=googleclientid
 export GOOGLE_CLIENT_SECRET=googleclientsecret
-
-export ENABLE_FAKE_AWS_CREDENTIALS=true
 
 export PLATFORM_METRICS_ENDPOINT=http://0:${STUB_PLATFORM_METRICS_PORT-1343}
 
