@@ -86,7 +86,7 @@ export ADMIN_PASSWORD= # get this value from credhub using `credhub get -n /${DE
 npm run test:acceptance
 ```
 
-Start the server pointing at stubbed APIs
+### Start the server pointing at stubbed APIs
 
 ```sh
 # In one terminal tab
@@ -96,27 +96,15 @@ npm run start:stub-api
 npm run start:with-stub-api
 ```
 
-Start the server pointing at real APIs in development mode
+### Start the server pointing at real APIs in development mode
+
+Run
 
 ```sh
-API_URL="https://api.$DEPLOY_ENV.dev.cloudpipeline.digital" \
-BILLING_URL="https://billing.$DEPLOY_ENV.dev.cloudpipeline.digital" \
-ACCOUNTS_URL="https://accounts.$DEPLOY_ENV.dev.cloudpipeline.digital" \
-UAA_URL="https://uaa.$DEPLOY_ENV.dev.cloudpipeline.digital" \
-OAUTH_CLIENT_ID="my-client-id" \
-OAUTH_CLIENT_SECRET="my-secret" \
-ACCOUNTS_SECRET="my-accounts-secret" \
-NOTIFY_API_KEY="qwerty123456" \
-NOTIFY_PASSWORD_RESET_TEMPLATE_ID="qwerty123456" \
-NOTIFY_WELCOME_TEMPLATE_ID="qwerty123456" \
-AWS_REGION="eu-west-2" \
-npm start
+gds aws paas-dev-admin -- npm run start:dev:with-cf-dev-env  $DEPLOY_ENV
 ```
 
-TIP: set `NODE_EXTRA_CA_CERTS=path/to/router-ca.crt` if your UAA/CF uses the
-gorouter's self-signed cert (e.g. on bosh-lite).
-
-(the above values make sense for the UK Government PaaS team)
+and follow on-screen instructions.
 
 You should be able to edit files in the `./src` directory and the changes will
 automatically be updated.
