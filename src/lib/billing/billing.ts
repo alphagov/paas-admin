@@ -16,7 +16,7 @@ interface IBillingClientConfig {
 }
 
 function parseDate(d: Date): string {
-  return format(new Date(d), "yyyy-MM-dd'T'HH:mm:ss'Z'");
+  return format(new Date(d), 'yyyy-MM-dd');
 }
 
 function parseTimestamp(s: string): Date {
@@ -98,44 +98,6 @@ function parseBillableEvent(ev: t.IBillableEventResponse): t.IBillableEvent {
     },
     quotaGUID: ev.quota_definition_guid,
   };
-}
-
-function parseFlatBillableEvent(ev: t.IFlatBillableEventResponse): t.IBillableEvent {
-  return {
-    eventGUID: "",
-    eventStart: new Date("1970-01-01"),
-    eventStop: new Date("1970-01-01"),
-    resourceGUID: ev.resource_guid,
-    resourceName: ev.resource_name,
-    resourceType: ev.resource_type,
-    orgGUID: ev.org_guid,
-    spaceGUID: ev.space_guid,
-    spaceName: ev.space_name,
-    planGUID: ev.plan_guid,
-    numberOfNodes: 0,
-    memoryInMB: 0,
-    storageInMB: 0,
-    price: {
-      details: parseFlatPriceComponent(ev),
-      exVAT: parseNumber(ev.charge_gbp_exc_vat),
-      incVAT: parseNumber(ev.charge_gbp_inc_vat),
-    },
-    quotaGUID: ev.org_quota_definition_guid,
-  };
-}
-
-function parseFlatPriceComponent(ev: t.IFlatBillableEventResponse): ReadonlyArray<t.IPriceComponent> {
-  return [{
-    name: ev.component_name,
-    planName: ev.plan_name,
-    start: new Date("1970-01-01"),
-    stop: new Date("1970-01-01"),
-    VATCode: "Standard",
-    VATRate: 0.2,
-    currencyCode: "GBP",
-    incVAT: parseNumber(ev.charge_gbp_inc_vat),
-    exVAT: parseNumber(ev.charge_gbp_exc_vat),
-  }]
 }
 
 function parseComponentResponse(component: t.IComponentResponse): t.IComponent {
@@ -243,9 +205,9 @@ export default class BillingClient {
       url: '/billable_events',
     });
 
-    const data: ReadonlyArray<t.IFlatBillableEventResponse> = response.data;
+    const data: ReadonlyArray<t.IBillableEventResponse> = response.data;
 
-    return data.map(parseFlatBillableEvent);
+    return data.map(parseBillableEvent);
   }
 
   public async getForecastEvents(params: t.IForecastParameters): Promise<ReadonlyArray<t.IBillableEvent>> {
