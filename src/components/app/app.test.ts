@@ -132,8 +132,8 @@ describe('app test suite', () => {
   });
 
   it('should be able to handle 500 error when accessing pricing calculator', async () => {
-    const rangeStart = format(startOfMonth(new Date()), "yyyy-MM-dd'T'HH:mm:ss'Z'");
-    const rangeStop = format(endOfMonth(new Date()), "yyyy-MM-dd'T'HH:mm:ss'Z'");
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
     nockBilling
       .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
