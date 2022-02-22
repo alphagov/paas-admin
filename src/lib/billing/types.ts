@@ -110,6 +110,23 @@ export interface IBillableEventResponse extends IUsageEventResponse {
   };
 }
 
+export interface IFlatBillableEventResponse  {
+  readonly org_guid: string;
+  readonly org_name: string;
+  readonly org_quota_definition_guid: string;
+  readonly plan_guid: string;
+  readonly plan_name: string;
+  readonly space_guid: string;
+  readonly space_name: string;
+  readonly resource_guid: string;
+  readonly resource_type: string;
+  readonly resource_name: string;
+  readonly component_name: string;
+  readonly charge_gbp_inc_vat: string;
+  readonly charge_gbp_exc_vat: string;
+  readonly charge_usd_exc_vat: string;
+}
+
 export interface IPriceComponentResponse {
   readonly name: string;
   readonly plan_name: string;

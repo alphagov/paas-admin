@@ -1,4 +1,4 @@
-import { format, startOfMonth } from 'date-fns';
+import { format, startOfMonth, startOfDay } from 'date-fns';
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
@@ -68,6 +68,8 @@ const adminCtx: IContext = createTestContext({
   token: new Token(adminToken, [tokenKey]),
 });
 
+const startCurrentMonth = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+
 describe('statements test suite', () => {
   let nockBilling: nock.Scope;
   let nockCF: nock.Scope;
@@ -99,11 +101,11 @@ describe('statements test suite', () => {
 
   it('should show the statement page', async () => {
     nockBilling
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, '[]')
 
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents);
 
@@ -142,11 +144,11 @@ describe('statements test suite', () => {
 
   it('should show the statement page to admins for a deleted org', async () => {
     nockBilling
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, '[]')
 
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275',
       )
       .reply(200, billingData.billableEvents);
 
@@ -170,11 +172,11 @@ describe('statements test suite', () => {
   it('should prepare statement to download', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, '[]');
 
     nockCF
@@ -198,11 +200,11 @@ describe('statements test suite', () => {
   it('should be able to use filters', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, billingData.currencyRates);
 
     nockCF
@@ -227,11 +229,11 @@ describe('statements test suite', () => {
   it('should be reflect the selected filters in the main heading', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, billingData.currencyRates);
 
     nockCF
@@ -258,11 +260,11 @@ describe('statements test suite', () => {
   it('populates filter dropdowns with all spaces / services', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, billingData.currencyRates);
 
     nockCF
@@ -294,11 +296,11 @@ describe('statements test suite', () => {
   it('does not outputs USD rate if not known', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, []);
 
     nockCF
@@ -322,11 +324,11 @@ describe('statements test suite', () => {
   it('outputs a single USD rate if there is only one', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, [{ code: 'USD', rate: 0.8, valid_from: '2017-01-01' }]);
 
     nockCF
@@ -351,11 +353,11 @@ describe('statements test suite', () => {
   it('outputs multiple USD rates if there are multiple this month', async () => {
     nockBilling
       .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+        '/billable_events?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
       )
       .reply(200, billingData.billableEvents)
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
+      .get('/currency_rates?range_start=2018-01-01T00:00:00Z&range_stop=2018-02-01T00:00:00Z')
       .reply(200, [
         { code: 'USD', rate: 0.8, valid_from: '2017-01-01' },
         { code: 'USD', rate: 0.5, valid_from: '2017-01-15' },
@@ -391,6 +393,40 @@ describe('statements test suite', () => {
       /Billing Statement: expected rangeStart to be the first day of the month/,
     );
   });
+
+  it('should ask for range_stop as todays date if has current month as start date', async () => {
+    
+    const currentDate = startOfDay(new Date());
+    const currentDateLongFormat = format(currentDate, "yyyy-MM-dd'T'HH:mm:ss'Z'");
+    nockBilling
+      .get(
+        `/billable_events?range_start=${startCurrentMonth}T00:00:00Z&range_stop=${currentDateLongFormat}&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20`,
+      )
+      .reply(200, billingData.billableEvents)
+
+      .get(`/currency_rates?range_start=${startCurrentMonth}T00:00:00Z&range_stop=${currentDateLongFormat}`)
+      .reply(200, [
+        { code: 'USD', rate: 0.8, valid_from: '2017-01-01' },
+        { code: 'USD', rate: 0.5, valid_from: '2017-01-15' },
+      ]);
+
+    nockCF
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
+      .times(2)
+      .reply(200, data.userRolesForOrg)
+
+      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
+      .reply(200, JSON.stringify(defaultOrg()));
+
+
+    const response = await statement.viewStatement(ctx, {
+        organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
+        rangeStart: startCurrentMonth,
+      });
+    expect (response.body).toContain(startCurrentMonth);
+
+
+   });
 
   it('should redirect to correct statement', async () => {
     const response = await statement.statementRedirection(ctx, {
