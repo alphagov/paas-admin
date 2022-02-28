@@ -226,7 +226,7 @@ describe('organisations report helpers', () => {
 
     // When billabe accounts were created approximately
     expect(response.body).toContain('Created about 1 year ago');
-    expect(response.body).toContain('Created almost 2 years ago');
+    expect(response.body).toContain('Created about 2 years ago');
 
     // Should show the quota names
     expect(response.body).toContain('Trial');
