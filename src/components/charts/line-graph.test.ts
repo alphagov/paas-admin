@@ -40,7 +40,7 @@ describe('line graphs', () => {
     const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, [
       { label: 'some-label', metrics: series },
     ]);
-    const seriesPaths = result.querySelectorAll('path.series');
+    const seriesPaths = result.querySelectorAll('.series');
     expect(seriesPaths).toHaveLength(1);
     const legends = result.querySelectorAll('.legend');
     expect(legends).toHaveLength(0);
@@ -56,7 +56,7 @@ describe('line graphs', () => {
       { label: 'some-label-002', metrics: series },
       { label: 'some-label-003', metrics: series },
     ]);
-    const seriesPaths = result.querySelectorAll('path.series');
+    const seriesPaths = result.querySelectorAll('.series');
     expect(seriesPaths).toHaveLength(3);
     const legends = result.querySelectorAll('.legend');
     expect(legends).toHaveLength(3);
@@ -72,7 +72,7 @@ describe('line graphs', () => {
       { label: 'some-label-two', metrics: series },
       { label: 'some-label-three', metrics: series },
     ]);
-    const seriesPaths = result.querySelectorAll('path.series');
+    const seriesPaths = result.querySelectorAll('.series');
     expect(seriesPaths).toHaveLength(3);
     const legends = result.querySelectorAll('.legend');
     expect(legends).toHaveLength(3);
@@ -91,7 +91,7 @@ describe('line graphs', () => {
       { label: 'some-label-2', metrics: series },
       { label: 'some-label-3', metrics: series },
     ]);
-    const seriesPaths = result.querySelectorAll('path.series');
+    const seriesPaths = result.querySelectorAll('.series');
     expect(seriesPaths).toHaveLength(3);
     const legends = result.querySelectorAll('.legend');
     expect(legends).toHaveLength(3);
@@ -110,7 +110,7 @@ describe('line graphs', () => {
       { metrics: series },
       { metrics: series },
     ]);
-    const seriesPaths = result.querySelectorAll('path.series');
+    const seriesPaths = result.querySelectorAll('.series');
     expect(seriesPaths).toHaveLength(3);
     const legends = result.querySelectorAll('.legend');
     expect(legends).toHaveLength(0);
