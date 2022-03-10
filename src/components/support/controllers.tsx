@@ -260,7 +260,7 @@ function validateServiceTeam({ service_team }: ISupportFormServiceTeam): Readonl
 function validateSignupEmail({ email }: ISignupForm): ReadonlyArray<IDualValidationError> {
   const errors = [];
 
-  const allowedEmailAddresses = /(.+\.gov\.uk|.+nhs\.(net|uk)|.+mod\.uk|.+digitalaccessibilitycentre\.org|.+marinemanagement\.org\.uk|.+\.police\.uk|police\.uk.)$/;
+  const allowedEmailAddresses = /(.+\.gov\.uk|.+nhs\.(net|uk)|.+mod\.uk|.+digitalaccessibilitycentre\.org|.+marinemanagement\.org\.uk|.+ukri\.org|.+\.police\.uk|police\.uk.)$/;
 
   if (!email || !VALID_EMAIL.test(email)) {
     errors.push({
@@ -272,7 +272,7 @@ function validateSignupEmail({ email }: ISignupForm): ReadonlyArray<IDualValidat
   if (email && VALID_EMAIL.test(email) && !allowedEmailAddresses.test(email)) {
     errors.push({
       field: 'email',
-      message: 'We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, digitalaccessibilitycentre.org, marinemanagement.org.uk, .police.uk or police.uk email addresses',
+      message: 'We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, digitalaccessibilitycentre.org, marinemanagement.org.uk, ukri.org, .police.uk or police.uk email addresses',
       messageExtra: `
         If you work for a government organisation or public body with a different email address, please contact us on
         <a class="govuk-link"
