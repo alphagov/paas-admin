@@ -326,7 +326,7 @@ describe(SignUpPage, () => {
       } as any}
       errors={[{
         field: 'email',
-        message: 'We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, .police.uk or police.uk email addresses',
+        message: 'We only accept .gov.uk, .mod.uk, nhs.net, .police.uk or police.uk email addresses',
         messageExtra: 'If you work for a government organisation or public body with a different email address, please contact us on <a class="govuk-link" href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">gov-uk-paas-support@digital.cabinet-office.gov.uk</a>',
       },
     ]}
@@ -334,7 +334,7 @@ describe(SignUpPage, () => {
     const $ = cheerio.load(markup.html());
     expect($('.govuk-error-summary')).toHaveLength(1);
     expect($('.govuk-error-summary li')).toHaveLength(1);
-    expect($('.govuk-error-summary li:first-child').text()).toContain('We only accept .gov.uk, .mod.uk, nhs.net, nhs.uk, .police.uk or police.uk email addresses');
+    expect($('.govuk-error-summary li:first-child').text()).toContain('We only accept .gov.uk, .mod.uk, nhs.net, .police.uk or police.uk email addresses');
     expect($('#email-error span:last-child').html()).toContain('If you work for a government organisation or public body with a different email address, please contact us on <a class="govuk-link" href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk">gov-uk-paas-support@digital.cabinet-office.gov.uk</a>');
     expect($('input#person_is_manager:checked')).toHaveLength(1);
     expect($('input#invite_users:checked')).toHaveLength(1);
