@@ -62,7 +62,7 @@
     "@types/react-dom": "^17.0.14",
     "@types/route-parser": "^0.1.4",
     "@types/source-map-support": "^0.5.4",
-    "@types/supertest": "^2.0.11",
+    "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.15.0",
     "body-parser": "^1.19.1",
