@@ -94,6 +94,7 @@
     "sass": "^1.49.9",
     "sass-loader": "^12.6.0",
     "stylelint": "^14.6.1",
+    "stylelint-config-gds": "^0.2.0",
     "stylelint-config-standard-scss": "^3.0.0",
     "supertest": "^6.2.1",
     "ts-jest": "^27.1.4",
