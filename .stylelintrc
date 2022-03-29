@@ -1,0 +1,9 @@
+---
+extends: stylelint-config-gds/scss
+rules:
+  selector-no-qualifying-type:
+    - true
+    - ignore:
+      - attribute
+      - class
+  value-keyword-case: ~

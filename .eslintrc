@@ -22,8 +22,7 @@
     "coverage/",
     "dist/",
     "node_modules/",
-    "src/frontend/javascript/",
-    "stylelint.config.js"
+    "src/frontend/javascript/"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
