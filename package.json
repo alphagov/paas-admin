@@ -52,7 +52,7 @@
     "@types/jest": "^27.4.1",
     "@types/jsdom": "^16.2.14",
     "@types/jsonwebtoken": "^8.5.8",
-    "@types/lodash": "^4.14.180",
+    "@types/lodash": "^4.14.181",
     "@types/node-jose": "^1.1.10",
     "@types/passport": "^1.0.7",
     "@types/passport-oauth2": "^1.4.11",
