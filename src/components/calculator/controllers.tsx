@@ -156,7 +156,7 @@ function safelistServices(p: IPricingPlan): boolean {
     {serviceName: 'postgres'},
     {serviceName: 'mysql'},
     {serviceName: 'redis'},
-    {serviceName: 'elasticsearch'},
+    {serviceName: 'opensearch'},
     {serviceName: 'aws-s3-bucket'},
     {serviceName: 'influxdb'},
     // both sqs queue types are priced the same and a meaningless plan

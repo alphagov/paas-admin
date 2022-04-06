@@ -73,7 +73,7 @@ describe('calculator test suite', () => {
           },
           {
             ...defaultPricingPlan,
-            name: 'elasticsearch small-ha-6.x',
+            name: 'opensearch small-ha-1',
             plan_guid: 'f4d4b95a-f55e-4593-8d54-3364c25798c8',
           },
           {
@@ -100,7 +100,7 @@ describe('calculator test suite', () => {
     expect(response.body).toMatch(/\bPostgres\b/);
     expect(response.body).toMatch(/\bMySQL\b/);
     expect(response.body).toMatch(/\bRedis\b/);
-    expect(response.body).toMatch(/\bElasticsearch\b/);
+    expect(response.body).toMatch(/\bOpensearch\b/);
     expect(response.body).toMatch(/\bAmazon S3\b/);
     expect(response.body).toMatch(/\bAmazon SQS\b/);
     expect(
