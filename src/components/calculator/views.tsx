@@ -85,7 +85,7 @@ function niceServiceName(planName: string): string {
     'app': 'Compute',
     'aws-s3-bucket': 'Amazon S3',
     'aws-sqs-queue': 'Amazon SQS',
-    'elasticsearch': 'Elasticsearch',
+    'opensearch': 'Opensearch',
     'influxdb': 'InfluxDB',
     'mysql': 'MySQL',
     'postgres': 'Postgres',
