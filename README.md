@@ -165,4 +165,3 @@ This project is fairly young and may not be a right fit for different needs yet.
 You may be interested in investigating other tools, such as
 [Stratos](https://github.com/cloudfoundry-incubator/stratos) which may become
 an official tool some day.
-
