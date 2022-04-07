@@ -8,7 +8,6 @@ import { RouteLinker } from '../app';
 import autoscalerLogo from './icons/autoscaler.png';
 import cdnLogo from './icons/cdn.svg';
 import cloudLogo from './icons/cloud.png';
-import elasticsearchLogo from './icons/elasticsearch.png';
 import influxdbLogo from './icons/influxdb.png';
 import mysqlLogo from './icons/mysql.png';
 import opensearchLogo from './icons/opensearch.png';
@@ -141,11 +140,6 @@ const serviceDetails: IServiceDetails = {
     image: cdnLogo,
     imageTitle: 'Amazon Web Services - CloudFront - Official Logo',
     name: 'CloudFront',
-  },
-  'elasticsearch': {
-    image: elasticsearchLogo,
-    imageTitle: 'Elasticsearch - Official Logo',
-    name: 'Elasticsearch',
   },
   'influxdb': {
     image: influxdbLogo,
