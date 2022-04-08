@@ -143,6 +143,6 @@ if (NODE_ENV === 'production') {
   }));
 }
 
-cfg.externals.push(nodeModules({ allowlist: [] }));
+cfg.externals.push(nodeModules({ allowlist: ['govuk-frontend'] }));
 
 module.exports = cfg;
