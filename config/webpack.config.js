@@ -52,6 +52,7 @@ let cfg = {
   },
 
   resolve: {
+    fullySpecified: false,
     extensions: ['.ts', '.tsx', '.mjs','.js', '.json'],
   },
 
