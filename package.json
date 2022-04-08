@@ -58,7 +58,7 @@
     "@types/passport-oauth2": "^1.4.11",
     "@types/pino": "^6.3.12",
     "@types/qs": "^6.9.7",
-    "@types/react": "^17.0.43",
+    "@types/react": "^18.0.0",
     "@types/react-dom": "^17.0.14",
     "@types/route-parser": "^0.1.4",
     "@types/source-map-support": "^0.5.4",
