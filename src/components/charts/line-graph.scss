@@ -1,3 +1,12 @@
+$graphcolours: (
+  "1": govuk-colour("orange"),
+  "2": govuk-colour("pink"),
+  "3": govuk-colour("light-blue"),
+  "4": govuk-colour("brown"),
+  "5": govuk-colour("green"),
+  "6": govuk-colour("turquoise"),
+);
+
 svg.govuk-paas-line-graph {
   max-width: 960px;
 
@@ -23,26 +32,20 @@ svg.govuk-paas-line-graph {
       stroke: govuk-colour("blue");
       stroke-width: 2.5px;
     }
-
-    &.series-1 {
-      stroke: govuk-colour("orange");
-    }
-
-    &.series-2 {
-      stroke: govuk-colour("pink");
-    }
   }
 
   .legend rect {
     fill: govuk-colour("blue");
   }
 
-  .legend-1 rect {
-    fill: govuk-colour("orange");
-  }
+  @each $graphcolour, $i in $graphcolours {
+    .legend-#{$graphcolour} rect {
+      fill: $i;
+    }
 
-  .legend-2 rect {
-    fill: govuk-colour("pink");
+    path.series-#{$graphcolour} {
+      stroke: $i;
+    }
   }
 
   .axis {

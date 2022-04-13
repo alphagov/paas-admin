@@ -9,19 +9,7 @@ import { flatMap } from 'lodash';
 
 import { IMetric, IMetricSerie, IMetricSerieSummary } from '../../lib/metrics';
 
-const viewBox = {
-  height: 320,
-  width: 960,
-  x: 0,
-  y: 0,
-};
 
-const padding = {
-  bottom: 132,
-  left: 90,
-  right: 30,
-  top: 25,
-};
 
 export function drawLineGraph(
   title: string,
@@ -29,6 +17,20 @@ export function drawLineGraph(
   formatter: (domainValue: any, index: number) => string,
   series: ReadonlyArray<IMetricSerie>,
 ): SVGElement {
+  
+  // move inside the function so that each graph has it's down height based on number of items
+  const padding = {
+    bottom: 132,
+    left: 90,
+    right: 30,
+    top: 25,
+  };
+  let viewBox = {
+    height: 320,
+    width: 960,
+    x: 0,
+    y: 0,
+  };
   const { window } = new Window();
   const { document } = window;
   //c onvert to correct dom element from generic IHTMLElement
@@ -38,10 +40,6 @@ export function drawLineGraph(
   const svg = select(body)
     .append('svg')
     .attr('class', 'govuk-paas-line-graph')
-    .attr(
-      'viewBox',
-      `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`,
-    )
     .attr('preserveAspectRatio', 'xMinYMin meet')
     .attr('role', 'img')
     .attr('aria-labelledby', itemID);
@@ -112,16 +110,6 @@ export function drawLineGraph(
         .tickFormat(() => ''),
     );
 
-  svg.append('g')
-    .attr('class', 'grid vertical')
-    .attr('transform', `translate(0,${viewBox.height - padding.bottom})`)
-    .attr('aria-hidden', 'true')
-    .call(
-      axisBottom(xScale)
-        .tickSize(-(viewBox.height - padding.bottom - padding.top))
-        .tickFormat(() => ''),
-    );
-
   series.forEach((serie, i) => {
     svg
       .append('path')
@@ -134,6 +122,10 @@ export function drawLineGraph(
       const serieLabel = serie.label ? serie.label : '';
       const matches = serieLabel.match(/-(\d+$)/) ;
       const legendLabel = matches ? `Instance ${matches[1]}` : `${serieLabel}`;
+      //adjust SVG viewBox based on number of items to that Legend items have room to stack
+      viewBox.height+=30
+      padding.bottom+=30
+
       if (legendLabel && legendLabel.length > 1) {
         const legendGroup = svg
           .append('g')
@@ -141,7 +133,7 @@ export function drawLineGraph(
           .attr('aria-hidden', 'true')
           .attr(
             'transform',
-            `translate(${padding.left + 120 * i}, ${viewBox.height - 30})`,
+            `translate(${padding.left}, ${320 + i*30})`,
           );
 
         legendGroup
@@ -160,6 +152,16 @@ export function drawLineGraph(
     }
   });
 
+  svg.append('g')
+    .attr('class', 'grid vertical')
+    .attr('transform', `translate(0,${viewBox.height - padding.bottom})`)
+    .attr('aria-hidden', 'true')
+    .call(
+      axisBottom(xScale)
+        .tickSize(-(viewBox.height - padding.bottom - padding.top))
+        .tickFormat(() => ''),
+    );
+
   svg
     .append('g')
     .attr('class', 'axis bottom')
@@ -176,10 +178,16 @@ export function drawLineGraph(
   svg
     .append('text')
     .attr('class', 'label bottom')
-    .attr('y', viewBox.height - 30)
+    .attr('y', `${viewBox.height - padding.bottom + 30}`)
     .attr('x', viewBox.width - 50)
     .attr('aria-hidden', 'true')
     .text('Time');
+
+  svg
+  .attr(
+    'viewBox',
+    `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`,
+  )
 
   const svgNode = svg.node();
   /* istanbul ignore if */
