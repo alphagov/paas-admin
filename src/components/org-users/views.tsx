@@ -714,6 +714,7 @@ export function OrganizationUsersPage(
             </div>
           </div>
           <h2 className="govuk-heading-m">Current team members</h2>
+          {Object.keys(props.users).length > 0 ? (
           <div className="scrollable-table-container">
             <table className="govuk-table user-list-table">
             <thead className="govuk-table__head">
@@ -833,6 +834,7 @@ export function OrganizationUsersPage(
             </tbody>
           </table>
           </div>
+          ):(<p>There are currently no team members.</p>)}
         </div>
       </div>
     </>
