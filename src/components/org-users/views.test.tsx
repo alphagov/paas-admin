@@ -382,6 +382,22 @@ describe(OrganizationUsersPage, () => {
     expect($('tbody tr:nth-child(2) td:nth-child(7)').text()).toContain(lastLogonTimeFormatted);
     
   });
+
+  it('should not show a table of users if there are no users', () => {
+    const NoUsers = {};
+    const markup = shallow(
+      <OrganizationUsersPage
+        linkTo={route => `__LINKS_TO__${route}`}
+        organizationGUID="ORG_GUID"
+        privileged={false}
+        users={NoUsers}
+        userExtraInfo={{}}
+      />,
+    );
+    const $ = cheerio.load(markup.html());
+    expect($('table').length).toEqual(0);
+    expect($('body').text()).toContain('There are currently no team members');
+  });
 });
 
 describe(SuccessPage, () => {
@@ -411,3 +427,4 @@ describe(SuccessPage, () => {
     expect($('.govuk-body').text()).toContain('children text');
   });
 });
+
