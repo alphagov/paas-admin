@@ -59,7 +59,7 @@
     "@types/pino": "^6.3.12",
     "@types/qs": "^6.9.7",
     "@types/react": "^18.0.6",
-    "@types/react-dom": "^18.0.1",
+    "@types/react-dom": "^18.0.2",
     "@types/route-parser": "^0.1.4",
     "@types/source-map-support": "^0.5.4",
     "@types/supertest": "^2.0.12",
