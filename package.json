@@ -89,7 +89,7 @@
     "pegjs": "^0.10.0",
     "pegjs-loader": "^0.5.6",
     "pino-pretty": "^7.6.1",
-    "puppeteer": "^13.5.2",
+    "puppeteer": "^13.6.0",
     "sass": "^1.50.1",
     "sass-loader": "^12.6.0",
     "stylelint": "^14.7.1",
