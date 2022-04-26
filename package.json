@@ -112,7 +112,7 @@
     "@babel/preset-react": "^7.16.7",
     "aws-sdk": "^2.1120.0",
     "axios": "^0.26.1",
-    "babel-jest": "^27.5.1",
+    "babel-jest": "^28.0.0",
     "base32-encode": "^1.2.0",
     "compression": "^1.7.4",
     "cookie-session": "^2.0.0",
