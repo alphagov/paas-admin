@@ -58,7 +58,7 @@
     "@types/passport-oauth2": "^1.4.11",
     "@types/pino": "^6.3.12",
     "@types/qs": "^6.9.7",
-    "@types/react": "^18.0.7",
+    "@types/react": "^18.0.8",
     "@types/react-dom": "^18.0.2",
     "@types/route-parser": "^0.1.4",
     "@types/source-map-support": "^0.5.4",
@@ -106,7 +106,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.78.0",
-    "@aws-sdk/client-resource-groups-tagging-api": "^3.76.0",
+    "@aws-sdk/client-resource-groups-tagging-api": "^3.78.0",
     "@aws-sdk/types": "^3.78.0",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.7",
