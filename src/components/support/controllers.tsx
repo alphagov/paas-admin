@@ -24,6 +24,7 @@ import {
   SomethingWrongWithServicePage,
   StaticIPs,
   SupportConfirmationPage,
+  supportFormFieldsText,
   SupportSelectionPage,
 } from './views';
 
@@ -75,42 +76,69 @@ const VALID_EMAIL = /[^.]@[^.]/;
 const TODAY_DATE = new Date();
 
 function signUpContent(variables: ISignupFormValues): string {
-  const additionalUsers = `They would also like to invite:
+  const additionalUsers = `I would also like to invite the following:
   ${variables.additional_users ?
     variables.additional_users.map(user => (
-      `- ${user.email} ${user.person_is_manager && user.person_is_manager === 'yes' ? '(org manager)' : ''}`
+      `${user.email} and assign a role of ${user.person_is_manager && user.person_is_manager === 'yes' ? 'org manager' : 'org auditor'}`
     )).join('\n') : ''}
   `;
 
-  return `New organisation/account signup request from website
+  return `Trial account request
 
-  From: ${variables.name}
-  Email: ${variables.email} ${variables.person_is_manager === 'yes' ? '(org manager)' : ''}
-  Department: ${variables.department_agency}
-  Team/Service: ${variables.service_team}
+  ${supportFormFieldsText.name}: ${variables.name}
+  ${supportFormFieldsText.email_address}: ${variables.email}
+  Assign role: ${variables.person_is_manager === 'yes' ? 'org manager' : 'org auditor'}
 
-  ${variables.additional_users && variables.additional_users.length > 0 && variables.invite_users === 'yes' ? additionalUsers : ''}`;
+  ${supportFormFieldsText.department_agency} I work for: ${variables.department_agency}
+  ${supportFormFieldsText.service_team} I work on: ${variables.service_team}
+
+  ${variables.additional_users && variables.additional_users.length > 0 && variables.invite_users === 'yes' ? additionalUsers : ''}
+
+  Trial account creation process: https://team-manual.cloud.service.gov.uk/accounts/account_lifecycle/#account-lifecycle`;
 }
 
 function findoutMoreContent(variables: IFindOutMoreFormValues): string {
 
   return `
-    From: ${variables.name}
-    Email: ${variables.email}
-    Organisation name: ${variables.gov_organisation_name}
-    ---
+    ${supportFormFieldsText.name}: ${variables.name}
+    ${supportFormFieldsText.email_address}: ${variables.email}
+
+    My ${supportFormFieldsText.gov_organisation_name}: ${variables.gov_organisation_name}
+    
+    ${supportFormFieldsText.message}:
     ${variables.message}
   `;
 }
 
 function somethingWrongWithServiceContent(variables: ISomethingWrongWithServiceFormValues): string {
+  let severityLevel
+  switch(variables.impact_severity) {
+    case("service_down"):
+      severityLevel = supportFormFieldsText.severity.service_down
+    break;
+    case("service_downgraded"):
+      severityLevel = supportFormFieldsText.severity.service_downgraded
+    break;
+    case("cannot_operate_live"):
+      severityLevel = supportFormFieldsText.severity.cannot_operate_live
+    break;
+    case("cannot_operate_dev"):
+      severityLevel = supportFormFieldsText.severity.cannot_operate_dev
+    break;
+    default:
+      severityLevel = supportFormFieldsText.severity.other
+  }
 
   return `
-    From: ${variables.name}
-    Email: ${variables.email}
-    Organisation name: ${variables.affected_paas_organisation}
-    Severity: ${variables.impact_severity}
-    ---
+    ${supportFormFieldsText.name}: ${variables.name}
+    ${supportFormFieldsText.email_address}: ${variables.email}
+
+    ${supportFormFieldsText.affected_paas_organisation}: ${variables.affected_paas_organisation}
+
+    ${supportFormFieldsText.severity.heading}
+    ${severityLevel}
+
+    ${supportFormFieldsText.message}:
     ${variables.message}
   `;
 }
@@ -118,10 +146,12 @@ function somethingWrongWithServiceContent(variables: ISomethingWrongWithServiceF
 function helpUsingPaasContent(variables: IHelpUsingPaasFormValues): string {
 
   return `
-    From: ${variables.name}
-    Email: ${variables.email}
-    Organisation name: ${variables.paas_organisation_name ? variables.paas_organisation_name : 'not provided'}
-    ---
+    ${supportFormFieldsText.name}: ${variables.name}
+    ${supportFormFieldsText.email_address}: ${variables.email}
+
+    ${supportFormFieldsText.optional_paas_organisation}: ${variables.paas_organisation_name ? variables.paas_organisation_name : 'not provided'}
+
+    ${supportFormFieldsText.message}:
     ${variables.message}
   `;
 }
@@ -129,11 +159,13 @@ function helpUsingPaasContent(variables: IHelpUsingPaasFormValues): string {
 function contactUsContent(variables: IContactUsFormValues): string {
 
   return `
-    From: ${variables.name}
-    Email: ${variables.email}
-    Department or agency name: ${variables.department_agency}
-    Service or team name: ${variables.service_team}
-    ---
+    ${supportFormFieldsText.name}: ${variables.name}
+    ${supportFormFieldsText.email_address}: ${variables.email}
+
+    ${supportFormFieldsText.department_agency} I work for: ${variables.department_agency}
+    ${supportFormFieldsText.service_team} I work on: ${variables.service_team}
+    
+    ${supportFormFieldsText.message}:
     ${variables.message}
   `;
 }
@@ -432,7 +464,7 @@ export async function HandleSomethingWrongWithServiceFormPost(
   const client = zendesk.createClient(ctx.app.zendeskConfig);
 
   let subject = ""
-  const urgentSeverities = ["service-down", "service-downgraded", "cannot_operate_live"]
+  const urgentSeverities = ["service_down", "service_downgraded", "cannot_operate_live"]
   if(urgentSeverities.includes(body.impact_severity)) {
     subject = `[PaaS Support] URGENT: ${body.impact_severity} for ${body.affected_paas_organisation} at ${TODAY_DATE.toDateString()}`;
   } else {
