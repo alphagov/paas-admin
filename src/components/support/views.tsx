@@ -90,6 +90,26 @@ interface ISupportConfirmationPageProperties {
   readonly linkTo: RouteLinker;
 }
 
+
+export const supportFormFieldsText = {
+  name: 'Full name',
+  email_address: 'Email address',
+  message: 'Message',
+  affected_paas_organisation: 'The name of the organisation affected',
+  optional_paas_organisation: 'GOV.UK PaaS organisation name (optional)',
+  gov_organisation_name: 'government organisation\'s name',
+  department_agency: 'Department or agency',
+  service_team: 'Service or team',
+  severity: {
+    heading: 'How severely is this impacting your service?',
+    service_down:'Live service is not available to end users',
+    service_downgraded: 'End users are experiencing a degraded live service',
+    cannot_operate_live: 'Can\'t make a critical change to live applications',
+    cannot_operate_dev: 'Can\'t make changes to development applications',
+    other: 'Other',
+  },
+}
+
 export function SupportSelectionPage(props: ISupportSelectionFormProperties): ReactElement {
   return (
     <div className="govuk-grid-row">
@@ -283,7 +303,7 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="name">
-              Full name
+              {supportFormFieldsText.name}
             </label>
             {props.errors
               ?.filter(error => error.field === 'name')
@@ -322,7 +342,7 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="email">
-              Email address
+              {supportFormFieldsText.email_address}
             </label>
             {props.errors
               ?.filter(error => error.field === 'email')
@@ -361,7 +381,7 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
             }`}
           >
             <label className="govuk-label" htmlFor="affected_paas_organisation">
-              The name of the organisation affected
+              {supportFormFieldsText.affected_paas_organisation}
             </label>
             {props.errors
             ?.filter(error => error.field === 'affected_paas_organisation')
@@ -407,7 +427,7 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
                   : ''
               }>
               <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                How severely is this impacting your service?
+                {supportFormFieldsText.severity.heading}
               </legend>
               {props.errors
               ?.filter(error => error.field === 'impact_severity')
@@ -428,11 +448,11 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
                     id="impact_severity"
                     name="impact_severity"
                     type="radio"
-                    value="service-down"
-                    defaultChecked={props.values?.impact_severity === 'service-down'}
+                    value="service_down"
+                    defaultChecked={props.values?.impact_severity === 'service_down'}
                   />
                   <label className="govuk-label govuk-radios__label" htmlFor="impact_severity">
-                    Your live service is not available to end users
+                    {supportFormFieldsText.severity.service_down}
                   </label>
                 </div>
                 <div className="govuk-radios__item">
@@ -441,11 +461,11 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
                     id="impact_severity-1"
                     name="impact_severity"
                     type="radio"
-                    value="service-downgraded"
-                    defaultChecked={props.values?.impact_severity === 'service-downgraded'}
+                    value="service_downgraded"
+                    defaultChecked={props.values?.impact_severity === 'service_downgraded'}
                   />
                   <label className="govuk-label govuk-radios__label" htmlFor="impact_severity-1">
-                    End users are experiencing a degraded live service
+                    {supportFormFieldsText.severity.service_downgraded}
                   </label>
                 </div>
                 <div className="govuk-radios__item">
@@ -458,7 +478,7 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
                     defaultChecked={props.values?.impact_severity === 'cannot_operate_live'}
                   />
                   <label className="govuk-label govuk-radios__label" htmlFor="impact_severity-2">
-                      You can&apos;t make a critical change to live applications
+                      {supportFormFieldsText.severity.cannot_operate_live}
                   </label>
                 </div>
                 <div className="govuk-radios__item">
@@ -471,7 +491,7 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
                     defaultChecked={props.values?.impact_severity === 'cannot_operate_dev'}
                    />
                   <label className="govuk-label govuk-radios__label" htmlFor="impact_severity-3">
-                    You can&apos;t make changes to development applications
+                    Can&apos;t make changes to development applications
                   </label>
                 </div>
                 <div className="govuk-radios__item">
@@ -496,7 +516,7 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="message">
-            Message
+            {supportFormFieldsText.message}
             </label>
             {props.errors
               ?.filter(error => error.field === 'message')
@@ -612,7 +632,7 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="name">
-              Full name
+              {supportFormFieldsText.name}
             </label>
             {props.errors
               ?.filter(error => error.field === 'name')
@@ -651,7 +671,7 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="email">
-              Email address
+              {supportFormFieldsText.email_address}
             </label>
             {props.errors
               ?.filter(error => error.field === 'email')
@@ -685,7 +705,7 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
           </div>
           <div className="govuk-form-group">
             <label className="govuk-label" htmlFor="paas_organisation_name">
-              Your GOV.UK PaaS organisation name (optional)
+              Your {supportFormFieldsText.optional_paas_organisation}
             </label>
             <input
             className="govuk-input"
@@ -702,7 +722,7 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="message">
-            Tell us about what you’re trying to do
+            {supportFormFieldsText.message}
             </label>
             {props.errors
               ?.filter(error => error.field === 'message')
@@ -794,7 +814,7 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="name">
-              Full name
+              {supportFormFieldsText.name}
             </label>
             {props.errors
               ?.filter(error => error.field === 'name')
@@ -833,7 +853,7 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="email">
-              Email address
+              {supportFormFieldsText.email_address}
             </label>
             {props.errors
               ?.filter(error => error.field === 'email')
@@ -871,7 +891,7 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="gov_organisation_name">
-              Your government organisation&apos;s name
+              Your {supportFormFieldsText.gov_organisation_name}
             </label>
             {props.errors
               ?.filter(error => error.field === 'gov_organisation_name')
@@ -910,7 +930,7 @@ export function FindOutMorePage(props: IFindOutMoreFormProperties): ReactElement
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="message">
-            Your question
+              {supportFormFieldsText.message}
             </label>
             {props.errors
               ?.filter(error => error.field === 'message')
@@ -998,7 +1018,7 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="name">
-              Full name
+              {supportFormFieldsText.name}
             </label>
             {props.errors
               ?.filter(error => error.field === 'name')
@@ -1037,7 +1057,7 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="email">
-              Email address
+              {supportFormFieldsText.email_address}
             </label>
             {props.errors
               ?.filter(error => error.field === 'email')
@@ -1075,7 +1095,7 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
                 : ''
             }`}>
             <label className="govuk-label" htmlFor="department_agency">
-              Department or agency
+              {supportFormFieldsText.department_agency}
             </label>
             {props.errors
               ?.filter(error => error.field === 'department_agency')
@@ -1113,7 +1133,7 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
                 : ''
             }`}>
             <label className="govuk-label" htmlFor="service_team">
-              Service or team you work on
+              {supportFormFieldsText.service_team} you work on
             </label>
             {props.errors
               ?.filter(error => error.field === 'service_team')
@@ -1151,7 +1171,7 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="message">
-            Message
+            {supportFormFieldsText.message}
             </label>
             {props.errors
               ?.filter(error => error.field === 'message')
@@ -1320,7 +1340,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="name">
-              Full name
+              {supportFormFieldsText.name}
             </label>
             {props.errors
               ?.filter(error => error.field === 'name')
@@ -1359,7 +1379,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                   : ''
               }`}>
             <label className="govuk-label" htmlFor="email">
-              Email address
+              {supportFormFieldsText.email_address}
             </label>
             <div id="email-hint" className="govuk-hint">
               Must be from a government organisation or public body
@@ -1408,7 +1428,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                 : ''
             }`}>
             <label className="govuk-label" htmlFor="department_agency">
-              Department or agency
+              {supportFormFieldsText.department_agency}
             </label>
             {props.errors
               ?.filter(error => error.field === 'department_agency')
@@ -1446,7 +1466,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                 : ''
             }`}>
             <label className="govuk-label" htmlFor="service_team">
-              Service or team you work on
+              {supportFormFieldsText.service_team} you work on
             </label>
             {props.errors
               ?.filter(error => error.field === 'service_team')
@@ -1607,7 +1627,7 @@ export function SignUpPage(props: ISignupFormProperties): ReactElement {
                   <table className="govuk-table">
                     <thead className="govuk-table__head">
                       <tr className="govuk-table__row">
-                        <th scope="col" className="govuk-table__header">Email address</th>
+                        <th scope="col" className="govuk-table__header">{supportFormFieldsText.email_address}</th>
                         <th scope="col" className="govuk-table__header">Org manager?</th>
                       </tr>
                     </thead>
