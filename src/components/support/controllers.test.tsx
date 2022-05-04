@@ -99,7 +99,7 @@ describe(controller.HandleSignupFormPost, () => {
 
   it('should create a zendesk ticket correctly', async () => {
     nockZD
-      .post('/requests.json')
+      .post('/tickets.json')
       .reply(201, {});
 
     const response = await controller.HandleSignupFormPost(ctx, {}, {
@@ -118,7 +118,7 @@ describe(controller.HandleSignupFormPost, () => {
 
   it('should create a zendesk ticket correctly when no additional users provided', async () => {
     nockZD
-      .post('/requests.json')
+      .post('/tickets.json')
       .reply(201, {});
 
     const response = await controller.HandleSignupFormPost(ctx, {}, {
@@ -170,7 +170,7 @@ describe(controller.HandleContactUsFormPost, () => {
 
   it('should create a zendesk ticket correctly', async () => {
     nockZD
-      .post('/requests.json')
+      .post('/tickets.json')
       .reply(201, {});
 
     const response = await controller.HandleContactUsFormPost(ctx, {}, {
@@ -218,7 +218,7 @@ describe(controller.HandleFindOutMoreFormPost, () => {
 
   it('should create a zendesk ticket correctly', async () => {
     nockZD
-      .post('/requests.json')
+      .post('/tickets.json')
       .reply(201, {});
 
     const response = await controller.HandleFindOutMoreFormPost(ctx, {}, {
@@ -263,7 +263,7 @@ describe(controller.HandleHelpUsingPaasFormPost, () => {
 
   it('should create a zendesk ticket correctly', async () => {
     nockZD
-      .post('/requests.json')
+      .post('/tickets.json')
       .reply(201, {});
 
     const response = await controller.HandleHelpUsingPaasFormPost(ctx, {}, {
@@ -279,7 +279,7 @@ describe(controller.HandleHelpUsingPaasFormPost, () => {
 
   it('should create a zendesk ticket correctly when no org has been provided', async () => {
     nockZD
-      .post('/requests.json')
+      .post('/tickets.json')
       .reply(201, {});
 
     const response = await controller.HandleHelpUsingPaasFormPost(ctx, {}, {
@@ -327,7 +327,7 @@ describe(controller.HandleSomethingWrongWithServiceFormPost, () => {
 
   it('should create a zendesk ticket correctly', async () => {
     nockZD
-      .post('/requests.json')
+      .post('/tickets.json')
       .reply(201, {});
 
     const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
@@ -345,8 +345,8 @@ describe(controller.HandleSomethingWrongWithServiceFormPost, () => {
   ["service_down", "service_downgraded", "cannot_operate_live"].forEach(impactSeverity => {
     it('should create a ticket with the word "URGENT" toward the front when a support form severity is "'+impactSeverity+'"', async () => {
       nockZD
-        .post('/requests.json', (body: any) => {
-          let subject = body["request"]["subject"] as string;
+        .post('/tickets.json', (body: any) => {
+          let subject = body["ticket"]["subject"] as string;
           return subject.substr(0, (subject.length/2)).includes("URGENT")
         })
         .reply(201, {});
@@ -367,8 +367,8 @@ describe(controller.HandleSomethingWrongWithServiceFormPost, () => {
   ["other", "cannot_operate_dev"].forEach(impactSeverity => {
     it('should create a ticket without the word "URGENT" toward the front when a support form severity is "'+impactSeverity+'"', async () => {
       nockZD
-        .post('/requests.json', (body: any) => {
-          let subject = body["request"]["subject"] as string;
+        .post('/tickets.json', (body: any) => {
+          let subject = body["ticket"]["subject"] as string;
           console.log(subject)
           return !subject.substr(0, (subject.length/2)).includes("URGENT")
         })

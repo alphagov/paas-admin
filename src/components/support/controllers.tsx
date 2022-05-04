@@ -470,8 +470,8 @@ export async function HandleSomethingWrongWithServiceFormPost(
   } else {
     subject = `[PaaS Support] ${TODAY_DATE.toDateString()} something wrong in ${body.affected_paas_organisation} live service`;
   }
-  await client.requests.create({
-    request: {
+  await client.tickets.create({
+    ticket: {
       comment: {
         body: somethingWrongWithServiceContent({
           affected_paas_organisation: body.affected_paas_organisation,
@@ -551,8 +551,8 @@ export async function HandleHelpUsingPaasFormPost(
 
   const client = zendesk.createClient(ctx.app.zendeskConfig);
 
-  await client.requests.create({
-    request: {
+  await client.tickets.create({
+    ticket: {
       comment: {
         body: helpUsingPaasContent({
           email: body.email,
@@ -631,8 +631,8 @@ export async function HandleFindOutMoreFormPost (
 
   const client = zendesk.createClient(ctx.app.zendeskConfig);
 
-  await client.requests.create({
-    request: {
+  await client.tickets.create({
+    ticket: {
       comment: {
         body: findoutMoreContent({
           email: body.email,
@@ -713,8 +713,8 @@ export async function HandleContactUsFormPost(
 
   const client = zendesk.createClient(ctx.app.zendeskConfig);
 
-  await client.requests.create({
-    request: {
+  await client.tickets.create({
+    ticket: {
       comment: {
         body: contactUsContent({
           department_agency: body.department_agency,
@@ -817,8 +817,8 @@ export async function HandleSignupFormPost(
 
   const client = zendesk.createClient(ctx.app.zendeskConfig);
 
-  await client.requests.create({
-    request: {
+  await client.tickets.create({
+    ticket: {
       comment: {
         body: signUpContent({
           additional_users: body.additional_users,
@@ -835,6 +835,7 @@ export async function HandleSignupFormPost(
         email: body.email,
         name: body.name,
       },
+      tags: ['paas_org_trial', 'paas_topic_account_lifecycle', 'paas_request_type_action'],
     },
   });
 
