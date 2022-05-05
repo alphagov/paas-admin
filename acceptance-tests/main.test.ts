@@ -1,5 +1,5 @@
 import axios from 'axios';
-import expect from 'expect';
+import { expect } from 'expect';
 import puppeteer_expect from 'expect-puppeteer';
 import pino from 'pino';
 import puppeteer from 'puppeteer';
