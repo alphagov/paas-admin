@@ -98,7 +98,6 @@ export class Template {
 
               <Footer authenticated={this.ctx.authenticated} />
             </>)}
-          <script src="${assetPath}/all.js"></script>
           <script src="${assetPath}/init.js"></script>
         </body>
       </html>`;
