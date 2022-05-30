@@ -1,4 +1,4 @@
-import parse from 'csv-parse/lib/sync'; // eslint-disable-line import/default
+import { parse } from 'csv-parse/sync'; // eslint-disable-line import/no-unresolved
 import { format, startOfMonth, sub } from 'date-fns';
 import jwt from 'jsonwebtoken';
 import lodash from 'lodash';
