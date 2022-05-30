@@ -1,3 +1,13 @@
+import { 
+  Button,
+  Details,
+  ErrorSummary,
+  Header,
+  Radios,
+  SkipLink
+
+} from 'govuk-frontend'
+
 import Tooltip from './tooltip';
 import Cookies from './cookie-functions'
 import EventTracking from './event-tracking'
@@ -16,40 +26,35 @@ if ($cookieBanner) {
 }
 
 // there is ever only one header per page
-var $headerMenuButton = document.querySelector('[data-module="govuk-header"]');
-var GOVUKHeader = window.GOVUKFrontend.Header;
-if ($headerMenuButton) {
-  new GOVUKHeader($headerMenuButton).init();
+var $header = document.querySelector('[data-module="govuk-header"]')
+if ($header) {
+  new Header($header).init()
 }
 
 var $buttons = document.querySelectorAll('[data-module="govuk-button"]');
-var GOVUKButton = window.GOVUKFrontend.Button;
 if ($buttons) {
   for (var i = 0; i < $buttons.length; i++) {
-    new GOVUKButton($buttons[i]).init();
+    new Button($buttons[i]).init();
   };
 }
 
 var $details = document.querySelectorAll('[data-module="govuk-details"]');
-var GOVUKDetails = window.GOVUKFrontend.Details;
 if ($details) {
   for (var i = 0; i < $details.length; i++) {
-    new GOVUKDetails($details[i]).init();
+    new Details($details[i]).init();
   };
 }
 
 // there is ever only one error summuary per page
 var $errorSummary = document.querySelector('[data-module="govuk-error-summary"]');
-var GOVUKErrorSummary = window.GOVUKFrontend.ErrorSummary;
 if ($errorSummary) {
-  new GOVUKErrorSummary($errorSummary).init();
+  new ErrorSummary($errorSummary).init();
 }
 
 var $radios = document.querySelectorAll('[data-module="govuk-radios"]');
-var GOVUKRadios = window.GOVUKFrontend.Radios;
 if ($radios) {
   for (var i = 0; i < $radios.length; i++) {
-    new GOVUKRadios($radios[i]).init();
+    new Radios($radios[i]).init();
   };
 }
 
@@ -62,5 +67,4 @@ if ($tooltips) {
 
 // Find first skip link module to enhance.
 var $skipLink = document.querySelector('[data-module="govuk-skip-link"]')
-var GOVUKSkipLink = window.GOVUKFrontend.SkipLink;
-new GOVUKSkipLink($skipLink).init()
+new SkipLink($skipLink).init()
