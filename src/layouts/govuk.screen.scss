@@ -9,7 +9,7 @@ $govuk-breakpoints: (
   wideDesktop: 1156px
 );
 
-@import "~govuk-frontend/govuk/all";
+@import "govuk-frontend/govuk/all";
 
 @import "elements";
 @import "header";
