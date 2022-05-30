@@ -52,11 +52,18 @@ let cfg = {
   },
 
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json'],
+    extensions: ['.ts', '.tsx', '.mjs', '.js', '.json'],
   },
 
   module: {
     rules: [
+      {
+        test: /\.mjs$/,
+        type: 'javascript/auto',
+        resolve: {
+          fullySpecified: false
+        }
+      },
       {
         test: /\.(png|jpg|ico|svg|gif)$/,
         type: 'asset/resource',
@@ -143,6 +150,6 @@ if (NODE_ENV === 'production') {
   }));
 }
 
-cfg.externals.push(nodeModules({ allowlist: [] }));
+cfg.externals.push(nodeModules({ allowlist: ['govuk-frontend'] }));
 
 module.exports = cfg;
