@@ -1,5 +1,7 @@
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+ import {render, screen} from '@testing-library/react'
 import React from 'react';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
@@ -15,20 +17,21 @@ describe(Breadcrumbs, () => {
       { text: '4' },
     ];
 
-    const markup = shallow(<Breadcrumbs items={breadcrumbs} />);
-    const $ = cheerio.load(markup.html());
-    expect($('li')).toHaveLength(4);
+    const { container } = render(<Breadcrumbs items={breadcrumbs} />);
+    
 
-    expect($('li:first-of-type a').prop('href')).toEqual('/1');
-    expect($('li:first-of-type').text()).toEqual('1');
-    expect($('li:first-of-type').prop('aria-current')).toBeUndefined();
-
-    expect($('li:last-of-type a').prop('href')).toBeUndefined();
-    expect($('li:last-of-type').text()).toEqual('4');
-    expect($('li:last-of-type').prop('aria-current')).toEqual('page');
+    expect(screen.getAllByRole('listitem')).toHaveLength(4)
+    // first item checks
+    expect(container.getElementsByTagName('li')[0]).toHaveTextContent('1')
+    expect(screen.getByText('1')).toHaveAttribute('href', expect.stringContaining('1'))
+    expect(screen.getByText('1')).not.toHaveAttribute('aria-current')
+    //last item checks
+    expect(container.getElementsByTagName('li')[3]).toHaveTextContent('4')
+    expect(screen.getByText('4')).not.toHaveAttribute('href')
+    expect(screen.getByText('4')).toHaveAttribute('aria-current', expect.stringContaining('page'))
 
     expect(
-      spacesMissingAroundInlineElements(markup.html() as string),
+      spacesMissingAroundInlineElements(container.innerHTML),
     ).toHaveLength(0);
   });
 });
