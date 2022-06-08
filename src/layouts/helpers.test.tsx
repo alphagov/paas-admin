@@ -1,7 +1,10 @@
+/**
+ * @jest-environment jsdom
+ */
 import { randomUUID } from 'crypto';
 
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
+
 import React from 'react';
 
 import { GIBIBYTE, KIBIBYTE, MEBIBYTE, TEBIBYTE } from './constants';
@@ -22,27 +25,29 @@ describe(percentage, () => {
 });
 
 describe(bytesToHuman, () => {
-  it('should do the right thing', () => {
-    const bytes = <span>{bytesToHuman(5.3)}</span>;
-    const kibibytes = <span>{bytesToHuman(5.3 * KIBIBYTE)}</span>;
-    const mebibytes = <span>{bytesToHuman(5.3 * MEBIBYTE)}</span>;
-    const gibibytes = <span>{bytesToHuman(5.3 * GIBIBYTE)}</span>;
-    const tebibytes = <span>{bytesToHuman(5.3 * TEBIBYTE)}</span>;
-    expect(shallow(bytes).html()).toContain(
-      '5 <abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="bytes">B</abbr>',
-    );
-    expect(shallow(kibibytes).html()).toContain(
-      '5.30 <abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="kibibytes">KiB</abbr>',
-    );
-    expect(shallow(mebibytes).html()).toContain(
-      '5.30 <abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="mebibytes">MiB</abbr>',
-    );
-    expect(shallow(gibibytes).html()).toContain(
-      '5.30 <abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="gibibytes">GiB</abbr>',
-    );
-    expect(shallow(tebibytes).html()).toContain(
-      '5.30 <abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="tebibytes">TiB</abbr>',
-    );
+  it('should display bytes correctly', () => {
+    const { container } = render(bytesToHuman(5.3))
+    expect(container.innerHTML).toContain('5 <abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="bytes">B</abbr>');
+  });
+
+  it('should display kibibytes correctly', () => {
+    const { container } = render(bytesToHuman(5.3 * KIBIBYTE));
+    expect(container.innerHTML).toContain('5.30 <abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="kibibytes">KiB</abbr>');
+  });
+
+  it('should display mebibytes correctly', () => {
+    const { container } = render(bytesToHuman(5.3 * MEBIBYTE));
+    expect(container.innerHTML).toContain('5.30 <abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="mebibytes">MiB</abbr>');
+  });
+
+  it('should display gibibytes correctly', () => {
+    const { container } = render(bytesToHuman(5.3 * GIBIBYTE));
+    expect(container.innerHTML).toContain('5.30 <abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="gibibytes">GiB</abbr>');
+  });
+
+  it('should display tebibytes correctly', () => {
+    const { container } = render(bytesToHuman(5.3 * TEBIBYTE));
+    expect(container.innerHTML).toContain('5.30 <abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="tebibytes">TiB</abbr>');
   });
 });
 
@@ -51,7 +56,7 @@ describe(conditionallyDisplay, () => {
     const OK = conditionallyDisplay(true, <p>OK</p>);
     const notOK = conditionallyDisplay(false, <p>OK</p>);
 
-    expect(shallow(OK).html()).toEqual('<p>OK</p>');
+    expect(OK).toEqual(<p>OK</p>);
     expect(notOK).toBeUndefined();
   });
 });
@@ -64,12 +69,12 @@ describe(capitalize, () => {
 
 describe(Abbreviation, () => {
   it('it should render the abbreviation tooltip correctly', () => {
-    const output = <Abbreviation description="For the win">FTW</Abbreviation>;
-    const $ = cheerio.load(shallow(output).html());
-    expect($('abbr').attr('tabindex')).toBe('0');
-    expect($('abbr').text()).toBe('FTW');
-    expect($('abbr').attr('aria-label')).toBe('For the win');
-    expect($('abbr').attr('role')).toBe('tooltip');
+    const  { container } = render(<Abbreviation description="For the win">FTW</Abbreviation>);
+    const element = container.getElementsByTagName('abbr')[0]
+    expect(element).toHaveAttribute('tabindex', expect.stringContaining('0'));
+    expect(element).toHaveTextContent('FTW');
+    expect(element).toHaveAttribute('aria-label', expect.stringContaining('For the win'));
+    expect(element).toHaveAttribute('role', expect.stringContaining('tooltip'));
   });
 });
 
