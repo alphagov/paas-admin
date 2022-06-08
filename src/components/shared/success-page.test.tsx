@@ -1,22 +1,25 @@
+/**
+ * @jest-environment jsdom
+ */
+import {render, screen} from '@testing-library/react';
 import React from 'react';
 import { SuccessPage } from './success-page';
-import { shallow } from 'enzyme';
 
 describe(SuccessPage, () => {
   it('should parse simple SuccessPage', () => {
-    const markup = shallow(<SuccessPage heading="Success!" />);
+    render(<SuccessPage heading="Success!" />);
 
-    expect(markup.find('h1').text()).toEqual('Success!');
+    expect(screen.getByRole('heading',{ level: 1 })).toHaveTextContent('Success!');
   });
 
   it('should parse rich SuccessPage', () => {
-    const markup = shallow(<SuccessPage heading="Success!" text="You have passed the test.">
+    render(<SuccessPage heading="Success!" text="You have passed the test.">
       <p>Read more elsewhere!</p>
       <a href="#">Elsewhere</a>
     </SuccessPage>);
 
-    expect(markup.find('h1').text()).toEqual('Success!');
-    expect(markup.render().find('div.govuk-panel__body').text()).toEqual('You have passed the test.');
-    expect(markup.render().find('a').text()).toEqual('Elsewhere');
+    expect(screen.getByRole('heading',{ level: 1 })).toHaveTextContent('Success!');
+    expect(screen.getByText('Read more elsewhere!')).toBeTruthy();
+    expect(screen.getByRole('link')).toHaveTextContent('Elsewhere')
   });
 });
