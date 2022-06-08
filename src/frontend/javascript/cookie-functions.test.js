@@ -1,9 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 import { CookieBanner} from '../../layouts/partials';
 import Cookies from './cookie-functions'
 
@@ -12,7 +11,7 @@ var cookies = new Cookies()
 describe("Cookies", () => {
   beforeEach(() => {
     cookies.cookieDomain = ''; // to be able to set a cookie in test env
-    document.body.innerHTML = shallow(<CookieBanner />).html();
+    render(<CookieBanner />);
     cookies.initAnalytics = jest.fn();
     document.querySelector(".govuk-cookie-banner").style.display = "none";
   });
