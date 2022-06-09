@@ -1,5 +1,7 @@
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+ import { render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import {
@@ -159,7 +161,7 @@ describe(OrganizationsReport, () => {
   };
 
   it('should parse the organizations report', () => {
-    const markup = shallow(
+    render(
       <OrganizationsReport
         linkTo={route => `__LINKS_TO__${route}`}
         organizations={org}
@@ -172,14 +174,13 @@ describe(OrganizationsReport, () => {
         orgTrialExpirys={{ 'org-guid': new Date('2019-01-30') }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.govuk-body').text()).toContain('There is 1 organisation');
-    expect($('td').text()).toContain('owner');
-    expect($('td').text()).toContain('quota-name');
-    expect($('td').text()).toContain('January 1st 2020');
-    expect($('td').text()).toContain('Expired');
-    expect($('td').text()).toContain('billable-owner');
-    expect($('td').text()).toContain('December 1st 2019');
+    expect(screen.findAllByText('There is 1 organisation')).toBeTruthy();
+    expect(screen.findAllByText('owner')).toBeTruthy();
+    expect(screen.findAllByText('quota-name')).toBeTruthy();
+    expect(screen.findAllByText('January 1st 2020')).toBeTruthy();
+    expect(screen.findAllByText('Expired')).toBeTruthy();
+    expect(screen.findAllByText('billable-owner')).toBeTruthy();
+    expect(screen.findAllByText('December 1st 2019')).toBeTruthy();
   });
 
   it('should parse the organizations report with owner undefined', () => {
@@ -197,8 +198,7 @@ describe(OrganizationsReport, () => {
         labels: {},
       },
     }];
-
-    const markup = shallow(
+    render (
       <OrganizationsReport
         linkTo={route => `__LINKS_TO__${route}`}
         organizations={orgWithNoAnnotations}
@@ -211,12 +211,11 @@ describe(OrganizationsReport, () => {
         orgTrialExpirys={{ 'org-guid': new Date('2019-01-30') }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('td').text()).toContain('Unknown');
+    expect(screen.findAllByText('Unkown')).toBeTruthy();
   });
 
   it('should highlight suspended organizations', () => {
-    const markup = shallow(
+    render(
       <OrganizationsReport
         linkTo={route => `__LINKS_TO__${route}`}
         organizations={suspendedOrg}
@@ -229,12 +228,10 @@ describe(OrganizationsReport, () => {
         orgTrialExpirys={{ 'org-guid': new Date('2019-01-30'), 'suspended-guid': new Date('2019-01-15') }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('table tbody tr td:first-of-type a').attr('aria-label')).toEqual(
-      'Organisation name: suspended-org, status: suspended',
-    );
 
-    expect($('table tbody tr td:first-of-type span.govuk-tag').length).toEqual(1);
+    const table = screen.getAllByRole('table')[0];
+    expect(within(table).getByRole('link')).toHaveAttribute('aria-label', expect.stringContaining('Organisation name: suspended-org, status: suspended'));
+    expect(within(table).getByText('Suspended')).toBeTruthy();
   });
 });
 
@@ -264,7 +261,7 @@ describe(CostReport, () => {
   };
 
   it('should parse the cost report', () => {
-    const markup = shallow(
+    render(
       <CostReport
         date={'January 2020'}
         billableEventCount={2}
@@ -273,23 +270,20 @@ describe(CostReport, () => {
         quotaCostRecords={[quotaCostRecords]}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('h2').text()).toContain('2 Billable events');
-    expect($('h2').text()).toContain('75.56 Total including VAT');
-    expect($('h2').text()).toContain('62.97 Total excluding VAT');
-    expect($('h2').text()).toContain('69.27 Total excluding VAT including fee');
-    expect($('h1').text()).toContain(
-      'Billables by organisation for January 2020',
-    );
-    expect($('h1').text()).toContain('Billables by quota for January 2020');
-    expect($('th').text()).toContain('org-name');
-    expect($('td').text()).toContain('75.56');
-    expect($('td').text()).toContain('62.97');
-    expect($('td').text()).toContain('69.27');
-    expect($('th').text()).toContain('quota-name');
-    expect($('td').text()).toContain('75.56');
-    expect($('td').text()).toContain('62.97');
-    expect($('td').text()).toContain('69.27');
+    expect(screen.getAllByRole('heading', {level: 2})[0]).toHaveTextContent('2 Billable events');
+    expect(screen.getAllByRole('heading', {level: 2})[1]).toHaveTextContent('75.56 Total including VAT');
+    expect(screen.getAllByRole('heading', {level: 2})[2]).toHaveTextContent('62.97 Total excluding VAT');
+    expect(screen.getAllByRole('heading', {level: 2})[3]).toHaveTextContent('69.27 Total excluding VAT including fee');
+    expect(screen.getAllByRole('heading', {level: 1})[1]).toHaveTextContent('Billables by organisation for January 2020');
+    expect(screen.getAllByRole('heading', {level: 1})[2]).toHaveTextContent('Billables by quota for January 2020');
+    expect(screen.getAllByText('org-name')).toBeTruthy();
+    expect(screen.getAllByText('£75.56')[0]).toBeTruthy();
+    expect(screen.getAllByText('£62.97')[0]).toBeTruthy();
+    expect(screen.getAllByText('£69.27')[0]).toBeTruthy();
+    expect(screen.getAllByText('quota-name')).toBeTruthy();
+    expect(screen.getAllByText('£75.56')[1]).toBeTruthy();
+    expect(screen.getAllByText('£62.97')[1]).toBeTruthy();
+    expect(screen.getAllByText('£69.27')[1]).toBeTruthy();
   });
 });
 
@@ -322,7 +316,7 @@ describe(CostByServiceReport, () => {
   };
 
   it('should parse the cost by service report', () => {
-    const markup = shallow(
+    render(
       <CostByServiceReport
         date={'January 2020'}
         billablesByService={[billablesByService]}
@@ -332,21 +326,17 @@ describe(CostByServiceReport, () => {
         ]}
       />,
     );
-
-    const $ = cheerio.load(markup.html());
-    expect($('h1').text()).toContain('Billables by service for January 2020');
-    expect($('h1').text()).toContain(
-      'Billables by organisation and service for January 2020',
-    );
-    expect($('h1').text()).toContain(
-      'Billables by organisation and space and service for January 2020',
-    );
-    expect($('td').text()).toContain('service-group');
-    expect($('td').text()).toContain('75.56');
-    expect($('td').text()).toContain('62.97');
-    expect($('td').text()).toContain('69.27');
-    expect($('td').text()).toContain('org-name');
-    expect($('td').text()).toContain('space-name');
+    expect(screen.getAllByRole('heading', {level: 1})[0]).toHaveTextContent('Billables by service for January 2020');
+    expect(screen.getAllByRole('heading', {level: 1})[1]).toHaveTextContent('Billables by organisation and service for January 2020');
+    expect(screen.getAllByRole('heading', {level: 1})[2]).toHaveTextContent('Billables by organisation and space and service for January 2020');
+    expect(screen.getAllByText('service-group')).toBeTruthy();
+    expect(screen.getAllByText('£75.56')[0]).toBeTruthy();
+    expect(screen.getAllByText('£62.97')[0]).toBeTruthy();
+    expect(screen.getAllByText('£69.27')[0]).toBeTruthy();
+    expect(screen.getAllByText('space-name')).toBeTruthy();
+    expect(screen.getAllByText('£75.56')[1]).toBeTruthy();
+    expect(screen.getAllByText('£62.97')[1]).toBeTruthy();
+    expect(screen.getAllByText('£69.27')[1]).toBeTruthy();
   });
 });
 
@@ -367,21 +357,19 @@ describe(VisualisationPage, () => {
   };
 
   it('should parse visualisation with data', () => {
-    const markup = shallow(
+    render(
       <VisualisationPage date={'January 2020'} data={data} />,
     );
 
-    const $ = cheerio.load(markup.html());
-    expect($('h1').text()).toContain('Billing flow for January 2020');
+    expect(screen.getAllByRole('heading', {level: 1})[0]).toHaveTextContent('Billing flow for January 2020');
   });
 
   it('should parse visualisation with no data', () => {
-    const markup = shallow(
+    render(
       <VisualisationPage date={'January 2020'} data={undefined} />,
     );
 
-    const $ = cheerio.load(markup.html());
-    expect($('h1').text()).toContain('Billing flow for January 2020');
-    expect($('h2').text()).toContain('No data for January 2020');
+    expect(screen.getByRole('heading', {level: 1})).toHaveTextContent('Billing flow for January 2020');
+    expect(screen.getByRole('heading', {level: 2})).toHaveTextContent('No data for January 2020');
   });
 });
