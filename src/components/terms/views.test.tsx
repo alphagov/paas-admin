@@ -1,5 +1,7 @@
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+import { render } from '@testing-library/react';
 import React from 'react';
 
 import { Heading, TermsPage } from './views';
@@ -15,68 +17,53 @@ const content = `# ${title}
 
 describe(TermsPage, () => {
   it('should be capable of parsing markdown content', () => {
-    const markup = shallow(
+    const { container, queryByRole } = render(
       <TermsPage content={content} csrf="CSRF_TOKEN" name={title} />,
     );
-    const $ = cheerio.load(markup.html());
     expect(
-      markup
-        .find('input')
-        .filter({ name: '_csrf' })
-        .prop('value'),
-    ).toEqual('CSRF_TOKEN');
-    expect(
-      markup
-        .find('input')
-        .filter({ name: 'document_name' })
-        .prop('value'),
-    ).toEqual(title);
-    expect($('h1').hasClass('govuk-heading-xl')).toBe(true);
-    expect($('h1').text()).toEqual(title);
-    expect($('ul').hasClass('govuk-list')).toBe(true);
-    expect($('ul').hasClass('govuk-list--bullet')).toBe(true);
-    expect($('ol').hasClass('govuk-list')).toBe(true);
-    expect($('ol').hasClass('govuk-list--number')).toBe(true);
-    expect(
-      $('a')
-        .first()
-        .text(),
-    ).toEqual('See example');
+      container
+        .querySelector('input[name=_csrf]'))
+        .toHaveValue('CSRF_TOKEN')
+      expect(
+        container
+          .querySelector('input[name=document_name]'))
+          .toHaveValue(title)
+    expect(queryByRole('heading', { level: 1})).toHaveClass('govuk-heading-xl');
+    expect(queryByRole('heading', { level: 1})).toHaveTextContent(title);
+    expect(container.querySelector('ul')).toHaveClass('govuk-list');
+    expect(container.querySelector('ul')).toHaveClass('govuk-list--bullet');
+    expect(container.querySelector('ol')).toHaveClass('govuk-list');
+    expect(container.querySelector('ol')).toHaveClass('govuk-list--number');
+    expect(container.querySelector('a')).toHaveTextContent('See example');
   });
 });
 
 describe(Heading, () => {
   it('should be capable to display correct heading', () => {
-    expect(
-      shallow(<Heading level={1}>TEST</Heading>).matchesElement(
-        <h1 className="govuk-heading-xl">TEST</h1>,
-      ),
-    ).toBe(true);
-    expect(
-      shallow(<Heading level={2}>TEST</Heading>).matchesElement(
-        <h2 className="govuk-heading-l">TEST</h2>,
-      ),
-    ).toBe(true);
-    expect(
-      shallow(<Heading level={3}>TEST</Heading>).matchesElement(
-        <h3 className="govuk-heading-m">TEST</h3>,
-      ),
-    ).toBe(true);
-    expect(
-      shallow(<Heading level={4}>TEST</Heading>).matchesElement(
-        <h4 className="govuk-heading-s">TEST</h4>,
-      ),
-    ).toBe(true);
-    expect(
-      shallow(<Heading level={5}>TEST</Heading>).matchesElement(
-        <h5 className={undefined}>TEST</h5>,
-      ),
-    ).toBe(true);
-    expect(
-      shallow(<Heading level={6}>TEST</Heading>).matchesElement(
-        <h6 className={undefined}>TEST</h6>,
-      ),
-    ).toBe(true);
-    expect(shallow(<Heading level={7}>TEST</Heading>).html()).toEqual('');
+
+    const { queryByRole } = render(
+      <>
+      <Heading level={1}>TEST</Heading>,
+      <Heading level={2}>TEST</Heading>,
+      <Heading level={3}>TEST</Heading>,
+      <Heading level={4}>TEST</Heading>,
+      <Heading level={5}>TEST</Heading>,
+      <Heading level={6}>TEST</Heading>,
+      <Heading level={7}>TEST</Heading>,
+      </>,
+    )
+    expect(queryByRole('heading', { level: 1})).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 1})).toHaveClass('govuk-heading-xl');
+    expect(queryByRole('heading', { level: 2})).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 2})).toHaveClass('govuk-heading-l');
+    expect(queryByRole('heading', { level: 3})).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 3})).toHaveClass('govuk-heading-m');
+    expect(queryByRole('heading', { level: 4})).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 4})).toHaveClass('govuk-heading-s');
+    expect(queryByRole('heading', { level: 5})).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 5})).not.toHaveAttribute('class');
+    expect(queryByRole('heading', { level: 6})).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 6})).not.toHaveAttribute('class');
+    expect(queryByRole('heading', { level: 7})).toBeFalsy();
   });
 });
