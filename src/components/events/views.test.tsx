@@ -1,6 +1,8 @@
-import cheerio from 'cheerio';
+/**
+ * @jest-environment jsdom
+ */
+import { render } from '@testing-library/react';
 import { format } from 'date-fns';
-import { shallow } from 'enzyme';
 import React from 'react';
 
 import { DATE_TIME } from '../../layouts';
@@ -12,8 +14,8 @@ import { Details, Event, EventTimestamps, TargetedEvent, Totals } from './views'
 
 describe(Details, () => {
   it('should display details element', () => {
-    const markup = shallow(<Details />);
-    expect(spacesMissingAroundInlineElements(markup.html())).toHaveLength(0);
+    const { container } = render(<Details />);
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 });
 
@@ -31,21 +33,20 @@ describe(Event, () => {
   } as unknown) as IAuditEvent;
 
   it('should display event element', () => {
-    const markup = shallow(<Event event={event} />);
-    const $ = cheerio.load(markup.html());
-    expect($('.date dd').text()).toContain(format(updatedAt, DATE_TIME));
-    expect($('.actor dd').text()).not.toContain(actor.email);
-    expect($('.actor dd').text()).toContain(event.actor.name);
-    expect($('.actor dd').text()).not.toContain(event.actor.guid);
-    expect($('.description dd').text()).toContain(event.type);
-    expect($('.metadata dd').text()).toContain(
+    const { container } = render(<Event event={event} />);
+    expect(container.querySelector('.date dd')).toHaveTextContent(format(updatedAt, DATE_TIME));
+    expect(container.querySelector('.actor dd')).not.toHaveTextContent(actor.email);
+    expect(container.querySelector('.actor dd')).toHaveTextContent(event.actor.name);
+    expect(container.querySelector('.actor dd')).not.toHaveTextContent(event.actor.guid);
+    expect(container.querySelector('.description dd')).toHaveTextContent(event.type);
+    expect(container.querySelector('.metadata dd')).toHaveTextContent(
       '"droplet_guid": "DROPLET_GUID"',
     );
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 
   it('should display event element when actors name is missing', () => {
-    const markup = shallow(
+    const { container } = render(
       <Event
         event={{
           ...event,
@@ -55,22 +56,20 @@ describe(Event, () => {
         }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.actor dd').text()).not.toContain(actor.email);
-    expect($('.actor dd').text()).not.toContain(event.actor.name);
-    expect($('.actor dd').text()).toContain(event.actor.guid);
-    expect($('.description dd').text()).not.toContain(event.type);
-    expect($('.description dd').text()).not.toContain('audit.space.create');
-    expect($('.description dd').text()).toContain('Created space');
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    expect(container.querySelector('.actor dd')).not.toHaveTextContent(actor.email);
+    expect(container.querySelector('.actor dd')).not.toHaveTextContent(event.actor.name);
+    expect(container.querySelector('.actor dd')).toHaveTextContent(event.actor.guid);
+    expect(container.querySelector('.description dd')).not.toHaveTextContent(event.type);
+    expect(container.querySelector('.description dd')).not.toHaveTextContent('audit.space.create');
+    expect(container.querySelector('.description dd')).toHaveTextContent('Created space');
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 
   it('should display event element when actor separately provided', () => {
-    const markup = shallow(<Event event={event} actor={actor} />);
-    const $ = cheerio.load(markup.html());
-    expect($('.actor dd').text()).toContain(actor.email);
-    expect($('.actor dd').text()).toContain('jeff');
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    const { container } = render(<Event event={event} actor={actor} />);
+    expect(container.querySelector('.actor dd')).toHaveTextContent(actor.email);
+    expect(container.querySelector('.actor dd')).toHaveTextContent('jeff');
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 });
 
@@ -90,22 +89,21 @@ describe(TargetedEvent, () => {
   } as unknown) as IAuditEvent;
 
   it('should display targeted event element', () => {
-    const markup = shallow(<TargetedEvent event={event} />);
-    const $ = cheerio.load(markup.html());
-    expect($('.date dd').text()).toContain(format(updatedAt, DATE_TIME));
-    expect($('.actor dd').text()).not.toContain(actor.email);
-    expect($('.actor dd').text()).toContain(event.actor.name);
-    expect($('.actor dd').text()).not.toContain(event.actor.guid);
-    expect($('.target dd code').text()).toContain(target.guid);
-    expect($('.description dd').text()).toContain(event.type);
-    expect($('.metadata dd').text()).toContain(
+    const { container } = render(<TargetedEvent event={event} />);
+    expect(container.querySelector('.date dd')).toHaveTextContent(format(updatedAt, DATE_TIME));
+    expect(container.querySelector('.actor dd')).not.toHaveTextContent(actor.email);
+    expect(container.querySelector('.actor dd')).toHaveTextContent(event.actor.name);
+    expect(container.querySelector('.actor dd')).not.toHaveTextContent(event.actor.guid);
+    expect(container.querySelector('.target dd code')).toHaveTextContent(target.guid);
+    expect(container.querySelector('.description dd')).toHaveTextContent(event.type);
+    expect(container.querySelector('.metadata dd')).toHaveTextContent(
       '"droplet_guid": "DROPLET_GUID"',
     );
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 
   it('should display targeted event element when actors name is missing', () => {
-    const markup = shallow(
+    const { container } = render(
       <TargetedEvent
         event={{
           ...event,
@@ -115,60 +113,49 @@ describe(TargetedEvent, () => {
         }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.actor dd').text()).not.toContain(actor.email);
-    expect($('.actor dd').text()).not.toContain(event.actor.name);
-    expect($('.actor dd').text()).toContain(event.actor.guid);
-    expect($('.target dd code').text()).toContain(target.guid);
-    expect($('.description dd').text()).not.toContain(event.type);
-    expect($('.description dd').text()).not.toContain('audit.space.create');
-    expect($('.description dd').text()).toContain('Created space');
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    expect(container.querySelector('.actor dd')).not.toHaveTextContent(actor.email);
+    expect(container.querySelector('.actor dd')).not.toHaveTextContent(event.actor.name);
+    expect(container.querySelector('.actor dd')).toHaveTextContent(event.actor.guid);
+    expect(container.querySelector('.target dd code')).toHaveTextContent(target.guid);
+    expect(container.querySelector('.description dd')).not.toHaveTextContent(event.type);
+    expect(container.querySelector('.description dd')).not.toHaveTextContent('audit.space.create');
+    expect(container.querySelector('.description dd')).toHaveTextContent('Created space');
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 
   it('should display targeted event element when actor separately provided', () => {
-    const markup = shallow(
+    const { container } = render(
       <TargetedEvent
         event={{ ...event, target: { ...target, name: 'jeff' } }}
         actor={actor}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.actor dd').text()).toContain(actor.email);
-    expect($('.target dd').text()).toContain('jeff');
-    expect($('.target dd').text()).not.toContain(target.guid);
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    expect(container.querySelector('.actor dd')).toHaveTextContent(actor.email);
+    expect(container.querySelector('.target dd')).toHaveTextContent('jeff');
+    expect(container.querySelector('.target dd')).not.toHaveTextContent(target.guid);
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 });
 
 describe(Totals, () => {
   it('should display totals element', () => {
-    const markup = shallow(<Totals results={5} page={1} pages={2} />);
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).toContain(
-      'There are 5 total events. Displaying page 1 of 2.',
-    );
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    const { queryByText, container } = render(<Totals results={5} page={1} pages={2} />);
+    expect(queryByText('There are 5 total events. Displaying page 1 of 2.')).toBeTruthy();
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 
   it('should not display "Displaying page 1 of 1" totals text if there is only 1 page', () => {
-    const markup = shallow(<Totals results={5} page={1} pages={1} />);
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).not.toContain(
-      'Displaying page 1 of 1.',
-    );
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    const { queryByText, container } = render(<Totals results={5} page={1} pages={1} />);
+    expect(queryByText('Displaying page 1 of 1.')).toBeFalsy();
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 });
 
 describe(EventTimestamps, () => {
   it('should display EventTimestamp element', () => {
-    const markup = shallow(<EventTimestamps />);
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).toContain(
-      'Event timestamps are in UTC format.',
-    );
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    const { queryByText, container } = render(<EventTimestamps />);
+    expect(queryByText('Event timestamps are in UTC format.')).toBeTruthy();
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 });
 
