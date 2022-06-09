@@ -1,6 +1,8 @@
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
-import React from 'react';
+/**
+ * @jest-environment jsdom
+ */
+ import { render, screen } from '@testing-library/react';
+ import React from 'react';
 
 import { IApplication } from '../../lib/cf/types';
 
@@ -12,7 +14,7 @@ describe(ApplicationTab, () => {
       entity: { name: 'test-app' },
       metadata: { guid: 'APPLICATION_GUID' },
     } as unknown) as IApplication;
-    const markup = shallow(
+    const { container } = render(
       <ApplicationTab
         application={application}
         linkTo={route => `__LINKS_TO__${route}`}
@@ -25,21 +27,12 @@ describe(ApplicationTab, () => {
         <p>TEST</p>
       </ApplicationTab>,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('h1').text()).toContain('test-app');
-    expect($('section.govuk-tabs__panel').text()).toEqual('TEST');
-    expect($('ul li:first-of-type a').prop('href')).toEqual(
-      '__LINKS_TO__admin.organizations.spaces.applications.view',
-    );
-    expect(
-      $('ul li:first-of-type').hasClass('govuk-tabs__list-item--selected'),
-    ).toBe(false);
-    expect($('ul li:last-of-type a').prop('href')).toEqual(
-      '__LINKS_TO__admin.organizations.spaces.applications.events.view',
-    );
-    expect(
-      $('ul li:last-of-type').hasClass('govuk-tabs__list-item--selected'),
-    ).toBe(true);
+    expect(container.querySelector('h1')).toHaveTextContent('test-app');
+    expect(container.querySelector('section.govuk-tabs__panel')).toHaveTextContent('TEST');
+    expect(container.querySelector('ul li:first-of-type a')).toHaveAttribute('href', expect.stringContaining('__LINKS_TO__admin.organizations.spaces.applications.view'));
+    expect(container.querySelector('ul li:first-of-type')).not.toHaveClass('govuk-tabs__list-item--selected');
+    expect(container.querySelector('ul li:last-of-type a')).toHaveAttribute('href', expect.stringContaining('__LINKS_TO__admin.organizations.spaces.applications.events.view'));
+    expect(container.querySelector('ul li:last-of-type')).toHaveClass('govuk-tabs__list-item--selected');
   });
 });
 
@@ -48,14 +41,13 @@ describe(AppLink, () => {
   const internal = 'example.apps.internal';
 
   it('should resolve with a link', () => {
-    const markup = shallow(<AppLink href={external} />);
-    expect(markup.find('a')).toHaveLength(1);
-    expect(markup.find('a').prop('href')).toEqual(external);
+    render(<AppLink href={external} />);
+    expect(screen.getByRole('link')).toBeTruthy();
+    expect(screen.getByRole('link')).toHaveAttribute('href', expect.stringContaining(external));
   });
 
   it('should resolve with a text only', () => {
-    const markup = shallow(<AppLink href={internal} />);
-    expect(markup.find('a')).toHaveLength(0);
-    expect(markup.text()).toEqual(internal);
+    render(<AppLink href={internal} />);
+    expect(screen.getByText(internal)).not.toHaveAttribute('href');
   });
 });
