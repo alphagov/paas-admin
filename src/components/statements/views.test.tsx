@@ -1,5 +1,7 @@
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+import { render } from '@testing-library/react';
 import React from 'react';
 
 import { StatementsPage } from './views';
@@ -21,7 +23,7 @@ describe(StatementsPage, () => {
   };
 
   it('should parse statements page', () => {
-    const markup = shallow(
+    const { container } = render(
       <StatementsPage
         spaces={[{ guid: 'SPACE_GUID', name: 'space name' }]}
         plans={[{ guid: 'PLAN_GUID', name: 'plan name' }]}
@@ -61,32 +63,33 @@ describe(StatementsPage, () => {
         ]}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('#rangeStart option').length).toEqual(1);
-    expect($('#rangeStart option').text()).toContain('January 2020');
-    expect($('#space option').length).toEqual(1);
-    expect($('#space option').text()).toContain('space name');
-    expect($('#service option').length).toEqual(1);
-    expect($('#service option').text()).toContain('plan name');
-    expect($('input[name="_csrf"]').prop('value')).toEqual('qwert');
-    expect($('input[name="sort"]').prop('value')).toEqual('name');
-    expect($('input[name="order"]').prop('value')).toEqual('asc');
-    expect($('.cost-summary-table tbody tr:first-child th').text()).toContain(
+    expect(container.querySelectorAll('#rangeStart option')).toHaveLength(1);
+    expect(container.querySelector('#rangeStart option')).toHaveTextContent('January 2020');
+    expect(container.querySelectorAll('#space option')).toHaveLength(1);
+    expect(container.querySelector('#space option')).toHaveTextContent('space name');
+    expect(container.querySelectorAll('#service option')).toHaveLength(1);
+    expect(container.querySelector('#service option')).toHaveTextContent('plan name');
+    expect(container.querySelector('input[name="_csrf"]')).toHaveValue('qwert');
+    expect(container.querySelector('input[name="sort"]')).toHaveValue('name');
+    expect(container.querySelector('input[name="order"]')).toHaveValue('asc');
+    expect(container.querySelector('.cost-summary-table tbody tr:first-child th')).toHaveTextContent(
       'Total cost for January in space-name space with service-name services',
     );
-    expect($('.cost-summary-table tbody tr:first-child td').eq(0).text()).toContain('£302.62');
-    expect($('.cost-summary-table tbody tr:first-child td').eq(1).text()).toContain('£363.15');
-    expect($('.cost-summary-table tbody tr:nth-child(2) td').eq(0).text()).toContain('£27.51');
-    expect($('.cost-summary-table tbody tr:nth-child(2) td').eq(1).text()).toContain('£33.01');
-    expect($('.exchange-rate').text()).toContain('Exchange rate: £1 to $1.25');
-    expect($('.paas-table-billing-statement caption').text()).toContain(
+    expect(container.querySelectorAll('.cost-summary-table tbody tr:first-child td')[0]).toHaveTextContent('£302.62');
+    expect(container.querySelectorAll('.cost-summary-table tbody tr:first-child td')[1]).toHaveTextContent('£363.15');
+    expect(container.querySelectorAll('.cost-summary-table tbody tr:nth-child(2) td')[0]).toHaveTextContent('£27.51');
+    expect(container.querySelectorAll('.cost-summary-table tbody tr:nth-child(2) td')[1]).toHaveTextContent('£33.01');
+    expect(container.querySelector('.exchange-rate')).toHaveTextContent('Exchange rate: £1 to $1.25');
+    expect(container.querySelector('.paas-table-billing-statement caption')).toHaveTextContent(
       'Cost itemisation for January in space-name space with service-name services sorted by name column in ascending order',
     );
-    expect($('.paas-table-billing-statement th:first-child').attr('aria-sort')).toEqual('ascending');
+    expect(container
+          .querySelector('.paas-table-billing-statement th:first-child'))
+          .toHaveAttribute('aria-sort', expect.stringContaining('ascending'));
   });
 
   it('should parse statements page when ordering by space', () => {
-    const markup = shallow(
+    const { container } = render(
       <StatementsPage
         spaces={[{ guid: 'SPACE_GUID', name: 'space name' }]}
         plans={[{ guid: 'PLAN_GUID', name: 'plan name' }]}
@@ -110,18 +113,21 @@ describe(StatementsPage, () => {
         items={[item]}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('input[name="sort"]').prop('value')).toEqual('space');
-    expect($('input[name="order"]').prop('value')).toEqual('desc');
+    expect(container.querySelector('input[name="sort"]')).toHaveValue('space');
+    expect(container.querySelector('input[name="order"]')).toHaveValue('desc');
 
-    expect($('.paas-table-billing-statement caption').text()).toContain(
+    expect(container
+      .querySelector('.paas-table-billing-statement caption'))
+      .toHaveTextContent(
       'Cost itemisation for January in space-name space with service-name services sorted by space column in descending order',
     );
-    expect($('.paas-table-billing-statement th:nth-child(2)').attr('aria-sort')).toEqual('descending');
+    expect(container
+      .querySelector('.paas-table-billing-statement th:nth-child(2)'))
+      .toHaveAttribute('aria-sort', expect.stringContaining('descending'));
   });
 
   it('should parse statements page when ordering by amount', () => {
-    const markup = shallow(
+    const { container } = render(
       <StatementsPage
         spaces={[{ guid: 'SPACE_GUID', name: 'space name' }]}
         plans={[{ guid: 'PLAN_GUID', name: 'plan name' }]}
@@ -145,18 +151,21 @@ describe(StatementsPage, () => {
         items={[item]}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('input[name="sort"]').prop('value')).toEqual('amount');
-    expect($('input[name="order"]').prop('value')).toEqual('desc');
+    expect(container.querySelector('input[name="sort"]')).toHaveValue('amount');
+    expect(container.querySelector('input[name="order"]')).toHaveValue('desc');
 
-    expect($('.paas-table-billing-statement caption').text()).toContain(
+    expect(container
+      .querySelector('.paas-table-billing-statement caption'))
+      .toHaveTextContent(
       'Cost itemisation for January in space-name space with service-name services sorted by Inc VAT column in descending order',
     );
-    expect($('.paas-table-billing-statement th:nth-child(5)').attr('aria-sort')).toEqual('descending');
+    expect(container
+      .querySelector('.paas-table-billing-statement th:nth-child(5)'))
+      .toHaveAttribute('aria-sort', expect.stringContaining('descending'));
   });
 
   it('should parse statements page when ordering by plan', () => {
-    const markup = shallow(
+    const { container } = render(
       <StatementsPage
         spaces={[{ guid: 'SPACE_GUID', name: 'space name' }]}
         plans={[{ guid: 'PLAN_GUID', name: 'plan name' }]}
@@ -178,15 +187,15 @@ describe(StatementsPage, () => {
         items={[item]}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('input[name="sort"]').prop('value')).toEqual('plan');
-    expect($('input[name="order"]').prop('value')).toEqual('desc');
-
-    expect($('.paas-table-billing-statement th:nth-child(3)').attr('aria-sort')).toEqual('descending');
+    expect(container.querySelector('input[name="sort"]')).toHaveValue('plan');
+    expect(container.querySelector('input[name="order"]')).toHaveValue('desc');
+    expect(container
+      .querySelector('.paas-table-billing-statement th:nth-child(3)'))
+      .toHaveAttribute('aria-sort', expect.stringContaining('descending'));
   });
 
   it('should parse statements page and notify tenant that there\'s no information for this month', () => {
-    const markup = shallow(
+    const { container } = render(
       <StatementsPage
         spaces={[{ guid: 'SPACE_GUID', name: 'space name' }]}
         plans={[{ guid: 'PLAN_GUID', name: 'plan name' }]}
@@ -210,15 +219,14 @@ describe(StatementsPage, () => {
         items={[]}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.paas-table-notification').text()).toEqual(
+    expect(container.querySelector('.paas-table-notification')).toHaveTextContent(
       'There is no record of any usage for that period.',
     );
   });
 
   describe('statement column header sort order', () => {
     it('where NAME column header should have an aria-sort="descending" label when sorted with "descending order"', () => {
-      const markup = shallow(
+      const { container} = render(
         <StatementsPage
           spaces={[{ guid: 'SPACE_GUID', name: 'space name' }]}
           plans={[{ guid: 'PLAN_GUID', name: 'plan name' }]}
@@ -258,12 +266,13 @@ describe(StatementsPage, () => {
           ]}
         />,
       );
-      const $ = cheerio.load(markup.html());    
-      expect($('.paas-table-billing-statement th:first-child').attr('aria-sort')).toEqual('descending');
-    })
+      expect(container
+        .querySelector('.paas-table-billing-statement th:first-child'))
+        .toHaveAttribute('aria-sort', expect.stringContaining('descending'));
+    });
 
-    it('where SPACE column header should have an aria-sort="descending" label when sorted with "ascending order"', () => {
-      const markup = shallow(
+    it('where SPACE column header should have an aria-sort="ascending" label when sorted with "ascending order"', () => {
+      const { container } = render(
         <StatementsPage
           spaces={[{ guid: 'SPACE_GUID', name: 'space name' }]}
           plans={[{ guid: 'PLAN_GUID', name: 'plan name' }]}
@@ -303,12 +312,13 @@ describe(StatementsPage, () => {
           ]}
         />,
       );
-      const $ = cheerio.load(markup.html());    
-      expect($('.paas-table-billing-statement th:nth-child(2)').attr('aria-sort')).toEqual('ascending');
+      expect(container
+        .querySelector('.paas-table-billing-statement th:nth-child(2)'))
+        .toHaveAttribute('aria-sort', expect.stringContaining('ascending'));
     })
 
-    it('where PLAN column header should have an aria-sort="descending" label when sorted with "ascending order"', () => {
-      const markup = shallow(
+    it('where PLAN column header should have an aria-sort="ascending" label when sorted with "ascending order"', () => {
+      const { container } = render(
         <StatementsPage
           spaces={[{ guid: 'SPACE_GUID', name: 'space name' }]}
           plans={[{ guid: 'PLAN_GUID', name: 'plan name' }]}
@@ -348,12 +358,13 @@ describe(StatementsPage, () => {
           ]}
         />,
       );
-      const $ = cheerio.load(markup.html());    
-      expect($('.paas-table-billing-statement th:nth-child(3)').attr('aria-sort')).toEqual('ascending');
+      expect(container
+        .querySelector('.paas-table-billing-statement th:nth-child(3)'))
+        .toHaveAttribute('aria-sort', expect.stringContaining('ascending'));
     })
 
-    it('where Inc VAT column header should have an aria-sort="descending" label when sorted with "ascending order"', () => {
-      const markup = shallow(
+    it('where Inc VAT column header should have an aria-sort="ascending" label when sorted with "ascending order"', () => {
+      const { container } = render(
         <StatementsPage
           spaces={[{ guid: 'SPACE_GUID', name: 'space name' }]}
           plans={[{ guid: 'PLAN_GUID', name: 'plan name' }]}
@@ -393,8 +404,9 @@ describe(StatementsPage, () => {
           ]}
         />,
       );
-      const $ = cheerio.load(markup.html());    
-      expect($('.paas-table-billing-statement th:nth-child(5)').attr('aria-sort')).toEqual('ascending');
+      expect(container
+        .querySelector('.paas-table-billing-statement th:nth-child(5)'))
+        .toHaveAttribute('aria-sort', expect.stringContaining('ascending'));
     })
   })
 });
