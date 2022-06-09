@@ -51,5 +51,6 @@ export const owners = [
   'Public Health England',
   'Student Awards Agency Scotland',
   'UK Export Finance',
+  'UK Research and Innovation',
   'UK Space Agency',
 ]
