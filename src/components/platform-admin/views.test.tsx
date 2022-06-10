@@ -1,4 +1,7 @@
-import { shallow } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+import { render } from '@testing-library/react';
 import React from 'react';
 
 import { IParameters } from '../../lib/router';
@@ -16,44 +19,30 @@ function linker(route: string, params?: IParameters): string {
 
 describe(CreateOrganizationPage, () => {
   it('should have csrf token', () => {
-    const markup = shallow(<CreateOrganizationPage csrf="CSRF_TOKEN" linkTo={linker} owners={[]} />);
+    const {container } = render (<CreateOrganizationPage csrf="CSRF_TOKEN" linkTo={linker} owners={[]} />);
 
-    expect(markup.render().find('[name=_csrf]')).toHaveLength(1);
-    expect(markup.render().find('[name=_csrf]').prop('value')).toEqual('CSRF_TOKEN');
-  });
-
-  it('should correctly handle XSS attack', () => {
-    const markup = shallow(<CreateOrganizationPage
-      csrf="CSRF_TOKEN"
-      linkTo={linker}
-      values={{ organization: '<script>alert("pwnd by test");</script>' }}
-      owners={[{ name: '<em>hacking</em>', owner: '<strong>Hackers</strong>' }]}
-    />);
-
-    expect(markup.find('input#organization')).toHaveLength(1);
-    expect(markup.find('input#organization').html()).not.toContain('<script>');
-    expect(markup.find('input#organization').html()).toContain('&lt;script&gt;');
-    expect(markup.find('input#organization').html()).toContain('&quot;pwnd by test&quot;');
+    expect(container.querySelector('[name=_csrf]')).toBeTruthy();
+    expect(container.querySelector('[name=_csrf]')).toHaveValue('CSRF_TOKEN');
   });
 
   it('should correctly printout errors', () => {
-    const markup = shallow(<CreateOrganizationPage
+    const {container } = render (<CreateOrganizationPage
       csrf="CSRF_TOKEN"
       linkTo={linker}
       errors={[ { field: 'organization', message: 'required field' } ]}
       owners={[]}
     />);
 
-    expect(markup.find('.govuk-error-summary')).toHaveLength(1);
-    expect(markup.find('.govuk-error-summary').text()).toContain('required field');
+    expect(container.querySelector('.govuk-error-summary')).toBeTruthy();
+    expect(container.querySelector('.govuk-error-summary')).toHaveTextContent('required field');
   });
 });
 
 describe(CreateOrganizationSuccessPage, () => {
   it('should correctly compose a success page', () => {
-    const markup = shallow(<CreateOrganizationSuccessPage linkTo={linker} organizationGUID="ORG_GUID" />);
+    const { container } = render (<CreateOrganizationSuccessPage linkTo={linker} organizationGUID="ORG_GUID" />);
 
-    expect(markup.html())
+    expect(container.innerHTML)
       .toContain('href="__LINKS_TO__admin.organizations.users.invite_WITH_organizationGUID=ORG_GUID"');
   });
 });
@@ -61,20 +50,20 @@ describe(CreateOrganizationSuccessPage, () => {
 describe(ContactOrganisationManagersPage, () => {
   it('should correctly render the form', () => {
     const orgs = [{ name: 'a-different-org', guid: '123', suspended: false }];
-    const markup = shallow(<ContactOrganisationManagersPage
+    const {container } = render (<ContactOrganisationManagersPage
       csrf="CSRF_TOKEN"
       linkTo={linker}
       orgs={orgs}
     />);
 
-    expect(markup.find('#organisation').text()).toContain('a-different-org');
-    expect(markup.find('#managerRole').text()).toContain('Billing manager');
-    expect(markup.find('#managerRole').text()).toContain('Organisation manager');
+    expect(container.querySelector('#organisation')).toHaveTextContent('a-different-org');
+    expect(container.querySelector('#managerRole')).toHaveTextContent('Billing manager');
+    expect(container.querySelector('#managerRole')).toHaveTextContent('Organisation manager');
   });
 
   it('should correctly render the form errors', () => {
     const orgs = [{ name: 'a-different-org', guid: '123', suspended: false }];
-    const markup = shallow(<ContactOrganisationManagersPage
+    const {container } = render (<ContactOrganisationManagersPage
       csrf="CSRF_TOKEN"
       linkTo={linker}
       orgs={orgs}
@@ -87,17 +76,17 @@ describe(ContactOrganisationManagersPage, () => {
       }
     />);
 
-    expect(markup.find('.govuk-error-summary')).toHaveLength(1);
-    expect(markup.find('.govuk-error-summary li')).toHaveLength(3);
-    expect(markup.find('.govuk-error-message')).toHaveLength(3);
-    expect(markup.find('#organisation-error').text()).toContain('Select an organisation');
-    expect(markup.find('#managerRole-error').text()).toContain('Select a manager role');
-    expect(markup.find('#message-error').text()).toContain('Enter your message');
+    expect(container.querySelector('.govuk-error-summary')).toBeTruthy();
+    expect(container.querySelectorAll('.govuk-error-summary li')).toHaveLength(3);
+    expect(container.querySelectorAll('.govuk-error-message')).toHaveLength(3);
+    expect(container.querySelector('#organisation-error')).toHaveTextContent('Select an organisation');
+    expect(container.querySelector('#managerRole-error')).toHaveTextContent('Select a manager role');
+    expect(container.querySelector('#message-error')).toHaveTextContent('Enter your message');
   });
 
   it('should use provided form values on resubmission', () => {
     const orgs = [{ name: 'a-different-org', guid: '123', suspended: true }];
-    const markup = shallow(<ContactOrganisationManagersPage
+    const {container } = render (<ContactOrganisationManagersPage
       csrf="CSRF_TOKEN"
       linkTo={linker}
       orgs={orgs}
@@ -108,26 +97,26 @@ describe(ContactOrganisationManagersPage, () => {
       }}
     />);
 
-    expect(markup.render().find('#organisation option[selected]').text()).toEqual('a-different-org (suspended)');
-    expect(markup.render().find('#managerRole option[selected]').text()).toEqual('Billing manager');
-    expect(markup.render().find('#message').val()).toContain('Text message');
+    expect(container.querySelector('#organisation option:checked')).toHaveTextContent('a-different-org (suspended)');
+    expect(container.querySelector('#managerRole option:checked')).toHaveTextContent('Billing manager');
+    expect(container.querySelector('#message')).toHaveValue('Text message');
   });
 });
 
 describe(ContactOrganisationManagersConfirmationPage, () => {
-  const markup = shallow(
-    <ContactOrganisationManagersConfirmationPage
-        linkTo={route => `__LINKS_TO__${route}`}
-        heading={'confirmation panel heading'}
-        text={'confirmation panel text'}
-      >
-        children text
-      </ContactOrganisationManagersConfirmationPage>,
-  );
-
   it('should render the page with all provided properties', () => {
-    expect(markup.find('.govuk-panel__title').text()).toContain('confirmation panel heading');
-    expect(markup.find('.govuk-panel__body').text()).toContain('confirmation panel text');
-    expect(markup.find('.govuk-body').text()).toContain('children text');
+    const {container } = render (
+      <ContactOrganisationManagersConfirmationPage
+          linkTo={route => `__LINKS_TO__${route}`}
+          heading={'confirmation panel heading'}
+          text={'confirmation panel text'}
+        >
+          children text
+        </ContactOrganisationManagersConfirmationPage>,
+    );
+
+    expect(container.querySelector('.govuk-panel__title')).toHaveTextContent('confirmation panel heading');
+    expect(container.querySelector('.govuk-panel__body')).toHaveTextContent('confirmation panel text');
+    expect(container.querySelector('.govuk-body')).toHaveTextContent('children text');
   });
 });
