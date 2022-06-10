@@ -1,5 +1,7 @@
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+import { render } from '@testing-library/react';
 import React from 'react';
 
 import { IService, IServiceInstance, IServicePlan } from '../../lib/cf/types';
@@ -13,7 +15,7 @@ describe(ServiceTab, () => {
       metadata: { guid: 'SERVICE_GUID' },
       service: { entity: { label: 'postgres' } },
     } as unknown) as IServiceInstance;
-    const markup = shallow(
+    const { container } = render(
       <ServiceTab
         service={service}
         linkTo={route => `__LINKS_TO__${route}`}
@@ -27,21 +29,20 @@ describe(ServiceTab, () => {
         <p>TEST</p>
       </ServiceTab>,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('h1').text()).toContain('service-name');
-    expect($('section.govuk-tabs__panel').text()).toEqual('TEST');
-    expect($('ul li:first-of-type a').prop('href')).toEqual(
-      '__LINKS_TO__admin.organizations.spaces.services.view',
-    );
-    expect(
-      $('ul li:first-of-type').hasClass('govuk-tabs__list-item--selected'),
-    ).toBe(true);
-    expect($('ul li:last-of-type a').prop('href')).toEqual(
-      '__LINKS_TO__admin.organizations.spaces.services.logs.view',
-    );
-    expect(
-      $('ul li:last-of-type').hasClass('govuk-tabs__list-item--selected'),
-    ).toBe(false);
+    expect(container.querySelector('h1')).toHaveTextContent('service-name');
+    expect(container.querySelector('section.govuk-tabs__panel')).toHaveTextContent('TEST');
+    expect(container
+      .querySelector('ul li:first-of-type a'))
+      .toHaveAttribute('href', expect.stringContaining('__LINKS_TO__admin.organizations.spaces.services.view'));
+    expect(container
+      .querySelector('ul li:first-of-type'))
+      .toHaveClass('govuk-tabs__list-item--selected');
+    expect(container
+      .querySelector('ul li:last-of-type a'))
+      .toHaveAttribute('href', expect.stringContaining('__LINKS_TO__admin.organizations.spaces.services.logs.view'));
+    expect(container
+      .querySelector('ul li:last-of-type'))
+      .not.toHaveClass('govuk-tabs__list-item--selected');
   });
 
 
@@ -51,7 +52,7 @@ describe(ServiceTab, () => {
       metadata: { guid: 'SERVICE_GUID' },
     } as unknown) as IServiceInstance;
 
-    const markup = shallow(
+    const { container } = render(
       <ServiceTab
         service={service}
         linkTo={route => `__LINKS_TO__${route}`}
@@ -66,14 +67,20 @@ describe(ServiceTab, () => {
       </ServiceTab>,
     );
 
-    const $ = cheerio.load(markup.html());
-    expect($('h1').text()).toContain('service-name');
-    expect($('section.govuk-tabs__panel').text()).toEqual('TEST');
-    expect($('ul li:first-of-type a').prop('href')).toEqual('__LINKS_TO__admin.organizations.spaces.services.view');
-    expect($('ul li:first-of-type').hasClass('govuk-tabs__list-item--selected')).toBe(true);
-    expect($('ul li:last-of-type a').prop('href'))
-      .not.toEqual('__LINKS_TO__admin.organizations.spaces.services.logs.view');
-    expect($('ul li:last-of-type').hasClass('govuk-tabs__list-item--selected')).toBe(false);
+    expect(container.querySelector('h1')).toHaveTextContent('service-name');
+    expect(container.querySelector('section.govuk-tabs__panel')).toHaveTextContent('TEST');
+    expect(container
+      .querySelector('ul li:first-of-type a'))
+      .toHaveAttribute('href', expect.stringContaining('__LINKS_TO__admin.organizations.spaces.services.view'));
+    expect(container
+      .querySelector('ul li:first-of-type'))
+      .toHaveClass('govuk-tabs__list-item--selected');
+    expect(container
+      .querySelector('ul li:last-of-type a'))
+      .not.toHaveAttribute('href', expect.stringContaining('__LINKS_TO__admin.organizations.spaces.services.logs.view'));
+    expect(container
+      .querySelector('ul li:last-of-type'))
+      .not.toHaveClass('govuk-tabs__list-item--selected');
   });
 });
 
@@ -87,7 +94,7 @@ describe(ServicePage, () => {
       },
       metadata: { guid: 'SERVICE_GUID' },
     } as unknown) as IServiceInstance;
-    const markup = shallow(
+    const { container } = render(
       <ServicePage
         service={{
           ...service,
@@ -107,10 +114,9 @@ describe(ServicePage, () => {
         spaceGUID="SPACE_GUID"
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('td.label').text()).toContain('service-label');
-    expect($('td.plan').text()).toContain('service-plan-name');
-    expect($('td.status').text()).toContain('success');
+    expect(container.querySelector('td.label')).toHaveTextContent('service-label');
+    expect(container.querySelector('td.plan')).toHaveTextContent('service-plan-name');
+    expect(container.querySelector('td.status')).toHaveTextContent('success');
   });
 
   it('should fallback to default values', () => {
@@ -118,7 +124,7 @@ describe(ServicePage, () => {
       entity: { name: 'service-name', tags: [] },
       metadata: { guid: 'SERVICE_GUID' },
     } as unknown) as IServiceInstance;
-    const markup = shallow(
+    const { container } = render(
       <ServicePage
         service={service}
         linkTo={route => `__LINKS_TO__${route}`}
@@ -130,10 +136,9 @@ describe(ServicePage, () => {
         spaceGUID="SPACE_GUID"
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('td.label').text()).toContain('User Provided Service');
-    expect($('td.plan').text()).toContain('N/A');
-    expect($('td.status').text()).toContain('N/A');
+    expect(container.querySelector('td.label')).toHaveTextContent('User Provided Service');
+    expect(container.querySelector('td.plan')).toHaveTextContent('N/A');
+    expect(container.querySelector('td.status')).toHaveTextContent('N/A');
   });
 });
 
@@ -149,7 +154,7 @@ describe(ServiceLogsPage, () => {
   } as unknown) as IServiceInstance;
 
   it('should print out the list of downloadable files', () => {
-    const markup = shallow(<ServiceLogsPage
+    const { container } = render(<ServiceLogsPage
       files={files}
       service={service}
       linkTo={route => `__LINKS_TO__${route}`}
@@ -159,23 +164,23 @@ describe(ServiceLogsPage, () => {
       spaceGUID="SPACE_GUID"
     />);
 
-    expect(markup.render().find('li.service-log-list-item').length).toEqual(3);
+    expect(container.querySelectorAll('li.service-log-list-item')).toHaveLength(3);
 
-    expect(markup.render().find('li.service-log-list-item').text()).toContain('file-one');
-    expect(markup.render().find('li.service-log-list-item').text()).toContain('72.00 KiB');
-    expect(markup.render().find('li.service-log-list-item').text()).toContain('1:59pm, 12 January 2020');
+    expect(container.querySelectorAll('li.service-log-list-item')[0]).toHaveTextContent('file-one');
+    expect(container.querySelectorAll('li.service-log-list-item')[0]).toHaveTextContent('72.00 KiB');
+    expect(container.querySelectorAll('li.service-log-list-item')[0]).toHaveTextContent('1:59pm, 12 January 2020');
 
-    expect(markup.render().find('li.service-log-list-item').text()).toContain('file-two');
-    expect(markup.render().find('li.service-log-list-item').text()).toContain('1.42 MiB');
-    expect(markup.render().find('li.service-log-list-item').text()).toContain('2:59pm, 12 January 2020');
+    expect(container.querySelectorAll('li.service-log-list-item')[1]).toHaveTextContent('file-two');
+    expect(container.querySelectorAll('li.service-log-list-item')[1]).toHaveTextContent('1.42 MiB');
+    expect(container.querySelectorAll('li.service-log-list-item')[1]).toHaveTextContent('2:59pm, 12 January 2020');
 
-    expect(markup.render().find('li.service-log-list-item').text()).toContain('file-three');
-    expect(markup.render().find('li.service-log-list-item').text()).toContain('0 B');
-    expect(markup.render().find('li.service-log-list-item').text()).toContain('3:59pm, 12 January 2020');
+    expect(container.querySelectorAll('li.service-log-list-item')[2]).toHaveTextContent('file-three');
+    expect(container.querySelectorAll('li.service-log-list-item')[2]).toHaveTextContent('0 B');
+    expect(container.querySelectorAll('li.service-log-list-item')[2]).toHaveTextContent('3:59pm, 12 January 2020');
   });
 
   it('should mention that there are no files available for download', () => {
-    const markup = shallow(<ServiceLogsPage
+    const { container } = render(<ServiceLogsPage
       files={[]}
       service={service}
       linkTo={route => `__LINKS_TO__${route}`}
@@ -185,9 +190,8 @@ describe(ServiceLogsPage, () => {
       spaceGUID="SPACE_GUID"
     />);
 
-    expect(markup.render().find('li.service-log-list-item').length).toEqual(0);
+    expect(container.querySelectorAll('li.service-log-list-item')).toHaveLength(0);
 
-    expect(markup.render().find('p').text())
-      .toContain('There are no log files available at this time.');
+    expect(container).toHaveTextContent('There are no log files available at this time.');
   });
 });
