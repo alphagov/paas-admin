@@ -144,7 +144,7 @@
     "passport-oauth2": "^1.6.1",
     "pino": "^6.13.3",
     "qs": "^6.10.3",
-    "react": "^18.1.0",
+    "react": "^18.2.0",
     "react-dom": "^18.1.0",
     "react-markdown": "^6.0.3",
     "route-parser": "^0.0.5",
