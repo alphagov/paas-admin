@@ -1,5 +1,7 @@
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { IMetricSerie } from '../../lib/metrics';
@@ -57,7 +59,7 @@ describe(MetricPage, () => {
           ],
         },
       ] as unknown as ReadonlyArray<IMetricSerie>;
-    const markup = shallow(
+    render(
       <MetricPage
         linkTo={route => `__LINKS_TO__${route}`}
         period={period}
@@ -68,16 +70,16 @@ describe(MetricPage, () => {
         organizations={orgs}
       />,
     );
-    const $ = cheerio.load(markup.html());
+    const tables = screen.getAllByRole('table')
     // org data spans 2 months
-    expect($('.govuk-table').eq(0).find('tbody').children('tr')).toHaveLength(2);
-    // org table has entries for both billable and trial orgs
-    expect($('.govuk-table').eq(0).find('tbody td')).toHaveLength(4);
+    expect(tables[0].querySelectorAll('tbody tr')).toHaveLength(2);
+    // // org table has entries for both billable and trial orgs
+    expect(tables[0].querySelectorAll('tbody td')).toHaveLength(4);
     // let's check first and last month entries for applications are as expected
-    expect($('.govuk-table').eq(1).find('tbody th:first-child').text()).toContain('February 2020')
-    expect($('.govuk-table').eq(1).find('tbody tr:nth-child(2) th:first-child').text()).toContain('March 2020');
-    // let's check values for backing services in each month are as expected
-    expect($('.govuk-table').eq(2).find('tbody tr td:last-child').text()).toContain('420');
-    expect($('.govuk-table').eq(2).find('tbody tr:nth-child(2) td:last-child').text()).toContain('430');
+    expect(tables[1].querySelectorAll('tbody th')[0]).toHaveTextContent('February 2020');
+    expect(tables[1].querySelectorAll('tbody th')[1]).toHaveTextContent('March 2020');
+    // // let's check values for backing services in each month are as expected
+    expect(tables[2].querySelectorAll('tbody tr td')[0]).toHaveTextContent('420');
+    expect(tables[2].querySelectorAll('tbody tr td')[1]).toHaveTextContent('430');
   });
 });

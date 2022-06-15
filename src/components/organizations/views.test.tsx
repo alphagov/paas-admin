@@ -1,5 +1,7 @@
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+import { render } from '@testing-library/react';
 import React from 'react';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
@@ -34,66 +36,70 @@ describe(OrganizationsPage, () => {
   const quotas = { billable: quotaBillable, trial: quotaFree };
 
   it('should display list of organizations', () => {
-    const markup = shallow(
+    const { container } = render(
       <OrganizationsPage
         organizations={[orgA, orgB]}
         linkTo={linker}
         quotas={quotas}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('p.govuk-body:first-of-type').text()).toContain(
+    expect(container.querySelector('p.govuk-body:first-of-type')).toHaveTextContent(
       'There are 2 organisations which you can access.',
     );
-    expect($('table tbody tr')).toHaveLength(2);
-
-    expect($('table tbody tr:first-of-type th a.govuk-link').text()).toBe('Organisation name: A');
-    expect($('table tbody tr:first-of-type th a.govuk-link').prop('href')).toBe(
-      '/org/a',
-    );
-    expect($('table tbody tr:first-of-type td:last-of-type').text()).toBe(
+    expect(container.querySelectorAll('table tbody tr')).toHaveLength(2);
+    expect(container
+      .querySelectorAll('table .govuk-link')[0])
+      .toHaveTextContent('Organisation name: A');
+    expect(container
+      .querySelectorAll('table .govuk-link')[0])
+      .toHaveAttribute('href', expect.stringContaining('/org/a'));
+    expect(container.querySelector('table tbody tr:first-of-type td:last-of-type')).toHaveTextContent(
       'Trial',
     );
-
-    expect($('table tr:last-of-type th a.govuk-link').text()).toBe('Organisation name: B');
-    expect($('table tr:last-of-type th a.govuk-link').prop('href')).toBe('/org/b');
-    expect($('table tr:last-of-type td:last-of-type').text()).toBe('Billable');
+    expect(container
+      .querySelectorAll('table .govuk-link')[1])
+      .toHaveTextContent('Organisation name: B');
+    expect(container
+      .querySelectorAll('table .govuk-link')[1])
+      .toHaveAttribute('href', expect.stringContaining('/org/b'));
+    expect(container.querySelector('table tr:last-of-type td:last-of-type')).toHaveTextContent('Billable');
   });
 
   it('should highlight suspended organizations', () => {
-    const markup = shallow(
+    const { container } = render(
       <OrganizationsPage
         organizations={[orgA, suspendedOrg]}
         linkTo={linker}
         quotas={quotas}
       />,
     );
-    const $ = cheerio.load(markup.html());
+    expect(container.querySelectorAll('table tbody tr')).toHaveLength(2);
 
-    expect($('table tbody tr')).toHaveLength(2);
+    expect(container
+      .querySelectorAll('table .govuk-link')[0])
+      .toHaveTextContent('Organisation name: A');
+    expect(container.querySelector('table tr:first-of-type .govuk-tag')).toBeNull();
 
-    expect($('table tbody tr:first-of-type th a.govuk-link').text()).toBe('Organisation name: A');
-    expect($('table tbody tr:first-of-type th span.govuk-tag--grey').length).toEqual(0);
-
-    expect($('table tbody tr:nth-of-type(2) th a.govuk-link').text()).toBe('Organisation name: Suspended');
-    expect($('table tbody tr:nth-of-type(2) th span.govuk-tag--grey').text()).toBe(
-      'Suspended',
-    );
+    expect(container
+      .querySelectorAll('table .govuk-link')[1])
+      .toHaveTextContent('Organisation name: Suspended');
+    expect(container
+      .querySelector('table tr:last-of-type .govuk-tag'))
+      .toHaveTextContent('Suspended');
   });
 
   it('should display list of organizations with single item', () => {
-    const markup = shallow(
+    const { container } = render(
       <OrganizationsPage
         organizations={[orgA]}
         linkTo={linker}
         quotas={quotas}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('p.govuk-body:first-of-type').text()).toContain(
+    expect(container.querySelector('.govuk-body:first-of-type')).toHaveTextContent(
       'There is 1 organisation which you can access.',
     );
-    expect($('table tbody tr')).toHaveLength(1);
+    expect(container.querySelectorAll('table tbody tr')).toHaveLength(1);
   });
 });
 
@@ -107,7 +113,7 @@ describe(EditOrganization, () => {
       services: { total_service_instances: 2 },
     };
 
-    const markup = shallow(<EditOrganization
+    const { container } = render(<EditOrganization
       csrf="__CSRF_TOKEN__"
       organization={{
         guid: '__ORG_GUID__',
@@ -128,19 +134,19 @@ describe(EditOrganization, () => {
       ]}
     />);
 
-    expect(markup.render().find('table').text()).toContain('quota-1');
-    expect(markup.render().find('table').text()).toContain('quota-2');
+    expect(container.querySelector('table')).toHaveTextContent('quota-1');
+    expect(container.querySelector('table')).toHaveTextContent('quota-2');
 
-    expect(markup.render().find('input#name').val()).toContain('org-name');
+    expect(container.querySelector('input#name')).toHaveValue('org-name');
 
-    expect(markup.render().find('select#quota option').text()).toContain('quota-1');
-    expect(markup.render().find('select#quota option').text()).toContain('quota-2');
-    expect(markup.render().find('select#quota option[selected]').text()).toEqual('quota-2');
+    expect(container.querySelectorAll('select#quota option')[0]).toHaveTextContent('quota-1');
+    expect(container.querySelectorAll('select#quota option')[1]).toHaveTextContent('quota-2');
+    expect(container.querySelector('select#quota option:checked')).toHaveTextContent('quota-2');
 
-    expect(markup.render().find('select#suspended option').text()).toContain('Active');
-    expect(markup.render().find('select#suspended option').text()).toContain('Suspended');
-    expect(markup.render().find('select#suspended option[selected]').text()).toEqual('Suspended');
+    expect(container.querySelectorAll('select#suspended option')[0]).toHaveTextContent('Active');
+    expect(container.querySelectorAll('select#suspended option')[1]).toHaveTextContent('Suspended');
+    expect(container.querySelector('select#suspended option:checked')).toHaveTextContent('Suspended');
 
-    expect(spacesMissingAroundInlineElements(markup.render().html()!)).toHaveLength(0);
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 });

@@ -1,6 +1,8 @@
-import cheerio from 'cheerio';
+/**
+ * @jest-environment jsdom
+ */
+import { render, screen } from '@testing-library/react';
 import { format } from 'date-fns';
-import { shallow } from 'enzyme';
 import React from 'react';
 
 import { DATE_TIME } from '../../layouts';
@@ -37,7 +39,7 @@ describe(UserPage, () => {
   const logon = new Date(2020, 1, 1);
 
   it('should display list of organizations', () => {
-    const markup = shallow(
+    const { container } = render(
       <UserPage
         organizations={[orgA, orgB, orgC]}
         groups={[group]}
@@ -47,14 +49,13 @@ describe(UserPage, () => {
         origin="google"
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('dd').text()).toContain(format(new Date(logon), DATE_TIME));
-    expect($('p').text()).toContain('This user is a member of 3 orgs.');
-    expect($('ul:last-of-type li')).toHaveLength(1);
+    expect(container.querySelector('.govuk-summary-list')).toHaveTextContent(format(new Date(logon), DATE_TIME));
+    expect(container.querySelector('p')).toHaveTextContent('This user is a member of 3 orgs.');
+    expect(container.querySelectorAll('ul:last-of-type li')).toHaveLength(1);
   });
 
   it('should display list of organizations', () => {
-    const markup = shallow(
+    const { queryByText } = render(
       <UserPage
         organizations={[orgA, orgB, orgC]}
         groups={[group]}
@@ -64,63 +65,62 @@ describe(UserPage, () => {
         origin="google"
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).toContain('This user is a member of 3 orgs.');
+    expect(queryByText('This user is a member of 3 orgs.')).toBeTruthy();
   });
 });
 
 describe(PasswordResetRequest, () => {
   it('should correctly produce the syntax', () => {
-    const markup = shallow(<PasswordResetRequest csrf="CSRF_TOKEN" />);
-    expect(markup.render().find('input[name=_csrf]').val()).toEqual('CSRF_TOKEN');
-    expect(markup.text()).not.toContain('Enter an email address in the correct format, like name@example.com');
+    const { container } = render(<PasswordResetRequest csrf="CSRF_TOKEN" />);
+    expect(container.querySelector('input[name=_csrf]')).toHaveValue('CSRF_TOKEN');
+    expect(container).not.toHaveTextContent('Enter an email address in the correct format, like name@example.com');
   });
 
   it('should correctly throw an error when invalidEmail flag on', () => {
-    const markup = shallow(<PasswordResetRequest
+    const { container } = render(<PasswordResetRequest
       csrf="CSRF_TOKEN"
       invalidEmail={true}
       values={{ email: 'jeff@example.com' }}
     />);
-    expect(markup.render().find('input[name=_csrf]').val()).toEqual('CSRF_TOKEN');
-    expect(markup.render().find('input[name=email]').val()).toEqual('jeff@example.com');
-    expect(markup.text()).toContain('Enter an email address in the correct format, like name@example.com');
+    expect(container.querySelector('input[name=_csrf]')).toHaveValue('CSRF_TOKEN');
+    expect(container.querySelector('input[name=email]')).toHaveValue('jeff@example.com');
+    expect(container).toHaveTextContent('Enter an email address in the correct format, like name@example.com');
   });
 
   it('should correctly throw an error when invalidEmail flag on and no values passed back', () => {
-    const markup = shallow(<PasswordResetRequest
+    const { container } = render(<PasswordResetRequest
       csrf="CSRF_TOKEN"
       invalidEmail={true}
     />);
-    expect(markup.render().find('input[name=_csrf]').val()).toEqual('CSRF_TOKEN');
-    expect(markup.render().find('input[name=email]').val()).toBeUndefined();
-    expect(markup.text()).toContain('Enter an email address in the correct format, like name@example.com');
+    expect(container.querySelector('input[name=_csrf]')).toHaveValue('CSRF_TOKEN');
+    expect(container.querySelector('input[name=email]')).toHaveValue('');
+    expect(container).toHaveTextContent('Enter an email address in the correct format, like name@example.com');
   });
 });
 
 describe(PasswordResetSuccess, () => {
   it('should correctly produce the syntax', () => {
-    const markup = shallow(<PasswordResetSuccess title="Success" />);
-    expect(markup.find('h1').text()).toEqual('Success');
+    render(<PasswordResetSuccess title="Success" />);
+    expect(screen.getByRole('heading', { level: 1})).toHaveTextContent('Success');
   });
 });
 
 describe(PasswordResetSetPasswordForm, () => {
   it('should correctly produce the syntax', () => {
-    const markup = shallow(<PasswordResetSetPasswordForm csrf="CSRF_TOKEN" code="PASSWORD_RESET_CODE" />);
-    expect(markup.render().find('input[name=_csrf]').val()).toEqual('CSRF_TOKEN');
-    expect(markup.render().find('input[name=code]').val()).toEqual('PASSWORD_RESET_CODE');
-    expect(markup.text()).not.toContain('You need to type in the same password twice');
+    const { container } = render(<PasswordResetSetPasswordForm csrf="CSRF_TOKEN" code="PASSWORD_RESET_CODE" />);
+     expect(container.querySelector('input[name=_csrf]')).toHaveValue('CSRF_TOKEN');
+     expect(container.querySelector('input[name=code]')).toHaveValue('PASSWORD_RESET_CODE');
+    expect(container).not.toHaveTextContent('You need to type in the same password twice');
   });
 
   it('should correctly throw an error when passwordMismatch flag on', () => {
-    const markup = shallow(<PasswordResetSetPasswordForm
+    const { container } = render(<PasswordResetSetPasswordForm
       code="PASSWORD_RESET_CODE"
       csrf="CSRF_TOKEN"
       passwordMismatch={true}
     />);
-    expect(markup.render().find('input[name=_csrf]').val()).toEqual('CSRF_TOKEN');
-    expect(markup.render().find('input[name=code]').val()).toEqual('PASSWORD_RESET_CODE');
-    expect(markup.text()).toContain('You need to type in the same password twice');
+     expect(container.querySelector('input[name=_csrf]')).toHaveValue('CSRF_TOKEN');
+     expect(container.querySelector('input[name=code]')).toHaveValue('PASSWORD_RESET_CODE');
+    expect(container).toHaveTextContent('You need to type in the same password twice');
   });
 });

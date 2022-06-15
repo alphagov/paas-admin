@@ -1,5 +1,7 @@
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+import { render } from '@testing-library/react';
 import React from 'react';
 
 import { GIBIBYTE, MEBIBYTE } from '../../layouts';
@@ -36,7 +38,7 @@ describe(EventsPage, () => {
   } as unknown) as ISpace;
 
   it('should corretly print multiple events on the page', () => {
-    const markup = shallow(
+    const { container } = render(
       <EventsPage
         actorEmails={actorEmails}
         events={[
@@ -77,36 +79,25 @@ describe(EventsPage, () => {
       />,
     );
 
-    const $ = cheerio.load(markup.html());
-    expect($('table tbody tr')).toHaveLength(3);
-    expect($('table tbody .actor').text()).toContain(
+    expect(container.querySelectorAll('table tbody tr')).toHaveLength(3);
+    expect(container.querySelectorAll('table tbody .actor')[0]).toHaveTextContent(
       actorEmails.ACCOUNTS_USER_GUID_1,
     );
-    expect($('table tbody .actor').text()).not.toContain(event.actor.name);
-    expect($('table tbody .actor').text()).not.toContain(event.actor.guid);
-    expect($('table tbody .target').text()).toContain(event.target.name);
-    expect($('table tbody .target').text()).not.toContain(event.target.guid);
-    expect($('table tbody .description').text()).toContain('Created space');
-
-    expect($('table tbody .actor').text()).toContain('Charlie Chaplin');
-    expect($('table tbody .actor').text()).not.toContain(
-      'ACCOUNTS_USER_GUID_2',
-    );
-    expect($('table tbody .description').text()).toContain('tester.testing');
-    expect($('table tbody .target code').text()).toContain(
-      'ACCOUNTS_USER_GUID_3',
-    );
-
-    expect($('table tbody .actor code').text()).toContain(
-      'ACCOUNTS_USER_GUID_3',
-    );
-    expect($('table tbody .target').text()).toContain(
-      actorEmails.ACCOUNTS_USER_GUID_1,
-    );
+    expect(container.querySelectorAll('table tbody .actor')[0]).not.toHaveTextContent(event.actor.name);
+    expect(container.querySelectorAll('table tbody .actor')[0]).not.toHaveTextContent(event.actor.guid);
+    expect(container.querySelectorAll('table tbody .target')[0]).toHaveTextContent(event.target.name);
+    expect(container.querySelectorAll('table tbody .target')[0]).not.toHaveTextContent(event.target.guid);
+    expect(container.querySelector('table tbody .description')).toHaveTextContent('Created space');
+    expect(container.querySelectorAll('table tbody .actor')[1]).toHaveTextContent('Charlie Chaplin');
+    expect(container.querySelectorAll('table tbody .actor')[1]).not.toHaveTextContent('ACCOUNTS_USER_GUID_2');
+    expect(container.querySelectorAll('table tbody .description')[1]).toHaveTextContent('tester.testing');
+    expect(container.querySelectorAll('table tbody .target code')[0]).toHaveTextContent('ACCOUNTS_USER_GUID_3');
+    expect(container.querySelectorAll('table tbody .actor code')[0]).toHaveTextContent('ACCOUNTS_USER_GUID_3');
+    expect(container.querySelectorAll('table tbody .target')[2]).toHaveTextContent(actorEmails.ACCOUNTS_USER_GUID_1);
   });
 
   it('should not show the spaces events table if there are no events', () => {
-    const markup = shallow(
+    const { container } = render(
       <EventsPage
         actorEmails={actorEmails}
         events={[]}
@@ -120,12 +111,11 @@ describe(EventsPage, () => {
       />,
     );
 
-    const $ = cheerio.load(markup.html());
-    expect($('table')).toHaveLength(0);
+    expect(container.querySelector('table')).toBeFalsy();
   });
 
   it('should not show the spaces events table if there are no events', () => {
-    const markup = shallow(
+    const { container } = render(
       <EventsPage
         actorEmails={actorEmails}
         events={[]}
@@ -139,12 +129,11 @@ describe(EventsPage, () => {
       />,
     );
 
-    const $ = cheerio.load(markup.html());
-    expect($('.govuk-tabs__panel').text()).not.toContain('Event timestamps are in UTC format');
+    expect(container.querySelector('.govuk-tabs__panel')).not.toHaveTextContent('Event timestamps are in UTC format');
   });
 
   it('should not show pagination text/links if there is only 1 page of events', () => {
-    const markup = shallow(
+    const { container } = render(
       <EventsPage
         actorEmails={actorEmails}
         events={[
@@ -185,9 +174,8 @@ describe(EventsPage, () => {
       />,
     );
 
-    const $ = cheerio.load(markup.html());
-    expect($('.govuk-tabs__panel').text()).not.toContain('Previous page');
-    expect($('.govuk-tabs__panel').text()).not.toContain('Next page');
+    expect(container.querySelector('.govuk-tabs__panel')).not.toHaveTextContent('Previous page');
+    expect(container.querySelector('.govuk-tabs__panel')).not.toHaveTextContent('Next page');
   });
 });
 
@@ -210,7 +198,7 @@ describe(ApplicationsPage, () => {
   } as unknown) as IEnhancedApplication;
 
   it('should print correct phrasing when single service listed', () => {
-    const markup = shallow(
+    const { container } = render(
       <ApplicationsPage
         linkTo={route => `__LINKS_TO__${route}`}
         routePartOf={route =>
@@ -221,12 +209,11 @@ describe(ApplicationsPage, () => {
         applications={[application]}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).toContain('This space contains 1 application');
+    expect(container.querySelector('p')).toHaveTextContent('This space contains 1 application');
   });
 
   it('should print correct phrasing when single service listed', () => {
-    const markup = shallow(
+    const { container } = render(
       <ApplicationsPage
         linkTo={route => `__LINKS_TO__${route}`}
         routePartOf={route =>
@@ -237,12 +224,11 @@ describe(ApplicationsPage, () => {
         applications={[application, application]}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).toContain('This space contains 2 applications');
+    expect(container.querySelector('p')).toHaveTextContent('This space contains 2 applications');
   });
 
   it('should not display a table of applications if there no applications', () => {
-    const markup = shallow(
+    const { container } = render(
       <ApplicationsPage
         linkTo={route => `__LINKS_TO__${route}`}
         routePartOf={route =>
@@ -253,8 +239,7 @@ describe(ApplicationsPage, () => {
         applications={[]}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.govuk-table')).toHaveLength(0);
+    expect(container.querySelector('.govuk-table')).toBeFalsy();
   });
 });
 
@@ -276,7 +261,7 @@ describe(BackingServicePage, () => {
   >;
 
   it('should correctly print the backing service page', () => {
-    const markup = shallow(
+    const { container } = render(
       <BackingServicePage
         linkTo={route => `__LINKS_TO__${route}`}
         routePartOf={route =>
@@ -287,27 +272,20 @@ describe(BackingServicePage, () => {
         space={space}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).toContain('This space contains 2 backing services');
-    expect($('table tbody tr')).toHaveLength(2);
-    expect($('table tbody th.name').text()).toContain(services[0].entity.name);
-    expect($('table tbody th.name').text()).toContain(services[1].entity.name);
-    expect($('table tbody .label').text()).toContain(
-      services[0].definition.entity.label,
-    );
-    expect($('table tbody .label').text()).toContain('User Provided Service');
-    expect($('table tbody .plan').text()).toContain(
-      services[0].plan.entity.name,
-    );
-    expect($('table tbody .plan').text()).toContain('N/A');
-    expect($('table tbody .status').text()).toContain(
-      services[0].entity.last_operation.state,
-    );
-    expect($('table tbody .status').text()).toContain('N/A');
+    expect(container.querySelector('p')).toHaveTextContent('This space contains 2 backing services');
+    expect(container.querySelectorAll('table tbody tr')).toHaveLength(2);
+    expect(container.querySelectorAll('table tbody th.name')[0]).toHaveTextContent(services[0].entity.name);
+    expect(container.querySelectorAll('table tbody th.name')[1]).toHaveTextContent(services[1].entity.name);
+    expect(container.querySelectorAll('table tbody .label')[0]).toHaveTextContent(services[0].definition.entity.label);
+    expect(container.querySelectorAll('table tbody .label')[1]).toHaveTextContent('User Provided Service');
+    expect(container.querySelectorAll('table tbody .plan')[0]).toHaveTextContent(services[0].plan.entity.name);
+    expect(container.querySelectorAll('table tbody .plan')[1]).toHaveTextContent('N/A');
+    expect(container.querySelectorAll('table tbody .status')[0]).toHaveTextContent(services[0].entity.last_operation.state);
+    expect(container.querySelectorAll('table tbody .status')[1]).toHaveTextContent('N/A');
   });
 
   it('should print correct phrasing when single service listed', () => {
-    const markup = shallow(
+    const { container } = render(
       <BackingServicePage
         linkTo={route => `__LINKS_TO__${route}`}
         routePartOf={route =>
@@ -318,15 +296,14 @@ describe(BackingServicePage, () => {
         space={space}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).toContain('This space contains 1 backing service');
+    expect(container.querySelector('p')).toHaveTextContent('This space contains 1 backing service');
   });
 
   it('should not display a table of backing service if there no backing services', () => {
     const noServices = ([] as unknown) as ReadonlyArray<
       IEnhancedServiceInstance | IStripedUserServices
     >;
-    const markup = shallow(
+    const { container } = render(
       <BackingServicePage
         linkTo={route => `__LINKS_TO__${route}`}
         routePartOf={route =>
@@ -337,8 +314,7 @@ describe(BackingServicePage, () => {
         space={space}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.govuk-table')).toHaveLength(0);
+    expect(container.querySelector('.govuk-table')).toBeFalsy();
   });
 });
 
@@ -362,7 +338,7 @@ describe(SpacesPage, () => {
   } as unknown) as IEnhancedSpace;
 
   it('should correctly render the spaces page', () => {
-    const markup = shallow(
+    const { container, queryByText } = render(
       <SpacesPage
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
@@ -373,29 +349,24 @@ describe(SpacesPage, () => {
         users={[null]}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('table tbody tr')).toHaveLength(2);
-    expect($('h1').text()).toContain(organization.entity.name);
-    expect($('h2 + span').text()).toContain('20.0%');
-    expect($('p').text()).toContain(
+    expect(container.querySelectorAll('table tbody tr')).toHaveLength(2);
+    expect(container.querySelector('h1')).toHaveTextContent(organization.entity.name);
+    expect(container.querySelector('h2 + span')).toHaveTextContent('20.0%');
+    expect(container.querySelector('p')).toHaveTextContent(
       'Using 1.00 GiB of memory out of a maximum of 5.00 GiB.',
     );
-    expect($('a').text()).toContain('View  team members');
-    expect($('span').text()).toContain('Trial');
-    expect($('p').text()).toContain(
-      'Trial organisations have limited access to backing services',
-    );
-    expect($('p').text()).toContain(
-      `There are 2 spaces in ${organization.entity.name}.`,
-    );
-    expect($('table tbody tr').text()).toContain(space.entity.name);
-    expect($('table tbody tr').text()).toContain(space.entity.name);
-    expect($('table tbody tr').text()).toContain('1.00 GiB');
-    expect($('table tbody tr').text()).toContain('no limit');
+    expect(queryByText('View team members')).toBeTruthy();
+    expect(queryByText('Trial')).toBeTruthy();
+    expect(queryByText('Trial organisations have limited access to backing services')).toBeTruthy();
+    expect(queryByText(`There are 2 spaces in ${organization.entity.name}.`)).toBeTruthy();
+    expect(container.querySelectorAll('table tbody tr')[0]).toHaveTextContent(space.entity.name);
+    expect(container.querySelectorAll('table tbody tr')[1]).toHaveTextContent(space.entity.name);
+    expect(container.querySelectorAll('table tbody tr')[0]).toHaveTextContent('1.00 GiB');
+    expect(container.querySelectorAll('table tbody tr')[1]).toHaveTextContent('no limit');
   });
 
   it('should correctly render the spaces page with single space', () => {
-    const markup = shallow(
+    const { container, queryByText } = render(
       <SpacesPage
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={true}
@@ -406,12 +377,9 @@ describe(SpacesPage, () => {
         users={[null]}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('table tbody tr')).toHaveLength(1);
-    expect($('p').text()).toContain('Manage this organization');
-    expect($('p').text()).toContain(
-      `There is 1 space in ${organization.entity.name}.`,
-    );
+    expect(container.querySelector('table tbody tr')).toBeTruthy();
+    expect(queryByText('Manage this organization')).toBeTruthy();
+    expect(queryByText(`There is 1 space in ${organization.entity.name}.`)).toBeTruthy();
   });
 
   it('should highlight suspended state in main heading', () => {
@@ -425,7 +393,7 @@ describe(SpacesPage, () => {
       },
     } as unknown) as IEnhancedOrganization;
 
-    const markup = shallow(
+    const { container } = render(
       <SpacesPage
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
@@ -436,13 +404,12 @@ describe(SpacesPage, () => {
         users={[null]}
       />,
     );
-    const $ = cheerio.load(markup.html());
 
-    expect($('h1').text()).toContain('Status: Suspended');
+    expect(container.querySelector('h1')).toHaveTextContent('Status: Suspended');
   })
 
   it('should not display a table of spaces if there are no spaces', () => {
-    const markup = shallow(
+    const { container } = render(
       <SpacesPage
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
@@ -453,8 +420,7 @@ describe(SpacesPage, () => {
         users={[null]}
       />)
 
-    const $ = cheerio.load(markup.html());
-    expect($('.govuk-table')).toHaveLength(0);
+    expect(container.querySelector('.govuk-table')).toBeFalsy();
   });
 
   it('should not show expiration notice / count if the organisation is of type billable', () => {
@@ -477,7 +443,7 @@ describe(SpacesPage, () => {
       serviceInstances: [null],
     } as unknown) as IEnhancedSpace;
 
-    const markup = shallow(
+    const { container } = render(
       <SpacesPage
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
@@ -490,10 +456,7 @@ describe(SpacesPage, () => {
       />,
     );
 
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).not.toContain(
-      'Trial period',
-    );
+    expect(container).not.toHaveTextContent('Trial period');
   });
 
   it('should show expiration notice if the trial org is more than 90 days old', () => {
@@ -516,7 +479,7 @@ describe(SpacesPage, () => {
       serviceInstances: [null],
     } as unknown) as IEnhancedSpace;
 
-    const markup = shallow(
+    const { container } = render(
       <SpacesPage
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
@@ -528,10 +491,7 @@ describe(SpacesPage, () => {
         daysLeftInTrialPeriod={-2}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).toContain(
-      'Trial period has expired',
-    );
+    expect(container).toHaveTextContent('Trial period has expired');
   });
 
   it('should show count of days until trial period expires', () => {
@@ -554,7 +514,7 @@ describe(SpacesPage, () => {
       serviceInstances: [null],
     } as unknown) as IEnhancedSpace;
 
-    const markup = shallow(
+    const { container } = render(
       <SpacesPage
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
@@ -566,10 +526,7 @@ describe(SpacesPage, () => {
         daysLeftInTrialPeriod={60}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).toContain(
-      'Trial period expires in 60 days',
-    );
+    expect(container).toHaveTextContent('Trial period expires in 60 days');
   });
 
   it('should show count of 1 day until trial period expires', () => {
@@ -592,7 +549,7 @@ describe(SpacesPage, () => {
       serviceInstances: [null],
     } as unknown) as IEnhancedSpace;
 
-    const markup = shallow(
+    const { container } = render(
       <SpacesPage
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
@@ -604,10 +561,7 @@ describe(SpacesPage, () => {
         daysLeftInTrialPeriod={1}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('p').text()).toContain(
-      'Trial period expires in 1 day.',
-    );
+    expect(container).toHaveTextContent('Trial period expires in 1 day.');
   });
 
 });

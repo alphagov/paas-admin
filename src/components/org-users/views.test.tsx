@@ -1,5 +1,7 @@
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+import { render } from '@testing-library/react';
 import React from 'react';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
@@ -23,7 +25,7 @@ import { DATE_TIME } from '../../layouts';
 
 describe(Permission, () => {
   it('should produce a checkbox with appropriate values provided', () => {
-    const markup = shallow(
+    const { container } = render(
       <Permission
         checked={false}
         disabled={true}
@@ -32,26 +34,25 @@ describe(Permission, () => {
         state={{ current: true, desired: false }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect(
-      $('input[type="hidden"][name="permission[current]"]').length,
-    ).toEqual(1);
-    expect(
-      $('input[type="hidden"][name="permission[current]"]').prop('value'),
-    ).toEqual('1');
-    expect(
-      $('input[type="hidden"][name="permission[desired]"]').length,
-    ).toEqual(1);
-    expect(
-      $('input[type="hidden"][name="permission[desired]"]').prop('value'),
-    ).toEqual('0');
-    expect(
-      $('input[type="checkbox"][name="permission[desired]"]:checked').length,
-    ).toEqual(0);
-    expect(
-      $('input[type="checkbox"][name="permission[desired]"]:disabled').length,
-    ).toEqual(1);
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    expect(container
+      .querySelectorAll('input[type="hidden"][name="permission[current]"]'))
+      .toHaveLength(1);
+    expect(container
+      .querySelector('input[type="hidden"][name="permission[current]"]'))
+      .toHaveAttribute('value', expect.stringContaining('1'));
+    expect(container
+      .querySelectorAll('input[type="hidden"][name="permission[desired]"]'))
+      .toHaveLength(1);
+    expect(container
+      .querySelector('input[type="hidden"][name="permission[desired]"]'))
+      .toHaveAttribute('value', expect.stringContaining('0'));
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name="permission[desired]"]:checked'))
+      .toHaveLength(0);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name="permission[desired]"]:disabled'))
+      .toHaveLength(1);
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 });
 
@@ -67,7 +68,7 @@ describe(PermissionBlock, () => {
   ] as unknown) as ReadonlyArray<ISpace>;
 
   it('should display correctly permissions block element', () => {
-    const markup = shallow(
+    const { container } = render(
       <PermissionBlock
         billingManagers={2}
         managers={2}
@@ -101,85 +102,54 @@ describe(PermissionBlock, () => {
         }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.user-permission-block')).toHaveLength(4);
-
-    expect(
-      $('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked')
-        .length,
-    ).toEqual(1);
-    expect(
-      $(
-        'input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:disabled',
-      ).length,
-    ).toEqual(0);
-    expect(
-      $(
-        'input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:checked',
-      ).length,
-    ).toEqual(1);
-    expect(
-      $(
-        'input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:disabled',
-      ).length,
-    ).toEqual(0);
-    expect(
-      $('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked')
-        .length,
-    ).toEqual(0);
-
-    expect(
-      $(
-        'input[type="checkbox"][name^="space_roles[SPACE_GUID_1][managers][desired]"]:checked',
-      ).length,
-    ).toEqual(1);
-    expect(
-      $(
-        'input[type="checkbox"][name^="space_roles[SPACE_GUID_1][developers][desired]"]:checked',
-      ).length,
-    ).toEqual(0);
-    expect(
-      $(
-        'input[type="checkbox"][name^="space_roles[SPACE_GUID_1][auditors][desired]"]:checked',
-      ).length,
-    ).toEqual(0);
-
-    expect(
-      $(
-        'input[type="checkbox"][name^="space_roles[SPACE_GUID_2][managers][desired]"]:checked',
-      ).length,
-    ).toEqual(0);
-    expect(
-      $(
-        'input[type="checkbox"][name^="space_roles[SPACE_GUID_2][developers][desired]"]:checked',
-      ).length,
-    ).toEqual(1);
-    expect(
-      $(
-        'input[type="checkbox"][name^="space_roles[SPACE_GUID_2][auditors][desired]"]:checked',
-      ).length,
-    ).toEqual(0);
-
-    expect(
-      $(
-        'input[type="checkbox"][name^="space_roles[SPACE_GUID_3][managers][desired]"]:checked',
-      ).length,
-    ).toEqual(0);
-    expect(
-      $(
-        'input[type="checkbox"][name^="space_roles[SPACE_GUID_3][developers][desired]"]:checked',
-      ).length,
-    ).toEqual(0);
-    expect(
-      $(
-        'input[type="checkbox"][name^="space_roles[SPACE_GUID_3][auditors][desired]"]:checked',
-      ).length,
-    ).toEqual(1);
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    expect(container.querySelectorAll('.user-permission-block')).toHaveLength(4);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:disabled'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:checked'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:disabled'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked'))
+      .toHaveLength(0);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_1][managers][desired]"]:checked'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_1][developers][desired]"]:checked'))
+      .toHaveLength(0)
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_1][auditors][desired]"]:checked'))
+      .toHaveLength(0)
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_2][managers][desired]"]:checked'))
+      .toHaveLength(0)
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_2][developers][desired]"]:checked'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_2][auditors][desired]"]:checked'))
+      .toHaveLength(0)
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_3][managers][desired]"]:checked'))
+      .toHaveLength(0)
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_3][developers][desired]"]:checked'))
+      .toHaveLength(0)
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_3][auditors][desired]"]:checked'))
+      .toHaveLength(1);
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 
   it('should display correctly with disabled checked manager boxes when not enough managers', () => {
-    const markup = shallow(
+    const { container } = render(
       <PermissionBlock
         billingManagers={1}
         managers={1}
@@ -197,48 +167,33 @@ describe(PermissionBlock, () => {
         }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.user-permission-block')).toHaveLength(1);
-
-    expect(
-      $('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked')
-        .length,
-    ).toEqual(1);
-    expect(
-      $(
-        'input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:disabled',
-      ).length,
-    ).toEqual(1);
-    expect(
-      $('input[type="hidden"][name^="org_roles[ORG_GUID][managers][desired]"]')
-        .length,
-    ).toEqual(1);
-
-    expect(
-      $(
-        'input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:checked',
-      ).length,
-    ).toEqual(1);
-    expect(
-      $(
-        'input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:disabled',
-      ).length,
-    ).toEqual(1);
-    expect(
-      $(
-        'input[type="hidden"][name^="org_roles[ORG_GUID][billing_managers][desired]"]',
-      ).length,
-    ).toEqual(1);
-
-    expect(
-      $('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked')
-        .length,
-    ).toEqual(1);
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    expect(container.querySelectorAll('.user-permission-block')).toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:disabled'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="hidden"][name^="org_roles[ORG_GUID][managers][desired]"]'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:checked'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:disabled'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="hidden"][name^="org_roles[ORG_GUID][billing_managers][desired]"]'))
+      .toHaveLength(1);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked'))
+      .toHaveLength(1);
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 
   it('should display correctly with enabled unchecked manager boxes when not enough managers', () => {
-    const markup = shallow(
+    const { container } = render(
       <PermissionBlock
         billingManagers={1}
         managers={1}
@@ -256,33 +211,24 @@ describe(PermissionBlock, () => {
         }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.user-permission-block')).toHaveLength(1);
+    expect(container.querySelectorAll('.user-permission-block')).toHaveLength(1);
 
-    expect(
-      $('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked')
-        .length,
-    ).toEqual(0);
-    expect(
-      $(
-        'input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:disabled',
-      ).length,
-    ).toEqual(0);
-    expect(
-      $(
-        'input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:checked',
-      ).length,
-    ).toEqual(0);
-    expect(
-      $(
-        'input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:disabled',
-      ).length,
-    ).toEqual(0);
-    expect(
-      $('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked')
-        .length,
-    ).toEqual(1);
-    expect(spacesMissingAroundInlineElements($.html())).toHaveLength(0);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:checked'))
+      .toHaveLength(0);
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:disabled'))
+      .toHaveLength(1)
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:checked'))
+      .toHaveLength(0)
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:disabled'))
+      .toHaveLength(1)
+    expect(container
+      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked'))
+      .toHaveLength(1);
+    expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 });
 
@@ -293,7 +239,7 @@ describe(DeleteConfirmationPage, () => {
   } as unknown) as IOrganizationUserRoles;
 
   it('should ask user to confirm another user deleton', () => {
-    const markup = shallow(
+    const { container } = render(
       <DeleteConfirmationPage
         csrf="CSRF_TOKEN"
         linkTo={route => `__LINKS_TO__${route}`}
@@ -302,12 +248,11 @@ describe(DeleteConfirmationPage, () => {
         user={user}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('h2').text()).toContain(
+    expect(container.querySelector('h2')).toHaveTextContent(
       'Are you sure you\'d like to remove the following user?',
     );
-    expect($('.govuk-summary-list').text()).toContain('user-name');
-    expect($('.govuk-summary-list').text()).toContain('ORG_NAME');
+    expect(container.querySelector('.govuk-summary-list')).toHaveTextContent('user-name');
+    expect(container.querySelector('.govuk-summary-list')).toHaveTextContent('ORG_NAME');
   });
 });
 
@@ -333,7 +278,7 @@ describe(OrganizationUsersPage, () => {
   const lastLogonTimeFormatted = format(lastLogonTime, DATE_TIME)
 
   it('should produce the org users view', () => {
-    const markup = shallow(
+    const { container } = render(
       <OrganizationUsersPage
         linkTo={route => `__LINKS_TO__${route}`}
         organizationGUID="ORG_GUID"
@@ -345,19 +290,18 @@ describe(OrganizationUsersPage, () => {
         }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('tbody th:first-of-type').text()).toContain('user-name');
-    expect($('tbody th:first-of-type a').length).toEqual(0);
-    expect($('td').text()).not.toContain('Origin-name');
-    expect($('td').text()).not.toContain('Password');
-    expect($('li').text()).toContain(space.entity.name);
-    expect($('.tick-symbol').length).toEqual(2);
-    expect($('.govuk-table__body td:nth-child(4)').text()).toContain('no');
-    expect($('thead th:nth-child(6)').text()).not.toContain('Last login');
+    expect(container.querySelector('tbody th:first-of-type')).toHaveTextContent('user-name');
+    expect(container.querySelectorAll('tbody th:first-of-type a')).toHaveLength(0);
+    expect(container.querySelectorAll('tbody tr td')[1]).not.toHaveTextContent('Origin-name');
+    expect(container.querySelector('td')).not.toHaveTextContent('Password');
+    expect(container.querySelector('li')).toHaveTextContent(space.entity.name);
+    expect(container.querySelectorAll('.tick-symbol')).toHaveLength(2);
+    expect(container.querySelector('.govuk-table__body td:nth-child(4)')).toHaveTextContent('no');
+    expect(container).not.toHaveTextContent('Last login');
   });
 
   it('should produce the org users view when being privileged', () => {
-    const markup = shallow(
+    const { container } = render(
       <OrganizationUsersPage
         linkTo={route => `__LINKS_TO__${route}`}
         organizationGUID="ORG_GUID"
@@ -372,20 +316,19 @@ describe(OrganizationUsersPage, () => {
 
     
 
-    const $ = cheerio.load(markup.html());
-    expect($('tbody th:first-of-type').text()).toContain('user-name');
-    expect($('tbody th:first-of-type a').length).toEqual(2);
-    expect($('td').text()).toContain('Origin-name');
-    expect($('td').text()).toContain('Password');
-    expect($('thead th:nth-child(7)').text()).toContain('Last login');
-    expect($('tbody tr:nth-child(1) td:nth-child(7)').text()).toContain('No login');
-    expect($('tbody tr:nth-child(2) td:nth-child(7)').text()).toContain(lastLogonTimeFormatted);
+    expect(container.querySelector('tbody th:first-of-type')).toHaveTextContent('user-name');
+    expect(container.querySelectorAll('tbody th:first-of-type a')).toHaveLength(2);
+    expect(container.querySelector('tbody tr:nth-child(1) td:nth-child(2)')).toHaveTextContent('Origin-name');
+    expect(container.querySelector('tbody tr:nth-child(2) td:nth-child(2)')).toHaveTextContent('Password');
+    expect(container.querySelector('thead th:nth-child(7)')).toHaveTextContent('Last login');
+    expect(container.querySelector('tbody tr:nth-child(1) td:nth-child(7)')).toHaveTextContent('No login');
+    expect(container.querySelector('tbody tr:nth-child(2) td:nth-child(7)')).toHaveTextContent(lastLogonTimeFormatted);
     
   });
 
   it('should not show a table of users if there are no users', () => {
     const NoUsers = {};
-    const markup = shallow(
+    const { container } = render(
       <OrganizationUsersPage
         linkTo={route => `__LINKS_TO__${route}`}
         organizationGUID="ORG_GUID"
@@ -394,37 +337,26 @@ describe(OrganizationUsersPage, () => {
         userExtraInfo={{}}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('table').length).toEqual(0);
-    expect($('body').text()).toContain('There are currently no team members');
+    expect(container.querySelectorAll('table')).toHaveLength(0);
+    expect(container).toHaveTextContent('There are currently no team members');
   });
 });
 
 describe(SuccessPage, () => {
-  const markup = shallow(
-    <SuccessPage
-        linkTo={route => `__LINKS_TO__${route}`}
-        organizationGUID="ORG_GUID"
-        heading={'confirmation panel heading'}
-        text={'confirmation panel text'}
-      >
-        children text
-      </SuccessPage>,
-  );
-
-  it('should have a confirmation panel title', () => {
-    const $ = cheerio.load(markup.html());
-    expect($('.govuk-panel__title').text()).toContain('confirmation panel heading');
-  });
-
-  it('should have a confirmation panel text', () => {
-    const $ = cheerio.load(markup.html());
-    expect($('.govuk-panel__body').text()).toContain('confirmation panel text');
-  });
-
-  it('should have props children text if provided', () => {
-    const $ = cheerio.load(markup.html());
-    expect($('.govuk-body').text()).toContain('children text');
+  it('should render provided text', () => {
+    const { container } = render(
+      <SuccessPage
+          linkTo={route => `__LINKS_TO__${route}`}
+          organizationGUID="ORG_GUID"
+          heading={'confirmation panel heading'}
+          text={'confirmation panel text'}
+        >
+          children text
+        </SuccessPage>,
+    );
+    expect(container.querySelector('.govuk-panel__title')).toHaveTextContent('confirmation panel heading');
+    expect(container.querySelector('.govuk-panel__body')).toHaveTextContent('confirmation panel text');
+    expect(container.querySelector('.govuk-body')).toHaveTextContent('children text');
   });
 });
 

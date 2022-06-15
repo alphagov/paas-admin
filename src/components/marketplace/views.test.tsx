@@ -1,5 +1,8 @@
+/**
+ * @jest-environment jsdom
+ */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { IV3Service, IV3ServicePlan } from '../../lib/cf/types';
@@ -79,140 +82,144 @@ const plans = [
 
 describe(MarketplaceItemPage, () => {
   it('should display the minimal page as expected', () => {
-    const markup = shallow(<MarketplaceItemPage
+    const { container } = render(<MarketplaceItemPage
       linkTo={linker}
       service={minimalService}
       versions={[]}
       plans={[]}
     />);
 
-    expect(markup.find('h1').text()).toContain(minimalService.name);
+    expect(container.querySelector('h1')).toHaveTextContent(minimalService.name);
 
-    expect(markup.find('#service-usecase')).toHaveLength(0);
-    expect(markup.find('#service-documentation')).toHaveLength(0);
-    expect(markup.find('#service-tags')).toHaveLength(0);
+    expect(container.querySelector('#service-usecase')).toBeFalsy();
+    expect(container.querySelector('#service-documentation')).toBeFalsy();
+    expect(container.querySelector('#service-tags')).toBeFalsy();
   });
 
   it('should display the ordinary page as expected', () => {
-    const markup = shallow(<MarketplaceItemPage
+    const { container } = render(<MarketplaceItemPage
       linkTo={linker}
       service={service}
       versions={[]}
       plans={[]}
     />);
 
-    expect(markup.find('h1').text()).toContain(service.name);
-    expect(markup.find('#service-documentation li')).toHaveLength(1);
+    expect(container.querySelector('h1')).toHaveTextContent(service.name);
+    expect(container.querySelectorAll('#service-documentation li')).toHaveLength(1);
   });
 
   it('should display the fully detailed page as expected', () => {
-    const markup = shallow(<MarketplaceItemPage
+    const { container } = render(<MarketplaceItemPage
       linkTo={linker}
       service={detailedService}
       versions={['1', '2']}
       plans={plans}
     />);
 
-    expect(markup.find('h1').text()).toContain(detailedService.broker_catalog.metadata.displayName);
-    expect(markup.find('h1').text()).not.toContain(detailedService.name);
+    expect(container.querySelector('h1')).toHaveTextContent(detailedService.broker_catalog.metadata.displayName);
+    expect(container.querySelector('h1')).not.toHaveTextContent(detailedService.name);
 
-    expect(markup.find('p').text()).toContain(detailedService.broker_catalog.metadata.longDescription);
-    expect(markup.find('#service-provider').text()).toContain('Provider');
-    expect(markup.find('#service-provider').text())
-      .toContain(detailedService.broker_catalog.metadata.providerDisplayName);
-    expect(markup.find('#service-usecase').text()).toContain('Usecase');
-    expect(markup.find('#service-usecase li').text())
-      .toContain(detailedService.broker_catalog.metadata.AdditionalMetadata.usecase[0]);
-    expect(markup.find('#service-documentation').text()).toContain('Documentation');
-    expect(markup.find('#service-documentation li')).toHaveLength(2);
-    expect(markup.find('#service-documentation li a').at(0).prop('href'))
-      .toContain(detailedService.broker_catalog.metadata.documentationUrl);
-    expect(markup.find('#service-documentation li a').at(1).prop('href'))
-      .toContain(detailedService.broker_catalog.metadata.AdditionalMetadata.otherDocumentation[0]);
-    expect(markup.find('#service-tags').text()).toContain('Tags');
-    expect(markup.find('#service-tags li').at(0).text()).toContain(detailedService.tags[0]);
+    expect(container.querySelector('p')).toHaveTextContent(detailedService.broker_catalog.metadata.longDescription);
+    expect(container.querySelector('#service-provider')).toHaveTextContent('Provider');
+    expect(container.querySelector('#service-provider')).toHaveTextContent(detailedService.broker_catalog.metadata.providerDisplayName);
+    expect(container.querySelector('#service-usecase')).toHaveTextContent('Usecase');
+    expect(container.querySelector('#service-usecase li')).toHaveTextContent(detailedService.broker_catalog.metadata.AdditionalMetadata.usecase[0]);
+    expect(container.querySelector('#service-documentation')).toHaveTextContent('Documentation');
+    expect(container.querySelectorAll('#service-documentation li')).toHaveLength(2);
+    expect(container.querySelectorAll('#service-documentation li a')[0])
+    .toHaveAttribute('href', expect.stringContaining(detailedService.broker_catalog.metadata.documentationUrl));
+    expect(container.querySelectorAll('#service-documentation li a')[1])
+    .toHaveAttribute('href', expect.stringContaining(detailedService.broker_catalog.metadata.AdditionalMetadata.otherDocumentation[0]));
+    expect(container.querySelector('#service-tags')).toHaveTextContent('Tags');
+    expect(container.querySelectorAll('#service-tags li')[0]).toHaveTextContent(detailedService.tags[0]);
   });
 });
 
 describe(MarketplacePage, () => {
   it('should parse the page correctly', () => {
-    const markup = shallow(<MarketplacePage linkTo={linker} services={[ detailedService, minimalService ]} />);
-    const render = markup.render();
+    const { container } = render(<MarketplacePage linkTo={linker} services={[ detailedService, minimalService ]} />);
 
-    expect(markup.find('ul li')).toHaveLength(2);
-
-    expect(render.find('ul li:first-of-type figure').find('img').prop('src')).toContain('postgres');
-    expect(render.find('ul li:first-of-type figure').find('img').prop('alt')).toEqual('PostgreSQL - Official Logo');
-    expect(render.find('ul li:first-of-type figure').find('figcaption').text()).toEqual('AWS RDS Postgres');
-
-    expect(render.find('ul li:last-of-type figure').find('img').prop('src')).toContain('cloud');
-    expect(render.find('ul li:last-of-type figure').find('img').prop('alt')).toEqual('Missing service logo');
-    expect(render.find('ul li:last-of-type figure').find('figcaption').text()).toEqual('test');
+    expect(container.querySelectorAll('ul li')).toHaveLength(2);
+    expect(container
+      .querySelectorAll('img')[0])
+      .toHaveAttribute('src', expect.stringContaining('postgres'));
+    expect(container
+      .querySelectorAll('img')[0])
+      .toHaveAttribute('alt', expect.stringContaining('PostgreSQL - Official Logo'));
+    expect(container
+      .querySelectorAll('figcaption')[0])
+      .toHaveTextContent('AWS RDS Postgres');
+    expect(container
+      .querySelectorAll('img')[1])
+      .toHaveAttribute('src', expect.stringContaining('cloud'));
+    expect(container
+      .querySelectorAll('img')[1])
+      .toHaveAttribute('alt',expect.stringContaining('Missing service logo'));
+    expect(container
+      .querySelectorAll('figcaption')[1]).toHaveTextContent('test');
   });
 });
 
 describe(PlanTab, () => {
   it('should list out fully detailed plans correctly', () => {
-    const render = shallow(<PlanTab
+    const { container } = render(<PlanTab
       linkTo={linker}
       plans={plans}
       serviceGUID=""
       versions={['1', '2']}
-    />).render();
+    />);
 
-    expect(render.find('thead tr').text()).toContain('Plan');
-    expect(render.find('thead tr').text()).toContain('HA');
-    expect(render.find('thead tr').text()).toContain('IOPS');
-    expect(render.find('thead tr').text()).toContain('Backups');
-    expect(render.find('thead tr').text()).toContain('Encrypted');
-    expect(render.find('thead tr').text()).toContain('Connections');
-    expect(render.find('thead tr').text()).toContain('Memory');
-    expect(render.find('thead tr').text()).toContain('Space');
-    expect(render.find('thead tr').text()).toContain('Available in trial');
+    expect(container.querySelector('thead tr')).toHaveTextContent('Plan');
+    expect(container.querySelector('thead tr')).toHaveTextContent('HA');
+    expect(container.querySelector('thead tr')).toHaveTextContent('IOPS');
+    expect(container.querySelector('thead tr')).toHaveTextContent('Backups');
+    expect(container.querySelector('thead tr')).toHaveTextContent('Encrypted');
+    expect(container.querySelector('thead tr')).toHaveTextContent('Connections');
+    expect(container.querySelector('thead tr')).toHaveTextContent('Memory');
+    expect(container.querySelector('thead tr')).toHaveTextContent('Space');
+    expect(container.querySelector('thead tr')).toHaveTextContent('Available in trial');
 
-    expect(render.find('tbody tr')).toHaveLength(2);
-    expect(render.find('tbody tr').text()).toContain('free');
+    expect(container.querySelectorAll('tbody tr')).toHaveLength(2);
+    expect(container.querySelector('tbody tr')).toHaveTextContent('free');
   });
 
   it('should list out minimal plans correctly', () => {
-    const render = shallow(<PlanTab
+    const { container } = render(<PlanTab
       linkTo={linker}
       plans={plans.filter(plan => plan.name === 'free')}
       serviceGUID=""
       versions={['1', '2']}
-    />).render();
+    />);
 
-    expect(render.find('thead tr').text()).toContain('Plan');
-    expect(render.find('thead tr').text()).not.toContain('HA');
-    expect(render.find('thead tr').text()).not.toContain('IOPS');
-    expect(render.find('thead tr').text()).not.toContain('Backups');
-    expect(render.find('thead tr').text()).not.toContain('Encrypted');
-    expect(render.find('thead tr').text()).not.toContain('Connections');
-    expect(render.find('thead tr').text()).not.toContain('Memory');
-    expect(render.find('thead tr').text()).not.toContain('Space');
+    expect(container.querySelector('thead tr')).toHaveTextContent('Plan');
+    expect(container.querySelector('thead tr')).not.toHaveTextContent('HA');
+    expect(container.querySelector('thead tr')).not.toHaveTextContent('IOPS');
+    expect(container.querySelector('thead tr')).not.toHaveTextContent('Backups');
+    expect(container.querySelector('thead tr')).not.toHaveTextContent('Encrypted');
+    expect(container.querySelector('thead tr')).not.toHaveTextContent('Connections');
+    expect(container.querySelector('thead tr')).not.toHaveTextContent('Memory');
+    expect(container.querySelector('thead tr')).not.toHaveTextContent('Space');
 
-    expect(render.find('tbody tr')).toHaveLength(1);
-    expect(render.find('tbody tr').text()).toContain('free');
+    expect(container.querySelectorAll('tbody tr')).toHaveLength(1);
+    expect(container.querySelector('tbody tr')).toHaveTextContent('free');
   });
 });
 
 describe(Tab, () => {
   it('should perse a tab correctly', () => {
-    const markup = shallow(<Tab active={false} href="https://example.com/">TabName</Tab>);
-
-    expect(markup.text()).toEqual('TabName');
-    expect(markup.hasClass('govuk-tabs__list-item')).toBe(true);
-    expect(markup.hasClass('govuk-tabs__list-item--selected')).toBe(false);
-    expect(markup).not.toContain('');
-    expect(markup.find('a').prop('href')).toEqual('https://example.com/');
+    render(<Tab active={false} href="https://example.com/">TabName</Tab>);
+    expect(screen.queryByText('TabName')).toBeTruthy()
+    expect(screen.queryByRole('listitem')).toHaveClass('govuk-tabs__list-item');
+    expect(screen.queryByRole('listitem')).not.toHaveClass('govuk-tabs__list-item--selected');
+    expect(screen.queryByRole('listitem')).not.toBeEmptyDOMElement();
+    expect(screen.queryByRole('link')).toHaveAttribute('href', expect.stringContaining('https://example.com/'));
   });
 
   it('should perse an active tab correctly', () => {
-    const markup = shallow(<Tab active={true} href="https://example.com/">TabName</Tab>);
-
-    expect(markup.text()).toEqual('TabName');
-    expect(markup.hasClass('govuk-tabs__list-item')).toBe(true);
-    expect(markup.hasClass('govuk-tabs__list-item--selected')).toBe(true);
-    expect(markup.find('a').prop('href')).toEqual('https://example.com/');
+    render(<Tab active={true} href="https://example.com/">TabName</Tab>);
+    expect(screen.queryByText('TabName')).toBeTruthy()
+    expect(screen.queryByRole('listitem')).toHaveClass('govuk-tabs__list-item');
+    expect(screen.queryByRole('listitem')).toHaveClass('govuk-tabs__list-item--selected');
+    expect(screen.queryByRole('link')).toHaveAttribute('href', expect.stringContaining('https://example.com/'));
   });
 });

@@ -1,5 +1,7 @@
-import cheerio from 'cheerio';
-import { shallow } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+ import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { IApplication, IAuditEvent } from '../../lib/cf/types';
@@ -20,7 +22,7 @@ describe(ApplicationEventsPage, () => {
   const actorEmails = { ACCOUNTS_USER_GUID_1: 'jeff@jefferson.com' };
 
   it('should parse application events page', () => {
-    const markup = shallow(
+    render(
       <ApplicationEventsPage
         actorEmails={actorEmails}
         application={application}
@@ -54,20 +56,20 @@ describe(ApplicationEventsPage, () => {
         pagination={{ total_results: 5, total_pages: 1, page: 1 }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('table tbody tr')).toHaveLength(3);
-    expect($('table tbody').text()).toContain(actorEmails.ACCOUNTS_USER_GUID_1);
-    expect($('table tbody').text()).not.toContain(event.actor.name);
-    expect($('table tbody').text()).not.toContain(event.actor.guid);
-    expect($('table tbody').text()).toContain('Created space');
-    expect($('table tbody').text()).toContain('Charlie Chaplin');
-    expect($('table tbody').text()).not.toContain('ACCOUNTS_USER_GUID_2');
-    expect($('table tbody').text()).toContain('tester.testing');
-    expect($('table tbody').text()).toContain('ACCOUNTS_USER_GUID_3');
+    const eventsTable = screen.getByRole('table')
+    expect(eventsTable.querySelectorAll('tbody tr')).toHaveLength(3)
+    expect(eventsTable).toHaveTextContent(actorEmails.ACCOUNTS_USER_GUID_1);
+    expect(eventsTable).not.toHaveTextContent(event.actor.name);
+    expect(eventsTable).not.toHaveTextContent(event.actor.guid);
+    expect(eventsTable).toHaveTextContent('Created space');
+    expect(eventsTable).toHaveTextContent('Charlie Chaplin');
+    expect(eventsTable).not.toHaveTextContent('ACCOUNTS_USER_GUID_2');
+    expect(eventsTable).toHaveTextContent('tester.testing');
+    expect(eventsTable).toHaveTextContent('ACCOUNTS_USER_GUID_3');
   });
 
   it('should not show the application events table if there are no events', () => {
-    const markup = shallow(
+    const { queryByRole } = render(
       <ApplicationEventsPage
         actorEmails={actorEmails}
         application={application}
@@ -81,12 +83,11 @@ describe(ApplicationEventsPage, () => {
         pagination={{ total_results: 0, total_pages: 1, page: 1 }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('table')).toHaveLength(0);
+    expect(queryByRole('table')).toBeNull();
   });
 
   it('should not show the timestamp text if there are no events', () => {
-    const markup = shallow(
+    const { queryByText } = render(
       <ApplicationEventsPage
         actorEmails={actorEmails}
         application={application}
@@ -100,12 +101,11 @@ describe(ApplicationEventsPage, () => {
         pagination={{ total_results: 0, total_pages: 1, page: 1 }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.govuk-tabs__panel').text()).not.toContain('Event timestamps are in UTC format');
+    expect(queryByText('Event timestamps are in UTC format')).toBeNull();
   });
 
   it('should not show pagination text/links if there is only 1 page of events', () => {
-    const markup = shallow(
+    const { queryByText } = render(
       <ApplicationEventsPage
         actorEmails={actorEmails}
         application={application}
@@ -139,9 +139,8 @@ describe(ApplicationEventsPage, () => {
         pagination={{ total_results: 5, total_pages: 1, page: 1 }}
       />,
     );
-    const $ = cheerio.load(markup.html());
-    expect($('.govuk-tabs__panel').text()).not.toContain('Previous page');
-    expect($('.govuk-tabs__panel').text()).not.toContain('Next page');
+    expect(queryByText('Previous page')).toBeNull();
+    expect(queryByText('Next page')).toBeNull();
   });
 
 });
