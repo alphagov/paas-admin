@@ -103,7 +103,7 @@ describe('paas-admin', () => {
         await uaaClient.deleteUser(managerUserGuid);
         await cfClient.deleteUser(managerUserGuid);
       }
-      (await browser).close();
+      await (await browser).close();
     });
 
     beforeAll(async () => {
