@@ -6,6 +6,9 @@ import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
 import { IDualValidationError, IValidationError } from '../errors/types';
 
+import UAAClient from '../../lib/uaa';
+import { Token } from '../auth';
+
 import {
   ContactUsPage,
   DocumentsCrownMoU,
@@ -27,6 +30,12 @@ import {
   supportFormFieldsText,
   SupportSelectionPage,
 } from './views';
+import CloudFoundryClient from '../../lib/cf';
+
+interface IUserTypedRequester {
+  readonly email: string;
+  readonly name: string;
+}
 
 interface ISupportFormName {
   readonly name?: string;
@@ -71,9 +80,114 @@ interface ISignupForm extends ISignupFormValues {
   readonly values? : ISignupFormValues;
 }
 
+export interface IRequesterDetails {
+  readonly region?: string;
+  readonly acc_email?: string;
+  readonly roles?: ReadonlyArray<{
+    readonly orgGuid: string;
+    readonly orgName: string;
+    readonly roleType: string;
+  }>
+}
+
 const VALID_EMAIL = /[^.]@[^.]/;
 
 const TODAY_DATE = new Date();
+
+export async function fetchRequesterDetailsAndRoles(ctx: IContext): Promise<IRequesterDetails> {
+  // if user not logged in, bail and return empty object
+  const userLoggedIn =  ctx.session.passport?.user;
+  if (userLoggedIn === undefined ) return {};
+
+  const uaa = new UAAClient({
+    apiEndpoint: ctx.app.uaaAPI,
+    clientCredentials: {
+      clientID: ctx.app.oauthClientID,
+      clientSecret: ctx.app.oauthClientSecret,
+    },
+  });
+
+  const signingKeys = await uaa.getSigningKeys();
+  const token = new Token(ctx.session.passport.user, signingKeys);
+  const cf = new CloudFoundryClient({
+    accessToken: token.accessToken,
+    apiEndpoint: ctx.app.cloudFoundryAPI,
+    logger: ctx.app.logger,
+  });
+  const region = (ctx.app.location).toLowerCase();
+  // get user from UAA
+  const user = await uaa.getUser(token.userID);
+  // get their roles
+  const roles = await cf.userRoles(user!.id);
+  // fetch org details and roles the user has 
+  const userRoleTypeAndOrg = await Promise.all(
+    roles
+    .filter(r => r.relationships.organization.data)
+    .map(async r => ({
+      // data will contain the GUID string
+      orgGuid: r.relationships.organization.data.guid!,
+      orgName: ((await cf.organization(r.relationships.organization.data.guid!)).entity.name),
+      roleType: r.type,
+    }),
+  ))
+  // contruct a new object with details
+  const requesterDetails = {
+    acc_email: user!.emails[0].value,
+    region: region,
+    roles: userRoleTypeAndOrg,
+  };
+
+  return requesterDetails;
+}
+
+export function requesterDetailsContent (variables: IRequesterDetails): string {
+  if (Object.entries(variables).length === 0) {
+    return 'Requester not logged in';
+  } else {
+    return `
+      Account email address: ${variables.acc_email}
+      Roles:
+      ${variables.roles && variables.roles.length ? variables.roles!.map(r => (
+      `Role of ${r.roleType} in ${r.orgName}: https://admin.${variables.region === 'london'? 'london.' : ''}cloud.service.gov.uk/organisations/${r.orgGuid}`
+      )).join('\n') : 'No organisation roles found'}`;
+  }
+}
+
+// abstraction so we don't have to repeat the same zendesk client code across all
+async function createAndUpdateZendeskTicket(
+    ctx: IContext, 
+    bodyContent: string,
+    body: IUserTypedRequester,
+    ticketTitle: string,
+    ticketTags?: ReadonlyArray<string>,
+  ): Promise<void> {
+  const requesterDetails:IRequesterDetails = await fetchRequesterDetailsAndRoles(ctx);
+  const client = zendesk.createClient(ctx.app.zendeskConfig);
+
+  await client.tickets.create({
+    ticket: {
+      comment: {
+        body: bodyContent,
+      },
+      subject: ticketTitle,
+      requester: {
+        email: body.email,
+        name: body.name,
+      },
+      tags: ticketTags,
+    },
+  })
+  .then(async result => {
+    await client.tickets.update(result.id,{
+      ticket: {
+        comment: {
+          body: requesterDetailsContent(requesterDetails),
+          public: false,
+        },
+      },
+    });
+  });
+}
 
 function signUpContent(variables: ISignupFormValues): string {
   const additionalUsers = `I would also like to invite the following:
@@ -148,9 +262,7 @@ function helpUsingPaasContent(variables: IHelpUsingPaasFormValues): string {
   return `
     ${supportFormFieldsText.name}: ${variables.name}
     ${supportFormFieldsText.email_address}: ${variables.email}
-
     ${supportFormFieldsText.optional_paas_organisation}: ${variables.paas_organisation_name ? variables.paas_organisation_name : 'not provided'}
-
     ${supportFormFieldsText.message}:
     ${variables.message}
   `;
@@ -461,8 +573,6 @@ export async function HandleSomethingWrongWithServiceFormPost(
     };
   }
 
-  const client = zendesk.createClient(ctx.app.zendeskConfig);
-
   let subject = ""
   const urgentSeverities = ["service_down", "service_downgraded", "cannot_operate_live"]
   if(urgentSeverities.includes(body.impact_severity)) {
@@ -470,24 +580,20 @@ export async function HandleSomethingWrongWithServiceFormPost(
   } else {
     subject = `[PaaS Support] ${TODAY_DATE.toDateString()} something wrong in ${body.affected_paas_organisation} live service`;
   }
-  await client.tickets.create({
-    ticket: {
-      comment: {
-        body: somethingWrongWithServiceContent({
-          affected_paas_organisation: body.affected_paas_organisation,
-          email: body.email,
-          impact_severity: body.impact_severity,
-          message: body.message,
-          name: body.name,
-        }),
-      },
-      subject: subject,
-      requester: {
-        email: body.email,
-        name: body.name,
-      },
-    },
-  });
+
+  await createAndUpdateZendeskTicket(
+    ctx,
+    somethingWrongWithServiceContent({
+      affected_paas_organisation: body.affected_paas_organisation,
+      email: body.email,
+      impact_severity: body.impact_severity,
+      message: body.message,
+      name: body.name,
+    }),
+    body,
+    subject,
+  );
+
   template.title = 'We have received your message';
 
   return {
@@ -549,25 +655,17 @@ export async function HandleHelpUsingPaasFormPost(
     };
   }
 
-  const client = zendesk.createClient(ctx.app.zendeskConfig);
-
-  await client.tickets.create({
-    ticket: {
-      comment: {
-        body: helpUsingPaasContent({
-          email: body.email,
-          message: body.message,
-          name: body.name,
-          paas_organisation_name: body.paas_organisation_name,
-        }),
-      },
-      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} request for help`,
-      requester: {
-        email: body.email,
-        name: body.name,
-      },
-    },
-  });
+ await createAndUpdateZendeskTicket(
+  ctx,
+  helpUsingPaasContent({
+    email: body.email,
+    message: body.message,
+    name: body.name,
+    paas_organisation_name: body.paas_organisation_name,
+  }),
+  body,
+  `[PaaS Support] ${TODAY_DATE.toDateString()} request for help`,
+ );
 
   template.title = 'We have received your message';
 
@@ -629,25 +727,17 @@ export async function HandleFindOutMoreFormPost (
   }
 
 
-  const client = zendesk.createClient(ctx.app.zendeskConfig);
-
-  await client.tickets.create({
-    ticket: {
-      comment: {
-        body: findoutMoreContent({
-          email: body.email,
-          gov_organisation_name: body.gov_organisation_name,
-          message: body.message,
-          name: body.name,
-        }),
-      },
-      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} request for information`,
-      requester: {
-        email: body.email,
-        name: body.name,
-      },
-    },
-  });
+  await createAndUpdateZendeskTicket(
+    ctx,
+    findoutMoreContent({
+      email: body.email,
+      gov_organisation_name: body.gov_organisation_name,
+      message: body.message,
+      name: body.name,
+    }),
+    body,
+    `[PaaS Support] ${TODAY_DATE.toDateString()} request for information`,
+  );
 
   template.title = 'We have received your message';
 
@@ -711,26 +801,18 @@ export async function HandleContactUsFormPost(
     };
   }
 
-  const client = zendesk.createClient(ctx.app.zendeskConfig);
-
-  await client.tickets.create({
-    ticket: {
-      comment: {
-        body: contactUsContent({
-          department_agency: body.department_agency,
-          email: body.email,
-          message: body.message,
-          name: body.name,
-          service_team: body.service_team,
-        }),
-      },
-      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} support request from website`,
-      requester: {
-        email: body.email,
-        name: body.name,
-      },
-    },
-  });
+  await createAndUpdateZendeskTicket(
+    ctx,
+    contactUsContent({
+      department_agency: body.department_agency,
+      email: body.email,
+      message: body.message,
+      name: body.name,
+      service_team: body.service_team,
+    }),
+    body,
+    `[PaaS Support] ${TODAY_DATE.toDateString()} support request from website`,
+  );
 
   template.title = 'We have received your message';
 
@@ -815,29 +897,21 @@ export async function HandleSignupFormPost(
     };
   }
 
-  const client = zendesk.createClient(ctx.app.zendeskConfig);
-
-  await client.tickets.create({
-    ticket: {
-      comment: {
-        body: signUpContent({
-          additional_users: body.additional_users,
-          department_agency: body.department_agency,
-          email: body.email,
-          invite_users:body.invite_users,
-          name: body.name,
-          person_is_manager:body.person_is_manager,
-          service_team: body.service_team,
-        }),
-      },
-      subject: `[PaaS Support] ${TODAY_DATE.toDateString()} Registration Request`,
-      requester: {
-        email: body.email,
-        name: body.name,
-      },
-      tags: ['paas_org_trial', 'paas_topic_account_lifecycle', 'paas_request_type_action'],
-    },
-  });
+  await createAndUpdateZendeskTicket(
+    ctx,
+    signUpContent({
+      additional_users: body.additional_users,
+      department_agency: body.department_agency,
+      email: body.email,
+      invite_users:body.invite_users,
+      name: body.name,
+      person_is_manager:body.person_is_manager,
+      service_team: body.service_team,
+    }),
+    body,
+    `[PaaS Support] ${TODAY_DATE.toDateString()} Registration Request`,
+    ['paas_org_trial', 'paas_topic_account_lifecycle', 'paas_request_type_action'],
+  );
 
   template.title = 'We have received your request';
 
