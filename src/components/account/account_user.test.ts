@@ -26,6 +26,15 @@ describe('AccountUser', () => {
     });
   });
 
+  describe('id', () => {
+    it('returns the users id', () => {
+      const uaaUser: any = { id: '11111' };
+
+      const acctUser = new AccountUser(uaaUser);
+      expect(acctUser.id).toEqual('11111');
+    });
+  });
+
   describe('authenticationMethod', () => {
     it('returns u&p if the user\'s origin is uaa', () => {
       const uaaUser: any = { origin: 'uaa' };
