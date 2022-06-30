@@ -70,7 +70,7 @@
     "compression-webpack-plugin": "^10.0.0",
     "css-loader": "^6.7.1",
     "css-minimizer-webpack-plugin": "^4.0.0",
-    "csv-parse": "^5.2.0",
+    "csv-parse": "^5.2.1",
     "eslint": "^8.18.0",
     "eslint-config-react": "^1.1.7",
     "eslint-plugin-functional": "^4.2.1",
