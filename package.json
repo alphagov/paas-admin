@@ -79,7 +79,7 @@
     "eslint-plugin-react": "^7.30.1",
     "expect": "^28.1.0",
     "jest": "^28.1.2",
-    "jest-environment-jsdom": "^28.1.1",
+    "jest-environment-jsdom": "^28.1.2",
     "jest-environment-node": "^28.1.0",
     "jest-puppeteer": "^6.1.0",
     "lodash": "^4.17.21",
