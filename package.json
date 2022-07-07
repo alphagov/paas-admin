@@ -81,7 +81,7 @@
     "jest": "^28.1.2",
     "jest-environment-jsdom": "^28.1.2",
     "jest-environment-node": "^28.1.0",
-    "jest-puppeteer": "^6.1.0",
+    "jest-puppeteer": "^6.1.1",
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.6.1",
     "nock": "^13.2.8",
