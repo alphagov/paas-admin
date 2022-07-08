@@ -660,6 +660,7 @@ declare module 'node-zendesk' {
       }
 
       interface ResponsePayload {
+          readonly id: number;
           readonly ticket: ResponseModel;
           readonly audit: Audit;
       }
