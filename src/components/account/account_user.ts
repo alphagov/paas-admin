@@ -11,6 +11,10 @@ export class AccountUser {
     return this.user.userName;
   }
 
+  get id(): string {
+    return this.user.id;
+  }
+
   get authenticationMethod(): string {
     switch (this.user.origin) {
       case 'uaa':
