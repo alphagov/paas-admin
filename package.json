@@ -85,7 +85,7 @@
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.6.1",
     "nock": "^13.2.8",
-    "nodemon-webpack-plugin": "^4.8.0",
+    "nodemon-webpack-plugin": "^4.8.1",
     "pegjs": "^0.10.0",
     "pegjs-loader": "^0.5.6",
     "pino-pretty": "^7.6.1",
