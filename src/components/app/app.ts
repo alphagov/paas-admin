@@ -22,13 +22,9 @@ import {
   HandleContactUsFormPost,
   HandleFindOutMoreFormPost,
   HandleHelpUsingPaasFormPost,
-  HandleSignupFormPost,
   HandleSomethingWrongWithServiceFormPost,
   HandleSupportSelectionFormPost,
   HelpUsingPaasForm,
-  JoiningExistingOrganisationNotice,
-  RequestAnAccountForm,
-  SignupForm,
   SomethingWrongWithServiceForm,
   SupportSelectionForm,
 } from '../support';
@@ -433,78 +429,6 @@ export default function(config: IAppConfig): express.Express {
         res.status(response.status || 200).send(response.body);
       })
       .catch(err => internalServerErrorMiddleware(err, req, res, next));
-    },
-  );
-
-  app.get('/support/sign-up', (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const route = router.findByName('support.sign-up');
-    const ctx = initContext(req, router, route, config);
-
-    SignupForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
-      .then((response: IResponse) => {
-        res.status(response.status || 200).send(response.body);
-      })
-      .catch(
-        /* istanbul ignore next */
-        err => internalServerErrorMiddleware(err, req, res, next));
-    },
-  );
-  /* istanbul ignore next */
-  app.post('/support/sign-up', (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const route = router.findByName('support.sign-up.post');
-    const ctx = initContext(req, router, route, config);
-
-    HandleSignupFormPost(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
-      .then((response: IResponse) => {
-        res.status(response.status || 200).send(response.body);
-      })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
-    },
-  );
-
-  app.get('/support/request-an-account', (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const route = router.findByName('support.request-an-account');
-    const ctx = initContext(req, router, route, config);
-
-    RequestAnAccountForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
-      .then((response: IResponse) => {
-        res.status(response.status || 200).send(response.body);
-      })
-      .catch(
-        /* istanbul ignore next */
-        err => internalServerErrorMiddleware(err, req, res, next));
-    },
-  );
-
-  /* istanbul ignore next */
-  app.post('/support/request-an-account', (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const route = router.findByName('support.request-an-account');
-    const ctx = initContext(req, router, route, config);
-
-    RequestAnAccountForm(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
-      .then(() => {
-        const selectedOption = req.body && req.body['create-an-org'];
-        if (selectedOption === 'yes') {
-          res.redirect('/support/sign-up');
-        } else {
-          res.redirect('/support/existing-organisation');
-        }
-      })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
-    },
-  );
-
-  app.get('/support/existing-organisation', (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const route = router.findByName('support.existing-organisation');
-    const ctx = initContext(req, router, route, config);
-
-    JoiningExistingOrganisationNotice(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
-      .then((response: IResponse) => {
-        res.status(response.status || 200).send(response.body);
-      })
-      .catch(
-        /* istanbul ignore next */
-        err => internalServerErrorMiddleware(err, req, res, next));
     },
   );
 

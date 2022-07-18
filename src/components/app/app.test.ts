@@ -597,29 +597,5 @@ describe('app test suite', () => {
       const response = await request(app).get('/support/help-using-paas');
       expect(response.status).toEqual(200);
     });
-
-    it('should be able to access /support/sign-up page without login', async () => {
-      const app = init(config);
-      const response = await request(app).get('/support/sign-up');
-      expect(response.status).toEqual(200);
-    });
-
-    it('should be able to access /support/request-an-account page without login', async () => {
-      const app = init(config);
-      const response = await request(app).get('/support/request-an-account');
-      expect(response.status).toEqual(200);
-    });
-
-    it('should be able to access /support/existing-organisation page without login', async () => {
-      const app = init(config);
-      const response = await request(app).get('/support/existing-organisation');
-      expect(response.status).toEqual(200);
-    });
-
-    it('should be able to access /support/existing-organisation page without login', async () => {
-      const app = init(config);
-      const response = await request(app).get('/support/existing-organisation');
-      expect(response.status).toEqual(200);
-    });
   });
 });

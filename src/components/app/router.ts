@@ -367,27 +367,6 @@ export const router = new Router([
     path: '/support/contact-us',
   },
   {
-    action: support.RequestAnAccountForm,
-    name: 'support.request-an-account',
-    path: '/support/request-an-account',
-  },
-  {
-    action: support.JoiningExistingOrganisationNotice,
-    name: 'support.existing-organisation',
-    path: '/support/request-an-account/existing-organisation',
-  },
-  {
-    action: support.SignupForm,
-    name: 'support.sign-up',
-    path: '/support/sign-up',
-  },
-  {
-    action: support.HandleSignupFormPost,
-    method: 'post',
-    name: 'support.sign-up.post',
-    path: '/support/sign-up',
-  },
-  {
     action: support.handleStaticIPs,
     name: 'support.static-ips',
     path: '/support/static-ip',

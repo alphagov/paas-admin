@@ -4,7 +4,7 @@ import React from 'react';
 import { Template } from '../../layouts';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
-import { IDualValidationError, IValidationError } from '../errors/types';
+import { IValidationError } from '../errors/types';
 
 import UAAClient from '../../lib/uaa';
 import { Token } from '../auth';
@@ -18,12 +18,8 @@ import {
   IContactUsFormValues,
   IFindOutMoreFormValues,
   IHelpUsingPaasFormValues,
-  ISignupFormValues,
   ISomethingWrongWithServiceFormValues,
   ISupportSelectionFormValues,
-  JoiningExistingOrganisationPage,
-  RequestAnAccountPage,
-  SignUpPage,
   SomethingWrongWithServicePage,
   StaticIPs,
   SupportConfirmationPage,
@@ -74,10 +70,6 @@ interface IFindOutMoreForm extends IFindOutMoreFormValues {
 
 interface IContactUsForm extends IContactUsFormValues {
   readonly values?: IContactUsFormValues;
-}
-
-interface ISignupForm extends ISignupFormValues {
-  readonly values? : ISignupFormValues;
 }
 
 export interface IRequesterDetails {
@@ -187,28 +179,6 @@ async function createAndUpdateZendeskTicket(
       },
     });
   });
-}
-
-function signUpContent(variables: ISignupFormValues): string {
-  const additionalUsers = `I would also like to invite the following:
-  ${variables.additional_users ?
-    variables.additional_users.map(user => (
-      `${user.email} and assign a role of ${user.person_is_manager && user.person_is_manager === 'yes' ? 'org manager' : 'org auditor'}`
-    )).join('\n') : ''}
-  `;
-
-  return `Trial account request
-
-  ${supportFormFieldsText.name}: ${variables.name}
-  ${supportFormFieldsText.email_address}: ${variables.email}
-  Assign role: ${variables.person_is_manager === 'yes' ? 'org manager' : 'org auditor'}
-
-  ${supportFormFieldsText.department_agency} I work for: ${variables.department_agency}
-  ${supportFormFieldsText.service_team} I work on: ${variables.service_team}
-
-  ${variables.additional_users && variables.additional_users.length > 0 && variables.invite_users === 'yes' ? additionalUsers : ''}
-
-  Trial account creation process: https://team-manual.cloud.service.gov.uk/accounts/account_lifecycle/#account-lifecycle`;
 }
 
 function findoutMoreContent(variables: IFindOutMoreFormValues): string {
@@ -396,90 +366,6 @@ function validateServiceTeam({ service_team }: ISupportFormServiceTeam): Readonl
       field: 'service_team',
       message: 'Enter your service or team',
     });
-  }
-
-  return errors;
-}
-
-function validateSignupEmail({ email }: ISignupForm): ReadonlyArray<IDualValidationError> {
-  const errors = [];
-
-  const allowedEmailAddresses = /(.+\.gov\.uk|.+nhs\.net|.+mod\.uk|.+digitalaccessibilitycentre\.org|.+marinemanagement\.org\.uk|.+ukri\.org|.+\.police\.uk|police\.uk.)$/;
-
-  if (!email || !VALID_EMAIL.test(email)) {
-    errors.push({
-      field: 'email',
-      message: 'Enter an email address in the correct format, like name@example.com',
-    });
-  }
-
-  if (email && VALID_EMAIL.test(email) && !allowedEmailAddresses.test(email)) {
-    errors.push({
-      field: 'email',
-      message: 'We only accept .gov.uk, .mod.uk, nhs.net, digitalaccessibilitycentre.org, marinemanagement.org.uk, ukri.org, .police.uk or police.uk email addresses',
-      messageExtra: `
-        If you work for a government organisation or public body with a different email address, please contact us on
-        <a class="govuk-link"
-          href="mailto:gov-uk-paas-support@digital.cabinet-office.gov.uk"
-        >
-          gov-uk-paas-support@digital.cabinet-office.gov.uk
-        </a>`,
-    });
-  }
-
-  return errors;
-}
-
-function validatePersonIsManager({ person_is_manager }: ISignupForm): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  if (!person_is_manager) {
-    errors.push({
-      field: 'person_is_manager',
-      message: 'Select the appropriate option for an org manager',
-    });
-  }
-
-  return errors;
-}
-
-function validateInviteUsers({ invite_users }: ISignupForm): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  if (!invite_users) {
-    errors.push({
-      field: 'invite_users',
-      message: 'Select "Yes" if you would like to invite users to your organisation',
-    });
-  }
-
-  return errors;
-}
-
-function validateAdditionalUserYesButEmpty({ invite_users, additional_users }: ISignupForm): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  if (invite_users === 'yes' && additional_users?.every(user => user.email === '')) {
-    errors.push({
-        field: 'additional_users-0',
-        message: 'Enter at least one additional user email address',
-      });
-  }
-
-  return errors;
-}
-
-function validateAdditionalUserEmail({ additional_users }: ISignupForm): ReadonlyArray<IValidationError> {
-  const errors = [];
-  if (additional_users) {
-    for (let i = 0; i < additional_users.length; i++) {
-      if (additional_users[i].email && !VALID_EMAIL.test(additional_users[i].email)) {
-        errors.push({
-          field: `additional_users-${i}`,
-          message: `Enter additional user ${i+1} email address in the correct format, like name@example.com`,
-        });
-      }
-    }
   }
 
   return errors;
@@ -822,105 +708,6 @@ export async function HandleContactUsFormPost(
         linkTo={ctx.linkTo}
         heading={'We have received your message'}
         text={'We will contact you on the next working day.'}
-      >
-        <a className="govuk-link"
-          href="https://www.cloud.service.gov.uk/get-started">
-            See the next steps to get started
-        </a>.
-      </SupportConfirmationPage>,
-    ),
-  };
-}
-
-export async function RequestAnAccountForm(ctx: IContext): Promise<IResponse> {
-
-  const template = new Template(ctx.viewContext, 'Request a GOV.UK PaaS account');
-
-  return await Promise.resolve({
-    body: template.render(<RequestAnAccountPage
-      csrf={ctx.viewContext.csrf}
-      linkTo={ctx.linkTo}
-      />),
-  });
-}
-
-export async function JoiningExistingOrganisationNotice (ctx: IContext): Promise<IResponse> {
-
-  const template = new Template(ctx.viewContext, 'Joining an existing organisation');
-
-  return await Promise.resolve({
-    body: template.render(<JoiningExistingOrganisationPage/>),
-  });
-}
-
-export async function SignupForm (ctx: IContext): Promise<IResponse> {
-
-  const template = new Template(ctx.viewContext, 'Request a GOV.UK PaaS account');
-
-  return await Promise.resolve({
-    body: template.render(<SignUpPage
-      csrf={ctx.viewContext.csrf}
-      linkTo={ctx.linkTo}
-    />),
-  });
-}
-
-export async function HandleSignupFormPost(
-  ctx: IContext,
-  _params: IParameters,
-  body: ISignupFormValues,
-): Promise<IResponse> {
-  const errors = [];
-  const template = new Template(ctx.viewContext);
-  errors.push(
-    ...validateName(body),
-    ...validateSignupEmail(body),
-    ...validateDepartmentAgency(body),
-    ...validateServiceTeam(body),
-    ...validatePersonIsManager(body),
-    ...validateInviteUsers(body),
-    ...validateAdditionalUserYesButEmpty(body),
-    ...validateAdditionalUserEmail(body),
-  );
-
-  if (errors.length > 0) {
-    template.title = 'Request a GOV.UK PaaS account';
-
-    return {
-      body: template.render(<SignUpPage
-        csrf={ctx.viewContext.csrf}
-        linkTo={ctx.linkTo}
-        errors={errors}
-        values={body}
-      />),
-      status: 400,
-    };
-  }
-
-  await createAndUpdateZendeskTicket(
-    ctx,
-    signUpContent({
-      additional_users: body.additional_users,
-      department_agency: body.department_agency,
-      email: body.email,
-      invite_users:body.invite_users,
-      name: body.name,
-      person_is_manager:body.person_is_manager,
-      service_team: body.service_team,
-    }),
-    body,
-    `[PaaS Support] ${TODAY_DATE.toDateString()} Registration Request`,
-    ['paas_org_trial', 'paas_topic_account_lifecycle', 'paas_request_type_action'],
-  );
-
-  template.title = 'We have received your request';
-
-  return {
-    body: template.render(
-      <SupportConfirmationPage
-        linkTo={ctx.linkTo}
-        heading={'We have received your request'}
-        text={'We will email you with your organisation account details in the next working day.'}
       >
         <a className="govuk-link"
           href="https://www.cloud.service.gov.uk/get-started">
