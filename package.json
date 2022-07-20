@@ -84,7 +84,7 @@
     "jest-puppeteer": "^6.1.1",
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.6.1",
-    "nock": "^13.2.8",
+    "nock": "^13.2.9",
     "nodemon-webpack-plugin": "^4.8.1",
     "pegjs": "^0.10.0",
     "pegjs-loader": "^0.5.6",
