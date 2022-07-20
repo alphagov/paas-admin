@@ -6,7 +6,6 @@ import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs';
 
 import './govuk.screen.scss';
 import {
-  CookieBanner,
   Footer,
   Header,
   ISubNavigationProperties,
@@ -74,7 +73,6 @@ export class Template {
             
 
             ${renderToStaticMarkup(<>
-              <CookieBanner />
               <a href="#main-content" className="govuk-skip-link" data-module="govuk-skip-link">
                 Skip to main content
               </a>
