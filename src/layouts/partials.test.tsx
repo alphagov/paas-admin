@@ -4,7 +4,7 @@
  import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import { CookieBanner, Footer, Header, Main } from './partials';
+import { Footer, Header, Main } from './partials';
 
 describe(Header, () => {
   it('should successfully display the header element', () => {
@@ -52,29 +52,5 @@ describe(Footer, () => {
         .querySelector('.govuk-footer__licence-description a'))
         .toHaveAttribute('href', expect.stringContaining('https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/'));
     expect(container).toHaveTextContent('Crown copyright');
-  });
-});
-
-describe(CookieBanner, () => {
-  it('should successfully display the cookie banner element', () => {
-    const { container } = render(<CookieBanner />);
-    expect(container.querySelector('.govuk-cookie-banner')).toBeTruthy();
-    expect(container.querySelector('.govuk-cookie-banner__heading')).toHaveTextContent('Cookies on GOV.UK PaaS');
-    expect(
-      container
-      .querySelectorAll('.govuk-cookie-banner__content p')[1])
-      .toHaveTextContent('We’d also like to use analytics cookies so we can understand how you use the service and make improvements.');
-    expect(
-      container
-      .querySelector('button[data-accept-cookies="true"]')).toHaveTextContent('Accept analytics cookies');
-    expect(
-      container
-      .querySelector('button[data-accept-cookies="false"]')).toHaveTextContent('Reject analytics cookies');
-    expect(
-      container
-      .querySelector('.govuk-button-group .govuk-link')).toHaveTextContent('View cookies');
-    expect(
-      container
-      .querySelector('.govuk-button-group .govuk-link')).toHaveAttribute('href', expect.stringContaining('https://www.cloud.service.gov.uk/cookies/'));
   });
 });

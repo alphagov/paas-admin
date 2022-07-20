@@ -104,10 +104,6 @@ export function Header(props: IHeaderProperties): ReactElement {
                 <a
                   className="govuk-header__link" 
                   href="/support"
-                  data-track-click="true"
-                  data-track-category="Navigation"
-                  data-track-action="Top Menu"
-                  data-track-label="Support"
                 >
                   Support
                 </a>
@@ -116,10 +112,6 @@ export function Header(props: IHeaderProperties): ReactElement {
                 <a
                   className="govuk-header__link"
                   href="/marketplace"
-                  data-track-click="true"
-                  data-track-category="Navigation"
-                  data-track-action="Top Menu"
-                  data-track-label="Marketplace"
                 >
                   Marketplace
                 </a>
@@ -128,10 +120,6 @@ export function Header(props: IHeaderProperties): ReactElement {
                 <a
                   className="govuk-header__link" 
                   href="/"
-                  data-track-click="true"
-                  data-track-category="Navigation"
-                  data-track-action="Top Menu"
-                  data-track-label="Organisations"
                 >
                   Organisations
                 </a>
@@ -140,10 +128,6 @@ export function Header(props: IHeaderProperties): ReactElement {
                 <a
                   className="govuk-header__link"
                   href="https://docs.cloud.service.gov.uk"
-                  data-track-click="true"
-                  data-track-category="Navigation"
-                  data-track-action="Top Menu"
-                  data-track-label="Documentation"
                 >
                   Documentation
                 </a>
@@ -154,10 +138,6 @@ export function Header(props: IHeaderProperties): ReactElement {
                     <a 
                       className="govuk-header__link" 
                       href="/auth/logout"
-                      data-track-click="true"
-                      data-track-category="Navigation"
-                      data-track-action="Top Menu"
-                      data-track-label="Sign out"
                     >
                       Sign out
                     </a>
@@ -166,10 +146,7 @@ export function Header(props: IHeaderProperties): ReactElement {
                     <a 
                       className="govuk-header__link" 
                       href="/"
-                      data-track-click="true"
-                      data-track-category="Navigation"
-                      data-track-action="Top Menu"
-                      data-track-label="Sign in">
+                    >
                       Sign In
                     </a>
                   </li>}
@@ -179,10 +156,6 @@ export function Header(props: IHeaderProperties): ReactElement {
                   title="Switch to a different region"
                   className={`govuk-header__link govuk-tag app-region-tag app-region-tag--${props.location.toLowerCase()}`}
                   aria-label={`Current region: ${props.location.toLowerCase()}. Switch to a different region.`}
-                  data-track-click="true"
-                  data-track-category="Navigation"
-                  data-track-action="Top Menu"
-                  data-track-label="Switch to a different region ?add region name?"
                 >
                   <span className="app-region-tag__text">Region:</span> {props.location}
                 </a>
@@ -415,65 +388,4 @@ export function Tick(): ReactElement {
 
 export function NoTick(): ReactElement {
   return <span className="govuk-visually-hidden">no</span>;
-}
-
-export function CookieBanner(): ReactElement {
-  return (
-    <div className="govuk-cookie-banner govuk-!-display-none-print"
-      role="region"
-      aria-label="Cookies on GOV.UK Platform as a Service"
-      data-module="govuk-cookie-banner"
-      data-nosnippet
-      >
-      <div className="govuk-cookie-banner__message js-cookie-content govuk-width-container">
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-two-thirds">
-            <h2 className="govuk-cookie-banner__heading govuk-heading-m">Cookies on GOV.UK PaaS</h2>
-
-            <div className="govuk-cookie-banner__content">
-              <p>We use some essential cookies to make this service work.</p>
-              <p>We’d also like to use analytics cookies so we can understand how you use the service and make improvements.</p>
-            </div>
-          </div>
-        </div>
-        <div className="govuk-button-group">
-          <button value="accept" type="button" name="cookies" className="govuk-button" data-module="govuk-button" data-accept-cookies="true">
-            Accept analytics cookies
-          </button>
-          <button value="reject" type="button" name="cookies" className="govuk-button" data-module="govuk-button" data-accept-cookies="false">
-            Reject analytics cookies
-          </button>
-          <a className="govuk-link" href="https://www.cloud.service.gov.uk/cookies/">View cookies</a>
-        </div>
-      </div>
-      <div className="govuk-cookie-banner__message js-cookie-accept-content govuk-width-container" role="alert" hidden>
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-two-thirds">
-            <div className="govuk-cookie-banner__content">
-              <p>You’ve accepted analytics cookies. You can <a className="govuk-link" href="https://www.cloud.service.gov.uk/cookies/">change your cookie settings</a> at any time.</p>
-            </div>
-          </div>
-        </div>
-        <div className="govuk-button-group">
-          <button className="govuk-button" data-module="govuk-button" data-hide-cookie-banner="true">
-            Hide this message
-          </button>
-        </div>
-      </div>
-      <div className="govuk-cookie-banner__message js-cookie-reject-content govuk-width-container" role="alert" hidden>
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-two-thirds">
-            <div className="govuk-cookie-banner__content">
-              <p>You’ve rejected analytics cookies. You can <a className="govuk-link" href="https://www.cloud.service.gov.uk/cookies/">change your cookie settings</a> at any time.</p>
-            </div>
-          </div>
-        </div>
-        <div className="govuk-button-group">
-          <button className="govuk-button" data-module="govuk-button" data-hide-cookie-banner="true">
-            Hide this message
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 }
