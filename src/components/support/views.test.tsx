@@ -6,7 +6,6 @@ import React from 'react';
 
 import {
   ContactUsPage,
-  FindOutMorePage,
   HelpUsingPaasPage,
   SomethingWrongWithServicePage,
   SupportConfirmationPage,
@@ -140,55 +139,6 @@ describe(HelpUsingPaasPage, () => {
     expect(container.querySelector('#paas_organisation_name')).toHaveValue('test paas org');
     expect(container.querySelector('#name-error')).toHaveTextContent('Enter your full name');
     expect(container.querySelector('#email-error')).toHaveTextContent('Enter an email address in the correct format, like name@example.com');
-    expect(container.querySelector('#message-error')).toHaveTextContent('Enter your message');
-  });
-});
-
-describe(FindOutMorePage, () => {
-  it('should correctly render the form', () => {
-    const { container } = render(<FindOutMorePage
-      linkTo={route => `__LINKS_TO__${route}`}
-      csrf="CSRF_TOKEN"
-      values={{} as any}
-    />);
-
-    expect(container.querySelector('input[name=_csrf]')).toHaveValue('CSRF_TOKEN');
-    expect(container.querySelectorAll('.govuk-input')).toHaveLength(3);
-    expect(container.querySelector('.govuk-textarea')).toBeTruthy();
-    expect(container.querySelector('.govuk-error-summary')).toBeFalsy();
-    expect(container.querySelector('.govuk-error-message')).toBeFalsy();
-  });
-
-  it('should display error messages if form has missing data', () => {
-    const { container } = render(<FindOutMorePage
-      linkTo={route => `__LINKS_TO__${route}`}
-      csrf="CSRF_TOKEN"
-      values={{} as any}
-      errors={[
-        {
-          field: 'name',
-          message: 'Enter your full name',
-        },
-        {
-          field: 'email',
-          message: 'Enter an email address in the correct format, like name@example.com',
-        },
-        {
-          field: 'gov_organisation_name',
-          message: 'Enter your government organisation’s name',
-        },
-        {
-          field: 'message',
-          message: 'Enter your message',
-        },
-      ]}
-    />);
-    expect(container.querySelector('.govuk-error-summary')).toBeTruthy();
-    expect(container.querySelectorAll('.govuk-error-summary li')).toHaveLength(4);
-    expect(container.querySelectorAll('.govuk-error-message')).toHaveLength(4);
-    expect(container.querySelector('#name-error')).toHaveTextContent('Enter your full name');
-    expect(container.querySelector('#email-error')).toHaveTextContent('Enter an email address in the correct format, like name@example.com');
-    expect(container.querySelector('#gov_organisation_name-error')).toHaveTextContent('Enter your government organisation’s name');
     expect(container.querySelector('#message-error')).toHaveTextContent('Enter your message');
   });
 });

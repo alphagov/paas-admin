@@ -13,10 +13,8 @@ import {
   ContactUsPage,
   DocumentsCrownMoU,
   DocumentsNonCrownMoU,
-  FindOutMorePage,
   HelpUsingPaasPage,
   IContactUsFormValues,
-  IFindOutMoreFormValues,
   IHelpUsingPaasFormValues,
   ISomethingWrongWithServiceFormValues,
   ISupportSelectionFormValues,
@@ -45,10 +43,6 @@ interface ISupportFormMessage {
   readonly message?: string;
 }
 
-interface ISupportFormGovOrgName {
-  readonly gov_organisation_name?: string;
-}
-
 interface ISupportFormDeptAgency {
   readonly department_agency?: string;
 }
@@ -62,10 +56,6 @@ interface ISomethingWrongWithServiceForm extends ISomethingWrongWithServiceFormV
 
 interface IHelpUsingPaasForm extends IHelpUsingPaasFormValues {
   readonly values?: IHelpUsingPaasFormValues;
-}
-
-interface IFindOutMoreForm extends IFindOutMoreFormValues {
-  readonly values?: IFindOutMoreFormValues;
 }
 
 interface IContactUsForm extends IContactUsFormValues {
@@ -179,19 +169,6 @@ async function createAndUpdateZendeskTicket(
       },
     });
   });
-}
-
-function findoutMoreContent(variables: IFindOutMoreFormValues): string {
-
-  return `
-    ${supportFormFieldsText.name}: ${variables.name}
-    ${supportFormFieldsText.email_address}: ${variables.email}
-
-    My ${supportFormFieldsText.gov_organisation_name}: ${variables.gov_organisation_name}
-    
-    ${supportFormFieldsText.message}:
-    ${variables.message}
-  `;
 }
 
 function somethingWrongWithServiceContent(variables: ISomethingWrongWithServiceFormValues): string {
@@ -326,19 +303,6 @@ function validateImpactSeverity({ impact_severity }: ISomethingWrongWithServiceF
     errors.push({
       field: 'impact_severity',
       message: 'Select the severity of the impact',
-    });
-  }
-
-  return errors;
-}
-
-function validateGovOrg({ gov_organisation_name }: ISupportFormGovOrgName): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  if (!gov_organisation_name) {
-    errors.push({
-      field: 'gov_organisation_name',
-      message: 'Enter your government organisation’s name',
     });
   }
 
@@ -566,79 +530,6 @@ export async function HandleHelpUsingPaasFormPost(
         <a className="govuk-link"
           href="https://www.cloud.service.gov.uk/support-and-response-times">
             support and resolution times
-        </a>.
-      </SupportConfirmationPage>,
-    ),
-  };
-}
-
-export async function FindOutMoreForm (ctx: IContext): Promise<IResponse> {
-
-  const template = new Template(ctx.viewContext, 'I’d like to find out more about GOV.UK PaaS');
-
-  return await Promise.resolve({
-    body: template.render(<FindOutMorePage
-      csrf={ctx.viewContext.csrf}
-      linkTo={ctx.linkTo}
-    />),
-  });
-}
-
-export async function HandleFindOutMoreFormPost (
-  ctx: IContext,
-  _params: IParameters,
-  body: IFindOutMoreForm,
-): Promise<IResponse> {
-  const errors = [];
-  const template = new Template(ctx.viewContext);
-  errors.push(
-    ...validateName(body),
-    ...validateEmail(body),
-    ...validateGovOrg(body),
-    ...validateMessage(body),
-  );
-
-  if (errors.length > 0) {
-    template.title = 'Error: I’d like to find out more about GOV.UK PaaS';
-
-    return {
-      body: template.render(<FindOutMorePage
-        csrf={ctx.viewContext.csrf}
-        linkTo={ctx.linkTo}
-        errors={errors}
-        values={body}
-      />),
-      status: 400,
-    };
-  }
-
-
-  await createAndUpdateZendeskTicket(
-    ctx,
-    findoutMoreContent({
-      email: body.email,
-      gov_organisation_name: body.gov_organisation_name,
-      message: body.message,
-      name: body.name,
-    }),
-    body,
-    `[PaaS Support] ${TODAY_DATE.toDateString()} request for information`,
-  );
-
-  template.title = 'We have received your message';
-
-  return {
-    body: template.render(
-      <SupportConfirmationPage
-        linkTo={ctx.linkTo}
-        heading={'We have received your message'}
-        text={`A member of our product team will be in touch. We try to reply to all queries by the end of the next
-          working day.`}
-      >
-        Read more about our{' '}
-        <a className="govuk-link"
-          href="https://www.cloud.service.gov.uk/roadmap">
-            roadmap and features
         </a>.
       </SupportConfirmationPage>,
     ),

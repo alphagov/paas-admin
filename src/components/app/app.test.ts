@@ -574,12 +574,6 @@ describe('app test suite', () => {
       expect(response.status).toEqual(200);
     });
 
-    it('should be able to access /support/find-out-more page without login', async () => {
-      const app = init(config);
-      const response = await request(app).get('/support/find-out-more');
-      expect(response.status).toEqual(200);
-    });
-
     it('should be able to access /support/contact-us page without login', async () => {
       const app = init(config);
       const response = await request(app).get('/support/contact-us');

@@ -82,55 +82,6 @@ describe(controller.HandleContactUsFormPost, () => {
   });
 });
 
-describe(controller.HandleFindOutMoreFormPost, () => {
-  beforeEach(() => {
-    nock.cleanAll();
-
-    nockZD = nock(ctx.app.zendeskConfig.remoteUri);
-  });
-
-  afterEach(() => {
-    nockZD.done();
-
-    nock.cleanAll();
-  });
-
-  it('should throw validation errors when missing data has been submited', async () => {
-    const response = await controller.HandleFindOutMoreFormPost(ctx, {}, {
-      name: undefined,
-      email: undefined,
-      message: undefined,
-      gov_organisation_name: undefined,
-    } as any);
-
-    expect(response.status).toEqual(400);
-    expect(response.body).not.toContain('We have received your message');
-    expect(response.body).toContain('Error');
-    expect(response.body).toContain('Enter your full name');
-    expect(response.body).toContain('Enter an email address in the correct format');
-    expect(response.body).toContain('Enter your message');
-    expect(response.body).toContain('Enter your government organisation’s name');
-  });
-
-  it('should create a zendesk ticket correctly', async () => {
-    nockZD
-      .post('/tickets.json')
-      .reply(201, {})
-      .put('/tickets.json')
-      .reply(201, {id:111});
-
-    const response = await controller.HandleFindOutMoreFormPost(ctx, {}, {
-      name: 'Jeff',
-      email: 'jeff@example.gov.uk',
-      message: 'Comment',
-      gov_organisation_name: 'Naming Authority',
-    } as any);
-
-    expect(response.status).toBeUndefined();
-    expect(response.body).toContain('We have received your message');
-  });
-});
-
 describe(controller.HandleHelpUsingPaasFormPost, () => {
   beforeEach(() => {
     nock.cleanAll();

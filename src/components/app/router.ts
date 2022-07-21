@@ -345,17 +345,6 @@ export const router = new Router([
     path: 'support/help-using-paas',
   },
   {
-    action: support.FindOutMoreForm,
-    name: 'support.find-out-more',
-    path: '/support/find-out-more',
-  },
-  {
-    action: support.HandleFindOutMoreFormPost,
-    method: 'post',
-    name: 'support.find-out-more.post',
-    path: '/support/find-out-more',
-  },
-  {
     action: support.ContactUsForm,
     name: 'support.contact-us',
     path: '/support/contact-us',
