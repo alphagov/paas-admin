@@ -345,17 +345,6 @@ export const router = new Router([
     path: 'support/help-using-paas',
   },
   {
-    action: support.FindOutMoreForm,
-    name: 'support.find-out-more',
-    path: '/support/find-out-more',
-  },
-  {
-    action: support.HandleFindOutMoreFormPost,
-    method: 'post',
-    name: 'support.find-out-more.post',
-    path: '/support/find-out-more',
-  },
-  {
     action: support.ContactUsForm,
     name: 'support.contact-us',
     path: '/support/contact-us',
@@ -365,27 +354,6 @@ export const router = new Router([
     method: 'post',
     name: 'support.contact-us.post',
     path: '/support/contact-us',
-  },
-  {
-    action: support.RequestAnAccountForm,
-    name: 'support.request-an-account',
-    path: '/support/request-an-account',
-  },
-  {
-    action: support.JoiningExistingOrganisationNotice,
-    name: 'support.existing-organisation',
-    path: '/support/request-an-account/existing-organisation',
-  },
-  {
-    action: support.SignupForm,
-    name: 'support.sign-up',
-    path: '/support/sign-up',
-  },
-  {
-    action: support.HandleSignupFormPost,
-    method: 'post',
-    name: 'support.sign-up.post',
-    path: '/support/sign-up',
   },
   {
     action: support.handleStaticIPs,
