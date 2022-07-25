@@ -31,25 +31,6 @@ interface IUserTypedRequester {
   readonly name: string;
 }
 
-interface ISupportFormName {
-  readonly name?: string;
-}
-
-interface ISupportFormEmail {
-  readonly email?: string;
-}
-
-interface ISupportFormMessage {
-  readonly message?: string;
-}
-
-interface ISupportFormDeptAgency {
-  readonly department_agency?: string;
-}
-interface ISupportFormServiceTeam {
-  readonly service_team?: string;
-}
-
 interface ISomethingWrongWithServiceForm extends ISomethingWrongWithServiceFormValues {
   readonly values?: ISomethingWrongWithServiceFormValues;
 }
@@ -229,106 +210,15 @@ function contactUsContent(variables: IContactUsFormValues): string {
   `;
 }
 
-function validateSupportSelection({ support_type }: ISupportSelectionFormValues): ReadonlyArray<IValidationError> {
+function checkFormField(variable: string, field: string, message: string): ReadonlyArray<IValidationError> {
   const errors = [];
 
-  if (!support_type) {
+  const isInvalid = () => field === 'email' ? (!variable || !VALID_EMAIL.test(variable)) : !variable
+
+  if (isInvalid()) {
     errors.push({
-      field: 'support_type',
-      message: 'Select which type of support your require',
-    });
-  }
-
-  return errors;
-}
-
-function validateName({ name }: ISupportFormName): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  if (!name) {
-    errors.push({
-      field: 'name',
-      message: 'Enter your full name',
-    });
-  }
-
-  return errors;
-}
-
-function validateEmail({ email }: ISupportFormEmail): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  if (!email || !VALID_EMAIL.test(email)) {
-    errors.push({
-      field: 'email',
-      message: 'Enter an email address in the correct format, like name@example.com',
-    });
-  }
-
-  return errors;
-}
-
-function validateMessage({ message }: ISupportFormMessage): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  if (!message) {
-    errors.push({
-      field: 'message',
-      message: 'Enter your message',
-    });
-  }
-
-  return errors;
-}
-
-function validateAffectedOrg(
-  { affected_paas_organisation }: ISomethingWrongWithServiceForm,
-): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  if (!affected_paas_organisation) {
-    errors.push({
-      field: 'affected_paas_organisation',
-      message: 'Enter the name of the affected organisation',
-    });
-  }
-
-  return errors;
-}
-
-function validateImpactSeverity({ impact_severity }: ISomethingWrongWithServiceForm): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  if (!impact_severity) {
-    errors.push({
-      field: 'impact_severity',
-      message: 'Select the severity of the impact',
-    });
-  }
-
-  return errors;
-}
-
-function validateDepartmentAgency({ department_agency }: ISupportFormDeptAgency): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  if (!department_agency) {
-    errors.push({
-      field: 'department_agency',
-      message: 'Enter your department or agency',
-    });
-  }
-
-  return errors;
-}
-
-function validateServiceTeam({ service_team }: ISupportFormServiceTeam): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  if (!service_team) {
-    errors.push({
-      field: 'service_team',
-      message: 'Enter your service or team',
+      field,
+      message,
     });
   }
 
@@ -356,7 +246,7 @@ export async function HandleSupportSelectionFormPost (
   const template = new Template(ctx.viewContext);
 
   errors.push(
-    ...validateSupportSelection(body),
+    ...checkFormField(body.support_type, 'support_type', 'Select which type of support your require'),
   );
 
   if (errors.length > 0) {
@@ -403,12 +293,12 @@ export async function HandleSomethingWrongWithServiceFormPost(
   const template = new Template(ctx.viewContext);
 
   errors.push(
-    ...validateName(body),
-    ...validateEmail(body),
-    ...validateAffectedOrg(body),
-    ...validateImpactSeverity(body),
-    ...validateMessage(body),
-    );
+    ...checkFormField(body.name, 'name', 'Enter your full name'),
+    ...checkFormField(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
+    ...checkFormField(body.affected_paas_organisation, 'affected_paas_organisation', 'Enter the name of the affected organisation'),
+    ...checkFormField(body.impact_severity, 'impact_severity', 'Select the severity of the impact'),
+    ...checkFormField(body.message, 'message', 'Enter your message'),
+  );
   if (errors.length > 0) {
     template.title = 'Error: Something’s wrong with my live service';
 
@@ -488,9 +378,10 @@ export async function HandleHelpUsingPaasFormPost(
   const template = new Template(ctx.viewContext);
 
   errors.push(
-    ...validateName(body),
-    ...validateEmail(body),
-    ...validateMessage(body));
+    ...checkFormField(body.name, 'name', 'Enter your full name'),
+    ...checkFormField(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
+    ...checkFormField(body.message, 'message', 'Enter your message'),
+  );
   if (errors.length > 0) {
     template.title = 'Error: I need some help using GOV.UK PaaS';
 
@@ -557,11 +448,11 @@ export async function HandleContactUsFormPost(
   const template = new Template(ctx.viewContext);
 
   errors.push(
-    ...validateName(body),
-    ...validateEmail(body),
-    ...validateDepartmentAgency(body),
-    ...validateServiceTeam(body),
-    ...validateMessage(body),
+    ...checkFormField(body.name, 'name', 'Enter your full name'),
+    ...checkFormField(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
+    ...checkFormField(body.department_agency, 'department_agency', 'Enter your department or agency'),
+    ...checkFormField(body.service_team, 'service_team', 'Enter your service or team'),
+    ...checkFormField(body.message, 'message', 'Enter your message'),
   );
 
   if (errors.length > 0) {
