@@ -43,7 +43,7 @@ describe(OrganizationsPage, () => {
         quotas={quotas}
       />,
     );
-    expect(container.querySelector('p.govuk-body:first-of-type')).toHaveTextContent(
+    expect(container.querySelector('h1 + .govuk-body:first-of-type')).toHaveTextContent(
       'There are 2 organisations which you can access.',
     );
     expect(container.querySelectorAll('table tbody tr')).toHaveLength(2);
@@ -96,7 +96,7 @@ describe(OrganizationsPage, () => {
         quotas={quotas}
       />,
     );
-    expect(container.querySelector('.govuk-body:first-of-type')).toHaveTextContent(
+    expect(container.querySelector('h1 + .govuk-body:first-of-type')).toHaveTextContent(
       'There is 1 organisation which you can access.',
     );
     expect(container.querySelectorAll('table tbody tr')).toHaveLength(1);

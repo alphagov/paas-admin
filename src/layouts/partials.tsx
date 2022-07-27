@@ -389,3 +389,23 @@ export function Tick(): ReactElement {
 export function NoTick(): ReactElement {
   return <span className="govuk-visually-hidden">no</span>;
 }
+
+export function NotificationBanner(): ReactElement {
+  return (
+    <>
+    <div className="govuk-notification-banner" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+      <div className="govuk-notification-banner__header">
+        <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">
+          Important
+        </h2>
+      </div>
+      <div className="govuk-notification-banner__content">
+        <h3 className="govuk-notification-banner__heading">
+          GOV.UK PaaS is being decommissioned
+        </h3>
+        <p className="govuk-body"><a className="govuk-notification-banner__link" href="https://cloud.service.gov.uk">Read more about it</a>.</p>
+      </div>      
+    </div>
+    </>
+  )
+}
