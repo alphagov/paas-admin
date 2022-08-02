@@ -108,14 +108,14 @@ export function Header(props: IHeaderProperties): ReactElement {
                   Support
                 </a>
               </li>
-              <li className="govuk-header__navigation-item">
+              {props.authenticated ? <li className="govuk-header__navigation-item">
                 <a
                   className="govuk-header__link"
                   href="/marketplace"
                 >
                   Marketplace
                 </a>
-              </li>
+              </li> : undefined}
               {props.authenticated ? <li className="govuk-header__navigation-item">
                 <a
                   className="govuk-header__link" 
