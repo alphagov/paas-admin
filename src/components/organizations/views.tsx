@@ -101,17 +101,6 @@ export function OrganizationsPage(
       </table>
       </div>
 
-      <p className="govuk-body">
-        To request new GOV.UK PaaS organisations,{' '}
-        <a
-          href="/support/sign-up"
-          className="govuk-link"
-        >
-          visit our signup page
-        </a>
-        .
-      </p>
-
       <hr className="govuk-section-break govuk-section-break--m" />
 
       <div className="govuk-grid-row">
