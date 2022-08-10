@@ -90,6 +90,7 @@ export function Header(props: IHeaderProperties): ReactElement {
             >
             <button
               type="button"
+              hidden
               className="govuk-header__menu-button govuk-js-header-toggle"
               aria-controls="navigation"
               aria-label="Show or hide Top Level Navigation Menu"
