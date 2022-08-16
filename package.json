@@ -105,7 +105,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.146.0",
+    "@aws-sdk/client-cloudwatch": "^3.150.0",
     "@aws-sdk/client-resource-groups-tagging-api": "^3.145.0",
     "@aws-sdk/types": "^3.127.0",
     "@babel/preset-env": "^7.18.10",
