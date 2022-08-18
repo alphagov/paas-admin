@@ -448,6 +448,18 @@ export default class CloudFoundryClient {
     return response.data;
   }
 
+  public async sharedFrom(serviceGUID: string): Promise<cf.IShareServiceDetails> {
+    const response = await this.request('get', `/v2/service_instances/${serviceGUID}/shared_from`);
+
+    return response.data;
+  }
+
+  public async sharedTo(serviceGUID: string): Promise<cf.ISharedToServiceDetails> {
+    const response = await this.request('get', `/v2/service_instances/${serviceGUID}/shared_to`);
+
+    return response.data;
+  }
+
   public async createUser(userId: string): Promise<cf.IUser> {
     const response = await this.request('post', '/v2/users', { guid: userId });
 
