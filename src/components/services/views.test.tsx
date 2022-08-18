@@ -119,14 +119,40 @@ describe(ServicePage, () => {
     expect(container.querySelector('td.status')).toHaveTextContent('success');
   });
 
-  it('should fallback to default values', () => {
+  it('should display SHARED TO data if the service has been shared to other spaces and/or orgs', () => {
     const service = ({
-      entity: { name: 'service-name', tags: [] },
+      entity: {
+        last_operation: { state: 'success' },
+        name: 'service-name',
+        tags: [],
+      },
       metadata: { guid: 'SERVICE_GUID' },
+      shared_from: {
+        space_guid: 'SPACE_GUID',
+        space_name: 'test space',
+        organization_name: 'test org',
+      },
+      shared_to: {
+        resources: [
+          {
+            space_guid: '3310e016-2276-40c3-92a8-af7552444bbd',
+            space_name: 'test space',
+            organization_name: 'test org',
+          },
+        ],
+      },
     } as unknown) as IServiceInstance;
     const { container } = render(
       <ServicePage
-        service={service}
+        service={{
+          ...service,
+          service: ({
+            entity: { label: 'service-label' },
+          } as unknown) as IService,
+          service_plan: ({
+            entity: { name: 'service-plan-name' },
+          } as unknown) as IServicePlan,
+        }}
         linkTo={route => `__LINKS_TO__${route}`}
         routePartOf={route =>
           route === 'admin.organizations.spaces.services.view'
@@ -136,10 +162,63 @@ describe(ServicePage, () => {
         spaceGUID="SPACE_GUID"
       />,
     );
-    expect(container.querySelector('td.label')).toHaveTextContent('User Provided Service');
-    expect(container.querySelector('td.plan')).toHaveTextContent('N/A');
-    expect(container.querySelector('td.status')).toHaveTextContent('N/A');
+    expect(container.querySelector('td.label')).toHaveTextContent('service-label');
+    expect(container.querySelector('td.plan')).toHaveTextContent('service-plan-name');
+    expect(container.querySelector('td.status')).toHaveTextContent('success');
+    expect(container.querySelector('td.sharedTo')).toHaveTextContent('space test space in organisation test org');
+    expect(container.querySelector('td.sharedFrom')).toBeFalsy();
   });
+
+  it('should display SHARED FROM data if the service has been shared from another spaces and/or orgs', () => {
+    const service = ({
+      entity: {
+        last_operation: { state: 'success' },
+        name: 'service-name',
+        tags: [],
+      },
+      metadata: { guid: 'SERVICE_GUID' },
+      shared_from: {
+        space_guid: 'guid',
+        space_name: 'test space',
+        organization_name: 'test org',
+      },
+      shared_to: {
+        resources: [
+          {
+            space_guid: '3310e016-2276-40c3-92a8-af7552444bbd',
+            space_name: 'test space',
+            organization_name: 'test org',
+          },
+        ],
+      },
+    } as unknown) as IServiceInstance;
+    const { container } = render(
+      <ServicePage
+        service={{
+          ...service,
+          service: ({
+            entity: { label: 'service-label' },
+          } as unknown) as IService,
+          service_plan: ({
+            entity: { name: 'service-plan-name' },
+          } as unknown) as IServicePlan,
+        }}
+        linkTo={route => `__LINKS_TO__${route}`}
+        routePartOf={route =>
+          route === 'admin.organizations.spaces.services.view'
+        }
+        organizationGUID="ORG_GUID"
+        pageTitle="test"
+        spaceGUID="SPACE_GUID"
+      />,
+    );
+    expect(container.querySelector('td.label')).toHaveTextContent('service-label');
+    expect(container.querySelector('td.plan')).toHaveTextContent('service-plan-name');
+    expect(container.querySelector('td.status')).toHaveTextContent('success');
+    expect(container.querySelector('td.sharedFrom')).toHaveTextContent('space test space in organisation test org');
+    expect(container.querySelector('td.sharedTo')).toBeFalsy();
+  });
+
 });
 
 describe(ServiceLogsPage, () => {

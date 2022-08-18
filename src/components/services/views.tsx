@@ -5,7 +5,7 @@ import React, { ReactElement, ReactNode } from 'react';
 import { DATE_TIME } from '../../layouts/constants';
 import { Abbreviation, bytesToHuman } from '../../layouts/helpers';
 import { CommandLineAlternative } from '../../layouts/partials';
-import { IService, IServiceInstance, IServicePlan } from '../../lib/cf/types';
+import { IService, IServiceInstance, IServicePlan, IShareServiceDetails } from '../../lib/cf/types';
 import { RouteActiveChecker, RouteLinker } from '../app';
 
 interface IEnhancedServiceInstance extends IServiceInstance {
@@ -204,6 +204,30 @@ export function ServicePage(props: IServicePageProperties): ReactElement {
                   {props.service.entity.tags.join(', ')}
                 </td>
               </tr>
+              {props.service.shared_from && props.service.shared_from.space_guid !== props.spaceGUID ? 
+                <tr className="govuk-table__row">
+                  <th scope="row" className="govuk-table__header">
+                    Shared from
+                  </th>
+                  <td className="govuk-table__cell sharedFrom">
+                    space <span className="govuk-!-font-weight-bold">{props.service.shared_from.space_name}</span> in organisation <span className="govuk-!-font-weight-bold">{props.service.shared_from.organization_name}</span>
+                  </td>
+                </tr>
+              : '' }
+            {props.service.shared_from && props.service.shared_from.space_guid === props.spaceGUID ? 
+              <tr className="govuk-table__row">
+                <th scope="row" className="govuk-table__header">
+                  Shared to
+                </th>
+                <td className="govuk-table__cell sharedTo">
+                  <ul className="govuk-list">
+                  {props.service.shared_to!.resources.map((item:IShareServiceDetails) => (
+                      <li key={item.space_guid}>space <span className="govuk-!-font-weight-bold">{item.space_name}</span> in organisation <span className="govuk-!-font-weight-bold">{item.organization_name}</span></li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+                : '' }
             </tbody>
           </table>
           </div>
