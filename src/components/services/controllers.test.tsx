@@ -15,6 +15,12 @@ nock('https://example.com/api')
   .get('/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92')
   .times(1)
   .reply(200, data.serviceInstance)
+  .get('/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92/shared_from')
+  .times(1)
+  .reply(200, {})
+  .get('/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92/shared_to')
+  .times(1)
+  .reply(200, {})
   .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
   .times(1)
   .reply(200, data.servicePlan)
@@ -36,7 +42,17 @@ nock('https://example.com/api')
     '/v2/user_provided_service_instances/54e4c645-7d20-4271-8c27-8cc904e1e7ee',
   )
   .times(1)
-  .reply(200, data.userServiceInstance);
+  .reply(200, data.userServiceInstance)
+  .get(
+    '/v2/service_instances/54e4c645-7d20-4271-8c27-8cc904e1e7ee/shared_from',
+  )
+  .times(1)
+  .reply(200, {})
+  .get(
+    '/v2/service_instances/54e4c645-7d20-4271-8c27-8cc904e1e7ee/shared_to',
+  )
+  .times(1)
+  .reply(200, {});
 
 const ctx: IContext = createTestContext();
 
