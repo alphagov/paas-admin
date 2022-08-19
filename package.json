@@ -46,7 +46,7 @@
     "@types/d3-scale": "^4.0.1",
     "@types/d3-selection": "^3.0.1",
     "@types/d3-shape": "^3.0.2",
-    "@types/eslint": "^8.4.5",
+    "@types/eslint": "^8.4.6",
     "@types/expect-puppeteer": "^4.4.7",
     "@types/express": "^4.17.13",
     "@types/jest": "^28.1.3",
