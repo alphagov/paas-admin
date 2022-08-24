@@ -41,6 +41,9 @@ export async function viewService(
     ? await cf.servicePlan(service.entity.service_plan_guid)
     : undefined;
 
+  const sharedFrom = await cf.sharedFrom(params.serviceGUID)
+  const sharedTo = await cf.sharedTo(params.serviceGUID)
+  
   const summarisedService = {
     entity: service.entity,
     metadata: service.metadata,
@@ -48,6 +51,8 @@ export async function viewService(
       ? await cf.service(servicePlan.entity.service_guid)
       : undefined,
     service_plan: servicePlan,
+    shared_from: sharedFrom,
+    shared_to: sharedTo,
   };
 
   const template = new Template(

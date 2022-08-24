@@ -373,6 +373,15 @@ export interface IV3Service<T> {
   };
 }
 
+export interface IShareServiceDetails {
+  readonly space_guid: string;
+  readonly space_name: string;
+  readonly organization_name: string;
+}
+export interface ISharedToServiceDetails {
+  readonly resources: ReadonlyArray<IShareServiceDetails>;
+}
+
 export interface IServicePlan {
   readonly entity: {
     readonly active: boolean;
@@ -449,6 +458,8 @@ export interface IServiceInstance {
     readonly type: string;
   };
   readonly metadata: IMetadata;
+  readonly shared_from?: IShareServiceDetails;
+  readonly shared_to?: ISharedToServiceDetails;
 }
 
 export interface IServiceSummary {
@@ -472,11 +483,8 @@ export interface IServiceSummary {
       readonly version: string;
     };
   };
-  readonly shared_from: {
-    readonly organization_name: string;
-    readonly space_guid: string;
-    readonly space_name: string;
-  };
+  readonly shared_from?: IShareServiceDetails;
+  readonly shared_to?: ISharedToServiceDetails;
 }
 
 export interface IV3SpaceRequest {
