@@ -351,10 +351,6 @@ describe(SpacesPage, () => {
     );
     expect(container.querySelectorAll('table tbody tr')).toHaveLength(2);
     expect(container.querySelector('h1')).toHaveTextContent(organization.entity.name);
-    expect(container.querySelector('h2 + span')).toHaveTextContent('20.0%');
-    expect(container.querySelector('p')).toHaveTextContent(
-      'Using 1.00 GiB of memory out of a maximum of 5.00 GiB.',
-    );
     expect(queryByText('View team members')).toBeTruthy();
     expect(queryByText('Trial')).toBeTruthy();
     expect(queryByText('Trial organisations have limited access to backing services')).toBeTruthy();
@@ -380,6 +376,40 @@ describe(SpacesPage, () => {
     expect(container.querySelector('table tbody tr')).toBeTruthy();
     expect(queryByText('Manage this organization')).toBeTruthy();
     expect(queryByText(`There is 1 space in ${organization.entity.name}.`)).toBeTruthy();
+  });
+
+  it('should ONLY show qouta usage calculation for org managers', () => {
+    const { container } = render(
+      <SpacesPage
+        linkTo={route => `__LINKS_TO__${route}`}
+        isAdmin={false}
+        isManager={true}
+        isBillingManager={false}
+        organization={organization}
+        spaces={[space, { ...space, quota: undefined }]}
+        users={[null]}
+      />,
+    );
+    expect(container.querySelectorAll('.org-summary-stat__value')[0]).toHaveTextContent('default');
+    expect(container.querySelectorAll('.org-summary-stat__value')[1]).toHaveTextContent('20.0%');
+    expect(container.querySelectorAll('.org-summary-stat__context').length).toBe(1);
+  });
+
+  it('should NOT show qouta usage calculation for NON org managers and only show assigned quota name', () => {
+    const { container } = render(
+      <SpacesPage
+        linkTo={route => `__LINKS_TO__${route}`}
+        isAdmin={false}
+        isManager={false}
+        isBillingManager={false}
+        organization={organization}
+        spaces={[space, { ...space, quota: undefined }]}
+        users={[null]}
+      />,
+    );
+    expect(container.querySelectorAll('.org-summary-stat__value')[0]).toHaveTextContent('default');
+    expect(container.querySelectorAll('.org-summary-stat__value')[0]).not.toHaveTextContent('20.0%');
+    expect(container.querySelectorAll('.org-summary-stat__context').length).toBe(0);
   });
 
   it('should highlight suspended state in main heading', () => {
