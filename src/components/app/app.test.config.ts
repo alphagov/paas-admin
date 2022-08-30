@@ -35,7 +35,6 @@ export const config: IAppConfig = {
   oauthClientID: 'key',
   oauthClientSecret: 'secret',
   oidcProviders: providers,
-  platformMetricsEndpoint: 'https://example.com/performance',
   prometheusEndpoint: 'https://example.com/prom',
   prometheusPassword: 'prometheusPassword',
   prometheusUsername: 'prometheusUsername',

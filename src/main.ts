@@ -99,7 +99,6 @@ async function main() {
     oauthClientID: expectEnvVariable('OAUTH_CLIENT_ID'),
     oauthClientSecret: expectEnvVariable('OAUTH_CLIENT_SECRET'),
     oidcProviders: providers,
-    platformMetricsEndpoint: expectEnvVariable('PLATFORM_METRICS_ENDPOINT'),
     prometheusEndpoint: expectEnvVariable('PROMETHEUS_ENDPOINT'),
     prometheusPassword: expectEnvVariable('PROMETHEUS_PASSWORD'),
     prometheusUsername: expectEnvVariable('PROMETHEUS_USERNAME'),

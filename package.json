@@ -20,7 +20,6 @@
     "fix:sass": "stylelint '**/*.scss' --fix",
     "fix:ts": "eslint --fix --ext .js,.jsx,.ts,.tsx .",
     "fix:vulnerabilities": "npm audit fix --update-binary",
-    "scrape:performance": "ts-node src/scripts/performance.ts",
     "start": "export PORT=${PORT-3000}; export LOG_LEVEL=${LOG_LEVEL-warn}; if [ \"$NODE_ENV\" = 'production' ]; then npm run -s start:production; else npm run -s start:dev; fi",
     "start:dev": "NODE_ENV=development ENABLE_WATCH=true ENABLE_SERVER=true ALLOW_INSECURE_SESSION=true npm run -s build",
     "start:dev:with-cf-dev-env": "./config/use-dev-env.sh",

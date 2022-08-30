@@ -15,7 +15,6 @@ import { requireAuthentication, handleSession } from '../auth';
 import { getCalculator } from '../calculator';
 import { internalServerErrorMiddleware } from '../errors';
 import { listServices, viewService } from '../marketplace';
-import { downloadPerformanceData, viewDashboard } from '../performance';
 import {
   ContactUsForm,
   HandleContactUsFormPost,
@@ -57,7 +56,6 @@ export interface IAppConfig {
   readonly awsResourceTaggingAPIEndpoint?: string;
   readonly awsCredentials?: awsCredentials;
   readonly adminFee: number;
-  readonly platformMetricsEndpoint: string;
   readonly prometheusEndpoint: string;
   readonly prometheusUsername: string;
   readonly prometheusPassword: string;
@@ -231,38 +229,6 @@ export default function(config: IAppConfig): express.Express {
     resetPassword(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) }, req.body)
       .then((response: IResponse) => {
         res.status(response.status || 200).send(response.body);
-      })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
-    },
-  );
-
-  app.get('/performance', (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const route = router.findByName('performance.view');
-    const ctx = initContext(req, router, route, config);
-
-    viewDashboard(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
-      .then((response: IResponse) => {
-        res.status(response.status || 200).send(response.body);
-      })
-      .catch(err => internalServerErrorMiddleware(err, req, res, next));
-    },
-  );
-
-  app.get('/performance/:metric', (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const route = router.findByName('performance.download');
-    const ctx = initContext(req, router, route, config);
-
-    downloadPerformanceData(ctx, { ...req.query, ...req.params, ...route.parser.match(req.path) })
-      .then((response: IResponse) => {
-        res.status(response.status || 200);
-        /* istanbul ignore next */
-        if (response.mimeType) {
-          res.contentType(response.mimeType);
-        }
-        /* istanbul ignore next */
-        if (response.download) {
-          res.attachment(response.download.name).send(response.download.data);
-        }
       })
       .catch(err => internalServerErrorMiddleware(err, req, res, next));
     },
