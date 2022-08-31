@@ -5,7 +5,6 @@ import * as applications from '../applications';
 import * as marketplace from '../marketplace';
 import * as orgUsers from '../org-users';
 import * as organizations from '../organizations';
-import * as performance from '../performance';
 import * as platformAdmin from '../platform-admin';
 import * as reports from '../reports';
 import * as serviceEvents from '../service-events';
@@ -268,16 +267,6 @@ export const router = new Router([
     method: 'post',
     name: 'platform-admin.contact-organization-managers.post',
     path: '/platform-admin/contact-organisation-managers',
-  },
-  {
-    action: performance.viewDashboard,
-    name: 'performance.view',
-    path: '/performance',
-  },
-  {
-    action: performance.downloadPerformanceData,
-    name: 'performance.download',
-    path: '/performance/:metric',
   },
   {
     action: marketplace.listServices,

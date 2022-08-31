@@ -201,14 +201,6 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
                 </a>
               </li>
               <li className="govuk-footer__list-item">
-                <a
-                  className="govuk-footer__link"
-                  href="/performance"
-                >
-                  Performance dashboard
-                </a>
-              </li>
-              <li className="govuk-footer__list-item">
                 <a className="govuk-footer__link" href="https://docs.cloud.service.gov.uk/">
                   Documentation
                 </a>

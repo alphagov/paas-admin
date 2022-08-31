@@ -19,7 +19,6 @@ const envVars = {
   OAUTH_CLIENT_ID: 'uaa-id',
   OAUTH_CLIENT_SECRET: 'uaa-secret',
   PATH: process.env.PATH,
-  PLATFORM_METRICS_ENDPOINT: 'https://example.com/performance',
   PROMETHEUS_ENDPOINT: 'https://example.com/prom',
   PROMETHEUS_PASSWORD: 'password',
   PROMETHEUS_USERNAME: 'admin',

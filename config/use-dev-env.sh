@@ -24,7 +24,6 @@ export STUB_CF_PORT=${STUB_CF_PORT-1339}
 export STUB_UAA_PORT=${STUB_UAA_PORT-1340}
 export STUB_AWS_PORT=${STUB_AWS_PORT-1341}
 export STUB_PROMETHEUS_PORT=${STUB_PROMETHEUS_PORT-1342}
-export STUB_PLATFORM_METRICS_PORT=${STUB_PLATFORM_METRICS_PORT-1343}
 
 export ACCOUNTS_URL=$(service_domain "accounts")
 export BILLING_URL=$(service_domain "billing")
@@ -49,8 +48,6 @@ export OAUTH_CLIENT_ID=paas-admin-local
 export OAUTH_CLIENT_SECRET=local-dev
 export GOOGLE_CLIENT_ID=googleclientid
 export GOOGLE_CLIENT_SECRET=googleclientsecret
-
-export PLATFORM_METRICS_ENDPOINT=http://0:${STUB_PLATFORM_METRICS_PORT-1343}
 
 ## Start the dev server
 npm start
