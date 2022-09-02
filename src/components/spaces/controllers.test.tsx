@@ -241,14 +241,14 @@ describe('spaces test suite', () => {
       .reply(200, data.services);
     const response = await spaces.listSpaces(ctx, { organizationGUID });
 
-    expect(response.body).toContain('Quota usage');
-    expect(response.body).toContain('5.0%');
-    expect(response.body).toMatch(
+    expect(response.body).toContain('Assigned quota');
+    expect(response.body).toContain('name-1996');
+    expect(response.body).not.toMatch(
       /Using\s+1[.]00\s<abbr role="tooltip" tabindex="0" data-module="tooltip" aria-label="gibibytes">GiB<\/abbr>\s+of memory/m,
     );
 
     expect(response.body).toContain('Spaces');
-    expect(response.body).toMatch(/0[.]00.*GiB.*\s+of\s+20[.]00.*GiB/m);
+    expect(response.body).toMatch(/0*\s.*B.*\s+of\s+20[.]00.*GiB/m);
     expect(response.body).toMatch(/1[.]00.*GiB.*\s+of\s+no limit/m);
     expect(
       spacesMissingAroundInlineElements(response.body as string),

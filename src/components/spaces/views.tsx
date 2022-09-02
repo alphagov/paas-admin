@@ -193,16 +193,22 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-third">
           <div className="org-summary-stat">
+            <h2 className="org-summary-stat__heading">Assigned quota</h2>
+            <span className="org-summary-stat__value">
+              {props.organization.quota.entity.name}
+            </span>
+          </div>
+          {props.isManager ?
+          <>
+          <div className="org-summary-stat">
             <h2 className="org-summary-stat__heading">Quota usage</h2>
-
-            <span className="org-summary-stat__figure">
+            <span className="org-summary-stat__value">
               {help.percentage(
                 props.organization.memory_allocated,
                 props.organization.quota.entity.memory_limit,
               )}
             </span>
           </div>
-
           <p className="org-summary-stat__context govuk-body">
             Using{' '}
             {help.bytesToHuman(props.organization.memory_allocated * MEBIBYTE)}{' '}
@@ -212,6 +218,10 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
             )}
             .
           </p>
+          </>
+            : <></>
+          }
+          
 
           {props.isAdmin ? <p className="govuk-body">
             <a
@@ -236,7 +246,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
           <div className="org-summary-stat">
             <h2 className="org-summary-stat__heading">Team members</h2>
 
-            <span className="org-summary-stat__figure">
+            <span className="org-summary-stat__value">
               {props.users.length}
             </span>
           </div>
@@ -262,7 +272,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
           <div className="org-summary-stat">
             <h2 className="org-summary-stat__heading">Billing</h2>
 
-            <span className="org-summary-stat__figure">
+            <span className="org-summary-stat__value">
               {props.organization.quota.entity.name === 'default'
                 ? 'Trial'
                 : 'Billable'}
