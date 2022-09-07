@@ -41,6 +41,7 @@ export interface IEmailManagersFormValues {
   readonly message: string;
   readonly managerType: string;
   readonly space: string;
+  readonly subject?: string
 }
 
 interface IEmailManagersFormProperties extends IFormProperties {
@@ -552,6 +553,10 @@ export function EmailManagers(props: IEmailManagersFormProperties): ReactElement
               </div>
             </div>
           </fieldset>
+        </div>
+        <div className="govuk-form-group">
+          <label className="govuk-label" htmlFor="subject">Email subject (optional)</label>
+          <input className="govuk-input" id="subject" name="subject" type="text" spellCheck="false"   defaultValue={props.values?.subject} />
         </div>
         <div className={`govuk-form-group ${
             props.errors?.some(e => e.field === 'message')

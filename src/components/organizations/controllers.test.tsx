@@ -15,7 +15,14 @@ import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
 import { CLOUD_CONTROLLER_ADMIN, Token } from '../auth';
 
-import { constructZendeskRequesterObject, editOrgData, emailManagersForm, emailManagersFormPost, emailManagersZendeskContent, updateOrgData } from './controllers';
+import { 
+  constructSubject,
+  constructZendeskRequesterObject,
+  editOrgData, emailManagersForm,
+  emailManagersFormPost,
+  emailManagersZendeskContent,
+  updateOrgData,
+} from './controllers';
 
 import { listOrganizations } from '.';
 import * as cfData from '../../lib/cf/cf.test.data';
@@ -551,6 +558,20 @@ GOV.UK PaaS`;
 
       expect(userIsNull).toMatchObject(expecteNullUserOutput);
     });
+  });
+
+  describe(constructSubject, () => {
+
+    it('should output default text if user subject not provided', () => {
+      const output = constructSubject('');
+      expect(output).toBe("[PaaS Support] About your organisation on GOV.UK PaaS");
+    });
+
+    it('should output user provided subject text', () => {
+      const output = constructSubject('Custom subject');
+      expect(output).toBe("[PaaS Support] Custom subject");
+    });
+
   });
 
 });

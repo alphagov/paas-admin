@@ -49,6 +49,13 @@ function checkFormField(variable: string, field: string, message: string): Reado
   return errors;
 }
 
+export function constructSubject(userInput: string | undefined): string {
+  const prefix = "[PaaS Support]"
+  const defaultSubject = "About your organisation on GOV.UK PaaS"
+  let subject:string = userInput ? userInput : defaultSubject
+  return `${prefix} ${subject}`
+}
+
 export function constructZendeskRequesterObject(user: IUaaUser | null): any {
   const user_name = user === null ? 'GOV.UK PaaS Admin' : `${user!.name.givenName} ${user!.name.familyName}`;
   const user_email = user === null ? 'gov-uk-paas-support@digital.cabinet-office.gov.uk' : user!.emails[0].value;
@@ -378,7 +385,7 @@ export async function emailManagersFormPost(
         ctx.viewContext.location,
         organisation.entity.name),
       },
-      subject: '[PaaS Support] About your organisation on GOV.UK PaaS',
+      subject: constructSubject(body.subject),
       status: 'pending',
       tags: ['govuk_paas_support'],
       requester: constructZendeskRequesterObject(adminUser),
