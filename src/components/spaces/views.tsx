@@ -232,6 +232,15 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
             </a>
           </p> : <></>}
 
+          {props.isAdmin ? <p className="govuk-body">
+            <a
+              href={props.linkTo('admin.organizations.email-managers', { organizationGUID: props.organization.metadata.guid })}
+              className="govuk-link"
+            >
+              Email space or organisation managers
+            </a>
+          </p> : <></>}
+
           <p className="govuk-body">
             <a
               href="https://docs.cloud.service.gov.uk/managing_apps.html#quotas"
