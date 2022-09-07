@@ -47,6 +47,17 @@ export const router = new Router([
     path: '/organisations/:organizationGUID/edit',
   },
   {
+    action: organizations.emailManagersForm,
+    name: 'admin.organizations.email-managers',
+    path: '/organisations/:organizationGUID/email-managers',
+  },
+  {
+    action: organizations.emailManagersFormPost,
+    method: 'post',
+    name: 'admin.organizations.email-managers.post',
+    path: '/organisations/:organizationGUID/email-managers',
+  },
+  {
     action: spaces.listApplications,
     name: 'admin.organizations.spaces.applications.list',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications',
