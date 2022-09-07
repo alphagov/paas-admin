@@ -1,16 +1,22 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { bytesToHuman, MEBIBYTE } from '../../layouts';
 import { NotificationBanner } from '../../layouts/partials';
 import { IOrganization, IOrganizationQuota, IV3OrganizationQuota, IV3OrganizationResource } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
+import { ISpace } from '../../lib/cf/types';
 import { owners } from './owners';
+import { IValidationError } from '../errors/types';
 
 interface IOrganizationProperties {
   readonly guid: string;
   readonly name: string;
   readonly billable: boolean;
   readonly suspended: boolean;
+  readonly linkTo: RouteLinker;
+}
+
+interface IProperties {
   readonly linkTo: RouteLinker;
 }
 
@@ -24,6 +30,32 @@ interface IEditOrganizationProperties {
   readonly csrf: string;
   readonly organization: IV3OrganizationResource;
   readonly quotas: ReadonlyArray<IV3OrganizationQuota>;
+}
+
+interface IFormProperties extends IProperties {
+  readonly csrf: string;
+  readonly errors?: ReadonlyArray<IValidationError>;
+}
+
+export interface IEmailManagersFormValues {
+  readonly message: string;
+  readonly managerType: string;
+  readonly space: string;
+}
+
+interface IEmailManagersFormProperties extends IFormProperties {
+  readonly csrf: string;
+  readonly linkTo: RouteLinker;
+  readonly organisation: IOrganization;
+  readonly spaces: ReadonlyArray<ISpace>;
+  readonly values?: IEmailManagersFormValues;
+}
+
+interface EmailManagersConfirmationPageProperties {
+  readonly heading: string;
+  readonly text: string;
+  readonly children: ReactNode;
+  readonly linkTo: RouteLinker;
 }
 
 export function Organization(props: IOrganizationProperties): ReactElement {
@@ -369,4 +401,229 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
       </table>
     </div>
   </div>;
+}
+
+export function EmailManagers(props: IEmailManagersFormProperties): ReactElement {
+  return <div className="govuk-grid-row">
+    <div className="govuk-grid-column-two-thirds">
+      
+      <form method="post" noValidate>
+        <input type="hidden" name="_csrf" value={props.csrf} />
+
+        {props.errors
+          ? <div 
+              className="govuk-error-summary"
+              aria-labelledby="error-summary-title"
+              role="alert"
+              data-module="govuk-error-summary"
+            >
+              <h2 className="govuk-error-summary__title" id="error-summary-title">
+                There is a problem
+              </h2>
+              <div className="govuk-error-summary__body">
+                <ul className="govuk-list govuk-error-summary__list">
+                  {props.errors.map((error, index) => (
+                    <li key={index}><a href={`#${error.field}`}>{error.message}</a></li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          : null
+        }
+       <div className={`govuk-form-group ${
+            props.errors?.some(e => e.field === 'managerType')
+                ? 'govuk-form-group--error'
+                : ''
+            }`}>
+          <fieldset 
+            className="govuk-fieldset"
+            aria-describedby={
+              props.errors?.some(e => e.field === 'managerType')
+                ? 'managerType-error'
+                : 'managerType-hint'
+            }
+          >
+            <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
+              <h1 className="govuk-fieldset__heading">
+              Email managers in {props.organisation.entity.name}
+              </h1>
+            </legend>
+            {props.errors
+              ?.filter(error => error.field === 'managerType')
+              .map((error, index) => (
+                <p
+                  key={index}
+                  id="managerType-error"
+                  className="govuk-error-message"
+                >
+                  <span className="govuk-visually-hidden">Error:</span>{' '}
+                  {error.message}
+                </p>
+              ))}
+            <div id="managerType-hint" className="govuk-hint">
+              Select one option.
+            </div>
+            <div className="govuk-radios" data-module="govuk-radios">
+              <div className="govuk-radios__item">
+                <input
+                  className="govuk-radios__input"
+                  id="managerType"
+                  name="managerType"
+                  type="radio"
+                  value="org_manager"
+                  defaultChecked={props.values?.managerType === 'org_manager'}
+                />
+                <label className="govuk-label govuk-radios__label" htmlFor="managerType">
+                  Email organisation managers
+                </label>
+              </div>
+              <div className="govuk-radios__item">
+                <input 
+                  className="govuk-radios__input"
+                  id="managerType-1"
+                  name="managerType"
+                  type="radio"
+                  value="billing_manager"
+                  defaultChecked={props.values?.managerType === 'billing_manager'}
+                />
+                <label className="govuk-label govuk-radios__label" htmlFor="managerType-1">
+                  Email billing managers
+                </label>
+              </div>
+              <div className="govuk-radios__item">
+                <input 
+                  className="govuk-radios__input" 
+                  id="managerType-2" name="managerType" 
+                  type="radio" value="space_manager"  
+                  data-aria-controls="spaces"
+                  defaultChecked={props.values?.managerType === 'space_manager'}
+                />
+                <label className="govuk-label govuk-radios__label" htmlFor="managerType-2">
+                  Email space managers
+                </label>
+              </div>
+              <div className="govuk-radios__conditional govuk-radios__conditional--hidden" id="spaces">
+                <div className={`govuk-form-group ${
+                    props.errors?.some(e => e.field === 'space')
+                        ? 'govuk-form-group--error'
+                        : ''
+                    }`}
+                  >
+                  <label className="govuk-label" htmlFor="space">
+                    Select space
+                  </label>
+                  {props.errors
+                    ?.filter(error => error.field === 'space')
+                    .map((error, index) => (
+                      <p
+                        key={index}
+                        id="space-error"
+                        className="govuk-error-message"
+                      >
+                        <span className="govuk-visually-hidden">Error:</span>{' '}
+                        {error.message}
+                      </p>
+                    ))}
+                  <select
+                   className={`govuk-select ${
+                    props.errors?.some(e => e.field === 'space')
+                        ? 'govuk-select--error'
+                        : ''
+                    }`}
+                    id="space" name="space"
+                    aria-describedby={
+                      props.errors?.some(e => e.field === 'space')
+                        ? 'space-error'
+                        : ''
+                    }
+                  >
+                    <option value="">Select a space</option>
+                    {props.spaces.map(space => (
+                      <option 
+                        key={space.metadata.guid} 
+                        value={space.metadata.guid}
+                        selected={space.metadata.guid === props.values?.space}
+                      >
+                        {space.entity.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div className={`govuk-form-group ${
+            props.errors?.some(e => e.field === 'message')
+              ? 'govuk-form-group--error'
+              : ''
+          }`}>
+          <label className="govuk-label" htmlFor="message">
+            Message
+          </label>
+          {props.errors
+            ?.filter(error => error.field === 'message')
+            .map((error, index) => (
+              <p
+                key={index}
+                id="message-error"
+                className="govuk-error-message"
+              >
+                <span className="govuk-visually-hidden">Error:</span>{' '}
+                {error.message}
+              </p>
+            ))}
+
+          <textarea
+            className={`govuk-textarea ${
+              props.errors?.some(e => e.field === 'message')
+                  ? 'govuk-textarea--error'
+                  : ''
+              }`}
+            id="message"
+            name="message"
+            aria-describedby={
+              props.errors?.some(e => e.field === 'message')
+                ? 'message-error message-hint'
+                : 'message-hint'
+            }
+            rows={8}
+            defaultValue={props.values?.message}
+          />
+        </div>
+
+        <p className="govuk-body">
+        Message will automatically include the following:
+        <div id="message-hint" className="govuk-hint">
+          You are receiving this email as you are listed as a [manager_type] manager in the [organisation_name] organisation in our [paas_region] region.<br /><br />
+          Thank you,<br />
+          GOV.UK PaaS
+          </div>
+        </p>
+
+        <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
+          Send
+        </button>
+      </form>
+    </div>
+  </div>;
+}
+
+export function EmailManagersConfirmationPage(props: EmailManagersConfirmationPageProperties): ReactElement {
+  return (
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-two-thirds">
+        <div className="govuk-panel govuk-panel--confirmation">
+          <h1 className="govuk-panel__title">
+            {props.heading}
+          </h1>
+          <div className="govuk-panel__body">
+            {props.text}
+          </div>
+        </div>
+
+        <p className="govuk-body">{props.children}</p>
+      </div>
+    </div>
+  );
 }
