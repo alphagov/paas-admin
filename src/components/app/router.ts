@@ -47,6 +47,17 @@ export const router = new Router([
     path: '/organisations/:organizationGUID/edit',
   },
   {
+    action: organizations.emailManagersForm,
+    name: 'admin.organizations.email-managers',
+    path: '/organisations/:organizationGUID/email-managers',
+  },
+  {
+    action: organizations.emailManagersFormPost,
+    method: 'post',
+    name: 'admin.organizations.email-managers.post',
+    path: '/organisations/:organizationGUID/email-managers',
+  },
+  {
     action: spaces.listApplications,
     name: 'admin.organizations.spaces.applications.list',
     path: '/organisations/:organizationGUID/spaces/:spaceGUID/applications',
@@ -256,17 +267,6 @@ export const router = new Router([
     method: 'post',
     name: 'platform-admin.create-organization',
     path: '/platform-admin/create-org',
-  },
-  {
-    action: platformAdmin.contactOrganisationManagers,
-    name: 'platform-admin.contact-organization-managers',
-    path: '/platform-admin/contact-organisation-managers',
-  },
-  {
-    action: platformAdmin.contactOrganisationManagersPost,
-    method: 'post',
-    name: 'platform-admin.contact-organization-managers.post',
-    path: '/platform-admin/contact-organisation-managers',
   },
   {
     action: marketplace.listServices,

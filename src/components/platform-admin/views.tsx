@@ -1,9 +1,6 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 
 import { SLUG_REGEX } from '../../layouts';
-import {
-  OrganizationUserRoles,
-} from '../../lib/cf/types';
 import { RouteLinker } from '../app';
 import { IValidationError } from '../errors/types';
 import { SuccessPage } from '../org-users/views';
@@ -35,29 +32,6 @@ interface ICreateOrganizationPageProperties extends IFormProperties {
     readonly owner: string;
   }>;
 }
-
-export interface IContactOrganisationManagersPageValues {
-  readonly organisation: string;
-  readonly message: string;
-  readonly managerRole: OrganizationUserRoles;
-}
-
-interface IContactOrganisationManagersPageProperties extends IFormProperties {
-  readonly orgs: ReadonlyArray<{
-    readonly guid: string;
-    readonly name: string;
-    readonly suspended: boolean;
-  }>;
-  readonly values?: IContactOrganisationManagersPageValues;
-}
-
-interface ContactOrganisationManagersConfirmationPageProperties {
-  readonly heading: string;
-  readonly text: string;
-  readonly children: ReactNode;
-  readonly linkTo: RouteLinker;
-}
-
 
 function Costs(props: IFormProperties): ReactElement {
   return (
@@ -177,11 +151,6 @@ function Organizations(props: IProperties): ReactElement {
         <li>
           <a className="govuk-link" href={props.linkTo('admin.reports.organizations')}>
             View trial and billable organisations
-          </a>
-        </li>
-        <li>
-          <a className="govuk-link" href={props.linkTo('platform-admin.contact-organization-managers')}>
-            Contact organisation managers
           </a>
         </li>
       </ul>
@@ -317,194 +286,4 @@ export function CreateOrganizationSuccessPage(props: ICreateOrganizationSuccessP
     text={'You still need to invite people and assign permissions.'}
     >
   </SuccessPage>);
-}
-
-export function ContactOrganisationManagersPage(props: IContactOrganisationManagersPageProperties): ReactElement {
-  return (<div className="govuk-grid-row">
-    <div className="govuk-grid-column-two-thirds">
-      <form method="post" noValidate>
-        <h1 className="govuk-heading-xl">Contact organisation managers</h1>
-
-        <input type="hidden" name="_csrf" value={props.csrf} />
-
-        {props.errors
-          ? <div 
-              className="govuk-error-summary"
-              aria-labelledby="error-summary-title"
-              role="alert"
-              data-module="govuk-error-summary"
-            >
-              <h2 className="govuk-error-summary__title" id="error-summary-title">
-                There is a problem
-              </h2>
-              <div className="govuk-error-summary__body">
-                <ul className="govuk-list govuk-error-summary__list">
-                  {props.errors.map((error, index) => (
-                    <li key={index}><a href={`#${error.field}`}>{error.message}</a></li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          : null
-        }
-
-        <p className="govuk-body">
-        This form will create a Zendesk ticket and send an email to all selected managers of an organisation.
-        </p>
-
-        <div className={`govuk-form-group ${
-            props.errors?.some(e => e.field === 'organisation')
-              ? 'govuk-form-group--error'
-              : ''
-          }`}>
-          <label className="govuk-label" htmlFor="organisation">
-            Organisation name
-          </label>
-          {props.errors
-            ?.filter(error => error.field === 'organisation')
-            .map((error, index) => (
-              <p
-                key={index}
-                id="organisation-error"
-                className="govuk-error-message"
-              >
-                <span className="govuk-visually-hidden">Error:</span>{' '}
-                {error.message}
-              </p>
-            ))}
-          <select
-            className={`govuk-select ${
-              props.errors?.some(e => e.field === 'organisation')
-                  ? 'govuk-select--error'
-                  : ''
-              }`}
-            id="organisation"
-            name="organisation"
-            aria-describedby={
-              props.errors?.some(e => e.field === 'organisation')
-                ? 'organisation-error'
-                : ''
-            }
-          >
-            <option value="">Select an organisation</option>
-            {props.orgs.map(org => (
-              <option key={org.guid} selected={org.guid === props.values?.organisation} value={org.guid}>{org.name} { org.suspended ? '(suspended)' : null }</option>
-            ))},
-          </select>
-        </div>
-
-        <div className={`govuk-form-group ${
-            props.errors?.some(e => e.field === 'managerRole')
-              ? 'govuk-form-group--error'
-              : ''
-          }`}>
-          <label className="govuk-label" htmlFor="managerRole">
-            Manager role
-          </label>
-          {props.errors
-            ?.filter(error => error.field === 'managerRole')
-            .map((error, index) => (
-              <p
-                key={index}
-                id="managerRole-error"
-                className="govuk-error-message"
-              >
-                <span className="govuk-visually-hidden">Error:</span>{' '}
-                {error.message}
-              </p>
-            ))}
-          <select
-            className={`govuk-select ${
-              props.errors?.some(e => e.field === 'managerRole')
-                  ? 'govuk-select--error'
-                  : ''
-              }`}
-            id="managerRole"
-            name="managerRole"
-            aria-describedby={
-              props.errors?.some(e => e.field === 'managerRole')
-                ? 'managerRole-error'
-                : ''
-            }
-          >
-            <option value="">Select manager role</option>
-            <option value="billing_manager" selected={props.values?.managerRole === 'billing_manager'}>Billing manager</option>
-            <option value="org_manager" selected={props.values?.managerRole === 'org_manager'}>Organisation manager</option>
-          </select>
-        </div>
-
-        <div className={`govuk-form-group ${
-            props.errors?.some(e => e.field === 'message')
-              ? 'govuk-form-group--error'
-              : ''
-          }`}>
-          <label className="govuk-label" htmlFor="message">
-            Message
-          </label>
-          {props.errors
-            ?.filter(error => error.field === 'message')
-            .map((error, index) => (
-              <p
-                key={index}
-                id="message-error"
-                className="govuk-error-message"
-              >
-                <span className="govuk-visually-hidden">Error:</span>{' '}
-                {error.message}
-              </p>
-            ))}
-
-          <textarea
-            className={`govuk-textarea ${
-              props.errors?.some(e => e.field === 'message')
-                  ? 'govuk-textarea--error'
-                  : ''
-              }`}
-            id="message"
-            name="message"
-            aria-describedby={
-              props.errors?.some(e => e.field === 'message')
-                ? 'message-error message-hint'
-                : 'message-hint'
-            }
-            rows={8}
-            defaultValue={props.values?.message}
-          />
-        </div>
-
-        <p className="govuk-body">
-        Message will automatically include the following:
-        <div id="message-hint" className="govuk-hint">
-          You are receiving this email as you are listed as a [manager_role] manager of the [organisation_name] organisation in our [paas_region] region.<br /><br />
-          Thank you,<br />
-          GOV.UK PaaS
-          </div>
-        </p>
-
-        <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
-          Send
-        </button>
-      </form>
-    </div>
-
-  </div>);
-}
-
-export function ContactOrganisationManagersConfirmationPage(props: ContactOrganisationManagersConfirmationPageProperties): ReactElement {
-  return (
-    <div className="govuk-grid-row">
-      <div className="govuk-grid-column-two-thirds">
-        <div className="govuk-panel govuk-panel--confirmation">
-          <h1 className="govuk-panel__title">
-            {props.heading}
-          </h1>
-          <div className="govuk-panel__body">
-            {props.text}
-          </div>
-        </div>
-
-        <p className="govuk-body">{props.children}</p>
-      </div>
-    </div>
-  );
 }

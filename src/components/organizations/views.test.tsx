@@ -7,8 +7,9 @@ import React from 'react';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { IOrganization, IOrganizationQuota, IV3OrganizationQuota, IV3OrganizationResource } from '../../lib/cf/types';
 
-import { EditOrganization, OrganizationsPage } from './views';
+import { EditOrganization, EmailManagers, EmailManagersConfirmationPage, OrganizationsPage } from './views';
 
+import { org as defaultOrg } from '../../lib/cf/test-data/org';
 
 function linker(_route: string, params: any): string {
   return params?.organizationGUID ? `/org/${params.organizationGUID}` : '/test';
@@ -150,3 +151,86 @@ describe(EditOrganization, () => {
     expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
   });
 });
+
+describe(EmailManagers, () => {
+  const spaces = [
+    {
+      metadata: { guid: 'eef38913-071c-40ae-bbd8-2be7402aa9a8' },
+      entity: { name:'test-space' },
+    },
+  ] as any;
+  it('should correctly render the form', () => {
+    const {container } = render (<EmailManagers
+      csrf="CSRF_TOKEN"
+      linkTo={linker}
+      organisation={defaultOrg()}
+      spaces={spaces}
+    />);
+
+    expect(container).toHaveTextContent(defaultOrg.name);
+    expect(container).toHaveTextContent('Email organisation managers');
+    expect(container).toHaveTextContent('Email billing managers');
+    expect(container).toHaveTextContent('Email space managers');
+    expect(container.querySelector('#space')).toHaveTextContent('test-space');
+  });
+
+  it('should correctly render the form errors', () => {
+    const {container } = render (<EmailManagers
+      csrf="CSRF_TOKEN"
+      linkTo={linker}
+      organisation={defaultOrg()}
+      spaces={spaces}
+      errors={
+        [
+          { field: 'managerType', message: 'Select a manager role' },
+          { field: 'message', message: 'Enter your message' },
+          { field: 'space', message: 'Select a space' },
+        ]
+      }
+    />);
+
+    expect(container.querySelector('.govuk-error-summary')).toBeTruthy();
+    expect(container.querySelectorAll('.govuk-error-summary li')).toHaveLength(3);
+    expect(container.querySelectorAll('.govuk-error-message')).toHaveLength(3);
+    expect(container.querySelector('#managerType-error')).toHaveTextContent('Select a manager role');
+    expect(container.querySelector('#message-error')).toHaveTextContent('Enter your message');
+    expect(container.querySelector('#space-error')).toHaveTextContent('Select a space');
+  });
+
+  it('should use provided form values on resubmission', () => {
+    const {container } = render (<EmailManagers
+      csrf="CSRF_TOKEN"
+      linkTo={linker}
+      organisation={defaultOrg()}
+      spaces={spaces}
+      values={{
+        managerType: 'space_manager',
+        message: 'Text message',
+        space: 'eef38913-071c-40ae-bbd8-2be7402aa9a8',
+      }}
+    />);
+
+    expect(container.querySelector('#space option:checked')).toHaveTextContent('test-space');
+    expect(container.querySelector('#managerType-2')).toBeChecked();
+    expect(container.querySelector('#message')).toHaveValue('Text message');
+  });
+});
+
+describe(EmailManagersConfirmationPage, () => {
+  it('should render the page with all provided properties', () => {
+    const {container } = render (
+      <EmailManagersConfirmationPage
+          linkTo={route => `__LINKS_TO__${route}`}
+          heading={'confirmation panel heading'}
+          text={'confirmation panel text'}
+        >
+          children text
+        </EmailManagersConfirmationPage>,
+    );
+
+    expect(container.querySelector('.govuk-panel__title')).toHaveTextContent('confirmation panel heading');
+    expect(container.querySelector('.govuk-panel__body')).toHaveTextContent('confirmation panel text');
+    expect(container.querySelector('.govuk-body')).toHaveTextContent('children text');
+  });
+});
+
