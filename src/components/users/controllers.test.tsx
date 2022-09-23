@@ -532,6 +532,30 @@ describe(users.resetPassword, () => {
     expect(response.status).toEqual(400);
     expect(response.body).toContain('should contain a special character');
   });
+
+  it('should throw an error if the new password is the same as old password', async () => {
+
+    nockUAA
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}')
+
+      .post('/password_change')
+      .reply(422, {
+          "error_description":"Your new password cannot be the same as the old password.",
+          "error":"invalid_password",
+          "message":"Your new password cannot be the same as the old password.",
+        },
+      );
+
+    const response = await users.resetPassword(ctx, {}, {
+      code: '1234567890',
+      password: 'password-STR0NG-like-j3nk1n$',
+      passwordConfirmation: 'password-STR0NG-like-j3nk1n$',
+    })
+
+    expect(response.status).toEqual(422);
+    expect(response.body).toContain('Your new password cannot be the same as the old password');
+  });
 });
 
 describe(users.checkPasswordAgainstPolicy, () => {
