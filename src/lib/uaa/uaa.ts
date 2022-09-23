@@ -45,6 +45,7 @@ async function request(endpoint: string, method: string, url: string, opts: any)
     let err: any;
     if (typeof response.data === 'object') {
       err = new Error(`${msg} and data ${JSON.stringify(response.data)}`);
+      err.data = response.data;
     } else {
       err = new Error(msg);
     }
