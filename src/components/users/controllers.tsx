@@ -316,13 +316,25 @@ export async function resetPassword(ctx: IContext, _params: IParameters, body: I
       clientSecret: ctx.app.oauthClientSecret,
     },
   });
+  try {
+    await uaa.resetPassword(body.code, body.password);
+    return {
+      body: template.render(<PasswordResetSuccess
+        title="Password successfully reset"
+        message="You may now log in with the use of your email and password."
+      />),
+    };
 
-  await uaa.resetPassword(body.code, body.password);
-
-  return {
-    body: template.render(<PasswordResetSuccess
-      title="Password successfully reset"
-      message="You may now log in with the use of your email and password."
-    />),
-  };
+  } catch (error:any) {
+    return {
+      body: template.render(<PasswordResetSetPasswordForm
+        csrf={ctx.viewContext.csrf}
+        code={body.code}
+        passwordDoesNotMeetPolicy={true}
+        passwordDoesNotMeetPolicyMessage={error.data.message}
+      />),
+      status: error.response.status,
+    }
+  }
 }
+
