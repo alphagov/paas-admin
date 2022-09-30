@@ -68,7 +68,7 @@
     "cheerio": "^1.0.0-rc.12",
     "compression-webpack-plugin": "^10.0.0",
     "css-loader": "^6.7.1",
-    "css-minimizer-webpack-plugin": "^4.1.0",
+    "css-minimizer-webpack-plugin": "^4.2.0",
     "csv-parse": "^5.3.0",
     "eslint": "^8.24.0",
     "eslint-config-react": "^1.1.7",
