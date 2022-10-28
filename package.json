@@ -106,7 +106,7 @@
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.197.0",
     "@aws-sdk/client-resource-groups-tagging-api": "^3.198.0",
-    "@aws-sdk/types": "^3.197.0",
+    "@aws-sdk/types": "^3.198.0",
     "@babel/preset-env": "^7.19.4",
     "@babel/preset-react": "^7.18.6",
     "aws-sdk": "^2.1241.0",
