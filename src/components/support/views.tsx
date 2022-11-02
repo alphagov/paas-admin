@@ -111,9 +111,8 @@ export function SupportSelectionPage(props: ISupportSelectionFormProperties): Re
         )}
       <h1 className="govuk-heading-l">Get support</h1>
       <div className="govuk-inset-text">
-      <p className="govuk-body">After a lengthy discovery, the decision has been made to decommission GOV.UK PaaS. For that reason, we&apos;re no longer accepting new trial accounts on the platform.</p>
-      <p className="govuk-body">You can read more about the decision on our <a href="https://gds.blog.gov.uk/2022/07/12/why-weve-decided-to-decommission-gov-uk-paas-platform-as-a-service/" className="govuk-link">blog post</a>.</p>
-
+      <p className="govuk-body">GDS is <a href="https://gds.blog.gov.uk/2022/07/12/why-weve-decided-to-decommission-gov-uk-paas-platform-as-a-service/" className="govuk-link"> decommissioning GOV.UK PaaS</a> by end 2023. We&apos;re no longer accepting new trial accounts.</p>
+      <p className="govuk-body">Read our <a href="https://www.cloud.service.gov.uk/migration-guidance/" className="govuk-link">migration guidance</a> for tenants.</p>
       </div>
       <form noValidate method="post">
         <input type="hidden" name="_csrf" value={props.csrf} />
