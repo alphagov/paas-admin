@@ -394,9 +394,10 @@ export function NotificationBanner(): ReactElement {
       </div>
       <div className="govuk-notification-banner__content">
         <h3 className="govuk-notification-banner__heading">
-          GOV.UK PaaS is being decommissioned
+          Migration guidance and request for migration owner details
         </h3>
-        <p className="govuk-body"><a className="govuk-notification-banner__link" href="https://cloud.service.gov.uk">Read more about it</a>.</p>
+        <p className="govuk-body">We have <a className="govuk-notification-banner__link" href="https://cloud.service.gov.uk/migration-guidance/">published migration guidance</a> for tenants.</p>
+        <p className="govuk-body">We&apos;re confirming the migration owner for service or services in this space. <a className="govuk-notification-banner__link" href="/support/contact-us">Please tell us</a> who the responsible person is in your organisation.</p>
       </div>      
     </div>
     </>
