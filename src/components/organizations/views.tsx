@@ -1,7 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 
 import { bytesToHuman, MEBIBYTE } from '../../layouts';
-import { NotificationBanner } from '../../layouts/partials';
 import { IOrganization, IOrganizationQuota, IV3OrganizationQuota, IV3OrganizationResource } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
 import { ISpace } from '../../lib/cf/types';
@@ -106,7 +105,6 @@ export function OrganizationsPage(
 
   return (
     <>
-      <NotificationBanner />
 
       <h1 className="govuk-heading-l">Organisations</h1>
 

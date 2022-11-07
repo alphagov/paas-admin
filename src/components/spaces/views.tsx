@@ -26,6 +26,7 @@ import {
   Totals,
   EventTimestamps,
 } from '../events';
+import { NotificationBanner } from '../../layouts/partials';
 
 export interface IEnhancedApplication extends IApplication {
   readonly summary: IApplicationSummary;
@@ -191,6 +192,9 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
       </h1>
 
       <div className="govuk-grid-row">
+        <div className="govuk-grid-column-full">
+          <NotificationBanner />
+        </div>
         <div className="govuk-grid-column-one-third">
           <div className="org-summary-stat">
             <h2 className="org-summary-stat__heading">Assigned quota</h2>
