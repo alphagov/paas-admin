@@ -107,7 +107,7 @@
     "@aws-sdk/client-cloudwatch": "^3.202.0",
     "@aws-sdk/client-resource-groups-tagging-api": "^3.202.0",
     "@aws-sdk/types": "^3.201.0",
-    "@babel/preset-env": "^7.19.4",
+    "@babel/preset-env": "^7.20.2",
     "@babel/preset-react": "^7.18.6",
     "aws-sdk": "^2.1247.0",
     "axios": "^0.27.2",
