@@ -88,22 +88,22 @@ export function SupportSelectionPage(props: ISupportSelectionFormProperties): Re
       {props.errors && props.errors.length > 0 ? (
           <div
             className="govuk-error-summary"
-            aria-labelledby="error-summary-title"
-            role="alert"
             data-module="govuk-error-summary"
           >
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              There is a problem
-            </h2>
+            <div role="alert">
+              <h2 className="govuk-error-summary__title">
+                There is a problem
+              </h2>
 
-            <div className="govuk-error-summary__body">
-              <ul className="govuk-list govuk-error-summary__list">
-                {props.errors.map((error, index) => (
-                  <li key={index}>
-                    <a href={`#${error.field}`}>{error.message}</a>
-                  </li>
-                ))}
-              </ul>
+              <div className="govuk-error-summary__body">
+                <ul className="govuk-list govuk-error-summary__list">
+                  {props.errors.map((error, index) => (
+                    <li key={index}>
+                      <a href={`#${error.field}`}>{error.message}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         ) : (
@@ -212,22 +212,22 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
         {props.errors && props.errors.length > 0 ? (
           <div
             className="govuk-error-summary"
-            aria-labelledby="error-summary-title"
-            role="alert"
             data-module="govuk-error-summary"
           >
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              There is a problem
-            </h2>
+            <div role="alert">
+              <h2 className="govuk-error-summary__title">
+                There is a problem
+              </h2>
 
-            <div className="govuk-error-summary__body">
-              <ul className="govuk-list govuk-error-summary__list">
-                {props.errors.map((error, index) => (
-                  <li key={index}>
-                    <a href={`#${error.field}`}>{error.message}</a>
-                  </li>
-                ))}
-              </ul>
+              <div className="govuk-error-summary__body">
+                <ul className="govuk-list govuk-error-summary__list">
+                  {props.errors.map((error, index) => (
+                    <li key={index}>
+                      <a href={`#${error.field}`}>{error.message}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         ) : (
@@ -549,22 +549,22 @@ export function HelpUsingPaasPage(props: IHelpUsingPaasFormProperties): ReactEle
       {props.errors && props.errors.length > 0 ? (
           <div
             className="govuk-error-summary"
-            aria-labelledby="error-summary-title"
-            role="alert"
             data-module="govuk-error-summary"
           >
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              There is a problem
-            </h2>
+            <div role="alert">
+              <h2 className="govuk-error-summary__title">
+                There is a problem
+              </h2>
 
-            <div className="govuk-error-summary__body">
-              <ul className="govuk-list govuk-error-summary__list">
-                {props.errors.map((error, index) => (
-                  <li key={index}>
-                    <a href={`#${error.field}`}>{error.message}</a>
-                  </li>
-                ))}
-              </ul>
+              <div className="govuk-error-summary__body">
+                <ul className="govuk-list govuk-error-summary__list">
+                  {props.errors.map((error, index) => (
+                    <li key={index}>
+                      <a href={`#${error.field}`}>{error.message}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         ) : (
@@ -726,22 +726,22 @@ export function ContactUsPage(props: IContactUsFormProperties): ReactElement {
         {props.errors && props.errors.length > 0 ? (
           <div
             className="govuk-error-summary"
-            aria-labelledby="error-summary-title"
-            role="alert"
             data-module="govuk-error-summary"
           >
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              There is a problem
-            </h2>
+            <div role="alert">
+              <h2 className="govuk-error-summary__title">
+                There is a problem
+              </h2>
 
-            <div className="govuk-error-summary__body">
-              <ul className="govuk-list govuk-error-summary__list">
-                {props.errors.map((error, index) => (
-                  <li key={index}>
-                    <a href={`#${error.field}`}>{error.message}</a>
-                  </li>
-                ))}
-              </ul>
+              <div className="govuk-error-summary__body">
+                <ul className="govuk-list govuk-error-summary__list">
+                  {props.errors.map((error, index) => (
+                    <li key={index}>
+                      <a href={`#${error.field}`}>{error.message}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         ) : (

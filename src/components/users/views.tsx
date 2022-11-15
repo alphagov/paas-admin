@@ -120,40 +120,46 @@ export function UserPage(props: IUserPageProps): ReactElement {
 export function PasswordResetRequest(props: IPasswordResetFormProperties): ReactElement {
   return <div className="govuk-grid-row">
     <div className="govuk-grid-column-two-thirds">
-      {props.invalidEmail || props.userEnabledSSO || props.userNotFound ? <div
-        className="govuk-error-summary"
-        aria-labelledby="error-summary-title"
-        role="alert"
-        data-module="govuk-error-summary"
-      >
-        <h2 className="govuk-error-summary__title" id="error-summary-title">
-          There is a problem
-        </h2>
+      {props.invalidEmail || props.userEnabledSSO || props.userNotFound ? 
+        <div
+          className="govuk-error-summary"
+          data-module="govuk-error-summary"
+        >
+          <div role="alert">
+            <h2 className="govuk-error-summary__title">
+              There is a problem
+            </h2>
 
-        {props.invalidEmail ?  <div className="govuk-error-summary__body">
-          <ul className="govuk-list govuk-error-summary__list">
-            <li>
-              <a href="#email">Enter an email address in the correct format, like name@example.com</a>
-            </li>
-          </ul>
-          </div> : <></>}
+        {props.invalidEmail ?
+          <div className="govuk-error-summary__body">
+            <ul className="govuk-list govuk-error-summary__list">
+              <li>
+                <a href="#email">Enter an email address in the correct format, like name@example.com</a>
+              </li>
+            </ul>
+          </div> 
+        : <></>}
 
-        {props.userEnabledSSO ?  <div className="govuk-error-summary__body">
-          <ul className="govuk-list govuk-error-summary__list">
-            <li>
-              <a href="#email">You have enabled single sign-on, please sign in using {props.idpNice!}</a>
-            </li>
-          </ul>
-        </div> : <></>}
+        {props.userEnabledSSO ?
+          <div className="govuk-error-summary__body">
+            <ul className="govuk-list govuk-error-summary__list">
+              <li>
+                <a href="#email">You have enabled single sign-on, please sign in using {props.idpNice!}</a>
+              </li>
+            </ul>
+          </div>
+        : <></>}
 
-        {props.userNotFound ?  <div className="govuk-error-summary__body">
-          <ul className="govuk-list govuk-error-summary__list">
-            <li>
-              <a href="#email">User not found</a>
-            </li>
-          </ul>
-        </div> : <></>}
-      </div> : <></>}
+        {props.userNotFound ?
+          <div className="govuk-error-summary__body">
+            <ul className="govuk-list govuk-error-summary__list">
+              <li>
+                <a href="#email">User not found</a>
+              </li>
+            </ul>
+          </div> 
+        : <></>}
+      </div></div> : <></>}
 
       <h1 className="govuk-heading-l">Request password reset</h1>
       <p className="govuk-body">
@@ -214,12 +220,11 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
   return <div className="govuk-grid-row">
     <div className="govuk-grid-column-two-thirds">
       {props.passwordMismatch || props.passwordDoesNotMeetPolicy ? <div
-        className="govuk-error-summary"
-        aria-labelledby="error-summary-title"
-        role="alert"
-        data-module="govuk-error-summary"
-      >
-        <h2 className="govuk-error-summary__title" id="error-summary-title">
+            className="govuk-error-summary"
+            data-module="govuk-error-summary"
+          >
+            <div role="alert">
+              <h2 className="govuk-error-summary__title">
           There is a problem
         </h2>
 
@@ -235,7 +240,7 @@ export function PasswordResetSetPasswordForm(props: IPasswordResetSetPasswordFor
             }
           </ul>
         </div>
-      </div> : <></>}
+      </div></div> : <></>}
 
       <h1 className="govuk-heading-l">Password reset</h1>
       <p className="govuk-body">You should set a secure password which:</p>
