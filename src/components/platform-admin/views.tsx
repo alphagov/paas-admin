@@ -219,21 +219,21 @@ export function CreateOrganizationPage(props: ICreateOrganizationPageProperties)
       <input type="hidden" name="_csrf" value={props.csrf} />
 
       {props.errors
-        ? <div 
+        ? <div
             className="govuk-error-summary"
-            aria-labelledby="error-summary-title"
-            role="alert"
             data-module="govuk-error-summary"
           >
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
-              There is a problem
-            </h2>
-            <div className="govuk-error-summary__body">
-              <ul className="govuk-list govuk-error-summary__list">
-                {props.errors.map((error, index) => (
-                  <li key={index}><a href={`#${error.field}`}>{error.message}</a></li>
-                ))}
-              </ul>
+          <div role="alert">
+            <h2 className="govuk-error-summary__title">
+                There is a problem
+              </h2>
+              <div className="govuk-error-summary__body">
+                <ul className="govuk-list govuk-error-summary__list">
+                  {props.errors.map((error, index) => (
+                    <li key={index}><a href={`#${error.field}`}>{error.message}</a></li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         : null}
