@@ -6,11 +6,13 @@ async function findUser(
   _params: IParameters,
   body: any,
 ): Promise<IResponse> {
-  const emailOrUserGUID = body['email-or-user-guid'];
+  let emailOrUserGUID = body['email-or-user-guid'];
 
   if (typeof emailOrUserGUID === 'undefined' || emailOrUserGUID === '') {
     throw new Error('Field email-or-user-guid is undefined or blank');
   }
+
+  emailOrUserGUID = emailOrUserGUID.trim().toLowerCase()
 
   return await Promise.resolve({
     redirect: ctx.linkTo('users.get', { emailOrUserGUID }),
