@@ -16,6 +16,12 @@ import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 
 import { IOrganization, OrganizationUserRoles } from '../../lib/cf/types';
 
+import {
+  CLOUD_CONTROLLER_ADMIN,
+  CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+} from '../auth';
+
 const TITLE_EMAIL_MANAGERS = 'Email managers';
 
 interface IUpdateOrgDataBody {
@@ -94,9 +100,28 @@ export async function listOrganizations(
     logger: ctx.app.logger,
   });
 
-  const [organizations] = await Promise.all([
+  const isAdmin = ctx.token.hasAnyScope(
+    CLOUD_CONTROLLER_ADMIN,
+    CLOUD_CONTROLLER_READ_ONLY_ADMIN,
+    CLOUD_CONTROLLER_GLOBAL_AUDITOR,
+  );
+
+  let [organizations] = await Promise.all([
     cf.organizations().then(sortOrganizationsByName),
   ]);
+
+  let filterLink = {href: 'admin.organizations', text: 'Hide test and suspended organisations', view: 'realOrgsOnly' }
+
+  // filter out test and suspended orgs
+  // update the filter text
+  if (_params && _params.view === 'realOrgsOnly') {
+    const testOrgsRegex = new RegExp(/^(CATS?|ACC|BACC|SMOKE|PERF|AIVENBACC|ASATS)-/)
+    organizations = organizations
+    .filter(org => !org.entity.name.match(testOrgsRegex))
+    .filter(org => org.entity.status !== 'suspended')
+
+    filterLink = {href: 'admin.organizations', text: 'Show all', view: 'all' }
+  }
 
   const orgQuotaGUIDs = lodash.uniq(
     organizations.map(o => o.entity.quota_definition_guid),
@@ -113,6 +138,8 @@ export async function listOrganizations(
         linkTo={ctx.linkTo}
         organizations={organizations}
         quotas={orgQuotasByGUID}
+        filterLink={filterLink}
+        isAdmin={isAdmin}
       />,
     ),
   };
