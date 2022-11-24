@@ -51,7 +51,7 @@
     "@types/jest": "^29.2.3",
     "@types/jsdom": "^20.0.1",
     "@types/jsonwebtoken": "^8.5.9",
-    "@types/lodash": "^4.14.189",
+    "@types/lodash": "^4.14.190",
     "@types/node-jose": "^1.1.10",
     "@types/passport": "^1.0.7",
     "@types/passport-oauth2": "^1.4.11",
