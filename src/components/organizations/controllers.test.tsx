@@ -40,11 +40,22 @@ const organizations = JSON.stringify(
         quota_definition_guid: trialOrgQuotaGUID,
       },
     }),
+    lodash.merge(defaultOrg(), {
+      entity: {
+        name: 'z-org-name-5',
+        status: 'suspended',
+      },
+    }),
+    lodash.merge(defaultOrg(), {
+      entity: {
+        name: 'SMOKE-',
+      },
+    }),
   ),
 );
 
 function extractOrganizations(responseBody: string): ReadonlyArray<string> {
-  const re = /(Organisation\sname:)\s(.-(trial-)?org-name(-\d)?)/g;
+  const re = /(Organisation\sname:)\s(SMOKE-)|(Organisation\sname:)\s(.-(trial-)?org-name(-\d)?)/g;
   const matches = [];
   // :scream:
   // eslint-disable-next-line no-constant-condition
@@ -122,12 +133,14 @@ describe('organizations test suite', () => {
     const response = await listOrganizations(nonAdminUserContext, {});
 
     const matches = extractOrganizations(response.body as string);
-    expect(matches.length).toBe(5);
+    expect(matches.length).toBe(7);
     expect(matches[0]).toContain('a-org-name-4');
     expect(matches[1]).toContain('a-trial-org-name');
     expect(matches[2]).toContain('b-org-name-3');
     expect(matches[3]).toContain('c-org-name-1');
     expect(matches[4]).toContain('d-org-name-2');
+    expect(matches[5]).toContain('SMOKE');
+    expect(matches[6]).toContain('z-org-name-5');
   });
 
   it('should report the org quotas for both trial and billable orgs', async () => {
@@ -138,6 +151,12 @@ describe('organizations test suite', () => {
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
+  });
+
+  it('should show the filtered list of organisations', async () => {
+    const response = await listOrganizations(adminUserContext, {view:'realOrgsOnly'});
+    const matches = extractOrganizations(response.body as string);
+    expect(matches.length).toBe(5);
   });
 });
 
