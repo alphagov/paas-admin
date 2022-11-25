@@ -10,7 +10,7 @@ import { IBillableEvent, IPricingPlan, IRate } from '../../lib/billing/types';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app/context';
 
-import * as formulaGrammar from './formulaGrammar.pegjs';
+import * as formulaGrammar from './pegjsGrammerParser';
 import {
   CalculatorPage,
   ICalculatorState,

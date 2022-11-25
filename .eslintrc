@@ -22,7 +22,8 @@
     "coverage/",
     "dist/",
     "node_modules/",
-    "src/frontend/javascript/"
+    "src/frontend/javascript/",
+    "src/components/calculator/pegjsGrammerParser.js"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
