@@ -1,4 +1,4 @@
-import { parse } from './formulaGrammar.pegjs';
+import { parse } from './pegjsGrammerParser';
 
 describe('Billing formula grammar', () => {
   it('should return a single number', () => {
