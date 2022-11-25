@@ -150,6 +150,9 @@
     "source-map-support": "^0.5.21",
     "tslib": "^2.4.1"
   },
+  "overrides": {
+    "loader-utils": "1.4.1"
+  },
   "engines": {
     "node": "16.x.x",
     "npm": ">=8.x.x"
