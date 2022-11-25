@@ -151,7 +151,7 @@
     "tslib": "^2.4.1"
   },
   "overrides": {
-    "loader-utils": "1.4.1"
+    "loader-utils": "^3.2.1"
   },
   "engines": {
     "node": "16.x.x",
