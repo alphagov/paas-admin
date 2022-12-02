@@ -143,7 +143,7 @@
     "qs": "^6.11.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-markdown": "^6.0.3",
+    "react-markdown": "^8.0.4",
     "route-parser": "^0.0.5",
     "source-map-support": "^0.5.21",
     "tslib": "^2.4.1"
