@@ -67,7 +67,7 @@
     "body-parser": "^1.20.1",
     "cheerio": "^1.0.0-rc.12",
     "compression-webpack-plugin": "^10.0.0",
-    "css-loader": "^6.7.2",
+    "css-loader": "^6.7.3",
     "css-minimizer-webpack-plugin": "^4.2.2",
     "csv-parse": "^5.3.3",
     "eslint": "^8.29.0",
