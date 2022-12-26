@@ -107,7 +107,7 @@
     "@aws-sdk/types": "^3.226.0",
     "@babel/preset-env": "^7.19.4",
     "@babel/preset-react": "^7.18.6",
-    "aws-sdk": "^2.1275.0",
+    "aws-sdk": "^2.1282.0",
     "axios": "^0.27.2",
     "babel-jest": "^29.2.0",
     "base32-encode": "^1.2.0",
