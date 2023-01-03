@@ -23,6 +23,12 @@ interface IOrganizationPageProperties {
   readonly organizations: ReadonlyArray<IOrganization>;
   readonly linkTo: RouteLinker;
   readonly quotas: { readonly [guid: string]: IOrganizationQuota };
+  readonly filterLink?: {
+    readonly href: string,
+    readonly view: string,
+    readonly text: string
+  };
+  readonly isAdmin: boolean;
 }
 
 interface IEditOrganizationProperties {
@@ -112,7 +118,18 @@ export function OrganizationsPage(
         There {singleOrg ? 'is' : 'are'} {props.organizations.length}{' '}
         {singleOrg ? 'organisation' : 'organisations'} which you can access.
       </p>
-
+      {props.isAdmin ?
+        <a  className="govuk-button govuk-button--secondary"
+            href={props.linkTo(
+              props!.filterLink!.href,
+              {
+                view: props!.filterLink!.view,
+              },
+            )}
+          >{props!.filterLink!.text}
+        </a>
+        : <></>
+      }
       <div className="scrollable-table-container">
         <table className="govuk-table">
         <thead className="govuk-table__head">
