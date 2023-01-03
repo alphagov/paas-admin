@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { expect } from 'expect';
-import puppeteer_expect from 'expect-puppeteer';
 import pino from 'pino';
-import puppeteer from 'puppeteer';
+import puppeteer, { Page } from "puppeteer";
+
 
 import { AccountsClient } from '../src/lib/accounts';
 import CloudFoundryClient from '../src/lib/cf/cf';
@@ -24,7 +24,7 @@ if (!ACCOUNTS_PASSWORD) { throw 'ACCOUNTS_PASSWORD environment variable not set'
 if (!ADMIN_USERNAME) { throw 'ADMIN_USERNAME environment variable not set'; }
 if (!ADMIN_PASSWORD) { throw 'ADMIN_PASSWORD environment variable not set'; }
 
-const DEFAULT_WAIT_TIME = 30000;
+jest.setTimeout(30000)
 
 describe('paas-admin', () => {
 
@@ -58,7 +58,7 @@ describe('paas-admin', () => {
       ],
       headless: !HEADLESS ? true : HEADLESS == 'true',
     });
-    let page: puppeteer.Page;
+    let page: Page;
 
     let cfClient: CloudFoundryClient;
     let uaaClient: UAAClient;
@@ -111,19 +111,33 @@ describe('paas-admin', () => {
 
       await page.goto(PAAS_ADMIN_BASE_URL);
 
-      await puppeteer_expect(page).toFill('input[name=username]', managerUserEmail);
-      await puppeteer_expect(page).toFill('input[name=password]', managerUserPassword);
-      await puppeteer_expect(page).toClick('button', { text: /Continue/ });
+      await page.waitForSelector("input[name=username]");
+      await page.type("input[name=username]", managerUserEmail);
+      await page.type("input[name=password]", managerUserPassword);
 
-      await page.waitForNavigation();
+      await Promise.all([
+        page.waitForNavigation(),
+        page.click("button"),
+      ]);
 
-      await puppeteer_expect(page).toMatchElement('a',{ text: /Sign out/ });
-    }, DEFAULT_WAIT_TIME);
+      const isSignedIn = await page.evaluate(() => {
+        return document?.querySelector("body")?.innerText.includes("Sign out")
+      })
+
+      expect(isSignedIn).toBeTruthy();
+
+    });
 
     it('should show a count of orgs on the home page', async () => {
       await page.goto(PAAS_ADMIN_BASE_URL);
-      await puppeteer_expect(page).toMatchElement('p', { text: /There are 0 organisations/ });
-    }, DEFAULT_WAIT_TIME);
+
+      const zeroOrgs = await page.evaluate(() => {
+        return document?.querySelector("body")?.innerText.includes("There are 0 organisations")
+      })
+
+      expect(zeroOrgs).toBeTruthy();
+
+    });
 
     describe('when the user is an organisation manager', () => {
       let orgGuid: string;
@@ -154,30 +168,53 @@ describe('paas-admin', () => {
 
       it('should show a count of orgs on the home page', async () => {
         await page.goto(PAAS_ADMIN_BASE_URL);
-        await puppeteer_expect(page).toMatchElement('p', { text: /There is 1 organisation/ });
-      }, DEFAULT_WAIT_TIME);
+        const oneOrg = await page.evaluate(() => {
+          return document?.querySelector("body")?.innerText.includes("There is 1 organisation")
+        })
+  
+        expect(oneOrg).toBeTruthy();
+
+      });
 
       it('should invite a user', async () => {
         await page.goto(PAAS_ADMIN_BASE_URL);
+        await Promise.all([
+          page.evaluate(() => {
+            ([...document.querySelectorAll('a')].find(element => element.textContent?.includes('CAT')))?.click();
+          }),
+          page.waitForNavigation(),
+        ]);
 
-        await puppeteer_expect(page).toClick('a', { text: orgName });
-        await page.waitForNavigation();
+        await Promise.all([
+          page.evaluate(() => {
+            ([...document.querySelectorAll('a')].find(element => element.textContent === 'View and manage team members'))?.click();
+          }),
+          page.waitForNavigation(),
+        ]);
 
-        await puppeteer_expect(page).toClick('a', { text: /View and manage team members/ });
-        await page.waitForNavigation();
+        await Promise.all([
+          page.evaluate(() => {
+            ([...document.querySelectorAll('a')].find(element => element.textContent === 'Invite a new team member'))?.click();
+          }),
+          page.waitForNavigation(),
+        ]);
 
-        await puppeteer_expect(page).toClick('a', { text: /Invite a new team member/ });
-        await page.waitForNavigation();
+        await page.type("input[name=email]", developerUserEmail);
 
-        await puppeteer_expect(page).toFill('input[name=email]', developerUserEmail);
-        await puppeteer_expect(page).toClick('label', { text: /Billing manager/ });
-        await puppeteer_expect(page).toClick('button', { text: /Send invitation/ });
-        await page.waitForNavigation();
+        await Promise.all([
+          page.evaluate(() => {
+            ([...document.querySelectorAll('label')]?.find(element => element?.textContent === ('Billing manager')))?.click();
+            ([...document.querySelectorAll('button')]?.find(element => element?.textContent === ('Send invitation')))?.click();
+          }),
+          page.waitForNavigation(),
+        ]);
 
-        await puppeteer_expect(page).toMatchElement('.govuk-panel__title',{
-          text: /New team member successfully invited/,
-        });
-      }, DEFAULT_WAIT_TIME);
+        const confirmationPage = await page.evaluate(() => {
+          return document?.querySelector("body")?.innerText.includes("New team member successfully invited")
+        })
+  
+        expect(confirmationPage).toBeTruthy();
+      });
     });
   });
 });
