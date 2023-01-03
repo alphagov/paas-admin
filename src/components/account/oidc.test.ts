@@ -15,7 +15,7 @@ jest.mock('../../lib/uaa/uaa');
 
 async function createJOSEKey(): Promise<jose.JWK.Key> {
   const store: jose.JWK.KeyStore = jose.JWK.createKeyStore();
-  const key: jose.JWK.Key = await store.generate('RSA', 1024, {
+  const key: jose.JWK.Key = await store.generate('RSA', 2048, {
     use: 'sig',
   });
 
