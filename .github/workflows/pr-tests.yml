@@ -5,8 +5,6 @@ on: pull_request
 jobs:
   test:
     name: Run tests
-    runs-on: ubuntu-18.04
-
     env:
       NODE_ENV: development
       TEST_TIMEOUT: 60000
