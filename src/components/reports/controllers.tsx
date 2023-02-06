@@ -242,10 +242,6 @@ export function filterRealOrgs(
       return false;
     }
 
-    if (org.name === 'admin') {
-      return false;
-    }
-
     return true;
   });
 }

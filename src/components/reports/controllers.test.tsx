@@ -70,7 +70,7 @@ describe('organisations report helpers', () => {
     );
   });
 
-  it('filterRealOrgs should filter out tests and admin', () => {
+  it('filterRealOrgs should filter out tests, but include admin', () => {
     const orgs = [
       lodash.merge(defaultOrgv3(), { name: 'govuk-doggos' }),
       lodash.merge(defaultOrgv3(), { name: 'admin' }),
@@ -83,9 +83,10 @@ describe('organisations report helpers', () => {
 
     const filteredOrgs = t.filterRealOrgs(orgs);
 
-    expect(filteredOrgs.length).toEqual(2);
+    expect(filteredOrgs.length).toEqual(3);
     expect(filteredOrgs[0].name).toEqual('govuk-doggos');
-    expect(filteredOrgs[1].name).toEqual('department-for-coffee');
+    expect(filteredOrgs[1].name).toEqual('admin');
+    expect(filteredOrgs[2].name).toEqual('department-for-coffee');
   });
 
   it('filterTrialOrgs should filter out billable orgs and sort asc', () => {
@@ -1826,7 +1827,7 @@ describe('cost report grouping functions', () => {
     });
   });
 
-  it('filterRealOrgs should filter out tests and admin', () => {
+  it('filterRealOrgs should filter out tests but include admin', () => {
     const orgs = [
       { ...defaultOrgv3(), name: 'govuk-doggos' },
       { ...defaultOrgv3(), name: 'admin' },
@@ -1839,9 +1840,10 @@ describe('cost report grouping functions', () => {
 
     const filteredOrgs = reports.filterRealOrgs(orgs);
 
-    expect(filteredOrgs.length).toEqual(2);
+    expect(filteredOrgs.length).toEqual(3);
     expect(filteredOrgs[0].name).toEqual('govuk-doggos');
-    expect(filteredOrgs[1].name).toEqual('department-for-coffee');
+    expect(filteredOrgs[1].name).toEqual('admin');
+    expect(filteredOrgs[2].name).toEqual('department-for-coffee');
   });
 
   it('filterBillableOrgs should filter out trial orgs', () => {
