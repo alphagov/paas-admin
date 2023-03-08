@@ -137,7 +137,7 @@
     "openid-client": "^4.9.1",
     "p-limit": "^3.1.0",
     "passport": "^0.5.2",
-    "passport-oauth2": "^1.6.1",
+    "passport-oauth2": "^1.7.0",
     "pino": "^6.13.3",
     "qs": "^6.11.0",
     "react": "^18.2.0",
