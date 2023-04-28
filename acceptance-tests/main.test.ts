@@ -15,7 +15,6 @@ const {
   ACCOUNTS_PASSWORD,
   ADMIN_USERNAME,
   ADMIN_PASSWORD,
-  HEADLESS,
 } = process.env;
 if (!PAAS_ADMIN_BASE_URL) { throw 'PAAS_ADMIN_BASE_URL environment variable not set'; }
 if (!CF_API_BASE_URL) { throw 'CF_API_BASE_URL environment variable not set'; }
@@ -56,7 +55,7 @@ describe('paas-admin', () => {
         '--disable-dev-shm-usage',
         '--no-sandbox',
       ],
-      headless: !HEADLESS ? true : HEADLESS == 'true',
+      headless: 'new',
     });
     let page: Page;
 
