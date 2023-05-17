@@ -3,7 +3,6 @@ import {
   Details,
   ErrorSummary,
   Header,
-  NotificationBanner,
   Radios,
   SkipLink
 
@@ -59,8 +58,3 @@ if ($tooltips) {
 // Find first skip link module to enhance.
 var $skipLink = document.querySelector('[data-module="govuk-skip-link"]')
 new SkipLink($skipLink).init()
-
-var $notificationBanner = document.querySelector('[data-module="govuk-notification-banner"]');
-if ($notificationBanner) {
-  new NotificationBanner($notificationBanner).init();
-}
