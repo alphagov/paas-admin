@@ -223,7 +223,7 @@ describe(createOrganization, () => {
 
       const response = await createOrganization(ctx, {}, {
         organization: 'new-organization',
-        owner: 'Organisation Owner',
+        owner: 'Government Digital Service',
       });
 
       expect(CloudFoundryClient.prototype.v3CreateOrganization).toHaveBeenCalled();

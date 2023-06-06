@@ -11,8 +11,8 @@ import {
   IUser,
   OrganizationUserRoles,
 } from '../../lib/cf/types';
+import { IValidationError } from '../../lib/validation/types';
 import { RouteLinker } from '../app';
-import { IValidationError } from '../errors/types';
 
 interface IDeleteConfirmationPageProperties {
   readonly csrf: string;

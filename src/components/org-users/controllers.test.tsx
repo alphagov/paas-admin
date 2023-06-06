@@ -1249,6 +1249,36 @@ describe('org-users test suite', () => {
     ).rejects.toThrow(/user not found/);
   });
 
+  it('should show error when user does not exist in UAA - User Update', async () => {
+    nockUAA
+      .get('/Users/uaa-user-edit-123456')
+      .reply(404)
+
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
+
+    nockCF
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
+      .reply(200, cfData.spaces)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
+      .reply(200, JSON.stringify(defaultOrg()))
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(3)
+      .reply(200, cfData.userRolesForOrg);
+
+
+    await expect(
+      orgUsers.editUser(ctx,
+        {
+          organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+          userGUID: 'uaa-user-edit-123456',
+        },
+      ),
+    ).rejects.toThrowError(/user not found in UAA/);
+  });
+
   it('should show error when user does not exist in CF - User Edit', async () => {
     nockCF
       .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
@@ -1271,6 +1301,37 @@ describe('org-users test suite', () => {
         {},
       ),
     ).rejects.toThrowError(/user not found in CF/);
+  });
+
+  it('should show error when user does not exist in UAA - User Edit', async () => {
+    nockUAA
+      .get('/Users/uaa-user-edit-123456')
+      .reply(404)
+
+      .post('/oauth/token?grant_type=client_credentials')
+      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
+
+    nockCF
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
+      .reply(200, cfData.spaces)
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
+      .reply(200, JSON.stringify(defaultOrg()))
+
+      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
+      .times(3)
+      .reply(200, cfData.userRolesForOrg);
+
+
+    await expect(
+      orgUsers.updateUser(ctx,
+        {
+          organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
+          userGUID: 'uaa-user-edit-123456',
+        },
+        {},
+      ),
+    ).rejects.toThrowError(/user not found in UAA/);
   });
 
   it('should show error when no roles selected - User Edit', async () => {

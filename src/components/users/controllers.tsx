@@ -7,6 +7,7 @@ import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse } from '../../lib/router';
 import { NotFoundError } from '../../lib/router/errors';
 import UAAClient from '../../lib/uaa';
+import { VALID_EMAIL_REGEX } from '../../lib/validation';
 import { IContext } from '../app/context';
 import {
   CLOUD_CONTROLLER_ADMIN,
@@ -133,11 +134,10 @@ export async function resetPasswordRequestToken(ctx: IContext, _params: IParamet
 export async function resetPasswordObtainToken(
   ctx: IContext, params: IParameters, body: IPasswordResetBody,
 ): Promise<IResponse> {
-  const VALID_EMAIL = /^[^@]*@[^@]*$/;
   const email = (/* istanbul ignore next */ body.email || '').toLowerCase();
   const template = new Template(ctx.viewContext, 'Request password reset');
 
-  if (!email || !VALID_EMAIL.test(email)) {
+  if (!email || !VALID_EMAIL_REGEX.test(email)) {
     template.title = 'Error: Request password reset';
 
     return {
@@ -337,4 +337,3 @@ export async function resetPassword(ctx: IContext, _params: IParameters, body: I
     }
   }
 }
-

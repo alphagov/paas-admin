@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 
+import { IValidationError } from '../../lib/validation/types';
 import { RouteLinker } from '../app';
-import { IValidationError } from '../errors/types';
 
 interface IProperties {
   readonly linkTo: RouteLinker;

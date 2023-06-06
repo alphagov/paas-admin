@@ -20,6 +20,16 @@ describe('app test suite - router-middleware', () => {
         path: '/',
       },
       {
+        action: async (_c, _p, _b) => await Promise.resolve({ body: { message: 'ok' } }),
+        name: 'home.nocache',
+        path: '/nocache',
+      },
+      {
+        action: async (_c, _p, _b) => await Promise.resolve({body: { message: 'ok' }}),
+        name: 'home.nocache.sub',
+        path: '/nocache/sub',
+      },
+      {
         action: async (_c, _p, _b) => await Promise.resolve({
           body: { message: 'ok' },
           status: 304,
@@ -72,7 +82,7 @@ describe('app test suite - router-middleware', () => {
         name: 'csv-mimetype',
         path: '/csv',
       },
-    ]);
+    ],['home.nocache']);
 
     function linkTo(name: string, params: IParameters = {}) {
       return router.findByName(name).composeURL(params);
@@ -112,6 +122,8 @@ describe('app test suite - router-middleware', () => {
     const agent = request.agent(app);
 
     const okResponse = await agent.get('/');
+    const notCachedResponse = await agent.get('/nocache');
+    const notCachedSubResponse = await agent.get('/nocache/sub');
     const helloResponse = await agent.get('/hello/World');
     const notModifiedResponse = await agent.get('/304');
     const redirectResponse = await agent.get('/redirect');
@@ -125,6 +137,12 @@ describe('app test suite - router-middleware', () => {
     expect(linkTo('hello', { name: 'World' })).toEqual('/hello/World');
     expect(linkTo('home')).toEqual('/');
     expect(okResponse.status).toEqual(200);
+    [notCachedResponse, notCachedSubResponse].forEach(response => {
+      expect(response.status).toEqual(200);
+      expect(response.header.pragma).toEqual('no-cache');
+      expect(response.header.expires).toEqual('0');
+      expect(response.header['cache-control']).toEqual('no-store');
+    });
     expect(helloResponse.status).toEqual(200);
     expect(helloResponse.text).toContain('Hello, World!');
     expect(notModifiedResponse.status).toEqual(304);

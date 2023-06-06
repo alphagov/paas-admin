@@ -49,7 +49,9 @@ interface IResourceWithPlanName {
   readonly planName: string;
 }
 
-export type ISortableBy = 'name' | 'space' | 'plan' | 'amount';
+const iSortableBy = ['name', 'space', 'plan', 'amount'] as const;
+export type ISortableBy = typeof iSortableBy[number] | undefined;
+
 export type ISortableDirection = 'asc' | 'desc';
 
 export interface ISortable {
@@ -336,9 +338,14 @@ export async function viewStatement(
 
     listOfPastYearMonths[format(month, YYYMMDD)] = `${format(month, 'MMMM yyyy')}`;
   }
-
-  const orderBy = params.sort || 'name';
-  const orderDirection = params.order || 'asc';
+  const maybeOrderBy = params.sort || 'name';
+  const orderBy: ISortableBy = iSortableBy.find(validOrderBy => validOrderBy === maybeOrderBy);
+  if (orderBy === undefined) {
+    throw new Error(
+      'Billing Statement: invalid sort column provided',
+    );
+  }
+  const orderDirection: ISortableDirection = params.order || 'asc';
 
   const spaces = items.reduce((all: ReadonlyArray<IFilterResource>, next) => {
     return !all.find(i => i.guid === next.spaceGUID) ? [ ...all, { guid: next.spaceGUID, name: next.spaceName } ] : all;

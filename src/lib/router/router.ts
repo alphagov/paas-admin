@@ -3,11 +3,15 @@ import Route, { IRouteDefinition } from './route';
 
 export default class Router {
   public readonly routes: ReadonlyArray<Route>;
+  public readonly cacheDisableNamespaces: ReadonlyArray<string>;
 
-  constructor(readonly routesConfig: ReadonlyArray<IRouteDefinition>) {
+  constructor(
+    readonly routesConfig: ReadonlyArray<IRouteDefinition>,
+    readonly cacheDisableNamespacesConfig: ReadonlyArray<string>) {
+    this.cacheDisableNamespaces = cacheDisableNamespacesConfig;
+
     this.routes = routesConfig.map(
-      (definition: IRouteDefinition) => new Route(definition),
-    );
+      (definition: IRouteDefinition) => this.routeFromDefinition(definition));
     this.validate();
   }
 
@@ -37,14 +41,39 @@ export default class Router {
   }
 
   private validate(): void {
-    const seen: { [key: string]: boolean } = {};
+    const seenRoutes: { [key: string]: boolean } = {};
     this.routes.forEach(r => {
-      if (seen[r.definition.name]) {
+      if (seenRoutes[r.definition.name]) {
         throw new Error(
           `Router: duplicate route entry for name '${r.definition.name}'`,
         );
       }
-      seen[r.definition.name] = true;
+      seenRoutes[r.definition.name] = true;
     });
+    const seenNamespaces: { [key: string]: boolean } = {};
+    this.cacheDisableNamespaces.forEach(ns => {
+      if (seenNamespaces[ns]) {
+        throw new Error(
+          `Router: duplicate cacheDisableNamespace entry for name '${ns}'`,
+        );
+      }
+      seenNamespaces[ns] = true;
+    });
+  }
+
+  private routeFromDefinition(definition: IRouteDefinition): Route {
+    if (this.definitionShouldNotBeCached(definition)) {
+      return new Route(definition, [
+        { name: 'Cache-Control', value: 'no-store' },
+        { name: 'Pragma', value: 'no-cache' },
+        { name: 'Expires', value: '0' },
+      ]);
+    }
+
+    return new Route(definition);
+  }
+
+  private definitionShouldNotBeCached(definition: IRouteDefinition): boolean {
+    return this.cacheDisableNamespaces.some(ns => definition.name.startsWith(ns));
   }
 }

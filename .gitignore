@@ -104,6 +104,7 @@ typings/
 
 # dotenv environment variables file
 .env
+.envrc
 
 # VSCode project settings
 .vscode/

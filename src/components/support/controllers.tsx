@@ -4,7 +4,6 @@ import React from 'react';
 import { Template } from '../../layouts';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app';
-import { IValidationError } from '../errors/types';
 
 import UAAClient from '../../lib/uaa';
 import { Token } from '../auth';
@@ -25,6 +24,7 @@ import {
   SupportSelectionPage,
 } from './views';
 import CloudFoundryClient from '../../lib/cf';
+import { validateEmail, validateRequired } from '../../lib/validation';
 
 interface IUserTypedRequester {
   readonly email: string;
@@ -52,8 +52,6 @@ export interface IRequesterDetails {
     readonly roleType: string;
   }>
 }
-
-const VALID_EMAIL = /[^.]@[^.]/;
 
 const TODAY_DATE = new Date();
 
@@ -210,21 +208,6 @@ function contactUsContent(variables: IContactUsFormValues): string {
   `;
 }
 
-function checkFormField(variable: string, field: string, message: string): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  const isInvalid = () => field === 'email' ? (!variable || !VALID_EMAIL.test(variable)) : !variable
-
-  if (isInvalid()) {
-    errors.push({
-      field,
-      message,
-    });
-  }
-
-  return errors;
-}
-
 export async function SupportSelectionForm (ctx: IContext, _params: IParameters): Promise<IResponse> {
 
   const template = new Template(ctx.viewContext, 'Get support');
@@ -246,7 +229,7 @@ export async function HandleSupportSelectionFormPost (
   const template = new Template(ctx.viewContext);
 
   errors.push(
-    ...checkFormField(body.support_type, 'support_type', 'Select which type of support your require'),
+    ...validateRequired(body.support_type, 'support_type', 'Select which type of support your require'),
   );
 
   if (errors.length > 0) {
@@ -293,11 +276,13 @@ export async function HandleSomethingWrongWithServiceFormPost(
   const template = new Template(ctx.viewContext);
 
   errors.push(
-    ...checkFormField(body.name, 'name', 'Enter your full name'),
-    ...checkFormField(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
-    ...checkFormField(body.affected_paas_organisation, 'affected_paas_organisation', 'Enter the name of the affected organisation'),
-    ...checkFormField(body.impact_severity, 'impact_severity', 'Select the severity of the impact'),
-    ...checkFormField(body.message, 'message', 'Enter your message'),
+    ...validateRequired(body.name, 'name', 'Enter your full name'),
+    ...validateRequired(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
+    ...validateEmail(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
+    ...validateRequired(
+      body.affected_paas_organisation, 'affected_paas_organisation', 'Enter the name of the affected organisation'),
+    ...validateRequired(body.impact_severity, 'impact_severity', 'Select the severity of the impact'),
+    ...validateRequired(body.message, 'message', 'Enter your message'),
   );
   if (errors.length > 0) {
     template.title = 'Error: Something’s wrong with my live service';
@@ -378,9 +363,10 @@ export async function HandleHelpUsingPaasFormPost(
   const template = new Template(ctx.viewContext);
 
   errors.push(
-    ...checkFormField(body.name, 'name', 'Enter your full name'),
-    ...checkFormField(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
-    ...checkFormField(body.message, 'message', 'Enter your message'),
+    ...validateRequired(body.name, 'name', 'Enter your full name'),
+    ...validateRequired(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
+    ...validateEmail(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
+    ...validateRequired(body.message, 'message', 'Enter your message'),
   );
   if (errors.length > 0) {
     template.title = 'Error: I need some help using GOV.UK PaaS';
@@ -448,11 +434,12 @@ export async function HandleContactUsFormPost(
   const template = new Template(ctx.viewContext);
 
   errors.push(
-    ...checkFormField(body.name, 'name', 'Enter your full name'),
-    ...checkFormField(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
-    ...checkFormField(body.department_agency, 'department_agency', 'Enter your department or agency'),
-    ...checkFormField(body.service_team, 'service_team', 'Enter your service or team'),
-    ...checkFormField(body.message, 'message', 'Enter your message'),
+    ...validateRequired(body.name, 'name', 'Enter your full name'),
+    ...validateRequired(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
+    ...validateEmail(body.email, 'email', 'Enter an email address in the correct format, like name@example.com'),
+    ...validateRequired(body.department_agency, 'department_agency', 'Enter your department or agency'),
+    ...validateRequired(body.service_team, 'service_team', 'Enter your service or team'),
+    ...validateRequired(body.message, 'message', 'Enter your message'),
   );
 
   if (errors.length > 0) {

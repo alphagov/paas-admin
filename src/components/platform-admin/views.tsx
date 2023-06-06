@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 
 import { SLUG_REGEX } from '../../layouts';
+import { IValidationError } from '../../lib/validation/types';
 import { RouteLinker } from '../app';
-import { IValidationError } from '../errors/types';
 import { SuccessPage } from '../org-users/views';
 import { owners } from '../organizations/owners';
 

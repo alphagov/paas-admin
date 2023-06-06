@@ -116,6 +116,7 @@ describe(EditOrganization, () => {
 
     const { container } = render(<EditOrganization
       csrf="__CSRF_TOKEN__"
+      linkTo={linker}
       organization={{
         guid: '__ORG_GUID__',
         metadata: { annotations: { owner: 'Testing Departament' } },
@@ -149,6 +150,44 @@ describe(EditOrganization, () => {
     expect(container.querySelector('select#suspended option:checked')).toHaveTextContent('Suspended');
 
     expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
+  });
+  it('should correctly render the form errors', () => {
+    const quota = {
+      apps: { total_memory_in_mb: 2 },
+      guid: '__QUOTA_1_GUID__',
+      name: 'quota-1',
+      routes: { total_routes: 2 },
+      services: { total_service_instances: 2 },
+    };
+    const {container } = render(<EditOrganization
+      csrf="__CSRF_TOKEN__"
+      linkTo={linker}
+      organization={{
+        guid: '__ORG_GUID__',
+        metadata: { annotations: { owner: 'Testing Departament' } },
+        name: 'org-name',
+        relationships: {
+          quota: {
+            data: {
+              guid: '__QUOTA_2_GUID__',
+            },
+          },
+        },
+        suspended: true,
+      } as IV3OrganizationResource}
+      quotas={[
+        quota as IV3OrganizationQuota,
+        { ...quota, guid: '__QUOTA_2_GUID__', name: 'quota-2' } as IV3OrganizationQuota,
+      ]}
+      errors={
+        [
+          { field: 'name', message: 'Organisation name is required' },
+        ]
+      }
+    />);
+
+    expect(container.querySelector('.govuk-error-summary')).toBeTruthy();
+    expect(container.querySelector('#name-error')).toHaveTextContent('Organisation name is required');
   });
 });
 
@@ -233,4 +272,3 @@ describe(EmailManagersConfirmationPage, () => {
     expect(container.querySelector('.govuk-body')).toHaveTextContent('children text');
   });
 });
-

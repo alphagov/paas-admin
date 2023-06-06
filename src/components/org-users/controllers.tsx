@@ -31,7 +31,7 @@ import {
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
 import { fromOrg } from '../breadcrumbs';
-import { IValidationError } from '../errors/types';
+import { IValidationError } from '../../lib/validation/types';
 
 import {
   DeleteConfirmationPage,
@@ -44,6 +44,7 @@ import {
   OrganizationUsersPage,
   SuccessPage,
 } from './views';
+import { sanitizeEmail, validateEmail, validateRequired } from '../../lib/validation';
 
 interface IPostPermissions {
   readonly [guid: string]: {
@@ -74,8 +75,6 @@ class ValidationError extends Error {
     this.name = 'ValidationError';
   }
 }
-
-const VALID_EMAIL = /[^.]@[^.]/;
 
 async function setAllUserRolesForOrg(
   cf: CloudFoundryClient,
@@ -219,19 +218,6 @@ function validatePermissions({
     errors.push({
       field: 'roles',
       message: 'At least one organisation or space level role should be selected',
-    });
-  }
-
-  return errors;
-}
-
-function validateEmail({ email }: IUserPostBody): ReadonlyArray<IValidationError> {
-  const errors: Array<IValidationError> = [];
-
-  if (!email || !VALID_EMAIL.test(email)) {
-    errors.push({
-      field: 'email',
-      message: 'Enter an email address in the correct format, like name@example.com',
     });
   }
 
@@ -484,13 +470,16 @@ export async function inviteUser(
   ]);
 
   try {
-    errors.push(...validateEmail(userBody), ...validatePermissions(userBody));
-    if (errors.length > 0) {
+    const email = sanitizeEmail(userBody.email);
+    errors.push(
+      ...validateRequired(email, 'email', 'Enter an email address in the correct format, like name@example.com'),
+      ...validateEmail(email, 'email', 'Enter an email address in the correct format, like name@example.com'),
+      ...validatePermissions(userBody));
+    if (errors. length > 0) {
       throw new ValidationError(errors);
     }
 
-    const email = userBody.email!.replace(/\s/g, '');
-    const uaaUser = await uaa.findUser(email);
+    const uaaUser = await uaa.findUser(email!);
 
     let userGUID = uaaUser && uaaUser.id;
     let invitation: IUaaInvitation | undefined;
@@ -558,7 +547,7 @@ export async function inviteUser(
           organisation: organization.entity.name,
           url: invitation.inviteLink,
         });
-      } catch (err) {
+      } catch (err: any) {
         ctx.log.error(
           `a user was assigned to org ${params.organizationGUID} ` +
             `but sending the invite email failed: ${err.message}`,
@@ -638,9 +627,7 @@ export async function resendInvitation(
   }
 
   /* istanbul ignore next */
-  if (!VALID_EMAIL.test(user.entity.username)) {
-    throw new Error('Enter an email address in the correct format, like name@example.com');
-  }
+  validateEmail(user.entity.username);
 
   const uaa = new UAAClient({
     apiEndpoint: ctx.app.uaaAPI,
@@ -769,6 +756,13 @@ export async function editUser(
   }
 
   const uaaUser = await uaa.getUser(user.metadata.guid);
+
+  if (!uaaUser) {
+    ctx.app.logger.warn(
+      `user ${user.metadata.guid} was found in CF, but not in UAA.`,
+    );
+    throw new NotFoundError('user not found in UAA');
+  }
 
   const accountsUser = await accountsClient.getUser(params.userGUID);
 
@@ -971,6 +965,14 @@ export async function updateUser(
       );
 
       const uaaUser = await uaa.getUser(user.metadata.guid);
+      if (!uaaUser) {
+        ctx.app.logger.warn(
+          `user ${user.metadata.guid} was found in CF, but not in UAA. ` +
+            'Was the user created incorrectly? They should be invited via paas-admin',
+        );
+        throw new NotFoundError('user not found in UAA');
+      }
+
       const accountsUser = await accountsClient.getUser(params.userGUID);
       if (!accountsUser) {
         ctx.app.logger.warn(
