@@ -3,6 +3,7 @@ import lodash from 'lodash';
 import nock from 'nock';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
+import * as cfData from '../../lib/cf/cf.test.data';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import {
   billableOrgQuota,
@@ -12,10 +13,10 @@ import {
 } from '../../lib/cf/test-data/org-quota';
 import { wrapResources } from '../../lib/cf/test-data/wrap-resources';
 import { createTestContext } from '../app/app.test-helpers';
-import { IContext } from '../app/context';
+import { IContext, RouteLinker } from '../app/context';
 import { CLOUD_CONTROLLER_ADMIN, Token } from '../auth';
 
-import { 
+import {
   constructSubject,
   constructZendeskRequesterObject,
   editOrgData, emailManagersForm,
@@ -25,7 +26,7 @@ import {
 } from './controllers';
 
 import { listOrganizations } from '.';
-import * as cfData from '../../lib/cf/cf.test.data';
+
 
 const organizations = JSON.stringify(
   wrapResources(
@@ -70,9 +71,9 @@ function extractOrganizations(responseBody: string): ReadonlyArray<string> {
 }
 
 //reusable test user context function
-const createTestUserContext = (isAdmin = false, userId = 'uaa-id-253') => {
-  const scope = isAdmin? [CLOUD_CONTROLLER_ADMIN ]: []
-  
+const createTestUserContext = (isAdmin = false, userId = 'uaa-id-253', linker?: RouteLinker) => {
+  const scope = isAdmin? [CLOUD_CONTROLLER_ADMIN ]: [];
+
   const time = Math.floor(Date.now() / 1000);
   const rawToken = {
     exp: time + 24 * 60 * 60,
@@ -82,8 +83,9 @@ const createTestUserContext = (isAdmin = false, userId = 'uaa-id-253') => {
   };
   const accessToken = jwt.sign(rawToken, 'secret');
   const token = new Token(accessToken, ['secret']);
-  return createTestContext({token})
-}
+
+  return createTestContext({ token }, linker);
+};
 
 const nonAdminUserContext:IContext = createTestUserContext();
 const adminUserContext:IContext = createTestUserContext(true);
@@ -227,6 +229,16 @@ describe(editOrgData, () => {
       expect(response.status).toBeUndefined();
       expect(response.body).toContain(`Organisation ${organization.name}`);
     });
+
+    it('should correctly parse error json', async () => {
+      const response = await editOrgData(adminUserContext, {
+        errors: JSON.stringify([{ field: 'name', message: '__This is a message__' }]),
+        organizationGUID: organization.guid,
+      });
+
+      expect(response.status).toEqual(400);
+      expect(response.body).toContain('__This is a message__');
+    });
   });
 });
 
@@ -287,6 +299,24 @@ describe(updateOrgData, () => {
       expect(response.status).toBeUndefined();
       expect(response.body).toContain('Organisation successfully updated');
     });
+
+    it('should redirect back to editOrgData on errors', async () => {
+      const ctx = createTestUserContext(true, 'platform-admin', (route, params)=> `${route}__${params?.errors}`);
+
+      const cases = [
+        { name: '', out: 'Organisation name is required' },
+        { name: '<script>console.log("hello")</script>',
+          out: 'Organisation name must only contain lowercase letters, numbers and hyphens' },
+        { name: 'a'.repeat(256), out: 'Organisation name must be less than 255 characters' },
+      ];
+
+      for ( const { name, out } of cases ) {
+        const response = await updateOrgData(ctx, params, { ...body, name: name });
+        expect(response.redirect).toBeDefined();
+        expect(response.redirect).toContain('admin.organizations.quota.edit__');
+        expect(response.redirect).toContain(out);
+      }
+    });
   });
 });
 
@@ -320,7 +350,7 @@ describe(emailManagersForm, () => {
       nockCF.on('response', () => {
         nockCF.done();
       });
-  
+
       nock.cleanAll();
     });
 

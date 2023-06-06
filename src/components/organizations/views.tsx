@@ -31,15 +31,15 @@ interface IOrganizationPageProperties {
   readonly isAdmin: boolean;
 }
 
-interface IEditOrganizationProperties {
-  readonly csrf: string;
-  readonly organization: IV3OrganizationResource;
-  readonly quotas: ReadonlyArray<IV3OrganizationQuota>;
-}
 
 interface IFormProperties extends IProperties {
   readonly csrf: string;
   readonly errors?: ReadonlyArray<IValidationError>;
+}
+
+interface IEditOrganizationProperties extends IFormProperties {
+  readonly organization: IV3OrganizationResource;
+  readonly quotas: ReadonlyArray<IV3OrganizationQuota>;
 }
 
 export interface IEmailManagersFormValues {
@@ -314,12 +314,35 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
         Manage
       </h1>
     </div>
-
     <div className="govuk-grid-column-one-half">
       <form method="post">
         <input type="hidden" name="_csrf" value={props.csrf} />
+        {props.errors
+          ? <div
+              className="govuk-error-summary"
+              data-module="govuk-error-summary"
+            >
+            <div role="alert">
+              <h2 className="govuk-error-summary__title">
+                  There is a problem
+                </h2>
+                <div className="govuk-error-summary__body">
+                  <ul className="govuk-list govuk-error-summary__list">
+                    {props.errors.map((error, index) => (
+                      <li key={index}><a href={`#${error.field}`}>{error.message}</a></li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          : null
+        }
 
-        <div className="govuk-form-group">
+        <div className={`govuk-form-group ${
+                    props.errors?.some(e => e.field === 'name')
+                        ? 'govuk-form-group--error'
+                        : ''
+                    }`}>
           <label className="govuk-label govuk-label--m" htmlFor="name">
             Organisation Name
           </label>
@@ -327,6 +350,18 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
             This needs to be all lowercase and hyphen separated meaningful name of the organisation.
             You can also refer to the section on the side for some examples.
           </div>
+          {props.errors
+            ?.filter(error => error.field === 'name')
+            .map((error, index) => (
+              <p
+                key={index}
+                id="name-error"
+                className="govuk-error-message"
+              >
+                <span className="govuk-visually-hidden">Error:</span>{' '}
+                {error.message}
+              </p>
+            ))}
           <input
             className="govuk-input"
             id="name"
@@ -422,7 +457,7 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
 export function EmailManagers(props: IEmailManagersFormProperties): ReactElement {
   return <div className="govuk-grid-row">
     <div className="govuk-grid-column-two-thirds">
-      
+
       <form method="post" noValidate>
         <input type="hidden" name="_csrf" value={props.csrf} />
 

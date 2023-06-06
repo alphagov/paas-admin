@@ -16,6 +16,7 @@ import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 
 import { IOrganization, OrganizationUserRoles } from '../../lib/cf/types';
 
+
 import {
   CLOUD_CONTROLLER_ADMIN,
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
@@ -23,6 +24,8 @@ import {
 } from '../auth';
 
 const TITLE_EMAIL_MANAGERS = 'Email managers';
+
+const OrgNameRegex = new RegExp(/^[a-z0-9-]+$/);
 
 interface IUpdateOrgDataBody {
   readonly name: string;
@@ -173,18 +176,50 @@ export async function editOrgData(ctx: IContext, params: IParameters): Promise<I
     { text: 'Manage Organisation' },
   ];
 
+  const errors: ReadonlyArray<IValidationError> = params.errors ? JSON.parse(params.errors) : undefined;
+
   return {
     body: template.render(<EditOrganization
       organization={organization}
       quotas={realQuotas.sort((qA, qB) => qA.apps.total_memory_in_mb - qB.apps.total_memory_in_mb)}
       csrf={ctx.viewContext.csrf}
+      errors={errors}
+      linkTo={ctx.linkTo}
     />),
+    status: errors ? 400 : undefined,
   };
 }
 
 export async function updateOrgData(ctx: IContext, params: IParameters, body: IUpdateOrgDataBody): Promise<IResponse> {
   if (!ctx.token.hasAdminScopes()) {
     throw new NotAuthorisedError('Not a platform admin');
+  }
+
+  // eslint-disable-next-line functional/prefer-readonly-type
+  const errors: Array<IValidationError> = [];
+
+  if (! body.name || body.name.length === 0) {
+    errors.push(...checkFormField(body.name, 'name', 'Organisation name is required'));
+  } else {
+    if (body.name.length > 255) {
+      errors.push({ field: 'name', message: 'Organisation name must be less than 255 characters' });
+    }
+    if (!OrgNameRegex.test(body.name)) {
+      errors.push({
+        field: 'name',
+        message: 'Organisation name must only contain lowercase letters, numbers and hyphens',
+      });
+    }
+  }
+
+  // if there are errors, redirect to edit page with error messages
+  if (errors.length > 0) {
+    return await Promise.resolve({
+      redirect: ctx.linkTo('admin.organizations.quota.edit', {
+         ...params,
+         errors: JSON.stringify(errors),
+      }),
+    });
   }
 
   const cf = new CloudFoundryClient({
@@ -214,7 +249,7 @@ export async function updateOrgData(ctx: IContext, params: IParameters, body: IU
     { href: ctx.linkTo('admin.organizations'), text: 'Organisations' },
     {
       href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.guid }),
-      text: organization.name,
+      text: body.name,
     },
     {
       href: ctx.linkTo('admin.organizations.quota.edit', { organizationGUID: organization.guid }),
