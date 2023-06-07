@@ -38,8 +38,8 @@ export function getStubCloudwatchMetricsData(
   const members = metricSeriesLabelsAndIds
     .map(({ label, id }) => {
       const { timestamps, values } = getGappyRandomData();
-      console.log(timestamps)
-      console.log(fromUnixTime(parseInt('1631535900')))
+      // console.log(timestamps)
+      // console.log(fromUnixTime(parseInt('1631535900')))
 
       return `<member>
       <Timestamps>
