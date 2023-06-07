@@ -359,6 +359,11 @@ export const router = new Router([
     name: 'support.mou.non-crown',
     path: '/support/mou-non-crown',
   },
+],
+[
+  'admin.organizations',
+  'users',
+  'platform-admin',
 ]);
 
 export default router;
