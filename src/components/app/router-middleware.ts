@@ -56,6 +56,12 @@ export function routerMiddleware(
 
       const ctx = initContext(req, router, route, appConfig);
 
+      if (route.headers) {
+        route.headers.forEach(header => {
+          res.set(header.name, header.value);
+        });
+      }
+
       route.definition
         .action(ctx, params, req.body)
         .then(handleResponse(res))
