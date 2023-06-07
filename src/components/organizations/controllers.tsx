@@ -11,6 +11,7 @@ import { IContext } from '../app/context';
 import { IValidationError } from '../errors/types';
 import { SuccessPage } from '../shared';
 
+import { orgNameValidation, orgOwnerValidation, fieldRequiredValidation } from './validation';
 import { EmailManagers, EditOrganization, OrganizationsPage, IEmailManagersFormValues, EmailManagersConfirmationPage } from './views';
 import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 
@@ -24,8 +25,6 @@ import {
 } from '../auth';
 
 const TITLE_EMAIL_MANAGERS = 'Email managers';
-
-const OrgNameRegex = new RegExp(/^[a-z0-9-]+$/);
 
 interface IUpdateOrgDataBody {
   readonly name: string;
@@ -41,21 +40,6 @@ function sortOrganizationsByName(
   organizationsCopy.sort((a, b) => a.entity.name.localeCompare(b.entity.name));
 
   return organizationsCopy;
-}
-
-function checkFormField(variable: string, field: string, message: string): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  const isInvalid = !variable
-
-  if (isInvalid) {
-    errors.push({
-      field,
-      message,
-    });
-  }
-
-  return errors;
 }
 
 export function constructSubject(userInput: string | undefined): string {
@@ -198,19 +182,12 @@ export async function updateOrgData(ctx: IContext, params: IParameters, body: IU
   // eslint-disable-next-line functional/prefer-readonly-type
   const errors: Array<IValidationError> = [];
 
-  if (! body.name || body.name.length === 0) {
-    errors.push(...checkFormField(body.name, 'name', 'Organisation name is required'));
-  } else {
-    if (body.name.length > 255) {
-      errors.push({ field: 'name', message: 'Organisation name must be less than 255 characters' });
-    }
-    if (!OrgNameRegex.test(body.name)) {
-      errors.push({
-        field: 'name',
-        message: 'Organisation name must only contain lowercase letters, numbers and hyphens',
-      });
-    }
-  }
+  errors.push(
+    ...orgNameValidation(body.name),
+    ...orgOwnerValidation(body.owner),
+    ...fieldRequiredValidation(body.quota, 'quota', 'Quota is required'),
+    ...fieldRequiredValidation(body.suspended, 'suspended', 'Suspended is required'),
+    );
 
   // if there are errors, redirect to edit page with error messages
   if (errors.length > 0) {
@@ -282,7 +259,7 @@ export async function emailManagersForm(ctx: IContext, params: IParameters): Pro
     cf.orgSpaces(params.organizationGUID),
     cf.organization(params.organizationGUID),
   ]);
-  
+
   const template = new Template(ctx.viewContext, TITLE_EMAIL_MANAGERS);
 
   template.breadcrumbs = [
@@ -344,14 +321,14 @@ export async function emailManagersFormPost(
   // check if any fields are missing
   // if so, create error messages
   errors.push(
-    ...checkFormField(body.managerType, 'managerType', 'Select a manager role'),
-    ...checkFormField(body.message, 'message', 'Enter your message'),
+    ...fieldRequiredValidation(body.managerType, 'managerType', 'Select a manager role'),
+    ...fieldRequiredValidation(body.message, 'message', 'Enter your message'),
   );
 
   // if they've selected a space manager role, but not selected a space
   if(body.managerType === 'space_manager' && body.space === '') {
     errors.push(
-      ...checkFormField(body.space, 'space', 'Select a space'),
+      ...fieldRequiredValidation(body.space, 'space', 'Select a space'),
     );
   }
 

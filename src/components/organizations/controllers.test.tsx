@@ -166,7 +166,7 @@ describe(editOrgData, () => {
 
   const organization = {
     guid: '__ORG_GUID__',
-    metadata: { annotations: { owner: 'Testing Departament' } },
+    metadata: { annotations: { owner: 'Government Digital Service' } },
     name: 'org-name',
     relationships: {
       quota: {
@@ -246,7 +246,7 @@ describe(updateOrgData, () => {
 
   const organization = {
     guid: '__ORG_GUID__',
-    metadata: { annotations: { owner: 'Testing Departament' } },
+    metadata: { annotations: { owner: 'Government Digital Service' } },
     name: 'org-name',
     relationships: {
       quota: {
@@ -259,7 +259,7 @@ describe(updateOrgData, () => {
   const quotaGUID = '__QUOTA_GUID__';
 
   const params = { organizationGUID: organization.guid };
-  const body = { name: organization.name, owner: 'Testing Departament', quota: quotaGUID, suspended: 'true' };
+  const body = { name: organization.name, owner: 'Government Digital Service', quota: quotaGUID, suspended: 'true' };
 
 
   describe('when not a platform admin', () => {
@@ -316,6 +316,21 @@ describe(updateOrgData, () => {
         expect(response.redirect).toContain('admin.organizations.quota.edit__');
         expect(response.redirect).toContain(out);
       }
+
+      const badOwnerResponse = await updateOrgData(ctx, params, { ...body, owner: '' });
+      expect (badOwnerResponse.redirect).toBeDefined();
+      expect (badOwnerResponse.redirect).toContain('admin.organizations.quota.edit__');
+      expect (badOwnerResponse.redirect).toContain('Organisation owner is required');
+
+      const badQuotaResponse = await updateOrgData(ctx, params, { ...body, name: 'hello', quota: '' });
+      expect (badQuotaResponse.redirect).toBeDefined();
+      expect (badQuotaResponse.redirect).toContain('admin.organizations.quota.edit__');
+      expect (badQuotaResponse.redirect).toContain('Quota is required');
+
+      const badSuspendedResponse = await updateOrgData(ctx, params, { ...body, name: 'hello', suspended: '' });
+      expect (badSuspendedResponse.redirect).toBeDefined();
+      expect (badSuspendedResponse.redirect).toContain('admin.organizations.quota.edit__');
+      expect (badSuspendedResponse.redirect).toContain('Suspended is required');
     });
   });
 });
