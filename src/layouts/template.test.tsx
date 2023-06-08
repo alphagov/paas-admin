@@ -39,4 +39,15 @@ describe(Template, () => {
       '<title lang="en">GOV.UK Platform as a Service - Administration Tool</title>',
     );
   });
+  it('should html encode special characters in the title', () => {
+    const template = new Template({
+      csrf: 'qwertyuiop-1234567890',
+      isPlatformAdmin: false,
+      location: 'eu-west-2',
+    }, 'TEST CASE <script>alert("XSS")</script>');
+    const markup = template.render(<p>This is just a test</p>);
+    expect(markup).toContain(
+      '<title lang="en">TEST CASE &lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;</title>',
+    );
+  });
 });
