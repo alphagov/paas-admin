@@ -1,8 +1,9 @@
+import { SLUG_REGEX } from '../../layouts';
 import { IValidationError } from '../errors/types';
+
 
 import { owners } from './owners';
 
-const orgNameRegex = new RegExp(/^[a-z0-9-]+$/);
 const orgNameMaxLength = 255;
 
 export const fieldRequiredValidation = (
@@ -35,7 +36,7 @@ export const orgNameValidation = (value?: string): ReadonlyArray<IValidationErro
             message: `Organisation name must be less than ${orgNameMaxLength} characters`,
         });
     }
-    if (!orgNameRegex.test(value)) {
+    if (!value.match(SLUG_REGEX)) {
         errors.push({
             field: 'name',
             message: 'Organisation name must only contain lowercase letters, numbers and hyphens',

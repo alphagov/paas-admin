@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 
-import { bytesToHuman, MEBIBYTE } from '../../layouts';
+import { bytesToHuman, MEBIBYTE, SLUG_REGEX } from '../../layouts';
 import { IOrganization, IOrganizationQuota, IV3OrganizationQuota, IV3OrganizationResource } from '../../lib/cf/types';
 import { RouteLinker } from '../app';
 import { ISpace } from '../../lib/cf/types';
@@ -369,6 +369,7 @@ export function EditOrganization(props: IEditOrganizationProperties): ReactEleme
             type="text"
             defaultValue={props.organization.name}
             aria-describedby="name-hint"
+            pattern={SLUG_REGEX}
           />
         </div>
 
