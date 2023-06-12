@@ -79,6 +79,7 @@ describe('app test suite', () => {
     expect(response.header['set-cookie'].join('|')).toContain(
       'pazmin-session.sig',
     );
+    expect(response.header['set-cookie'][0]).toContain('samesite=lax');
   });
 
   it('should server a null cohort permissions policy header', async () => {
@@ -252,6 +253,7 @@ describe('app test suite', () => {
     it('should authenticate successfully', () => {
       expect(response.status).toEqual(302);
       expect(response.header['set-cookie'][0]).toContain('pazmin-session');
+      expect(response.header['set-cookie'][0]).toContain('samesite=lax');
     });
 
     it('should redirect to organisations when accessed root', async () => {

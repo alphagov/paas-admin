@@ -106,6 +106,7 @@ export default function(config: IAppConfig): express.Express {
       keys: [config.sessionSecret],
       name: 'pazmin-session',
       secure: !config.allowInsecureSession,
+      sameSite: 'lax',
     }),
   );
 
