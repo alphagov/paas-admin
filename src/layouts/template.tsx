@@ -1,5 +1,7 @@
+import { encode } from 'html-entities';
 import React, { ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+
 
 import { IViewContext } from '../components/app';
 import { Breadcrumbs, IBreadcrumbsItem } from '../components/breadcrumbs';
@@ -37,11 +39,13 @@ export class Template {
     const assetPath = '/assets';
     const assetURL = 'https://admin.cloud.service.gov.uk/assets';
 
+    const sanitizedTitle = encode(this._title, { mode: 'nonAsciiPrintable' }) || undefined;
+
     return `<!DOCTYPE html>
     <html lang=${this._language} class="govuk-template">
         <head>
           <meta charSet="utf-8" />
-          <title lang="${this._language}">${this._title ||
+          <title lang="${this._language}">${sanitizedTitle ||
       'GOV.UK Platform as a Service - Administration Tool'}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
           <meta name="theme-color" content="${themeColor}" />

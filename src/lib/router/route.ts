@@ -32,14 +32,21 @@ export interface IRouteDefinition {
   readonly path: string;
 }
 
+export interface IRouteHeader {
+  readonly name: string;
+  readonly value: string;
+}
+
 export default class Route {
   public readonly definition: IRouteDefinition;
   public readonly method: string;
   public readonly parser: RouteParser;
+  public readonly headers: ReadonlyArray<IRouteHeader> = [];
 
-  constructor(definition: IRouteDefinition) {
+  constructor(definition: IRouteDefinition, headers: ReadonlyArray<IRouteHeader> = []) {
     this.definition = definition;
     this.method = (definition.method || 'get').toLowerCase();
+    this.headers = headers;
 
     this.parser = new RouteParser(definition.path);
   }

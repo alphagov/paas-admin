@@ -19,7 +19,7 @@ describe('IContext', () => {
           name: 'test',
           path: '/test',
         },
-      ]);
+      ],[]);
       const req = {
         csrfToken: () => '',
         log: {},
@@ -42,7 +42,7 @@ describe('IContext', () => {
           name: 'test',
           path: '/test',
         },
-      ]);
+      ],[]);
       const req = {
         csrfToken: () => '',
         log: {},

@@ -5,7 +5,7 @@ import pino from 'pino';
 import { Token } from '../auth';
 
 import { config } from './app.test.config';
-import { IContext } from './context';
+import { IContext, RouteLinker } from './context';
 
 class FakeSession implements CookieSessionInterfaces.CookieSessionObject {
   public readonly isChanged: boolean;
@@ -21,11 +21,13 @@ class FakeSession implements CookieSessionInterfaces.CookieSessionObject {
   readonly [propertyName: string]: any;
 }
 
-export function createTestContext(ctx?: {}): IContext {
+export function createTestContext(ctx?: {}, linkTo?: RouteLinker): IContext {
+  const linker = linkTo || (route => `__LINKED_TO__${route}`);
+
   return _.cloneDeep({
     absoluteLinkTo: () => '__ABSOLUTE_LINKED_TO__',
     app: config,
-    linkTo: route => `__LINKED_TO__${route}`,
+    linkTo: linker,
     log: pino({ level: 'silent' }),
     routePartOf: () => false,
     session: new FakeSession(),

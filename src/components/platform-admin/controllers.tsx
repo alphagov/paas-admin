@@ -7,13 +7,14 @@ import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
 
-import { validateNewOrganization } from './validators';
 import {
   CreateOrganizationPage,
   CreateOrganizationSuccessPage,
   INewOrganizationUserBody,
   PlatformAdministratorPage,
 } from './views';
+import { validateArrayMember, validateRequired, validateSlug } from '../../lib/validation';
+import { owners } from '../organizations/owners';
 
 
 const TITLE_CREATE_ORG = 'Create Organisation';
@@ -75,7 +76,13 @@ export async function createOrganization(
 
   const template = new Template(ctx.viewContext, TITLE_CREATE_ORG);
 
-  const errors = validateNewOrganization(body);
+  const errors = [
+    ...validateRequired(body.organization, 'organization', 'Organisation name is a required field'),
+    ...validateSlug(body.organization, 'organization', 'Organisation name must be all lowercase and hyphen separated'),
+    ...validateRequired(body.owner, 'owner', 'Owner is a required field'),
+    ...validateArrayMember(body.owner, owners, 'owner', 'Owner must be an existing organisation'),
+  ];
+
   if (errors.length > 0) {
     const orgs = await cf.v3Organizations();
     const owners = Array.from(new Set(orgs

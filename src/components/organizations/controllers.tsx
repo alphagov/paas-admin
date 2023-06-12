@@ -7,8 +7,8 @@ import { Template } from '../../layouts';
 import CloudFoundryClient from '../../lib/cf';
 import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import UAAClient, { IUaaUser } from '../../lib/uaa';
+import { IValidationError } from '../../lib/validation/types';
 import { IContext } from '../app/context';
-import { IValidationError } from '../errors/types';
 import { SuccessPage } from '../shared';
 
 import { EmailManagers, EditOrganization, OrganizationsPage, IEmailManagersFormValues, EmailManagersConfirmationPage } from './views';
@@ -16,11 +16,14 @@ import { AccountsClient, IAccountsUser } from '../../lib/accounts';
 
 import { IOrganization, OrganizationUserRoles } from '../../lib/cf/types';
 
+
 import {
   CLOUD_CONTROLLER_ADMIN,
   CLOUD_CONTROLLER_GLOBAL_AUDITOR,
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
+import { validateArrayMember, validateMaxLength, validateRequired, validateSlug } from '../../lib/validation';
+import { owners } from './owners';
 
 const TITLE_EMAIL_MANAGERS = 'Email managers';
 
@@ -38,21 +41,6 @@ function sortOrganizationsByName(
   organizationsCopy.sort((a, b) => a.entity.name.localeCompare(b.entity.name));
 
   return organizationsCopy;
-}
-
-function checkFormField(variable: string, field: string, message: string): ReadonlyArray<IValidationError> {
-  const errors = [];
-
-  const isInvalid = !variable
-
-  if (isInvalid) {
-    errors.push({
-      field,
-      message,
-    });
-  }
-
-  return errors;
 }
 
 export function constructSubject(userInput: string | undefined): string {
@@ -173,18 +161,46 @@ export async function editOrgData(ctx: IContext, params: IParameters): Promise<I
     { text: 'Manage Organisation' },
   ];
 
+  const errors: ReadonlyArray<IValidationError> = params.errors ? JSON.parse(params.errors) : undefined;
+
   return {
     body: template.render(<EditOrganization
       organization={organization}
       quotas={realQuotas.sort((qA, qB) => qA.apps.total_memory_in_mb - qB.apps.total_memory_in_mb)}
       csrf={ctx.viewContext.csrf}
+      errors={errors}
+      linkTo={ctx.linkTo}
     />),
+    status: errors ? 400 : undefined,
   };
 }
 
 export async function updateOrgData(ctx: IContext, params: IParameters, body: IUpdateOrgDataBody): Promise<IResponse> {
   if (!ctx.token.hasAdminScopes()) {
     throw new NotAuthorisedError('Not a platform admin');
+  }
+
+  // eslint-disable-next-line functional/prefer-readonly-type
+  const errors: Array<IValidationError> = [];
+
+  errors.push(
+    ...validateRequired(body.name, 'name', 'Organisation name is required'),
+    ...validateMaxLength(body.name, 255, 'name', 'Organisation name must be less than 255 characters'),
+    ...validateSlug(body.name, 'name', 'Organisation name must only contain lowercase letters, numbers and hyphens'),
+    ...validateRequired(body.owner, 'owner', 'Organisation owner is required'),
+    ...validateArrayMember(body.owner, owners, 'owner', 'Organisation owner is not valid'),
+    ...validateRequired(body.quota, 'quota', 'Quota is required'),
+    ...validateRequired(body.suspended, 'suspended', 'Suspended is required'),
+    );
+
+  // if there are errors, redirect to edit page with error messages
+  if (errors.length > 0) {
+    return await Promise.resolve({
+      redirect: ctx.linkTo('admin.organizations.quota.edit', {
+         ...params,
+         errors: JSON.stringify(errors),
+      }),
+    });
   }
 
   const cf = new CloudFoundryClient({
@@ -214,7 +230,7 @@ export async function updateOrgData(ctx: IContext, params: IParameters, body: IU
     { href: ctx.linkTo('admin.organizations'), text: 'Organisations' },
     {
       href: ctx.linkTo('admin.organizations.view', { organizationGUID: organization.guid }),
-      text: organization.name,
+      text: body.name,
     },
     {
       href: ctx.linkTo('admin.organizations.quota.edit', { organizationGUID: organization.guid }),
@@ -247,7 +263,7 @@ export async function emailManagersForm(ctx: IContext, params: IParameters): Pro
     cf.orgSpaces(params.organizationGUID),
     cf.organization(params.organizationGUID),
   ]);
-  
+
   const template = new Template(ctx.viewContext, TITLE_EMAIL_MANAGERS);
 
   template.breadcrumbs = [
@@ -309,14 +325,14 @@ export async function emailManagersFormPost(
   // check if any fields are missing
   // if so, create error messages
   errors.push(
-    ...checkFormField(body.managerType, 'managerType', 'Select a manager role'),
-    ...checkFormField(body.message, 'message', 'Enter your message'),
+    ...validateRequired(body.managerType, 'managerType', 'Select a manager role'),
+    ...validateRequired(body.message, 'message', 'Enter your message'),
   );
 
   // if they've selected a space manager role, but not selected a space
   if(body.managerType === 'space_manager' && body.space === '') {
     errors.push(
-      ...checkFormField(body.space, 'space', 'Select a space'),
+      ...validateRequired(body.space, 'space', 'Select a space'),
     );
   }
 
