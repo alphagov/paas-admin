@@ -150,7 +150,8 @@
   },
   "overrides": {
     "request@2.88.2": {
-      "qs": "^6.11.0"
+      "qs": "^6.11.0",
+      "tough-cookie": "^4.1.3"
     }
   },
   "engines": {
