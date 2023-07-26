@@ -84,7 +84,7 @@
     "mini-css-extract-plugin": "^2.7.6",
     "nock": "^13.3.2",
     "nodemon-webpack-plugin": "^4.8.1",
-    "pino-pretty": "^7.6.1",
+    "pino-pretty": "^10.2.0",
     "puppeteer": "^20.9.0",
     "sass": "^1.64.1",
     "sass-loader": "^13.3.2",
