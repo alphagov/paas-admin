@@ -9,11 +9,6 @@ import {
 } from 'govuk-frontend'
 
 import Tooltip from './tooltip';
-import Cookies from './cookie-functions'
-
-var cookies = new Cookies()
-
-cookies.cookieCleanup()
 
 // there is ever only one header per page
 var $header = document.querySelector('[data-module="govuk-header"]')
