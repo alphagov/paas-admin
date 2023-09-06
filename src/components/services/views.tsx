@@ -1,4 +1,4 @@
-import { DescribeDBLogFilesDetails } from 'aws-sdk/clients/rds';
+import { DescribeDBLogFilesDetails } from '@aws-sdk/client-rds';
 import { format } from 'date-fns';
 import React, { ReactElement, ReactNode } from 'react';
 

@@ -1,4 +1,4 @@
-import { RDS } from 'aws-sdk';
+import { RDSClient } from "@aws-sdk/client-rds";
 
 import CloudFoundryClient from '../../lib/cf';
 import { createTestContext } from '../app/app.test-helpers';
@@ -6,7 +6,7 @@ import { IContext } from '../app/context';
 
 import { downloadServiceLogs, listServiceLogs } from './controllers';
 
-jest.mock('aws-sdk');
+jest.mock('@aws-sdk/client-rds');
 jest.mock('../../lib/cf');
 
 const mockCustomService = { metadata: { guid: 'CUSTOM_SERVICE' } };
@@ -24,7 +24,7 @@ describe(listServiceLogs, () => {
   beforeEach(() => {
     CFClient.mockClear();
     // @ts-ignore
-    RDS.mockClear();
+    RDSClient.mockClear();
   });
 
 
@@ -58,14 +58,13 @@ describe(listServiceLogs, () => {
     CFClient.prototype.serviceInstance.mockReturnValueOnce(Promise.resolve(mockServiceInstance));
     CFClient.prototype.service.mockReturnValueOnce(Promise.resolve(mockServicePostgres));
     CFClient.prototype.servicePlan.mockReturnValueOnce(Promise.resolve(mockServicePlan));
+
     // @ts-ignore
-    RDS.mockReturnValueOnce({
-      describeDBLogFiles: () => ({
-        promise: async () => await Promise.resolve({
-          DescribeDBLogFiles: [ { LastWritten: 1578837540000, LogFileName: 'file-one', Size: 73728 } ],
-        }),
+    RDSClient.prototype.send.mockReturnValueOnce(
+      Promise.resolve({
+        DescribeDBLogFiles: [ { LastWritten: 1578837540000, LogFileName: 'file-one', Size: 73728 } ],
       }),
-    });
+    );
 
     const response = await listServiceLogs(ctx, {
       organizationGUID: 'ORG_GUID', serviceGUID: 'SERVICE_INSTANCE_GUID', spaceGUID: 'SPACE_GUID',
@@ -82,12 +81,9 @@ describe(listServiceLogs, () => {
     CFClient.prototype.serviceInstance.mockReturnValueOnce(Promise.resolve(mockServiceInstance));
     CFClient.prototype.service.mockReturnValueOnce(Promise.resolve(mockServicePostgres));
     CFClient.prototype.servicePlan.mockReturnValueOnce(Promise.resolve(mockServicePlan));
+
     // @ts-ignore
-    RDS.mockReturnValueOnce({
-      describeDBLogFiles: () => ({
-        promise: async () => await Promise.resolve({}),
-      }),
-    });
+    RDSClient.prototype.send.mockReturnValueOnce(Promise.resolve({}));
 
     const response = await listServiceLogs(ctx, {
       organizationGUID: 'ORG_GUID', serviceGUID: 'SERVICE_INSTANCE_GUID', spaceGUID: 'SPACE_GUID',
@@ -102,7 +98,7 @@ describe(downloadServiceLogs, () => {
   beforeEach(() => {
     CFClient.mockClear();
     // @ts-ignore
-    RDS.mockClear();
+    RDSClient.mockClear();
   });
 
   it('should throw an error if filename is not defined', async () => {
@@ -150,14 +146,13 @@ describe(downloadServiceLogs, () => {
     CFClient.prototype.organization.mockReturnValueOnce(Promise.resolve(mockOrganization));
     CFClient.prototype.serviceInstance.mockReturnValueOnce(Promise.resolve(mockServiceInstance));
     CFClient.prototype.service.mockReturnValueOnce(Promise.resolve(mockServicePostgres));
+
     // @ts-ignore
-    RDS.mockReturnValueOnce({
-      downloadDBLogFilePortion: () => ({
-        promise: async () => await Promise.resolve({
-          LogFileData: '[TIMESTAMP] INFO: Log line\n[TIMESTAMP] ERROR: Another log line',
-        }),
+    RDSClient.prototype.send.mockReturnValueOnce(
+      Promise.resolve({
+        LogFileData: '[TIMESTAMP] INFO: Log line\n[TIMESTAMP] ERROR: Another log line',
       }),
-    });
+    );
 
     const response = await downloadServiceLogs(ctx, {
       filename: 'error/test',
@@ -178,12 +173,9 @@ describe(downloadServiceLogs, () => {
     CFClient.prototype.organization.mockReturnValueOnce(Promise.resolve(mockOrganization));
     CFClient.prototype.serviceInstance.mockReturnValueOnce(Promise.resolve(mockServiceInstance));
     CFClient.prototype.service.mockReturnValueOnce(Promise.resolve(mockServicePostgres));
+
     // @ts-ignore
-    RDS.mockReturnValueOnce({
-      downloadDBLogFilePortion: () => ({
-        promise: async () => await Promise.resolve({}),
-      }),
-    });
+    RDSClient.prototype.send.mockReturnValueOnce(Promise.resolve({}));
 
     const response = await downloadServiceLogs(ctx, {
       filename: 'error/test',
