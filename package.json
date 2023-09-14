@@ -86,7 +86,7 @@
     "nodemon-webpack-plugin": "^4.8.1",
     "pino-pretty": "^7.6.1",
     "puppeteer": "^21.2.1",
-    "sass": "^1.66.1",
+    "sass": "^1.67.0",
     "sass-loader": "^13.3.2",
     "stylelint": "^14.16.1",
     "stylelint-config-gds": "^0.3.0",
