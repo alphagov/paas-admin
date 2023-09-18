@@ -101,10 +101,10 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.413.0",
-    "@aws-sdk/client-resource-groups-tagging-api": "^3.413.0",
+    "@aws-sdk/client-cloudwatch": "^3.414.0",
+    "@aws-sdk/client-resource-groups-tagging-api": "^3.414.0",
     "@aws-sdk/types": "^3.413.0",
-    "@aws-sdk/client-rds": "^3.413.0",
+    "@aws-sdk/client-rds": "^3.414.0",
     "@babel/preset-env": "^7.22.15",
     "@babel/preset-react": "^7.22.15",
     "axios": "^0.27.2",
