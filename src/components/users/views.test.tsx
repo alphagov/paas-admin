@@ -67,6 +67,22 @@ describe(UserPage, () => {
     );
     expect(queryByText('This user is a member of 3 orgs.')).toBeTruthy();
   });
+
+  it('should handle missing properties', () => {
+    // it's unclear what information is guaranteed to be present
+    // in e.g. a UAA response, and we should try not to fail to
+    // render a page if some elements are missing.
+    const { queryByText } = render(
+      <UserPage
+        organizations={[]}
+        linkTo={linker}
+        user={{}}
+      />,
+    );
+    expect(queryByText('User')).toBeTruthy();
+    expect(queryByText('Orgs')).toBeTruthy();
+    expect(queryByText('UAA Groups')).toBeTruthy();
+  });
 });
 
 describe(PasswordResetRequest, () => {
