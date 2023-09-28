@@ -90,7 +90,7 @@ export function UserPage(props: IUserPageProps): ReactElement {
         <div className="govuk-summary-list__row">
           <dt className="govuk-summary-list__key">Last logon</dt>
           <dd className="govuk-summary-list__value">
-            {format(new Date(props.lastLogon), DATE_TIME)}
+            {props.lastLogon && format(new Date(props.lastLogon), DATE_TIME)}
           </dd>
         </div>
       </dl>
@@ -107,7 +107,7 @@ export function UserPage(props: IUserPageProps): ReactElement {
       <h3 className="govuk-heading-m">UAA Groups</h3>
 
       <ul className="govuk-list govuk-list--bullet">
-        {props.groups.map(group => (
+        {props.groups && props.groups.map(group => (
           <li key={group.display}>
             <code>{group.display}</code>
           </li>
