@@ -4,7 +4,7 @@
 # top-most EditorConfig file
 root = true
 
-# Default to using tabs
+# Default to using spaces
 # Unix-style newlines with a newline ending every file
 [*]
 indent_size = 2
