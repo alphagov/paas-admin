@@ -40,13 +40,13 @@ describe('server test suite', () => {
     const server = new Server(handler);
     await server.start();
     const port = server.http.address().port;
-    await request(`http://localhost:${port}`)
+    await request(`http://127.0.0.1:${port}`)
       .get('/')
       .expect(200);
     await server.stop();
 
     return expect(
-      request(`http://localhost:${port}`)
+      request(`http://127.0.0.1:${port}`)
         .get('/')
         .timeout(500),
     ).rejects.toThrow(/ECONNREFUSED/);
