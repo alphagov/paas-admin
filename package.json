@@ -60,7 +60,7 @@
     "@types/react-dom": "^18.2.14",
     "@types/route-parser": "^0.1.6",
     "@types/source-map-support": "^0.5.10",
-    "@types/supertest": "^2.0.15",
+    "@types/supertest": "^2.0.16",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
     "@typescript-eslint/parser": "^6.10.0",
     "body-parser": "^1.20.2",
