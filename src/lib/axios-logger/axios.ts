@@ -1,8 +1,8 @@
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { BaseLogger } from 'pino';
 
 function newAxiosRequestInterceptor(name: string, logger: BaseLogger) {
-  return (cfg: AxiosRequestConfig) => {
+  return (cfg: InternalAxiosRequestConfig) => {
     const { url, method } = cfg;
 
     logger.info({
