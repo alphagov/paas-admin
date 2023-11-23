@@ -281,13 +281,12 @@ describe('lib/uaa test suite', () => {
       .post('/password_resets')
       .reply(function(_uri, _requestBody) {
         const acceptHeader = this.req.headers['accept'];
-        const contentTypeHeader = this.req.headers['content-type'];
 
-        if (acceptHeader !== 'application/json' || contentTypeHeader !== 'application/json;chartset=utf-8') {
+        if (acceptHeader !== 'application/json') {
           return [
             404,
             {
-              error: 'UAA API requires both "Accept" and "Content-Type" headers to be set on the request and equal to' +
+              error: 'UAA API requires "Accept"headers to be set on the request and equal to' +
                 '"application/json". Otherwise, it is going to be unhelpfull and return a 404...',
             },
           ];
