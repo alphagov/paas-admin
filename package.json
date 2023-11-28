@@ -82,7 +82,7 @@
     "jest-puppeteer": "^9.0.1",
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.7.6",
-    "nock": "^13.3.8",
+    "nock": "^13.4.0",
     "nodemon-webpack-plugin": "^4.8.2",
     "pino-pretty": "^7.6.1",
     "puppeteer": "^21.5.2",
