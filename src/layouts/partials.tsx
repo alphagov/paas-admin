@@ -176,6 +176,7 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
   return (
     <footer className="govuk-footer govuk-!-display-none-print" role="contentinfo">
       <div className="govuk-width-container ">
+      {authenticated ? 
         <div className="govuk-footer__navigation">
           <div className="govuk-footer__section govuk-grid-column-one-half">
             <h2 className="govuk-footer__heading govuk-heading-m">Support</h2>
@@ -198,11 +199,11 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
                   Raise an issue
                 </a>
               </li>
-              {authenticated ? <li className="govuk-footer__list-item">
+              <li className="govuk-footer__list-item">
                 <a className="govuk-footer__link" href="/support/static-ip">
                   Static IPs
                 </a>
-              </li> : null}
+              </li>
               <li className="govuk-footer__list-item">
                 <a 
                   className="govuk-footer__link"
@@ -215,16 +216,16 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
           <div className="govuk-footer__section govuk-grid-column-one-half">
             <h2 className="govuk-footer__heading govuk-heading-m">Legal terms</h2>
             <ul className="govuk-footer__list">
-              {authenticated ? <li className="govuk-footer__list-item">
+              <li className="govuk-footer__list-item">
                 <a className="govuk-footer__link" href="/support/mou-crown">
                   Memorandum of understanding for Crown bodies
                 </a>
-              </li> : null}
-              {authenticated ? <li className="govuk-footer__list-item">
+              </li>
+              <li className="govuk-footer__list-item">
                 <a className="govuk-footer__link" href="/support/mou-non-crown">
                   Memorandum of understanding for non-Crown bodies
                 </a>
-              </li> : null}
+              </li>
               <li className="govuk-footer__list-item">
                 <a
                   className="govuk-footer__link"
@@ -260,8 +261,10 @@ export function Footer({ authenticated }: IFooterProperties): ReactElement {
             </ul>
           </div>
         </div>
-
+      : null}
+      {authenticated ? 
         <hr className="govuk-footer__section-break" />
+      : null}
 
         <div className="govuk-footer__meta">
           <div className="govuk-footer__meta-item govuk-footer__meta-item--grow">
