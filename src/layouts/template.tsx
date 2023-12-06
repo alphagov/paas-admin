@@ -46,7 +46,7 @@ export class Template {
         <head>
           <meta charSet="utf-8" />
           <title lang="${this._language}">${sanitizedTitle ||
-      'GOV.UK Platform as a Service - Administration Tool'}</title>
+      '[Decommissioned] GOV.UK Platform as a Service - Administration Tool'}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
           <meta name="theme-color" content="${themeColor}" />
           <meta name="csrf-token" content="${this.ctx.csrf}" />
@@ -79,6 +79,16 @@ export class Template {
               />
 
               <div className="govuk-width-container">
+                <div className="govuk-phase-banner">
+                  <p className="govuk-phase-banner__content">
+                    <strong className="govuk-tag govuk-phase-banner__content__tag">
+                      decommissioned
+                    </strong>
+                    <span className="govuk-phase-banner__text">
+                    Thanks to everyone who has used our platform over the years.
+                    </span>
+                  </p>
+                </div>
                 {this._subnav
                   ? <SubNavigation title={this._subnav.title} items={this._subnav.items} />
                   : undefined}
@@ -86,7 +96,6 @@ export class Template {
                 {this._breadcrumbs
                   ? <Breadcrumbs items={this._breadcrumbs} />
                   : undefined}
-
                 <Main>{page}</Main>
               </div>
 
