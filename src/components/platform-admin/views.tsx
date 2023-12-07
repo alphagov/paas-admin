@@ -129,7 +129,7 @@ function Costs(props: IFormProperties): ReactElement {
           </div>
         </div>
 
-        <button className="govuk-button" type="submit">
+        <button className="govuk-button" type="submit" data-module="preventMultiClick">
           View costs
         </button>
       </form>

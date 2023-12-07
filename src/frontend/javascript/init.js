@@ -53,3 +53,16 @@ if ($tooltips) {
 // Find first skip link module to enhance.
 var $skipLink = document.querySelector('[data-module="govuk-skip-link"]')
 new SkipLink($skipLink).init()
+
+
+var $preventMultiClickBtns = document.querySelectorAll('[data-module="preventMultiClick"]');
+if ($preventMultiClickBtns) {
+  for (var i = 0; i < $preventMultiClickBtns.length; i++) {
+    $preventMultiClickBtns[i].addEventListener("click", function () {
+      this.form.submit();
+      this.setAttribute("disabled", "disabled");
+      this.textContent = "Loading data...";
+      this.setAttribute("aria-disabled", "true");
+    });
+  };
+}
