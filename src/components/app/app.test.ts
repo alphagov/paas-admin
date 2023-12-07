@@ -506,28 +506,28 @@ describe('app test suite', () => {
   });
 
   describe('support pages', () => {
-    it('should be able to access support page without login', async () => {
+    it('should not be able to access support page without login', async () => {
       const app = init(config);
       const response = await request(app).get('/support');
-      expect(response.status).toEqual(200);
+      expect(response.status).toEqual(403);
     });
 
-    it('should be able to access /support/contact-us page without login', async () => {
+    it('should not be able to access /support/contact-us page without login', async () => {
       const app = init(config);
       const response = await request(app).get('/support/contact-us');
-      expect(response.status).toEqual(200);
+      expect(response.status).toEqual(403);
     });
 
-    it('should be able to access /support/something-wrong-with-service page without login', async () => {
+    it('should not be able to access /support/something-wrong-with-service page without login', async () => {
       const app = init(config);
       const response = await request(app).get('/support/something-wrong-with-service');
-      expect(response.status).toEqual(200);
+      expect(response.status).toEqual(403);
     });
 
-    it('should be able to access /support/help-using-paas page without login', async () => {
+    it('should not be able to access /support/help-using-paas page without login', async () => {
       const app = init(config);
       const response = await request(app).get('/support/help-using-paas');
-      expect(response.status).toEqual(200);
+      expect(response.status).toEqual(403);
     });
   });
 });

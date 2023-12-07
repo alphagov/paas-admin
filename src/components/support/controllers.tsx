@@ -2,7 +2,7 @@ import * as zendesk from 'node-zendesk';
 import React from 'react';
 
 import { Template } from '../../layouts';
-import { IParameters, IResponse } from '../../lib/router';
+import { IParameters, IResponse, NotAuthorisedError } from '../../lib/router';
 import { IContext } from '../app';
 
 import UAAClient from '../../lib/uaa';
@@ -210,6 +210,10 @@ function contactUsContent(variables: IContactUsFormValues): string {
 
 export async function SupportSelectionForm (ctx: IContext, _params: IParameters): Promise<IResponse> {
 
+  if (!ctx.viewContext.authenticated) {
+    throw new NotAuthorisedError('Available to logged-in users only');
+  }
+
   const template = new Template(ctx.viewContext, 'Get support');
 
   return await Promise.resolve({
@@ -256,6 +260,10 @@ export async function HandleSupportSelectionFormPost (
 }
 
 export async function SomethingWrongWithServiceForm (ctx: IContext): Promise<IResponse> {
+
+  if (!ctx.viewContext.authenticated) {
+    throw new NotAuthorisedError('Available to logged-in users only');
+  }
 
   const template = new Template(ctx.viewContext, 'Something’s wrong with my live service');
 
@@ -344,6 +352,10 @@ export async function HandleSomethingWrongWithServiceFormPost(
 
 export async function HelpUsingPaasForm (ctx: IContext): Promise<IResponse> {
 
+  if (!ctx.viewContext.authenticated) {
+    throw new NotAuthorisedError('Available to logged-in users only');
+  }
+
   const template = new Template(ctx.viewContext, 'I need some help using GOV.UK PaaS');
 
   return await Promise.resolve({
@@ -414,6 +426,10 @@ export async function HandleHelpUsingPaasFormPost(
 }
 
 export async function ContactUsForm (ctx: IContext, _params: IParameters): Promise<IResponse> {
+
+  if (!ctx.viewContext.authenticated) {
+    throw new NotAuthorisedError('Available to logged-in users only');
+  }
 
   const template = new Template(ctx.viewContext, 'Contact us');
 

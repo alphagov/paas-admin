@@ -11,6 +11,7 @@ import { createTestContext } from '../app/app.test-helpers';
 import { Token } from '../auth';
 
 import * as controller from './controllers';
+import { NotAuthorisedError } from '../../lib/router';
 
 const token = jwt.sign(
   {
@@ -29,6 +30,27 @@ let ctx: IContext = createTestContext({
 });
 
 let nockZD: nock.Scope;
+
+describe('not authorised access to /support forms', () => {
+  beforeEach(() => {
+    nock.cleanAll();
+
+    nockZD = nock(ctx.app.zendeskConfig.remoteUri);
+  });
+
+  afterEach(() => {
+    nockZD.done();
+
+    nock.cleanAll();
+  });
+
+  it('should show a "not authorised" error page to user that is not logged in when accessing any support form', async () => {
+    await expect(controller.SupportSelectionForm(ctx, {})).rejects.toThrow(NotAuthorisedError)
+    await expect(controller.SomethingWrongWithServiceForm(ctx)).rejects.toThrow(NotAuthorisedError)
+    await expect(controller.HelpUsingPaasForm(ctx)).rejects.toThrow(NotAuthorisedError)
+    await expect(controller.ContactUsForm(ctx, {})).rejects.toThrow(NotAuthorisedError)
+  });
+});
 
 describe(controller.HandleContactUsFormPost, () => {
   beforeEach(() => {
