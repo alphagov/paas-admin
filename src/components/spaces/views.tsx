@@ -317,6 +317,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
               >
                 Explore your costs and usage
               </a>
+              <span className="govuk-body-s govuk-!-display-block">(for large organisation it takes a while, so please wait)</span>
             </p>,
           )}
         </div>
