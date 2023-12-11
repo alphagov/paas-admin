@@ -17,8 +17,8 @@ describe(Header, () => {
     // https://github.com/alphagov/govuk-frontend/issues/1688
     expect(
       container
-      .querySelector('header.govuk-header .govuk-header__logotype svg image'))
-      .toHaveAttribute('src', expect.stringContaining('/assets/images/govuk-logotype-crown.png'))
+      .querySelector('header.govuk-header svg'))
+      .toHaveClass('govuk-header__logotype')
   });
 
   it('should show the admin link if platform admin', () => {

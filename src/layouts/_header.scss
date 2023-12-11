@@ -1,8 +1,19 @@
 .app-region-tag--ireland {
-  background-color: #006435;
+  background-color: $govuk-success-colour;
+}
+
+.app-region-tag--london {
+  background-color: $govuk-brand-colour;
 }
 
 .app-region-tag {
+  margin-top: -2px;
+  margin-bottom: -3px;
+  padding-top: 2px;
+  padding-right: 8px;
+  padding-bottom: 3px;
+  padding-left: 8px;
+  text-transform: uppercase;
   @include govuk-media-query($until: tablet) {
     text-transform: capitalize;
     background: none;

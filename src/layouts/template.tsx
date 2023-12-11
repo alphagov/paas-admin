@@ -49,21 +49,13 @@ export class Template {
       'GOV.UK Platform as a Service - Administration Tool'}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
           <meta name="theme-color" content="${themeColor}" />
-          <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
           <meta name="csrf-token" content="${this.ctx.csrf}" />
 
-          <link rel="shortcut icon" sizes="16x16 32x32 48x48" type="image/x-icon"
-            href="${assetPath}/images/favicon.ico" />
-          <link rel="mask-icon" color="${themeColor}"
-            href="${assetPath}/images/govuk-mask-icon.svg" />
-          <link rel="apple-touch-icon" sizes="180x180"
-            href="${assetPath}/images/govuk-apple-touch-icon-180x180.png" />
-          <link rel="apple-touch-icon" sizes="167x167"
-            href="${assetPath}/images/govuk-apple-touch-icon-167x167.png" />
-          <link rel="apple-touch-icon" sizes="152x152"
-            href="${assetPath}/images/govuk-apple-touch-icon-152x152.png" />
-          <link rel="apple-touch-icon"
-            href="${assetPath}/images/govuk-apple-touch-icon.png" />
+          <link rel="icon" sizes="48x48" href="${assetPath}/images/favicon.ico">
+          <link rel="icon" sizes="any" href="${assetPath}/images/favicon.svg" type="image/svg+xml">
+          <link rel="mask-icon" href="${assetPath}/images/govuk-icon-mask.svg" color="${themeColor}">
+          <link rel="apple-touch-icon" href="${assetPath}/images/govuk-icon-180.png">
+          <link rel="manifest" href="${assetPath}/manifest.json">
 
           <meta name="x-user-identity-origin" content="${this.ctx.origin || ''}" />
 
@@ -72,7 +64,7 @@ export class Template {
           <meta property="og:image" content="${assetURL}/images/govuk-opengraph-image.png" />
         </head>
           <body class="govuk-template__body">
-            <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+            <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
 
             
 
@@ -100,7 +92,7 @@ export class Template {
 
               <Footer authenticated={this.ctx.authenticated} />
             </>)}
-          <script src="${assetPath}/init.js"></script>
+          <script type="module" src="${assetPath}/init.js"></script>
         </body>
       </html>`;
   }
