@@ -1,5 +1,4 @@
 $govuk-global-styles: true;
-$govuk-new-link-styles: true;
 $govuk-page-width: 1200px;
 $app-super-light-grey: #f8f8f8;
 $govuk-breakpoints: (
@@ -9,7 +8,7 @@ $govuk-breakpoints: (
   wideDesktop: 1156px
 );
 
-@import "govuk-frontend/govuk/all";
+@import "govuk-frontend/dist/govuk/all";
 
 @import "elements";
 @import "header";

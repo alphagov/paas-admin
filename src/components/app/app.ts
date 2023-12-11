@@ -111,8 +111,8 @@ export default function(config: IAppConfig): express.Express {
   );
 
   app.use('/assets', staticGzip('dist/assets', { immutable: true }));
-  app.use('/assets', staticGzip('node_modules/govuk-frontend/govuk', { immutable: true }));
-  app.use('/assets', staticGzip('node_modules/govuk-frontend/govuk/assets', { immutable: true }));
+  app.use('/assets', staticGzip('node_modules/govuk-frontend/dist/govuk', { immutable: true }));
+  app.use('/assets', staticGzip('node_modules/govuk-frontend/dist/govuk/assets', { immutable: true }));
   app.use('/assets', staticGzip('node_modules/d3/dist', { immutable: true }));
   app.use('/assets', staticGzip('node_modules/d3-sankey/dist', { immutable: true }));
   app.use(compression());

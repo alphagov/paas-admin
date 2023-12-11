@@ -1,7 +1,7 @@
 export const csp = {
   directives: {
     connectSrc: ['\'self\''],
-    defaultSrc: ['\'none\''],
+    defaultSrc: ['\'self\''],
     fontSrc: ['\'self\'', 'data:'],
     frameSrc: ['\'self\''],
     imgSrc: ['\'self\''],
@@ -9,7 +9,7 @@ export const csp = {
     objectSrc: ['\'self\''],
     scriptSrc: [
       '\'self\'',
-      '\'sha256-+6WnXIl4mbFTCARd8N3COQmT3bJJmo32N8q8ZSQAIcU=\'',
+      '\'sha256-GUQ5ad8JK5KmEWmROf3LZd9ge94daqNvd8xy9YS1iDw=\'',
     ],
     styleSrc: ['\'self\''],
   },
