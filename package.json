@@ -72,7 +72,7 @@
     "eslint": "^8.55.0",
     "eslint-config-react": "^1.1.7",
     "eslint-plugin-functional": "^5.0.8",
-    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-react": "^7.33.2",
     "expect": "^29.7.0",
