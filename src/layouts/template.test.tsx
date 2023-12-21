@@ -36,7 +36,7 @@ describe(Template, () => {
     const markup = template.render(<p>This is just a test</p>);
 
     expect(markup).toContain(
-      '<title lang="en">GOV.UK Platform as a Service - Administration Tool</title>',
+      '<title lang="en">[Decommissioned] GOV.UK Platform as a Service - Administration Tool</title>',
     );
   });
   it('should html encode special characters in the title', () => {
