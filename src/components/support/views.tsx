@@ -111,7 +111,7 @@ export function SupportSelectionPage(props: ISupportSelectionFormProperties): Re
         )}
       <h1 className="govuk-heading-l">Get support</h1>
       <div className="govuk-inset-text">
-      <p className="govuk-body">GDS is <a href="https://gds.blog.gov.uk/2022/07/12/why-weve-decided-to-decommission-gov-uk-paas-platform-as-a-service/" className="govuk-link"> decommissioning GOV.UK PaaS</a> by 23 December 2023. We&apos;re no longer accepting new trial accounts.</p>
+      <p className="govuk-body">GDS <a href="https://gds.blog.gov.uk/2022/07/12/why-weve-decided-to-decommission-gov-uk-paas-platform-as-a-service/" className="govuk-link"> decommissioned GOV.UK PaaS from mainstream service</a> and is no longer available for use.</p>
       <p className="govuk-body">Read our <a href="https://www.cloud.service.gov.uk/migration-guidance/" className="govuk-link">migration guidance</a> for tenants.</p>
       </div>
       <form noValidate method="post">
@@ -516,7 +516,7 @@ export function SomethingWrongWithServicePage(props: ISomethingWrongWithServiceF
         Outside of working hours we provide emergency support for critical incidents affecting live production services.
         </p>
         <p className="govuk-body">
-          Read more about how we support <a href="https://www.cloud.service.gov.uk/support-and-response-times/">GOV.UK PaaS and our response times</a>. 
+          Read more about how we support <a href="https://www.cloud.service.gov.uk/support-and-response-times/">GOV.UK PaaS and our response times</a>.
         </p>
       </div>
     </div>
