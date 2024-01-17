@@ -49,7 +49,9 @@ describe('server test suite', () => {
       request(`http://localhost:${port}`)
         .get('/')
         .timeout(500),
-    ).rejects.toThrow(/ECONNREFUSED/);
+    ).rejects.toMatchObject ({
+      code: 'ECONNREFUSED',
+    });
   });
 
   it('should replace the handler when updated', async () => {
