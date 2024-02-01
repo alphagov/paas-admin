@@ -32,7 +32,7 @@
   "author": "GOV.UK PaaS Team",
   "license": "MIT",
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.4.0",
+    "@testing-library/jest-dom": "^6.4.1",
     "@testing-library/react": "^14.2.0",
     "@types/aws-sdk": "^2.7.0",
     "@types/body-parser": "^1.19.5",
