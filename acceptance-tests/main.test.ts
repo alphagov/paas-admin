@@ -55,7 +55,7 @@ describe('paas-admin', () => {
         '--disable-dev-shm-usage',
         '--no-sandbox',
       ],
-      headless: 'new',
+      headless: true,
     });
     let page: Page;
 
