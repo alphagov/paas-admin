@@ -103,7 +103,7 @@
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.512.0",
     "@aws-sdk/client-rds": "^3.511.0",
-    "@aws-sdk/client-resource-groups-tagging-api": "^3.511.0",
+    "@aws-sdk/client-resource-groups-tagging-api": "^3.514.0",
     "@aws-sdk/types": "^3.511.0",
     "@babel/preset-env": "^7.23.9",
     "@babel/preset-react": "^7.23.3",
