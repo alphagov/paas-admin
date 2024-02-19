@@ -54,6 +54,10 @@ svg.govuk-paas-line-graph {
     }
   }
 
+  .axis.bottom .tick text {
+    text-anchor: end;
+  }
+
   .grid line,
   .grid path {
     stroke: govuk-colour("mid-grey");

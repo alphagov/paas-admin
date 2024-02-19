@@ -173,7 +173,6 @@ export function drawLineGraph(
     .attr('x', -8)
     .attr('dy', '.35em')
     .attr('transform', 'rotate(-45)')
-    .style('text-anchor', 'end');
 
   svg
     .append('text')
