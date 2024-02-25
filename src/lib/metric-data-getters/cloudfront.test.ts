@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from "vitest";
 import { GetResourcesCommand } from '@aws-sdk/client-resource-groups-tagging-api';
 
 import { CloudFrontMetricDataGetter } from './cloudfront';
@@ -33,7 +34,7 @@ expect.extend({
 describe('Cloudfront', () => {
   describe('getCloudFrontDistributionId', () => {
     it('should fetch and transform the identifier correctly', async () => {
-      const send = jest.fn();
+      const send = vi.fn();
 
       send.mockReturnValue(
         Promise.resolve({
@@ -71,7 +72,7 @@ describe('Cloudfront', () => {
     });
 
     it('should error when no useful response is returned', async () => {
-      const send = jest.fn();
+      const send = vi.fn();
 
       send.mockReturnValue(Promise.resolve({}));
 
@@ -98,7 +99,7 @@ describe('Cloudfront', () => {
     });
 
     it('should error when no distributions are returned', async () => {
-      const send = jest.fn();
+      const send = vi.fn();
 
       send.mockReturnValue(Promise.resolve({ ResourceTagMappingList: [] }));
 
@@ -125,7 +126,7 @@ describe('Cloudfront', () => {
     });
 
     it('should error when no arn is returned', async () => {
-      const send = jest.fn();
+      const send = vi.fn();
 
       send.mockReturnValue(Promise.resolve({ ResourceTagMappingList: [{}] }));
 
@@ -152,7 +153,7 @@ describe('Cloudfront', () => {
     });
 
     it('should error when a malformed arn is returned', async () => {
-      const send = jest.fn();
+      const send = vi.fn();
 
       send.mockReturnValue(
         Promise.resolve({

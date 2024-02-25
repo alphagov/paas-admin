@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import nock, { RequestBodyMatcher } from 'nock';
 
 import UAAClient, { authenticateUser } from './uaa';

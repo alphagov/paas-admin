@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import Route from './route';
 
 describe('lib/router test suite - route', () => {

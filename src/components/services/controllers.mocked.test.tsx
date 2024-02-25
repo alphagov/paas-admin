@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { RDSClient } from "@aws-sdk/client-rds";
 
 import CloudFoundryClient from '../../lib/cf';
@@ -6,8 +7,8 @@ import { IContext } from '../app/context';
 
 import { downloadServiceLogs, listServiceLogs } from './controllers';
 
-jest.mock('@aws-sdk/client-rds');
-jest.mock('../../lib/cf');
+vi.mock('@aws-sdk/client-rds');
+vi.mock('../../lib/cf');
 
 const mockCustomService = { metadata: { guid: 'CUSTOM_SERVICE' } };
 const mockServiceInstance = { entity: { name: 'mydb' }, metadata: { guid: 'SERVICE_INSTANCE_GUID' } };

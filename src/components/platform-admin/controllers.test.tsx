@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import cheerio from 'cheerio';
 import jwt from 'jsonwebtoken';
 import lodash from 'lodash'
@@ -19,9 +20,9 @@ import {
   viewHomepage,
 } from './controllers';
 
-jest.mock('../../lib/cf');
-jest.mock('../../lib/accounts');
-jest.mock('../../lib/uaa');
+vi.mock('../../lib/cf');
+vi.mock('../../lib/accounts');
+vi.mock('../../lib/uaa');
 
 const mockOrg = { metadata: { annotations: { owner: 'TEST_OWNER' } } };
 const tokenKey = 'secret';

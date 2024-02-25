@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { URL } from 'url';
 
 import jwt from 'jsonwebtoken';
@@ -11,7 +12,7 @@ import { createTestContext } from '../app/app.test-helpers';
 import OIDC, * as oidc from './oidc';
 import * as fixtures from './oidc.test.fixtures';
 
-jest.mock('../../lib/uaa/uaa');
+vi.mock('../../lib/uaa/uaa');
 
 async function createJOSEKey(): Promise<jose.JWK.Key> {
   const store: jose.JWK.KeyStore = jose.JWK.createKeyStore();
@@ -221,7 +222,7 @@ describe('oidc test suite', () => {
     };
 
     // Set up logger mock
-    ctx.app.logger.error = jest.fn();
+    ctx.app.logger.error = vi.fn();
 
     // Create an OIDC client
     const client = new OIDC(clientID, clientSecret, discoveryURL, redirectURL);

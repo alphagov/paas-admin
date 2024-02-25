@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { IMetricSerie } from '../../lib/metrics';
 import { numberLabel } from '../service-metrics/metrics';
 

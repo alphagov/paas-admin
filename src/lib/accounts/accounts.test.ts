@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import nock from 'nock';
 import pino from 'pino';
 
@@ -347,9 +348,9 @@ describe('lib/accounts logging suite', () => {
 
   beforeEach(() => {
     mockLogger = {
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
     };
 
     cfg = {

@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { ChildProcess, spawn } from 'child_process';
 
 import request from 'supertest';

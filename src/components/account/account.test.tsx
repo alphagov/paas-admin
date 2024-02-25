@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 
@@ -10,7 +11,7 @@ import { Token } from '../auth';
 import * as account from './account';
 import OIDC from './oidc';
 
-jest.mock('./oidc');
+vi.mock('./oidc');
 
 function setUpUAA(userData: string): IContext {
   const token = jwt.sign(
@@ -168,7 +169,7 @@ describe('account test suite', () => {
 
       it('logs any error received', async () => {
         ctx = createTestContext();
-        (ctx as any).app.logger.error = jest.fn();
+        (ctx as any).app.logger.error = vi.fn();
         const state = 'foobar';
 
         const params = {

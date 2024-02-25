@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from "vitest";
 import { add } from 'date-fns';
 
 import { ElasticsearchMetricDataGetter } from './elasticsearch';
@@ -5,7 +6,7 @@ import { ElasticsearchMetricDataGetter } from './elasticsearch';
 describe('Elasticsearch', () => {
   describe('getData', () => {
     it('should get data from prometheus', async () => {
-      const getSeries = jest.fn();
+      const getSeries = vi.fn();
 
       const rangeStart = new Date();
       const rangeStop = add(rangeStart, { days: 1 });
@@ -41,7 +42,7 @@ describe('Elasticsearch', () => {
     });
 
     it('get data should filter out the results of bad queries', async () => {
-      const getSeries = jest.fn();
+      const getSeries = vi.fn();
 
       const rangeStart = new Date();
       const rangeStop = add(rangeStart, { days: 1 });
