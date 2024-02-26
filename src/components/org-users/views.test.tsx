@@ -1,9 +1,12 @@
-/**
- * @jest-environment jsdom
- */
-import { render } from '@testing-library/react';
-import React from 'react';
+// @vitest-environment jsdom
 
+import { render } from '@testing-library/react';
+import { format } from 'date-fns';
+import React from 'react';
+import { describe, expect, it } from 'vitest';
+
+
+import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import {
   IOrganization,
@@ -20,8 +23,6 @@ import {
   SuccessPage,
 } from './views';
 
-import { format } from 'date-fns';
-import { DATE_TIME } from '../../layouts';
 
 describe(Permission, () => {
   it('should produce a checkbox with appropriate values provided', () => {
@@ -123,25 +124,25 @@ describe(PermissionBlock, () => {
       .toHaveLength(1);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_1][developers][desired]"]:checked'))
-      .toHaveLength(0)
+      .toHaveLength(0);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_1][auditors][desired]"]:checked'))
-      .toHaveLength(0)
+      .toHaveLength(0);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_2][managers][desired]"]:checked'))
-      .toHaveLength(0)
+      .toHaveLength(0);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_2][developers][desired]"]:checked'))
       .toHaveLength(1);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_2][auditors][desired]"]:checked'))
-      .toHaveLength(0)
+      .toHaveLength(0);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_3][managers][desired]"]:checked'))
-      .toHaveLength(0)
+      .toHaveLength(0);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_3][developers][desired]"]:checked'))
-      .toHaveLength(0)
+      .toHaveLength(0);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="space_roles[SPACE_GUID_3][auditors][desired]"]:checked'))
       .toHaveLength(1);
@@ -218,13 +219,13 @@ describe(PermissionBlock, () => {
       .toHaveLength(0);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:disabled'))
-      .toHaveLength(1)
+      .toHaveLength(1);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:checked'))
-      .toHaveLength(0)
+      .toHaveLength(0);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:disabled'))
-      .toHaveLength(1)
+      .toHaveLength(1);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked'))
       .toHaveLength(1);
@@ -274,8 +275,8 @@ describe(OrganizationUsersPage, () => {
     } as unknown) as IUserRoles,
   };
 
-  const lastLogonTime = + new Date()
-  const lastLogonTimeFormatted = format(lastLogonTime, DATE_TIME)
+  const lastLogonTime = + new Date();
+  const lastLogonTimeFormatted = format(lastLogonTime, DATE_TIME);
 
   it('should produce the org users view', () => {
     const { container } = render(
@@ -285,8 +286,8 @@ describe(OrganizationUsersPage, () => {
         privileged={false}
         users={users}
         userExtraInfo={{
-          "USER_GUID": { origin: 'origin-name', lastLogonTime: undefined },
-          "USER_GUID_2": { origin: 'uaa', lastLogonTime: lastLogonTime },
+          'USER_GUID': { origin: 'origin-name', lastLogonTime: undefined },
+          'USER_GUID_2': { origin: 'uaa', lastLogonTime: lastLogonTime },
         }}
       />,
     );
@@ -308,13 +309,13 @@ describe(OrganizationUsersPage, () => {
         privileged={true}
         users={users}
         userExtraInfo={{
-          "USER_GUID": { origin: 'origin-name', lastLogonTime: undefined },
-          "USER_GUID_2": { origin: 'uaa', lastLogonTime: lastLogonTime },
+          'USER_GUID': { origin: 'origin-name', lastLogonTime: undefined },
+          'USER_GUID_2': { origin: 'uaa', lastLogonTime: lastLogonTime },
         }}
       />,
     );
 
-    
+
 
     expect(container.querySelector('tbody th:first-of-type')).toHaveTextContent('user-name');
     expect(container.querySelectorAll('tbody th:first-of-type a')).toHaveLength(2);
@@ -323,7 +324,7 @@ describe(OrganizationUsersPage, () => {
     expect(container.querySelector('thead th:nth-child(7)')).toHaveTextContent('Last login');
     expect(container.querySelector('tbody tr:nth-child(1) td:nth-child(7)')).toHaveTextContent('No login');
     expect(container.querySelector('tbody tr:nth-child(2) td:nth-child(7)')).toHaveTextContent(lastLogonTimeFormatted);
-    
+
   });
 
   it('should not show a table of users if there are no users', () => {

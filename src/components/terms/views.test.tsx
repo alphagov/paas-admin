@@ -1,8 +1,9 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+
+
 import { render } from '@testing-library/react';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import { Heading, TermsPage } from './views';
 
@@ -23,13 +24,13 @@ describe(TermsPage, () => {
     expect(
       container
         .querySelector('input[name=_csrf]'))
-        .toHaveValue('CSRF_TOKEN')
+        .toHaveValue('CSRF_TOKEN');
       expect(
         container
           .querySelector('input[name=document_name]'))
-          .toHaveValue(title)
-    expect(queryByRole('heading', { level: 1})).toHaveClass('govuk-heading-xl');
-    expect(queryByRole('heading', { level: 1})).toHaveTextContent(title);
+          .toHaveValue(title);
+    expect(queryByRole('heading', { level: 1 })).toHaveClass('govuk-heading-xl');
+    expect(queryByRole('heading', { level: 1 })).toHaveTextContent(title);
     expect(container.querySelector('ul')).toHaveClass('govuk-list');
     expect(container.querySelector('ul')).toHaveClass('govuk-list--bullet');
     expect(container.querySelector('ol')).toHaveClass('govuk-list');
@@ -51,19 +52,19 @@ describe(Heading, () => {
       <Heading level={6}>TEST</Heading>,
       <Heading level={7}>TEST</Heading>,
       </>,
-    )
-    expect(queryByRole('heading', { level: 1})).toHaveTextContent('TEST');
-    expect(queryByRole('heading', { level: 1})).toHaveClass('govuk-heading-xl');
-    expect(queryByRole('heading', { level: 2})).toHaveTextContent('TEST');
-    expect(queryByRole('heading', { level: 2})).toHaveClass('govuk-heading-l');
-    expect(queryByRole('heading', { level: 3})).toHaveTextContent('TEST');
-    expect(queryByRole('heading', { level: 3})).toHaveClass('govuk-heading-m');
-    expect(queryByRole('heading', { level: 4})).toHaveTextContent('TEST');
-    expect(queryByRole('heading', { level: 4})).toHaveClass('govuk-heading-s');
-    expect(queryByRole('heading', { level: 5})).toHaveTextContent('TEST');
-    expect(queryByRole('heading', { level: 5})).not.toHaveAttribute('class');
-    expect(queryByRole('heading', { level: 6})).toHaveTextContent('TEST');
-    expect(queryByRole('heading', { level: 6})).not.toHaveAttribute('class');
-    expect(queryByRole('heading', { level: 7})).toBeFalsy();
+    );
+    expect(queryByRole('heading', { level: 1 })).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 1 })).toHaveClass('govuk-heading-xl');
+    expect(queryByRole('heading', { level: 2 })).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 2 })).toHaveClass('govuk-heading-l');
+    expect(queryByRole('heading', { level: 3 })).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 3 })).toHaveClass('govuk-heading-m');
+    expect(queryByRole('heading', { level: 4 })).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 4 })).toHaveClass('govuk-heading-s');
+    expect(queryByRole('heading', { level: 5 })).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 5 })).not.toHaveAttribute('class');
+    expect(queryByRole('heading', { level: 6 })).toHaveTextContent('TEST');
+    expect(queryByRole('heading', { level: 6 })).not.toHaveAttribute('class');
+    expect(queryByRole('heading', { level: 7 })).toBeFalsy();
   });
 });

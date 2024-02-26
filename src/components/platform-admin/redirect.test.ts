@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { describe, expect, it } from 'vitest';
 
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';

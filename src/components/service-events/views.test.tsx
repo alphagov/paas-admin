@@ -1,8 +1,9 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+
+
 import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { IAuditEvent, IServiceInstance } from '../../lib/cf/types';
@@ -58,8 +59,8 @@ describe(ServiceEventsPage, () => {
       />,
     );
 
-    const eventsTable = screen.getByRole('table')
-    expect(eventsTable.querySelectorAll('tbody tr')).toHaveLength(3)
+    const eventsTable = screen.getByRole('table');
+    expect(eventsTable.querySelectorAll('tbody tr')).toHaveLength(3);
     expect(eventsTable).toHaveTextContent(actorEmails.ACCOUNTS_USER_GUID_1);
     expect(eventsTable).not.toHaveTextContent(event.actor.name);
     expect(eventsTable).not.toHaveTextContent(event.actor.guid);

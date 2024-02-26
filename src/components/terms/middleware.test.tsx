@@ -1,8 +1,10 @@
 import cheerio from 'cheerio';
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 import request from 'supertest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { config } from '../app/app.test.config';
@@ -56,39 +58,49 @@ app.use(
   },
 );
 
-nock(config.accountsAPI)
-  .get('/users/user-with-pending/documents')
-  .reply(
-    200,
-    `[{
-    "name": "my-pending-doc",
-    "content": "my-pending-doc-content-1",
-    "valid_from": "2018-04-20T14:36:09+00:00",
-    "agreement_date": null
-  }]`,
-  )
-  .get('/users/user-without-pending/documents')
-  .reply(
-    200,
-    `[{
-    "name": "my-signed-doc",
-    "content": "my-pending-doc-content-1",
-    "valid_from": "2018-04-20T14:36:09+00:00",
-    "agreement_date": "2018-04-21T14:36:09+00:00"
-  }]`,
-  )
-  .get('/documents/my-pending-doc')
-  .reply(
-    200,
-    `{
-    "name": "my-pending-doc",
-    "content": "my-pending-doc-content-1",
-    "valid_from": "2018-04-20T14:36:09+00:00",
-    "agreement_date": null
-  }`,
-  )
-  .post('/agreements')
-  .reply(201, '');
+const handlers = [
+  http.get(`${config.accountsAPI}/users/user-with-pending/documents`, () => {
+    return new HttpResponse(
+      `[{
+        "name": "my-pending-doc",
+        "content": "my-pending-doc-content-1",
+        "valid_from": "2018-04-20T14:36:09+00:00",
+        "agreement_date": null
+      }]`,
+    );
+  }),
+  http.get(`${config.accountsAPI}/users/user-without-pending/documents`, () => {
+    return new HttpResponse(
+      `[{
+        "name": "my-signed-doc",
+        "content": "my-pending-doc-content-1",
+        "valid_from": "2018-04-20T14:36:09+00:00",
+        "agreement_date": "2018-04-21T14:36:09+00:00"
+      }]`,
+    );
+  }),
+  http.get(`${config.accountsAPI}/documents/my-pending-doc`, () => {
+    return new HttpResponse(
+      `{
+        "name": "my-pending-doc",
+        "content": "my-pending-doc-content-1",
+        "valid_from": "2018-04-20T14:36:09+00:00",
+        "agreement_date": null
+      }`,
+    );
+  }),
+  http.post(`${config.accountsAPI}/agreements`, () => {
+    return new HttpResponse(
+      '',
+      { status: 201 },
+    );
+  }),
+];
+const server = setupServer(...handlers);
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+beforeEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe('terms test suite', () => {
   it('should only active middleware if token present', async () => {

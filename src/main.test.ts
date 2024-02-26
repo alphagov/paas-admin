@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from "vitest";
 import { ChildProcess, spawn } from 'child_process';
 
 import request from 'supertest';
@@ -30,8 +31,7 @@ export interface IProcess extends ChildProcess {
   logs?: Array<string>;
   port?: number;
 }
-
-jest.setTimeout(parseInt(envVars.TEST_TIMEOUT, 10) || 30000);
+vi.setConfig({ testTimeout: parseInt(envVars.TEST_TIMEOUT, 10) || 30000 });
 
 async function run(env = {}): Promise<any> {
   return await new Promise((resolve, reject) => {
@@ -117,7 +117,7 @@ async function waitForOutput(
   });
 }
 
-describe.only('main test suite', () => {
+describe('main test suite', () => {
   it('should listen on a random port by default', async () => {
     const proc = await run(envVars);
     expect(proc.port).toBeGreaterThan(0);

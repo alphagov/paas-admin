@@ -1,15 +1,16 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+
 import { render } from '@testing-library/react';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
+
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
+import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import { IOrganization, IOrganizationQuota, IV3OrganizationQuota, IV3OrganizationResource } from '../../lib/cf/types';
 
 import { EditOrganization, EmailManagers, EmailManagersConfirmationPage, OrganizationsPage } from './views';
 
-import { org as defaultOrg } from '../../lib/cf/test-data/org';
 
 function linker(_route: string, params: any): string {
   return params?.organizationGUID ? `/org/${params.organizationGUID}` : '/test';
@@ -159,7 +160,7 @@ describe(EditOrganization, () => {
       routes: { total_routes: 2 },
       services: { total_service_instances: 2 },
     };
-    const {container } = render(<EditOrganization
+    const { container } = render(<EditOrganization
       csrf="__CSRF_TOKEN__"
       linkTo={linker}
       organization={{
@@ -199,7 +200,7 @@ describe(EmailManagers, () => {
     },
   ] as any;
   it('should correctly render the form', () => {
-    const {container } = render (<EmailManagers
+    const { container } = render (<EmailManagers
       csrf="CSRF_TOKEN"
       linkTo={linker}
       organisation={defaultOrg()}
@@ -214,7 +215,7 @@ describe(EmailManagers, () => {
   });
 
   it('should correctly render the form errors', () => {
-    const {container } = render (<EmailManagers
+    const { container } = render (<EmailManagers
       csrf="CSRF_TOKEN"
       linkTo={linker}
       organisation={defaultOrg()}
@@ -237,7 +238,7 @@ describe(EmailManagers, () => {
   });
 
   it('should use provided form values on resubmission', () => {
-    const {container } = render (<EmailManagers
+    const { container } = render (<EmailManagers
       csrf="CSRF_TOKEN"
       linkTo={linker}
       organisation={defaultOrg()}
@@ -257,7 +258,7 @@ describe(EmailManagers, () => {
 
 describe(EmailManagersConfirmationPage, () => {
   it('should render the page with all provided properties', () => {
-    const {container } = render (
+    const { container } = render (
       <EmailManagersConfirmationPage
           linkTo={route => `__LINKS_TO__${route}`}
           heading={'confirmation panel heading'}

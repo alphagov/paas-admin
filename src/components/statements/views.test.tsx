@@ -1,8 +1,9 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+
+
 import { render } from '@testing-library/react';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import { StatementsPage } from './views';
 
@@ -226,7 +227,7 @@ describe(StatementsPage, () => {
 
   describe('statement column header sort order', () => {
     it('where NAME column header should have an aria-sort="descending" label when sorted with "descending order"', () => {
-      const { container} = render(
+      const { container } = render(
         <StatementsPage
           spaces={[{ guid: 'SPACE_GUID', name: 'space name' }]}
           plans={[{ guid: 'PLAN_GUID', name: 'plan name' }]}
@@ -315,7 +316,7 @@ describe(StatementsPage, () => {
       expect(container
         .querySelector('.paas-table-billing-statement th:nth-child(2)'))
         .toHaveAttribute('aria-sort', expect.stringContaining('ascending'));
-    })
+    });
 
     it('where PLAN column header should have an aria-sort="ascending" label when sorted with "ascending order"', () => {
       const { container } = render(
@@ -361,7 +362,7 @@ describe(StatementsPage, () => {
       expect(container
         .querySelector('.paas-table-billing-statement th:nth-child(3)'))
         .toHaveAttribute('aria-sort', expect.stringContaining('ascending'));
-    })
+    });
 
     it('where Inc VAT column header should have an aria-sort="ascending" label when sorted with "ascending order"', () => {
       const { container } = render(
@@ -407,6 +408,6 @@ describe(StatementsPage, () => {
       expect(container
         .querySelector('.paas-table-billing-statement th:nth-child(5)'))
         .toHaveAttribute('aria-sort', expect.stringContaining('ascending'));
-    })
-  })
+    });
+  });
 });

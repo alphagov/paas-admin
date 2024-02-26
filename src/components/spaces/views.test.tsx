@@ -1,8 +1,9 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+
+
 import { render } from '@testing-library/react';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import { GIBIBYTE, MEBIBYTE } from '../../layouts';
 import {
@@ -31,6 +32,20 @@ describe(EventsPage, () => {
     actor: { guid: 'ACCOUNTS_USER_GUID_1', name: 'Jeff Jefferson' },
     target: { guid: 'ACCOUNTS_USER_GUID_2', name: 'Charlie Chaplin' },
   } as unknown) as IAuditEvent;
+  const event1 = ({
+    guid: 'EVENT_GUID_1',
+    type: 'audit.space.create',
+    updated_at: new Date(),
+    actor: { guid: 'ACCOUNTS_USER_GUID_1', name: 'Jeff Jefferson' },
+    target: { guid: 'ACCOUNTS_USER_GUID_2', name: 'Charlie Chaplin' },
+  } as unknown) as IAuditEvent;
+  const event2 = ({
+    guid: 'EVENT_GUID_2',
+    type: 'audit.space.create',
+    updated_at: new Date(),
+    actor: { guid: 'ACCOUNTS_USER_GUID_1', name: 'Jeff Jefferson' },
+    target: { guid: 'ACCOUNTS_USER_GUID_2', name: 'Charlie Chaplin' },
+  } as unknown) as IAuditEvent;
   const actorEmails = { ACCOUNTS_USER_GUID_1: 'jeff@jefferson.com' };
   const space = ({
     metadata: { guid: 'SPACE_GUID' },
@@ -44,7 +59,7 @@ describe(EventsPage, () => {
         events={[
           event,
           {
-            ...event,
+            ...event1,
             type: 'tester.testing',
             actor: {
               ...event.actor,
@@ -56,7 +71,7 @@ describe(EventsPage, () => {
             } as unknown) as IAuditEventActorTarget,
           },
           {
-            ...event,
+            ...event2,
             type: 'tester.testing',
             actor: {
               ...event.actor,
@@ -139,7 +154,7 @@ describe(EventsPage, () => {
         events={[
           event,
           {
-            ...event,
+            ...event1,
             type: 'tester.testing',
             actor: {
               ...event.actor,
@@ -151,7 +166,7 @@ describe(EventsPage, () => {
             } as unknown) as IAuditEventActorTarget,
           },
           {
-            ...event,
+            ...event2,
             type: 'tester.testing',
             actor: {
               ...event.actor,
@@ -196,6 +211,18 @@ describe(ApplicationsPage, () => {
     },
     urls: ['test.example.com'],
   } as unknown) as IEnhancedApplication;
+  const application1 = ({
+    metadata: { guid: 'APPLICATION_GUID_1' },
+    entity: { entity: 'APPLICATION_NAME_1' },
+    summary: {
+      running_instances: 1,
+      instances: 2,
+      memory: GIBIBYTE,
+      disk_quota: GIBIBYTE,
+      state: 'running',
+    },
+    urls: ['test.example.com'],
+  } as unknown) as IEnhancedApplication;
 
   it('should print correct phrasing when single service listed', () => {
     const { container } = render(
@@ -221,7 +248,7 @@ describe(ApplicationsPage, () => {
         }
         organizationGUID="ORG_GUID"
         space={space}
-        applications={[application, application]}
+        applications={[application, application1]}
       />,
     );
     expect(container.querySelector('p')).toHaveTextContent('This space contains 2 applications');
@@ -336,6 +363,15 @@ describe(SpacesPage, () => {
     stopped_apps: [null],
     serviceInstances: [null],
   } as unknown) as IEnhancedSpace;
+  const space2 = ({
+    metadata: { guid: 'SPACE_GUID_2' },
+    entity: { name: 'space-name' },
+    memory_allocated: GIBIBYTE / MEBIBYTE,
+    quota: { entity: { memory_limit: (5 * GIBIBYTE) / MEBIBYTE } },
+    running_apps: [null],
+    stopped_apps: [null],
+    serviceInstances: [null],
+  } as unknown) as IEnhancedSpace;
 
   it('should correctly render the spaces page', () => {
     const { container, queryByText } = render(
@@ -345,7 +381,7 @@ describe(SpacesPage, () => {
         isManager={false}
         isBillingManager={false}
         organization={organization}
-        spaces={[space, { ...space, quota: undefined }]}
+        spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
       />,
     );
@@ -386,7 +422,7 @@ describe(SpacesPage, () => {
         isManager={true}
         isBillingManager={false}
         organization={organization}
-        spaces={[space, { ...space, quota: undefined }]}
+        spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
       />,
     );
@@ -403,7 +439,7 @@ describe(SpacesPage, () => {
         isManager={false}
         isBillingManager={false}
         organization={organization}
-        spaces={[space, { ...space, quota: undefined }]}
+        spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
       />,
     );
@@ -430,13 +466,13 @@ describe(SpacesPage, () => {
         isManager={false}
         isBillingManager={false}
         organization={suspendedOrganization}
-        spaces={[space, { ...space, quota: undefined }]}
+        spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
       />,
     );
 
     expect(container.querySelector('h1')).toHaveTextContent('Status: Suspended');
-  })
+  });
 
   it('should not display a table of spaces if there are no spaces', () => {
     const { container } = render(
@@ -448,7 +484,7 @@ describe(SpacesPage, () => {
         organization={organization}
         spaces={[]}
         users={[null]}
-      />)
+      />);
 
     expect(container.querySelector('.govuk-table')).toBeFalsy();
   });
@@ -472,6 +508,15 @@ describe(SpacesPage, () => {
       stopped_apps: [null],
       serviceInstances: [null],
     } as unknown) as IEnhancedSpace;
+    const space2 = ({
+      metadata: { guid: 'SPACE_GUID_2' },
+      entity: { name: 'space-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: { entity: { memory_limit: (5 * GIBIBYTE) / MEBIBYTE } },
+      running_apps: [null],
+      stopped_apps: [null],
+      serviceInstances: [null],
+    } as unknown) as IEnhancedSpace;
 
     const { container } = render(
       <SpacesPage
@@ -480,7 +525,7 @@ describe(SpacesPage, () => {
         isManager={false}
         isBillingManager={false}
         organization={organization}
-        spaces={[space, { ...space, quota: undefined }]}
+        spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
         daysLeftInTrialPeriod={null}
       />,
@@ -508,6 +553,15 @@ describe(SpacesPage, () => {
       stopped_apps: [null],
       serviceInstances: [null],
     } as unknown) as IEnhancedSpace;
+    const space2 = ({
+      metadata: { guid: 'SPACE_GUID_2' },
+      entity: { name: 'space-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: { entity: { memory_limit: (5 * GIBIBYTE) / MEBIBYTE } },
+      running_apps: [null],
+      stopped_apps: [null],
+      serviceInstances: [null],
+    } as unknown) as IEnhancedSpace;
 
     const { container } = render(
       <SpacesPage
@@ -516,7 +570,7 @@ describe(SpacesPage, () => {
         isManager={false}
         isBillingManager={false}
         organization={organization}
-        spaces={[space, { ...space, quota: undefined }]}
+        spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
         daysLeftInTrialPeriod={-2}
       />,
@@ -543,6 +597,15 @@ describe(SpacesPage, () => {
       stopped_apps: [null],
       serviceInstances: [null],
     } as unknown) as IEnhancedSpace;
+    const space2 = ({
+      metadata: { guid: 'SPACE_GUID_2' },
+      entity: { name: 'space-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: { entity: { memory_limit: (5 * GIBIBYTE) / MEBIBYTE } },
+      running_apps: [null],
+      stopped_apps: [null],
+      serviceInstances: [null],
+    } as unknown) as IEnhancedSpace;
 
     const { container } = render(
       <SpacesPage
@@ -551,7 +614,7 @@ describe(SpacesPage, () => {
         isManager={false}
         isBillingManager={false}
         organization={organization}
-        spaces={[space, { ...space, quota: undefined }]}
+        spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
         daysLeftInTrialPeriod={60}
       />,
@@ -578,6 +641,15 @@ describe(SpacesPage, () => {
       stopped_apps: [null],
       serviceInstances: [null],
     } as unknown) as IEnhancedSpace;
+    const space2 = ({
+      metadata: { guid: 'SPACE_GUID_2' },
+      entity: { name: 'space-name' },
+      memory_allocated: GIBIBYTE / MEBIBYTE,
+      quota: { entity: { memory_limit: (5 * GIBIBYTE) / MEBIBYTE } },
+      running_apps: [null],
+      stopped_apps: [null],
+      serviceInstances: [null],
+    } as unknown) as IEnhancedSpace;
 
     const { container } = render(
       <SpacesPage
@@ -586,7 +658,7 @@ describe(SpacesPage, () => {
         isManager={false}
         isBillingManager={false}
         organization={organization}
-        spaces={[space, { ...space, quota: undefined }]}
+        spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
         daysLeftInTrialPeriod={1}
       />,

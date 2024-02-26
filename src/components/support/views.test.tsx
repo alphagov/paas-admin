@@ -1,8 +1,9 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+
+
  import { render } from '@testing-library/react';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import {
   ContactUsPage,
@@ -198,7 +199,7 @@ describe(ContactUsPage, () => {
 });
 
 describe(SupportConfirmationPage, () => {
- 
+
   it('should render provided text', () => {
     const { container } = render(
       <SupportConfirmationPage

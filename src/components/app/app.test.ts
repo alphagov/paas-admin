@@ -1,7 +1,9 @@
 import { endOfMonth, format, startOfMonth } from 'date-fns';
 import jwt from 'jsonwebtoken';
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 import request, { SuperTest, Test } from 'supertest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import {
@@ -21,30 +23,16 @@ import { router } from './router';
 const tokenKey = 'tokensecret';
 
 describe('app test suite', () => {
-  let nockAccounts: nock.Scope;
-  let nockBilling: nock.Scope;
-  let nockCF: nock.Scope;
-  let nockUAA: nock.Scope;
+    const handlers = [
+      http.get(`${config.billingAPI}`, () => {
+        return new HttpResponse('');
+      }),
+    ];
+    const server = setupServer(...handlers);
 
-  beforeEach(() => {
-    nock.cleanAll();
-
-    nockAccounts = nock(config.accountsAPI);
-    nockBilling = nock(config.billingAPI);
-    nockCF = nock(config.cloudFoundryAPI);
-    nockUAA = nock(config.uaaAPI);
-  });
-
-  afterEach(() => {
-    nockAccounts.done();
-    nockBilling.done();
-    nockCF.on('response', () => {
-      nockCF.done();
-    });
-    nockUAA.done();
-
-    nock.cleanAll();
-  });
+    beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+    beforeEach(() => server.resetHandlers());
+    afterAll(() => server.close());
 
   it('should initContext correctly', () => {
     const r = new Router([
@@ -105,20 +93,14 @@ describe('app test suite', () => {
   });
 
   it('should be able to access pricing calculator without login', async () => {
-    nockBilling
-      .filteringPath((path: string) => {
-        if (path.includes('/forecast_events')) {
-          return '/billing/forecast_events';
-        }
-        if (path.includes('/pricing_plans')) {
-          return '/billing/pricing_plans';
-        }
-
-        return path;
-      })
-
-      .get('/pricing_plans')
-      .reply(200, []);
+    server.use(
+      http.get(`${config.billingAPI}/pricing_plans`, () => {
+        return new HttpResponse(
+          '[]',
+          { status: 200 },
+        );
+      }),
+    );
 
     const app = init(config);
     const response = await request(app).get('/calculator');
@@ -130,9 +112,18 @@ describe('app test suite', () => {
     const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
     const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
-    nockBilling
-      .get(`/pricing_plans?range_start=${rangeStart}&range_stop=${rangeStop}`)
-      .reply(500);
+    server.use(
+      http.get(`${config.billingAPI}/pricing_plans`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        if (q === `${rangeStart}&range_stop=${rangeStop}`) {
+          return new HttpResponse(
+            null,
+            { status: 500 },
+          );
+        }
+      }),
+    );
 
     const app = init(config);
     const response = await request(app).get('/calculator');
@@ -142,8 +133,14 @@ describe('app test suite', () => {
 
   it('should be able to access marketplace without login', async () => {
     const service = { broker_catalog: { metadata: {} }, guid: 'SERVICE_GUID', name: 'postgres', tags: [] };
-    nockCF
-      .get('/v3/service_offerings').reply(200, { pagination: { next: null }, resources: [ service ] });
+
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v3/service_offerings`, () => {
+        return HttpResponse.json(
+          { pagination: { next: null }, resources: [ service ] },
+        );
+      }),
+    );
 
     const app = init(config);
     const response = await request(app).get('/marketplace');
@@ -152,8 +149,14 @@ describe('app test suite', () => {
   });
 
   it('should throw error when accessing marketplace without services', async () => {
-    nockCF
-      .get('/v3/service_offerings').reply(404);
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v3/service_offerings`, () => {
+        return HttpResponse.json(
+          null,
+          { status: 404 },
+        );
+      }),
+    );
 
     const app = init(config);
     const response = await request(app).get('/marketplace');
@@ -164,13 +167,23 @@ describe('app test suite', () => {
   it('should be able to access marketplace service without login', async () => {
     const service = { broker_catalog: { metadata: {} }, guid: 'SERVICE_GUID', name: 'postgres', tags: [] };
     const plan = { broker_catalog: { metadata: {} }, name: 'tiny' };
-    nockCF
-      .get('/v3/service_offerings/SERVICE_GUID')
-      .reply(200, service)
 
-      .get('/v3/service_plans?service_offering_guids=SERVICE_GUID')
-      .reply(200, { pagination: { next: null }, resources: [ plan ] })
-    ;
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v3/service_offerings/SERVICE_GUID`, () => {
+        return HttpResponse.json(
+          service,
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v3/service_plans`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('service_offering_guids');
+        if (q === 'SERVICE_GUID') {
+          return HttpResponse.json(
+            { pagination: { next: null }, resources: [ plan ] },
+          );
+        }
+      }),
+    );
 
     const app = init(config);
     const response = await request(app).get('/marketplace/SERVICE_GUID');
@@ -179,10 +192,24 @@ describe('app test suite', () => {
   });
 
   it('should throw error when accessing marketplace service', async () => {
-    nockCF
-      .get('/v3/service_offerings/SERVICE_GUID').reply(404)
-      .get('/v3/service_plans?service_offering_guids=SERVICE_GUID').reply(404)
-    ;
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v3/service_offerings/SERVICE_GUID`, () => {
+        return HttpResponse.json(
+          null,
+          { status:404 },
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v3/service_plans`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('service_offering_guids');
+        if (q === 'SERVICE_GUID') {
+          return HttpResponse.json(
+            null,
+            { status:404 },
+          );
+        }
+      }),
+    );
 
     const app = init(config);
     const response = await request(app).get('/marketplace/SERVICE_GUID');
@@ -230,14 +257,20 @@ describe('app test suite', () => {
     );
 
     beforeEach(async () => {
-      nockUAA.post('/oauth/token').reply(200, {
-        access_token: token,
-        expires_in: 24 * 60 * 60,
-        jti: '__jti__',
-        refresh_token: '__refresh_token__',
-        scope: 'openid oauth.approvals',
-        token_type: 'bearer',
-      });
+      server.use(
+        http.post(`${config.uaaAPI}/oauth/token`, () => {
+          return HttpResponse.json(
+            {
+              access_token: token,
+              expires_in: 24 * 60 * 60,
+              jti: '__jti__',
+              refresh_token: '__refresh_token__',
+              scope: 'openid oauth.approvals',
+              token_type: 'bearer',
+            },
+          );
+        }),
+      );
 
       agent = request.agent(app);
       response = await agent.get(
@@ -257,9 +290,16 @@ describe('app test suite', () => {
     });
 
     it('should redirect to organisations when accessed root', async () => {
-      nockAccounts.get('/users/uaa-user-123/documents').reply(200, '[]');
-
-      nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
+      server.use(
+        http.get(`${config.accountsAPI}/users/uaa-user-123/documents`, () => {
+          return new HttpResponse('[]');
+        }),
+        http.get(`${config.uaaAPI}/token_keys`, () => {
+          return HttpResponse.json(
+            { keys: [{ value: tokenKey }] },
+          );
+        }),
+      );
 
       response = await agent.get(router.findByName('admin.home').composeURL());
 
@@ -271,16 +311,27 @@ describe('app test suite', () => {
 
     describe('visiting the organisations page', () => {
       beforeEach(async () => {
-        nockAccounts.get('/users/uaa-user-123/documents').reply(200, '[]');
-
-        nockCF
-          .get('/v2/organizations')
-          .reply(200, JSON.stringify(wrapResources(defaultOrg())))
-
-          .get(`/v2/quota_definitions/${billableOrgQuotaGUID}`)
-          .reply(200, JSON.stringify(billableOrgQuota()));
-
-        nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
+        server.use(
+          http.get(`${config.cloudFoundryAPI}/v2/organizations`, () => {
+            return new HttpResponse(
+              JSON.stringify(wrapResources(defaultOrg())),
+              { status: 200 });
+          }),
+          http.get(`${config.cloudFoundryAPI}/v2/quota_definitions/${billableOrgQuotaGUID}`, () => {
+            return new HttpResponse(
+              JSON.stringify(billableOrgQuota()),
+            );
+          }),
+          http.get(`${config.uaaAPI}/token_keys`, () => {
+            return HttpResponse.json(
+              { keys: [{ value: tokenKey }] },
+              { status: 200 },
+            );
+          }),
+          http.get(`${config.accountsAPI}/users/uaa-user-123/documents`, () => {
+            return new HttpResponse('[]');
+          }),
+        );
 
         response = await agent.get(
           router.findByName('admin.organizations').composeURL(),
@@ -345,9 +396,19 @@ describe('app test suite', () => {
     });
 
     it('missing pages should come back with a 404', async () => {
-      nockAccounts.get('/users/uaa-user-123/documents').reply(200, '[]');
-
-      nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
+      server.use(
+        http.get(`${config.accountsAPI}/users/uaa-user-123/documents`, () => {
+          return new HttpResponse(
+            '[]',
+            { status:200 },
+          );
+        }),
+        http.get(`${config.uaaAPI}/token_keys`, () => {
+          return HttpResponse.json(
+            { keys: [{ value: tokenKey }] },
+          );
+        }),
+      );
 
       response = await agent.get('/this-should-not-exists');
 
@@ -379,16 +440,35 @@ describe('app test suite', () => {
     });
 
     it('should add a meta tag for origin', async () => {
-      nockAccounts.get('/users/uaa-user-123/documents').reply(200, '[]');
 
-      nockCF
-        .get('/v2/organizations')
-        .reply(200, JSON.stringify(wrapResources(defaultOrg())))
-
-        .get(`/v2/quota_definitions/${billableOrgQuotaGUID}`)
-        .reply(200, JSON.stringify(billableOrgQuota()));
-
-      nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
+      server.use(
+        http.get(`${config.accountsAPI}/users/uaa-user-123/documents`, () => {
+          return new HttpResponse(
+            '[]',
+            { status: 200 },
+          );
+        }),
+        http.get(`${config.cloudFoundryAPI}/v2/organizations`, () => {
+          return new HttpResponse(
+            JSON.stringify(
+              wrapResources(defaultOrg()),
+            ),
+            { status: 200 },
+          );
+        }),
+        http.get(`${config.cloudFoundryAPI}/v2/quota_definitions/${billableOrgQuotaGUID}`, () => {
+          return new HttpResponse(
+            JSON.stringify(billableOrgQuota()),
+            { status: 200 },
+          );
+        }),
+        http.get(`${config.uaaAPI}/token_keys`, () => {
+          return HttpResponse.json(
+            { keys: [{ value: tokenKey }] },
+            { status: 200 },
+          );
+        }),
+      );
 
       const orgs = router.findByName('admin.organizations');
       response = await agent.get(orgs.definition.path);
@@ -415,14 +495,20 @@ describe('app test suite', () => {
     );
 
     beforeEach(async () => {
-      nockUAA.post('/oauth/token').reply(200, {
-        access_token: token,
-        expires_in: 24 * 60 * 60,
-        jti: '__jti__',
-        refresh_token: '__refresh_token__',
-        scope: `openid oauth.approvals ${CLOUD_CONTROLLER_ADMIN}`,
-        token_type: 'bearer',
-      });
+      server.use(
+        http.post(`${config.uaaAPI}/oauth/token`, () => {
+          return HttpResponse.json(
+            {
+              access_token: token,
+              expires_in: 24 * 60 * 60,
+              jti: '__jti__',
+              refresh_token: '__refresh_token__',
+              scope: `openid oauth.approvals ${CLOUD_CONTROLLER_ADMIN}`,
+              token_type: 'bearer',
+            },
+          );
+        }),
+      );
 
       agent = request.agent(app);
       response = await agent.get(
@@ -442,16 +528,28 @@ describe('app test suite', () => {
 
     describe('visiting the organisations page', () => {
       beforeEach(async () => {
-        nockAccounts.get('/users/uaa-user-123/documents').reply(200, '[]');
 
-        nockCF
-          .get('/v2/organizations')
-          .reply(200, JSON.stringify(wrapResources(defaultOrg())))
-
-          .get(`/v2/quota_definitions/${billableOrgQuotaGUID}`)
-          .reply(200, JSON.stringify(billableOrgQuota()));
-
-        nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
+        server.use(
+          http.get(`${config.accountsAPI}/users/uaa-user-123/documents`, () => {
+            return new HttpResponse('[]');
+          }),
+          http.get(`${config.cloudFoundryAPI}/v2/organizations`, () => {
+            return new HttpResponse(
+              JSON.stringify(wrapResources(defaultOrg())),
+            );
+          }),
+          http.get(`${config.cloudFoundryAPI}/v2/quota_definitions/${billableOrgQuotaGUID}`, () => {
+            return new HttpResponse(
+              JSON.stringify(billableOrgQuota()),
+            );
+          }),
+          http.get(`${config.uaaAPI}/token_keys`, () => {
+            return HttpResponse.json(
+              { keys: [{ value: tokenKey }] },
+              { status: 200 },
+            );
+          }),
+        );
 
         response = await agent.get(
           router.findByName('admin.organizations').composeURL(),
@@ -479,14 +577,21 @@ describe('app test suite', () => {
     );
 
     it('should authenticate successfully', async () => {
-      nockUAA.post('/oauth/token').reply(200, {
-        access_token: token, // eslint-disable-line camelcase
-        expires_in: 24 * 60 * 60, // eslint-disable-line camelcase
-        jti: '__jti__',
-        refresh_token: '__refresh_token__', // eslint-disable-line camelcase
-        scope: 'openid oauth.approvals',
-        token_type: 'bearer', // eslint-disable-line camelcase
-      });
+      server.use(
+        http.post(`${config.uaaAPI}/oauth/token`, () => {
+          return HttpResponse.json(
+            {
+              access_token: token, // eslint-disable-line camelcase
+              expires_in: 24 * 60 * 60, // eslint-disable-line camelcase
+              jti: '__jti__',
+              refresh_token: '__refresh_token__', // eslint-disable-line camelcase
+              scope: 'openid oauth.approvals',
+              token_type: 'bearer', // eslint-disable-line camelcase
+            },
+            { status: 200 },
+          );
+        }),
+      );
 
       const response = await agent.get(
         '/auth/login/callback?code=__fakecode__&state=__fakestate__',

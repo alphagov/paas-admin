@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { merge } from 'lodash';
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
 import { orgRole } from '../../lib/cf/test-data/roles';
@@ -28,20 +30,17 @@ let ctx: IContext = createTestContext({
   token: new Token(token, ['secret']),
 });
 
-let nockZD: nock.Scope;
-
 describe(controller.HandleContactUsFormPost, () => {
-  beforeEach(() => {
-    nock.cleanAll();
+  const handlers = [
+    http.post(`${ctx.app.zendeskConfig.remoteUri}`, () => {
+      return new HttpResponse('{}');
+    }),
+  ];
+  const server = setupServer(...handlers);
 
-    nockZD = nock(ctx.app.zendeskConfig.remoteUri);
-  });
-
-  afterEach(() => {
-    nockZD.done();
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('should throw validation errors when missing data has been submited', async () => {
     const response = await controller.HandleContactUsFormPost(ctx, {}, {
@@ -63,11 +62,14 @@ describe(controller.HandleContactUsFormPost, () => {
   });
 
   it('should create a zendesk ticket correctly', async () => {
-    nockZD
-      .post('/tickets.json')
-      .reply(201, {})
-      .put('/tickets.json')
-      .reply(201, {id:111});
+    server.use(
+      http.post(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return new HttpResponse('{}',{ status: 201 });
+      }),
+      http.put(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return HttpResponse.json({ id:111 },{ status: 201 });
+      }),
+    );
 
     const response = await controller.HandleContactUsFormPost(ctx, {}, {
       name: 'Jeff',
@@ -83,17 +85,16 @@ describe(controller.HandleContactUsFormPost, () => {
 });
 
 describe(controller.HandleHelpUsingPaasFormPost, () => {
-  beforeEach(() => {
-    nock.cleanAll();
+  const handlers = [
+    http.post(`${ctx.app.zendeskConfig.remoteUri}`, () => {
+      return new HttpResponse('{}');
+    }),
+  ];
+  const server = setupServer(...handlers);
 
-    nockZD = nock(ctx.app.zendeskConfig.remoteUri);
-  });
-
-  afterEach(() => {
-    nockZD.done();
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('should throw validation errors when missing data has been submited', async () => {
     const response = await controller.HandleHelpUsingPaasFormPost(ctx, {}, {
@@ -111,11 +112,14 @@ describe(controller.HandleHelpUsingPaasFormPost, () => {
   });
 
   it('should create a zendesk ticket correctly', async () => {
-    nockZD
-      .post('/tickets.json')
-      .reply(201, {})
-      .put('/tickets.json')
-      .reply(201, {id:111});
+    server.use(
+      http.post(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return new HttpResponse('{}',{ status: 201 });
+      }),
+      http.put(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return HttpResponse.json({ id:111 },{ status: 201 });
+      }),
+    );
 
     const response = await controller.HandleHelpUsingPaasFormPost(ctx, {}, {
       name: 'Jeff',
@@ -129,13 +133,14 @@ describe(controller.HandleHelpUsingPaasFormPost, () => {
   });
 
   it('should create a zendesk ticket correctly when no org has been provided', async () => {
-    nockZD
-      .post('/tickets.json')
-      .reply(201, {});
-
-    nockZD
-      .put('/tickets.json')
-      .reply(201, {id:111});
+    server.use(
+      http.post(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return new HttpResponse('{}',{ status: 201 });
+      }),
+      http.put(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return HttpResponse.json({ id:111 },{ status: 201 });
+      }),
+    );
 
     const response = await controller.HandleHelpUsingPaasFormPost(ctx, {}, {
       name: 'Jeff',
@@ -149,17 +154,16 @@ describe(controller.HandleHelpUsingPaasFormPost, () => {
 });
 
 describe(controller.HandleSomethingWrongWithServiceFormPost, () => {
-  beforeEach(() => {
-    nock.cleanAll();
+  const handlers = [
+    http.post(`${ctx.app.zendeskConfig.remoteUri}`, () => {
+      return new HttpResponse('{}');
+    }),
+  ];
+  const server = setupServer(...handlers);
 
-    nockZD = nock(ctx.app.zendeskConfig.remoteUri);
-  });
-
-  afterEach(() => {
-    nockZD.done();
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('should throw validation errors when missing data has been submited', async () => {
     const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
@@ -181,11 +185,14 @@ describe(controller.HandleSomethingWrongWithServiceFormPost, () => {
   });
 
   it('should create a zendesk ticket correctly', async () => {
-    nockZD
-      .post('/tickets.json')
-      .reply(201, {})
-      .put('/tickets.json')
-      .reply(201, {id:111});
+    server.use(
+      http.post(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return new HttpResponse('{}',{ status: 201 });
+      }),
+      http.put(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return HttpResponse.json({ id:111 },{ status: 201 });
+      }),
+    );
 
     const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
       name: 'Jeff',
@@ -199,56 +206,184 @@ describe(controller.HandleSomethingWrongWithServiceFormPost, () => {
     expect(response.body).toContain('We have received your message');
   });
 
-  ["service_down", "service_downgraded", "cannot_operate_live"].forEach(impactSeverity => {
-    it('should create a ticket with the word "URGENT" toward the front when a support form severity is "'+impactSeverity+'"', async () => {
-      nockZD
-        .post('/tickets.json', (body: any) => {
-          let subject = body["ticket"]["subject"] as string;
-          return subject.substr(0, (subject.length/2)).includes("URGENT")
-        })
-        .reply(201, {})
-        .put('/tickets.json')
-        .reply(201, {id:111});
+  it('should create a ticket with the word "URGENT" toward the front when a support form severity is "service_down"', async () => {
 
-      const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
-        name: 'Jeff',
-        email: 'jeff@example.gov.uk',
-        message: 'Help my service is down',
-        affected_paas_organisation: '__fake_org__',
-        impact_severity: impactSeverity,
-      } as any);
+    server.use(
+      http.post(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, async({ request }) => {
+        const data:any = await request.json();
+        const isUrgent = () => {
+          const subject = data['ticket']['subject'] as string;
 
-      expect(response.status).toBeUndefined();
-      expect(response.body).toContain('We have received your message');
-    })
+return subject.substr(0, (subject.length/2)).includes('URGENT');
+        };
+        if(isUrgent()) {
+          return new HttpResponse('{}',{ status: 201 });
+        }
+
+return new HttpResponse(null,{ status: 404 });
+      }),
+      http.put(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return HttpResponse.json({ id:111 },{ status: 201 });
+      }),
+    );
+
+    const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
+      name: 'Jeff',
+      email: 'jeff@example.gov.uk',
+      message: 'Help my service is down',
+      affected_paas_organisation: '__fake_org__',
+      impact_severity: 'service_down',
+    } as any);
+
+    expect(response.status).toBeUndefined();
+    expect(response.body).toContain('We have received your message');
   });
 
-  ["other", "cannot_operate_dev"].forEach(impactSeverity => {
-    it('should create a ticket without the word "URGENT" toward the front when a support form severity is "'+impactSeverity+'"', async () => {
-      nockZD
-        .post('/tickets.json', (body: any) => {
-          let subject = body["ticket"]["subject"] as string;
-          return !subject.substr(0, (subject.length/2)).includes("URGENT")
-        })
-        .reply(201, {})
-        .put('/tickets.json')
-        .reply(201, {id:111});
+  it('should create a ticket with the word "URGENT" toward the front when a support form severity is "service_downgraded"', async () => {
 
-      const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
-        name: 'Jeff',
-        email: 'jeff@example.gov.uk',
-        message: 'Non urgent issues',
-        affected_paas_organisation: '__fake_org__',
-        impact_severity: impactSeverity,
-      } as any);
+    server.use(
+      http.post(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, async({ request }) => {
+        const data:any = await request.json();
+        const isUrgent = () => {
+          const subject = data['ticket']['subject'] as string;
 
-      expect(response.status).toBeUndefined();
-      expect(response.body).toContain('We have received your message');
-    });
+return subject.substr(0, (subject.length/2)).includes('URGENT');
+        };
+        if(isUrgent()) {
+          return new HttpResponse('{}',{ status: 201 });
+        }
+
+return new HttpResponse(null,{ status: 404 });
+      }),
+      http.put(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return HttpResponse.json({ id:111 },{ status: 201 });
+      }),
+    );
+
+    const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
+      name: 'Jeff',
+      email: 'jeff@example.gov.uk',
+      message: 'Help my service is down',
+      affected_paas_organisation: '__fake_org__',
+      impact_severity: 'service_down',
+    } as any);
+
+    expect(response.status).toBeUndefined();
+    expect(response.body).toContain('We have received your message');
+  });
+
+  it('should create a ticket with the word "URGENT" toward the front when a support form severity is "cannot_operate_live"', async () => {
+
+    server.use(
+      http.post(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, async({ request }) => {
+        const data:any = await request.json();
+        const isUrgent = () => {
+          const subject = data['ticket']['subject'] as string;
+
+return subject.substr(0, (subject.length/2)).includes('URGENT');
+        };
+        if(isUrgent()) {
+          return new HttpResponse('{}',{ status: 201 });
+        }
+
+return new HttpResponse(null,{ status: 404 });
+      }),
+      http.put(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return HttpResponse.json({ id:111 },{ status: 201 });
+      }),
+    );
+
+    const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
+      name: 'Jeff',
+      email: 'jeff@example.gov.uk',
+      message: 'Help my service is down',
+      affected_paas_organisation: '__fake_org__',
+      impact_severity: 'service_down',
+    } as any);
+
+    expect(response.status).toBeUndefined();
+    expect(response.body).toContain('We have received your message');
+  });
+
+  it('should NOT create a ticket with the word "URGENT" toward the front when a support form severity is "cannot_operate_dev"', async () => {
+
+    server.use(
+      http.post(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, async({ request }) => {
+        const data:any = await request.json();
+        const isUrgent = () => {
+          const subject = data['ticket']['subject'] as string;
+
+return !subject.includes('URGENT');
+        };
+        if(!isUrgent()) {
+          return new HttpResponse('{}',{ status: 201 });
+        }
+
+return new HttpResponse(null,{ status: 404 });
+      }),
+      http.put(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return HttpResponse.json({ id:111 },{ status: 201 });
+      }),
+    );
+
+    const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
+      name: 'Jeff',
+      email: 'jeff@example.gov.uk',
+      message: 'Help my service is down',
+      affected_paas_organisation: '__fake_org__',
+      impact_severity: 'service_down',
+    } as any);
+
+    expect(response.status).toBeUndefined();
+    expect(response.body).toContain('We have received your message');
+  });
+
+  it('should NOT create a ticket with the word "URGENT" toward the front when a support form severity is "other"', async () => {
+
+    server.use(
+      http.post(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, async({ request }) => {
+        const data:any = await request.json();
+        const isUrgent = () => {
+          const subject = data['ticket']['subject'] as string;
+
+return !subject.includes('URGENT');
+        };
+        if(!isUrgent()) {
+          return new HttpResponse('{}',{ status: 201 });
+        }
+
+return new HttpResponse(null,{ status: 404 });
+      }),
+      http.put(`${ctx.app.zendeskConfig.remoteUri}/tickets.json`, () => {
+        return HttpResponse.json({ id:111 },{ status: 201 });
+      }),
+    );
+
+    const response = await controller.HandleSomethingWrongWithServiceFormPost(ctx, {}, {
+      name: 'Jeff',
+      email: 'jeff@example.gov.uk',
+      message: 'Help my service is down',
+      affected_paas_organisation: '__fake_org__',
+      impact_severity: 'service_down',
+    } as any);
+
+    expect(response.status).toBeUndefined();
+    expect(response.body).toContain('We have received your message');
   });
 });
 
 describe(controller.HandleSupportSelectionFormPost, () => {
+  const handlers = [
+    http.post(`${ctx.app.zendeskConfig.remoteUri}`, () => {
+      return new HttpResponse('{}');
+    }),
+  ];
+  const server = setupServer(...handlers);
+
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
+
   it('should throw validation errors when missing data has been submited', async () => {
     const response = await controller.HandleSupportSelectionFormPost(ctx, {}, {
       support_type: undefined,
@@ -269,21 +404,16 @@ describe(controller.HandleSupportSelectionFormPost, () => {
 });
 
 describe(controller.fetchRequesterDetailsAndRoles, () => {
-  let nockUAA: nock.Scope;
-  let nockCF: nock.Scope;
+  const handlers = [
+    http.post(`${ctx.app.zendeskConfig.remoteUri}`, () => {
+      return new HttpResponse('{}');
+    }),
+  ];
+  const server = setupServer(...handlers);
 
-  beforeEach(() => {
-    nock.cleanAll();
-    nockUAA = nock('https://example.com/uaa');
-    nockCF = nock('https://example.com/api');
-  });
-
-  afterEach(() => {
-    nockUAA.done();
-    nockCF.on('response', () => {
-      nockCF.done();
-    });
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('should return the UAA user and their organisational roles', async () => {
 
@@ -302,26 +432,40 @@ describe(controller.fetchRequesterDetailsAndRoles, () => {
       },
     });
 
-    nockUAA
-      .get('/token_keys').reply(200, { keys: [{ value: 'secret' }] })
-      .get(`/Users/${uaaData.userId}`)
-      .reply(200, uaaData.user)
-      .post('/oauth/token?grant_type=client_credentials')
-      .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
-
-    nockCF
-      .get('/v3/roles')
-      .query(true)
-      .reply(200, JSON.stringify(wrapV3Resources(
-        orgRole(userRole, orgGUID, userGUID),
-      )))
-
-      .get(`/v2/organizations/${orgGUID}`)
-      .reply(200, JSON.stringify(merge(
-        defaultOrg(),
-        { metadata: { guid: orgGUID }, entity: { name: orgName } },
-      )))
-    ;
+    server.use(
+      http.get('https://example.com/uaa/token_keys', () => {
+        return HttpResponse.json(
+          { keys: [{ value: 'secret' }] },
+        );
+      }),
+      http.get(`https://example.com/uaa/Users/${uaaData.userId}`, () => {
+        return new HttpResponse(
+          uaaData.user,
+        );
+      }),
+      http.post('https://example.com/uaa/oauth/token', ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('grant_type');
+        if (q === 'client_credentials') {
+          return new HttpResponse('{"access_token": "FAKE_ACCESS_TOKEN"}');
+        }
+      }),
+      http.get('https://example.com/api/v3/roles', () => {
+        return new HttpResponse(
+          JSON.stringify(wrapV3Resources(
+            orgRole(userRole, orgGUID, userGUID),
+          )),
+        );
+      }),
+      http.get(`https://example.com/api/v2/organizations/${orgGUID}`, () => {
+        return new HttpResponse(
+          JSON.stringify(merge(
+            defaultOrg(),
+            { metadata: { guid: orgGUID }, entity: { name: orgName } },
+          )),
+        );
+      }),
+    );
     const user = await controller.fetchRequesterDetailsAndRoles(ctx);
 
     expect(user.acc_email).toBe(expectedRequesterData.emails[0].value);
@@ -335,8 +479,9 @@ describe(controller.fetchRequesterDetailsAndRoles, () => {
 });
 
 describe(controller.requesterDetailsContent , () => {
+
   it('should output that user is not logged', () => {
-    const requester = {}
+    const requester = {};
     const output = controller.requesterDetailsContent(requester);
     expect(output).toBe('Requester not logged in');
   });

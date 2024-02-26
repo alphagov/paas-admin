@@ -1,6 +1,8 @@
 import lodash from 'lodash';
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 import pino from 'pino';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import * as data from './cf.test.data';
 import { app as defaultApp } from './test-data/app';
@@ -18,24 +20,16 @@ const config = {
 };
 
 describe('lib/cf test suite', () => {
-  let nockCF: nock.Scope;
-  let nockUAA: nock.Scope;
+  const handlers = [
+    http.get(`${config.apiEndpoint}`, () => {
+      return new HttpResponse();
+    }),
+  ];
+  const server = setupServer(...handlers);
 
-  beforeEach(() => {
-    nock.cleanAll();
-
-    nockCF = nock(config.apiEndpoint);
-    nockUAA = nock('https://example.com/uaa');
-  });
-
-  afterEach(() => {
-    nockCF.on('response', () => {
-      nockCF.done();
-    });
-    nockUAA.done();
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('should fail to get token client without accessToken or clientCredentials', async () => {
     const client = new CloudFoundryClient({
@@ -48,10 +42,20 @@ describe('lib/cf test suite', () => {
   });
 
   it('should get token from tokenEndpoint in info', async () => {
-    nockCF.get('/v2/info').reply(200, data.info);
-    nockUAA
-      .post('/oauth/token?grant_type=client_credentials')
-      .reply(200, '{"access_token": "TOKEN_FROM_ENDPOINT"}');
+    server.use(
+      http.post('https://example.com/uaa/oauth/token', ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('grant_type');
+        if (q === 'client_credentials') {
+          return new HttpResponse('{"access_token": "TOKEN_FROM_ENDPOINT"}');
+        }
+      }),
+      http.get(`${config.apiEndpoint}/v2/info`, () => {
+        return new HttpResponse(
+          data.info,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient({
       apiEndpoint: 'https://example.com/api',
@@ -65,7 +69,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should create a client correctly', async () => {
-    nockCF.get('/v2/info').reply(200, data.info);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/info`, () => {
+        return new HttpResponse(
+          data.info,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const info = await client.info();
@@ -73,11 +83,20 @@ describe('lib/cf test suite', () => {
   });
 
   it('should iterate over all pages to gather resources', async () => {
-    nockCF
-      .get('/v2/test')
-      .reply(200, '{"next_url":"/v2/test?page=2","resources":["a"]}')
-      .get('/v2/test?page=2')
-      .reply(200, '{"next_url":null,"resources":["b"]}');
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/test`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('page');
+        if (q === '2') {
+          return new HttpResponse(
+            JSON.stringify({ 'next_url':null,'resources':['b'] }),
+          );
+        }
+        return new HttpResponse(
+          JSON.stringify({ 'next_url':'/v2/test?page=2','resources':['a'] }),
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const response = await client.request('get', '/v2/test');
@@ -88,19 +107,28 @@ describe('lib/cf test suite', () => {
   });
 
   it('should iterate over all v3 pages to gather resources', async () => {
-    nockCF
-      .get('/v3/test')
-      .reply(
-        200,
-        '{"pagination": {"next":{"href": "/v3/test?page=2"}},"resources":["a"]}',
-      )
-      .get('/v3/test?page=2')
-      .reply(
-        200,
-        '{"pagination": {"next":{"href": "/v3/test?page=3"}},"resources":["b"]}',
-      )
-      .get('/v3/test?page=3')
-      .reply(200, '{"pagination": {"next":null},"resources":["c"]}');
+
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/test`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('page');
+
+        if (q === '2') {
+          return new HttpResponse(
+            JSON.stringify({ 'pagination': { 'next':{ 'href': '/v3/test?page=3' } },'resources':['b'] }),
+          );
+        }
+        if (q === '3') {
+          return new HttpResponse(
+            JSON.stringify({ 'pagination': { 'next':null },'resources':['c'] }),
+          );
+        }
+
+return new HttpResponse(
+          JSON.stringify({ 'pagination': { 'next':{ 'href': '/v3/test?page=2' } },'resources':['a'] }),
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const response = await client.request('get', '/v3/test');
@@ -112,9 +140,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should retrieve an audit event', async () => {
-    nockCF
-      .get(`/v3/audit_events/${defaultAuditEvent().guid}`)
-      .reply(200, JSON.stringify(defaultAuditEvent()));
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/audit_events/${defaultAuditEvent().guid}`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultAuditEvent()),
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const event = await client.auditEvent(defaultAuditEvent().guid);
@@ -123,10 +155,18 @@ describe('lib/cf test suite', () => {
   });
 
   it('should retrieve an empty page of audit events', async () => {
-    nockCF
-      .get('/v3/audit_events')
-      .query({ order_by: '-updated_at', page: 1, per_page: 25 })
-      .reply(200, JSON.stringify(wrapV3Resources()));
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/audit_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('order_by');
+        if (q === '-updated_at') {
+          return new HttpResponse(
+            JSON.stringify(wrapV3Resources()),
+            { status: 200 },
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const events = await client.auditEvents();
@@ -135,15 +175,17 @@ describe('lib/cf test suite', () => {
   });
 
   it('should list audit events for a target (ie an app or service)', async () => {
-    nockCF
-      .get('/v3/audit_events')
-      .query({
-        order_by: '-updated_at',
-        page: 1,
-        per_page: 25,
-        target_guids: defaultAuditEvent().guid,
-      })
-      .reply(200, JSON.stringify(wrapV3Resources(defaultAuditEvent())));
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/audit_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('target_guids');
+        if (q === `${defaultAuditEvent().guid}`) {
+          return new HttpResponse(
+            JSON.stringify(wrapV3Resources(defaultAuditEvent())),
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const events = await client.auditEvents(
@@ -156,15 +198,17 @@ describe('lib/cf test suite', () => {
   });
 
   it('should list audit events for a space', async () => {
-    nockCF
-      .get('/v3/audit_events')
-      .query({
-        page: 1,
-        per_page: 25,
-        order_by: '-updated_at',
-        space_guids: defaultAuditEvent().space.guid,
-      })
-      .reply(200, JSON.stringify(wrapV3Resources(defaultAuditEvent())));
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/audit_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('space_guids');
+        if (q === `${defaultAuditEvent().space.guid}`) {
+          return new HttpResponse(
+            JSON.stringify(wrapV3Resources(defaultAuditEvent())),
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const events = await client.auditEvents(
@@ -178,15 +222,17 @@ describe('lib/cf test suite', () => {
   });
 
   it('should list audit events for an org', async () => {
-    nockCF
-      .get('/v3/audit_events')
-      .query({
-        order_by: '-updated_at',
-        organization_guids: defaultAuditEvent().organization.guid,
-        page: 1,
-        per_page: 25,
-      })
-      .reply(200, JSON.stringify(wrapV3Resources(defaultAuditEvent())));
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/audit_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('organization_guids');
+        if (q === `${defaultAuditEvent().organization.guid}`) {
+          return new HttpResponse(
+            JSON.stringify(wrapV3Resources(defaultAuditEvent())),
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const events = await client.auditEvents(
@@ -201,25 +247,29 @@ describe('lib/cf test suite', () => {
   });
 
   it('should paginate audit events', async () => {
-    nockCF
-      .get('/v3/audit_events')
-      .query({ order_by: '-updated_at', page: 2, per_page: 25 })
-      .reply(
-        200,
-        JSON.stringify(
-          lodash.merge(
-            wrapV3Resources(
-              lodash.merge(defaultAuditEvent(), { guid: 'abc' }),
-              lodash.merge(defaultAuditEvent(), { guid: 'def' }),
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/audit_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('order_by');
+        if (q === '-updated_at') {
+          return new HttpResponse(
+            JSON.stringify(
+              lodash.merge(
+                wrapV3Resources(
+                  lodash.merge(defaultAuditEvent(), { guid: 'abc' }),
+                  lodash.merge(defaultAuditEvent(), { guid: 'def' }),
+                ),
+                {
+                  pagination: {
+                    next: { href: '/v3/audit_events/page=2&order_by=-updated_at' },
+                  },
+                },
+              ),
             ),
-            {
-              pagination: {
-                next: { href: '/v3/audit_events/page=2&order_by=-updated_at' },
-              },
-            },
-          ),
-        ),
-      );
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const events = await client.auditEvents(2);
@@ -230,7 +280,14 @@ describe('lib/cf test suite', () => {
   });
 
   it('should throw an error when receiving 404', async () => {
-    nockCF.get('/v2/failure/404').reply(404, '{"error": "FAKE_404"}');
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/failure/404`, () => {
+        return new HttpResponse(
+          '{"error": "FAKE_404"}',
+          { status: 404 },
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     await expect(client.request('get', '/v2/failure/404')).rejects.toThrow(
@@ -239,7 +296,14 @@ describe('lib/cf test suite', () => {
   });
 
   it('should throw an error when encountering unrecognised error', async () => {
-    nockCF.get('/v2/failure/500').reply(500, 'FAKE_500');
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/failure/500`, () => {
+        return new HttpResponse(
+          '{"error": "FAKE_500"}',
+          { status: 500 },
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     await expect(client.request('get', '/v2/failure/500')).rejects.toThrow(
@@ -248,7 +312,14 @@ describe('lib/cf test suite', () => {
   });
 
   it('should create an organisation', async () => {
-    nockCF.post('/v2/organizations').reply(201, JSON.stringify(defaultOrg()));
+    server.use(
+      http.post(`${config.apiEndpoint}/v2/organizations`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+          { status: 201 },
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const organization = await client.createOrganization({
@@ -260,9 +331,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of organisations', async () => {
-    nockCF
-      .get('/v2/organizations')
-      .reply(200, JSON.stringify(wrapResources(defaultOrg())));
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/organizations`, () => {
+        return new HttpResponse(
+          JSON.stringify(wrapResources(defaultOrg())),
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const organizations = await client.organizations();
@@ -272,9 +347,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain single organisation', async () => {
-    nockCF
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
-      .reply(200, JSON.stringify(defaultOrg()));
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const organization = await client.organization(
@@ -285,22 +364,34 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain single organisation with V3 API', async () => {
-      nockCF
-        .get('/v3/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
-        .reply(200, { name: 'the-system_domain-org-name' });
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20`, () => {
+        return HttpResponse.json(
+          { name: 'the-system_domain-org-name' },
+        );
+      }),
+    );
 
-      const client = new CloudFoundryClient(config);
-      const organization = await client.getOrganization({ guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20' });
+    const client = new CloudFoundryClient(config);
+    const organization = await client.getOrganization({ guid: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20' });
 
-      expect(organization.name).toEqual('the-system_domain-org-name');
+    expect(organization.name).toEqual('the-system_domain-org-name');
   });
 
   it('should delete an organisation', async () => {
-    nockCF
-      .delete(
-        '/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20?recursive=true&async=false',
-      )
-      .reply(204);
+    server.use(
+      http.delete(`${config.apiEndpoint}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('recursive');
+        const q2 = url.searchParams.get('async');
+        if (q === 'true' && q2 === 'false') {
+          return new HttpResponse(
+            null,
+            { status: 204 },
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     await client.deleteOrganization({
@@ -311,7 +402,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should list all quota definitions', async () => {
-    nockCF.get('/v2/quota_definitions').reply(200, data.organizationQuotas);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/quota_definitions`, () => {
+        return new HttpResponse(
+          data.organizationQuotas,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const quotas = await client.quotaDefinitions();
@@ -321,9 +418,17 @@ describe('lib/cf test suite', () => {
   });
 
   it('should filter quota definitions', async () => {
-    nockCF
-      .get('/v2/quota_definitions?q=name:name-1996')
-      .reply(200, data.organizationQuotas);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/quota_definitions`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('q');
+        if(q === 'name:name-1996') {
+          return new HttpResponse(
+            data.organizationQuotas,
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const quotas = await client.quotaDefinitions({ name: 'name-1996' });
@@ -333,9 +438,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain organisation quota', async () => {
-    nockCF
-      .get('/v2/quota_definitions/80f3e539-a8c0-4c43-9c72-649df53da8cb')
-      .reply(200, data.organizationQuota);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/quota_definitions/80f3e539-a8c0-4c43-9c72-649df53da8cb`, () => {
+        return new HttpResponse(
+          data.organizationQuota,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const quota = await client.organizationQuota(
@@ -346,9 +455,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of an organization\'s spaces', async () => {
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces')
-      .reply(200, data.spaces);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/spaces`, () => {
+        return new HttpResponse(
+          data.spaces,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const spaces = await client.orgSpaces(
@@ -360,7 +473,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of spaces', async () => {
-    nockCF.get('/v2/spaces').reply(200, data.spaces);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/spaces`, () => {
+        return new HttpResponse(
+          data.spaces,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const spaces = await client.spaces();
@@ -370,9 +489,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain single space', async () => {
-    nockCF
-      .get('/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3')
-      .reply(200, data.space);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/spaces/bc8d3381-390d-4bd7-8c71-25309900a2e3`, () => {
+        return new HttpResponse(
+          data.space,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const space = await client.space('bc8d3381-390d-4bd7-8c71-25309900a2e3');
@@ -381,9 +504,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain single space', async () => {
-    nockCF
-      .get('/v2/spaces/50ae42f6-346d-4eca-9e97-f8c9e04d5fbe/summary')
-      .reply(200, data.spaceSummary);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/spaces/50ae42f6-346d-4eca-9e97-f8c9e04d5fbe/summary`, () => {
+        return new HttpResponse(
+          data.spaceSummary,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const space = await client.spaceSummary(
@@ -394,9 +521,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain space quota', async () => {
-    nockCF
-      .get('/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019')
-      .reply(200, data.spaceQuota);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/space_quota_definitions/a9097bc8-c6cf-4a8f-bc47-623fa22e8019`, () => {
+        return new HttpResponse(
+          data.spaceQuota,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const quota = await client.spaceQuota(
@@ -407,11 +538,17 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of spaces for specific user in given org', async () => {
-    nockCF
-      .get(
-        '/v2/users/uaa-id-253/spaces?q=organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-      )
-      .reply(200, data.spaces);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/users/uaa-id-253/spaces`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('q');
+        if(q === 'organization_guid:3deb9f04-b449-4f94-b3dd-c73cefe5b275') {
+          return new HttpResponse(
+            data.spaces,
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const spaces = await client.spacesForUserInOrganization(
@@ -426,14 +563,16 @@ describe('lib/cf test suite', () => {
   it('should obtain list of apps', async () => {
     const spaceGUID = 'be1f9c1d-e629-488e-a560-a35b545f0ad7';
     const name = 'name-2131';
-    nockCF
-      .get(`/v2/spaces/${spaceGUID}/apps`)
-      .reply(
-        200,
-        JSON.stringify(
-          wrapResources(lodash.merge(defaultApp(), { entity: { name } })),
-        ),
-      );
+
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/spaces/${spaceGUID}/apps`, () => {
+        return new HttpResponse(
+          JSON.stringify(
+            wrapResources(lodash.merge(defaultApp(), { entity: { name } })),
+          ),
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const apps = await client.applications(spaceGUID);
@@ -445,14 +584,16 @@ describe('lib/cf test suite', () => {
   it('should obtain particular app', async () => {
     const guid = '15b3885d-0351-4b9b-8697-86641668c123';
     const name = 'particular-app';
-    nockCF
-      .get(`/v2/apps/${guid}`)
-      .reply(
-        200,
-        JSON.stringify(
-          lodash.merge(defaultApp(), { entity: { name }, metadata: { guid } }),
-        ),
-      );
+
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/apps/${guid}`, () => {
+        return new HttpResponse(
+          JSON.stringify(
+            lodash.merge(defaultApp(), { entity: { name }, metadata: { guid } }),
+          ),
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const app = await client.application(guid);
@@ -461,9 +602,14 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain app summary', async () => {
-    nockCF
-      .get('/v2/apps/cd897c8c-3171-456d-b5d7-3c87feeabbd1/summary')
-      .reply(200, data.appSummary);
+
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/apps/cd897c8c-3171-456d-b5d7-3c87feeabbd1/summary`, () => {
+        return new HttpResponse(
+          data.appSummary,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const app = await client.applicationSummary(
@@ -474,9 +620,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of services', async () => {
-    nockCF
-      .get('/v2/spaces/f858c6b3-f6b1-4ae8-81dd-8e8747657fbe/service_instances')
-      .reply(200, data.services);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/spaces/f858c6b3-f6b1-4ae8-81dd-8e8747657fbe/service_instances`, () => {
+        return new HttpResponse(
+          data.services,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const services = await client.spaceServices(
@@ -488,9 +638,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain particular service instance', async () => {
-    nockCF
-      .get('/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92')
-      .reply(200, data.serviceInstance);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/service_instances/0d632575-bb06-4ea5-bb19-a451a9644d92`, () => {
+        return new HttpResponse(
+          data.serviceInstance,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const serviceInstance = await client.serviceInstance(
@@ -501,9 +655,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain particular service plan', async () => {
-    nockCF
-      .get('/v2/service_plans/775d0046-7505-40a4-bfad-ca472485e332')
-      .reply(200, data.servicePlan);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/service_plans/775d0046-7505-40a4-bfad-ca472485e332`, () => {
+        return new HttpResponse(
+          data.servicePlan,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const servicePlan = await client.servicePlan(
@@ -514,9 +672,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain particular service', async () => {
-    nockCF
-      .get('/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5')
-      .reply(200, data.serviceString);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5`, () => {
+        return new HttpResponse(
+          data.serviceString,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const service = await client.service(
@@ -527,9 +689,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain all v2 service plans', async () => {
-    nockCF
-      .get('/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5/service_plans')
-      .reply(200, { resources: [ data.servicePlan ] });
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/services/53f52780-e93c-4af7-a96c-6958311c40e5/service_plans`, () => {
+        return HttpResponse.json(
+          { resources: [ data.servicePlan ] },
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const plans = await client.servicePlans(
@@ -540,9 +706,17 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain all v3 service plans', async () => {
-    nockCF
-      .get('/v3/service_plans?service_offering_guids=53f52780-e93c-4af7-a96c-6958311c40e5')
-      .reply(200, { pagination: { next: null }, resources: [ data.servicePlan ] });
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/service_plans`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('service_offering_guids');
+        if(q === '53f52780-e93c-4af7-a96c-6958311c40e5') {
+          return HttpResponse.json(
+            { pagination: { next: null }, resources: [ data.servicePlan ] },
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const plans = await client.v3ServicePlans(
@@ -553,9 +727,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain v3 service', async () => {
-    nockCF
-      .get('/v3/service_offerings/53f52780-e93c-4af7-a96c-6958311c40e5')
-      .reply(200, { name: 'postgres' });
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/service_offerings/53f52780-e93c-4af7-a96c-6958311c40e5`, () => {
+        return HttpResponse.json(
+          { name: 'postgres' },
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const service = await client.v3Service(
@@ -566,9 +744,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain all v3 services', async () => {
-    nockCF
-      .get('/v3/service_offerings')
-      .reply(200, { pagination: { next: null }, resources: [ data.serviceObj ] });
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/service_offerings`, () => {
+        return HttpResponse.json(
+          { pagination: { next: null }, resources: [ data.serviceObj ] },
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const services = await client.services();
@@ -577,7 +759,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should create a user', async () => {
-    nockCF.post('/v2/users').reply(200, data.user);
+    server.use(
+      http.post(`${config.apiEndpoint}/v2/users`, () => {
+        return new HttpResponse(
+          data.user,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const user = await client.createUser(
@@ -589,9 +777,18 @@ describe('lib/cf test suite', () => {
   });
 
   it('should delete a user', () => {
-    nockCF
-      .delete('/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177?async=false')
-      .reply(204);
+    server.use(
+      http.delete(`${config.apiEndpoint}/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('async');
+        if (q === 'false') {
+          return new HttpResponse(
+            null,
+            { status: 204 },
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     expect(async () =>
@@ -600,7 +797,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain a user summary', async () => {
-    nockCF.get('/v2/users/uaa-id-253/summary').reply(200, data.userSummary);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/users/uaa-id-253/summary`, () => {
+        return new HttpResponse(
+          data.userSummary,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const summary = await client.userSummary('uaa-id-253');
@@ -614,9 +817,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of user roles for organisation', async () => {
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .reply(200, data.userRolesForOrg);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const users = await client.usersForOrganization(
@@ -629,9 +836,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of user roles for space', async () => {
-    nockCF
-      .get('/v2/spaces/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .reply(200, data.userRolesForSpace);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/spaces/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForSpace,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const users = await client.usersForSpace(
@@ -644,13 +855,16 @@ describe('lib/cf test suite', () => {
   });
 
   it('should be able to assign a user to an organisation by username', async () => {
-    nockCF
-      .put(
-        '/v2/organizations/guid-cb24b36d-4656-468e-a50d-b53113ac6177/users/uaa-id-236',
-      )
-      .reply(201, {
-        metadata: { guid: 'guid-cb24b36d-4656-468e-a50d-b53113ac6177' },
-      });
+    server.use(
+      http.put(`${config.apiEndpoint}/v2/organizations/guid-cb24b36d-4656-468e-a50d-b53113ac6177/users/uaa-id-236`, () => {
+        return HttpResponse.json(
+          {
+            metadata: { guid: 'guid-cb24b36d-4656-468e-a50d-b53113ac6177' },
+          },
+          { status: 201 },
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const organization = await client.assignUserToOrganization(
@@ -664,11 +878,18 @@ describe('lib/cf test suite', () => {
   });
 
   it('should be able to set user org roles', async () => {
-    nockCF
-      .put(
-        '/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/users/uaa-id-236?recursive=true',
-      )
-      .reply(201, data.userRoles);
+    server.use(
+      http.put(`${config.apiEndpoint}/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/users/uaa-id-236`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('recursive');
+        if (q === 'true') {
+          return new HttpResponse(
+            data.userRoles,
+            { status: 201 },
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const users = await client.setOrganizationRole(
@@ -682,11 +903,18 @@ describe('lib/cf test suite', () => {
   });
 
   it('should be able to remove user org roles', async () => {
-    nockCF
-      .delete(
-        '/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/users/uaa-id-236?recursive=true',
-      )
-      .reply(204, {});
+    server.use(
+      http.delete(`${config.apiEndpoint}/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/users/uaa-id-236`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('recursive');
+        if (q === 'true') {
+          return new HttpResponse(
+            null,
+            { status: 204 },
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const roles = await client.setOrganizationRole(
@@ -700,11 +928,14 @@ describe('lib/cf test suite', () => {
   });
 
   it('should be able to set user space roles', async () => {
-    nockCF
-      .put(
-        '/v2/spaces/594c1fa9-caed-454b-9ed8-643a093ff91d/developer/uaa-id-381',
-      )
-      .reply(201, data.userRoles);
+    server.use(
+      http.put(`${config.apiEndpoint}/v2/spaces/594c1fa9-caed-454b-9ed8-643a093ff91d/developer/uaa-id-381`, () => {
+        return new HttpResponse(
+          data.userRoles,
+          { status: 201 },
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const users = await client.setSpaceRole(
@@ -718,11 +949,14 @@ describe('lib/cf test suite', () => {
   });
 
   it('should be able to remove user space roles', async () => {
-    nockCF
-      .delete(
-        '/v2/spaces/594c1fa9-caed-454b-9ed8-643a093ff91d/developer/uaa-id-381',
-      )
-      .reply(204, {});
+    server.use(
+      http.delete(`${config.apiEndpoint}/v2/spaces/594c1fa9-caed-454b-9ed8-643a093ff91d/developer/uaa-id-381`, () => {
+        return new HttpResponse(
+          null,
+          { status: 204 },
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const users = await client.setSpaceRole(
@@ -736,9 +970,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of user roles for organisation and not find logged in user', async () => {
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .reply(200, data.userRolesForOrg);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const hasRole = await client.hasOrganizationRole(
@@ -751,11 +989,17 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of user provided services', async () => {
-    nockCF
-      .get(
-        '/v2/user_provided_service_instances?q=space_guid:594c1fa9-caed-454b-9ed8-643a093ff91d',
-      )
-      .reply(200, data.userServices);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/user_provided_service_instances`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('q');
+        if (q === 'space_guid:594c1fa9-caed-454b-9ed8-643a093ff91d') {
+          return new HttpResponse(
+            data.userServices,
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const services = await client.userServices(
@@ -767,11 +1011,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain user provided service', async () => {
-    nockCF
-      .get(
-        '/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87',
-      )
-      .reply(200, data.userServiceInstance);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/user_provided_service_instances/e9358711-0ad9-4f2a-b3dc-289d47c17c87`, () => {
+        return new HttpResponse(
+          data.userServiceInstance,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const service = await client.userServiceInstance(
@@ -782,8 +1028,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain list of stacks', async () => {
-    nockCF.get('/v2/stacks').reply(200, data.stacks);
-
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/stacks`, () => {
+        return new HttpResponse(
+          data.stacks,
+        );
+      }),
+    );
     const client = new CloudFoundryClient(config);
     const stacks = await client.stacks();
 
@@ -793,9 +1044,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should obtain a stack', async () => {
-    nockCF
-      .get('/v2/stacks/bb9ca94f-b456-4ebd-ab09-eb7987cce728')
-      .reply(200, data.stack);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/stacks/bb9ca94f-b456-4ebd-ab09-eb7987cce728`, () => {
+        return new HttpResponse(
+          data.stack,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const stack = await client.stack('bb9ca94f-b456-4ebd-ab09-eb7987cce728');
@@ -804,7 +1059,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should get the GUID of cflinuxfs2', async () => {
-    nockCF.get('/v2/stacks').reply(200, data.stacks);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/stacks`, () => {
+        return new HttpResponse(
+          data.stacks,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const cflinuxfs2StackGUID = await client.cflinuxfs2StackGUID();
@@ -813,10 +1074,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should return undefined when cflinuxfs2 is not present', async () => {
-    nock.cleanAll();
-    nock('https://example.com/api')
-      .get('/v2/stacks')
-      .reply(200, data.stacksWithoutCflinuxfs2);
+    server.use(
+      http.get(`${config.apiEndpoint}/v2/stacks`, () => {
+        return new HttpResponse(
+          data.stacksWithoutCflinuxfs2,
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const cflinuxfs2StackGUID = await client.cflinuxfs2StackGUID();
@@ -825,7 +1089,14 @@ describe('lib/cf test suite', () => {
   });
 
   it('should be able to create organisation using v3 api', async () => {
-    nockCF.post('/v3/organizations').reply(201, data.v3Organisation);
+    server.use(
+      http.post(`${config.apiEndpoint}/v3/organizations`, () => {
+        return new HttpResponse(
+          data.v3Organisation,
+          { status: 201 },
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const organization = await client.v3CreateOrganization({
@@ -838,7 +1109,14 @@ describe('lib/cf test suite', () => {
   });
 
   it('should be able to create space using v3 api', async () => {
-    nockCF.post('/v3/spaces').reply(201, data.v3Space);
+    server.use(
+      http.post(`${config.apiEndpoint}/v3/spaces`, () => {
+        return new HttpResponse(
+          data.v3Space,
+          { status: 201 },
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const space = await client.v3CreateSpace({
@@ -866,14 +1144,22 @@ describe('lib/cf test suite', () => {
       spaceRole('space_developer', orgGUID, spaceGUID, userGUID),
     ];
 
-    nockCF
-      .get(`/v3/roles?user_guids=${userGUID}`)
-      .reply(200, JSON.stringify(wrapV3Resources(...roles)));
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/roles`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('user_guids');
+        if (q === `${userGUID}`) {
+          return new HttpResponse(
+            JSON.stringify(wrapV3Resources(...roles)),
+          );
+        }
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const actualRoles = await client.userRoles(userGUID);
 
-    expect(actualRoles).toEqual(roles)
+    expect(actualRoles).toEqual(roles);
   });
 
   it('should retreive organization quotas', async () => {
@@ -882,9 +1168,13 @@ describe('lib/cf test suite', () => {
       { guid: 'org-quota-2', name: 'medium' },
     ];
 
-    nockCF
-      .get('/v3/organization_quotas')
-      .reply(200, JSON.stringify(wrapV3Resources(...orgQuotas)));
+    server.use(
+      http.get(`${config.apiEndpoint}/v3/organization_quotas`, () => {
+        return new HttpResponse(
+          JSON.stringify(wrapV3Resources(...orgQuotas)),
+        );
+      }),
+    );
 
     const client = new CloudFoundryClient(config);
     const quotas = await client.organizationQuotas();
@@ -893,10 +1183,13 @@ describe('lib/cf test suite', () => {
   });
 
   it('should apply quota to all organizations', async () => {
-    nockCF
-      .post('/v3/organization_quotas/org-quota-1/relationships/organizations')
-      .reply(201, JSON.stringify(wrapV3Resources(...[{ guid: 'org-guid' }])));
-
+    server.use(
+      http.post(`${config.apiEndpoint}/v3/organization_quotas/org-quota-1/relationships/organizations`, () => {
+        return new HttpResponse(
+          JSON.stringify(wrapV3Resources(...[{ guid: 'org-guid' }])),
+        );
+      }),
+    );
     const client = new CloudFoundryClient(config);
     await expect(client.applyOrganizationQuota('org-quota-1', 'org-guid')).resolves.toBeDefined();
   });

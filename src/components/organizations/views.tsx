@@ -650,12 +650,12 @@ export function EmailManagers(props: IEmailManagersFormProperties): ReactElement
 
         <p className="govuk-body">
         Message will automatically include the following:
+        </p>
         <div id="message-hint" className="govuk-hint">
           You are receiving this email as you are listed as a [manager_type] manager in the [organisation_name] organisation in our [paas_region] region.<br /><br />
           Thank you,<br />
           GOV.UK PaaS
-          </div>
-        </p>
+        </div>
 
         <button className="govuk-button" data-module="govuk-button" data-prevent-double-click="true">
           Send

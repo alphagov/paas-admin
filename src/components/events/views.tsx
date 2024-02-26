@@ -53,13 +53,13 @@ export function Details(): ReactElement {
         <p className="govuk-body">
           <span className="govuk-!-font-weight-bold">Targets</span> are
           resources being acted upon. For example:{' '}
+        </p>
           <ul className="govuk-list govuk-list--bullet">
             <li>apps</li>
             <li>services</li>
             <li>spaces</li>
             <li>other users</li>
           </ul>
-        </p>
       </div>
     </details>
   );

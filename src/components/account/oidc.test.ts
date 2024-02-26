@@ -1,9 +1,11 @@
 import { URL } from 'url';
 
 import jwt from 'jsonwebtoken';
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 import * as jose from 'node-jose';
 import { CallbackParamsType } from 'openid-client';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import UAAClient from '../../lib/uaa/uaa';
 import { createTestContext } from '../app/app.test-helpers';
@@ -11,7 +13,7 @@ import { createTestContext } from '../app/app.test-helpers';
 import OIDC, * as oidc from './oidc';
 import * as fixtures from './oidc.test.fixtures';
 
-jest.mock('../../lib/uaa/uaa');
+vi.mock('../../lib/uaa/uaa');
 
 async function createJOSEKey(): Promise<jose.JWK.Key> {
   const store: jose.JWK.KeyStore = jose.JWK.createKeyStore();
@@ -42,64 +44,39 @@ function createAndSignIDToken(key: jose.JWK.Key, claims?: {}) {
   });
 }
 
-function configureJWKSEndpoint(jwksEndpoint: string, key: jose.JWK.Key) {
-  const jwksEndpointURL = new URL(jwksEndpoint);
-  nock(jwksEndpointURL.origin)
-    .get(jwksEndpointURL.pathname)
-    .reply(200, JSON.stringify({ keys: [key] }));
-}
-
-function configureTokenEndpoint(
-  tokenEndpoint: string,
-  token: string,
-): nock.Scope {
-  const tokenEndpointURL = new URL(tokenEndpoint);
-  const tokenNock = nock(tokenEndpointURL.origin);
-
-  tokenNock.post(tokenEndpointURL.pathname).reply(
-    200,
-    JSON.stringify({
-      expires_in: 10000,
-      id_token: token,
-      token_type: 'bearer',
-    }),
-  );
-
-  return tokenNock;
-}
-
 describe('oidc test suite', () => {
-  let nockGoogleDiscovery: nock.Scope;
-  let nockMicrosoftDiscovery: nock.Scope;
 
+  const mockGoogleDiscoveryUrl = 'https://accounts.google.com';
+  const mockMicrosoftDiscoveryUrl = 'https://login.microsoftonline.com';
+
+  const handlers = [
+    http.get(`${mockGoogleDiscoveryUrl}/.well-known/openid-configuration`, () => {
+      return new HttpResponse(
+        JSON.stringify(fixtures.googleDiscoveryDoc),
+      );
+    }),
+    http.get(`${mockMicrosoftDiscoveryUrl}/tenant_id/v2.0/.well-known/openid-configuration`, () => {
+      return new HttpResponse(
+        JSON.stringify(fixtures.microsoftDiscoveryDoc),
+      );
+    }),
+  ];
+  const server = setupServer(...handlers);
+
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
   beforeEach(() => {
-    nock.cleanAll();
-
-    nockGoogleDiscovery = nock('https://accounts.google.com');
-    nockMicrosoftDiscovery = nock('https://login.microsoftonline.com');
+    server.resetHandlers();
+    // @ts-ignore
+    UAAClient.mockClear();
   });
-
-  afterEach(() => {
-    nockGoogleDiscovery.done();
-    nockMicrosoftDiscovery.done();
-
-    nock.cleanAll();
-  });
+  afterAll(() => server.close());
 
   const redirectURL = 'https://admin.cloud.service.gov.uk/oidc/callback';
   const clientID = 'CLIENTID';
   const clientSecret = 'CLIENTSECRET';
   const discoveryURL = 'https://login.microsoftonline.com/tenant_id/v2.0/.well-known/openid-configuration';
 
-  beforeEach(() => {
-    // @ts-ignore
-    UAAClient.mockClear();
-  });
-
   it('generates a correct auth url based on openid discovery', async () => {
-    nockMicrosoftDiscovery
-      .get('/tenant_id/v2.0/.well-known/openid-configuration')
-      .reply(200, JSON.stringify(fixtures.microsoftDiscoveryDoc));
 
     const oidcClient = new OIDC(
       clientID,
@@ -132,9 +109,8 @@ describe('oidc test suite', () => {
   it('updates the UAA user with the Google SUB from the id token', async () => {
     // Create signing key
     const key = await createJOSEKey();
-
-    // Serve signing key at JWKS uri
-    configureJWKSEndpoint(fixtures.googleDiscoveryDoc.jwks_uri, key);
+    const jwskEndpointURL = new URL(fixtures.googleDiscoveryDoc.jwks_uri);
+    const tokenEndpointURL = new URL(fixtures.googleDiscoveryDoc.token_endpoint);
 
     // Create and sign token
     const token = createAndSignIDToken(key, {
@@ -143,8 +119,27 @@ describe('oidc test suite', () => {
       sub: 'google-sub',
     });
 
-    // Serve token from token endpoint
-    configureTokenEndpoint(fixtures.googleDiscoveryDoc.token_endpoint, token);
+    server.use(
+      http.get(`${jwskEndpointURL.origin}${jwskEndpointURL.pathname}`, () => {
+        return new HttpResponse(
+          JSON.stringify({ keys: [key] }),
+        );
+      }),
+      http.get(`${jwskEndpointURL.origin}${jwskEndpointURL.pathname}`, () => {
+        return new HttpResponse(
+          JSON.stringify({ keys: [key] }),
+        );
+      }),
+      http.post(`${tokenEndpointURL.origin}${tokenEndpointURL.pathname}`, () => {
+        return new HttpResponse(
+          JSON.stringify({
+            expires_in: 10000,
+            id_token: token,
+            token_type: 'bearer',
+          }),
+        );
+      }),
+    );
 
     // Set up OIDC client
     const uaa = new UAAClient({ apiEndpoint: '' });
@@ -194,16 +189,32 @@ describe('oidc test suite', () => {
     const signingKey = await createJOSEKey();
     const jwksKey = await createJOSEKey();
 
-    // Serve jwksKey at JWKS endpoint
-    configureJWKSEndpoint(fixtures.microsoftDiscoveryDoc.jwks_uri, jwksKey);
-
     // Create and sign token with signing key
     const token = createAndSignIDToken(signingKey);
 
-    // Serve token from token endpoint
-    configureTokenEndpoint(
-      fixtures.microsoftDiscoveryDoc.token_endpoint,
-      token,
+    const jwskEndpointURL = new URL(fixtures.microsoftDiscoveryDoc.jwks_uri);
+    const tokenEndpointURL = new URL(fixtures.microsoftDiscoveryDoc.token_endpoint);
+
+    server.use(
+      http.get(`${jwskEndpointURL.origin}${jwskEndpointURL.pathname}`, () => {
+        return new HttpResponse(
+          JSON.stringify({ keys: [jwksKey] }),
+        );
+      }),
+      http.get(`${jwskEndpointURL.origin}${jwskEndpointURL.pathname}`, () => {
+        return new HttpResponse(
+          JSON.stringify({ keys: [jwksKey] }),
+        );
+      }),
+      http.post(`${tokenEndpointURL.origin}${tokenEndpointURL.pathname}`, () => {
+        return new HttpResponse(
+          JSON.stringify({
+            expires_in: 10000,
+            id_token: token,
+            token_type: 'bearer',
+          }),
+        );
+      }),
     );
 
     // Create a mocked UAA client
@@ -221,7 +232,7 @@ describe('oidc test suite', () => {
     };
 
     // Set up logger mock
-    ctx.app.logger.error = jest.fn();
+    ctx.app.logger.error = vi.fn();
 
     // Create an OIDC client
     const client = new OIDC(clientID, clientSecret, discoveryURL, redirectURL);

@@ -1,9 +1,11 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import CloudFoundryClient from '../../lib/cf';
 import { createTestContext } from '../app/app.test-helpers';
 
 import { listServices, viewService } from './controllers';
 
-jest.mock('../../lib/cf');
+vi.mock('../../lib/cf');
 
 const mockService = { broker_catalog: { metadata: {} }, name: 'postgres', tags: [] };
 const mockPlan = { broker_catalog: { metadata: {} }, name: 'tiny' };

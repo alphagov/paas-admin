@@ -1,5 +1,7 @@
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 import pino from 'pino';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { config } from '../../components/app/app.test.config';
 
@@ -11,166 +13,159 @@ describe('lib/accounts test suite', () => {
     secret: config.accountsSecret,
     logger: pino({ level: 'silent' }),
   };
-
-  afterAll(() => {
-    nock.cleanAll();
-  });
-
-  beforeAll(() => {
-    nock(cfg.apiEndpoint)
-      .get('/documents/my-doc')
-      .reply(
-        200,
+  const handlers = [
+    http.get(`${cfg.apiEndpoint}/documents/my-doc`, () => {
+      return new HttpResponse(
         `{
-    "name": "my-doc",
-    "valid_from": "2018-04-20T14:36:09+00:00",
-    "content": "my-doc-content"
-  }`,
-      )
-      .get('/documents/bad-timestamp-doc')
-      .reply(
-        200,
-        `{
-    "name": "my-doc",
-    "valid_from": "this-is-a-silly-date",
-    "content": "my-doc-content"
-  }`,
-      )
-      .get('/documents/json-500')
-      .reply(
-        500,
-        `{
-    "error": "internal-server-error-json"
-  }`,
-      )
-      .get('/documents/plain-500')
-      .reply(
-        500,
-        `
-    error: internal-server-error-plain
-  `,
-      )
-      .put('/documents/my-doc')
-      .reply(201, '')
-      .get('/users/4f11eb3b-f45c-4fd3-9241-533d29a0582b')
-      .reply(404)
-      .get('/users/1d2a9ece-3d06-4aa7-bffc-c521cf7ef6cb')
-      .reply(500)
-      .get('/users/7fab36d8-a63a-4543-9a24-d7a3fe2f128b')
-      .reply(
-        200,
-        `{
-    "user_uuid": "7fab36d8-a63a-4543-9a24-d7a3fe2f128b",
-    "username": "example@example.org",
-    "user_email": "example@example.org"
-  }`,
-      )
-      .get('/users/error')
-      .reply(500)
-      .get('/users/7fab36d8-a63a-4543-9a24-d7a3fe2f128b/documents')
-      .reply(
-        200,
-        `[{
-    "name": "my-doc-1",
-    "content": "my-pending-doc-content-1",
-    "valid_from": "2018-04-20T14:36:09+00:00",
-    "agreement_date": null
-  },{
-    "name": "my-doc-2",
-    "content": "my-superceeded-doc-content-2",
-    "valid_from": "2001-01-01T15:31:25.934376Z",
-    "agreement_date": null
-  },{
-    "name": "my-doc-2",
-    "content": "my-pending-doc-content-2",
-    "valid_from": "2018-01-01T16:37:09.362128Z",
-    "agreement_date": "2018-05-21T16:52:55.624084Z"
-  }]`,
-      )
-      .post('/agreements')
-      .reply(201, '')
-      .post('/users/')
-      .reply(201, '')
-      .get('/users?email=one@user.in.database')
-      .reply(
-        200,
-        `{
-    "users": [{
-      "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-      "user_email": "one@user.in.database",
-      "username": "one@user.in.database"
-    }]
-  }`,
-      )
-      .get('/users?email=url%2bencoded@user.in.database')
-      .reply(
-        200,
-        `{
-    "users": [{
-      "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-      "user_email": "url+encoded@user.in.database",
-      "username": "url+encoded@user.in.database"
-    }]
-  }`,
-      )
-      .get('/users?email=no@user.in.database')
-      .reply(
-        200,
-        `{
-    "users": []
-  }`,
-      )
-      .get('/users?email=many@user.in.database')
-      .reply(
-        200,
-        `{
-    "users": [{
-      "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-      "user_email": "many@user.in.database",
-      "username": "many@user.in.database"
-    },{
-      "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-      "user_email": "many@user.in.database",
-      "username": "many@user.in.database"
-    }]
-  }`,
-      )
-      .get('/users?uuids=aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee')
-      .reply(
-        200,
-        `{
-    "users": []
-  }`,
-      )
-      .get('/users?uuids=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
-      .reply(
-        200,
-        `{
-    "users": [{
-      "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-      "user_email": "one@user.in.database",
-      "username": "one@user.in.database"
-    }]
-  }`,
-      )
-      .get(
-        '/users?uuids=11111111-bbbb-cccc-dddd-eeeeeeeeeeee,22222222-bbbb-cccc-dddd-eeeeeeeeeeee',
-      )
-      .reply(
-        200,
-        `{
-    "users": [{
-      "user_uuid": "11111111-bbbb-cccc-dddd-eeeeeeeeeeee",
-      "user_email": "one@user.in.database",
-      "username": "one@user.in.database"
-    },{
-      "user_uuid": "22222222-bbbb-cccc-dddd-eeeeeeeeeeee",
-      "user_email": "two@user.in.database",
-      "username": "two@user.in.database"
-    }]
-  }`,
+          "name": "my-doc",
+          "valid_from": "2018-04-20T14:36:09+00:00",
+          "content": "my-doc-content"
+        }`,
       );
-  });
+    }),
+    http.get(`${cfg.apiEndpoint}/documents/bad-timestamp-doc`, () => {
+      return new HttpResponse(
+        `{
+          "name": "my-doc",
+          "valid_from": "this-is-a-silly-date",
+          "content": "my-doc-content"
+        }`,
+      );
+    }),
+    http.get(`${cfg.apiEndpoint}/documents/json-500`, () => {
+      return new HttpResponse(
+        `{
+          "error": "internal-server-error-json"
+        }`,
+        { status: 500 },
+      );
+    }),
+    http.get(`${cfg.apiEndpoint}/documents/plain-500`, () => {
+      return new HttpResponse(
+        'error: internal-server-error-plain',
+        { status: 500 },
+      );
+    }),
+    http.put(`${cfg.apiEndpoint}/documents/my-doc`, () => {
+      return new HttpResponse(
+        '',
+        { status: 201 },
+      );
+    }),
+    http.get(`${cfg.apiEndpoint}/users/4f11eb3b-f45c-4fd3-9241-533d29a0582b`, () => {
+      return new HttpResponse(
+       null,
+        { status: 404 },
+      );
+    }),
+    http.get(`${cfg.apiEndpoint}/users/1d2a9ece-3d06-4aa7-bffc-c521cf7ef6cb`, () => {
+      return new HttpResponse(
+       null,
+        { status: 500 },
+      );
+    }),
+    http.get(`${cfg.apiEndpoint}/users/7fab36d8-a63a-4543-9a24-d7a3fe2f128b`, () => {
+      return new HttpResponse(
+        `{
+          "user_uuid": "7fab36d8-a63a-4543-9a24-d7a3fe2f128b",
+          "username": "example@example.org",
+          "user_email": "example@example.org"
+        }`,
+      );
+    }),
+    http.get(`${cfg.apiEndpoint}/users/error`, () => {
+      return new HttpResponse(
+        null,
+        { status: 500 },
+      );
+    }),
+    http.get(`${cfg.apiEndpoint}/users/7fab36d8-a63a-4543-9a24-d7a3fe2f128b/documents`, () => {
+      return new HttpResponse(
+        `[{
+          "name": "my-doc-1",
+          "content": "my-pending-doc-content-1",
+          "valid_from": "2018-04-20T14:36:09+00:00",
+          "agreement_date": null
+        },{
+          "name": "my-doc-2",
+          "content": "my-superceeded-doc-content-2",
+          "valid_from": "2001-01-01T15:31:25.934376Z",
+          "agreement_date": null
+        },{
+          "name": "my-doc-2",
+          "content": "my-pending-doc-content-2",
+          "valid_from": "2018-01-01T16:37:09.362128Z",
+          "agreement_date": "2018-05-21T16:52:55.624084Z"
+        }]`,
+      );
+    }),
+    http.post(`${cfg.apiEndpoint}/agreements`, () => {
+      return new HttpResponse(
+        '',
+        { status: 201 },
+      );
+    }),
+    http.post(`${cfg.apiEndpoint}/users/`, () => {
+      return new HttpResponse(
+        '',
+        { status: 201 },
+      );
+    }),
+    http.get(`${cfg.apiEndpoint}/users`, ({ request }) => {
+      const url = new URL(request.url);
+      const q = url.searchParams.get('email');
+      if (q === 'one@user.in.database') {
+        return new HttpResponse(
+          JSON.stringify({
+            'users': [{
+              'user_uuid': 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+              'user_email': 'one@user.in.database',
+              'username': 'one@user.in.database',
+            }],
+          }),
+        );
+      }
+    }),
+    http.get(`${cfg.apiEndpoint}/users`, ({ request }) => {
+      const url = new URL(request.url);
+      const q = url.searchParams.get('email');
+      if (q === 'many@user.in.database') {
+        return new HttpResponse(
+          `{
+            "users": [{
+              "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+              "user_email": "many@user.in.database",
+              "username": "many@user.in.database"
+            },{
+              "user_uuid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+              "user_email": "many@user.in.database",
+              "username": "many@user.in.database"
+            }]
+          }`,
+        );
+      }
+    }),
+    http.get(`${cfg.apiEndpoint}/users`, ({ request }) => {
+      const url = new URL(request.url);
+      const q = url.searchParams.get('uuids');
+      if (q === 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee') {
+        return new HttpResponse(
+          JSON.stringify({
+            'users': [{
+              'user_uuid': 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+              'user_email': 'one@user.in.database',
+              'username': 'one@user.in.database',
+            }],
+          }),
+        );
+      }
+    }),
+  ];
+  const server = setupServer(...handlers);
+
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('should fetch a document', async () => {
     const ac = new AccountsClient(cfg);
@@ -284,6 +279,24 @@ describe('lib/accounts test suite', () => {
   });
 
   it('should get a user by email when the email includes a plus', async () => {
+
+    server.use(
+      http.get(`${cfg.apiEndpoint}/users`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('email');
+        if (q === 'url+encoded@user.in.database') {
+          return HttpResponse.json(
+            {
+              'users': [{
+                'user_uuid': 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+                'user_email': 'url+encoded@user.in.database',
+                'username': 'url+encoded@user.in.database',
+              }],
+            },
+          );
+        }
+      }),
+    );
     // the mock only expects a URL encoded email address
     const ac = new AccountsClient(cfg);
     const user = await ac.getUserByEmail('url+encoded@user.in.database');
@@ -293,6 +306,22 @@ describe('lib/accounts test suite', () => {
   });
 
   it('should return undefined for a user which does not exist', async () => {
+
+    server.use(
+      http.get(`${cfg.apiEndpoint}/users`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('email');
+        if (q === 'no@user.in.database') {
+          return new HttpResponse(
+            `{
+              "users": []
+            }`,
+            { status:200 },
+          );
+        }
+      }),
+    );
+
     const ac = new AccountsClient(cfg);
     const user = await ac.getUserByEmail('no@user.in.database');
     expect(user).toBeUndefined();
@@ -312,6 +341,19 @@ describe('lib/accounts test suite', () => {
   });
 
   it('should respond with an empty list when listing non-existing users by guid', async () => {
+    server.use(
+      http.get(`${cfg.apiEndpoint}/users`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('uuids');
+        if (q === 'aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee') {
+          return new HttpResponse(
+            JSON.stringify({
+              users: [],
+            }),
+          );
+        }
+      }),
+    );
     const ac = new AccountsClient(cfg);
     const users = await ac.getUsers(['aaaaaaaa-404b-cccc-dddd-eeeeeeeeeeee']);
     expect(users.length).toEqual(0);
@@ -326,6 +368,27 @@ describe('lib/accounts test suite', () => {
   });
 
   it('should respond with a list of two when listing multiple users by guid', async () => {
+    server.use(
+      http.get(`${cfg.apiEndpoint}/users`, ({request}) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('uuids');
+        if (q === '11111111-bbbb-cccc-dddd-eeeeeeeeeeee,22222222-bbbb-cccc-dddd-eeeeeeeeeeee') {
+          return HttpResponse.json(
+            {
+              'users': [{
+                'user_uuid': '11111111-bbbb-cccc-dddd-eeeeeeeeeeee',
+                'user_email': 'one@user.in.database',
+                'username': 'one@user.in.database',
+              },{
+                'user_uuid': '22222222-bbbb-cccc-dddd-eeeeeeeeeeee',
+                'user_email': 'two@user.in.database',
+                'username': 'two@user.in.database',
+              }],
+            },
+          );
+        }
+      }),
+    );
     const ac = new AccountsClient(cfg);
     const users = await ac.getUsers([
       '11111111-bbbb-cccc-dddd-eeeeeeeeeeee',
@@ -345,11 +408,11 @@ describe('lib/accounts logging suite', () => {
 
   const obviousAccountsSecret = 'very-sensitive-password';
 
-  beforeEach(() => {
+  describe('error logging', () => {
     mockLogger = {
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
     };
 
     cfg = {
@@ -357,19 +420,19 @@ describe('lib/accounts logging suite', () => {
       secret: obviousAccountsSecret,
       logger: mockLogger,
     };
-  });
+    const handlers = [
+      http.get(`${cfg.apiEndpoint}/documents/json-500`, () => {
+        return new HttpResponse(
+          JSON.stringify({ error: 'internal-server-error-json' }),
+          { status: 500 },
+        );
+      }),
+    ];
+    const server = setupServer(...handlers);
 
-  afterEach(() => {
-    nock.cleanAll();
-  });
-
-  describe('error logging', () => {
-    beforeEach(() => {
-      nock(cfg.apiEndpoint)
-        .get('/documents/json-500')
-        .reply(500, JSON.stringify({ error: 'internal-server-error-json' }))
-      ;
-    });
+    beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+    beforeEach(() => server.resetHandlers());
+    afterAll(() => server.close());
 
     it('should not put anything sensitive in responseError', async () => {
       const ac = new AccountsClient(cfg);

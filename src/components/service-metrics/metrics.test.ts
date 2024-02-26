@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { bytesLabel, numberLabel, percentLabel } from './metrics';
 
 describe(bytesLabel, () => {

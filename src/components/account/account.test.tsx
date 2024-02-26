@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as uaaData from '../../lib/uaa/uaa.test.data';
@@ -10,9 +12,9 @@ import { Token } from '../auth';
 import * as account from './account';
 import OIDC from './oidc';
 
-jest.mock('./oidc');
+vi.mock('./oidc');
 
-function setUpUAA(userData: string): IContext {
+function setUpUAA(): IContext {
   const token = jwt.sign(
     {
       exp: 2535018460,
@@ -28,27 +30,39 @@ function setUpUAA(userData: string): IContext {
     token: new Token(token, ['secret']),
   });
 
-  nock.cleanAll();
-  nock(ctx.app.uaaAPI)
-    .get(`/Users/${uaaData.userId}`)
-    .reply(200, userData)
-    .post('/oauth/token?grant_type=client_credentials')
-    .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
-
   return ctx;
 }
 
 describe('account test suite', () => {
   let ctx: IContext;
 
+  const handlers = [
+    http.get('https://example.com/uaa/Users/*', () => {
+      return new HttpResponse('');
+    }),
+    http.post('https://example.com/uaa/oauth/token', ({ request }) => {
+      const url = new URL(request.url);
+      const q = url.searchParams.get('grant_type');
+      if (q === 'client_credentials') {
+        return new HttpResponse('{"access_token": "FAKE_ACCESS_TOKEN"}');
+      }
+    }),
+  ];
+  const server = setupServer(...handlers);
+
+
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  afterAll(() => server.close());
   beforeEach(() => {
     // @ts-ignore
     OIDC.mockClear();
+    server.resetHandlers();
   });
 
   describe('account.use-google-sso.view', () => {
     it('should contain an explanation of the process for opting out', async () => {
-      ctx = setUpUAA(uaaData.ssoUser);
+      ctx = setUpUAA();
+
       const response = await account.getUseGoogleSSO(ctx, {});
       expect(response.body).toContain('id="opt-out-process-explanation"');
       expect(
@@ -65,7 +79,12 @@ describe('account test suite', () => {
     });
 
     it('returns a confirmation page', async () => {
-      ctx = setUpUAA(uaaData.user);
+      ctx = setUpUAA();
+      server.use(
+        http.get(`https://example.com/uaa/Users/${uaaData.userId}`, () => {
+          return new HttpResponse(uaaData.user);
+        }),
+      );
       const response = await account.getUseGoogleSSO(ctx, {});
       expect(response.body).toContain('Activate');
       expect(
@@ -168,7 +187,7 @@ describe('account test suite', () => {
 
       it('logs any error received', async () => {
         ctx = createTestContext();
-        (ctx as any).app.logger.error = jest.fn();
+        (ctx as any).app.logger.error = vi.fn();
         const state = 'foobar';
 
         const params = {

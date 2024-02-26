@@ -2,9 +2,11 @@ import cookieSession from 'cookie-session';
 import express from 'express';
 import pinoMiddleware from 'express-pino-logger';
 import jwt from 'jsonwebtoken';
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 import pino from 'pino';
 import request from 'supertest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { handleSession, requireAuthentication } from './auth';
 
@@ -13,19 +15,16 @@ describe('auth test suite', () => {
   const tokenKey = 'secret';
   const logger = pino({ level: 'silent' });
 
-  let nockUAA: nock.Scope;
+  const handlers = [
+    http.get('https://example.com/uaa', () => {
+      return new HttpResponse('');
+    }),
+  ];
+  const server = setupServer(...handlers);
 
-  beforeEach(() => {
-    nock.cleanAll();
-
-    nockUAA = nock('https://example.com/uaa');
-  });
-
-  afterEach(() => {
-    nockUAA.done();
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   app.use(pinoMiddleware({ logger }));
 
@@ -85,14 +84,20 @@ describe('auth test suite', () => {
       });
 
       it('should authenticate successfully', async () => {
-        nockUAA.post('/oauth/token').reply(200, {
-          access_token: token,
-          expires_in: 24 * 60 * 60,
-          jti: '__jti__',
-          refresh_token: '__refresh_token__',
-          scope: 'openid oauth.approvals',
-          token_type: 'bearer',
-        });
+        server.use(
+          http.post('https://example.com/uaa/oauth/token', () => {
+            return HttpResponse.json(
+              {
+                access_token: token,
+                expires_in: 24 * 60 * 60,
+                jti: '__jti__',
+                refresh_token: '__refresh_token__',
+                scope: 'openid oauth.approvals',
+                token_type: 'bearer',
+              },
+            );
+          }),
+        );
 
         const response = await agent.get(
           '/auth/login/callback?code=__fakecode&state=__fakestate',
@@ -108,7 +113,13 @@ describe('auth test suite', () => {
       });
 
       it('can reach an endpoint behind authentication', async () => {
-        nockUAA.get('/token_keys').reply(200, { keys: [{ value: tokenKey }] });
+        server.use(
+          http.get('https://example.com/uaa/token_keys', () => {
+            return HttpResponse.json(
+              { keys: [{ value: tokenKey }] },
+            );
+          }),
+        );
 
         const response = await agent.get('/test');
 
@@ -136,14 +147,20 @@ describe('auth test suite', () => {
       const agent = request.agent(app);
 
       it('should authenticate successfully', async () => {
-        nockUAA.post('/oauth/token').reply(200, {
-          access_token: '__access_token__',
-          expires_in: 24 * 60 * 60,
-          jti: '__jti__',
-          refresh_token: '__refresh_token__',
-          scope: 'openid oauth.approvals',
-          token_type: 'bearer',
-        });
+        server.use(
+          http.post('https://example.com/uaa/oauth/token', () => {
+            return HttpResponse.json(
+              {
+                access_token: '__access_token__',
+                expires_in: 24 * 60 * 60,
+                jti: '__jti__',
+                refresh_token: '__refresh_token__',
+                scope: 'openid oauth.approvals',
+                token_type: 'bearer',
+              },
+            );
+          }),
+        );
 
         const response = await agent.get(
           '/auth/login/callback?code=__fakecode__&state=__fakestate__',
@@ -174,17 +191,20 @@ describe('auth test suite', () => {
     );
 
     it('should authenticate successfully', async () => {
-      nockUAA
-        .post('/oauth/token')
-        .times(1)
-        .reply(200, {
-          access_token: token,
-          expires_in: 24 * 60 * 60,
-          jti: '__jti__',
-          refresh_token: '__refresh_token__',
-          scope: 'openid oauth.approvals',
-          token_type: 'bearer',
-        });
+      server.use(
+        http.post('https://example.com/uaa/oauth/token', () => {
+          return HttpResponse.json(
+            {
+              access_token: token,
+              expires_in: 24 * 60 * 60,
+              jti: '__jti__',
+              refresh_token: '__refresh_token__',
+              scope: 'openid oauth.approvals',
+              token_type: 'bearer',
+            },
+          );
+        }),
+      );
 
       const response = await agent.get(
         '/auth/login/callback?code=__fakecode&state=__fakestate',
@@ -200,7 +220,15 @@ describe('auth test suite', () => {
     });
 
     it('should be redirected to login due faulty /token_keys endpoint', async () => {
-      nockUAA.get('/token_keys').reply(500);
+
+      server.use(
+        http.get('https://example.com/uaa/token_keys', () => {
+          return HttpResponse.json(
+            null,
+            { status: 500 },
+          );
+        }),
+      );
 
       const response = await agent.get('/test');
 

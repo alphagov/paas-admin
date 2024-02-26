@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { expect } from 'expect';
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import pino from 'pino';
 import puppeteer, { Page } from "puppeteer";
 
@@ -23,7 +23,7 @@ if (!ACCOUNTS_PASSWORD) { throw 'ACCOUNTS_PASSWORD environment variable not set'
 if (!ADMIN_USERNAME) { throw 'ADMIN_USERNAME environment variable not set'; }
 if (!ADMIN_PASSWORD) { throw 'ADMIN_PASSWORD environment variable not set'; }
 
-jest.setTimeout(30000)
+vi.setConfig({ testTimeout: 30000 });
 
 describe('paas-admin', () => {
 

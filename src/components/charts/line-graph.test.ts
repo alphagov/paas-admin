@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { IMetricSerie } from '../../lib/metrics';
 import { numberLabel } from '../service-metrics/metrics';
 
@@ -10,12 +12,12 @@ const defaultFormat = numberLabel;
 describe('line graphs', () => {
   it('should render an SVG', () => {
     const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, []);
-    expect(result.nodeName).toBe('svg')
+    expect(result.nodeName).toBe('svg');
   });
 
   it('should render an a title id attribute whose value matches a spaceless defaultTitle', () => {
     const result = drawLineGraph(defaultTitle, defaultUnits, defaultFormat, []);
-    const titleID = result.getElementsByTagName('title')[0].getAttribute('id')
+    const titleID = result.getElementsByTagName('title')[0].getAttribute('id');
     expect(titleID).toBe('sometitle');
   });
 

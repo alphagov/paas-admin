@@ -1,6 +1,8 @@
 import { format, startOfMonth } from 'date-fns';
 import jwt from 'jsonwebtoken';
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as billingData from '../../lib/billing/billing.test.data';
@@ -69,24 +71,17 @@ const adminCtx: IContext = createTestContext({
 });
 
 describe('statements test suite', () => {
-  let nockBilling: nock.Scope;
-  let nockCF: nock.Scope;
+  const handlers = [
+    http.get(`${config.cloudFoundryAPI}`, () => {
+      return new HttpResponse('');
+    }),
+  ];
+  const server = setupServer(...handlers);
 
-  beforeEach(() => {
-    nock.cleanAll();
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
-    nockBilling = nock(config.billingAPI);
-    nockCF = nock(config.cloudFoundryAPI);
-  });
-
-  afterEach(() => {
-    nockBilling.done();
-    nockCF.on('response', () => {
-      nockCF.done();
-    });
-
-    nock.cleanAll();
-  });
 
   it('should require a valid rangeStart param', async () => {
     await expect(
@@ -98,22 +93,34 @@ describe('statements test suite', () => {
   });
 
   it('should show the statement page', async () => {
-    nockBilling
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
-      .reply(200, '[]')
-
-      .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-      )
-      .reply(200, billingData.billableEvents);
-
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.userRolesForOrg)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()));
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+        );
+      }),
+      http.get(`${config.billingAPI}/currency_rates`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q2 = url.searchParams.get('range_stop');
+        if (q === '2018-01-01' && q2 === '2018-02-01') {
+          return new HttpResponse('[]');
+        }
+      }),
+      http.get(`${config.billingAPI}/billable_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(billingData.billableEvents);
+        }
+      }),
+    );
 
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -127,10 +134,42 @@ describe('statements test suite', () => {
   });
 
   it('should error for non-admins when the org is deleted', async () => {
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(404)
-    ;
+    server.use(
+      http.get(`${config.billingAPI}/billable_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(
+            null,
+            { status:404 },
+          );
+        }
+      }),
+      http.get(`${config.billingAPI}/currency_rates`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q2 = url.searchParams.get('range_stop');
+        if (q === '2018-01-01' && q2 === '2018-02-01') {
+          return new HttpResponse(
+            null,
+            { status:404 },
+          );
+        }
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          null,
+          { status:404 },
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          null,
+          { status:404 },
+        );
+      }),
+    );
 
     await expect(
       statement.viewStatement(ctx, {
@@ -141,19 +180,32 @@ describe('statements test suite', () => {
   });
 
   it('should show the statement page to admins for a deleted org', async () => {
-    nockBilling
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
-      .reply(200, '[]')
-
-      .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-      )
-      .reply(200, billingData.billableEvents);
-
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(404)
-    ;
+    server.use(
+      http.get(`${config.billingAPI}/currency_rates`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q2 = url.searchParams.get('range_stop');
+        if (q === '2018-01-01' && q2 === '2018-02-01') {
+          return new HttpResponse('[]');
+        }
+      }),
+      http.get(`${config.billingAPI}/billable_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(
+            billingData.billableEvents,
+          );
+        }
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          null,
+          { status: 404 },
+        );
+      }),
+    );
 
     const response = await statement.viewStatement(adminCtx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -168,22 +220,36 @@ describe('statements test suite', () => {
   });
 
   it('should prepare statement to download', async () => {
-    nockBilling
-      .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-      )
-      .reply(200, billingData.billableEvents)
-
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
-      .reply(200, '[]');
-
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.userRolesForOrg)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()));
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+      http.get(`${config.billingAPI}/billable_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(
+            billingData.billableEvents,
+          );
+        }
+      }),
+      http.get(`${config.billingAPI}/currency_rates`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q2 = url.searchParams.get('range_stop');
+        if (q === '2018-01-01' && q2 === '2018-02-01') {
+          return new HttpResponse('[]');
+        }
+      }),
+    );
 
     const response = await statement.downloadCSV(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -196,22 +262,34 @@ describe('statements test suite', () => {
   });
 
   it('should be able to use filters', async () => {
-    nockBilling
-      .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-      )
-      .reply(200, billingData.billableEvents)
-
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
-      .reply(200, billingData.currencyRates);
-
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.userRolesForOrg)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()));
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+        );
+      }),
+      http.get(`${config.billingAPI}/billable_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(billingData.billableEvents);
+        }
+      }),
+      http.get(`${config.billingAPI}/currency_rates`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(billingData.currencyRates);
+        }
+      }),
+    );
 
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -225,22 +303,34 @@ describe('statements test suite', () => {
   });
 
   it('should be reflect the selected filters in the main heading', async () => {
-    nockBilling
-      .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-      )
-      .reply(200, billingData.billableEvents)
-
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
-      .reply(200, billingData.currencyRates);
-
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.userRolesForOrg)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()));
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+      http.get(`${config.billingAPI}/billable_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(billingData.billableEvents);
+        }
+      }),
+      http.get(`${config.billingAPI}/currency_rates`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(billingData.currencyRates);
+        }
+      }),
+    );
 
     const response = await statement.viewStatement(ctx, {
       order: 'desc',
@@ -256,22 +346,36 @@ describe('statements test suite', () => {
   });
 
   it('populates filter dropdowns with all spaces / services', async () => {
-    nockBilling
-      .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-      )
-      .reply(200, billingData.billableEvents)
-
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
-      .reply(200, billingData.currencyRates);
-
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.userRolesForOrg)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()));
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+      http.get(`${config.billingAPI}/billable_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(
+            billingData.billableEvents,
+          );
+        }
+      }),
+      http.get(`${config.billingAPI}/currency_rates`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+         return new HttpResponse(billingData.currencyRates);
+        }
+      }),
+    );
 
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -292,22 +396,36 @@ describe('statements test suite', () => {
   });
 
   it('does not outputs USD rate if not known', async () => {
-    nockBilling
-      .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-      )
-      .reply(200, billingData.billableEvents)
-
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
-      .reply(200, []);
-
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.userRolesForOrg)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()));
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+      http.get(`${config.billingAPI}/billable_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(
+            billingData.billableEvents,
+          );
+        }
+      }),
+      http.get(`${config.billingAPI}/currency_rates`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse('[]');
+        }
+      }),
+    );
 
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -320,22 +438,37 @@ describe('statements test suite', () => {
   });
 
   it('outputs a single USD rate if there is only one', async () => {
-    nockBilling
-      .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-      )
-      .reply(200, billingData.billableEvents)
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+      http.get(`${config.billingAPI}/billable_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(
+            billingData.billableEvents,
+          );
+        }
+      }),
+      http.get(`${config.billingAPI}/currency_rates`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return HttpResponse.json([{ code: 'USD', rate: 0.8, valid_from: '2017-01-01' }]);
+        }
+      }),
+    );
 
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
-      .reply(200, [{ code: 'USD', rate: 0.8, valid_from: '2017-01-01' }]);
-
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.userRolesForOrg)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()));
 
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -349,25 +482,41 @@ describe('statements test suite', () => {
   });
 
   it('outputs multiple USD rates if there are multiple this month', async () => {
-    nockBilling
-      .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-      )
-      .reply(200, billingData.billableEvents)
-
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
-      .reply(200, [
-        { code: 'USD', rate: 0.8, valid_from: '2017-01-01' },
-        { code: 'USD', rate: 0.5, valid_from: '2017-01-15' },
-      ]);
-
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.userRolesForOrg)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()));
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+      http.get(`${config.billingAPI}/billable_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(
+            billingData.billableEvents,
+          );
+        }
+      }),
+      http.get(`${config.billingAPI}/currency_rates`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return HttpResponse.json(
+            [
+              { code: 'USD', rate: 0.8, valid_from: '2017-01-01' },
+              { code: 'USD', rate: 0.5, valid_from: '2017-01-15' },
+            ],
+          );
+        }
+      }),
+    );
 
     const response = await statement.viewStatement(ctx, {
       organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
@@ -516,22 +665,36 @@ describe('statements test suite', () => {
   });
 
   it('should throw an error due to selecting invalid sort column', async () => {
-    nockBilling
-      .get(
-        '/billable_events?range_start=2018-01-01&range_stop=2018-02-01&org_guid=a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-      )
-      .reply(200, billingData.billableEvents)
-
-      .get('/currency_rates?range_start=2018-01-01&range_stop=2018-02-01')
-      .reply(200, billingData.currencyRates);
-
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.userRolesForOrg)
-
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()));
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+      http.get(`${config.billingAPI}/billable_events`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(
+            billingData.billableEvents,
+          );
+        }
+      }),
+      http.get(`${config.billingAPI}/currency_rates`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('range_start');
+        const q1 = url.searchParams.get('range_stop');
+        if (q=== '2018-01-01' && q1 === '2018-02-01') {
+          return new HttpResponse(billingData.currencyRates);
+        }
+      }),
+    );
 
     await expect(
       statement.viewStatement(ctx, {
@@ -557,13 +720,19 @@ describe('statements test suite', () => {
   });
 
   it('should show error if billing API unavailable', async () => {
-    nockCF
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles')
-      .times(2)
-      .reply(200, data.userRolesForOrg)
+    server.use(
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
+        return new HttpResponse(
+          JSON.stringify(defaultOrg()),
+        );
+      }),
+      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
+        return new HttpResponse(
+          data.userRolesForOrg,
+        );
+      }),
+    );
 
-      .get('/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275')
-      .reply(200, JSON.stringify(defaultOrg()));
     await expect(
       statement.viewStatement(ctx, {
         organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
