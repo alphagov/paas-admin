@@ -40,7 +40,7 @@
     margin: 0;
     padding: 0;
 
-    &:after {
+    &::after {
       display: inline-block;
       margin-left: .5rem;
       content: "";
@@ -49,12 +49,12 @@
     // use border for trianglr shape instead of content
     // as content get's read by screenreaders
 
-    &.asc:after {
+    &.asc::after {
       @include govuk-shape-arrow($direction: up, $base: 12px, $display: inline-block);
       border-bottom-color: currentColor;
     }
 
-    &.desc:after {
+    &.desc::after {
       @include govuk-shape-arrow($direction: down, $base: 12px, $display: inline-block);
       border-top-color: currentColor;
     }
