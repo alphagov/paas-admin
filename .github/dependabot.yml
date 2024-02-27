@@ -1,11 +1,46 @@
 version: 2
 updates:
 - package-ecosystem: npm
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "03:00"
+  directory: /
   open-pull-requests-limit: 10
+  # Group packages into shared PR
+  groups:
+    aws-sdk:
+      patterns:
+        - '@aws-sdk/*'
+
+    test:
+      patterns:
+        - '@testing-library/*'
+        - 'cheerio'
+        - 'supertest'
+        - 'nock'
+        - 'puppeteer'
+
+    lint:
+      patterns:
+        - '@typescript-eslint/*'
+        - 'eslint'
+        - 'eslint-*'
+        - 'stylelint'
+        - 'stylelint-*'
+
+    types:
+      patterns:
+        - '@types/*'
+
+      # Exclude packages in other groups
+      exclude-patterns:
+        - '@types/aws-sdk'
+        - '@types/eslint'
+
+  # Schedule run every Monday, local time
+  schedule:
+    interval: weekly
+    time: '03:00'
+    timezone: 'Europe/London'
+
+  versioning-strategy: increase
 - package-ecosystem: github-actions
   directory: /
   schedule:
