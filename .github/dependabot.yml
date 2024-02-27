@@ -34,6 +34,24 @@ updates:
         - '@types/aws-sdk'
         - '@types/eslint'
 
+    webpack-plus-plugins-and-loaders:
+      patterns:
+        - 'webpack'
+        - 'mini-css-extract-plugin'
+        - 'css-minimizer-webpack-plugin'
+        - 'compression-webpack-plugin'
+        - 'webpack-node-externals'
+        - 'webpack-cli'
+        - 'nodemon-webpack-plugin'
+        - 'sass-loader'
+        - 'css-loader'
+        - 'ts-loader'
+    
+    react:
+      patterns:
+        - 'react'
+        - 'react-*'
+
   # Schedule run every Monday, local time
   schedule:
     interval: weekly
