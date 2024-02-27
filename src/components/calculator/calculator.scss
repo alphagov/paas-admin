@@ -141,7 +141,7 @@
 .paas-add-button {
   position: relative;
 
-  &:before {
+  &::before {
     position: absolute;
     left: 4px;
     content: "\002B" / "";

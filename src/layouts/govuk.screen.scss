@@ -98,7 +98,7 @@ $govuk-breakpoints: (
   @include govuk-focused-text;
 }
 
-[data-module="tooltip"]:after {
+[data-module="tooltip"]::after {
   color: govuk-colour("white");
   background-color: govuk-colour("black");
   position: absolute;
@@ -120,8 +120,8 @@ $govuk-breakpoints: (
   cursor: help;
 }
 
-[data-module="tooltip"][tooltip="active"]:after,
-[data-module="tooltip"]:hover:after {
+[data-module="tooltip"][tooltip="active"]::after,
+[data-module="tooltip"]:hover::after {
   width: auto;
   height: auto;
   overflow: visible;
