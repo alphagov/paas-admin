@@ -51,6 +51,10 @@ updates:
       patterns:
         - 'react'
         - 'react-*'
+      
+      # this is ESM only from v6. 
+      exclude-patterns:
+         - 'react-markdown'
 
   # Schedule run every Monday, local time
   schedule:
