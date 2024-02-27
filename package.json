@@ -85,7 +85,7 @@
     "nock": "^13.5.4",
     "nodemon-webpack-plugin": "^4.8.2",
     "pino-pretty": "^7.6.1",
-    "puppeteer": "^22.2.0",
+    "puppeteer": "^22.3.0",
     "sass": "^1.71.1",
     "sass-loader": "^14.1.1",
     "stylelint": "^14.16.1",
