@@ -105,7 +105,7 @@
     "@aws-sdk/client-rds": "^3.525.0",
     "@aws-sdk/client-resource-groups-tagging-api": "^3.525.0",
     "@aws-sdk/types": "^3.521.0",
-    "@babel/preset-env": "^7.23.9",
+    "@babel/preset-env": "^7.24.0",
     "@babel/preset-react": "^7.23.3",
     "axios": "^1.6.7",
     "babel-jest": "^29.7.0",
