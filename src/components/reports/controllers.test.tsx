@@ -182,13 +182,13 @@ describe('organisations report helpers', () => {
         relationships: { quota: { data: { guid: trialGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        created_at: sub(new Date(), { days: 365 }),
+        created_at: sub(new Date(), { days: 366 }),
         guid: 'cheap-org',
         name: 'cheap-org',
         relationships: { quota: { data: { guid: cheapGUID } } },
       }),
       lodash.merge(defaultOrgv3(), {
-        created_at: sub(new Date(), { days: 730 }),
+        created_at: sub(new Date(), { days: 732 }),
         guid: 'expensive-org',
         name: 'expensive-org',
         relationships: { quota: { data: { guid: expensiveGUID } } },
