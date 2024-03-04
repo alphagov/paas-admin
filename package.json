@@ -128,7 +128,7 @@
     "govuk-frontend": "^5.2.0",
     "happy-dom": "^13.6.2",
     "helmet": "^7.1.0",
-    "html-entities": "^2.4.0",
+    "html-entities": "^2.5.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "nanoid": "^3.3.6",
