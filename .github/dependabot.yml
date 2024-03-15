@@ -14,8 +14,10 @@ updates:
         - '@testing-library/*'
         - 'cheerio'
         - 'supertest'
-        - 'nock'
+        - 'vitest'
         - 'puppeteer'
+        - 'msw'
+        - 'jsdom'
 
     lint:
       patterns:
@@ -34,6 +36,7 @@ updates:
       exclude-patterns:
         - '@types/aws-sdk'
         - '@types/eslint'
+        - '@types/d3-*'
 
     webpack-plus-plugins-and-loaders:
       patterns:
@@ -52,6 +55,12 @@ updates:
       patterns:
         - 'react'
         - 'react-*'
+
+    d3:
+      patterns:
+        - 'd3'
+        - 'd3-*'
+        - '@types/d3-*'
       
       # this is ESM only from v6. 
       exclude-patterns:
