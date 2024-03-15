@@ -1,9 +1,11 @@
-import { capitalize, uniq } from 'lodash';
+import { capitalize, uniq } from 'lodash-es';
+import pLimit from 'p-limit';
 import React from 'react';
 
 import { Template } from '../../layouts';
 import { AccountsClient } from '../../lib/accounts';
 import CloudFoundryClient from '../../lib/cf';
+import NotificationClient from '../../lib/notify';
 import { IParameters, IResponse } from '../../lib/router';
 import { NotFoundError } from '../../lib/router/errors';
 import UAAClient from '../../lib/uaa';
@@ -15,8 +17,7 @@ import {
   CLOUD_CONTROLLER_READ_ONLY_ADMIN,
 } from '../auth';
 
-import { PasswordResetSuccess, PasswordResetRequest, UserPage, PasswordResetSetPasswordForm } from './views';
-import NotificationClient from '../../lib/notify';
+import { PasswordResetRequest, PasswordResetSetPasswordForm, PasswordResetSuccess, UserPage } from './views';
 
 const CONCURRENCY_LIMIT = 5;
 
@@ -73,7 +74,6 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
   const roles = await cf.userRoles(accountsUser.uuid);
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const pLimit = require('p-limit');
   const pool = pLimit(CONCURRENCY_LIMIT);
 
   const spaceGUIDs = uniq(
@@ -82,7 +82,7 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
       .map(r => r.relationships.space.data.guid)
     ,
   );
-  const spaces = await Promise.all(spaceGUIDs.map(s => pool(async () => await cf.space(s!))));
+  const spaces = await Promise.all(spaceGUIDs.map(async s => await pool(async () => await cf.space(s!))));
 
   const orgGUIDs = uniq(
     roles
@@ -91,7 +91,7 @@ export async function getUser(ctx: IContext, params: IParameters): Promise<IResp
       .concat(spaces.map(s => s.entity.organization_guid))
     ,
   );
-  const organizations = await Promise.all(orgGUIDs .map(o => pool(async () => await cf.organization(o!))));
+  const organizations = await Promise.all(orgGUIDs .map(async o => await pool(async () => await cf.organization(o!))));
 
   const uaa = new UAAClient({
     apiEndpoint: ctx.app.uaaAPI,
@@ -173,7 +173,7 @@ export async function resetPasswordObtainToken(
     };
   }
 
-  const uaaUser = await uaa.getUser(accountsUser.uuid)
+  const uaaUser = await uaa.getUser(accountsUser.uuid);
   if (!uaaUser) {
     // 400ms delay to stop people iterating through users
     await new Promise(finish => setTimeout(finish, 400));
@@ -235,40 +235,40 @@ export async function resetPasswordProvideNew(ctx: IContext, params: IParameters
   });
 }
 
-export function checkPasswordAgainstPolicy(pw: string): { valid: boolean; message?: string } {
+export function checkPasswordAgainstPolicy(pw: string): { readonly valid: boolean; readonly message?: string } {
   if (pw.length < 12) {
     return {
       valid: false,
       message: 'Your password should be 12 characters or more',
-    }
+    };
   }
 
   if (!pw.match(/[a-z]/)) {
     return {
       valid: false,
       message: 'Your password should contain a lowercase character',
-    }
+    };
   }
 
   if (!pw.match(/[A-Z]/)) {
     return {
       valid: false,
       message: 'Your password should contain an uppercase character',
-    }
+    };
   }
 
   if (!pw.match(/[0-9]/)) {
     return {
       valid: false,
       message: 'Your password should contain a number',
-    }
+    };
   }
 
   if (!pw.match(/[-_+:;<>[\]()#@£%^&!$/]/)) {
     return {
       valid: false,
       message: 'Your password should contain a special character',
-    }
+    };
   }
 
   return { valid: true };
@@ -318,7 +318,8 @@ export async function resetPassword(ctx: IContext, _params: IParameters, body: I
   });
   try {
     await uaa.resetPassword(body.code, body.password);
-    return {
+
+return {
       body: template.render(<PasswordResetSuccess
         title="Password successfully reset"
         message="You may now log in with the use of your email and password."
@@ -334,6 +335,6 @@ export async function resetPassword(ctx: IContext, _params: IParameters, body: I
         passwordDoesNotMeetPolicyMessage={error.data.message}
       />),
       status: error.response.status,
-    }
+    };
   }
 }

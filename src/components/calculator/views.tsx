@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { groupBy, mapValues, values } from 'lodash';
+import { groupBy, mapValues, values } from 'lodash-es';
 import React, { Fragment, ReactElement } from 'react';
 
 import { KIBIBYTE } from '../../layouts/constants';

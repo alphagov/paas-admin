@@ -1,5 +1,5 @@
 import { add, Duration, format, formatDistance } from 'date-fns';
-import { forIn } from 'lodash';
+import { forIn } from 'lodash-es';
 import React, { ReactElement, ReactNode } from 'react';
 
 import { bytesToHuman, DATE_TIME } from '../../layouts';

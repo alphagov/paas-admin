@@ -1,5 +1,5 @@
 import { add, format } from 'date-fns';
-import lodash, { Dictionary, flatMap, groupBy, sum, sumBy, uniq } from 'lodash';
+import lodash, { Dictionary, flatMap, groupBy, sum, sumBy, uniq } from 'lodash-es';
 import React from 'react';
 
 import { Template } from '../../layouts';

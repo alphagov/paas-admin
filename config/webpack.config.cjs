@@ -5,7 +5,7 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const webpack = require('webpack');
 const nodeModules = require('webpack-node-externals');
 
-const enableServer = require('./server.config');
+const enableServer = require('./server.config.cjs');
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const assetName = ext => `assets/[contenthash:base32].[name]${ext || '[ext]'}`;
@@ -13,6 +13,9 @@ const assetName = ext => `assets/[contenthash:base32].[name]${ext || '[ext]'}`;
 let cfg = {
 
   target: 'node',
+  experiments: {
+    outputModule: true,
+  },
 
   mode: NODE_ENV,
 
@@ -24,6 +27,8 @@ let cfg = {
 
   output: {
     publicPath: '/',
+    module: true,
+    chunkFormat: 'module',
   },
 
   devtool: 'source-map',
@@ -31,12 +36,10 @@ let cfg = {
   externalsPresets: { node: true },
   externals: ['chokidar'],
 
+  // Express uses a dynamic require in view.js but we don't care
+  ignoreWarnings: [/node_modules\/express\/lib\/view\.js/],
   stats: {
     modules: false,
-    warningsFilter: [
-      // Express uses a dynamic require in view.js but we don't care
-      /node_modules\/express\/lib\/view\.js/,
-    ],
   },
 
   optimization: {
@@ -142,6 +145,6 @@ if (NODE_ENV === 'production') {
   }));
 }
 
-cfg.externals.push(nodeModules({ allowlist: ['govuk-frontend'] }));
+cfg.externals.push(nodeModules({ importType: 'module', allowlist: ['govuk-frontend'] }));
 
 module.exports = cfg;

@@ -1,4 +1,4 @@
-import lodash from 'lodash';
+import lodash from 'lodash-es';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import pino from 'pino';

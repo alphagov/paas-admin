@@ -1,6 +1,6 @@
 import cheerio from 'cheerio';
 import jwt from 'jsonwebtoken';
-import lodash from 'lodash';
+import lodash from 'lodash-es';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';

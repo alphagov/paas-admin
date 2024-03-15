@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 interface ITermsPageProperties {
@@ -7,55 +7,21 @@ interface ITermsPageProperties {
   readonly content: string;
 }
 
-export function List(props: {
-  readonly children: ReactNode;
-  readonly ordered: boolean;
-}): ReactElement {
-  return props.ordered ? (
-    <ol className="govuk-list govuk-list--number">{props.children}</ol>
-  ) : (
-    <ul className="govuk-list govuk-list--bullet">{props.children}</ul>
-  );
-}
-
-export function Heading(props: {
-  readonly level: number;
-  readonly children: ReactNode;
-}): ReactElement {
-  switch (props.level) {
-    case 1:
-      return <h1 className="govuk-heading-xl">{props.children}</h1>;
-    case 2:
-      return <h2 className="govuk-heading-l">{props.children}</h2>;
-    case 3:
-      return <h3 className="govuk-heading-m">{props.children}</h3>;
-    case 4:
-      return <h4 className="govuk-heading-s">{props.children}</h4>;
-    case 5:
-      return <h5>{props.children}</h5>;
-    case 6:
-      return <h6>{props.children}</h6>;
-  }
-
-  return <></>;
-}
-
 export function TermsPage(props: ITermsPageProperties): ReactElement {
   return (
     <form method="post" action="/agreements">
       <input type="hidden" name="_csrf" value={props.csrf} />
-
       <ReactMarkdown
         className="md"
         components={{
-          h1: Heading,
-          h2: Heading,
-          h3: Heading,
-          h4: Heading,
-          h5: Heading,
-          h6: Heading,
-          ul: List,
-          ol: List,
+          h1: ({ children }) => <h1 className="govuk-heading-xl">{children}</h1>,
+          h2: ({ children }) => <h2 className="govuk-heading-l">{children}</h2>,
+          h3: ({ children }) => <h3 className="govuk-heading-m">{children}</h3>,
+          h4: ({ children }) => <h4 className="govuk-heading-s">{children}</h4>,
+          h5: ({ children }) => <h5>{children}</h5>,
+          h6: ({ children }) => <h6>{children}</h6>,
+          ul: ({ node, children }) => { if (node?.tagName === 'ul') return <ul className="govuk-list govuk-list--bullet">{children}</ul>},
+          ol: ({ node, children }) => { if (node?.tagName === 'ol') return <ol className="govuk-list govuk-list--number">{children}</ol>},
         }}
       >
         {props.content}

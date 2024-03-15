@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { merge } from 'lodash';
+import { merge } from 'lodash-es';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';

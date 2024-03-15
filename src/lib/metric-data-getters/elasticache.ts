@@ -1,9 +1,9 @@
 
 import * as cw from '@aws-sdk/client-cloudwatch';
-import base32Encode from 'base32-encode'; // eslint-disable-line import/default
+import base32Encode from 'base32-encode';
 import { Duration, milliseconds, millisecondsToSeconds } from 'date-fns';
 import fnv from 'fnv-plus';
-import _ from 'lodash';
+import _ from 'lodash-es';
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
 

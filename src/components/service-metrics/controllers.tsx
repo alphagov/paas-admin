@@ -2,7 +2,7 @@
 import * as cw from '@aws-sdk/client-cloudwatch';
 import * as rg from '@aws-sdk/client-resource-groups-tagging-api';
 import { Duration, format, formatISO, isBefore, isValid, sub } from 'date-fns';
-import { mapValues, values } from 'lodash';
+import { mapValues, values } from 'lodash-es';
 import React from 'react';
 
 import { bytesConvert, DATE_TIME, Template } from '../../layouts';

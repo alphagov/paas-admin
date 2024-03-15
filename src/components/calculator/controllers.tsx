@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 
 import { endOfMonth, format, startOfMonth } from 'date-fns';
-import { isMatch, sum } from 'lodash';
+import { isMatch, sum } from 'lodash-es';
 import React from 'react';
 
 import { Template } from '../../layouts';
@@ -10,7 +10,7 @@ import { IBillableEvent, IPricingPlan, IRate } from '../../lib/billing/types';
 import { IParameters, IResponse } from '../../lib/router';
 import { IContext } from '../app/context';
 
-import * as formulaGrammar from './pegjsGrammerParser';
+import * as formulaGrammar from './pegjsGrammerParser.cjs';
 import {
   CalculatorPage,
   ICalculatorState,

@@ -1,7 +1,7 @@
 import { parse } from 'csv-parse/sync'; // eslint-disable-line import/no-unresolved
 import { format, startOfMonth, sub } from 'date-fns';
 import jwt from 'jsonwebtoken';
-import lodash from 'lodash';
+import lodash from 'lodash-es';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';

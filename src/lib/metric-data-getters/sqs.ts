@@ -1,6 +1,6 @@
 import * as cw from '@aws-sdk/client-cloudwatch';
 import { Duration, milliseconds, millisecondsToSeconds } from 'date-fns';
-import _ from 'lodash';
+import _ from 'lodash-es';
 
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';

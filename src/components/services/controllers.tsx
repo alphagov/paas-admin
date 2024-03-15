@@ -1,4 +1,4 @@
-import lodash from 'lodash';
+import lodash from 'lodash-es';
 import { RDSClient, DescribeDBLogFilesCommand, DownloadDBLogFilePortionCommand } from "@aws-sdk/client-rds";
 import React from 'react';
 

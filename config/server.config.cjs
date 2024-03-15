@@ -9,7 +9,7 @@ module.exports = cfg => {
       watch: path.resolve('./dist'),
       ignore: ['*.map'],
       verbose: true,
-      script: './dist/main.js',
+      script: './dist/main.mjs',
     }));
   }
 

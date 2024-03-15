@@ -5,7 +5,7 @@ import { select } from 'd3-selection';
 import { line } from 'd3-shape';
 import { format } from 'date-fns';
 import { Window } from 'happy-dom';
-import { flatMap } from 'lodash';
+import { flatMap } from 'lodash-es';
 
 import { IMetric, IMetricSerie, IMetricSerieSummary } from '../../lib/metrics';
 

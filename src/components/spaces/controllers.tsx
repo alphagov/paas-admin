@@ -1,5 +1,5 @@
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
-import lodash from 'lodash';
+import lodash from 'lodash-es';
 import React from 'react';
 
 import { checkIfValidUuid , Template } from '../../layouts';
