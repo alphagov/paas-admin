@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
-import nock from 'nock';
-
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { AccountsClient } from '../../lib/accounts';
 import { createTestContext } from '../app/app.test-helpers';
@@ -25,19 +26,18 @@ const ctx: IContext = createTestContext({
 });
 
 describe('_getUserRolesByGuid', () => {
-  let nockAccounts: nock.Scope;
 
-  beforeEach(() => {
-    nock.cleanAll();
+  const handlers = [
+    http.get(`${ctx.app.accountsAPI}/*`, () => {
+      return new HttpResponse();
+    }),
+  ];
 
-    nockAccounts = nock(ctx.app.accountsAPI);
-  });
+  const server = setupServer(...handlers);
 
-  afterEach(() => {
-    nockAccounts.done();
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('should return an empty map if there are no users', async () => {
     const userOrgRoles: any = [];
@@ -58,14 +58,19 @@ describe('_getUserRolesByGuid', () => {
   });
 
   it('should return org roles of a user that has no space access', async () => {
-    nockAccounts.get('/users/some-user-guid').reply(
-      200,
-      JSON.stringify({
-        user_uuid: 'some-user-guid',
-        user_email: 'some-user-guid@fake.digital.cabinet-office.gov.uk',
-        username: 'some-user-name',
-      }),
+
+    server.use(
+        http.get(`${ctx.app.accountsAPI}/users/some-user-guid`, () => {
+          return new HttpResponse(
+            JSON.stringify({
+              user_uuid: 'some-user-guid',
+              user_email: 'some-user-guid@fake.digital.cabinet-office.gov.uk',
+              username: 'some-user-name',
+            }),
+          );
+        }),
     );
+
     const userOrgRoles: any = [
       {
         metadata: { guid: 'some-user-guid' },
@@ -98,14 +103,19 @@ describe('_getUserRolesByGuid', () => {
   });
 
   it('should return roles and space of a user that has access to one space', async () => {
-    nockAccounts.get('/users/some-user-guid').reply(
-      200,
-      JSON.stringify({
-        user_uuid: 'some-user-guid',
-        user_email: 'some-user-guid@fake.digital.cabinet-office.gov.uk',
-        username: 'some-user-name',
+
+    server.use(
+      http.get(`${ctx.app.accountsAPI}/users/some-user-guid`, () => {
+        return new HttpResponse(
+          JSON.stringify({
+            user_uuid: 'some-user-guid',
+            user_email: 'some-user-guid@fake.digital.cabinet-office.gov.uk',
+            username: 'some-user-name',
+          }),
+        );
       }),
     );
+
     const userOrgRoles: any = [
       {
         metadata: { guid: 'some-user-guid' },
@@ -147,14 +157,19 @@ describe('_getUserRolesByGuid', () => {
   });
 
   it('should return roles and spaces of a user that has access to multiple spaces', async () => {
-    nockAccounts.get('/users/some-user-guid').reply(
-      200,
-      JSON.stringify({
-        user_uuid: 'some-user-guid',
-        user_email: 'some-user-guid@fake.digital.cabinet-office.gov.uk',
-        username: 'some-user-name',
+
+    server.use(
+      http.get(`${ctx.app.accountsAPI}/users/some-user-guid`, () => {
+        return new HttpResponse(
+          JSON.stringify({
+            user_uuid: 'some-user-guid',
+            user_email: 'some-user-guid@fake.digital.cabinet-office.gov.uk',
+            username: 'some-user-name',
+          }),
+        );
       }),
     );
+
     const userOrgRoles: any = [
       {
         metadata: { guid: 'some-user-guid' },
@@ -196,22 +211,31 @@ describe('_getUserRolesByGuid', () => {
   });
 
   it('should return users, roles and spaces of multiple users', async () => {
-    nockAccounts
-      .get('/users/some-user-guid-0')
-      .reply(
-        200,
-        JSON.stringify({
-          user_uuid: 'some-user-guid-0',
-          user_email: 'some-user-guid-0@fake.digital.cabinet-office.gov.uk',
-          username: 'some-fake-username-from-paas-accounts',
-        }),
-      )
 
-      .get('/users/some-user-guid-1')
-      .reply(404)
+    server.use(
+      http.get(`${ctx.app.accountsAPI}/users/some-user-guid-0`, () => {
+        return new HttpResponse(
+          JSON.stringify({
+            user_uuid: 'some-user-guid-0',
+            user_email: 'some-user-guid-0@fake.digital.cabinet-office.gov.uk',
+            username: 'some-fake-username-from-paas-accounts',
+          }),
+        );
+      }),
+      http.get(`${ctx.app.accountsAPI}/users/some-user-guid-1`, () => {
+        return new HttpResponse(
+          '',
+          { status: 404 },
+        );
+      }),
+      http.get(`${ctx.app.accountsAPI}/users/some-user-guid-2`, () => {
+        return new HttpResponse(
+          '',
+          { status: 404 },
+        );
+      }),
+    );
 
-      .get('/users/some-user-guid-2')
-      .reply(404);
     const userOrgRoles: any = [0, 1, 2].map(i => ({
       metadata: { guid: `some-user-guid-${i}` },
       entity: {
@@ -264,19 +288,25 @@ describe('_getUserRolesByGuid', () => {
   });
 
   it('should get the user\'s username from accounts, falling back to UAA', async () => {
-    nockAccounts
-      .get('/users/some-user-guid-0')
-      .reply(
-        200,
-        JSON.stringify({
-          user_uuid: 'some-user-guid-0',
-          user_email: 'some-user-guid-0@fake.digital.cabinet-office.gov.uk',
-          username: 'some-fake-username-from-paas-accounts',
-        }),
-      )
 
-      .get('/users/some-user-guid-1')
-      .reply(404);
+    server.use(
+      http.get(`${ctx.app.accountsAPI}/users/some-user-guid-0`, () => {
+        return new HttpResponse(
+          JSON.stringify({
+            user_uuid: 'some-user-guid-0',
+            user_email: 'some-user-guid-0@fake.digital.cabinet-office.gov.uk',
+            username: 'some-fake-username-from-paas-accounts',
+          }),
+        );
+      }),
+      http.get(`${ctx.app.accountsAPI}/users/some-user-guid-1`, () => {
+        return new HttpResponse(
+          '',
+          { status: 404 },
+        );
+      }),
+    );
+
     const userOrgRoles: any = [0, 1].map(i => ({
       metadata: { guid: `some-user-guid-${i}` },
       entity: {

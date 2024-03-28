@@ -7,7 +7,7 @@ import {
 
 } from 'govuk-frontend'
 
-import Tooltip from './tooltip';
+import Tooltip from './tooltip.js';
 
 // there is ever only one header per page
 var $header = document.querySelector('[data-module="govuk-header"]')

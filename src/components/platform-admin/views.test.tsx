@@ -1,8 +1,9 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+
+
 import { render } from '@testing-library/react';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import { IParameters } from '../../lib/router';
 
@@ -17,14 +18,14 @@ function linker(route: string, params?: IParameters): string {
 
 describe(CreateOrganizationPage, () => {
   it('should have csrf token', () => {
-    const {container } = render (<CreateOrganizationPage csrf="CSRF_TOKEN" linkTo={linker} owners={[]} />);
+    const { container } = render (<CreateOrganizationPage csrf="CSRF_TOKEN" linkTo={linker} owners={[]} />);
 
     expect(container.querySelector('[name=_csrf]')).toBeTruthy();
     expect(container.querySelector('[name=_csrf]')).toHaveValue('CSRF_TOKEN');
   });
 
   it('should correctly printout errors', () => {
-    const {container } = render (<CreateOrganizationPage
+    const { container } = render (<CreateOrganizationPage
       csrf="CSRF_TOKEN"
       linkTo={linker}
       errors={[ { field: 'organization', message: 'required field' } ]}

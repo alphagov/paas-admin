@@ -1,9 +1,10 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+
+
 import { render } from '@testing-library/react';
 import { format } from 'date-fns';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';

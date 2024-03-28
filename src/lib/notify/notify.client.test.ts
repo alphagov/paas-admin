@@ -1,27 +1,26 @@
-import nock from 'nock';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import NotificationClient from '.';
 
 describe('lib/notify test suite', () => {
-  let nockNotify: nock.Scope;
 
-  beforeEach(() => {
-    nock.cleanAll();
+  const handlers = [
+    http.post('https://api.notifications.service.gov.uk/v2/notifications/email', () => {
+      return HttpResponse.json(
+        { content: { body: 'FAKE_NOTIFY_RESPONSE' } },
+        { status: 200 },
+      );
+    }),
+  ];
+  const server = setupServer(...handlers);
 
-    nockNotify = nock(/api.notifications.service.gov.uk/);
-  });
-
-  afterEach(() => {
-    nockNotify.done();
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('notify middleware should include NotifyClient on req', async () => {
-    nockNotify
-      .post('/v2/notifications/email')
-      .times(2)
-      .reply(200, { content: { body: 'FAKE_NOTIFY_RESPONSE' } });
 
     const notify = new NotificationClient({
       apiKey: 'test-key-1234',

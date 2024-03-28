@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
-import lodash from 'lodash';
-import nock from 'nock';
+import lodash from 'lodash-es';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import * as cfData from '../../lib/cf/cf.test.data';
@@ -90,39 +92,46 @@ const createTestUserContext = (isAdmin = false, userId = 'uaa-id-253', linker?: 
 const nonAdminUserContext:IContext = createTestUserContext();
 const adminUserContext:IContext = createTestUserContext(true);
 
-let nockCF: nock.Scope;
-let nockZD: nock.Scope;
-let nockAccounts: nock.Scope;
-let nockUAA: nock.Scope;
+const handlers = [
+  http.get('https://example.com/api', () => {
+    return new HttpResponse('');
+  }),
+  http.get('https://example.com/zendesk', () => {
+    return new HttpResponse('');
+  }),
+  http.get('https://example.com/accounts', () => {
+    return new HttpResponse('');
+  }),
+  http.get('https://example.com/uaa', () => {
+    return new HttpResponse('');
+  }),
+];
+const server = setupServer(...handlers);
 
-nockCF = nock('https://example.com/api');
-nockZD = nock('https://example.com/zendesk');
-nockAccounts = nock('https://example.com/accounts');
-nockUAA = nock('https://example.com/uaa');
-
+beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+beforeEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe('organizations test suite', () => {
 
   beforeEach(() => {
-    nock.cleanAll();
-
-    nockCF
-      .get('/v2/organizations')
-      .reply(200, organizations)
-
-      .get(`/v2/quota_definitions/${billableOrgQuotaGUID}`)
-      .reply(200, JSON.stringify(billableOrgQuota()))
-
-      .get(`/v2/quota_definitions/${trialOrgQuotaGUID}`)
-      .reply(200, JSON.stringify(trialOrgQuota()));
-  });
-
-  afterEach(() => {
-    nockCF.on('response', () => {
-      nockCF.done();
-    });
-
-    nock.cleanAll();
+    server.use(
+      http.get('https://example.com/api/v2/organizations', () => {
+        return new HttpResponse(
+          organizations,
+        );
+      }),
+      http.get(`https://example.com/api/v2/quota_definitions/${billableOrgQuotaGUID}`, () => {
+        return new HttpResponse(
+          JSON.stringify(billableOrgQuota()),
+        );
+      }),
+      http.get(`https://example.com/api/v2/quota_definitions/${trialOrgQuotaGUID}`, () => {
+        return new HttpResponse(
+          JSON.stringify(trialOrgQuota()),
+        );
+      }),
+    );
   });
 
   it('should show the organisation pages', async () => {
@@ -156,7 +165,7 @@ describe('organizations test suite', () => {
   });
 
   it('should show the filtered list of organisations', async () => {
-    const response = await listOrganizations(adminUserContext, {view:'realOrgsOnly'});
+    const response = await listOrganizations(adminUserContext, { view:'realOrgsOnly' });
     const matches = extractOrganizations(response.body as string);
     expect(matches.length).toBe(5);
   });
@@ -197,30 +206,28 @@ describe(editOrgData, () => {
 
     beforeEach(() => {
 
-      nockCF
-        .get(`/v3/organizations/${organization.guid}`)
-        .reply(200, organization)
-
-        .get('/v3/organization_quotas')
-        .reply(200, {
-          pagination: {
-            total_pages: 1,
-            total_results: 3,
-          },
-          resources: [
-            quota,
-            { ...quota, guid: '__QUOTA_3_GUID__', name: 'CATS-qwertyuiop' },
-            { ...quota, guid: '__QUOTA_2_GUID__', name: 'quota-2' },
-          ],
-        });
-    });
-
-    afterEach(() => {
-      nockCF.on('response', () => {
-      nockCF.done();
-    });
-
-      nock.cleanAll();
+      server.use(
+        http.get(`https://example.com/api/v3/organizations/${organization.guid}`, () => {
+          return new HttpResponse(
+            JSON.stringify(organization),
+          );
+        }),
+        http.get('https://example.com/api/v3/organization_quotas', () => {
+          return HttpResponse.json(
+            {
+              pagination: {
+                total_pages: 1,
+                total_results: 3,
+              },
+              resources: [
+                quota,
+                { ...quota, guid: '__QUOTA_3_GUID__', name: 'CATS-qwertyuiop' },
+                { ...quota, guid: '__QUOTA_2_GUID__', name: 'quota-2' },
+              ],
+            },
+          );
+        }),
+      );
     });
 
     it('should correctly parse data into a form', async () => {
@@ -274,24 +281,26 @@ describe(updateOrgData, () => {
   describe('when platform admin', () => {
 
     beforeEach(() => {
-      nockCF
-        .get(`/v3/organizations/${organization.guid}`)
-        .reply(200, organization)
-
-        .patch(`/v3/organizations/${organization.guid}`)
-        .reply(200, organization)
-
-        .post(`/v3/organization_quotas/${quotaGUID}/relationships/organizations`)
-        .reply(201, { data: [{ guid: organization.guid }] });
+      server.use(
+        http.get(`https://example.com/api/v3/organizations/${organization.guid}`, () => {
+          return HttpResponse.json(
+            organization,
+          );
+        }),
+        http.patch(`https://example.com/api/v3/organizations/${organization.guid}`, () => {
+          return HttpResponse.json(
+            organization,
+          );
+        }),
+        http.post(`https://example.com/api/v3/organization_quotas/${quotaGUID}/relationships/organizations`, () => {
+          return HttpResponse.json(
+            { data: [{ guid: organization.guid }] },
+            { status: 201 },
+          );
+        }),
+      );
     });
 
-    afterEach(() => {
-      nockCF.on('response', () => {
-      nockCF.done();
-    });
-
-      nock.cleanAll();
-    });
 
     it('should parse the success message correctly', async () => {
       const response = await updateOrgData(adminUserContext, params, body);
@@ -348,25 +357,23 @@ describe(emailManagersForm, () => {
     const organizationGUID = 'a7aff246-5f5b-4cf8-87d8-f316053e4a20';
 
     beforeEach(() => {
-      nockCF
-        .get(`/v2/organizations/${organizationGUID}/user_roles`)
-        .times(2)
-        .reply(200, cfData.userRolesForOrg)
-
-        .get(`/v2/organizations/${organizationGUID}`)
-        .reply(200, defaultOrg())
-
-        .get(`/v2/organizations/${organizationGUID}/spaces`)
-        .times(2)
-        .reply(200, cfData.spaces)
-      });
-
-    afterEach(() => {
-      nockCF.on('response', () => {
-        nockCF.done();
-      });
-
-      nock.cleanAll();
+      server.use(
+        http.get(`https://example.com/api/v2/organizations/${organizationGUID}/user_roles`, () => {
+          return new HttpResponse(
+            cfData.userRolesForOrg,
+          );
+        }),
+        http.get(`https://example.com/api/v2/organizations/${organizationGUID}`, () => {
+          return HttpResponse.json(
+            defaultOrg(),
+          );
+        }),
+        http.get(`https://example.com/api/v2/organizations/${organizationGUID}/spaces`, () => {
+          return new HttpResponse(
+            cfData.spaces,
+          );
+        }),
+      );
     });
 
     it('should render the page correctly', async () => {
@@ -401,7 +408,7 @@ describe(emailManagersFormPost, () => {
       user_email: 'tester@test.com',
       username: 'tester@test.com',
       user_uuid: 'uaa-id-253',
-    }
+    };
     const platformAdmin = {
       id: 'platform-admin',
       userName: 'platform-admin@fake.cabinet-office.gov.uk',
@@ -410,49 +417,59 @@ describe(emailManagersFormPost, () => {
         value: 'platform-admin@fake.cabinet-office.gov.uk',
         primary: false,
       }],
-    }
+    };
 
     beforeEach(() => {
       // special user context to have matching data from test data set
       ctx = createTestUserContext(true, 'platform-admin');
-      nockCF
-        .get(`/v2/organizations/${organizationGUID}/user_roles`)
-        .times(2)
-        .reply(200, cfData.userRolesForOrg)
-
-        .get(`/v2/organizations/${organizationGUID}`)
-        .reply(200, defaultOrg())
-
-        .get(`/v2/organizations/${organizationGUID}/spaces`)
-        .times(2)
-        .reply(200, cfData.spaces)
-      
-    });
-
-    afterEach(() => {
-      nockAccounts.done();
-      nockUAA.done();
-      nockCF.on('response', () => {
-        nockCF.done();
-      });
-  
-      nock.cleanAll();
+      server.use(
+        http.get(`https://example.com/api/v2/organizations/${organizationGUID}/user_roles`, () => {
+          return new HttpResponse(
+            cfData.userRolesForOrg,
+          );
+        }),
+        http.get(`https://example.com/api/v2/organizations/${organizationGUID}`, () => {
+          return HttpResponse.json(
+            defaultOrg(),
+          );
+        }),
+        http.get(`https://example.com/api/v2/organizations/${organizationGUID}/spaces`, () => {
+          return new HttpResponse(
+            cfData.spaces,
+          );
+        }),
+        http.get(`${ctx.app.accountsAPI}/users/*`, () => {
+          return HttpResponse.json(
+            '',
+            {status: 200},
+          );
+        }),
+      );
     });
 
     it('should create a zendesk ticket correctly', async () => {
-      nockZD
-        .post('/tickets.json')
-        .reply(201, {});
-
-      nockAccounts
-        .get('/users/uaa-id-253')
-        .reply(200, mockAccountsUser)
-
-      nockUAA
-        .get('/Users/platform-admin')
-        .reply(200, platformAdmin)
-        .post('/oauth/token?grant_type=client_credentials')
-        .reply(200, '{"access_token": "FAKE_ACCESS_TOKEN"}');
+      server.use (
+        http.post('https://example.com/zendesk/tickets.json', () => {
+          return HttpResponse.json({},{ status: 201 });
+        }),
+        http.get('https://example.com/accounts/users/uaa-id-253', () => {
+          return new HttpResponse(
+            JSON.stringify(mockAccountsUser),
+          );
+        }),
+        http.get('https://example.com/uaa/Users/platform-admin', () => {
+          return new HttpResponse(
+            JSON.stringify(platformAdmin),
+          );
+        }),
+        http.post('https://example.com/uaa/oauth/token', ({ request }) => {
+          const url = new URL(request.url);
+          const q = url.searchParams.get('grant_type');
+          if (q === 'client_credentials') {
+            return new HttpResponse('{"access_token": "FAKE_ACCESS_TOKEN"}');
+          }
+        }),
+      );
 
       const response = await emailManagersFormPost(ctx, { organizationGUID: organizationGUID }, {
         managerType: 'org_manager',
@@ -500,10 +517,11 @@ describe(emailManagersFormPost, () => {
     });
 
     it('should throw an error selected space has no managers', async () => {
-
-      nockCF
-      .get(`/v2/spaces/${spaceGUID}/user_roles`)
-      .reply(200, cfData.userRolesForSpace)
+      server.use (
+        http.get(`https://example.com/api/v2/spaces/${spaceGUID}/user_roles`, () => {
+          return new HttpResponse(cfData.userRolesForSpace);
+        }),
+      );
 
       const response = await emailManagersFormPost(ctx, { organizationGUID: organizationGUID }, {
         managerType: 'space_manager',
@@ -628,12 +646,12 @@ GOV.UK PaaS`;
 
     it('should output default text if user subject not provided', () => {
       const output = constructSubject('');
-      expect(output).toBe("[PaaS Support] About your organisation on GOV.UK PaaS");
+      expect(output).toBe('[PaaS Support] About your organisation on GOV.UK PaaS');
     });
 
     it('should output user provided subject text', () => {
       const output = constructSubject('Custom subject');
-      expect(output).toBe("[PaaS Support] Custom subject");
+      expect(output).toBe('[PaaS Support] Custom subject');
     });
 
   });

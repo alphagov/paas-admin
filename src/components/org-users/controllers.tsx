@@ -6,7 +6,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { isUndefined } from 'util';
 
-import lodash, { CollectionChain, mapValues, merge, values } from 'lodash';
+import lodash, { CollectionChain, mapValues, merge, values } from 'lodash-es';
 import { BaseLogger } from 'pino';
 import React from 'react';
 

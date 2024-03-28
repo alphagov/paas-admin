@@ -1,9 +1,10 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import { IV3Service, IV3ServicePlan } from '../../lib/cf/types';
 import { IParameters } from '../../lib/router';
@@ -208,7 +209,7 @@ describe(PlanTab, () => {
 describe(Tab, () => {
   it('should perse a tab correctly', () => {
     render(<Tab active={false} href="https://example.com/">TabName</Tab>);
-    expect(screen.queryByText('TabName')).toBeTruthy()
+    expect(screen.queryByText('TabName')).toBeTruthy();
     expect(screen.queryByRole('listitem')).toHaveClass('govuk-tabs__list-item');
     expect(screen.queryByRole('listitem')).not.toHaveClass('govuk-tabs__list-item--selected');
     expect(screen.queryByRole('listitem')).not.toBeEmptyDOMElement();
@@ -217,7 +218,7 @@ describe(Tab, () => {
 
   it('should perse an active tab correctly', () => {
     render(<Tab active={true} href="https://example.com/">TabName</Tab>);
-    expect(screen.queryByText('TabName')).toBeTruthy()
+    expect(screen.queryByText('TabName')).toBeTruthy();
     expect(screen.queryByRole('listitem')).toHaveClass('govuk-tabs__list-item');
     expect(screen.queryByRole('listitem')).toHaveClass('govuk-tabs__list-item--selected');
     expect(screen.queryByRole('link')).toHaveAttribute('href', expect.stringContaining('https://example.com/'));

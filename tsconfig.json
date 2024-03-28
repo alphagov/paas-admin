@@ -1,29 +1,31 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "outDir": "dist",
-    "module": "commonjs",
-    "target": "es6",
-    "jsx" :  "react",
     "lib": [
-      "es2015",
-      "es2016.array.include",
-      "es2017"
+      "ES2022"
     ],
+    "module": "ES2022",
+    "target": "ES2022",
+    "strict": true,
+    "esModuleInterop": true,
     "sourceMap": true,
     "inlineSources": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "moduleResolution": "Node",
     "noImplicitAny": true,
     "isolatedModules": false,
     "pretty": true,
     "allowJs": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "outDir": "dist",
+    "jsx" :  "react",
   },
   "exclude": [
     "node_modules",
     "dist"
   ],
-  "types": []
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node",
+  },
 }

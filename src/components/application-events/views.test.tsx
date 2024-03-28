@@ -1,8 +1,8 @@
-/**
- * @jest-environment jsdom
- */
- import { render, screen } from '@testing-library/react';
+// @vitest-environment jsdom
+
+import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import { IApplication, IAuditEvent } from '../../lib/cf/types';
 
@@ -56,8 +56,8 @@ describe(ApplicationEventsPage, () => {
         pagination={{ total_results: 5, total_pages: 1, page: 1 }}
       />,
     );
-    const eventsTable = screen.getByRole('table')
-    expect(eventsTable.querySelectorAll('tbody tr')).toHaveLength(3)
+    const eventsTable = screen.getByRole('table');
+    expect(eventsTable.querySelectorAll('tbody tr')).toHaveLength(3);
     expect(eventsTable).toHaveTextContent(actorEmails.ACCOUNTS_USER_GUID_1);
     expect(eventsTable).not.toHaveTextContent(event.actor.name);
     expect(eventsTable).not.toHaveTextContent(event.actor.guid);

@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from "vitest";
 import { ChildProcess, spawn } from 'child_process';
 
 import request from 'supertest';
@@ -30,12 +31,11 @@ export interface IProcess extends ChildProcess {
   logs?: Array<string>;
   port?: number;
 }
-
-jest.setTimeout(parseInt(envVars.TEST_TIMEOUT, 10) || 30000);
+vi.setConfig({ testTimeout: parseInt(envVars.TEST_TIMEOUT, 10) || 30000 });
 
 async function run(env = {}): Promise<any> {
   return await new Promise((resolve, reject) => {
-    const proc: IProcess = spawn(process.argv0, ['./dist/main.js'], { env });
+    const proc: IProcess = spawn(process.argv0, ['./dist/main.mjs'], { env });
     let isListening = false;
     const logs = proc.logs || [];
 
@@ -117,7 +117,7 @@ async function waitForOutput(
   });
 }
 
-describe.only('main test suite', () => {
+describe('main test suite', () => {
   it('should listen on a random port by default', async () => {
     const proc = await run(envVars);
     expect(proc.port).toBeGreaterThan(0);
@@ -175,7 +175,7 @@ describe.only('main test suite', () => {
 
   it('should exit with non-zero status on error (invalid PORT)', done => {
     const newEnvVars = { ...envVars, PORT: '-1' };
-    const proc = spawn(process.argv0, ['./dist/main.js'], { env: newEnvVars });
+    const proc = spawn(process.argv0, ['./dist/main.mjs'], { env: newEnvVars });
     proc.once('error', Error);
     proc.once('close', code => {
       expect(code).not.toEqual(0);
@@ -186,7 +186,7 @@ describe.only('main test suite', () => {
   it('should exit due to a missing variable', done => {
     const newEnvVars = { ...envVars };
     newEnvVars.API_URL = '';
-    const proc = spawn(process.argv0, ['./dist/main.js'], { env: newEnvVars });
+    const proc = spawn(process.argv0, ['./dist/main.mjs'], { env: newEnvVars });
     proc.once('error', Error);
     proc.once('close', code => {
       expect(code).not.toEqual(0);

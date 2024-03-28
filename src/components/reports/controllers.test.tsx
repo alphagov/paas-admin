@@ -1,8 +1,10 @@
 import { parse } from 'csv-parse/sync'; // eslint-disable-line import/no-unresolved
 import { format, startOfMonth, sub } from 'date-fns';
 import jwt from 'jsonwebtoken';
-import lodash from 'lodash';
-import nock from 'nock';
+import lodash from 'lodash-es';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import { IPriceComponent } from '../../lib/billing/types';
@@ -23,10 +25,49 @@ import * as reports from '../reports';
 
 import { testable as t, viewOrganizationsReport } from './controllers';
 
+
 const adminFee = 0.1;
+const baseQuota = cf.organizationQuota;
+const aQuota = (name: string, quotaGUID: string) =>
+  lodash.merge(JSON.parse(baseQuota), {
+    entity: { name },
+    metadata: { guid: quotaGUID },
+  });
+
+const trialGUID = 'default';
+const cheapGUID = 'cheap-guid';
+const expensiveGUID = 'expensive-guid';
+
+const orgs = [
+  lodash.merge(defaultOrgv3(), {
+    created_at: new Date(),
+    guid: 'current-trial-org',
+    name: 'current-trial-org',
+    relationships: { quota: { data: { guid: trialGUID } } },
+  }),
+  lodash.merge(defaultOrgv3(), {
+    created_at: sub(new Date(), { days: 100 }),
+    guid: 'expiring-trial-org',
+    name: 'expiring-trial-org',
+    relationships: { quota: { data: { guid: trialGUID } } },
+  }),
+  lodash.merge(defaultOrgv3(), {
+    created_at: sub(new Date(), { days: 366 }),
+    guid: 'cheap-org',
+    name: 'cheap-org',
+    relationships: { quota: { data: { guid: cheapGUID } } },
+  }),
+  lodash.merge(defaultOrgv3(), {
+    created_at: sub(new Date(), { days: 732 }),
+    guid: 'expensive-org',
+    name: 'expensive-org',
+    relationships: { quota: { data: { guid: expensiveGUID } } },
+  }),
+];
+const quotaDefinitionsResponse = JSON.parse(cf.organizationQuotas);
+    quotaDefinitionsResponse.resources = [];
 
 describe('organisations report helpers', () => {
-  let nockCF: nock.Scope;
   const tokenKey = 'secret';
 
   const time = Math.floor(Date.now() / 1000);
@@ -42,19 +83,49 @@ describe('organisations report helpers', () => {
     token: new Token(accessToken, [tokenKey]),
   });
 
-  beforeEach(() => {
-    nock.cleanAll();
+  const handlers = [
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/quota_definitions`, ({ request }) => {
+      const url = new URL(request.url);
+      const q = url.searchParams.get('q');
+        if (q === `name:${trialGUID}`) {
+          return new HttpResponse(
+            JSON.stringify(
+            lodash.merge(JSON.parse(cf.organizationQuotas), {
+              resources: [aQuota('Trial', trialGUID)],
+            }),
+          ), { status: 200 });
+        }
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/quota_definitions/${trialGUID}`, () => {
+      return new HttpResponse(
+        JSON.stringify(aQuota('Trial', trialGUID)));
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/quota_definitions/${cheapGUID}`, () => {
+      return new HttpResponse(JSON.stringify(aQuota('Cheap', cheapGUID)));
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/quota_definitions/${expensiveGUID}`, () => {
+      return new HttpResponse(JSON.stringify(aQuota('Expensive', expensiveGUID)));
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v3/organizations`, () => {
+      return new HttpResponse(
+        JSON.stringify(wrapV3Resources(...orgs)),
+      );
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/quota_definitions`, ({ request }) => {
+    const url = new URL(request.url);
+    const q = url.searchParams.get('q');
+      if (q === 'name:default') {
+        return new HttpResponse(
+          JSON.stringify(quotaDefinitionsResponse),
+        );
+      }
+    }),
+  ];
+  const server = setupServer(...handlers);
 
-    nockCF = nock(ctx.app.cloudFoundryAPI);
-  });
-
-  afterEach(() => {
-    nockCF.on('response', () => {
-      nockCF.done();
-    });
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('trialExpiryDate should compute trial expiry correctly', () => {
     const creationDate = new Date('2019-08-01T16:25:59.254Z');
@@ -157,66 +228,6 @@ describe('organisations report helpers', () => {
   });
 
   it('should render the page correctly', async () => {
-    const baseQuota = cf.organizationQuota;
-    const aQuota = (name: string, quotaGUID: string) =>
-      lodash.merge(JSON.parse(baseQuota), {
-        entity: { name },
-        metadata: { guid: quotaGUID },
-      });
-
-    const trialGUID = 'default';
-    const cheapGUID = 'cheap-guid';
-    const expensiveGUID = 'expensive-guid';
-
-    const orgs = [
-      lodash.merge(defaultOrgv3(), {
-        created_at: new Date(),
-        guid: 'current-trial-org',
-        name: 'current-trial-org',
-        relationships: { quota: { data: { guid: trialGUID } } },
-      }),
-      lodash.merge(defaultOrgv3(), {
-        created_at: sub(new Date(), { days: 100 }),
-        guid: 'expiring-trial-org',
-        name: 'expiring-trial-org',
-        relationships: { quota: { data: { guid: trialGUID } } },
-      }),
-      lodash.merge(defaultOrgv3(), {
-        created_at: sub(new Date(), { days: 366 }),
-        guid: 'cheap-org',
-        name: 'cheap-org',
-        relationships: { quota: { data: { guid: cheapGUID } } },
-      }),
-      lodash.merge(defaultOrgv3(), {
-        created_at: sub(new Date(), { days: 732 }),
-        guid: 'expensive-org',
-        name: 'expensive-org',
-        relationships: { quota: { data: { guid: expensiveGUID } } },
-      }),
-    ];
-
-    nockCF
-      .get(`/v2/quota_definitions?q=name:${trialGUID}`)
-      .reply(
-        200,
-        JSON.stringify(
-          lodash.merge(JSON.parse(cf.organizationQuotas), {
-            resources: [aQuota('Trial', trialGUID)],
-          }),
-        ),
-      )
-
-      .get(`/v2/quota_definitions/${trialGUID}`)
-      .reply(200, JSON.stringify(aQuota('Trial', trialGUID)))
-
-      .get(`/v2/quota_definitions/${cheapGUID}`)
-      .reply(200, JSON.stringify(aQuota('Cheap', cheapGUID)))
-
-      .get(`/v2/quota_definitions/${expensiveGUID}`)
-      .reply(200, JSON.stringify(aQuota('Expensive', expensiveGUID)))
-
-      .get('/v3/organizations')
-      .reply(200, JSON.stringify(wrapV3Resources(...orgs)));
 
     const response = await viewOrganizationsReport(ctx, {});
 
@@ -241,27 +252,16 @@ describe('organisations report helpers', () => {
   });
 
   it('should return an error when the default quota is not found', async () => {
-    const quotaDefinitionsResponse = JSON.parse(cf.organizationQuotas);
-    quotaDefinitionsResponse.resources = [];
-
-    nockCF
-      .get('/v2/quota_definitions?q=name:default')
-      .reply(200, JSON.stringify(quotaDefinitionsResponse));
-
     try {
       await viewOrganizationsReport(ctx, {});
-    } catch (e) {
+    } catch (e:any) {
       expect(e.message).toContain('Could not find default quota');
     }
   });
 });
 
 describe('cost report test suite', () => {
-  let nockCF: nock.Scope;
-  let nockBilling: nock.Scope;
-
   const ctx: IContext = createTestContext();
-
   const defaultBillableEvent = {
     eventGUID: '',
     eventStart: new Date(),
@@ -284,38 +284,32 @@ describe('cost report test suite', () => {
     storageInMB: 0,
   };
 
-  beforeEach(() => {
-    nock.cleanAll();
+  const handlers = [
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations`, () => {
+      return new HttpResponse(
+        JSON.stringify(wrapResources(defaultOrg())),
+      );
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/quota_definitions/ORG-QUOTA-GUID`, () => {
+      return new HttpResponse(
+        cf.organizationQuota,
+      );
+    }),
+    http.get(`${config.billingAPI}/billable_events`, () => {
+      return new HttpResponse('[]');
+    }),
+  ];
+  const server = setupServer(...handlers);
 
-    nockCF = nock(ctx.app.cloudFoundryAPI);
-    nockBilling = nock(config.billingAPI);
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
-  afterEach(() => {
-    nockCF.on('response', () => {
-    nockCF.done();
-  });
-    nockBilling.done();
-
-    nock.cleanAll();
-  });
 
   it('should report zero for zero billables', async () => {
-    nockCF
-      .get('/v2/organizations')
-      .times(1)
-      .reply(200, JSON.stringify(wrapResources(defaultOrg())))
-
-      .get('/v2/quota_definitions/ORG-QUOTA-GUID')
-      .times(1)
-      .reply(200, cf.organizationQuota);
     const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
     const period = format(new Date(rangeStart), 'MMMM yyyy');
 
-    nockBilling
-      .get('/billable_events')
-      .query(true)
-      .reply(200, '[]');
 
     const response = await reports.viewCostReport(ctx, { rangeStart });
 
@@ -339,68 +333,59 @@ describe('cost report test suite', () => {
   it('should report some billables but not attribute to org', async () => {
     const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
-    nockCF
-      .get('/v2/organizations')
-      .times(1)
-      .reply(200, JSON.stringify(wrapResources(defaultOrg())))
-
-      .get('/v2/quota_definitions/ORG-QUOTA-GUID')
-      .times(1)
-      .reply(200, cf.organizationQuota);
-
     // this test has billable events but no billable events attributable to an
     // org. expected response is to:
     // 1 billable event
     // 0 billable events for any org or quota
-    nockBilling
-      .get('/billable_events')
-      .query(true)
-      .reply(
-        200,
-        `[{
-        "event_guid": "fecc9eb5-b027-42fe-ba1f-d90a0474b620",
-        "event_start": "2018-04-20T14:36:09+00:00",
-        "event_stop": "2018-04-20T14:45:46+00:00",
-        "resource_guid": "a585feac-32a1-44f6-92e2-cdb1377e42f4",
-        "resource_name": "api-availability-test-app",
-        "resource_type": "app",
-        "org_guid": "7f9c0e11-e7f1-41d7-9d3f-cb9d05110f9e",
-        "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
-        "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-        "quota_definition_guid": "3f2dd80c-7dfb-4e7f-b8a9-406b0b8abfa3",
-        "number_of_nodes": 1,
-        "memory_in_mb": 64,
-        "storage_in_mb": 0,
-        "price": {
-          "ex_vat": "0.02",
-          "inc_vat": "0.024",
-          "details": [
-            {
-              "name": "instance",
-              "start": "2018-04-20T14:36:09+00:00",
-              "stop": "2018-04-20T14:45:46+00:00",
-              "plan_name": "app",
-              "ex_vat": "0.01",
-              "inc_vat": "0.012",
-              "vat_rate": "0.2",
-              "vat_code": "Standard",
-              "currency_code": "GBP"
-            },
-            {
-              "name": "platform",
-              "start": "2018-04-20T14:36:09+00:00",
-              "stop": "2018-04-20T14:45:46+00:00",
-              "plan_name": "app",
-              "ex_vat": "0.01",
-              "inc_vat": "0.012",
-              "vat_rate": "0.2",
-              "vat_code": "Standard",
-              "currency_code": "GBP"
+    server.use(
+      http.get(`${config.billingAPI}/billable_events`, () => {
+        return new HttpResponse(
+          `[{
+            "event_guid": "fecc9eb5-b027-42fe-ba1f-d90a0474b620",
+            "event_start": "2018-04-20T14:36:09+00:00",
+            "event_stop": "2018-04-20T14:45:46+00:00",
+            "resource_guid": "a585feac-32a1-44f6-92e2-cdb1377e42f4",
+            "resource_name": "api-availability-test-app",
+            "resource_type": "app",
+            "org_guid": "7f9c0e11-e7f1-41d7-9d3f-cb9d05110f9e",
+            "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
+            "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
+            "quota_definition_guid": "3f2dd80c-7dfb-4e7f-b8a9-406b0b8abfa3",
+            "number_of_nodes": 1,
+            "memory_in_mb": 64,
+            "storage_in_mb": 0,
+            "price": {
+              "ex_vat": "0.02",
+              "inc_vat": "0.024",
+              "details": [
+                {
+                  "name": "instance",
+                  "start": "2018-04-20T14:36:09+00:00",
+                  "stop": "2018-04-20T14:45:46+00:00",
+                  "plan_name": "app",
+                  "ex_vat": "0.01",
+                  "inc_vat": "0.012",
+                  "vat_rate": "0.2",
+                  "vat_code": "Standard",
+                  "currency_code": "GBP"
+                },
+                {
+                  "name": "platform",
+                  "start": "2018-04-20T14:36:09+00:00",
+                  "stop": "2018-04-20T14:45:46+00:00",
+                  "plan_name": "app",
+                  "ex_vat": "0.01",
+                  "inc_vat": "0.012",
+                  "vat_rate": "0.2",
+                  "vat_code": "Standard",
+                  "currency_code": "GBP"
+                }
+              ]
             }
-          ]
-        }
-      }]`,
-      );
+          }]`,
+        );
+      }),
+    );
 
     const response = await reports.viewCostReport(ctx, { rangeStart });
 
@@ -416,54 +401,44 @@ describe('cost report test suite', () => {
   it('should filter billable events by service plan', async () => {
     const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
-    nockCF
-      .get('/v2/organizations')
-      .times(2)
-      .reply(200, JSON.stringify(wrapResources(defaultOrg())))
-
-      .get('/v2/quota_definitions/ORG-QUOTA-GUID')
-      .times(2)
-      .reply(200, cf.organizationQuota);
-
-    nockBilling
-      .get('/billable_events')
-      .query(true)
-      .times(2)
-      .reply(
-        200,
-        `[{
-        "event_guid": "fecc9eb5-b027-42fe-ba1f-d90a0474b620",
-        "event_start": "2018-04-20T14:36:09+00:00",
-        "event_stop": "2018-04-20T14:45:46+00:00",
-        "resource_guid": "a585feac-32a1-44f6-92e2-cdb1377e42f4",
-        "resource_name": "api-availability-test-app",
-        "resource_type": "app",
-        "org_guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
-        "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
-        "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-        "quota_definition_guid": "ORG-QUOTA-GUID",
-        "number_of_nodes": 1,
-        "memory_in_mb": 64,
-        "storage_in_mb": 0,
-        "price": {
-          "ex_vat": "1337.13",
-          "inc_vat": "1337.00",
-          "details": [
-            {
-              "name": "instance",
-              "start": "2018-04-20T14:36:09+00:00",
-              "stop": "2018-04-20T14:45:46+00:00",
-              "plan_name": "matching plan",
+    server.use(
+      http.get(`${config.billingAPI}/billable_events`, () => {
+        return new HttpResponse(
+          `[{
+            "event_guid": "fecc9eb5-b027-42fe-ba1f-d90a0474b620",
+            "event_start": "2018-04-20T14:36:09+00:00",
+            "event_stop": "2018-04-20T14:45:46+00:00",
+            "resource_guid": "a585feac-32a1-44f6-92e2-cdb1377e42f4",
+            "resource_name": "api-availability-test-app",
+            "resource_type": "app",
+            "org_guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
+            "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
+            "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
+            "quota_definition_guid": "ORG-QUOTA-GUID",
+            "number_of_nodes": 1,
+            "memory_in_mb": 64,
+            "storage_in_mb": 0,
+            "price": {
               "ex_vat": "1337.13",
               "inc_vat": "1337.00",
-              "vat_rate": "0.2",
-              "vat_code": "Standard",
-              "currency_code": "GBP"
+              "details": [
+                {
+                  "name": "instance",
+                  "start": "2018-04-20T14:36:09+00:00",
+                  "stop": "2018-04-20T14:45:46+00:00",
+                  "plan_name": "matching plan",
+                  "ex_vat": "1337.13",
+                  "inc_vat": "1337.00",
+                  "vat_rate": "0.2",
+                  "vat_code": "Standard",
+                  "currency_code": "GBP"
+                }
+              ]
             }
-          ]
-        }
-      }]`,
-      );
+          }]`,
+        );
+      }),
+    );
 
     const firstResponse = await reports.viewCostReport(ctx, {
       rangeStart,
@@ -490,68 +465,59 @@ describe('cost report test suite', () => {
   it('should report some billables and attribute to org', async () => {
     const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
-    nockCF
-      .get('/v2/organizations')
-      .times(1)
-      .reply(200, JSON.stringify(wrapResources(defaultOrg())))
-
-      .get('/v2/quota_definitions/ORG-QUOTA-GUID')
-      .times(1)
-      .reply(200, cf.organizationQuota);
-
     // this test has billable events but no billable events attributable to an
     // org. expected response is to:
     // 1 billable event
     // 1 billable events for the org and the quota
-    nockBilling
-      .get('/billable_events')
-      .query(true)
-      .reply(
-        200,
-        `[{
-        "event_guid": "fecc9eb5-b027-42fe-ba1f-d90a0474b620",
-        "event_start": "2018-04-20T14:36:09+00:00",
-        "event_stop": "2018-04-20T14:45:46+00:00",
-        "resource_guid": "a585feac-32a1-44f6-92e2-cdb1377e42f4",
-        "resource_name": "api-availability-test-app",
-        "resource_type": "app",
-        "org_guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
-        "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
-        "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
-        "quota_definition_guid": "ORG-QUOTA-GUID",
-        "number_of_nodes": 1,
-        "memory_in_mb": 64,
-        "storage_in_mb": 0,
-        "price": {
-          "ex_vat": "0.02",
-          "inc_vat": "0.024",
-          "details": [
-            {
-              "name": "instance",
-              "start": "2018-04-20T14:36:09+00:00",
-              "stop": "2018-04-20T14:45:46+00:00",
-              "plan_name": "app",
-              "ex_vat": "0.01",
-              "inc_vat": "0.012",
-              "vat_rate": "0.2",
-              "vat_code": "Standard",
-              "currency_code": "GBP"
-            },
-            {
-              "name": "platform",
-              "start": "2018-04-20T14:36:09+00:00",
-              "stop": "2018-04-20T14:45:46+00:00",
-              "plan_name": "app",
-              "ex_vat": "0.01",
-              "inc_vat": "0.012",
-              "vat_rate": "0.2",
-              "vat_code": "Standard",
-              "currency_code": "GBP"
+    server.use(
+      http.get(`${config.billingAPI}/billable_events`, () => {
+        return new HttpResponse(
+          `[{
+            "event_guid": "fecc9eb5-b027-42fe-ba1f-d90a0474b620",
+            "event_start": "2018-04-20T14:36:09+00:00",
+            "event_stop": "2018-04-20T14:45:46+00:00",
+            "resource_guid": "a585feac-32a1-44f6-92e2-cdb1377e42f4",
+            "resource_name": "api-availability-test-app",
+            "resource_type": "app",
+            "org_guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
+            "space_guid": "2e030634-2640-4535-88ed-e67235b52ceb",
+            "plan_guid": "f4d4b95a-f55e-4593-8d54-3364c25798c4",
+            "quota_definition_guid": "ORG-QUOTA-GUID",
+            "number_of_nodes": 1,
+            "memory_in_mb": 64,
+            "storage_in_mb": 0,
+            "price": {
+              "ex_vat": "0.02",
+              "inc_vat": "0.024",
+              "details": [
+                {
+                  "name": "instance",
+                  "start": "2018-04-20T14:36:09+00:00",
+                  "stop": "2018-04-20T14:45:46+00:00",
+                  "plan_name": "app",
+                  "ex_vat": "0.01",
+                  "inc_vat": "0.012",
+                  "vat_rate": "0.2",
+                  "vat_code": "Standard",
+                  "currency_code": "GBP"
+                },
+                {
+                  "name": "platform",
+                  "start": "2018-04-20T14:36:09+00:00",
+                  "stop": "2018-04-20T14:45:46+00:00",
+                  "plan_name": "app",
+                  "ex_vat": "0.01",
+                  "inc_vat": "0.012",
+                  "vat_rate": "0.2",
+                  "vat_code": "Standard",
+                  "currency_code": "GBP"
+                }
+              ]
             }
-          ]
-        }
-      }]`,
-      );
+          }]`,
+        );
+      }),
+    );
 
     const response = await reports.viewCostReport(ctx, { rangeStart });
 
@@ -901,45 +867,29 @@ describe('cost report test suite', () => {
 });
 
 describe('html cost report by service test suite', () => {
-  let nockCF: nock.Scope;
-  let nockBilling: nock.Scope;
-
   const ctx: IContext = createTestContext();
 
-  beforeEach(() => {
-    nock.cleanAll();
+  const handlers = [
+    http.get(`${ctx.app.cloudFoundryAPI}/v3/organizations`, () => {
+      return new HttpResponse(JSON.stringify(wrapV3Resources(defaultOrgv3())));
+    }),
+    http.get(`${config.billingAPI}/billable_events`, () => {
+      return new HttpResponse('[]');
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/spaces`, () => {
+      return HttpResponse.json('[]');
+    }),
+  ];
+  const server = setupServer(...handlers);
 
-    nockCF = nock(ctx.app.cloudFoundryAPI);
-    nockBilling = nock(config.billingAPI);
-  });
-
-  afterEach(() => {
-    nockCF.on('response', () => {
-    nockCF.done();
-  });
-    nockBilling.done();
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('should show empty report for zero billables', async () => {
-    nockCF
-      .get('/v3/organizations')
-      .times(1)
-      .reply(200, JSON.stringify(wrapV3Resources(defaultOrgv3())));
 
     const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
     const period = format(new Date(rangeStart), 'MMMM yyyy');
-
-    nockBilling
-      .get('/billable_events')
-      .query(true)
-      .reply(200, '[]');
-
-    nockCF
-      .get('/v2/spaces')
-      .query(true)
-      .reply(200, '[]');
 
     const response = await reports.viewCostByServiceReport(ctx, { rangeStart });
 
@@ -990,18 +940,9 @@ describe('html cost report by service test suite', () => {
       storage_in_mb: 0,
     };
 
-    nockCF
-      .get('/v3/organizations')
-      .times(1)
-      .reply(200, JSON.stringify(wrapV3Resources(defaultOrgv3())));
-
-    nockBilling
-      .get('/billable_events')
-      .query(true)
-      .times(1)
-      .reply(
-        200,
-        JSON.stringify([
+    server.use(
+      http.get(`${config.billingAPI}/billable_events`, () => {
+        return new HttpResponse(JSON.stringify([
           {
             ...defaultBillableEvent,
             price: {
@@ -1043,20 +984,20 @@ describe('html cost report by service test suite', () => {
             org_guid: 'some-unknown-org',
             price: { ...defaultPrice, details: [], inc_vat: '100000' },
           },
-        ]),
-      );
-    nockCF
-      .get('/v2/spaces')
-      .reply(
-        200,
-        JSON.stringify({
-          next_url: null,
-          prev_url: null,
-          resources: [{ entity: { name: 'default-space-name' }, metadata: { guid: 'default-space-guid' } }],
-          total_pages: 1,
-          total_results: 1,
-        }),
-      );
+        ]));
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/spaces`, () => {
+        return new HttpResponse(
+          JSON.stringify({
+            next_url: null,
+            prev_url: null,
+            resources: [{ entity: { name: 'default-space-name' }, metadata: { guid: 'default-space-guid' } }],
+            total_pages: 1,
+            total_results: 1,
+          }),
+        );
+      }),
+    );
 
     const response = await reports.viewCostByServiceReport(ctx, { rangeStart });
     const reponseBody = (response.body || '').toString();
@@ -1463,34 +1404,32 @@ describe('cost report grouping functions', () => {
 
 describe('csv organisation monthly spend report for the pmo team', () => {
   const ctx: IContext = createTestContext();
-  let nockCF: nock.Scope;
-
-  beforeEach(() => {
-    nock.cleanAll();
-    nockCF = nock(ctx.app.cloudFoundryAPI);
-    nockCF.get('/v2/quota_definitions?q=name:default').reply(
-      200,
-      `{"resources": [
-        {"metadata": {"guid": "default-quota"}, "entity": {"name": "default"}}
-      ]}`,
-    );
-  });
-
-  afterEach(() => {
-    nock.cleanAll();
-  });
+  const handlers = [
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/quota_definitions`, ({ request }) => {
+      const url = new URL(request.url);
+      const q = url.searchParams.get('q');
+      if (q === 'name:default') {
+        return new HttpResponse(
+          `{"resources": [
+            {"metadata": {"guid": "default-quota"}, "entity": {"name": "default"}}
+          ]}`,
+        );
+      }
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v3/organizations`, () => {
+      return HttpResponse.text(JSON.stringify(wrapV3Resources()));
+    }),
+    http.get(`${config.billingAPI}/billable_events`, () => {
+      return new HttpResponse('[]');
+    }),
+  ];
+  const server = setupServer(...handlers);
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('should return a one-line CSV when there are no organisations', async () => {
     const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
-
-    nockCF
-      .get('/v3/organizations')
-      .times(5)
-      .reply(200, JSON.stringify(wrapV3Resources()));
-    nock(config.billingAPI)
-      .get('/billable_events')
-      .query(true)
-      .reply(200, '[]');
 
     const response = await reports.viewPmoOrgSpendReportCSV(ctx, {
       rangeStart,
@@ -1502,15 +1441,6 @@ describe('csv organisation monthly spend report for the pmo team', () => {
   });
 
   it('should name the CSV appropriately', async () => {
-    nockCF
-      .get('/v3/organizations')
-      .times(5)
-      .reply(200, JSON.stringify(wrapV3Resources(defaultOrgv3())));
-    nock(config.billingAPI)
-      .get('/billable_events')
-      .query(true)
-      .reply(200, '[]');
-
     const response = await reports.viewPmoOrgSpendReportCSV(ctx, {
       rangeStart: '2018-01-01',
     });
@@ -1553,26 +1483,23 @@ describe('csv organisation monthly spend report for the pmo team', () => {
       space_guid: 'default-space-guid',
       storage_in_mb: 0,
     };
-    nock(config.billingAPI)
-      .get('/billable_events')
-      .query(true)
-      .times(2)
-      .reply(
-        200,
-        JSON.stringify([
+
+    server.use(
+      http.get(`${config.billingAPI}/billable_events`, () => {
+        return new HttpResponse(JSON.stringify([
           {
             ...defaultBillableEvent,
             org_guid: 'org-one',
             price: { ...defaultPrice, ex_vat: '1' },
           },
-        ]),
-      );
-    nockCF.get('/v3/organizations').reply(
-      200,
-      wrapV3Resources({
-        ...defaultOrgv3(),
-        guid: 'org-one',
-        name: 'Org One',
+        ]));
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v3/organizations`, () => {
+        return new HttpResponse(JSON.stringify(wrapV3Resources({
+          ...defaultOrgv3(),
+          guid: 'org-one',
+          name: 'Org One',
+        })));
       }),
     );
 
@@ -1624,49 +1551,45 @@ describe('csv organisation monthly spend report for the pmo team', () => {
       space_guid: 'default-space-guid',
       storage_in_mb: 0,
     };
-    nock(config.billingAPI)
-      .get('/billable_events')
-      .query(true)
-      .times(2)
-      .reply(
-        200,
-        JSON.stringify([
-          {
-            ...defaultBillableEvent,
-            org_guid: 'org-one',
-            price: { ...defaultPrice, ex_vat: '1' },
-          },
-          {
-            ...defaultBillableEvent,
-            org_guid: 'org-two',
-            price: { ...defaultPrice, ex_vat: '10' },
-          },
-          {
-            ...defaultBillableEvent,
-            org_guid: 'org-one',
-            price: { ...defaultPrice, ex_vat: '100' },
-          },
-          {
-            ...defaultBillableEvent,
-            org_guid: 'org-one',
-            price: { ...defaultPrice, ex_vat: '1000' },
-          },
-          {
-            ...defaultBillableEvent,
-            org_guid: 'org-two',
-            price: { ...defaultPrice, ex_vat: '10000' },
-          },
-        ]),
-      );
-    nockCF
-      .get('/v3/organizations')
-      .reply(
-        200,
-        wrapV3Resources(
+    server.use(
+      http.get(`${config.billingAPI}/billable_events`, () => {
+        return new HttpResponse(
+          JSON.stringify([
+            {
+              ...defaultBillableEvent,
+              org_guid: 'org-one',
+              price: { ...defaultPrice, ex_vat: '1' },
+            },
+            {
+              ...defaultBillableEvent,
+              org_guid: 'org-two',
+              price: { ...defaultPrice, ex_vat: '10' },
+            },
+            {
+              ...defaultBillableEvent,
+              org_guid: 'org-one',
+              price: { ...defaultPrice, ex_vat: '100' },
+            },
+            {
+              ...defaultBillableEvent,
+              org_guid: 'org-one',
+              price: { ...defaultPrice, ex_vat: '1000' },
+            },
+            {
+              ...defaultBillableEvent,
+              org_guid: 'org-two',
+              price: { ...defaultPrice, ex_vat: '10000' },
+            },
+          ]),
+        );
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v3/organizations`, () => {
+        return new HttpResponse(JSON.stringify(wrapV3Resources(
           { ...defaultOrgv3(), guid: 'org-one', name: 'Org One' },
           { ...defaultOrgv3(), guid: 'org-two', name: 'Org Two' },
-        ),
-      );
+        )));
+      }),
+    );
 
     const response = await reports.viewPmoOrgSpendReportCSV(ctx, {
       rangeStart: format(rangeStart, 'yyyy-MM-dd'),
@@ -1693,24 +1616,15 @@ describe('csv organisation monthly spend report for the pmo team', () => {
   it('should list billable orgs which have no billable events', async () => {
     const rangeStart = startOfMonth(new Date());
 
-    nockCF
-      .get('/v3/organizations')
-      .times(5)
-      .reply(
-        200,
-        JSON.stringify(
-          wrapV3Resources({
-            ...defaultOrgv3(),
-            guid: 'org-with-nothing-billed',
-            name: 'Org With Nothing Billed',
-          }),
-        ),
-      );
-    nock(config.billingAPI)
-      .get('/billable_events')
-      .query(true)
-      .reply(200, '[]');
-
+    server.use(
+      http.get(`${ctx.app.cloudFoundryAPI}/v3/organizations`, () => {
+        return new HttpResponse(JSON.stringify(wrapV3Resources({
+          ...defaultOrgv3(),
+          guid: 'org-with-nothing-billed',
+          name: 'Org With Nothing Billed',
+        })));
+      }),
+    );
     const response = await reports.viewPmoOrgSpendReportCSV(ctx, {
       rangeStart: format(rangeStart, 'yyyy-MM-dd'),
     });
@@ -1880,63 +1794,13 @@ describe('cost report grouping functions', () => {
 });
 
 describe('html visualisation report test suite', () => {
-  let nockCF: nock.Scope;
-  let nockBilling: nock.Scope;
   const ctx: IContext = createTestContext();
-
-  beforeEach(() => {
-    nock.cleanAll();
-
-    nockCF = nock(ctx.app.cloudFoundryAPI);
-    nockBilling = nock(config.billingAPI);
-  });
-
-  afterEach(() => {
-    nockCF.on('response', () => {
-    nockCF.done();
-  });
-    nockBilling.done();
-
-    nock.cleanAll();
-  });
-
-  it('should show empty report for zero billables', async () => {
-    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
-
-    nockCF
-      .get('/v3/organizations')
-      .times(1)
-      .reply(200, JSON.stringify(wrapV3Resources(defaultOrgv3())));
-
-    nockBilling
-      .get('/billable_events')
-      .query(true)
-      .reply(200, '[]');
-
-    const response = await reports.viewVisualisation(ctx, { rangeStart });
-
-    expect(response.body).toContain('No data');
-    expect(response.body).not.toContain('<svg id="sankey"');
-
-    expect(
-      spacesMissingAroundInlineElements(response.body as string),
-    ).toHaveLength(0);
-  });
-
-  it('should show non empty report for non-zero billables', async () => {
-    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
-
-    nockCF
-      .get('/v3/organizations')
-      .times(1)
-      .reply(200, JSON.stringify(wrapV3Resources(defaultOrgv3())));
-
-    nockBilling
-      .get('/billable_events')
-      .query(true)
-      .reply(
-        200,
-        `[{
+  const handlers = [
+    http.get(`${ctx.app.cloudFoundryAPI}/v3/organizations`, () => {
+      return HttpResponse.text(JSON.stringify(wrapV3Resources(defaultOrgv3())));
+    }),
+    http.get(`${config.billingAPI}/billable_events`, () => {
+      return HttpResponse.text(`[{
         "event_guid":"default-event-guid",
         "event_start":"2018-04-20T14:36:09+00:00",
         "event_stop":"2018-04-20T14:45:46+00:00",
@@ -1961,8 +1825,34 @@ describe('html visualisation report test suite', () => {
           "vat_code":"default-vat-code",
           "currency_code":"default-currency-code"
         }]}
-      }]`,
-      );
+      }]`);
+    }),
+  ];
+  const server = setupServer(...handlers);
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
+
+  it('should show empty report for zero billables', async () => {
+    server.use(
+      // These are the runtime request handlers.
+      http.get(`${config.billingAPI}/billable_events`, () => {
+        return new HttpResponse('[]');
+      }),
+    );
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
+    const response = await reports.viewVisualisation(ctx, { rangeStart });
+
+    expect(response.body).toContain('No data');
+    expect(response.body).not.toContain('<svg id="sankey"');
+
+    expect(
+      spacesMissingAroundInlineElements(response.body as string),
+    ).toHaveLength(0);
+  });
+
+  it('should show non empty report for non-zero billables', async () => {
+    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
 
     const response = await reports.viewVisualisation(ctx, { rangeStart });
 

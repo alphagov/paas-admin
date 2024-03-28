@@ -1,5 +1,6 @@
 import express from 'express';
 import request from 'supertest';
+import { describe, expect, it } from 'vitest';
 
 import Router, {
   IParameters,
@@ -25,7 +26,7 @@ describe('app test suite - router-middleware', () => {
         path: '/nocache',
       },
       {
-        action: async (_c, _p, _b) => await Promise.resolve({body: { message: 'ok' }}),
+        action: async (_c, _p, _b) => await Promise.resolve({ body: { message: 'ok' } }),
         name: 'home.nocache.sub',
         path: '/nocache/sub',
       },

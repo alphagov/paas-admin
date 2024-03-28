@@ -1,8 +1,9 @@
-/**
- * @jest-environment jsdom
- */
- import {render, screen} from '@testing-library/react'
+// @vitest-environment jsdom
+
+
+ import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 
@@ -18,17 +19,17 @@ describe(Breadcrumbs, () => {
     ];
 
     const { container } = render(<Breadcrumbs items={breadcrumbs} />);
-    
 
-    expect(screen.getAllByRole('listitem')).toHaveLength(4)
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(4);
     // first item checks
-    expect(container.getElementsByTagName('li')[0]).toHaveTextContent('1')
-    expect(screen.getByText('1')).toHaveAttribute('href', expect.stringContaining('1'))
-    expect(screen.getByText('1')).not.toHaveAttribute('aria-current')
+    expect(container.getElementsByTagName('li')[0]).toHaveTextContent('1');
+    expect(screen.getByText('1')).toHaveAttribute('href', expect.stringContaining('1'));
+    expect(screen.getByText('1')).not.toHaveAttribute('aria-current');
     //last item checks
-    expect(container.getElementsByTagName('li')[3]).toHaveTextContent('4')
-    expect(screen.getByText('4')).not.toHaveAttribute('href')
-    expect(screen.getByText('4')).toHaveAttribute('aria-current', expect.stringContaining('page'))
+    expect(container.getElementsByTagName('li')[3]).toHaveTextContent('4');
+    expect(screen.getByText('4')).not.toHaveAttribute('href');
+    expect(screen.getByText('4')).toHaveAttribute('aria-current', expect.stringContaining('page'));
 
     expect(
       spacesMissingAroundInlineElements(container.innerHTML),

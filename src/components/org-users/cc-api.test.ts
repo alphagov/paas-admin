@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
-import nock from 'nock';
-
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import * as cfData from '../../lib/cf/cf.test.data';
 import { org as defaultOrg } from '../../lib/cf/test-data/org';
@@ -9,6 +10,7 @@ import { IContext } from '../app/context';
 import { Token } from '../auth';
 
 import { composeOrgRoles, composeSpaceRoles } from './test-helpers';
+
 
 import * as orgUsers from '.';
 
@@ -28,44 +30,40 @@ const ctx: IContext = createTestContext({
 });
 
 describe('permissions calling cc api', () => {
-  let nockCF: nock.Scope;
+  const handlers = [
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20`, () => {
+      return new HttpResponse(
+        JSON.stringify(defaultOrg()),
+      );
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles`, () => {
+      return new HttpResponse(cfData.userRolesForOrg);
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces`, () => {
+      return new HttpResponse(cfData.spaces);
+    }),
+  ];
 
-  beforeEach(() => {
-    nock.cleanAll();
+  const server = setupServer(...handlers);
 
-    nockCF = nock(ctx.app.cloudFoundryAPI);
-  });
-
-  afterEach(() => {
-    nockCF.on('response', () => {
-      nockCF.done();
-    });
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('should make a single request due to permission update', async () => {
-    nockCF
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
-      .times(2)
-      .reply(200, cfData.userRolesForOrg)
+    server.use(
 
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
-      .reply(200, defaultOrg())
-
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
-      .times(2)
-      .reply(200, cfData.spaces)
-
-      .put(
-        '/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/uaa-user-edit-123456',
-      )
-      .reply(200, '{}')
-
-      .put(
-        '/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/managers/uaa-user-edit-123456?recursive=true',
-      )
-      .reply(200, '{}');
+      http.put(`${ctx.app.cloudFoundryAPI}/v2/spaces/5489e195-c42b-4e61-bf30-323c331ecc01/developers/uaa-user-edit-123456`, () => {
+        return new HttpResponse('{}');
+      }),
+      http.put(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/managers/uaa-user-edit-123456`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('recursive');
+        if (q === 'true') {
+          return new HttpResponse('{}');
+        }
+      }),
+    );
 
     const response = await orgUsers.updateUser(
       ctx,
@@ -102,17 +100,6 @@ describe('permissions calling cc api', () => {
   });
 
   it('should make no requests when permission has been previously and still is set', async () => {
-    nockCF
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
-      .times(2)
-      .reply(200, cfData.userRolesForOrg)
-
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
-      .reply(200, defaultOrg())
-
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
-      .times(2)
-      .reply(200, cfData.spaces);
 
     const response = await orgUsers.updateUser(
       ctx,
@@ -145,18 +132,6 @@ describe('permissions calling cc api', () => {
   });
 
   it('should make no requests when permission has been previously and still is unset', async () => {
-    nockCF
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles')
-      .times(2)
-      .reply(200, cfData.userRolesForOrg)
-
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20')
-      .times(1)
-      .reply(200, defaultOrg())
-
-      .get('/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces')
-      .times(2)
-      .reply(200, cfData.spaces);
 
     const response = await orgUsers.updateUser(
       ctx,

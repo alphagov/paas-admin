@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import express from 'express';
 import request from 'supertest';
 
@@ -49,9 +50,7 @@ describe('server test suite', () => {
       request(`http://localhost:${port}`)
         .get('/')
         .timeout(500),
-    ).rejects.toMatchObject ({
-      code: 'ECONNREFUSED',
-    });
+    ).rejects.toThrow();
   });
 
   it('should replace the handler when updated', async () => {

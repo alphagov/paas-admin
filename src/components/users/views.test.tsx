@@ -1,9 +1,10 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+
+
 import { render, screen } from '@testing-library/react';
 import { format } from 'date-fns';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import { DATE_TIME } from '../../layouts';
 import { IOrganization } from '../../lib/cf/types';
@@ -117,7 +118,7 @@ describe(PasswordResetRequest, () => {
 describe(PasswordResetSuccess, () => {
   it('should correctly produce the syntax', () => {
     render(<PasswordResetSuccess title="Success" />);
-    expect(screen.getByRole('heading', { level: 1})).toHaveTextContent('Success');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Success');
   });
 });
 

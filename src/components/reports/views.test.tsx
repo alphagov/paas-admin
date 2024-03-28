@@ -1,8 +1,9 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+
+
  import { render, screen, within } from '@testing-library/react';
 import React from 'react';
+import { describe, expect, it } from 'vitest';
 
 import {
   CostByServiceReport,
@@ -270,12 +271,12 @@ describe(CostReport, () => {
         quotaCostRecords={[quotaCostRecords]}
       />,
     );
-    expect(screen.getAllByRole('heading', {level: 2})[0]).toHaveTextContent('2 Billable events');
-    expect(screen.getAllByRole('heading', {level: 2})[1]).toHaveTextContent('75.56 Total including VAT');
-    expect(screen.getAllByRole('heading', {level: 2})[2]).toHaveTextContent('62.97 Total excluding VAT');
-    expect(screen.getAllByRole('heading', {level: 2})[3]).toHaveTextContent('69.27 Total excluding VAT including fee');
-    expect(screen.getAllByRole('heading', {level: 1})[1]).toHaveTextContent('Billables by organisation for January 2020');
-    expect(screen.getAllByRole('heading', {level: 1})[2]).toHaveTextContent('Billables by quota for January 2020');
+    expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('2 Billable events');
+    expect(screen.getAllByRole('heading', { level: 2 })[1]).toHaveTextContent('75.56 Total including VAT');
+    expect(screen.getAllByRole('heading', { level: 2 })[2]).toHaveTextContent('62.97 Total excluding VAT');
+    expect(screen.getAllByRole('heading', { level: 2 })[3]).toHaveTextContent('69.27 Total excluding VAT including fee');
+    expect(screen.getAllByRole('heading', { level: 1 })[1]).toHaveTextContent('Billables by organisation for January 2020');
+    expect(screen.getAllByRole('heading', { level: 1 })[2]).toHaveTextContent('Billables by quota for January 2020');
     expect(screen.getAllByText('org-name')).toBeTruthy();
     expect(screen.getAllByText('£75.56')[0]).toBeTruthy();
     expect(screen.getAllByText('£62.97')[0]).toBeTruthy();
@@ -326,9 +327,9 @@ describe(CostByServiceReport, () => {
         ]}
       />,
     );
-    expect(screen.getAllByRole('heading', {level: 1})[0]).toHaveTextContent('Billables by service for January 2020');
-    expect(screen.getAllByRole('heading', {level: 1})[1]).toHaveTextContent('Billables by organisation and service for January 2020');
-    expect(screen.getAllByRole('heading', {level: 1})[2]).toHaveTextContent('Billables by organisation and space and service for January 2020');
+    expect(screen.getAllByRole('heading', { level: 1 })[0]).toHaveTextContent('Billables by service for January 2020');
+    expect(screen.getAllByRole('heading', { level: 1 })[1]).toHaveTextContent('Billables by organisation and service for January 2020');
+    expect(screen.getAllByRole('heading', { level: 1 })[2]).toHaveTextContent('Billables by organisation and space and service for January 2020');
     expect(screen.getAllByText('service-group')).toBeTruthy();
     expect(screen.getAllByText('£75.56')[0]).toBeTruthy();
     expect(screen.getAllByText('£62.97')[0]).toBeTruthy();
@@ -361,7 +362,7 @@ describe(VisualisationPage, () => {
       <VisualisationPage date={'January 2020'} data={data} />,
     );
 
-    expect(screen.getAllByRole('heading', {level: 1})[0]).toHaveTextContent('Billing flow for January 2020');
+    expect(screen.getAllByRole('heading', { level: 1 })[0]).toHaveTextContent('Billing flow for January 2020');
   });
 
   it('should parse visualisation with no data', () => {
@@ -369,7 +370,7 @@ describe(VisualisationPage, () => {
       <VisualisationPage date={'January 2020'} data={undefined} />,
     );
 
-    expect(screen.getByRole('heading', {level: 1})).toHaveTextContent('Billing flow for January 2020');
-    expect(screen.getByRole('heading', {level: 2})).toHaveTextContent('No data for January 2020');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Billing flow for January 2020');
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('No data for January 2020');
   });
 });

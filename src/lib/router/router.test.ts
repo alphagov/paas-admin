@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import Router from './router';
 
 describe('lib/router suite case', () => {

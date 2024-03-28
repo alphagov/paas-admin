@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { expect, it } from 'vitest';
 
 import { Token } from '.';
 

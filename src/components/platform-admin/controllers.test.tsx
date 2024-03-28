@@ -1,15 +1,16 @@
 import cheerio from 'cheerio';
 import jwt from 'jsonwebtoken';
-import lodash from 'lodash'
+import lodash from 'lodash-es';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
 import CloudFoundryClient from '../../lib/cf';
+import { v3Org as defaultV3Org } from '../../lib/cf/test-data/org';
 import { IResponse } from '../../lib/router';
 import { createTestContext } from '../app/app.test-helpers';
 import { IContext } from '../app/context';
 import { Token } from '../auth';
 import { CLOUD_CONTROLLER_ADMIN } from '../auth/has-role';
-import { v3Org as defaultV3Org } from '../../lib/cf/test-data/org';
 
 import {
   createOrganization,
@@ -19,9 +20,9 @@ import {
   viewHomepage,
 } from './controllers';
 
-jest.mock('../../lib/cf');
-jest.mock('../../lib/accounts');
-jest.mock('../../lib/uaa');
+vi.mock('../../lib/cf');
+vi.mock('../../lib/accounts');
+vi.mock('../../lib/uaa');
 
 const mockOrg = { metadata: { annotations: { owner: 'TEST_OWNER' } } };
 const tokenKey = 'secret';
@@ -250,9 +251,9 @@ describe('helper functions', () => {
         lodash.merge(defaultV3Org(), { name: 'org b' }),
         lodash.merge(defaultV3Org(), { name: 'SMOKE-' }),
       ];
-  
+
       const filteredOrgs = filterOutRealOrganisations(orgs);
-  
+
       expect(filteredOrgs.length).toEqual(3);
       expect(filteredOrgs[0].name).toEqual('org c');
       expect(filteredOrgs[1].name).toEqual('org a');
@@ -267,9 +268,9 @@ describe('helper functions', () => {
         lodash.merge(defaultV3Org(), { name: 'org a' }),
         lodash.merge(defaultV3Org(), { name: 'org b' }),
       ];
-  
+
       const sortedOrgs = sortOrganisationsByName(orgs);
-  
+
       expect(sortedOrgs[0].name).toEqual('org a');
       expect(sortedOrgs[1].name).toEqual('org b');
       expect(sortedOrgs[2].name).toEqual('org c');

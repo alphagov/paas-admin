@@ -1,6 +1,6 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+import { describe, expect, it } from "vitest";
+
 import { randomUUID } from 'crypto';
 
 import { render } from '@testing-library/react';

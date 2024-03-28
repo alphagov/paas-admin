@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
-import lodash from 'lodash';
-import nock from 'nock';
+import lodash from 'lodash-es';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { DATE_TIME } from '../../layouts';
 import { spacesMissingAroundInlineElements } from '../../layouts/react-spacing.test';
@@ -20,49 +22,55 @@ const serviceGUID = '0d632575-bb06-4ea5-bb19-a451a9644d92';
 const ctx: IContext = createTestContext();
 
 describe('service event', () => {
-  let nockAccounts: nock.Scope;
-  let nockCF: nock.Scope;
 
-  beforeEach(() => {
-    nock.cleanAll();
+  const event = defaultAuditEvent();
 
-    nockAccounts = nock(ctx.app.accountsAPI);
-    nockCF = nock(ctx.app.cloudFoundryAPI);
+  const handlers = [
+    http.get(`${ctx.app.accountsAPI}/*`, () => {
+      return new HttpResponse();
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/service_instances/${serviceGUID}`, () => {
+      return new HttpResponse(data.serviceInstance);
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/user_provided_service_instances`, ({ request }) => {
+      const url = new URL(request.url);
+      const q = url.searchParams.get('q');
+      if (q === `space_guid:${spaceGUID}`) {
+        return new HttpResponse(data.userServices);
+      }
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/spaces/${spaceGUID}`, () => {
+      return new HttpResponse(data.space);
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/${organizationGUID}`, () => {
+      return HttpResponse.json(defaultOrg());
+    }),
+  ];
 
-    nockCF
-      .get(`/v2/service_instances/${serviceGUID}`)
-      .reply(200, data.serviceInstance)
+  const server = setupServer(...handlers);
 
-      .get(`/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`)
-      .reply(200, data.userServices)
-
-      .get(`/v2/spaces/${spaceGUID}`)
-      .reply(200, data.space)
-
-      .get(`/v2/organizations/${organizationGUID}`)
-      .reply(200, defaultOrg());
-  });
-
-  afterEach(() => {
-    nockAccounts.done();
-    nockCF.on('response', () => {
-      nockCF.done();
-    });
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   it('should show an event', async () => {
-    const event = defaultAuditEvent();
-    nockCF
-      .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
-      .reply(200, data.serviceInstance)
-
-      .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
-      .reply(200, data.serviceString)
-
-      .get(`/v3/audit_events/${event.guid}`)
-      .reply(200, JSON.stringify(event));
+    server.use(
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`, () => {
+        return new HttpResponse(
+          data.serviceInstance,
+        );
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`, () => {
+        return new HttpResponse(
+          data.serviceString,
+        );
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v3/audit_events/${event.guid}`, () => {
+        return new HttpResponse(
+          JSON.stringify(event),
+        );
+      }),
+    );
 
     const response = await viewServiceEvent(ctx, {
       eventGUID: event.guid,
@@ -86,23 +94,29 @@ describe('service event', () => {
 
   it('should show the email of the event actor if it is a user with an email', async () => {
     const event = defaultAuditEvent();
-    nockCF
-      .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
-      .reply(200, data.serviceInstance)
 
-      .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
-      .reply(200, data.serviceString)
+    server.use(
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`, () => {
+        return new HttpResponse(data.serviceInstance);
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`, () => {
+        return new HttpResponse(data.serviceString);
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v3/audit_events/${event.guid}`, () => {
+        return new HttpResponse(
+          JSON.stringify(event),
+        );
+      }),
+      http.get(`${ctx.app.accountsAPI}/users/${event.actor.guid}`, () => {
+        return new HttpResponse(
+          `{
+            "user_uuid": "${event.actor.guid}",
+            "user_email": "one@user.in.database",
+            "username": "one@user.in.database"
+          }`,
+        );
+      }),
 
-      .get(`/v3/audit_events/${event.guid}`)
-      .reply(200, JSON.stringify(event));
-
-    nockAccounts.get(`/users/${event.actor.guid}`).reply(
-      200,
-      `{
-        "user_uuid": "${event.actor.guid}",
-        "user_email": "one@user.in.database",
-        "username": "one@user.in.database"
-      }`,
     );
 
     const response = await viewServiceEvent(ctx, {
@@ -127,22 +141,24 @@ describe('service event', () => {
 
   it('should show the name event actor if it is not a user', async () => {
     const event = defaultAuditEvent();
-      nockCF
-        .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
-        .reply(200, data.serviceInstance)
 
-        .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
-        .reply(200, data.serviceString)
-
-        .get(`/v3/audit_events/${event.guid}`)
-        .reply(
-          200,
+    server.use(
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`, () => {
+        return new HttpResponse(data.serviceInstance);
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`, () => {
+        return new HttpResponse(data.serviceString);
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v3/audit_events/${event.guid}`, () => {
+        return new HttpResponse(
           JSON.stringify(
             lodash.merge(event, {
               actor: { name: 'unknown-actor', type: 'unknown' },
             }),
           ),
         );
+      }),
+    );
 
     const response = await viewServiceEvent(ctx, {
       eventGUID: event.guid,
@@ -166,18 +182,33 @@ describe('service event', () => {
 
   it('should show the GUID of the event actor if it is not a UUID', async () => {
     const event = defaultAuditEvent();
-      nockCF
-        .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
-        .reply(200, data.serviceInstance)
 
-        .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
-        .reply(200, data.serviceString)
-
-        .get(`/v3/audit_events/${event.guid}`)
-        .reply(
-          200,
+    server.use(
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`, () => {
+        return new HttpResponse(data.serviceInstance);
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`, () => {
+        return new HttpResponse(data.serviceString);
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v3/audit_events/${event.guid}`, () => {
+        return new HttpResponse(
           JSON.stringify(auditEventForAutoscaler()),
         );
+      }),
+
+    );
+      // nockCF
+      //   .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
+      //   .reply(200, data.serviceInstance)
+
+      //   .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
+      //   .reply(200, data.serviceString)
+
+      //   .get(`/v3/audit_events/${event.guid}`)
+      //   .reply(
+      //     200,
+      //     JSON.stringify(auditEventForAutoscaler()),
+        //);
 
     const response = await viewServiceEvent(ctx, {
       eventGUID: event.guid,
@@ -196,55 +227,49 @@ describe('service event', () => {
 });
 
 describe('service events', () => {
-  let nockAccounts: nock.Scope;
-  let nockCF: nock.Scope;
 
-  beforeEach(() => {
-    nock.cleanAll();
+  const handlers = [
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/service_instances/${serviceGUID}`, () => {
+      return new HttpResponse(data.serviceInstance);
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/spaces/${spaceGUID}`, () => {
+      return new HttpResponse(data.space);
+    }),
+    http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/${organizationGUID}`, () => {
+      return HttpResponse.json(defaultOrg());
+    }),
+  ];
 
-    nockAccounts = nock(ctx.app.accountsAPI);
-    nockCF = nock(ctx.app.cloudFoundryAPI);
+  const server = setupServer(...handlers);
 
-    nockCF
-      .get(`/v2/service_instances/${serviceGUID}`)
-      .reply(200, data.serviceInstance)
-
-      .get(`/v2/spaces/${spaceGUID}`)
-      .reply(200, data.space)
-
-      .get(`/v2/organizations/${organizationGUID}`)
-      .reply(200, defaultOrg());
-  });
-
-  afterEach(() => {
-    nockAccounts.done();
-    nockCF.on('response', () => {
-    nockCF.done();
-  });
-
-    nock.cleanAll();
-  });
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  beforeEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
   describe('when there are no audit events to display', () => {
     beforeEach(() => {
-      nockCF
-        .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
-        .reply(200, data.serviceInstance)
-
-        .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
-        .reply(200, data.serviceString)
-
-        .get(`/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`)
-        .reply(200, data.userServices)
-
-        .get('/v3/audit_events')
-        .query({
-          order_by: '-updated_at',
-          page: 1,
-          per_page: 25,
-          target_guids: serviceGUID,
-        })
-        .reply(200, JSON.stringify(wrapV3Resources()));
+      server.use(
+        http.get(`${ctx.app.cloudFoundryAPI}/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`, () => {
+          return new HttpResponse(data.serviceInstance);
+        }),
+        http.get(`${ctx.app.cloudFoundryAPI}/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`, () => {
+          return new HttpResponse(data.serviceString);
+        }),
+        http.get(`${ctx.app.cloudFoundryAPI}/v2/user_provided_service_instances`, ({ request }) => {
+          const url = new URL(request.url);
+          const q = url.searchParams.get('q');
+          if (q === `space_guid:${spaceGUID}`) {
+            return new HttpResponse(data.userServices);
+          }
+        }),
+        http.get(`${ctx.app.cloudFoundryAPI}/v3/audit_events`, ({ request }) => {
+          const url = new URL(request.url);
+          const q = url.searchParams.get('target_guids');
+          if (q === `${serviceGUID}`) {
+            return new HttpResponse(JSON.stringify(wrapV3Resources()));
+          }
+        }),
+      );
     });
 
     it('should show a helpful message on the service events page', async () => {
@@ -264,71 +289,71 @@ describe('service events', () => {
 
   describe('when there are some audit events to display', () => {
     beforeEach(() => {
-      nockCF
-        .get('/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1')
-        .reply(200, data.serviceInstance)
-
-        .get('/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422')
-        .reply(200, data.serviceString)
-
-        .get(`/v2/user_provided_service_instances?q=space_guid:${spaceGUID}`)
-        .reply(200, data.userServices)
-
-        .get('/v3/audit_events')
-        .query({
-          order_by: '-updated_at',
-          page: 1,
-          per_page: 25,
-          target_guids: serviceGUID,
-        })
-        .reply(
-          200,
-          JSON.stringify(
-            lodash.merge(
-              wrapV3Resources(
-                lodash.merge(defaultAuditEvent(), {
-                  type: 'audit.service_instance.delete',
-                }),
-                lodash.merge(defaultAuditEvent(), {
-                  type: 'audit.service_instance.update',
-                }),
-                lodash.merge(defaultAuditEvent(), {
-                  type: 'audit.service_instance.create',
-                }),
-                lodash.merge(defaultAuditEvent(), {
-                  actor: {
-                    guid: 'unknown',
-                    name: 'some unknown actor',
-                    type: 'unknown',
+      server.use(
+        http.get(`${ctx.app.cloudFoundryAPI}/v2/service_plans/779d2df0-9cdd-48e8-9781-ea05301cedb1`, () => {
+          return new HttpResponse(data.serviceInstance);
+        }),
+        http.get(`${ctx.app.cloudFoundryAPI}/v2/services/a14baddf-1ccc-5299-0152-ab9s49de4422`, () => {
+          return new HttpResponse(data.serviceString);
+        }),
+        http.get(`${ctx.app.cloudFoundryAPI}/v2/user_provided_service_instances`, ({ request }) => {
+          const url = new URL(request.url);
+          const q = url.searchParams.get('q');
+          if (q === `space_guid:${spaceGUID}`) {
+            return new HttpResponse(data.userServices);
+          }
+        }),
+        http.get(`${ctx.app.cloudFoundryAPI}/v3/audit_events`, ({ request }) => {
+          const url = new URL(request.url);
+          const q = url.searchParams.get('target_guids');
+          if (q === `${serviceGUID}`) {
+            return new HttpResponse(
+              JSON.stringify(
+                lodash.merge(
+                  wrapV3Resources(
+                    lodash.merge(defaultAuditEvent(), {
+                      type: 'audit.service_instance.delete',
+                    }),
+                    lodash.merge(defaultAuditEvent(), {
+                      type: 'audit.service_instance.update',
+                    }),
+                    lodash.merge(defaultAuditEvent(), {
+                      type: 'audit.service_instance.create',
+                    }),
+                    lodash.merge(defaultAuditEvent(), {
+                      actor: {
+                        guid: 'unknown',
+                        name: 'some unknown actor',
+                        type: 'unknown',
+                      },
+                      type: 'some unknown event type',
+                    }),
+                    auditEventForAutoscaler(),
+                  ),
+                  {
+                    pagination: {
+                      next: { href: '/link-to-next-page' },
+                      total_pages: 2702,
+                      total_results: 1337,
+                    },
                   },
-                  type: 'some unknown event type',
-                }),
-                auditEventForAutoscaler(),
+                ),
               ),
-              {
-                pagination: {
-                  next: { href: '/link-to-next-page' },
-                  total_pages: 2702,
-                  total_results: 1337,
-                },
-              },
-            ),
-          ),
-        );
-
-      nockAccounts
-        .get('/users')
-        .query({ uuids: defaultAuditEvent().actor.guid })
-        .reply(
-          200,
-          `{
-          "users": [{
-            "user_uuid": "${defaultAuditEvent().actor.guid}",
-            "user_email": "one@user.in.database",
-            "username": "one@user.in.database"
-          }]
-        }`,
-        );
+            );
+          }
+        }),
+        http.get(`${ctx.app.accountsAPI}/users`, () => {
+          return new HttpResponse(
+            `{
+              "users": [{
+                "user_uuid": "${defaultAuditEvent().actor.guid}",
+                "user_email": "one@user.in.database",
+                "username": "one@user.in.database"
+              }]
+            }`,
+          );
+        }),
+      );
     });
 
     it('should show a table of events on the service events page', async () => {
@@ -366,49 +391,57 @@ describe('service event - CUPS', () => {
   const customSpaceGUID = '38511660-89d9-4a6e-a889-c32c7e94f139';
   const customServiceGUID = '54e4c645-7d20-4271-8c27-8cc904e1e7ee';
 
-  let nockAccounts: nock.Scope;
-  let nockCF: nock.Scope;
+  const handlers = [
+    http.get(`${ctx.app.cloudFoundryAPI}`, () => {
+      return new HttpResponse();
+    }),
+    http.get(`${ctx.app.accountsAPI}/*`, () => {
+      return new HttpResponse();
+    }),
+  ];
 
+  const server = setupServer(...handlers);
+
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
   beforeEach(() => {
-    nock.cleanAll();
-
-    nockAccounts = nock(ctx.app.accountsAPI);
-    nockCF = nock(ctx.app.cloudFoundryAPI);
-
-    nockCF
-      .get(`/v2/spaces/${spaceGUID}`)
-      .reply(200, data.space)
-
-      .get(`/v2/organizations/${organizationGUID}`)
-      .reply(200, defaultOrg())
-
-      .get(`/v2/user_provided_service_instances?q=space_guid:${customSpaceGUID}`)
-      .reply(200, data.userServices)
-
-      .get(`/v2/service_instances/${customServiceGUID}`)
-      .reply(200, data.serviceInstance);
+    server.resetHandlers();
+    server.use(
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/service_instances/${customServiceGUID}`, () => {
+        return new HttpResponse(data.serviceInstance);
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/spaces/${spaceGUID}`, () => {
+        return new HttpResponse(data.space);
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/${organizationGUID}`, () => {
+        return HttpResponse.json(defaultOrg());
+      }),
+      http.get(`${ctx.app.cloudFoundryAPI}/v2/user_provided_service_instances`, ({ request }) => {
+        const url = new URL(request.url);
+        const q = url.searchParams.get('q');
+        if (q === `space_guid:${customSpaceGUID}`) {
+          return new HttpResponse(
+            data.userServices,
+          );
+        }
+      }),
+    );
   });
-
-  afterEach(() => {
-    nockAccounts.done();
-    nockCF.on('response', () => {
-    nockCF.done();
-  });
-
-    nock.cleanAll();
-  });
+  afterAll(() => server.close());
 
   describe('when there are no audit events to display', () => {
     it('should show a helpful message on the service events page', async () => {
-      nockCF
-        .get('/v3/audit_events')
-        .query({
-          order_by: '-updated_at',
-          page: 1,
-          per_page: 25,
-          target_guids: customServiceGUID,
-        })
-        .reply(200, JSON.stringify(wrapV3Resources()));
+
+      server.use(
+        http.get(`${ctx.app.cloudFoundryAPI}/v3/audit_events`, ({ request }) => {
+          const url = new URL(request.url);
+          const q = url.searchParams.get('target_guids');
+          if (q === `${customServiceGUID}`) {
+            return new HttpResponse(
+              JSON.stringify(wrapV3Resources()),
+            );
+          }
+        }),
+      );
 
       const response = await viewServiceEvents(ctx, {
         organizationGUID,
@@ -427,9 +460,14 @@ describe('service event - CUPS', () => {
 
   it('should show an event for CUPS', async () => {
     const event = defaultAuditEvent();
-    nockCF
-      .get('/v3/audit_events/a595fe2f-01ff-4965-a50c-290258ab8582')
-      .reply(200, JSON.stringify(event));
+
+    server.use(
+      http.get(`${ctx.app.cloudFoundryAPI}/v3/audit_events/a595fe2f-01ff-4965-a50c-290258ab8582`, () => {
+        return new HttpResponse(
+          JSON.stringify(event),
+        );
+      }),
+    );
 
     const response = await viewServiceEvent(ctx, {
       eventGUID: event.guid,

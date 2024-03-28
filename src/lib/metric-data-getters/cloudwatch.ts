@@ -1,6 +1,6 @@
 import { MetricDataResult as CloudWatchResult } from '@aws-sdk/client-cloudwatch';
 import { add, Duration, isBefore, isEqual } from 'date-fns';
-import _ from 'lodash';
+import _ from 'lodash-es';
 
 import { IMetric, MetricName } from '../metrics';
 

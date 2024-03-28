@@ -1,5 +1,5 @@
 import { Duration } from 'date-fns';
-import _ from 'lodash';
+import _ from 'lodash-es';
 
 import { IMetricDataGetter, IMetricSerie, MetricName } from '../metrics';
 import PromClient from '../prom';

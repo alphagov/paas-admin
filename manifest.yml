@@ -1,7 +1,7 @@
 ---
 applications:
   - name: paas-admin
-    command: node dist/main.js
+    command: node dist/main.mjs
     memory: 2G
     buildpack: nodejs_buildpack
     stack: cflinuxfs3

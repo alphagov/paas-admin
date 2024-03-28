@@ -1,4 +1,4 @@
-import lodash from 'lodash';
+import lodash from 'lodash-es';
 import React from 'react';
 
 import * as zendesk from 'node-zendesk';

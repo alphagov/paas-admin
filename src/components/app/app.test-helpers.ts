@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import * as _ from 'lodash';
+import * as _ from 'lodash-es';
 import pino from 'pino';
 
 import { Token } from '../auth';

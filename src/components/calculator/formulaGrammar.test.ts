@@ -1,4 +1,6 @@
-import { parse } from './pegjsGrammerParser';
+import { describe, expect, it } from 'vitest';
+
+import { parse } from './pegjsGrammerParser.cjs';
 
 describe('Billing formula grammar', () => {
   it('should return a single number', () => {
