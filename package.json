@@ -34,7 +34,7 @@
   "license": "MIT",
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.2",
-    "@testing-library/react": "^14.2.2",
+    "@testing-library/react": "^15.0.2",
     "@types/aws-sdk": "^2.7.0",
     "@types/body-parser": "^1.19.5",
     "@types/cheerio": "^0.22.35",
@@ -77,10 +77,10 @@
     "eslint-plugin-react": "^7.34.1",
     "expect": "^29.7.0",
     "mini-css-extract-plugin": "^2.8.1",
-    "msw": "^2.2.13",
+    "msw": "^2.2.14",
     "nodemon-webpack-plugin": "^4.8.2",
     "pino-pretty": "^7.6.1",
-    "puppeteer": "^22.6.1",
+    "puppeteer": "^22.6.5",
     "sass": "^1.72.0",
     "sass-loader": "^14.1.1",
     "stylelint": "^16.3.1",
@@ -139,7 +139,7 @@
     "route-parser": "^0.0.5",
     "source-map-support": "^0.5.21",
     "tslib": "^2.6.2",
-    "vitest": "^1.4.0"
+    "vitest": "^1.5.0"
   },
   "overrides": {
     "request@2.88.2": {
