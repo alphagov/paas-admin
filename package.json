@@ -95,9 +95,9 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.651.1",
-    "@aws-sdk/client-rds": "^3.653.0",
-    "@aws-sdk/client-resource-groups-tagging-api": "^3.651.1",
+    "@aws-sdk/client-cloudwatch": "^3.694.0",
+    "@aws-sdk/client-rds": "^3.693.0",
+    "@aws-sdk/client-resource-groups-tagging-api": "^3.693.0",
     "@aws-sdk/types": "^3.521.0",
     "axios": "^1.7.7",
     "base32-encode": "^2.0.0",
