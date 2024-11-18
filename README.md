@@ -98,7 +98,7 @@ npm run start:with-stub-api
 
 ### Start the server pointing at real APIs in development mode
 
-Run
+Run:
 
 ```sh
 gds aws paas-dev-admin -- npm run start:dev:with-cf-dev-env  $DEPLOY_ENV
