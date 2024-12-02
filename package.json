@@ -125,7 +125,7 @@
     "lodash-es": "^4.17.21",
     "nanoid": "^5.0.7",
     "node-jose": "^2.2.0",
-    "node-zendesk": "^3.0.3",
+    "node-zendesk": "^5.0.15",
     "notifications-node-client": "^8.0.0",
     "openid-client": "^4.9.1",
     "p-limit": "^5.0.0",
