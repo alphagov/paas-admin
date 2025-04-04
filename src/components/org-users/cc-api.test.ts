@@ -146,9 +146,6 @@ describe('permissions calling cc api', () => {
               current: '1',
               desired: '1',
             },
-            billing_managers: {
-              current: '0',
-            },
           }),
         },
         space_roles: {

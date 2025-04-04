@@ -88,7 +88,6 @@ async function main() {
       accessKeyId: "FAKE_ACCESS_KEY_ID",
       secretAccessKey: "FAKE_SECRET_ACCESS_KEY",
     } : undefined,
-    billingAPI: expectEnvVariable('BILLING_URL'),
     cloudFoundryAPI,
     domainName: expectEnvVariable('DOMAIN_NAME'),
     location,
@@ -127,7 +126,6 @@ async function main() {
     {
       accountsAPI: config.accountsAPI,
       authorizationAPI,
-      billingAPI: config.billingAPI,
       cloudFoundryAPI,
       port: server.http.address().port,
       uaaAPI,

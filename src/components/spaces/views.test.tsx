@@ -379,7 +379,6 @@ describe(SpacesPage, () => {
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
         isManager={false}
-        isBillingManager={false}
         organization={organization}
         spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
@@ -403,7 +402,6 @@ describe(SpacesPage, () => {
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={true}
         isManager={true}
-        isBillingManager={false}
         organization={organization}
         spaces={[space]}
         users={[null]}
@@ -420,7 +418,6 @@ describe(SpacesPage, () => {
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
         isManager={true}
-        isBillingManager={false}
         organization={organization}
         spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
@@ -437,7 +434,6 @@ describe(SpacesPage, () => {
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
         isManager={false}
-        isBillingManager={false}
         organization={organization}
         spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
@@ -464,7 +460,6 @@ describe(SpacesPage, () => {
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
         isManager={false}
-        isBillingManager={false}
         organization={suspendedOrganization}
         spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
@@ -480,7 +475,6 @@ describe(SpacesPage, () => {
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
         isManager={false}
-        isBillingManager={false}
         organization={organization}
         spaces={[]}
         users={[null]}
@@ -523,7 +517,6 @@ describe(SpacesPage, () => {
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
         isManager={false}
-        isBillingManager={false}
         organization={organization}
         spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
@@ -568,7 +561,6 @@ describe(SpacesPage, () => {
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
         isManager={false}
-        isBillingManager={false}
         organization={organization}
         spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
@@ -612,7 +604,6 @@ describe(SpacesPage, () => {
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
         isManager={false}
-        isBillingManager={false}
         organization={organization}
         spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}
@@ -656,7 +647,6 @@ describe(SpacesPage, () => {
         linkTo={route => `__LINKS_TO__${route}`}
         isAdmin={false}
         isManager={false}
-        isBillingManager={false}
         organization={organization}
         spaces={[space, { ...space2, quota: undefined }]}
         users={[null]}

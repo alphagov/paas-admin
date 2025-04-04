@@ -202,7 +202,6 @@ describe('paas-admin', () => {
 
         await Promise.all([
           page.evaluate(() => {
-            ([...document.querySelectorAll('label')]?.find(element => element?.textContent === ('Billing manager')))?.click();
             ([...document.querySelectorAll('button')]?.find(element => element?.textContent === ('Send invitation')))?.click();
           }),
           page.waitForNavigation(),

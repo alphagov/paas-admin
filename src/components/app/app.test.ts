@@ -23,11 +23,6 @@ import { router } from './router';
 const tokenKey = 'tokensecret';
 
 describe('app test suite', () => {
-    const handlers = [
-      http.get(`${config.billingAPI}`, () => {
-        return new HttpResponse('');
-      }),
-    ];
     const server = setupServer(...handlers);
 
     beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
@@ -90,45 +85,6 @@ describe('app test suite', () => {
     const response = await request(app).get('/this-should-not-exists');
 
     expect(response.status).toEqual(302);
-  });
-
-  it('should be able to access pricing calculator without login', async () => {
-    server.use(
-      http.get(`${config.billingAPI}/pricing_plans`, () => {
-        return new HttpResponse(
-          '[]',
-          { status: 200 },
-        );
-      }),
-    );
-
-    const app = init(config);
-    const response = await request(app).get('/calculator');
-
-    expect(response.status).toEqual(200);
-  });
-
-  it('should be able to handle 500 error when accessing pricing calculator', async () => {
-    const rangeStart = format(startOfMonth(new Date()), 'yyyy-MM-dd');
-    const rangeStop = format(endOfMonth(new Date()), 'yyyy-MM-dd');
-
-    server.use(
-      http.get(`${config.billingAPI}/pricing_plans`, ({ request }) => {
-        const url = new URL(request.url);
-        const q = url.searchParams.get('range_start');
-        if (q === `${rangeStart}&range_stop=${rangeStop}`) {
-          return new HttpResponse(
-            null,
-            { status: 500 },
-          );
-        }
-      }),
-    );
-
-    const app = init(config);
-    const response = await request(app).get('/calculator');
-
-    expect(response.status).toEqual(500);
   });
 
   it('should be able to access marketplace without login', async () => {

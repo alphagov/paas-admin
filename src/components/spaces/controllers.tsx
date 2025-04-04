@@ -53,7 +53,6 @@ async function hydrateAccountsUsernames(
           admin: user.entity.admin,
           audited_organizations_url: user.entity.audited_organizations_url,
           audited_spaces_url: user.entity.audited_spaces_url,
-          billing_managed_organizations_url: user.entity.billing_managed_organizations_url,
           default_space_guid: user.entity.default_space_guid,
           managed_organizations_url: user.entity.managed_organizations_url,
           managed_spaces_url: user.entity.managed_spaces_url,
@@ -339,7 +338,6 @@ export async function listSpaces(
 
   const [
     isManager,
-    isBillingManager,
     spaces,
     organization,
     users,
@@ -433,7 +431,6 @@ export async function listSpaces(
     body: template.render(
       <SpacesPage
         isAdmin={isAdmin}
-        isBillingManager={isBillingManager}
         isManager={isManager}
         linkTo={ctx.linkTo}
         organization={summarisedOrganization}

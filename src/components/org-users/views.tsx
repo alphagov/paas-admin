@@ -56,7 +56,6 @@ interface IPermissionProperties {
 }
 
 interface IPermissionBlockProperties {
-  readonly billingManagers: number;
   readonly managers: number;
   readonly organization: IOrganization;
   readonly spaces: ReadonlyArray<ISpace>;
@@ -232,23 +231,6 @@ export function PermissionBlock(
                   props.managers < 2 &&
                   props.values.org_roles[props.organization.metadata.guid]
                     .managers.current
-                }
-              />
-              <Permission
-                name="Billing manager"
-                checked={
-                  !!props.values.org_roles[props.organization.metadata.guid]
-                    .billing_managers.desired
-                }
-                namespace={`org_roles[${props.organization.metadata.guid}][billing_managers]`}
-                state={
-                  props.values.org_roles[props.organization.metadata.guid]
-                    .billing_managers
-                }
-                disabled={
-                  props.billingManagers < 2 &&
-                  props.values.org_roles[props.organization.metadata.guid]
-                    .billing_managers.current
                 }
               />
               <Permission
@@ -513,7 +495,6 @@ export function EditPage(props: IEditPageProperties): ReactElement {
             spaces={props.spaces}
             values={props.values}
             managers={props.managers}
-            billingManagers={props.billingManagers}
             errors={props.errors}
           />
 
@@ -617,7 +598,6 @@ export function InvitePage(props: IInvitePageProperties): ReactElement {
             spaces={props.spaces}
             values={props.values}
             managers={10}
-            billingManagers={10}
             errors={props.errors}
           />
 
@@ -762,13 +742,6 @@ export function OrganizationUsersPage(
                   )}
                   <td className="govuk-table__cell">
                     {props.users[guid].orgRoles.includes('org_manager') ? (
-                      <Tick />
-                    ) : (
-                      <NoTick />
-                    )}
-                  </td>
-                  <td className="govuk-table__cell">
-                    {props.users[guid].orgRoles.includes('billing_manager') ? (
                       <Tick />
                     ) : (
                       <NoTick />

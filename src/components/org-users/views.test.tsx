@@ -71,7 +71,6 @@ describe(PermissionBlock, () => {
   it('should display correctly permissions block element', () => {
     const { container } = render(
       <PermissionBlock
-        billingManagers={2}
         managers={2}
         organization={organization}
         spaces={spaces}
@@ -79,7 +78,6 @@ describe(PermissionBlock, () => {
           org_roles: {
             ORG_GUID: {
               auditors: { current: false, desired: false },
-              billing_managers: { current: true, desired: true },
               managers: { current: true, desired: true },
             },
           },
@@ -109,12 +107,6 @@ describe(PermissionBlock, () => {
       .toHaveLength(1);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:disabled'))
-      .toHaveLength(1);
-    expect(container
-      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:checked'))
-      .toHaveLength(1);
-    expect(container
-      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:disabled'))
       .toHaveLength(1);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked'))
@@ -152,7 +144,6 @@ describe(PermissionBlock, () => {
   it('should display correctly with disabled checked manager boxes when not enough managers', () => {
     const { container } = render(
       <PermissionBlock
-        billingManagers={1}
         managers={1}
         organization={organization}
         spaces={[]}
@@ -160,7 +151,6 @@ describe(PermissionBlock, () => {
           org_roles: {
             ORG_GUID: {
               auditors: { current: true, desired: true },
-              billing_managers: { current: true, desired: true },
               managers: { current: true, desired: true },
             },
           },
@@ -179,15 +169,6 @@ describe(PermissionBlock, () => {
       .querySelectorAll('input[type="hidden"][name^="org_roles[ORG_GUID][managers][desired]"]'))
       .toHaveLength(1);
     expect(container
-      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:checked'))
-      .toHaveLength(1);
-    expect(container
-      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:disabled'))
-      .toHaveLength(1);
-    expect(container
-      .querySelectorAll('input[type="hidden"][name^="org_roles[ORG_GUID][billing_managers][desired]"]'))
-      .toHaveLength(1);
-    expect(container
       .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked'))
       .toHaveLength(1);
     expect(spacesMissingAroundInlineElements(container.innerHTML)).toHaveLength(0);
@@ -196,7 +177,6 @@ describe(PermissionBlock, () => {
   it('should display correctly with enabled unchecked manager boxes when not enough managers', () => {
     const { container } = render(
       <PermissionBlock
-        billingManagers={1}
         managers={1}
         organization={organization}
         spaces={[]}
@@ -204,7 +184,6 @@ describe(PermissionBlock, () => {
           org_roles: {
             ORG_GUID: {
               auditors: { current: true, desired: true },
-              billing_managers: { current: false, desired: false },
               managers: { current: false, desired: false },
             },
           },
@@ -219,12 +198,6 @@ describe(PermissionBlock, () => {
       .toHaveLength(0);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][managers]"]:disabled'))
-      .toHaveLength(1);
-    expect(container
-      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:checked'))
-      .toHaveLength(0);
-    expect(container
-      .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][billing_managers]"]:disabled'))
       .toHaveLength(1);
     expect(container
       .querySelectorAll('input[type="checkbox"][name^="org_roles[ORG_GUID][auditors]"]:checked'))

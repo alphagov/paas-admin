@@ -678,7 +678,6 @@ export const users = `{
         "spaces_url": "/v2/users/uaa-id-253/spaces",
         "organizations_url": "/v2/users/uaa-id-253/organizations",
         "managed_organizations_url": "/v2/users/uaa-id-253/managed_organizations",
-        "billing_managed_organizations_url": "/v2/users/uaa-id-253/billing_managed_organizations",
         "audited_organizations_url": "/v2/users/uaa-id-253/audited_organizations",
         "managed_spaces_url": "/v2/users/uaa-id-253/managed_spaces",
         "audited_spaces_url": "/v2/users/uaa-id-253/audited_spaces"
@@ -704,7 +703,6 @@ export const users = `{
         "spaces_url": "/v2/users/uaa-id-879/spaces",
         "organizations_url": "/v2/users/uaa-id-879/organizations",
         "managed_organizations_url": "/v2/users/uaa-id-879/managed_organizations",
-        "billing_managed_organizations_url": "/v2/users/uaa-id-879/billing_managed_organizations",
         "audited_organizations_url": "/v2/users/uaa-id-879/audited_organizations",
         "managed_spaces_url": "/v2/users/uaa-id-879/managed_spaces",
         "audited_spaces_url": "/v2/users/uaa-id-879/audited_spaces"
@@ -727,7 +725,6 @@ export const user = `{
     "spaces_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/spaces",
     "organizations_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/organizations",
     "managed_organizations_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/managed_organizations",
-    "billing_managed_organizations_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/billing_managed_organizations",
     "audited_organizations_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/audited_organizations",
     "managed_spaces_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/managed_spaces",
     "audited_spaces_url": "/v2/users/guid-cb24b36d-4656-468e-a50d-b53113ac6177/audited_spaces"
@@ -743,7 +740,6 @@ export const userRoles = `{
   },
   "entity": {
     "name": "name-1753",
-    "billing_enabled": false,
     "quota_definition_guid": "2a6ff67b-6177-43c6-918a-c8d3bbaf0414",
     "status": "active",
     "quota_definition_url": "/v2/quota_definitions/2a6ff67b-6177-43c6-918a-c8d3bbaf0414",
@@ -752,7 +748,6 @@ export const userRoles = `{
     "private_domains_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/private_domains",
     "users_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/users",
     "managers_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/managers",
-    "billing_managers_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/billing_managers",
     "auditors_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/auditors",
     "app_events_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/app_events",
     "space_quota_definitions_url": "/v2/organizations/beb082da-25e1-4329-88c9-bea2d809729d/space_quota_definitions"
@@ -785,7 +780,6 @@ export const userRolesForOrg = `{
         "spaces_url": "/v2/users/uaa-id-253/spaces",
         "organizations_url": "/v2/users/uaa-id-253/organizations",
         "managed_organizations_url": "/v2/users/uaa-id-253/managed_organizations",
-        "billing_managed_organizations_url": "/v2/users/uaa-id-253/billing_managed_organizations",
         "audited_organizations_url": "/v2/users/uaa-id-253/audited_organizations",
         "managed_spaces_url": "/v2/users/uaa-id-253/managed_spaces",
         "audited_spaces_url": "/v2/users/uaa-id-253/audited_spaces"
@@ -811,7 +805,6 @@ export const userRolesForOrg = `{
         "spaces_url": "/v2/users/uaa-user-edit-123456/spaces",
         "organizations_url": "/v2/users/uaa-user-edit-123456/organizations",
         "managed_organizations_url": "/v2/users/uaa-user-edit-123456/managed_organizations",
-        "billing_managed_organizations_url": "/v2/users/uaa-user-edit-123456/billing_managed_organizations",
         "audited_organizations_url": "/v2/users/uaa-user-edit-123456/audited_organizations",
         "managed_spaces_url": "/v2/users/uaa-user-edit-123456/managed_spaces",
         "audited_spaces_url": "/v2/users/uaa-user-edit-123456/audited_spaces"
@@ -832,13 +825,11 @@ export const userRolesForOrg = `{
         "organization_roles": [
           "org_user",
           "org_manager",
-          "org_auditor",
-          "billing_manager"
+          "org_auditor"
         ],
         "spaces_url": "/v2/users/uaa-user-changeperms-123456/spaces",
         "organizations_url": "/v2/users/uaa-user-changeperms-123456/organizations",
         "managed_organizations_url": "/v2/users/uaa-user-changeperms-123456/managed_organizations",
-        "billing_managed_organizations_url": "/v2/users/uaa-user-changeperms-123456/billing_managed_organizations",
         "audited_organizations_url": "/v2/users/uaa-user-changeperms-123456/audited_organizations",
         "managed_spaces_url": "/v2/users/uaa-user-changeperms-123456/managed_spaces",
         "audited_spaces_url": "/v2/users/uaa-user-changeperms-123456/audited_spaces"
@@ -864,7 +855,6 @@ export const userRolesForOrg = `{
         "spaces_url": "/v2/users/uaa-id-253/spaces",
         "organizations_url": "/v2/users/uaa-id-253/organizations",
         "managed_organizations_url": "/v2/users/uaa-id-253/managed_organizations",
-        "billing_managed_organizations_url": "/v2/users/uaa-id-253/billing_managed_organizations",
         "audited_organizations_url": "/v2/users/uaa-id-253/audited_organizations",
         "managed_spaces_url": "/v2/users/uaa-id-253/managed_spaces",
         "audited_spaces_url": "/v2/users/uaa-id-253/audited_spaces"
@@ -894,13 +884,11 @@ export const userRolesForOrgWithOneManager = `{
         "organization_roles": [
           "org_user",
           "org_manager",
-          "org_auditor",
-          "billing_manager"
+          "org_auditor"
         ],
         "spaces_url": "/v2/users/uaa-id-253/spaces",
         "organizations_url": "/v2/users/uaa-id-253/organizations",
         "managed_organizations_url": "/v2/users/uaa-id-253/managed_organizations",
-        "billing_managed_organizations_url": "/v2/users/uaa-id-253/billing_managed_organizations",
         "audited_organizations_url": "/v2/users/uaa-id-253/audited_organizations",
         "managed_spaces_url": "/v2/users/uaa-id-253/managed_spaces",
         "audited_spaces_url": "/v2/users/uaa-id-253/audited_spaces"
@@ -960,7 +948,6 @@ export const userRolesForSpace = `{
         "spaces_url": "/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/spaces",
         "organizations_url": "/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/organizations",
         "managed_organizations_url": "/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/managed_organizations",
-        "billing_managed_organizations_url": "/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/billing_managed_organizations",
         "audited_organizations_url": "/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/audited_organizations",
         "managed_spaces_url": "/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/managed_spaces",
         "audited_spaces_url": "/v2/users/99022be6-feb8-4f78-96f3-7d11f4d476f1/audited_spaces"
@@ -1044,16 +1031,6 @@ export const userSummary = `{
       }
     }],
     "managed_organizations": [{
-      "metadata": {
-        "guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
-        "created_at": "2016-06-08T16:41:33Z",
-        "updated_at": "2016-06-08T16:41:26Z"
-      },
-      "entity": {
-        "name": "the-system_domain-org-name"
-      }
-    }],
-    "billing_managed_organizations": [{
       "metadata": {
         "guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20",
         "created_at": "2016-06-08T16:41:33Z",

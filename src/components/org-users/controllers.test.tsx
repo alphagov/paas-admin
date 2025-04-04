@@ -225,9 +225,6 @@ describe('org-users test suite', () => {
             managers: {
               current: '1',
             },
-            billing_managers: {
-              current: '0',
-            },
             auditors: {
               current: '0',
               desired: '1',
@@ -247,11 +244,6 @@ describe('org-users test suite', () => {
     expect(
       $(
         'input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers]"]:disabled',
-      ).length,
-    ).toEqual(0);
-    expect(
-      $(
-        'input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][billing_managers]"]:checked',
       ).length,
     ).toEqual(0);
     expect(
@@ -346,12 +338,6 @@ describe('org-users test suite', () => {
       {
         email: 'imeCkO@test.org',
         org_roles: {
-          'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
-            billing_managers: {
-              current: '0',
-              desired: '1',
-            },
-          }),
         },
         space_roles: {
           '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
@@ -415,94 +401,6 @@ describe('org-users test suite', () => {
     expect($('#roles').find('#roles-error').length).toBe(1);
     expect($('#roles').attr('aria-describedby')).toBe('roles-error');
     expect(response.status).toEqual(400);
-    expect(
-      spacesMissingAroundInlineElements(response.body as string),
-    ).toHaveLength(0);
-  });
-
-  it('should invite the user, set BillingManager role and show success', async () => {
-
-    server.use(
-      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles`, () => {
-        return new HttpResponse(
-          cfData.userRolesForOrg,
-        );
-      }),
-      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces`, () => {
-        return new HttpResponse(
-          cfData.spaces,
-        );
-      }),
-      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20`, () => {
-        return new HttpResponse(
-          JSON.stringify(defaultOrg()),
-        );
-      }),
-      http.put(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8`, () => {
-        return new HttpResponse(
-          '{"metadata": {"guid": "a7aff246-5f5b-4cf8-87d8-f316053e4a20"}}',
-          { status: 201 },
-        );
-      }),
-      http.put(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8`, ({ request }) => {
-        const url = new URL(request.url);
-        const q = url.searchParams.get('recursive');
-        if (q === 'true') {
-          return new HttpResponse(
-            '{}',
-          );
-        }
-      }),
-      http.post(`${ctx.app.accountsAPI}/users/`, () => {
-        return new HttpResponse(
-          '',
-          { status: 201 },
-        );
-      }),
-      http.post(`${ctx.app.uaaAPI}/invite_users`, ({ request }) => {
-        const url = new URL(request.url);
-        const q = url.searchParams.get('redirect_uri');
-        const q2 = url.searchParams.get('client_id');
-        if (q === 'https://www.cloud.service.gov.uk/next-steps?success' && q2 === 'user_invitation') {
-          return new HttpResponse(
-            uaaData.invite,
-          );
-        }
-      }),
-      http.get(`${ctx.app.uaaAPI}/Users`, ({ request }) => {
-        const url = new URL(request.url);
-        const q = url.searchParams.get('filter');
-        if (q?.match(/jeff@jeff.com/)) {
-          return new HttpResponse(
-            uaaData.noFoundUsersByEmail,
-          );
-        }
-      }),
-    );
-
-    const response = await orgUsers.inviteUser(
-      ctx,
-      {
-        organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-      },
-      {
-        email: 'jeff@jeff.com',
-        org_roles: {
-          'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
-            billing_managers: {
-              current: '0',
-              desired: '1',
-            },
-          }),
-        },
-        space_roles: {
-          '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
-          'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
-        },
-      },
-    );
-
-    expect(response.body).toContain('New team member successfully invited');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);
@@ -1043,15 +941,6 @@ describe('org-users test suite', () => {
          { status: 201 },
         );
       }),
-      http.put(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8`, ({ request }) => {
-        const url = new URL(request.url);
-        const q = url.searchParams.get('recursive');
-        if (q === 'true') {
-          return new HttpResponse(
-          '{}',
-          );
-        }
-      }),
       http.post(`${ctx.app.uaaAPI}/invite_users`, ({ request }) => {
         const url = new URL(request.url);
         const q = url.searchParams.get('redirect_uri');
@@ -1088,10 +977,6 @@ describe('org-users test suite', () => {
         email: 'jeff@jeff.com',
         org_roles: {
           'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
-            billing_managers: {
-              current: '0',
-              desired: '1',
-            },
           }),
         },
         space_roles: {
@@ -1230,46 +1115,6 @@ describe('org-users test suite', () => {
     ).rejects.toThrowError('User not found');
   });
 
-  it('should update the user, set BillingManager role and show success - User Delete', async () => {
-
-    server.use(
-      http.delete(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/users/5ff19d4c-8fa0-4d74-94e0-52eac86d55a8`, ({ request }) => {
-        const url = new URL(request.url);
-        const q = url.searchParams.get('recursive');
-        if (q === 'true') {
-          return new HttpResponse(
-            '',
-            { status: 200 },
-          );
-        }
-      }),
-      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20`, () => {
-        return new HttpResponse(
-          JSON.stringify(defaultOrg()),
-        );
-      }),
-      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles`, () => {
-        return new HttpResponse(
-          cfData.userRolesForOrg,
-        );
-      }),
-    );
-
-    const response = await orgUsers.deleteUser(
-      ctx,
-      {
-        organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-        userGUID: '5ff19d4c-8fa0-4d74-94e0-52eac86d55a8',
-      },
-      {},
-    );
-
-    expect(response.body).toContain('Team member successfully deleted');
-    expect(
-      spacesMissingAroundInlineElements(response.body as string),
-    ).toHaveLength(0);
-  });
-
   it('should show the user edit page', async () => {
 
     server.use(
@@ -1399,11 +1244,6 @@ describe('org-users test suite', () => {
     expect(
       $(
         'input[type="hidden"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][managers][desired]"]',
-      ).length,
-    ).toEqual(1);
-    expect(
-      $(
-        'input[type="checkbox"][name^="org_roles[a7aff246-5f5b-4cf8-87d8-f316053e4a20][billing_managers]"]:disabled',
       ).length,
     ).toEqual(1);
     expect(
@@ -1597,15 +1437,6 @@ describe('org-users test suite', () => {
   it('should show error when no roles selected - User Edit', async () => {
 
     server.use(
-      http.put(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/uaa-user-edit-123456`, ({ request }) => {
-        const url = new URL(request.url);
-        const q = url.searchParams.get('recursive');
-        if (q === 'true') {
-          return new HttpResponse(
-            '{}',
-          );
-        }
-      }),
       http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20`, () => {
         return new HttpResponse(
           JSON.stringify(defaultOrg()),
@@ -1662,122 +1493,6 @@ describe('org-users test suite', () => {
 
     expect(response.body).toContain('At least one organisation or space level role should be selected');
     expect(response.status).toEqual(400);
-    expect(
-      spacesMissingAroundInlineElements(response.body as string),
-    ).toHaveLength(0);
-  });
-
-  it('should update the user, set BillingManager role and show success - User Edit', async () => {
-
-    server.use(
-      http.put(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/uaa-user-edit-123456`, ({ request }) => {
-        const url = new URL(request.url);
-        const q = url.searchParams.get('recursive');
-        if (q === 'true') {
-          return new HttpResponse(
-            '{}',
-          );
-        }
-      }),
-      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20`, () => {
-        return new HttpResponse(
-          JSON.stringify(defaultOrg()),
-        );
-      }),
-      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles`, () => {
-        return new HttpResponse(
-          cfData.userRolesForOrg,
-        );
-      }),
-      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces`, () => {
-        return new HttpResponse(
-          cfData.spaces,
-        );
-      }),
-    );
-
-    const response = await orgUsers.updateUser(
-      ctx,
-      {
-        organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-        userGUID: 'uaa-user-edit-123456',
-      },
-      {
-        org_roles: {
-          'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
-            billing_managers: {
-              current: '0',
-              desired: '1',
-            },
-          }),
-        },
-        space_roles: {
-          '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
-          'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
-        },
-      },
-    );
-
-    expect(response.body).toContain('Team member details successfully updated');
-    expect(
-      spacesMissingAroundInlineElements(response.body as string),
-    ).toHaveLength(0);
-  });
-
-  it('should update the user, remove BillingManager role and show success - User Edit', async () => {
-
-    server.use(
-      http.delete(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/billing_managers/uaa-id-253`, ({ request }) => {
-        const url = new URL(request.url);
-        const q = url.searchParams.get('recursive');
-        if (q === 'true') {
-          return new HttpResponse(
-            '{}',
-          );
-        }
-      }),
-      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20`, () => {
-        return new HttpResponse(
-          JSON.stringify(defaultOrg()),
-        );
-      }),
-      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/user_roles`, () => {
-        return new HttpResponse(
-          cfData.userRolesForOrg,
-        );
-      }),
-      http.get(`${ctx.app.cloudFoundryAPI}/v2/organizations/a7aff246-5f5b-4cf8-87d8-f316053e4a20/spaces`, () => {
-        return new HttpResponse(
-          cfData.spaces,
-        );
-      }),
-    );
-
-    const response = await orgUsers.updateUser(
-      ctx,
-      {
-        organizationGUID: 'a7aff246-5f5b-4cf8-87d8-f316053e4a20',
-        userGUID: 'uaa-id-253',
-      },
-      {
-        org_roles: {
-          'a7aff246-5f5b-4cf8-87d8-f316053e4a20': composeOrgRoles({
-            managers: {
-              current: '1',
-              desired: '1',
-            },
-            billing_managers: {
-              current: '1',
-            },
-          }),
-        },
-        space_roles: {
-          '5489e195-c42b-4e61-bf30-323c331ecc01': composeSpaceRoles({}),
-          'bc8d3381-390d-4bd7-8c71-25309900a2e3': composeSpaceRoles({}),
-        },
-      },
-    );
-    expect(response.body).toContain('Team member details successfully updated');
     expect(
       spacesMissingAroundInlineElements(response.body as string),
     ).toHaveLength(0);

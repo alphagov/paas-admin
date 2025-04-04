@@ -35,7 +35,6 @@ import { routerMiddleware } from './router-middleware';
 
 export interface IAppConfig {
   readonly allowInsecureSession?: boolean;
-  readonly billingAPI: string;
   readonly accountsAPI: string;
   readonly accountsSecret: string;
   readonly cloudFoundryAPI: string;

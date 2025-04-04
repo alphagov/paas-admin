@@ -145,7 +145,6 @@ export type OrganizationUserRoleEndpoints =
   | 'users'
   | 'managers'
   | 'auditors'
-  | 'billing_managers';
 
 export type OrganizationStatus =
   | 'active'
@@ -169,8 +168,6 @@ export interface IOrganization {
   readonly entity: {
     readonly app_events_url: string;
     readonly auditors_url: string;
-    readonly billing_enabled: boolean;
-    readonly billing_managers_url: string;
     readonly domains_url: string;
     readonly managers_url: string;
     readonly name: string;
@@ -300,7 +297,6 @@ export interface IOrganizationUserRoles {
     readonly admin: boolean;
     readonly audited_organizations_url: string;
     readonly audited_spaces_url: string;
-    readonly billing_managed_organizations_url: string;
     readonly default_space_guid: string | null;
     readonly managed_organizations_url: string;
     readonly managed_spaces_url: string;
@@ -562,7 +558,6 @@ export interface ISpaceUserRoles {
     readonly admin: boolean;
     readonly audited_organizations_url: string;
     readonly audited_spaces_url: string;
-    readonly billing_managed_organizations_url: string;
     readonly default_space_guid: string | null;
     readonly managed_organizations_url: string;
     readonly managed_spaces_url: string;
@@ -601,9 +596,6 @@ export interface IUserSummary {
   readonly entity: {
     readonly organizations: ReadonlyArray<IUserSummaryOrganization>;
     readonly managed_organizations: ReadonlyArray<IUserSummaryOrganization>;
-    readonly billing_managed_organizations: ReadonlyArray<
-      IUserSummaryOrganization
-    >;
     readonly audited_organizations: ReadonlyArray<IUserSummaryOrganization>;
   };
   readonly metadata: IMetadata;

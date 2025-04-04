@@ -810,9 +810,6 @@ return new HttpResponse(
 
     expect(summary.entity.organizations.length === 1).toBeTruthy();
     expect(summary.entity.managed_organizations.length === 1).toBeTruthy();
-    expect(
-      summary.entity.billing_managed_organizations.length === 1,
-    ).toBeTruthy();
     expect(summary.entity.audited_organizations.length === 1).toBeTruthy();
   });
 

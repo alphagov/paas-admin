@@ -49,7 +49,6 @@ interface ISpacesPageProperties {
   readonly linkTo: RouteLinker;
   readonly isAdmin: boolean;
   readonly isManager: boolean;
-  readonly isBillingManager: boolean;
   readonly organization: IEnhancedOrganization;
   readonly spaces: ReadonlyArray<IEnhancedSpace>;
   readonly users: ReadonlyArray<IUser>;
@@ -278,16 +277,6 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
         </div>
 
         <div className="govuk-grid-column-one-third">
-          <div className="org-summary-stat">
-            <h2 className="org-summary-stat__heading">Billing</h2>
-
-            <span className="org-summary-stat__value">
-              {props.organization.quota.entity.name === 'default'
-                ? 'Trial'
-                : 'Billable'}
-            </span>
-          </div>
-
           <p className="govuk-body">
             {props.organization.quota.entity.name === 'default'
               ? 'Trial organisations have limited access to backing services'
@@ -307,7 +296,7 @@ export function SpacesPage(props: ISpacesPageProperties): ReactElement {
           }
 
           {help.conditionallyDisplay(
-            props.isAdmin || props.isManager || props.isBillingManager,
+            props.isAdmin || props.isManager,
             <p className="govuk-body">
               <a
                 href={props.linkTo('admin.statement.dispatcher', {

@@ -140,9 +140,6 @@ export function OrganizationsPage(
             >
               Organisation name
             </th>
-            <th scope="col" className="govuk-table__header">
-              Billing lifecycle
-            </th>
           </tr>
         </thead>
         <tbody className="govuk-table__body">{organizations}</tbody>

@@ -84,7 +84,6 @@ async function setAllUserRolesForOrg(
   const spaces = await cf.orgSpaces(params.organizationGUID);
 
   const orgRoleEndpoints: ReadonlyArray<OrganizationUserRoleEndpoints> = [
-    'billing_managers',
     'managers',
     'auditors',
   ];
@@ -364,7 +363,6 @@ export async function inviteUserForm(
     org_roles: {
       [organization.metadata.guid]: {
         auditors: { current: false, desired: false },
-        billing_managers: { current: false, desired: false },
         managers: { current: false, desired: false },
       },
     },
@@ -732,9 +730,6 @@ export async function editUser(
   const managers = users.filter((manager: IOrganizationUserRoles) =>
     manager.entity.organization_roles.some(role => role === 'org_manager'),
   );
-  const billingManagers = users.filter((manager: IOrganizationUserRoles) =>
-    manager.entity.organization_roles.some(role => role === 'billing_manager'),
-  );
 
   /* istanbul ignore next */
   if (!isAdmin && !isManager) {
@@ -781,10 +776,6 @@ export async function editUser(
         auditors: {
           current: user.entity.organization_roles.includes('org_auditor'),
           desired: user.entity.organization_roles.includes('org_auditor'),
-        },
-        billing_managers: {
-          current: user.entity.organization_roles.includes('billing_manager'),
-          desired: user.entity.organization_roles.includes('billing_manager'),
         },
         managers: {
           current: user.entity.organization_roles.includes('org_manager'),
@@ -836,7 +827,6 @@ export async function editUser(
   return {
     body: template.render(
       <EditPage
-        billingManagers={billingManagers.length}
         csrf={ctx.viewContext.csrf}
         email={accountsUser.email}
         errors={[]}
@@ -958,11 +948,6 @@ export async function updateUser(
       const managers = users.filter((manager: IOrganizationUserRoles) =>
         manager.entity.organization_roles.some(role => role === 'org_manager'),
       );
-      const billingManagers = users.filter((manager: IOrganizationUserRoles) =>
-        manager.entity.organization_roles.some(
-          role => role === 'billing_manager',
-        ),
-      );
 
       const uaaUser = await uaa.getUser(user.metadata.guid);
       if (!uaaUser) {
@@ -996,7 +981,6 @@ export async function updateUser(
       return {
         body: template.render(
           <EditPage
-            billingManagers={billingManagers.length}
             csrf={ctx.viewContext.csrf}
             email={accountsUser.email}
             errors={err.errors}

@@ -3,9 +3,6 @@ export function composeOrgRoles(setup: object) {
     auditors: {
       current: '0',
     },
-    billing_managers: {
-      current: '0',
-    },
     managers: {
       current: '0',
     },

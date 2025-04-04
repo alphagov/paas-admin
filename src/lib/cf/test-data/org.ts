@@ -14,7 +14,6 @@ export const org = (): IOrganization =>
   },
   "entity": {
     "name": "${orgName}",
-    "billing_enabled": false,
     "quota_definition_guid": "${orgQuotaGUID}",
     "status": "active",
     "quota_definition_url": "/v2/quota_definitions/${orgQuotaGUID}",
@@ -23,7 +22,6 @@ export const org = (): IOrganization =>
     "private_domains_url": "/v2/organizations/${orgGUID}/private_domains",
     "users_url": "/v2/organizations/${orgGUID}/users",
     "managers_url": "/v2/organizations/${orgGUID}/managers",
-    "billing_managers_url": "/v2/organizations/${orgGUID}/billing_managers",
     "auditors_url": "/v2/organizations/${orgGUID}/auditors",
     "app_events_url": "/v2/organizations/${orgGUID}/app_events",
     "space_quota_definitions_url": "/v2/organizations/${orgGUID}/space_quota_definitions"
