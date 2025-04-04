@@ -26,7 +26,6 @@ export STUB_AWS_PORT=${STUB_AWS_PORT-1341}
 export STUB_PROMETHEUS_PORT=${STUB_PROMETHEUS_PORT-1342}
 
 export ACCOUNTS_URL=$(service_domain "accounts")
-export BILLING_URL=$(service_domain "billing")
 export API_URL=$(service_domain "api")
 export UAA_URL=$(service_domain "uaa")
 export AUTHORIZATION_URL=$(service_domain "uaa")

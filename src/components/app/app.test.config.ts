@@ -24,7 +24,6 @@ export const config: IAppConfig = {
   awsCloudwatchEndpoint: 'https://aws-cloudwatch.example.com/',
   awsRegion: 'eu-west-1',
   awsResourceTaggingAPIEndpoint: 'https://aws-tags.example.com',
-  billingAPI: 'https://example.com/billing',
   cloudFoundryAPI: 'https://example.com/api',
   domainName: 'https://admin.example.com/',
   location: 'Ireland',

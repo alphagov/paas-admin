@@ -2,7 +2,6 @@ import express from 'express';
 
 import stubAccounts from './stub-accounts';
 import stubAws from './stub-aws';
-import stubBilling from './stub-billing';
 import stubCf from './stub-cf';
 import stubPrometheus from './stub-prometheus';
 import stubUaa from './stub-uaa';
@@ -28,11 +27,6 @@ const apis: ReadonlyArray<IStubServerConfig> = [
     name: 'accounts',
     ports: { adminPort, apiPort: parseInt(process.env['STUB_ACCOUNTS_PORT'] || '3001', 10) },
     factory: stubAccounts,
-  },
-  {
-    name: 'billing',
-    ports: { adminPort, apiPort: parseInt(process.env['STUB_BILLING_PORT'] || '3002', 10) },
-    factory: stubBilling,
   },
   {
     name: 'cf',

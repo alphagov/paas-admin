@@ -349,11 +349,6 @@ export async function listSpaces(
       ctx.token.userID,
       'org_manager',
     ),
-    cf.hasOrganizationRole(
-      params.organizationGUID,
-      ctx.token.userID,
-      'billing_manager',
-    ),
     cf.orgSpaces(params.organizationGUID),
     cf.organization(params.organizationGUID),
     cf.usersForOrganization(params.organizationGUID).then(async orgUsers => {

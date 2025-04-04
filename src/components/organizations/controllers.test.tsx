@@ -382,7 +382,6 @@ describe(emailManagersForm, () => {
 
       expect(response.body).toContain('the-system_domain-org-name');
       expect(response.body).toContain('Email organisation managers');
-      expect(response.body).toContain('Email billing managers');
       expect(response.body).toContain('Email space managers');
       expect(response.body).toContain('Select a space');
       expect(response.body).toContain('Message');
@@ -494,7 +493,7 @@ describe(emailManagersFormPost, () => {
 
     it('should throw an error if org has no managers of selected type', async () => {
       const response = await emailManagersFormPost(ctx, { organizationGUID: organizationGUID }, {
-        managerType: 'billing_manager',
+        managerType: 'audit_manager',
         message: 'message text',
       } as any);
 
@@ -558,29 +557,6 @@ GOV.UK PaaS`;
       );
 
       expect(zendeskEmailContent).toEqual(expectedOutputForSpaceManager);
-    });
-    it('should output BILLING manager text if billign manager selected', () => {
-      const zendeskEmailContent = emailManagersZendeskContent({
-        message: 'Message content',
-        managerType: 'billing_manager',
-        space: 'dream',
-      },
-      'narnia',
-      'test',
-      );
-      expect(zendeskEmailContent).toContain('a billing manager');
-    });
-
-    it('should output ORG manager text if billign manager selected', () => {
-      const zendeskEmailContent = emailManagersZendeskContent({
-        message: 'Message content',
-        managerType: 'org_manager',
-        space: 'dream',
-      },
-      'narnia',
-      'test',
-      );
-      expect(zendeskEmailContent).toContain('an organisation manager');
     });
   });
 

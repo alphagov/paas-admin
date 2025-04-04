@@ -269,7 +269,7 @@ describe(OrganizationUsersPage, () => {
       username: 'user-name',
     } as unknown) as IUserRoles,
     USER_GUID_2: ({
-      orgRoles: ['org_manager', 'billing_manager'],
+      orgRoles: ['org_manager'],
       spaces: [],
       username: 'user-name-2',
     } as unknown) as IUserRoles,

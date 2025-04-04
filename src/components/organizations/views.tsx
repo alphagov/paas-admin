@@ -531,19 +531,6 @@ export function EmailManagers(props: IEmailManagersFormProperties): ReactElement
               </div>
               <div className="govuk-radios__item">
                 <input 
-                  className="govuk-radios__input"
-                  id="managerType-1"
-                  name="managerType"
-                  type="radio"
-                  value="billing_manager"
-                  defaultChecked={props.values?.managerType === 'billing_manager'}
-                />
-                <label className="govuk-label govuk-radios__label" htmlFor="managerType-1">
-                  Email billing managers
-                </label>
-              </div>
-              <div className="govuk-radios__item">
-                <input 
                   className="govuk-radios__input" 
                   id="managerType-2" name="managerType" 
                   type="radio" value="space_manager"  

@@ -674,7 +674,6 @@ export const users = `{
           "org_user",
           "org_manager",
           "org_auditor",
-          "billing_manager"
         ],
         "spaces_url": "/v2/users/uaa-id-253/spaces",
         "organizations_url": "/v2/users/uaa-id-253/organizations",
@@ -701,7 +700,6 @@ export const users = `{
           "org_user",
           "org_manager",
           "org_auditor",
-          "billing_manager"
         ],
         "spaces_url": "/v2/users/uaa-id-879/spaces",
         "organizations_url": "/v2/users/uaa-id-879/organizations",
@@ -783,7 +781,6 @@ export const userRolesForOrg = `{
           "org_user",
           "org_manager",
           "org_auditor",
-          "billing_manager"
         ],
         "spaces_url": "/v2/users/uaa-id-253/spaces",
         "organizations_url": "/v2/users/uaa-id-253/organizations",
@@ -809,8 +806,7 @@ export const userRolesForOrg = `{
         "organization_roles": [
           "org_user",
           "org_manager",
-          "org_auditor",
-          "billing_manager"
+          "org_auditor"
         ],
         "spaces_url": "/v2/users/uaa-user-edit-123456/spaces",
         "organizations_url": "/v2/users/uaa-user-edit-123456/organizations",
@@ -864,7 +860,6 @@ export const userRolesForOrg = `{
           "org_user",
           "org_manager",
           "org_auditor",
-          "billing_manager"
         ],
         "spaces_url": "/v2/users/uaa-id-253/spaces",
         "organizations_url": "/v2/users/uaa-id-253/organizations",
@@ -940,7 +935,6 @@ export const userRolesForSpace = `{
         "spaces_url": "/v2/users/uaa-id-253/spaces",
         "organizations_url": "/v2/users/uaa-id-253/organizations",
         "managed_organizations_url": "/v2/users/uaa-id-253/managed_organizations",
-        "billing_managed_organizations_url": "/v2/users/uaa-id-253/billing_managed_organizations",
         "audited_organizations_url": "/v2/users/uaa-id-253/audited_organizations",
         "managed_spaces_url": "/v2/users/uaa-id-253/managed_spaces",
         "audited_spaces_url": "/v2/users/uaa-id-253/audited_spaces"

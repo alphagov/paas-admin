@@ -209,7 +209,6 @@ describe(EmailManagers, () => {
 
     expect(container).toHaveTextContent(defaultOrg.name);
     expect(container).toHaveTextContent('Email organisation managers');
-    expect(container).toHaveTextContent('Email billing managers');
     expect(container).toHaveTextContent('Email space managers');
     expect(container.querySelector('#space')).toHaveTextContent('test-space');
   });

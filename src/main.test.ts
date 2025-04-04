@@ -9,7 +9,6 @@ const envVars = {
   API_URL: 'https://example.com/api',
   AUTHORIZATION_URL: 'https://example.com/login',
   AWS_REGION: 'eu-west-1',
-  BILLING_URL: 'https://example.com/billing',
   DOMAIN_NAME: 'https://admin.example.com',
   GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
   GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',

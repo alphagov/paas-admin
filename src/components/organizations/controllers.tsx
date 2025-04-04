@@ -65,8 +65,8 @@ return {
 // body of the zendesk email
 export function emailManagersZendeskContent(variables: IEmailManagersFormValues, region: string, organisation: string): string {
   const managerType = variables.managerType === 'org_manager' ?
-    'an organisation manager ' : variables.managerType === 'billing_manager' ? 
-    'a billing manager' : `a space manager of ${variables.space} space`;
+    'an organisation manager ' : variables.managerType === 'audit_manager' ?
+    'an audit manager' : `a space manager of ${variables.space} space`;
   // whitespace matters
     return `
 ${variables.message}

@@ -194,12 +194,6 @@ export function PermissionBlock(
             the role to your technical architect and a lead developer.
           </p>
           <p className="govuk-body">
-            <span className="govuk-!-font-weight-bold">
-              Org billing managers
-            </span>{' '}
-            are the points of contact for billing
-          </p>
-          <p className="govuk-body">
             <span className="govuk-!-font-weight-bold">Org auditors</span> can
             view all spaces but cannot edit them. This role is useful for
             viewing app data without modifying it, for example, monitoring
@@ -653,7 +647,7 @@ export function OrganizationUsersPage(
 
               <p className="govuk-body">
                 Organisation level users can manage and/or view information
-                regarding user accounts, billing, resource quota for the
+                regarding user accounts, resource quota for the
                 organisation and spaces. To edit a member&apos;s role go to their
                 profile page.
               </p>
@@ -699,13 +693,6 @@ export function OrganizationUsersPage(
                   </p>
 
                   <p className="govuk-body">
-                    <span className="govuk-!-font-weight-bold">
-                      Org billing managers
-                    </span>{' '}
-                    are users who can see billing, costs and quota information.
-                  </p>
-
-                  <p className="govuk-body">
                     Tasks related to spaces are associated with space-level roles.
                   </p>
                 </div>
@@ -730,9 +717,6 @@ export function OrganizationUsersPage(
                 )}
                 <th className="govuk-table__header is-org-manager" scope="col">
                   Org manager
-                </th>
-                <th className="govuk-table__header is-billing-manager" scope="col">
-                  Org billing manager
                 </th>
                 <th className="govuk-table__header is-org-auditor" scope="col">
                   Org auditor
