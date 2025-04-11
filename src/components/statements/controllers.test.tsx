@@ -718,28 +718,4 @@ describe('statements test suite', () => {
     expect(content).toContain('10% Administration fees,,,0.10,0.12');
     expect(content).toContain('Total,,,1.10,1.32');
   });
-
-  it('should show error if billing API unavailable', async () => {
-    server.use(
-      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275`, () => {
-        return new HttpResponse(
-          JSON.stringify(defaultOrg()),
-        );
-      }),
-      http.get(`${config.cloudFoundryAPI}/v2/organizations/3deb9f04-b449-4f94-b3dd-c73cefe5b275/user_roles`, () => {
-        return new HttpResponse(
-          data.userRolesForOrg,
-        );
-      }),
-    );
-
-    await expect(
-      statement.viewStatement(ctx, {
-        organizationGUID: '3deb9f04-b449-4f94-b3dd-c73cefe5b275',
-        rangeStart: '2018-01-01',
-      }),
-    ).rejects.toThrow(
-      /Billing is currently unavailable, please try again later./,
-    );
-  });
 });
