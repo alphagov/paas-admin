@@ -99,7 +99,7 @@
     "@aws-sdk/client-rds": "^3.653.0",
     "@aws-sdk/client-resource-groups-tagging-api": "^3.651.1",
     "@aws-sdk/types": "^3.521.0",
-    "axios": "^1.9.0",
+    "axios": "^1.10.0",
     "base32-encode": "^2.0.0",
     "compression": "^1.7.4",
     "cookie-session": "^2.1.0",
