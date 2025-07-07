@@ -139,7 +139,7 @@
     "route-parser": "^0.0.5",
     "source-map-support": "^0.5.21",
     "tslib": "^2.6.2",
-    "vitest": "^1.6.1"
+    "vitest": "^3.2.4"
   },
   "overrides": {
     "request@2.88.2": {
